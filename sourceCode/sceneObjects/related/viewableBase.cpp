@@ -144,23 +144,23 @@ void CViewableBase::setClippingPlanes(double nearPlane, double farPlane)
     {
         _nearClippingPlane = nearPlane;
         _farClippingPlane = farPlane;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             if (App::getEventProtocolVersion() == 2)
             {
                 const char* cmd = "nearClippingPlane";
-                CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
                 ev->appendKeyDouble(cmd, _nearClippingPlane);
                 ev->appendKeyDouble("farClippingPlane", _farClippingPlane);
             }
             else
             {
                 const char* cmd = propViewableBase_clippingPlanes.name;
-                CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
                 double arr[2] = {_nearClippingPlane, _farClippingPlane};
                 ev->appendKeyDoubleArray(cmd, arr, 2);
             }
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
         computeVolumeVectors();
     }
@@ -180,12 +180,12 @@ void CViewableBase::setViewAngle(double angle)
     {
         _viewAngle = angle;
         computeVolumeVectors();
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propViewableBase_viewAngle.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _viewAngle);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -202,16 +202,16 @@ void CViewableBase::setOrthoViewSize(double theSize)
     if (diff)
     {
         _orthoViewSize = theSize;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             std::string cmd;
             if (App::getEventProtocolVersion() == 2)
                 cmd = "orthoSize";
             else
                 cmd = propViewableBase_viewSize.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd.c_str(), true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd.c_str(), true);
             ev->appendKeyDouble(cmd.c_str(), _orthoViewSize);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
         computeVolumeVectors();
     }
@@ -476,16 +476,16 @@ void CViewableBase::setPerspective(bool p)
     {
         _perspective = p;
         computeVolumeVectors();
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             std::string cmd;
             if (App::getEventProtocolVersion() == 2)
                 cmd = "perspectiveMode";
             else
                 cmd = propViewableBase_perspective.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd.c_str(), true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd.c_str(), true);
             ev->appendKeyBool(cmd.c_str(), _perspective);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -496,12 +496,12 @@ void CViewableBase::setResolution(const int r[2])
     {
         _resolution[0] = r[0];
         _resolution[1] = r[1];
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propViewableBase_resolution.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt32Array(cmd, _resolution, 2);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
         computeVolumeVectors();
     }
@@ -563,12 +563,12 @@ void CViewableBase::computeVolumeVectors()
         {
             _volumeVectorNear = nearV;
             _volumeVectorFar = farV;
-            if (_isInScene && App::sceneContainer->getEventsEnabled())
+            if (_isInScene && App::scenes->getEventsEnabled())
             {
                 if (App::getEventProtocolVersion() == 2)
                 {
                     const char* cmd = "frustumVectors";
-                    CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                    CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
                     ev->openKeyMap(cmd);
                     ev->appendKeyDoubleArray("near", _volumeVectorNear.data, 3);
                     ev->appendKeyDoubleArray("far", _volumeVectorFar.data, 3);
@@ -576,7 +576,7 @@ void CViewableBase::computeVolumeVectors()
                 else
                 {
                     const char* cmd = propViewableBase_frustumCornerNear.name;
-                    CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+                    CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
                     if (App::getEventProtocolVersion() <= 3)
                     {
                         ev->appendKeyDoubleArray(cmd, _volumeVectorNear.data, 3);
@@ -588,7 +588,7 @@ void CViewableBase::computeVolumeVectors()
                         ev->appendKeyVector3(propViewableBase_frustumCornerFar.name, _volumeVectorFar);
                     }
                 }
-                App::sceneContainer->pushEvent();
+                App::scenes->pushEvent();
             }
         }
     }
@@ -600,12 +600,12 @@ void CViewableBase::setShowVolume(bool s)
     if (diff)
     {
         _showVolume = s;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propViewableBase_showFrustum.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _showVolume);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -646,11 +646,11 @@ void CViewableBase::addObjectEventData(CCbor* ev)
 int CViewableBase::setBoolProperty(const char* pName, bool pState)
 {
     int retVal = CSceneObject::setBoolProperty(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(propViewableBase_showFrustum.name, pName) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setShowVolume(pState);
         }
     }
@@ -661,16 +661,16 @@ int CViewableBase::setBoolProperty(const char* pName, bool pState)
 int CViewableBase::getBoolProperty(const char* pName, bool& pState) const
 {
     int retVal = CSceneObject::getBoolProperty(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(propViewableBase_perspective.name, pName) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _perspective;
         }
         else if (strcmp(propViewableBase_showFrustum.name, pName) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _showVolume;
         }
     }
@@ -681,16 +681,16 @@ int CViewableBase::getBoolProperty(const char* pName, bool& pState) const
 int CViewableBase::setFloatProperty(const char* pName, double pState)
 {
     int retVal = CSceneObject::setFloatProperty(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(propViewableBase_viewAngle.name, pName) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setViewAngle(pState);
         }
         else if (strcmp(propViewableBase_viewSize.name, pName) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setOrthoViewSize(pState);
         }
     }
@@ -701,16 +701,16 @@ int CViewableBase::setFloatProperty(const char* pName, double pState)
 int CViewableBase::getFloatProperty(const char* pName, double& pState) const
 {
     int retVal = CSceneObject::getFloatProperty(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(propViewableBase_viewAngle.name, pName) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _viewAngle;
         }
         else if (strcmp(propViewableBase_viewSize.name, pName) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _orthoViewSize;
         }
     }
@@ -721,11 +721,11 @@ int CViewableBase::getFloatProperty(const char* pName, double& pState) const
 int CViewableBase::setIntArray2Property(const char* pName, const int* pState)
 {
     int retVal = CSceneObject::setIntArray2Property(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(propViewableBase_resolution.name, pName) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setResolution(pState);
         }
     }
@@ -736,11 +736,11 @@ int CViewableBase::setIntArray2Property(const char* pName, const int* pState)
 int CViewableBase::getIntArray2Property(const char* pName, int* pState) const
 {
     int retVal = CSceneObject::getIntArray2Property(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(propViewableBase_resolution.name, pName) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState[0] = _resolution[0];
             pState[1] = _resolution[1];
         }
@@ -752,7 +752,7 @@ int CViewableBase::getIntArray2Property(const char* pName, int* pState) const
 int CViewableBase::setVector2Property(const char* pName, const double* pState)
 {
     int retVal = CSceneObject::setVector2Property(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -762,7 +762,7 @@ int CViewableBase::setVector2Property(const char* pName, const double* pState)
 int CViewableBase::getVector2Property(const char* pName, double* pState) const
 {
     int retVal = CSceneObject::getVector2Property(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -772,7 +772,7 @@ int CViewableBase::getVector2Property(const char* pName, double* pState) const
 int CViewableBase::setVector3Property(const char* pName, const C3Vector& pState)
 {
     int retVal = CSceneObject::setVector3Property(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -782,17 +782,17 @@ int CViewableBase::setVector3Property(const char* pName, const C3Vector& pState)
 int CViewableBase::getVector3Property(const char* pName, C3Vector& pState) const
 {
     int retVal = CSceneObject::getVector3Property(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(propViewableBase_frustumCornerNear.name, pName) == 0)
         {
             pState = _volumeVectorNear;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(propViewableBase_frustumCornerFar.name, pName) == 0)
         {
             pState = _volumeVectorFar;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -804,13 +804,13 @@ int CViewableBase::setFloatArrayProperty(const char* pName, const double* v, int
     if (v == nullptr)
         vL = 0;
     int retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(propViewableBase_clippingPlanes.name, pName) == 0)
         {
             if (vL >= 2)
             {
-                retVal = 1;
+                retVal = sim_propertyret_ok;
                 setClippingPlanes(v[0], v[1]);
             }
             else
@@ -825,13 +825,13 @@ int CViewableBase::getFloatArrayProperty(const char* pName, std::vector<double>&
 {
     pState.clear();
     int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(propViewableBase_clippingPlanes.name, pName) == 0)
         {
             pState.push_back(_nearClippingPlane);
             pState.push_back(_farClippingPlane);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -843,7 +843,7 @@ int CViewableBase::setIntArrayProperty(const char* pName, const int* v, int vL)
     if (v == nullptr)
         vL = 0;
     int retVal = CSceneObject::setIntArrayProperty(pName, v, vL);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -854,7 +854,7 @@ int CViewableBase::getIntArrayProperty(const char* pName, std::vector<int>& pSta
 {
     pState.clear();
     int retVal = CSceneObject::getIntArrayProperty(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -864,7 +864,7 @@ int CViewableBase::getIntArrayProperty(const char* pName, std::vector<int>& pSta
 int CViewableBase::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         for (size_t i = 0; i < allProps_viewable.size(); i++)
         {
@@ -876,7 +876,7 @@ int CViewableBase::getPropertyName(int& index, std::string& pName, std::string& 
                     if (index == -1)
                     {
                         pName = allProps_viewable[i].name;
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                         break;
                     }
                 }
@@ -889,7 +889,7 @@ int CViewableBase::getPropertyName(int& index, std::string& pName, std::string& 
 int CViewableBase::getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const
 {
     int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         for (size_t i = 0; i < allProps_viewable.size(); i++)
         {

@@ -121,22 +121,22 @@ int CDistanceObjectContainer_old::addNewObject(int entity1Handle, int entity2Han
 { // We check if the objects are valid:
     if (entity1Handle <= sim_object_sceneobjectend)
     {
-        if (App::currentScene->sceneObjects->getObjectFromHandle(entity1Handle) == nullptr)
+        if (App::scene->sceneObjects->getObjectFromHandle(entity1Handle) == nullptr)
             return (-1);
     }
     else
     {
-        if (App::currentScene->collections->getObjectFromHandle(entity1Handle) == nullptr)
+        if (App::scene->collections->getObjectFromHandle(entity1Handle) == nullptr)
             return (-1);
     }
     if (entity2Handle > sim_object_sceneobjectend)
     {
-        if (App::currentScene->collections->getObjectFromHandle(entity2Handle) == nullptr)
+        if (App::scene->collections->getObjectFromHandle(entity2Handle) == nullptr)
             return (-1);
     }
     else
     {
-        if ((App::currentScene->sceneObjects->getObjectFromHandle(entity2Handle) == nullptr) && (entity2Handle != -1))
+        if ((App::scene->sceneObjects->getObjectFromHandle(entity2Handle) == nullptr) && (entity2Handle != -1))
             return (-1);
     }
     // We check if we try to measure an object against itself (forbidden, except for collections):
@@ -156,10 +156,10 @@ int CDistanceObjectContainer_old::addNewObject(int entity1Handle, int entity2Han
     // Now check if the combination is valid:
     if ((entity1Handle <= sim_object_sceneobjectend) && (entity2Handle <= sim_object_sceneobjectend))
     {
-        int t1 = App::currentScene->sceneObjects->getObjectFromHandle(entity1Handle)->getObjectType();
+        int t1 = App::scene->sceneObjects->getObjectFromHandle(entity1Handle)->getObjectType();
         int t2 = sim_sceneobject_octree;
         if (entity2Handle != -1)
-            t2 = App::currentScene->sceneObjects->getObjectFromHandle(entity2Handle)->getObjectType();
+            t2 = App::scene->sceneObjects->getObjectFromHandle(entity2Handle)->getObjectType();
         if ((t1 == sim_sceneobject_shape) || (t1 == sim_sceneobject_octree) || (t1 == sim_sceneobject_pointcloud) ||
             (t1 == sim_sceneobject_dummy))
         {
@@ -180,7 +180,7 @@ int CDistanceObjectContainer_old::addNewObject(int entity1Handle, int entity2Han
 
 void CDistanceObjectContainer_old::removeObject(int objectHandle)
 {
-    App::currentScene->announceDistanceWillBeErased(objectHandle);
+    App::scene->announceDistanceWillBeErased(objectHandle);
     _removeObject(objectHandle);
 }
 
@@ -237,7 +237,7 @@ void CDistanceObjectContainer_old::setUpDefaultValues()
 double CDistanceObjectContainer_old::handleAllDistances(bool exceptExplicitHandling)
 { // Return value is the smallest distance measured or negative if nothing was measured
     resetAllDistances(exceptExplicitHandling);
-    if (!App::currentScene->mainSettings_old->distanceCalculationEnabled)
+    if (!App::scene->mainSettings_old->distanceCalculationEnabled)
         return (-1.0);
 
     double retVal = DBL_MAX;

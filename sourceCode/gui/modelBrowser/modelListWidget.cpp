@@ -141,14 +141,14 @@ CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename, in
         {
             result = 0;
 
-            CThumbnail* thumbO = App::currentScene->environment->modelThumbnail_notSerializedHere.copyYourself();
+            CThumbnail* thumbO = App::scene->environment->modelThumbnail_notSerializedHere.copyYourself();
             modelTr.setIdentity();
             modelBoundingBoxSize.clear();
             modelNonDefaultTranslationStepSize = 0.0;
-            App::currentScene->loadModel(serObj, true, false, &modelTr, &modelBoundingBoxSize,
+            App::scene->loadModel(serObj, true, false, &modelTr, &modelBoundingBoxSize,
                                          &modelNonDefaultTranslationStepSize);
-            retThumbnail = App::currentScene->environment->modelThumbnail_notSerializedHere.copyYourself();
-            App::currentScene->environment->modelThumbnail_notSerializedHere.copyFrom(thumbO);
+            retThumbnail = App::scene->environment->modelThumbnail_notSerializedHere.copyYourself();
+            App::scene->environment->modelThumbnail_notSerializedHere.copyFrom(thumbO);
             delete thumbO;
             if (retThumbnail->getPointerToUncompressedImage() != nullptr)
                 result = 1;
@@ -161,7 +161,7 @@ CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename, in
 void CModelListWidget::setFolder(const char* folderPath)
 {
     clearAll();
-    std::vector<int> initialSelection(App::currentScene->sceneObjects->getSelectedObjectHandlesPtr()[0]);
+    std::vector<int> initialSelection(App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0]);
     if (folderPath != nullptr)
     {
         // 1. Get all files and their info from the folder:
@@ -345,7 +345,7 @@ void CModelListWidget::setFolder(const char* folderPath)
             serObj.writeClose();
         }
     }
-    App::currentScene->sceneObjects->setSelectedObjectHandles(initialSelection.data(), initialSelection.size());
+    App::scene->sceneObjects->setSelectedObjectHandles(initialSelection.data(), initialSelection.size());
 }
 
 std::string CModelListWidget::_getFirstDifferentDir(const char* pathA, const char* pathB)

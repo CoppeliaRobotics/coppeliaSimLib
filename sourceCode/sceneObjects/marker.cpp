@@ -649,13 +649,13 @@ void CMarker::scaleObject(double scalingFactor)
 
     CSceneObject::scaleObject(scalingFactor);
     _initialize();
-    if ( (_isInScene && App::sceneContainer->getEventsEnabled()) && (_itemType == sim_markertype_custom) )
+    if ( (_isInScene && App::scenes->getEventsEnabled()) && (_itemType == sim_markertype_custom) )
     {
-        CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, "vertices", true);
+        CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, "vertices", true);
         ev->appendKeyFloatArray(propMarker_vertices.name, _vertices.data(), _vertices.size());
         ev->appendKeyInt32Array(propMarker_indices.name, _indices.data(), _indices.size());
         ev->appendKeyFloatArray(propMarker_normals.name, _normals.data(), _normals.size());
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
     }
 }
 
@@ -1033,7 +1033,7 @@ int CMarker::setBoolProperty(const char* ppName, bool pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1043,22 +1043,22 @@ int CMarker::setBoolProperty(const char* ppName, bool pState)
 int CMarker::getBoolProperty(const char* ppName, bool& pState) const
 {
     int retVal = CSceneObject::getBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(propMarker_cyclic.name, ppName) == 0)
         {
             pState = _itemOptions & sim_markeropts_cyclic;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(propMarker_overlay.name, ppName) == 0)
         {
             pState = _itemOptions & sim_markeropts_overlay;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(propMarker_local.name, ppName) == 0)
         {
             pState = _itemOptions & sim_markeropts_local;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -1069,7 +1069,7 @@ int CMarker::setIntProperty(const char* ppName, int pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1080,12 +1080,12 @@ int CMarker::getIntProperty(const char* ppName, int& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propMarker_itemType.name)
         {
             pState = _itemType;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -1096,7 +1096,7 @@ int CMarker::setLongProperty(const char* ppName, long long int pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setLongProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1107,7 +1107,7 @@ int CMarker::getLongProperty(const char* ppName, long long int& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getLongProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1117,7 +1117,7 @@ int CMarker::getLongProperty(const char* ppName, long long int& pState) const
 int CMarker::getHandleProperty(const char* ppName, long long int& pState) const
 {
     int retVal = CSceneObject::getHandleProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1128,7 +1128,7 @@ int CMarker::setFloatProperty(const char* ppName, double pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1139,7 +1139,7 @@ int CMarker::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1150,7 +1150,7 @@ int CMarker::setStringProperty(const char* ppName, const char* pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setStringProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1161,7 +1161,7 @@ int CMarker::getStringProperty(const char* ppName, std::string& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getStringProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1171,12 +1171,12 @@ int CMarker::getStringProperty(const char* ppName, std::string& pState) const
 int CMarker::getBufferProperty(const char* pName, std::string& pState) const
 {
     int retVal = CSceneObject::getBufferProperty(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(pName, propMarker_colors.name) == 0)
         {
             pState.assign(_rgba.begin(), _rgba.end());
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -1187,7 +1187,7 @@ int CMarker::setColorProperty(const char* ppName, const float* pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setColorProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
     return retVal;
@@ -1197,7 +1197,7 @@ int CMarker::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getColorProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
     return retVal;
@@ -1206,12 +1206,12 @@ int CMarker::getColorProperty(const char* ppName, float* pState) const
 int CMarker::getIntArrayProperty(const char* pName, std::vector<int>& pState) const
 {
     int retVal = CSceneObject::getIntArrayProperty(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(pName, propMarker_indices.name) == 0)
         {
             pState = _indices;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
     return retVal;
@@ -1220,42 +1220,42 @@ int CMarker::getIntArrayProperty(const char* pName, std::vector<int>& pState) co
 int CMarker::getFloatArrayProperty(const char* pName, std::vector<double>& pState) const
 {
     int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(pName, propMarker_points.name) == 0)
         {
             pState.resize(_pts.size());
             for (size_t i = 0; i < _pts.size(); i++)
                 pState[i] = (double)_pts[i];
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, propMarker_quaternions.name) == 0)
         {
             pState.resize(_quats.size());
             for (size_t i = 0; i < _quats.size(); i++)
                 pState[i] = (double)_quats[i];
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, propMarker_sizes.name) == 0)
         {
             pState.resize(_sizes.size());
             for (size_t i = 0; i < _sizes.size(); i++)
                 pState[i] = (double)_sizes[i];
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, propMarker_vertices.name) == 0)
         {
             pState.resize(_vertices.size());
             for (size_t i = 0; i < _vertices.size(); i++)
                 pState[i] = (double)_vertices[i];
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, propMarker_normals.name) == 0)
         {
             pState.resize(_normals.size());
             for (size_t i = 0; i < _normals.size(); i++)
                 pState[i] = (double)_normals[i];
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
     return retVal;
@@ -1264,7 +1264,7 @@ int CMarker::getFloatArrayProperty(const char* pName, std::vector<double>& pStat
 int CMarker::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         appartenance = _objectTypeStr;
         for (size_t i = 0; i < allProps_marker.size(); i++)
@@ -1277,7 +1277,7 @@ int CMarker::getPropertyName(int& index, std::string& pName, std::string& appart
                     if (index == -1)
                     {
                         pName = allProps_marker[i].name;
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                         break;
                     }
                 }
@@ -1290,7 +1290,7 @@ int CMarker::getPropertyName(int& index, std::string& pName, std::string& appart
 int CMarker::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         for (size_t i = 0; i < allProps_marker.size(); i++)
         {
@@ -1320,7 +1320,7 @@ int CMarker::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
 void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
 {
     CCbor* ev = evv;
-    if ((evv != nullptr) || (_isInScene && App::sceneContainer->getEventsEnabled()))
+    if ((evv != nullptr) || (_isInScene && App::scenes->getEventsEnabled()))
     {
         if (!incremental)
             _sendFullEvent = true;
@@ -1328,7 +1328,7 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
         {
             _sendFullEvent = false;
             if (evv == nullptr)
-                ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, "set", true);
+                ev = App::scenes->createSceneObjectChangedEvent(this, false, "set", true);
             ev->openKeyMap("set");
             ev->appendKeyFloatArray(propMarker_points.name, _pts.data(), _pts.size());
             ev->appendKeyFloatArray(propMarker_quaternions.name, _quats.data(), _quats.size());
@@ -1337,14 +1337,14 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
             ev->appendKeyInt64Array("ids", _ids.data(), _ids.size());
             ev->closeArrayOrMap();
             if (evv == nullptr)
-                App::sceneContainer->pushEvent();
+                App::scenes->pushEvent();
         }
         else
         {
             if ( (_newItemsCnt > 0) || (_remIds.size() > 0) )
             {
                 if (evv == nullptr)
-                    ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, "addRemove", true);
+                    ev = App::scenes->createSceneObjectChangedEvent(this, false, "addRemove", true);
                 if (_newItemsCnt > 0)
                 {
                     ev->openKeyMap("add");
@@ -1368,7 +1368,7 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
                     ev->closeArrayOrMap();
                 }
                 if (evv == nullptr)
-                    App::sceneContainer->pushEvent();
+                    App::scenes->pushEvent();
             }
         }
         _newItemsCnt = 0;

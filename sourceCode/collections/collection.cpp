@@ -82,7 +82,7 @@ bool CCollection::actualizeCollection()
         while (i < getElementCount())
         {
             CSceneObject* it =
-                App::currentScene->sceneObjects->getObjectFromHandle(getElementFromIndex(i)->getMainObject());
+                App::scene->sceneObjects->getObjectFromHandle(getElementFromIndex(i)->getMainObject());
             if (it == nullptr)
             {
                 if (getElementFromIndex(i)->getElementType() != sim_collectionelement_all)
@@ -190,7 +190,7 @@ bool CCollection::setCollectionName(const char* newName, bool check)
 {
     CCollection* it = nullptr;
     if (check)
-        it = App::currentScene->collections->getObjectFromHandle(_objectHandle);
+        it = App::scene->collections->getObjectFromHandle(_objectHandle);
     std::string nn;
     if (it != this)
         nn = newName;
@@ -202,7 +202,7 @@ bool CCollection::setCollectionName(const char* newName, bool check)
         {
             if (getCollectionName() != nm)
             {
-                while (App::currentScene->collections->getObjectFromName(nm.c_str()) != nullptr)
+                while (App::scene->collections->getObjectFromName(nm.c_str()) != nullptr)
                     nm = tt::generateNewName_hashOrNoHash(nm.c_str(), !tt::isHashFree(nm.c_str()));
                 nn = nm;
             }
@@ -283,7 +283,7 @@ int CCollection::getLongProperty(const char* ppName, long long int& pState) cons
 {
     int retVal = Obj::getLongProperty(ppName, pState);
 
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -293,7 +293,7 @@ int CCollection::getLongProperty(const char* ppName, long long int& pState) cons
 int CCollection::getHandleProperty(const char* ppName, long long int& pState) const
 {
     std::string _pName(ppName);
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
@@ -302,7 +302,7 @@ int CCollection::getStringProperty(const char* ppName, std::string& pState) cons
 {
     int retVal = Obj::getStringProperty(ppName, pState);
 
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
 
     }
@@ -314,14 +314,14 @@ int CCollection::getHandleArrayProperty(const char* ppName, std::vector<long lon
 {
     std::string _pName(ppName);
     const char* pName = _pName.c_str();
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     pState.clear();
 
     if (strcmp(pName, propCollection_objects.name) == 0)
     {
         for (size_t i = 0; i < _collectionObjects.size(); i++)
             pState.push_back(_collectionObjects[i]);
-        retVal = 1;
+        retVal = sim_propertyret_ok;
     }
 
     return retVal;
@@ -330,7 +330,7 @@ int CCollection::getHandleArrayProperty(const char* ppName, std::vector<long lon
 int CCollection::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         appartenance = _objectTypeStr;
         for (size_t i = 0; i < allProps_collection.size(); i++)
@@ -343,7 +343,7 @@ int CCollection::getPropertyName(int& index, std::string& pName, std::string& ap
                     if (index == -1)
                     {
                         pName = allProps_collection[i].name;
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                         break;
                     }
                 }
@@ -356,7 +356,7 @@ int CCollection::getPropertyName(int& index, std::string& pName, std::string& ap
 int CCollection::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         for (size_t i = 0; i < allProps_collection.size(); i++)
         {
@@ -549,22 +549,22 @@ void CCollection::_updateCollectionObjects_(const std::vector<int>& sceneObjectH
     _collectionObjects.assign(sceneObjectHandles.begin(), sceneObjectHandles.end());
     if (cpy != _collectionObjects)
     {
-        if (App::sceneContainer->getEventsEnabled())
+        if (App::scenes->getEventsEnabled())
         {
             if (App::getEventProtocolVersion()  >= 3)
             {
-                CCbor* ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
+                CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
                 if (App::getEventProtocolVersion() <= 3)
                     ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
                 else
                     ev->appendKeyHandleArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
-                App::sceneContainer->pushEvent();
+                App::scenes->pushEvent();
             }
             if (App::getEventProtocolVersion() <= 3)
             { // For backw. compatibility
-                CCbor* ev = App::sceneContainer->createEvent("collectionChanged", -1, _objectHandle, nullptr, false);
+                CCbor* ev = App::scenes->createEvent("collectionChanged", -1, _objectHandle, nullptr, false);
                 ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
-                App::sceneContainer->pushEvent();
+                App::scenes->pushEvent();
             }
         }
 
@@ -644,25 +644,25 @@ void CCollection::_removeCollectionElementFromHandle(int collectionElementHandle
 
 void CCollection::pushCreationEvent() const
 {
-    if (App::sceneContainer->getEventsEnabled())
+    if (App::scenes->getEventsEnabled())
     {
         if (App::getEventProtocolVersion()  >= 3)
         {
-            CCbor* ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
+            CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
             ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
             else
                 ev->appendKeyHandleArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
             ev->appendKeyInt64(propObject_handle.name, _objectHandle);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
         if (App::getEventProtocolVersion() <= 3)
         { // For backw. compatibility
-            CCbor* ev = App::sceneContainer->createEvent("collectionAdded", -1, _objectHandle, nullptr, false);
+            CCbor* ev = App::scenes->createEvent("collectionAdded", -1, _objectHandle, nullptr, false);
             ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
             ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }

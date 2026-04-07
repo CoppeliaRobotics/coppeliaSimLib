@@ -74,7 +74,7 @@ void CMainSettings::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Al2"); // Kept for backward compatibility
-            ar << (unsigned short)App::currentScene->environment->getActiveLayers();
+            ar << (unsigned short)App::scene->environment->getActiveLayers();
             ar.flush();
 
             ar.storeDataName("Iwc");
@@ -103,12 +103,12 @@ void CMainSettings::serialize(CSer& ar)
 
                         bool bulletUseDefault = !SIM_IS_BIT_SET(dummy, 0);
                         bool _displayContactPoints = SIM_IS_BIT_SET(dummy, 2);
-                        App::currentScene->dynamicsContainer->setDisplayContactPoints(_displayContactPoints);
+                        App::scene->dynamicsContainer->setDisplayContactPoints(_displayContactPoints);
                         bool odeUseDefault = !SIM_IS_BIT_SET(dummy, 3);
                         proximitySensorsEnabled = SIM_IS_BIT_SET(dummy, 5);
                         bool _dynamicODEUseQuickStep = !SIM_IS_BIT_SET(dummy, 6);
                         if ((!bulletUseDefault) || (!odeUseDefault))
-                            App::currentScene->dynamicsContainer->setBoolProperty(propDynCont_odeQuickStepEnabled.name, _dynamicODEUseQuickStep);
+                            App::scene->dynamicsContainer->setBoolProperty(propDynCont_odeQuickStepEnabled.name, _dynamicODEUseQuickStep);
                         forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers = true;
                     }
 
@@ -118,7 +118,7 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> byteQuantity;
                         float _dynamicsBULLETStepSize, _dynamicsODEStepSize;
                         ar >> _dynamicsBULLETStepSize >> _dynamicsODEStepSize;
-                        App::currentScene->dynamicsContainer->setDesiredStepSize((double)_dynamicsBULLETStepSize);
+                        App::scene->dynamicsContainer->setDesiredStepSize((double)_dynamicsBULLETStepSize);
                     }
 
                     if (theName.compare("Va4") == 0)
@@ -128,10 +128,10 @@ void CMainSettings::serialize(CSer& ar)
                         unsigned char dummy;
                         ar >> dummy;
                         bool _displayContactPoints = SIM_IS_BIT_SET(dummy, 2);
-                        App::currentScene->dynamicsContainer->setDisplayContactPoints(_displayContactPoints);
+                        App::scene->dynamicsContainer->setDisplayContactPoints(_displayContactPoints);
                         proximitySensorsEnabled = SIM_IS_BIT_SET(dummy, 5);
                         bool _dynamicODEUseQuickStep = !SIM_IS_BIT_SET(dummy, 6);
-                        App::currentScene->dynamicsContainer->setBoolProperty(propDynCont_odeQuickStepEnabled.name, _dynamicODEUseQuickStep);
+                        App::scene->dynamicsContainer->setBoolProperty(propDynCont_odeQuickStepEnabled.name, _dynamicODEUseQuickStep);
                     }
                     if (theName.compare("Va5") == 0)
                     {
@@ -168,7 +168,7 @@ void CMainSettings::serialize(CSer& ar)
                         visionSensorsEnabled = !SIM_IS_BIT_SET(dummy, 5);
                         millsEnabled = !SIM_IS_BIT_SET(dummy, 6);
                         bool _dynamicsEnabled = !SIM_IS_BIT_SET(dummy, 7);
-                        App::currentScene->dynamicsContainer->setDynamicsEnabled(_dynamicsEnabled);
+                        App::scene->dynamicsContainer->setDynamicsEnabled(_dynamicsEnabled);
                     }
                     if (theName.compare("Al2") == 0)
                     { // For backward compatibility
@@ -176,7 +176,7 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> byteQuantity;
                         unsigned short l;
                         ar >> l;
-                        App::currentScene->environment->setActiveLayers((int)l);
+                        App::scene->environment->setActiveLayers((int)l);
                     }
                     if (theName.compare("Iwc") == 0)
                     {
@@ -198,7 +198,7 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> byteQuantity;
                         float _dynamicBULLETInternalScalingFactor;
                         ar >> _dynamicBULLETInternalScalingFactor;
-                        App::currentScene->dynamicsContainer->setFloatProperty(propDynCont_bulletInternalScalingScaling.name, (double)_dynamicBULLETInternalScalingFactor);
+                        App::scene->dynamicsContainer->setFloatProperty(propDynCont_bulletInternalScalingScaling.name, (double)_dynamicBULLETInternalScalingFactor);
                     }
                     if (theName.compare("Dcs") == 0)
                     { // Keep for backward compatibility (27/11/2012)
@@ -206,7 +206,7 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> byteQuantity;
                         int _dynamicBULLETConstraintSolvingIterations;
                         ar >> _dynamicBULLETConstraintSolvingIterations;
-                        App::currentScene->dynamicsContainer->setIntProperty(propDynCont_bulletIterations.name, _dynamicBULLETConstraintSolvingIterations);
+                        App::scene->dynamicsContainer->setIntProperty(propDynCont_bulletIterations.name, _dynamicBULLETConstraintSolvingIterations);
                     }
                     if (theName.compare("Gvy") == 0)
                     { // Keep for backward compatibility (27/11/2012)
@@ -219,7 +219,7 @@ void CMainSettings::serialize(CSer& ar)
                             ar >> bla;
                             _gravity(i) = (double)bla;
                         }
-                        App::currentScene->dynamicsContainer->setGravity(_gravity);
+                        App::scene->dynamicsContainer->setGravity(_gravity);
                     }
                     if (theName.compare("Od1") == 0)
                     { // for backward compatibility (3/1/2012)
@@ -231,10 +231,10 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> _dynamicODEInternalScalingFactor;
                         ar >> _dynamicODEConstraintSolvingIterations;
                         ar >> _dynamicODEGlobalERP >> _dynamicODEGlobalCFM;
-                        App::currentScene->dynamicsContainer->setIntProperty(propDynCont_odeQuickStepIterations.name, _dynamicODEConstraintSolvingIterations);
-                        App::currentScene->dynamicsContainer->setFloatProperty(propDynCont_odeInternalScalingScaling.name, (double)_dynamicODEInternalScalingFactor);
-                        App::currentScene->dynamicsContainer->setFloatProperty(propDynCont_odeGlobalErp.name, (double)_dynamicODEGlobalERP);
-                        App::currentScene->dynamicsContainer->setFloatProperty(propDynCont_odeGlobalCfm.name, (double)_dynamicODEGlobalCFM);
+                        App::scene->dynamicsContainer->setIntProperty(propDynCont_odeQuickStepIterations.name, _dynamicODEConstraintSolvingIterations);
+                        App::scene->dynamicsContainer->setFloatProperty(propDynCont_odeInternalScalingScaling.name, (double)_dynamicODEInternalScalingFactor);
+                        App::scene->dynamicsContainer->setFloatProperty(propDynCont_odeGlobalErp.name, (double)_dynamicODEGlobalERP);
+                        App::scene->dynamicsContainer->setFloatProperty(propDynCont_odeGlobalCfm.name, (double)_dynamicODEGlobalCFM);
                     }
                     if (theName.compare("Od2") == 0)
                     { // Keep for backward compatibility (27/11/2012)
@@ -245,10 +245,10 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> _dynamicODEInternalScalingFactor;
                         ar >> _dynamicODEConstraintSolvingIterations;
                         ar >> _dynamicODEGlobalERP >> _dynamicODEGlobalCFM;
-                        App::currentScene->dynamicsContainer->setIntProperty(propDynCont_odeQuickStepIterations.name, _dynamicODEConstraintSolvingIterations);
-                        App::currentScene->dynamicsContainer->setFloatProperty(propDynCont_odeInternalScalingScaling.name, (double)_dynamicODEInternalScalingFactor);
-                        App::currentScene->dynamicsContainer->setFloatProperty(propDynCont_odeGlobalErp.name, (double)_dynamicODEGlobalERP);
-                        App::currentScene->dynamicsContainer->setFloatProperty(propDynCont_odeGlobalCfm.name, (double)_dynamicODEGlobalCFM);
+                        App::scene->dynamicsContainer->setIntProperty(propDynCont_odeQuickStepIterations.name, _dynamicODEConstraintSolvingIterations);
+                        App::scene->dynamicsContainer->setFloatProperty(propDynCont_odeInternalScalingScaling.name, (double)_dynamicODEInternalScalingFactor);
+                        App::scene->dynamicsContainer->setFloatProperty(propDynCont_odeGlobalErp.name, (double)_dynamicODEGlobalERP);
+                        App::scene->dynamicsContainer->setFloatProperty(propDynCont_odeGlobalCfm.name, (double)_dynamicODEGlobalCFM);
                     }
                     if (theName.compare("Deu") == 0)
                     { // Keep for backward compatibility (27/11/2012)
@@ -256,7 +256,7 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> byteQuantity;
                         int _dynamicEngineToUse;
                         ar >> _dynamicEngineToUse;
-                        App::currentScene->dynamicsContainer->setDynamicEngineType(_dynamicEngineToUse, 0);
+                        App::scene->dynamicsContainer->setDynamicEngineType(_dynamicEngineToUse, 0);
                     }
                     if (theName.compare("Bcm") == 0)
                     { // Keep for backward compatibility (27/11/2012)
@@ -264,7 +264,7 @@ void CMainSettings::serialize(CSer& ar)
                         ar >> byteQuantity;
                         float _dynamicBULLETCollisionMarginFactor;
                         ar >> _dynamicBULLETCollisionMarginFactor;
-                        App::currentScene->dynamicsContainer->setFloatProperty(propDynCont_bulletCollMarginScaling.name, (double)_dynamicBULLETCollisionMarginFactor);
+                        App::scene->dynamicsContainer->setFloatProperty(propDynCont_bulletCollMarginScaling.name, (double)_dynamicBULLETCollisionMarginFactor);
                     }
                     if (noHit)
                         ar.loadUnknownData();
@@ -280,7 +280,7 @@ void CMainSettings::serialize(CSer& ar)
         {
             ar.xmlAddNode_comment(" 'visibleLayers' tag: deprecated. Use equivalent in 'environment' section ",
                                   exhaustiveXml);
-            ar.xmlAddNode_int("visibleLayers", App::currentScene->environment->getActiveLayers()); // Kept for backward compatibility
+            ar.xmlAddNode_int("visibleLayers", App::scene->environment->getActiveLayers()); // Kept for backward compatibility
 
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("visionSensorsEnabled", visionSensorsEnabled);
@@ -299,7 +299,7 @@ void CMainSettings::serialize(CSer& ar)
             if (ar.xmlGetNode_int("visibleLayers", l, exhaustiveXml))
             { // For backward compatibility
                 tt::limitValue(0, 65526, l);
-                App::currentScene->environment->setActiveLayers((unsigned short)l);
+                App::scene->environment->setActiveLayers((unsigned short)l);
             }
 
             if (ar.xmlPushChildNode("switches", exhaustiveXml))

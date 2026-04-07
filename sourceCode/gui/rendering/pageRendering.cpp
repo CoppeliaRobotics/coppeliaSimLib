@@ -66,10 +66,10 @@ void displayContainerPageOverlay(const int* position, const int* size, int activ
     glDisable(GL_DEPTH_TEST);
 
     // Now we draw soft dialogs:
-    if (App::currentScene->buttonBlockContainer_old != nullptr)
-        App::currentScene->buttonBlockContainer_old->displayAllBlocks(activePageIndex, focusObject);
+    if (App::scene->buttonBlockContainer_old != nullptr)
+        App::scene->buttonBlockContainer_old->displayAllBlocks(activePageIndex, focusObject);
 
-    App::sceneContainer->calcInfo->printInformation();
+    App::scenes->calcInfo->printInformation();
 
     glEnable(GL_DEPTH_TEST);
 }
@@ -85,7 +85,7 @@ void displayContainerPageWatermark(const int* position, const int* size, int tag
     ogl::setMaterialColor(sim_materialcomponent_emission, ogl::colorWhite);
     ogl::setBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     ogl::disableLighting_useWithCare(); // only temporarily
-    App::sceneContainer->globalGuiTextureCont->startTextureDisplay(tagId);
+    App::scenes->globalGuiTextureCont->startTextureDisplay(tagId);
     glColor3f(1.0, 1.0, 1.0);
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 0.0);
@@ -190,7 +190,7 @@ void displayPage(CSPage* page, int auxViewResizingAction, int viewIndexOfResizin
         float txtCol[3] = {0.2f, 0.2f, 0.2f};
         float* bkgrndCol = ogl::TITLE_BAR_COLOR;
         CSceneObject* itObj =
-            App::currentScene->sceneObjects->getObjectFromHandle(page->getView(i)->getLinkedObjectID());
+            App::scene->sceneObjects->getObjectFromHandle(page->getView(i)->getLinkedObjectID());
         std::string name("  Floating view (empty)");
         std::string altName(page->getView(i)->getAlternativeViewName());
         if (altName == "")

@@ -34,13 +34,13 @@ void CQDlgProximitySensors::refresh()
     inMainRefreshRoutine = true;
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
 
-    CProxSensor* it = App::currentScene->sceneObjects->getLastSelectionProxSensor();
+    CProxSensor* it = App::scene->sceneObjects->getLastSelectionProxSensor();
 
-    bool isSensor = App::currentScene->sceneObjects->isLastSelectionOfType(sim_sceneobject_proximitysensor);
-    bool manySensors = App::currentScene->sceneObjects->getObjectCountInSelection(sim_sceneobject_proximitysensor) > 1;
+    bool isSensor = App::scene->sceneObjects->isLastSelectionOfType(sim_sceneobject_proximitysensor);
+    bool manySensors = App::scene->sceneObjects->getObjectCountInSelection(sim_sceneobject_proximitysensor) > 1;
     bool noEditMode = GuiApp::getEditModeType() == NO_EDIT_MODE;
-    bool noEditModeAndNoSim = noEditMode && App::currentScene->simulation->isSimulationStopped();
-    //  bool noSim=App::currentScene->simulation->isSimulationStopped();
+    bool noEditModeAndNoSim = noEditMode && App::scene->simulation->isSimulationStopped();
+    //  bool noSim=App::scene->simulation->isSimulationStopped();
 
     ui->qqExplicitHandling->setEnabled(isSensor && noEditModeAndNoSim);
     ui->qqShowVolume->setEnabled(isSensor && noEditModeAndNoSim);
@@ -97,7 +97,7 @@ void CQDlgProximitySensors::on_qqExplicitHandling_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_EXPLICITHANDLING_PROXSENSORGUITRIGGEREDCMD,
-                                           App::currentScene->sceneObjects->getLastSelectionHandle());
+                                           App::scene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -111,7 +111,7 @@ void CQDlgProximitySensors::on_qqSensorTypeCombo_currentIndexChanged(int index)
         {
             int objID = ui->qqSensorTypeCombo->itemData(ui->qqSensorTypeCombo->currentIndex()).toInt();
             App::appendSimulationThreadCommand(SET_SENSORSUBTYPE_PROXSENSORGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle(), objID);
+                                               App::scene->sceneObjects->getLastSelectionHandle(), objID);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -129,7 +129,7 @@ void CQDlgProximitySensors::on_qqPointSize_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_POINTSIZE_PROXSENSORGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::scene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -141,7 +141,7 @@ void CQDlgProximitySensors::on_qqShowVolume_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_SHOWVOLUME_PROXSENSORGUITRIGGEREDCMD,
-                                           App::currentScene->sceneObjects->getLastSelectionHandle());
+                                           App::scene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -151,14 +151,14 @@ void CQDlgProximitySensors::on_qqApplyMain_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CProxSensor* last = App::currentScene->sceneObjects->getLastSelectionProxSensor();
-        if ((last != nullptr) && (App::currentScene->sceneObjects->getObjectCountInSelection(sim_sceneobject_proximitysensor) >= 2))
+        CProxSensor* last = App::scene->sceneObjects->getLastSelectionProxSensor();
+        if ((last != nullptr) && (App::scene->sceneObjects->getObjectCountInSelection(sim_sceneobject_proximitysensor) >= 2))
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId = APPLY_DETECTIONVOLUMEGUITRIGGEREDCMD;
             cmd.intParams.push_back(last->getObjectHandle());
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
-                cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount() - 1; i++)
+                cmd.intParams.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::appendSimulationThreadCommand(cmd);
             cmd.cmdId = APPLY_MAINPROP_PROXSENSORGUITRIGGEREDCMD;
             App::appendSimulationThreadCommand(cmd);
@@ -181,7 +181,7 @@ void CQDlgProximitySensors::on_qqAdjustDetectionParams_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CProxSensor* it = App::currentScene->sceneObjects->getLastSelectionProxSensor();
+        CProxSensor* it = App::scene->sceneObjects->getLastSelectionProxSensor();
         if (it != nullptr)
         {
             CQDlgProxSensDetectionParam theDialog(this);
@@ -224,7 +224,7 @@ void CQDlgProximitySensors::on_qqVolumeColor_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CQDlgMaterial::displayMaterialDlg(COLOR_ID_PROXSENSOR_VOLUME,
-                                          App::currentScene->sceneObjects->getLastSelectionHandle(), -1,
+                                          App::scene->sceneObjects->getLastSelectionHandle(), -1,
                                           GuiApp::mainWindow);
     }
 }
@@ -234,7 +234,7 @@ void CQDlgProximitySensors::on_qqRayColor_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CQDlgMaterial::displayMaterialDlg(
-            COLOR_ID_PROXSENSOR_RAY, App::currentScene->sceneObjects->getLastSelectionHandle(), -1, GuiApp::mainWindow);
+            COLOR_ID_PROXSENSOR_RAY, App::scene->sceneObjects->getLastSelectionHandle(), -1, GuiApp::mainWindow);
     }
 }
 
@@ -242,12 +242,12 @@ void CQDlgProximitySensors::on_qqApplyColors_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        // CProxSensor* it=App::currentScene->objCont->getLastSelection_proxSensor();
+        // CProxSensor* it=App::scene->objCont->getLastSelection_proxSensor();
         SSimulationThreadCommand cmd;
         cmd.cmdId = APPLY_VISUALPROP_PROXSENSORGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
-        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
-            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        cmd.intParams.push_back(App::scene->sceneObjects->getLastSelectionHandle());
+        for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
+            cmd.intParams.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
     }

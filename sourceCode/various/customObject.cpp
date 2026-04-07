@@ -21,7 +21,7 @@ int CustomObject::getScriptHandle() const
 int CustomObject::getLongProperty(const char* ppName, long long int& pState) const
 {
     int retVal = Obj::getLongProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
 
     }
@@ -31,7 +31,7 @@ int CustomObject::getLongProperty(const char* ppName, long long int& pState) con
 int CustomObject::getStringProperty(const char* ppName, std::string& pState) const
 {
     int retVal = Obj::getStringProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
 
     }
@@ -41,7 +41,7 @@ int CustomObject::getStringProperty(const char* ppName, std::string& pState) con
 int CustomObject::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         /*
             for (size_t i = 0; i < allProps_customObj.size(); i++)
@@ -55,7 +55,7 @@ int CustomObject::getPropertyName(int& index, std::string& pName, std::string& a
                         {
                             pName = allProps_customObj[i].name;
                             appartenance = "object";
-                            retVal = 1;
+                            retVal = sim_propertyret_ok;
                             break;
                         }
                     }
@@ -69,7 +69,7 @@ int CustomObject::getPropertyName(int& index, std::string& pName, std::string& a
 int CustomObject::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     /*
     for (size_t i = 0; i < allProps_customObj.size(); i++)

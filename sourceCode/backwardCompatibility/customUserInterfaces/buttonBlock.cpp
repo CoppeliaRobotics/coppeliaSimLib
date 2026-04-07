@@ -194,12 +194,12 @@ void CButtonBlock::setAttributes(int attr)
     /*
     if (((previousAttrib&sim_ui_property_systemblock)==0)&&(_attributes&sim_ui_property_systemblock) )
     {
-        if (App::currentScene->buttonBlockContainer_old!=nullptr)
+        if (App::scene->buttonBlockContainer_old!=nullptr)
         {
             // We cannot set the system block tag if the block was already added to the container! ...and why is
-    that?!!!! bool present=false; for (int i=0;i<int(App::currentScene->buttonBlockContainer_old->allBlocks.size());i++)
+    that?!!!! bool present=false; for (int i=0;i<int(App::scene->buttonBlockContainer_old->allBlocks.size());i++)
             {
-                if (App::currentScene->buttonBlockContainer_old->allBlocks[i]==this)
+                if (App::scene->buttonBlockContainer_old->allBlocks[i]==this)
                     present=true;
             }
             if (present)
@@ -414,8 +414,8 @@ void CButtonBlock::setBlockSize(VPoint size)
     blockWidth = size.x;
     blockHeight = size.y;
     // We empty the selection buffer:
-    if (App::currentScene->buttonBlockContainer_old != nullptr)
-        App::currentScene->buttonBlockContainer_old->deselectButtons();
+    if (App::scene->buttonBlockContainer_old != nullptr)
+        App::scene->buttonBlockContainer_old->deselectButtons();
     // We recompute the fast index:
     recomputePositionFastIndex();
     // We set the rollup-values:
@@ -571,7 +571,7 @@ void CButtonBlock::removeAllObjectAttachements()
 
 void CButtonBlock::performSceneObjectLoadingMapping(const std::map<int, int>* map)
 {
-    if (App::currentScene->sceneObjects != nullptr)
+    if (App::scene->sceneObjects != nullptr)
     {
         objectIDAttachedTo = CScene::getLoadingMapping(map, objectIDAttachedTo);
         if (_textureProperty != nullptr)
@@ -583,7 +583,7 @@ void CButtonBlock::performSceneObjectLoadingMapping(const std::map<int, int>* ma
 
 void CButtonBlock::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
-    if (App::currentScene->sceneObjects != nullptr)
+    if (App::scene->sceneObjects != nullptr)
     {
         if (_textureProperty != nullptr)
             _textureProperty->performTextureObjectLoadingMapping(map, 0);
@@ -598,7 +598,7 @@ bool CButtonBlock::announceSceneObjectWillBeErased(int objectID, bool copyBuffer
         return (true);
     if (_textureProperty != nullptr)
     {
-        CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(objectID);
+        CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(objectID);
         if ((obj != nullptr) && _textureProperty->announceObjectWillBeErased(obj))
         {
             delete _textureProperty;
@@ -637,14 +637,14 @@ VPoint CButtonBlock::_getBlockSizeAndOtherButtonSizeAndPos(VPoint& blockSize, VP
     otherButtonSize.x = (getButtonWidthRetina() + 2) * button->getLength() - 2;
     otherButtonSize.y = (getButtonHeightRetina() + 2) * button->getHeight() - 2;
     if (_attributes & sim_ui_property_relativetotopborder)
-        pos.y = App::currentScene->buttonBlockContainer_old->winSize[1] - 1 -
+        pos.y = App::scene->buttonBlockContainer_old->winSize[1] - 1 -
                 (blockPos.y + buttonPos.y * (buttonSize.y + 2) + otherButtonSize.y / 2);
     else
         pos.y = blockPos.y + 1 + blockSize.y - (buttonPos.y * (buttonSize.y + 2) + otherButtonSize.y / 2);
     if (_attributes & sim_ui_property_relativetoleftborder)
         pos.x = blockPos.x + 1 + buttonPos.x * (buttonSize.x + 2) + otherButtonSize.x / 2;
     else
-        pos.x = App::currentScene->buttonBlockContainer_old->winSize[0] - 1 - blockPos.x - blockSize.x +
+        pos.x = App::scene->buttonBlockContainer_old->winSize[0] - 1 - blockPos.x - blockSize.x +
                 buttonPos.x * (buttonSize.x + 2) + otherButtonSize.x / 2;
     return (pos);
 }
@@ -928,17 +928,17 @@ void CButtonBlock::displayBlock(int winSize[2], bool justCameToFront)
 
     // Following is used in edit mode to display the overlay (not selected, selected, first sel.)
     std::vector<unsigned char> usedSpaces;
-    if ((App::currentScene->buttonBlockContainer_old->getBlockInEdition() == blockID) &&
-        (App::currentScene->buttonBlockContainer_old->editMode))
+    if ((App::scene->buttonBlockContainer_old->getBlockInEdition() == blockID) &&
+        (App::scene->buttonBlockContainer_old->editMode))
     {
         usedSpaces.reserve(blockWidth * blockHeight);
         for (int i = 0; i < blockWidth * blockHeight; i++)
             usedSpaces.push_back(0);
-        for (int i = 0; i < (int)(App::currentScene->buttonBlockContainer_old->selectedButtons.size() - 1); i++)
-            usedSpaces[App::currentScene->buttonBlockContainer_old->selectedButtons[i]] = 1;
-        if (App::currentScene->buttonBlockContainer_old->selectedButtons.size() != 0)
-            usedSpaces[App::currentScene->buttonBlockContainer_old
-                           ->selectedButtons[App::currentScene->buttonBlockContainer_old->selectedButtons.size() - 1]] = 2;
+        for (int i = 0; i < (int)(App::scene->buttonBlockContainer_old->selectedButtons.size() - 1); i++)
+            usedSpaces[App::scene->buttonBlockContainer_old->selectedButtons[i]] = 1;
+        if (App::scene->buttonBlockContainer_old->selectedButtons.size() != 0)
+            usedSpaces[App::scene->buttonBlockContainer_old
+                           ->selectedButtons[App::scene->buttonBlockContainer_old->selectedButtons.size() - 1]] = 2;
     }
     VPoint buttonSize(getButtonWidthRetina(), getButtonHeightRetina());
     VPoint pos;
@@ -948,15 +948,15 @@ void CButtonBlock::displayBlock(int winSize[2], bool justCameToFront)
     // Following is needed to see the shift-selection:
     VPoint startP(0, 0);
     VPoint endP(0, 0);
-    if ((App::currentScene->buttonBlockContainer_old->getBlockInEdition() == blockID) &&
-        (App::currentScene->buttonBlockContainer_old->editMode))
+    if ((App::scene->buttonBlockContainer_old->getBlockInEdition() == blockID) &&
+        (App::scene->buttonBlockContainer_old->editMode))
     {
-        if (App::currentScene->buttonBlockContainer_old->shiftSelectionStart != -1)
+        if (App::scene->buttonBlockContainer_old->shiftSelectionStart != -1)
         {
-            startP.x = App::currentScene->buttonBlockContainer_old->shiftSelectionStart % (blockWidth);
-            startP.y = App::currentScene->buttonBlockContainer_old->shiftSelectionStart / (blockWidth);
-            int combP = mouseDownCatchInexistant(App::currentScene->buttonBlockContainer_old->mousePos.x,
-                                                 App::currentScene->buttonBlockContainer_old->mousePos.y, true);
+            startP.x = App::scene->buttonBlockContainer_old->shiftSelectionStart % (blockWidth);
+            startP.y = App::scene->buttonBlockContainer_old->shiftSelectionStart / (blockWidth);
+            int combP = mouseDownCatchInexistant(App::scene->buttonBlockContainer_old->mousePos.x,
+                                                 App::scene->buttonBlockContainer_old->mousePos.y, true);
             endP.x = combP % (blockWidth);
             endP.y = combP / (blockWidth);
             if (combP == -1)
@@ -987,9 +987,9 @@ void CButtonBlock::displayBlock(int winSize[2], bool justCameToFront)
         CSoftButton* it = allButtons[i];
         if (isButtonInVisibleZone(it))
         {
-            bool buttonDown = ((blockID == App::currentScene->buttonBlockContainer_old->caughtBlock) &&
-                               (it->buttonID == App::currentScene->buttonBlockContainer_old->caughtButton) &&
-                               App::currentScene->buttonBlockContainer_old->caughtButtonDown);
+            bool buttonDown = ((blockID == App::scene->buttonBlockContainer_old->caughtBlock) &&
+                               (it->buttonID == App::scene->buttonBlockContainer_old->caughtButton) &&
+                               App::scene->buttonBlockContainer_old->caughtButtonDown);
             std::string txt = it->label;
             float txtCol[3] = {it->textColor[0], it->textColor[1], it->textColor[2]};
             VPoint buttPos(it->xPos, it->yPos);
@@ -999,13 +999,13 @@ void CButtonBlock::displayBlock(int winSize[2], bool justCameToFront)
 
             VPoint blockPosAbs;
             if (_attributes & sim_ui_property_relativetotopborder)
-                blockPosAbs.y = App::currentScene->buttonBlockContainer_old->winSize[1] - blockPos.y;
+                blockPosAbs.y = App::scene->buttonBlockContainer_old->winSize[1] - blockPos.y;
             else
                 blockPosAbs.y = blockPos.y + blockSize.y + 2;
             if (_attributes & sim_ui_property_relativetoleftborder)
                 blockPosAbs.x = blockPos.x;
             else
-                blockPosAbs.x = App::currentScene->buttonBlockContainer_old->winSize[0] - blockPos.x - blockSize.x - 2;
+                blockPosAbs.x = App::scene->buttonBlockContainer_old->winSize[0] - blockPos.x - blockSize.x - 2;
 
             it->setVertical(otherButtonSize.y > otherButtonSize.x);
             if ((it->getAttributes() & sim_buttonproperty_isdown) && (it->getButtonType() == sim_buttonproperty_button))
@@ -1013,35 +1013,35 @@ void CButtonBlock::displayBlock(int winSize[2], bool justCameToFront)
             double sliderVal = it->getSliderPos();
             bool editing = false;
             if ((it->getButtonType() == sim_buttonproperty_editbox) &&
-                (blockID == App::currentScene->buttonBlockContainer_old->editBoxInEditionBlock) &&
-                (it->buttonID == App::currentScene->buttonBlockContainer_old->editBoxInEditionButton))
+                (blockID == App::scene->buttonBlockContainer_old->editBoxInEditionBlock) &&
+                (it->buttonID == App::scene->buttonBlockContainer_old->editBoxInEditionButton))
             {
-                txt = App::currentScene->buttonBlockContainer_old->editBoxEditionText;
+                txt = App::scene->buttonBlockContainer_old->editBoxEditionText;
                 editing = true;
             }
             if (it->isArrayEnabled())
                 it->drawArray(pos, otherButtonSize);
             else
             {
-                if ((App::currentScene->buttonBlockContainer_old->caughtBlock == blockID) &&
-                    (App::currentScene->buttonBlockContainer_old->caughtButton == it->buttonID))
+                if ((App::scene->buttonBlockContainer_old->caughtBlock == blockID) &&
+                    (App::scene->buttonBlockContainer_old->caughtButton == it->buttonID))
                 {
-                    if ((App::currentScene->buttonBlockContainer_old->caughtBlock ==
-                         App::currentScene->buttonBlockContainer_old->caughtBlockForDownUpEvent) &&
-                        (App::currentScene->buttonBlockContainer_old->caughtButton ==
-                         App::currentScene->buttonBlockContainer_old->caughtButtonForDownUpEvent))
+                    if ((App::scene->buttonBlockContainer_old->caughtBlock ==
+                         App::scene->buttonBlockContainer_old->caughtBlockForDownUpEvent) &&
+                        (App::scene->buttonBlockContainer_old->caughtButton ==
+                         App::scene->buttonBlockContainer_old->caughtButtonForDownUpEvent))
                     {
-                        if ((buttonDown != App::currentScene->buttonBlockContainer_old->caughtButtonDownForDownUpEvent) &&
+                        if ((buttonDown != App::scene->buttonBlockContainer_old->caughtButtonDownForDownUpEvent) &&
                             (!editing))
                         { // We have to generate an up or down event
-                            App::currentScene->buttonBlockContainer_old->caughtButtonDownForDownUpEvent = buttonDown;
-                            App::currentScene->outsideCommandQueue_old->addCommand(
+                            App::scene->buttonBlockContainer_old->caughtButtonDownForDownUpEvent = buttonDown;
+                            App::scene->outsideCommandQueue_old->addCommand(
                                 sim_message_ui_button_state_change,
-                                App::currentScene->buttonBlockContainer_old->caughtBlock,
-                                App::currentScene->buttonBlockContainer_old->caughtButton, it->getAttributes(), buttonDown,
+                                App::scene->buttonBlockContainer_old->caughtBlock,
+                                App::scene->buttonBlockContainer_old->caughtButton, it->getAttributes(), buttonDown,
                                 nullptr, 0);
                             int auxVals[2] = {it->getAttributes(), buttonDown};
-                            setLastEventButtonID(App::currentScene->buttonBlockContainer_old->caughtButton, auxVals);
+                            setLastEventButtonID(App::scene->buttonBlockContainer_old->caughtButton, auxVals);
                         }
                     }
                 }
@@ -1051,19 +1051,19 @@ void CButtonBlock::displayBlock(int winSize[2], bool justCameToFront)
                     atr |= sim_buttonproperty_isdown;
                 float* secondTextColor = nullptr; // For now (2009/07/24)
 
-                if (App::currentScene->environment->get2DElementTexturesEnabled())
+                if (App::scene->environment->get2DElementTexturesEnabled())
                     ogl::drawButton(pos, otherButtonSize, txtCol, it->backgroundColor, it->downBackgroundColor, txt,
-                                    atr, editing, App::currentScene->buttonBlockContainer_old->editBoxEditionPosition,
+                                    atr, editing, App::scene->buttonBlockContainer_old->editBoxEditionPosition,
                                     sliderVal, it->getVertical(), (int)VDateTime::getTimeInMs(), secondTextColor,
                                     _textureProperty, &blockPosAbs, &blockSize, it->getTextureProperty());
                 else
                     ogl::drawButton(pos, otherButtonSize, txtCol, it->backgroundColor, it->downBackgroundColor, txt,
-                                    atr, editing, App::currentScene->buttonBlockContainer_old->editBoxEditionPosition,
+                                    atr, editing, App::scene->buttonBlockContainer_old->editBoxEditionPosition,
                                     sliderVal, it->getVertical(), (int)VDateTime::getTimeInMs(), secondTextColor,
                                     nullptr, &blockPosAbs, &blockSize, nullptr);
             }
-            if ((App::currentScene->buttonBlockContainer_old->getBlockInEdition() == blockID) &&
-                (App::currentScene->buttonBlockContainer_old->editMode))
+            if ((App::scene->buttonBlockContainer_old->getBlockInEdition() == blockID) &&
+                (App::scene->buttonBlockContainer_old->editMode))
             {
                 bool mainSel = false;
                 bool showSelected = false;
@@ -1076,7 +1076,7 @@ void CButtonBlock::displayBlock(int winSize[2], bool justCameToFront)
                             showSelected || (usedSpaces[blockWidth * (it->yPos + k) + it->xPos + m] == 1) || mainSel;
                     }
                 }
-                if ((!showSelected) && (App::currentScene->buttonBlockContainer_old->shiftSelectionStart != -1))
+                if ((!showSelected) && (App::scene->buttonBlockContainer_old->shiftSelectionStart != -1))
                 {
                     if ((buttPos.y + it->getHeight() > startP.y) && (buttPos.y <= endP.y))
                     {
@@ -1094,8 +1094,8 @@ void CButtonBlock::displayBlock(int winSize[2], bool justCameToFront)
             }
         }
     }
-    if ((App::currentScene->buttonBlockContainer_old->getBlockInEdition() == blockID) &&
-        (App::currentScene->buttonBlockContainer_old->editMode))
+    if ((App::scene->buttonBlockContainer_old->getBlockInEdition() == blockID) &&
+        (App::scene->buttonBlockContainer_old->editMode))
     {
         VPoint blockSize((getButtonWidthRetina() + 2) * blockWidth - 2,
                          (getButtonHeightRetina() + 2) * blockHeight - 2);
@@ -1107,18 +1107,18 @@ void CButtonBlock::displayBlock(int winSize[2], bool justCameToFront)
                 if (usedSpaces[blockWidth * l + k] != 255)
                 {
                     if (_attributes & sim_ui_property_relativetotopborder)
-                        pos.y = App::currentScene->buttonBlockContainer_old->winSize[1] - 1 -
+                        pos.y = App::scene->buttonBlockContainer_old->winSize[1] - 1 -
                                 (blockPos.y + l * (buttonSize.y + 2) + buttonSize.y / 2);
                     else
                         pos.y = blockPos.y + 1 + blockSize.y - (l * (buttonSize.y + 2) + buttonSize.y / 2);
                     if (_attributes & sim_ui_property_relativetoleftborder)
                         pos.x = blockPos.x + 1 + k * (buttonSize.x + 2) + (otherButtonSize.x) / 2;
                     else
-                        pos.x = App::currentScene->buttonBlockContainer_old->winSize[0] - 1 - blockPos.x - blockSize.x +
+                        pos.x = App::scene->buttonBlockContainer_old->winSize[0] - 1 - blockPos.x - blockSize.x +
                                 k * (buttonSize.x + 2) + (otherButtonSize.x) / 2;
                     bool mainSel = (usedSpaces[blockWidth * l + k] == 2);
                     bool showSelected = (usedSpaces[blockWidth * l + k] == 1) || mainSel;
-                    if ((!showSelected) && (App::currentScene->buttonBlockContainer_old->shiftSelectionStart != -1))
+                    if ((!showSelected) && (App::scene->buttonBlockContainer_old->shiftSelectionStart != -1))
                     {
                         if ((k >= startP.x) && (k <= endP.x) && (l >= startP.y) && (l <= endP.y))
                             showSelected = true;
@@ -1144,7 +1144,7 @@ int CButtonBlock::mouseDownCatch(int xCoord, int yCoord, bool& cursorCatch, bool
         CSoftButton* itButton = allButtons[i];
         if (isButtonInVisibleZone(itButton) &&
             (((itButton->getAttributes() & sim_buttonproperty_ignoremouse) == 0) ||
-             (App::currentScene->buttonBlockContainer_old->getButtonEditMode_editMode() &&
+             (App::scene->buttonBlockContainer_old->getButtonEditMode_editMode() &&
               ((_attributes & sim_ui_property_systemblock) == 0)))) // The block might be rolled-up!
         {
             VPoint buttPos(itButton->xPos, itButton->yPos);
@@ -1196,18 +1196,18 @@ int CButtonBlock::mouseDownCatch(int xCoord, int yCoord, bool& cursorCatch, bool
 
 bool CButtonBlock::isDisplayedNow()
 {
-    if (((_attributes & sim_ui_property_visible) == 0) && (!App::currentScene->buttonBlockContainer_old->editMode))
+    if (((_attributes & sim_ui_property_visible) == 0) && (!App::scene->buttonBlockContainer_old->editMode))
         return (false);
 
     // 2DElements stay visible during pause:
-    if ((App::currentScene->simulation->isSimulationStopped()) &&
+    if ((App::scene->simulation->isSimulationStopped()) &&
         (_attributes & sim_ui_property_visibleduringsimulationonly) &&
-        (!App::currentScene->buttonBlockContainer_old->editMode))
+        (!App::scene->buttonBlockContainer_old->editMode))
         return (false);
     if ((_attributes & sim_ui_property_visiblewhenobjectselected) && (objectIDAttachedTo != -1) &&
-        (!App::currentScene->buttonBlockContainer_old->editMode))
+        (!App::scene->buttonBlockContainer_old->editMode))
     {
-        if (!App::currentScene->sceneObjects->isObjectSelected(objectIDAttachedTo))
+        if (!App::scene->sceneObjects->isObjectSelected(objectIDAttachedTo))
             return (false);
     }
     return (true);
@@ -1226,13 +1226,13 @@ int CButtonBlock::mouseDownCatchInexistant(int xCoord, int yCoord, bool test)
     VPoint blockPos;
     getBlockPositionAbsolute(blockPos);
     if (_attributes & sim_ui_property_relativetotopborder)
-        pos.y = App::currentScene->buttonBlockContainer_old->winSize[1] - 1 - blockPos.y;
+        pos.y = App::scene->buttonBlockContainer_old->winSize[1] - 1 - blockPos.y;
     else
         pos.y = blockPos.y + 1 + blockSize.y;
     if (_attributes & sim_ui_property_relativetoleftborder)
         pos.x = blockPos.x + 1;
     else
-        pos.x = App::currentScene->buttonBlockContainer_old->winSize[0] - 1 - blockPos.x - blockSize.x;
+        pos.x = App::scene->buttonBlockContainer_old->winSize[0] - 1 - blockPos.x - blockSize.x;
     int x = (xCoord - pos.x);
     if (x < 0)
         return (-1);
@@ -1252,14 +1252,14 @@ void CButtonBlock::mouseMoveCatch(int xCoord, int yCoord)
 {
     bool dummyVal;
     int butt = mouseDownCatch(xCoord, yCoord, dummyVal, true);
-    App::currentScene->buttonBlockContainer_old->caughtButtonDown =
-        (butt == App::currentScene->buttonBlockContainer_old->caughtButton);
+    App::scene->buttonBlockContainer_old->caughtButtonDown =
+        (butt == App::scene->buttonBlockContainer_old->caughtButton);
 }
 
 bool CButtonBlock::isButtonInVisibleZone(CSoftButton* it)
 {
     if (((_attributes & sim_ui_property_rolledup) == 0) ||
-        (App::currentScene->buttonBlockContainer_old->editMode && ((_attributes & sim_ui_property_systemblock) == 0)))
+        (App::scene->buttonBlockContainer_old->editMode && ((_attributes & sim_ui_property_systemblock) == 0)))
         return (true);
     if ((it->xPos < rollupMin.x) || (it->xPos + it->getLength() - 1 > rollupMax.x))
         return (false);

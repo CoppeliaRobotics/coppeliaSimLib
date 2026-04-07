@@ -44,20 +44,20 @@ bool CSceneObjectOperations::processCommand(int commandID)
         // There is another such routine!! XXBFVGA
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            size_t selS = App::currentScene->sceneObjects->getSelectionCount();
+            size_t selS = App::scene->sceneObjects->getSelectionCount();
             if (selS == 1)
             {
-                if (App::disassemble(App::currentScene->sceneObjects->getLastSelectionHandle(), false, true))
-                    App::currentScene->sceneObjects->deselectObjects();
+                if (App::disassemble(App::scene->sceneObjects->getLastSelectionHandle(), false, true))
+                    App::scene->sceneObjects->deselectObjects();
             }
             else if (selS == 2)
             {
-                int lastSel = App::currentScene->sceneObjects->getLastSelectionHandle();
-                if (App::assemble(lastSel, App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(0), false,
+                int lastSel = App::scene->sceneObjects->getLastSelectionHandle();
+                if (App::assemble(lastSel, App::scene->sceneObjects->getObjectHandleFromSelectionIndex(0), false,
                                   true))
                 {
-                    App::currentScene->sceneObjects->deselectObjects();
-                    App::currentScene->sceneObjects->selectObject(lastSel);
+                    App::scene->sceneObjects->deselectObjects();
+                    App::scene->sceneObjects->selectObject(lastSel);
                 }
             }
         }
@@ -74,14 +74,14 @@ bool CSceneObjectOperations::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            size_t selS = App::currentScene->sceneObjects->getSelectionCount();
-            CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
+            size_t selS = App::scene->sceneObjects->getSelectionCount();
+            CSceneObject* it = App::scene->sceneObjects->getLastSelectionObject();
             if ((selS == 1) && it->getModelBase())
             {
                 std::vector<CSceneObject*> clones;
                 std::vector<CSceneObject*> toExplore;
-                for (size_t i = 0; i < App::currentScene->sceneObjects->getOrphanCount(); i++)
-                    toExplore.push_back(App::currentScene->sceneObjects->getOrphanFromIndex(i));
+                for (size_t i = 0; i < App::scene->sceneObjects->getOrphanCount(); i++)
+                    toExplore.push_back(App::scene->sceneObjects->getOrphanFromIndex(i));
                 while (toExplore.size() > 0)
                 {
                     CSceneObject* obj = toExplore[0];
@@ -99,33 +99,33 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 if (clones.size() > 0)
                 {
                     App::logMsg(sim_verbosity_msgs, IDSN_TRANSFERRING_DNA_TO_CLONES);
-                    App::sceneContainer->copyBuffer->memorizeBuffer();
+                    App::scenes->copyBuffer->memorizeBuffer();
 
                     std::vector<int> sel;
                     sel.push_back(it->getObjectHandle());
-                    App::currentScene->sceneObjects->addModelObjects(sel);
+                    App::scene->sceneObjects->addModelObjects(sel);
                     std::string masterName(it->getObjectName_old());
 
-                    App::sceneContainer->copyBuffer->copyCurrentSelection(sel, App::currentScene->environment->getSceneLocked(), 0);
-                    App::currentScene->sceneObjects->deselectObjects();
+                    App::scenes->copyBuffer->copyCurrentSelection(sel, App::scene->environment->getSceneLocked(), 0);
+                    App::scene->sceneObjects->deselectObjects();
                     for (size_t i = 0; i < clones.size(); i++)
                     {
                         std::string name(clones[i]->getObjectName_old());
                         std::string altName(clones[i]->getObjectAltName_old());
                         std::vector<int> objs;
                         objs.push_back(clones[i]->getObjectHandle());
-                        App::currentScene->sceneObjects->addModelObjects(objs);
+                        App::scene->sceneObjects->addModelObjects(objs);
                         C7Vector tr(clones[i]->getLocalTransformation());
                         CSceneObject* parent(clones[i]->getParent());
-                        int order = App::currentScene->sceneObjects->getObjectSequence(clones[i]);
-                        App::currentScene->sceneObjects->eraseObjects(&objs, true);
-                        App::sceneContainer->copyBuffer->pasteBuffer(App::currentScene->environment->getSceneLocked(),
+                        int order = App::scene->sceneObjects->getObjectSequence(clones[i]);
+                        App::scene->sceneObjects->eraseObjects(&objs, true);
+                        App::scenes->copyBuffer->pasteBuffer(App::scene->environment->getSceneLocked(),
                                                                      2);
-                        CSceneObject* newObj = App::currentScene->sceneObjects->getLastSelectionObject();
-                        App::currentScene->sceneObjects->deselectObjects();
+                        CSceneObject* newObj = App::scene->sceneObjects->getLastSelectionObject();
+                        App::scene->sceneObjects->deselectObjects();
                         newSelection.push_back(newObj->getObjectHandle());
-                        App::currentScene->sceneObjects->setObjectParent(newObj, parent, true);
-                        App::currentScene->sceneObjects->setObjectSequence(newObj, order);
+                        App::scene->sceneObjects->setObjectParent(newObj, parent, true);
+                        App::scene->sceneObjects->setObjectSequence(newObj, order);
                         newObj->setLocalTransformation(tr);
 
                         std::string autoName(newObj->getObjectName_old());
@@ -133,18 +133,18 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         name = tt::getNameWithoutSuffixNumber(name.c_str(), true);
                         if (suffixNb >= 0)
                             name += "#" + std::to_string(suffixNb);
-                        App::currentScene->sceneObjects->setObjectName_old(newObj, name.c_str(), true);
-                        App::currentScene->sceneObjects->setObjectAltName_old(newObj, altName.c_str(), true);
+                        App::scene->sceneObjects->setObjectName_old(newObj, name.c_str(), true);
+                        App::scene->sceneObjects->setObjectAltName_old(newObj, altName.c_str(), true);
                     }
-                    App::sceneContainer->copyBuffer->restoreBuffer();
-                    App::sceneContainer->copyBuffer->clearMemorizedBuffer();
+                    App::scenes->copyBuffer->restoreBuffer();
+                    App::scenes->copyBuffer->clearMemorizedBuffer();
                     App::logMsg(sim_verbosity_msgs, "done.");
                     std::string txt;
                     txt += boost::lexical_cast<std::string>(clones.size()) + IDSN_X_CLONES_WERE_UPDATED;
                     App::logMsg(sim_verbosity_msgs, txt.c_str());
 
                     for (size_t i = 0; i < newSelection.size(); i++)
-                        App::currentScene->sceneObjects->addObjectToSelection(newSelection[i]);
+                        App::scene->sceneObjects->addObjectToSelection(newSelection[i]);
 
                     App::undoRedo_sceneChanged("");
                 }
@@ -165,18 +165,18 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
-                sel.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
+                sel.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
             if (sel.size() > 1)
             {
-                CSceneObject* last = App::currentScene->sceneObjects->getObjectFromHandle(sel[sel.size() - 1]);
+                CSceneObject* last = App::scene->sceneObjects->getObjectFromHandle(sel[sel.size() - 1]);
                 for (size_t i = 0; i < sel.size() - 1; i++)
                 {
-                    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(sel[i]);
-                    App::currentScene->sceneObjects->setObjectParent(
+                    CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(sel[i]);
+                    App::scene->sceneObjects->setObjectParent(
                         it, last, commandID == SCENE_OBJECT_OPERATION_MAKE_PARENT_SOOCMD);
                 }
-                App::currentScene->sceneObjects->selectObject(last->getObjectHandle()); // We select the parent
+                App::scene->sceneObjects->selectObject(last->getObjectHandle()); // We select the parent
 
                 App::undoRedo_sceneChanged("");
                 std::string txt("Setting object '");
@@ -199,16 +199,16 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
-                sel.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
+                sel.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::logMsg(sim_verbosity_msgs, "Setting object(s) parent-less...");
             for (size_t i = 0; i < sel.size(); i++)
             {
-                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(sel[i]);
-                App::currentScene->sceneObjects->setObjectParent(it, nullptr, true);
+                CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(sel[i]);
+                App::scene->sceneObjects->setObjectParent(it, nullptr, true);
             }
             App::undoRedo_sceneChanged("");
-            App::currentScene->sceneObjects->deselectObjects(); // We clear selection
+            App::scene->sceneObjects->deselectObjects(); // We clear selection
             App::logMsg(sim_verbosity_msgs, "done.");
         }
         else
@@ -226,10 +226,10 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
             if (commandID == SCENE_OBJECT_OPERATION_COMPUTE_INERTIA_SOOCMD)
-                App::currentScene->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, false);
+                App::scene->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, false);
             else
-                App::currentScene->sceneObjects->getSelectedModels(sel, sim_sceneobject_shape, true);
-            App::currentScene->sceneObjects->deselectObjects();
+                App::scene->sceneObjects->getSelectedModels(sel, sim_sceneobject_shape, true);
+            App::scene->sceneObjects->deselectObjects();
             bool ok;
             double density = 0.0;
             ok = GuiApp::uiThread->dialogInputGetFloat(GuiApp::mainWindow, "Body density", "Uniform density", 1000.05,
@@ -248,7 +248,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         it->computeMassAndInertia(density);
                     }
                 }
-                App::currentScene->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
+                App::scene->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
                 App::logMsg(sim_verbosity_msgs, "done.");
                 GuiApp::uiThread->showOrHideProgressBar(false);
                 App::undoRedo_sceneChanged("");
@@ -269,10 +269,10 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
             if (commandID == SCENE_OBJECT_OPERATION_SCALE_MASS_SOOCMD)
-                App::currentScene->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, false);
+                App::scene->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, false);
             else
-                App::currentScene->sceneObjects->getSelectedModels(sel, sim_sceneobject_shape, true);
-            App::currentScene->sceneObjects->deselectObjects();
+                App::scene->sceneObjects->getSelectedModels(sel, sim_sceneobject_shape, true);
+            App::scene->sceneObjects->deselectObjects();
             bool ok;
             double fact = 0.0;
             ok = GuiApp::uiThread->dialogInputGetFloat(GuiApp::mainWindow, "Mass scaling", "Scaling factor", 2.0, 0.1,
@@ -290,7 +290,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         it->getMesh()->setMass(it->getMesh()->getMass() * fact);
                     }
                 }
-                App::currentScene->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
+                App::scene->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
                 App::logMsg(sim_verbosity_msgs, "done.");
                 App::undoRedo_sceneChanged("");
             }
@@ -310,10 +310,10 @@ bool CSceneObjectOperations::processCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
             if (commandID == SCENE_OBJECT_OPERATION_SCALE_INERTIA_SOOCMD)
-                App::currentScene->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, false);
+                App::scene->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, false);
             else
-                App::currentScene->sceneObjects->getSelectedModels(sel, sim_sceneobject_shape, true);
-            App::currentScene->sceneObjects->deselectObjects();
+                App::scene->sceneObjects->getSelectedModels(sel, sim_sceneobject_shape, true);
+            App::scene->sceneObjects->deselectObjects();
             bool ok;
             double fact = 0.0;
             ok = GuiApp::uiThread->dialogInputGetFloat(GuiApp::mainWindow, "Inertia scaling", "Scaling factor", 2.0, 0.1, 10.0, 2, &fact);
@@ -330,7 +330,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         it->getMesh()->setInertia(it->getMesh()->getInertia() * fact);
                     }
                 }
-                App::currentScene->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
+                App::scene->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
                 App::logMsg(sim_verbosity_msgs, "done.");
                 App::undoRedo_sceneChanged("");
             }
@@ -349,9 +349,9 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_SELECTING_ALL_OBJECTS);
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
-                App::currentScene->sceneObjects->addObjectToSelection(
-                    App::currentScene->sceneObjects->getObjectFromIndex(i)->getObjectHandle());
+            for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
+                App::scene->sceneObjects->addObjectToSelection(
+                    App::scene->sceneObjects->getObjectFromIndex(i)->getObjectHandle());
             App::logMsg(sim_verbosity_msgs, "done.");
         }
         else
@@ -367,14 +367,14 @@ bool CSceneObjectOperations::processCommand(int commandID)
     { // Old scripts
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            int id = App::currentScene->sceneObjects->getLastSelectionHandle();
-            CDetachedScript* script = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+            int id = App::scene->sceneObjects->getLastSelectionHandle();
+            CDetachedScript* script = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                 sim_scripttype_simulation, id);
             if (script != nullptr)
             {
                 if (GuiApp::mainWindow != nullptr)
                     GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(script->getScriptUid(), nullptr, true);
-                App::currentScene->sceneObjects->embeddedScriptContainer->removeScript(script->getScriptHandle());
+                App::scene->sceneObjects->embeddedScriptContainer->removeScript(script->getScriptHandle());
                 App::undoRedo_sceneChanged("");
                 GuiApp::setFullDialogRefreshFlag();
             }
@@ -392,14 +392,14 @@ bool CSceneObjectOperations::processCommand(int commandID)
     { // Old scripts
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            int id = App::currentScene->sceneObjects->getLastSelectionHandle();
-            CDetachedScript* script = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+            int id = App::scene->sceneObjects->getLastSelectionHandle();
+            CDetachedScript* script = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                 sim_scripttype_customization, id);
             if (script != nullptr)
             {
                 if (GuiApp::mainWindow != nullptr)
                     GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(script->getScriptUid(), nullptr, true);
-                App::currentScene->sceneObjects->embeddedScriptContainer->removeScript(script->getScriptHandle());
+                App::scene->sceneObjects->embeddedScriptContainer->removeScript(script->getScriptHandle());
                 App::undoRedo_sceneChanged("");
                 GuiApp::setFullDialogRefreshFlag();
             }
@@ -415,7 +415,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
 
     if (commandID == SCENE_OBJECT_OPERATION_DESELECT_OBJECTS_SOOCMD)
     {
-        App::currentScene->sceneObjects->deselectObjects();
+        App::scene->sceneObjects->deselectObjects();
     }
 
     if (commandID == SCENE_OBJECT_OPERATION_OBJECT_FULL_COPY_SOOCMD)
@@ -423,8 +423,8 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
-                sel.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
+                sel.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::logMsg(sim_verbosity_msgs, IDSNS_COPYING_SELECTION);
             GuiApp::uiThread->showOrHideProgressBar(true, -1.0, "Copying objects...");
             _copyObjects(&sel);
@@ -444,14 +444,14 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
+            for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
             {
-                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(
-                    App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+                CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(
+                    App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
                 if ((it->getObjectProperty() & sim_objectproperty_cannotdelete) == 0)
                 {
                     if (((it->getObjectProperty() & sim_objectproperty_cannotdeleteduringsim) == 0) ||
-                        App::currentScene->simulation->isSimulationStopped())
+                        App::scene->simulation->isSimulationStopped())
                         sel.push_back(it->getObjectHandle());
                 }
             }
@@ -459,15 +459,15 @@ bool CSceneObjectOperations::processCommand(int commandID)
             {
                 App::logMsg(sim_verbosity_msgs, IDSNS_CUTTING_SELECTION);
                 GuiApp::uiThread->showOrHideProgressBar(true, -1.0, "Cutting objects...");
-                App::currentScene->sceneObjects->addModelObjects(sel);
+                App::scene->sceneObjects->addModelObjects(sel);
                 _copyObjects(&sel);
                 _deleteObjects(&sel);
-                App::currentScene->sceneObjects->deselectObjects(); // We clear selection
+                App::scene->sceneObjects->deselectObjects(); // We clear selection
                 GuiApp::uiThread->showOrHideProgressBar(false);
                 App::undoRedo_sceneChanged("");
                 App::logMsg(sim_verbosity_msgs, "done.");
             }
-            App::currentScene->sceneObjects->deselectObjects();
+            App::scene->sceneObjects->deselectObjects();
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -482,13 +482,13 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
-                sel.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
+                sel.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
             App::logMsg(sim_verbosity_msgs, IDSNS_PASTING_BUFFER);
 
             GuiApp::uiThread->showOrHideProgressBar(true, -1.0, "Pasting objects...");
-            bool failed = (App::sceneContainer->copyBuffer->pasteBuffer(
-                               App::currentScene->environment->getSceneLocked(), 3) == -1);
+            bool failed = (App::scenes->copyBuffer->pasteBuffer(
+                               App::scene->environment->getSceneLocked(), 3) == -1);
             GuiApp::uiThread->showOrHideProgressBar(false);
             if (failed) // Error: trying to copy locked buffer into unlocked scene!
                 GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, "Paste",
@@ -512,14 +512,14 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
+            for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
             {
-                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(
-                    App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+                CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(
+                    App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
                 if ((it->getObjectProperty() & sim_objectproperty_cannotdelete) == 0)
                 {
                     if (((it->getObjectProperty() & sim_objectproperty_cannotdeleteduringsim) == 0) ||
-                        App::currentScene->simulation->isSimulationStopped())
+                        App::scene->simulation->isSimulationStopped())
                         sel.push_back(it->getObjectHandle());
                 }
             }
@@ -532,7 +532,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                 App::undoRedo_sceneChanged("");
                 App::logMsg(sim_verbosity_msgs, "done.");
             }
-            App::currentScene->sceneObjects->deselectObjects();
+            App::scene->sceneObjects->deselectObjects();
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -549,7 +549,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
-            App::currentScene->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, false, false);
+            App::scene->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, false, false);
             if (sel.size() > 0)
             {
                 if (commandID == SCENE_OBJECT_OPERATION_RELOCATE_FRAME_TO_ORIGIN_SOOCMD)
@@ -574,7 +574,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         toSelect.push_back(theShape->getObjectHandle());
                     success = r && success;
                 }
-                App::currentScene->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
+                App::scene->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
                 App::undoRedo_sceneChanged("");
                 if (success)
                     App::logMsg(sim_verbosity_msgs, "done.");
@@ -599,7 +599,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<CSceneObject*> sel;
-            App::currentScene->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, false, false);
+            App::scene->sceneObjects->getSelectedObjects(sel, sim_sceneobject_shape, false, false);
             if (sel.size() > 0)
             {
                 if (commandID == SCENE_OBJECT_OPERATION_ALIGN_BOUNDING_BOX_WITH_MESH_SOOCMD)
@@ -620,7 +620,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         toSelect.push_back(theShape->getObjectHandle());
                     success = r && success;
                 }
-                App::currentScene->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
+                App::scene->sceneObjects->setSelectedObjectHandles(toSelect.data(), toSelect.size());
                 App::undoRedo_sceneChanged("");
                 if (success)
                     App::logMsg(sim_verbosity_msgs, "done.");
@@ -644,7 +644,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            App::currentScene->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, false, false);
+            App::scene->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, false, false);
             if (sel.size() > 1)
             {
                 App::logMsg(sim_verbosity_msgs, "Grouping shapes...");
@@ -669,11 +669,11 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            App::currentScene->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, false, false);
+            App::scene->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, false, false);
             bool hasCompound = false;
             for (size_t i = 0; i < sel.size(); i++)
             {
-                CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(sel[i]);
+                CShape* it = App::scene->sceneObjects->getShapeFromHandle(sel[i]);
                 if ( (it != nullptr) && it->isCompound() )
                 {
                     hasCompound = true;
@@ -704,7 +704,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            App::currentScene->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, false, false);
+            App::scene->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, false, false);
             if (sel.size() > 1)
             {
                 App::logMsg(sim_verbosity_msgs, "Merging shapes...");
@@ -728,7 +728,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             std::vector<int> sel;
-            App::currentScene->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, false, false);
+            App::scene->sceneObjects->getSelectedObjectHandles(sel, sim_sceneobject_shape, false, false);
             if (sel.size() > 0)
             {
                 App::logMsg(sim_verbosity_msgs, "Dividing shapes...");
@@ -755,7 +755,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 App::logMsg(sim_verbosity_msgs, IDSNS_EXECUTING_UNDO);
-                App::currentScene->undoBufferContainer->undo();
+                App::scene->undoBufferContainer->undo();
                 App::logMsg(sim_verbosity_msgs, "done.");
             }
             else
@@ -775,7 +775,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
                 App::logMsg(sim_verbosity_msgs, IDSNS_EXECUTING_REDO);
-                App::currentScene->undoBufferContainer->redo();
+                App::scene->undoBufferContainer->redo();
                 App::logMsg(sim_verbosity_msgs, "done.");
             }
             else
@@ -794,17 +794,17 @@ void CSceneObjectOperations::_copyObjects(std::vector<int>* selection)
 {
     // We first copy the selection:
     std::vector<int> sel(*selection);
-    App::currentScene->sceneObjects->addModelObjects(sel);
-    App::sceneContainer->copyBuffer->copyCurrentSelection(sel, App::currentScene->environment->getSceneLocked(), 0);
-    App::currentScene->sceneObjects->deselectObjects(); // We clear selection
+    App::scene->sceneObjects->addModelObjects(sel);
+    App::scenes->copyBuffer->copyCurrentSelection(sel, App::scene->environment->getSceneLocked(), 0);
+    App::scene->sceneObjects->deselectObjects(); // We clear selection
 }
 
 void CSceneObjectOperations::_deleteObjects(std::vector<int>* selection)
 { // There are a few other spots where objects get deleted (e.g. the C-interface)
     TRACE_INTERNAL;
-    App::currentScene->sceneObjects->addModelObjects(selection[0]);
-    App::currentScene->sceneObjects->eraseObjects(selection, true);
-    App::currentScene->sceneObjects->deselectObjects();
+    App::scene->sceneObjects->addModelObjects(selection[0]);
+    App::scene->sceneObjects->eraseObjects(selection, true);
+    App::scene->sceneObjects->deselectObjects();
 }
 
 int CSceneObjectOperations::groupSelection(std::vector<int>* selection)
@@ -815,15 +815,15 @@ int CSceneObjectOperations::groupSelection(std::vector<int>* selection)
     std::vector<CShape*> shapesToGroup;
     for (size_t i = 0; i < selection->size(); i++)
     {
-        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(selection->at(i));
+        CShape* it = App::scene->sceneObjects->getShapeFromHandle(selection->at(i));
         shapesToGroup.push_back(it);
     }
 
-    App::currentScene->sceneObjects->deselectObjects();
+    App::scene->sceneObjects->deselectObjects();
 
     CShape* compoundShape = _groupShapes(shapesToGroup);
 
-    App::currentScene->sceneObjects->selectObject(compoundShape->getObjectHandle());
+    App::scene->sceneObjects->selectObject(compoundShape->getObjectHandle());
 
     return (compoundShape->getObjectHandle());
 }
@@ -869,26 +869,26 @@ CShape* CSceneObjectOperations::_groupShapes(const std::vector<CShape*>& shapesT
     }
 
     newShape->replaceMesh(newWrapper, false);
-    App::currentScene->sceneObjects->addObjectToScene(newShape, false, true);
-    App::currentScene->sceneObjects->setObjectParent(newShape, lastSel->getParent(), false);
-    int order = App::currentScene->sceneObjects->getObjectSequence(lastSel, nullptr);
-    App::currentScene->sceneObjects->setObjectSequence(newShape, order);
-    App::currentScene->sceneObjects->setObjectParent(lastSel, newShape, true);
+    App::scene->sceneObjects->addObjectToScene(newShape, false, true);
+    App::scene->sceneObjects->setObjectParent(newShape, lastSel->getParent(), false);
+    int order = App::scene->sceneObjects->getObjectSequence(lastSel, nullptr);
+    App::scene->sceneObjects->setObjectSequence(newShape, order);
+    App::scene->sceneObjects->setObjectParent(lastSel, newShape, true);
 
     std::vector<int> shapesToErase;
     for (size_t i = 0; i < shapesToGroup.size(); i++)
         shapesToErase.push_back(shapesToGroup[i]->getObjectHandle());
-    App::currentScene->sceneObjects->eraseObjects(&shapesToErase, true);
+    App::scene->sceneObjects->eraseObjects(&shapesToErase, true);
     return (newShape);
 }
 
 void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection, bool fullUngroup /*= false*/)
 {
-    App::currentScene->sceneObjects->deselectObjects();
+    App::scene->sceneObjects->deselectObjects();
     std::vector<int> finalSel;
     for (size_t i = 0; i < selection->size(); i++)
     {
-        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(selection->at(i));
+        CShape* it = App::scene->sceneObjects->getShapeFromHandle(selection->at(i));
         if ((it != nullptr) && it->isCompound())
         {
             std::vector<CShape*> newShapes;
@@ -904,7 +904,7 @@ void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection, bool 
     selection->clear();
     for (size_t i = 0; i < finalSel.size(); i++)
     {
-        App::currentScene->sceneObjects->addObjectToSelection(finalSel[i]);
+        App::scene->sceneObjects->addObjectToSelection(finalSel[i]);
         selection->push_back(finalSel[i]);
     }
 }
@@ -942,12 +942,12 @@ void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it, s
             shape = (CShape*)it->copyYourself();
             shape->replaceMesh(mesh, false);
             shape->setLocalTransformation(oldParentTransf.getInverse() * newTransf);
-            App::currentScene->sceneObjects->addObjectToScene(shape, false, true);
-            App::currentScene->sceneObjects->setObjectAlias(shape, it->getObjectAlias().c_str(), true);
-            App::currentScene->sceneObjects->setObjectParent(shape, it->getParent(), false);
-            int order = App::currentScene->sceneObjects->getObjectSequence(it, nullptr);
-            App::currentScene->sceneObjects->setObjectSequence(shape, order);
-            App::currentScene->sceneObjects->setObjectParent(it, shape, true);
+            App::scene->sceneObjects->addObjectToScene(shape, false, true);
+            App::scene->sceneObjects->setObjectAlias(shape, it->getObjectAlias().c_str(), true);
+            App::scene->sceneObjects->setObjectParent(shape, it->getParent(), false);
+            int order = App::scene->sceneObjects->getObjectSequence(it, nullptr);
+            App::scene->sceneObjects->setObjectSequence(shape, order);
+            App::scene->sceneObjects->setObjectParent(it, shape, true);
         }
         else
         {
@@ -955,13 +955,13 @@ void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it, s
             it->copyAttributesTo(shape);
             shape->replaceMesh(mesh, false);
             shape->setLocalTransformation(newTransf);
-            App::currentScene->sceneObjects->addObjectToScene(shape, false, true);
-            App::currentScene->sceneObjects->setObjectParent(shape, it->getParent(), true);
-            App::currentScene->sceneObjects->setObjectAlias(shape, mesh->getName().c_str(), true);
+            App::scene->sceneObjects->addObjectToScene(shape, false, true);
+            App::scene->sceneObjects->setObjectParent(shape, it->getParent(), true);
+            App::scene->sceneObjects->setObjectAlias(shape, mesh->getName().c_str(), true);
         }
         newShapes.push_back(shape);
     }
-    App::currentScene->sceneObjects->eraseObject(it, true);
+    App::scene->sceneObjects->eraseObject(it, true);
 }
 
 int CSceneObjectOperations::mergeSelection(std::vector<int>* selection)
@@ -970,16 +970,16 @@ int CSceneObjectOperations::mergeSelection(std::vector<int>* selection)
     std::vector<CShape*> shapesToMerge;
     for (size_t i = 0; i < selection->size(); i++)
     {
-        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(selection->at(i));
+        CShape* it = App::scene->sceneObjects->getShapeFromHandle(selection->at(i));
         if (it != nullptr)
             shapesToMerge.push_back(it);
     }
-    App::currentScene->sceneObjects->deselectObjects();
+    App::scene->sceneObjects->deselectObjects();
     if (shapesToMerge.size() >= 2)
     {
         CShape* mergedShape = _mergeShapes(shapesToMerge);
         retVal = mergedShape->getObjectHandle();
-        App::currentScene->sceneObjects->selectObject(retVal);
+        App::scene->sceneObjects->selectObject(retVal);
     }
     return (retVal);
 }
@@ -991,7 +991,7 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
         CShape* it = allShapes[i];
         if (it->getMesh()->getTextureCount() != 0)
         {
-            App::currentScene->textureContainer->announceGeneralObjectWillBeErased(it->getObjectHandle(), -1);
+            App::scene->textureContainer->announceGeneralObjectWillBeErased(it->getObjectHandle(), -1);
             it->getMesh()->removeAllTextures();
         }
     }
@@ -1016,15 +1016,15 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
     newShape->replaceMesh(newMesh, true);
 
     std::vector<int> shapesToErase;
-    App::currentScene->sceneObjects->addObjectToScene(newShape, false, true);
-    App::currentScene->sceneObjects->setObjectParent(newShape, lastSel->getParent(), true);
-    int order = App::currentScene->sceneObjects->getObjectSequence(lastSel, nullptr);
-    App::currentScene->sceneObjects->setObjectSequence(newShape, order);
-    App::currentScene->sceneObjects->setObjectParent(lastSel, newShape, true);
+    App::scene->sceneObjects->addObjectToScene(newShape, false, true);
+    App::scene->sceneObjects->setObjectParent(newShape, lastSel->getParent(), true);
+    int order = App::scene->sceneObjects->getObjectSequence(lastSel, nullptr);
+    App::scene->sceneObjects->setObjectSequence(newShape, order);
+    App::scene->sceneObjects->setObjectParent(lastSel, newShape, true);
 
     for (size_t i = 0; i < allShapes.size(); i++)
         shapesToErase.push_back(allShapes[i]->getObjectHandle());
-    App::currentScene->sceneObjects->eraseObjects(&shapesToErase, true);
+    App::scene->sceneObjects->eraseObjects(&shapesToErase, true);
     return newShape;
 }
 
@@ -1033,12 +1033,12 @@ void CSceneObjectOperations::divideSelection(std::vector<int>* selection)
     std::vector<CShape*> shapesToDivide;
     for (size_t i = 0; i < selection->size(); i++)
     {
-        CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(selection->at(i));
+        CShape* it = App::scene->sceneObjects->getShapeFromHandle(selection->at(i));
         if ((it != nullptr) && (!it->getMesh()->isPure()))
             shapesToDivide.push_back(it);
     }
 
-    App::currentScene->sceneObjects->deselectObjects();
+    App::scene->sceneObjects->deselectObjects();
     selection->clear();
 
     for (size_t i = 0; i < shapesToDivide.size(); i++)
@@ -1051,7 +1051,7 @@ void CSceneObjectOperations::divideSelection(std::vector<int>* selection)
         }
     }
 
-    App::currentScene->sceneObjects->setSelectedObjectHandles(selection->data(), selection->size());
+    App::scene->sceneObjects->setSelectedObjectHandles(selection->data(), selection->size());
 }
 
 bool CSceneObjectOperations::_divideShape(CShape* it, std::vector<CShape*>& newShapes)
@@ -1075,9 +1075,9 @@ bool CSceneObjectOperations::_divideShape(CShape* it, std::vector<CShape*>& newS
             if (it->getMesh()->isMesh())
                 ((CMesh*)it->getMesh())->copyVisualAttributesTo(mesh);
             shape->setLocalTransformation(it->getCumulativeTransformation());
-            App::currentScene->sceneObjects->addObjectToScene(shape, false, true);
-            App::currentScene->sceneObjects->setObjectParent(shape, it->getParent(), true);
-            App::currentScene->sceneObjects->setObjectAlias(shape, it->getObjectAlias().c_str(), true);
+            App::scene->sceneObjects->addObjectToScene(shape, false, true);
+            App::scene->sceneObjects->setObjectParent(shape, it->getParent(), true);
+            App::scene->sceneObjects->setObjectAlias(shape, it->getObjectAlias().c_str(), true);
             newShapes.push_back(shape);
         }
         else
@@ -1088,12 +1088,12 @@ bool CSceneObjectOperations::_divideShape(CShape* it, std::vector<CShape*>& newS
             shape->setLocalTransformation(it->getCumulativeTransformation());
             CMesh* mesh = new CMesh(shape->getLocalTransformation(), vertices, indices, nullptr, nullptr, 0);
             shape->replaceMesh(mesh, true);
-            App::currentScene->sceneObjects->addObjectToScene(shape, false, true);
-            App::currentScene->sceneObjects->setObjectParent(shape, it->getParent(), true);
-            int order = App::currentScene->sceneObjects->getObjectSequence(it, nullptr);
-            App::currentScene->sceneObjects->setObjectSequence(shape, order);
-            App::currentScene->sceneObjects->setObjectParent(it, shape, true);
-            App::currentScene->sceneObjects->eraseObject(it, true);
+            App::scene->sceneObjects->addObjectToScene(shape, false, true);
+            App::scene->sceneObjects->setObjectParent(shape, it->getParent(), true);
+            int order = App::scene->sceneObjects->getObjectSequence(it, nullptr);
+            App::scene->sceneObjects->setObjectSequence(shape, order);
+            App::scene->sceneObjects->setObjectParent(it, shape, true);
+            App::scene->sceneObjects->eraseObject(it, true);
             newShapes.push_back(shape);
             break;
         }
@@ -1104,10 +1104,10 @@ bool CSceneObjectOperations::_divideShape(CShape* it, std::vector<CShape*>& newS
 void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection, double scalingFactor, bool scalePositionsToo, bool doNotScaleFirstItemPos /*= false*/)
 {
     std::vector<int> sel(selection);
-    App::currentScene->sceneObjects->addModelObjects(sel);
+    App::scene->sceneObjects->addModelObjects(sel);
     for (size_t i = 0; i < sel.size(); i++)
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(sel[i]);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(sel[i]);
         if (scalePositionsToo && ((i != 0) || (!doNotScaleFirstItemPos)))
             it->scalePosition(scalingFactor);
         else
@@ -1140,14 +1140,14 @@ void CSceneObjectOperations::scaleObjects(const std::vector<int>& selection, dou
     }
 
     // OLD IK:
-    for (size_t i = 0; i < App::currentScene->ikGroups_old->getObjectCount(); i++)
+    for (size_t i = 0; i < App::scene->ikGroups_old->getObjectCount(); i++)
     {
-        CIkGroup_old* ikGroup = App::currentScene->ikGroups_old->getObjectFromIndex(i);
+        CIkGroup_old* ikGroup = App::scene->ikGroups_old->getObjectFromIndex(i);
         // Go through all ikElement lists:
         for (size_t j = 0; j < ikGroup->getIkElementCount(); j++)
         {
             CIkElement_old* ikEl = ikGroup->getIkElementFromIndex(j);
-            CDummy* tip = App::currentScene->sceneObjects->getDummyFromHandle(ikEl->getTipHandle());
+            CDummy* tip = App::scene->sceneObjects->getDummyFromHandle(ikEl->getTipHandle());
             bool scaleElement = false;
             if (tip != nullptr)
             { // was this tip scaled?
@@ -1228,7 +1228,7 @@ CShape* CSceneObjectOperations::_morphToConvexDecomposed(
                 newShapes2.push_back(it2);
             }
             else
-                App::currentScene->sceneObjects->eraseObject(it2, true);
+                App::scene->sceneObjects->eraseObject(it2, true);
         }
         if (newShapes2.size() > 0)
         {
@@ -1335,13 +1335,13 @@ int CSceneObjectOperations::convexDecompose(int shapeHandle, int options, const 
             minVolumePerCH = floatParams[9];
         }
     }
-    CShape* it = App::currentScene->sceneObjects->getShapeFromHandle(shapeHandle);
+    CShape* it = App::scene->sceneObjects->getShapeFromHandle(shapeHandle);
     if ((options & 1) == 0)
     { // We want to create a new shape from it:
         CShape* it2 = new CShape();
         it2->replaceMesh(it->getMesh()->copyYourself(), false);
         it2->setLocalTransformation(it->getCumulativeTransformation());
-        App::currentScene->sceneObjects->addObjectToScene(it2, false, true);
+        App::scene->sceneObjects->addObjectToScene(it2, false, true);
         it = it2;
     }
     it = CSceneObjectOperations::_morphToConvexDecomposed(
@@ -1357,7 +1357,7 @@ int CSceneObjectOperations::convexDecompose(int shapeHandle, int options, const 
 void CSceneObjectOperations::addMenu(VMenu* menu)
 {
     std::vector<CSceneObject*> objectSel;
-    App::currentScene->sceneObjects->getSelectedObjects(objectSel, -1, false);
+    App::scene->sceneObjects->getSelectedObjects(objectSel, -1, false);
     int objectSel_shapeCnt = 0;
     int objectSel_compoundCnt = 0;
     int objectSel_dynShapeCnt = 0;
@@ -1376,7 +1376,7 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
     }
 
     std::vector<CSceneObject*> modelSel;
-    App::currentScene->sceneObjects->getSelectedModels(modelSel, -1, true);
+    App::scene->sceneObjects->getSelectedModels(modelSel, -1, true);
     int modelSel_dynShapeCnt = 0;
     for (size_t i = 0; i < modelSel.size(); i++)
     {
@@ -1389,21 +1389,21 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
         }
     }
 
-    size_t selItems = App::currentScene->sceneObjects->getSelectionCount();
+    size_t selItems = App::scene->sceneObjects->getSelectionCount();
 
-    bool noSim = App::currentScene->simulation->isSimulationStopped();
+    bool noSim = App::scene->simulation->isSimulationStopped();
 
     if (GuiApp::getEditModeType() == NO_EDIT_MODE)
     {
-        menu->appendMenuItem(App::currentScene->undoBufferContainer->canUndo(), false, SCENE_OBJECT_OPERATION_UNDO_SOOCMD, IDSN_UNDO);
-        menu->appendMenuItem(App::currentScene->undoBufferContainer->canRedo(), false, SCENE_OBJECT_OPERATION_REDO_SOOCMD, IDSN_REDO);
+        menu->appendMenuItem(App::scene->undoBufferContainer->canUndo(), false, SCENE_OBJECT_OPERATION_UNDO_SOOCMD, IDSN_UNDO);
+        menu->appendMenuItem(App::scene->undoBufferContainer->canRedo(), false, SCENE_OBJECT_OPERATION_REDO_SOOCMD, IDSN_REDO);
         menu->appendMenuSeparator();
         menu->appendMenuItem(objectSel.size() > 1, false, SCENE_OBJECT_OPERATION_MAKE_PARENT_SOOCMD, "Set parent, keep pose(s)");
         menu->appendMenuItem(objectSel.size() > 1, false, SCENE_OBJECT_OPERATION_MAKE_PARENT_AND_MOVE_SOOCMD, "Set parent");
         menu->appendMenuItem(objectSel.size() > 0, false, SCENE_OBJECT_OPERATION_MAKE_ORPHANS_SOOCMD, "Set parent-less");
         menu->appendMenuSeparator();
         menu->appendMenuItem(objectSel.size() > 0, false, SCENE_OBJECT_OPERATION_OBJECT_FULL_COPY_SOOCMD, "Copy object(s)/model(s)");
-        menu->appendMenuItem(!App::sceneContainer->copyBuffer->isBufferEmpty(), false, SCENE_OBJECT_OPERATION_PASTE_OBJECTS_SOOCMD, "Paste buffer");
+        menu->appendMenuItem(!App::scenes->copyBuffer->isBufferEmpty(), false, SCENE_OBJECT_OPERATION_PASTE_OBJECTS_SOOCMD, "Paste buffer");
         menu->appendMenuItem(objectSel.size() > 0, false, SCENE_OBJECT_OPERATION_DELETE_OBJECTS_SOOCMD, "Delete object(s)/model(s)");
         menu->appendMenuItem(objectSel.size() > 0, false, SCENE_OBJECT_OPERATION_OBJECT_FULL_CUT_SOOCMD, "Cut object(s)/model(s)");
         menu->appendMenuSeparator();
@@ -1418,8 +1418,8 @@ void CSceneObjectOperations::addMenu(VMenu* menu)
             bool hasCustomizationScriptAttached = false;
             if (selItems == 1)
             {
-                hasChildScriptAttached = (App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(0)) != nullptr);
-                hasCustomizationScriptAttached = (App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo( sim_scripttype_customization, App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(0)) != nullptr);
+                hasChildScriptAttached = (App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, App::scene->sceneObjects->getObjectHandleFromSelectionIndex(0)) != nullptr);
+                hasCustomizationScriptAttached = (App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo( sim_scripttype_customization, App::scene->sceneObjects->getObjectHandleFromSelectionIndex(0)) != nullptr);
             }
 
             if (hasChildScriptAttached || hasCustomizationScriptAttached)

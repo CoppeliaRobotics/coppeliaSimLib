@@ -54,9 +54,9 @@ void CHierarchyElement::addYourChildren()
     {
         if ((objectID < 0) && isLocalWorld())
         { // this is the world!
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getOrphanCount(); i++)
+            for (size_t i = 0; i < App::scene->sceneObjects->getOrphanCount(); i++)
             {
-                CSceneObject* it = App::currentScene->sceneObjects->getOrphanFromIndex(i);
+                CSceneObject* it = App::scene->sceneObjects->getOrphanFromIndex(i);
                 CHierarchyElement* aKid = new CHierarchyElement(it->getObjectHandle());
                 aKid->addYourChildren();
                 children.push_back(aKid);
@@ -64,7 +64,7 @@ void CHierarchyElement::addYourChildren()
         }
         else
         { // this is a scene object!
-            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectID);
+            CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(objectID);
             if (it != nullptr)
             {
                 for (size_t i = 0; i < it->getChildCount(); i++)
@@ -118,14 +118,14 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
     }
 
     bool textInside = (textPos[1] < renderingSize[1] + HIERARCHY_INTER_LINE_SPACE * GuiApp::sc);
-    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectID);
+    CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(objectID);
     std::string theText;
     if (it != nullptr)
     {
         //        theText=it->getObjectName();
         theText = it->getObjectAliasAndOrderIfRequired();
         /*
-        if (App::currentScene->sceneObjects->isObjectInSelection(objectID))
+        if (App::scene->sceneObjects->isObjectInSelection(objectID))
         {
             theText+=" (";
             theText+=it->getObjectName_old();
@@ -155,9 +155,9 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
         }
         else
         {
-            if (App::currentScene->sceneObjects->isObjectInSelection(objectID) && textInside && (!dontDisplay))
+            if (App::scene->sceneObjects->isObjectInSelection(objectID) && textInside && (!dontDisplay))
             {
-                if (App::currentScene->sceneObjects->getLastSelectionObject() == it)
+                if (App::scene->sceneObjects->getLastSelectionObject() == it)
                     bgCol = ogl::HIERARCHY_AND_BROWSER_LAST_SELECTION_COLOR;
                 else
                 {
@@ -249,7 +249,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
     }
     else
     { // for drag and drop only:
-        inSelection = App::currentScene->sceneObjects->isObjectInSelection(objectID);
+        inSelection = App::scene->sceneObjects->isObjectInSelection(objectID);
     }
 
     int off = 2;
@@ -315,7 +315,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
         else
         {
             if ((it != nullptr) &&
-                (((it->getVisibilityLayer() & App::currentScene->environment->getActiveLayers()) == 0) ||
+                (((it->getVisibilityLayer() & App::scene->environment->getActiveLayers()) == 0) ||
                  it->isObjectPartOfInvisibleModel()))
                 tc = ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_INVISIBLE;
             else
@@ -369,20 +369,20 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
     {
         bool hasScript = false;
         // Old simulation scripts:
-        CDetachedScript* script = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, it->getObjectHandle());
+        CDetachedScript* script = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, it->getObjectHandle());
         if (script != nullptr)
         {
             hasScript = true;
             if (!dontDisplay)
             {
                 if (script->getScriptDisabledAndNoErrorRaised() || ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
-                    App::sceneContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTDISABLED_PICTURE);
+                    App::scenes->globalGuiTextureCont->startTextureDisplay(SCRIPTDISABLED_PICTURE);
                 else
                 {
                     if (script->getScriptHasError())
-                        App::sceneContainer->globalGuiTextureCont->startTextureDisplay(SCRIPTERROR_PICTURE);
+                        App::scenes->globalGuiTextureCont->startTextureDisplay(SCRIPTERROR_PICTURE);
                     else
-                        App::sceneContainer->globalGuiTextureCont->startTextureDisplay(SCRIPT_PICTURE);
+                        App::scenes->globalGuiTextureCont->startTextureDisplay(SCRIPT_PICTURE);
                 }
                 _drawTexturedIcon(tPosX + localOffset, tPosY, HIERARCHY_ICON_WIDTH * GuiApp::sc,
                                   HIERARCHY_ICON_HEIGHT * GuiApp::sc, transparencyFactor);
@@ -397,7 +397,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
         }
 
         // Old Customization scripts:
-        CDetachedScript* customizationScript = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+        CDetachedScript* customizationScript = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
             sim_scripttype_customization, it->getObjectHandle());
         if (customizationScript != nullptr)
         {
@@ -405,13 +405,13 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
             if (!dontDisplay)
             {
                 if (customizationScript->getScriptDisabledAndNoErrorRaised() || ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))
-                    App::sceneContainer->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPTDISABLED_PICTURE);
+                    App::scenes->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPTDISABLED_PICTURE);
                 else
                 {
                     if (customizationScript->getScriptHasError())
-                        App::sceneContainer->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPTERROR_PICTURE);
+                        App::scenes->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPTERROR_PICTURE);
                     else
-                        App::sceneContainer->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPT_PICTURE);
+                        App::scenes->globalGuiTextureCont->startTextureDisplay(CUSTOMIZATIONSCRIPT_PICTURE);
                 }
                 _drawTexturedIcon(tPosX + localOffset, tPosY, HIERARCHY_ICON_WIDTH * GuiApp::sc,
                                   HIERARCHY_ICON_HEIGHT * GuiApp::sc, transparencyFactor);
@@ -460,7 +460,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
             {
                 if (!dontDisplay)
                 {
-                    App::sceneContainer->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
+                    App::scenes->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
                     _drawTexturedIcon(tPosX + localOffset, tPosY, HIERARCHY_ICON_WIDTH * GuiApp::sc,
                                       HIERARCHY_ICON_HEIGHT * GuiApp::sc, transparencyFactor);
                 }
@@ -485,7 +485,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
                         //                %i\n",it->getObjectAlias().c_str(),params->userParamEntries[0].name.c_str(),params->userParamEntries.size());
                         if (!dontDisplay)
                         {
-                            App::sceneContainer->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
+                            App::scenes->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
                             _drawTexturedIcon(tPosX + localOffset, tPosY, HIERARCHY_ICON_WIDTH * GuiApp::sc,
                                               HIERARCHY_ICON_HEIGHT * GuiApp::sc, transparencyFactor);
                         }
@@ -503,12 +503,12 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
     }
     else
     { // This is for the main script (pseudo object "world"):
-        CDetachedScript* script = App::currentScene->sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* script = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
         if (script != nullptr)
         {
             if (!dontDisplay)
             {
-                App::sceneContainer->globalGuiTextureCont->startTextureDisplay(MAIN_SCRIPT_PICTURE);
+                App::scenes->globalGuiTextureCont->startTextureDisplay(MAIN_SCRIPT_PICTURE);
                 _drawTexturedIcon(tPosX + localOffset, tPosY, HIERARCHY_ICON_WIDTH * GuiApp::sc,
                                   HIERARCHY_ICON_HEIGHT * GuiApp::sc, transparencyFactor);
             }
@@ -673,7 +673,7 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy* hier, int tPosX, int tP
         {
             if (drawIt)
             {
-                App::sceneContainer->globalGuiTextureCont->startTextureDisplay(pictureID);
+                App::scenes->globalGuiTextureCont->startTextureDisplay(pictureID);
                 if ((it != nullptr) && (!forDragAndDrop))
                 {
                     if (((pictureID == PLUS_SIGN_TREE_PICTURE) || (pictureID == MINUS_SIGN_TREE_PICTURE)))
@@ -833,7 +833,7 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy* hier, int tPosX, int tP
             {
                 if ((it != nullptr) && it->getModelBase())
                 { // We have to draw a model icon before the object icon:
-                    App::sceneContainer->globalGuiTextureCont->startTextureDisplay(MODEL_TREE_PICTURE);
+                    App::scenes->globalGuiTextureCont->startTextureDisplay(MODEL_TREE_PICTURE);
                     _drawTexturedIcon(tPosX + retVal, tPosY, HIERARCHY_ICON_WIDTH * GuiApp::sc,
                                       HIERARCHY_ICON_HEIGHT * GuiApp::sc, transparencyFactor);
                     if (!forDragAndDrop)
@@ -845,7 +845,7 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy* hier, int tPosX, int tP
                 }
                 retVal += (HIERARCHY_ICON_WIDTH + HIERARCHY_INTER_ICON_SPACING) * GuiApp::sc;
 
-                App::sceneContainer->globalGuiTextureCont->startTextureDisplay(objectOrWorldIconID);
+                App::scenes->globalGuiTextureCont->startTextureDisplay(objectOrWorldIconID);
                 _drawTexturedIcon(tPosX + retVal, tPosY, HIERARCHY_ICON_WIDTH * GuiApp::sc,
                                   HIERARCHY_ICON_HEIGHT * GuiApp::sc, transparencyFactor);
                 if (!forDragAndDrop)
@@ -1056,7 +1056,7 @@ int CHierarchyElement::_drawIcon_editModeList(CHierarchy* hier, int tPosX, int t
         {
             if (drawIt)
             {
-                App::sceneContainer->globalGuiTextureCont->startTextureDisplay(pictureID);
+                App::scenes->globalGuiTextureCont->startTextureDisplay(pictureID);
                 _drawTexturedIcon(tPosX, tPosY, sizeX, sizeY, 0.0);
             }
             hier->objectIconPosition.push_back(tPosX);
@@ -1099,7 +1099,7 @@ void CHierarchyElement::_drawTexturedIcon(int tPosX, int tPosY, int sizeX, int s
     ogl::enableLighting_useWithCare();
     ogl::setBlending(false);
     glDisable(GL_ALPHA_TEST);
-    App::sceneContainer->globalGuiTextureCont->endTextureDisplay();
+    App::scenes->globalGuiTextureCont->endTextureDisplay();
 }
 
 bool CHierarchyElement::renderDummyElement(bool& bright, int renderingSize[2], int textPos[2])
@@ -1130,6 +1130,6 @@ bool CHierarchyElement::renderDummyElement(bool& bright, int renderingSize[2], i
 bool CHierarchyElement::isLocalWorld()
 {
     if (objectID < 0)
-        return (-App::sceneContainer->getCurrentSceneIndex() - 1 == objectID);
+        return (-App::scenes->getCurrentSceneIndex() - 1 == objectID);
     return (false);
 }

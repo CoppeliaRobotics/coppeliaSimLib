@@ -77,12 +77,12 @@ void CPathPointManipulation_old::xorAddPathPointToSelection_nonEditMode(int path
 void CPathPointManipulation_old::announceObjectSelectionChanged()
 {
     TRACE_INTERNAL;
-    if ((App::sceneContainer == nullptr) || (App::currentScene->sceneObjects == nullptr))
+    if ((App::scenes == nullptr) || (App::scene->sceneObjects == nullptr))
         return;
-    if ((App::currentScene->sceneObjects->getSelectionCount() == 1) && _simulationStopped)
+    if ((App::scene->sceneObjects->getSelectionCount() == 1) && _simulationStopped)
     {
-        CPath_old* selPath = App::currentScene->sceneObjects->getPathFromHandle(
-            App::currentScene->sceneObjects->getLastSelectionHandle());
+        CPath_old* selPath = App::scene->sceneObjects->getPathFromHandle(
+            App::scene->sceneObjects->getLastSelectionHandle());
         if (selPath != nullptr)
         {
             if (selPath->getObjectHandle() != _uniqueSelectedPathID_nonEditMode)

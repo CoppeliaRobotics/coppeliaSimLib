@@ -50,12 +50,12 @@ std::string Obj::getObjectMetaInfo() const
 
 int Obj::getLongProperty(const char* ppName, long long int& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(ppName, propObject_handle.name) == 0)
     {
         pState = _objectHandle;
-        retVal = 1;
+        retVal = sim_propertyret_ok;
     }
 
     return retVal;
@@ -63,17 +63,17 @@ int Obj::getLongProperty(const char* ppName, long long int& pState) const
 
 int Obj::getStringProperty(const char* ppName, std::string& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(ppName, propObject_objectType.name) == 0)
     {
         pState = _objectTypeStr;
-        retVal = 1;
+        retVal = sim_propertyret_ok;
     }
     else if (strcmp(ppName, propObject_objectMetaInfo.name) == 0)
     {
         pState = _objectMetaInfo;
-        retVal = 1;
+        retVal = sim_propertyret_ok;
     }
 
     return retVal;
@@ -81,7 +81,7 @@ int Obj::getStringProperty(const char* ppName, std::string& pState) const
 
 int Obj::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     for (size_t i = 0; i < allProps_obj.size(); i++)
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_obj[i].name, pName.c_str()))
@@ -93,7 +93,7 @@ int Obj::getPropertyName(int& index, std::string& pName, std::string& appartenan
                 {
                     pName = allProps_obj[i].name;
                     appartenance = "object";
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                     break;
                 }
             }
@@ -104,7 +104,7 @@ int Obj::getPropertyName(int& index, std::string& pName, std::string& appartenan
 
 int Obj::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     for (size_t i = 0; i < allProps_obj.size(); i++)
     {
         if (strcmp(allProps_obj[i].name, ppName) == 0)

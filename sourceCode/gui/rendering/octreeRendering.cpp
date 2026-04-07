@@ -69,7 +69,7 @@ void displayOctree(COcTree* octree, CViewableBase* renderingObject, int displayA
             if (octree->getShowOctree() && ((displayAttrib & sim_displayattribute_forvisionsensor) == 0))
             {
                 std::vector<double> corners;
-                App::sceneContainer->pluginContainer->geomPlugin_getOctreeCornersFromOctree(octree->getOctreeInfo(),
+                App::scenes->pluginContainer->geomPlugin_getOctreeCornersFromOctree(octree->getOctreeInfo(),
                                                                                             corners);
 
                 glBegin(GL_LINES);

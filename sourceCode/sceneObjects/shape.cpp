@@ -182,15 +182,15 @@ void CShape::setInitialDynamicLinearVelocity(const C3Vector& vel)
     if (diff)
     {
         _initialDynamicLinearVelocity = vel;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propShape_initLinearVelocity.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyDoubleArray(cmd, _initialDynamicLinearVelocity.data, 3);
             else
                 ev->appendKeyVector3(cmd, _initialDynamicLinearVelocity);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -206,15 +206,15 @@ void CShape::setInitialDynamicAngularVelocity(const C3Vector& vel)
     if (diff)
     {
         _initialDynamicAngularVelocity = vel;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propShape_initAngularVelocity.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyDoubleArray(cmd, _initialDynamicAngularVelocity.data, 3);
             else
                 ev->appendKeyVector3(cmd, _initialDynamicAngularVelocity);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -250,12 +250,12 @@ void CShape::setRespondableMask(int m)
     if (diff)
     {
         _respondableMask = m;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propShape_respondableMask.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _respondableMask);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -383,10 +383,10 @@ void CShape::setDynamicVelocity(const C3Vector& linearV, const C3Vector& angular
     {
         _dynamicLinearVelocity = linearV;
         _dynamicAngularVelocity = angularV;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propShape_dynLinearVelocity.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
             {
                 ev->appendKeyDoubleArray(cmd, _dynamicLinearVelocity.data, 3);
@@ -397,7 +397,7 @@ void CShape::setDynamicVelocity(const C3Vector& linearV, const C3Vector& angular
                 ev->appendKeyVector3(cmd, _dynamicLinearVelocity);
                 ev->appendKeyVector3(propShape_dynAngularVelocity.name, _dynamicAngularVelocity);
             }
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -450,12 +450,12 @@ void CShape::setRespondable(bool r)
     if (diff)
     {
         _shapeIsDynamicallyRespondable = r;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propShape_respondable.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _shapeIsDynamicallyRespondable);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -476,12 +476,12 @@ void CShape::setSetAutomaticallyToNonStaticIfGetsParent(bool autoNonStatic)
     if (diff)
     {
         _setAutomaticallyToNonStaticIfGetsParent = autoNonStatic;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propShape_setToDynamicWithParent.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _setAutomaticallyToNonStaticIfGetsParent);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -497,12 +497,12 @@ void CShape::setStartInDynamicSleeping(bool sleeping)
     if (diff)
     {
         _startInDynamicSleeping = sleeping;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propShape_startInDynSleepMode.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _startInDynamicSleeping);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -518,12 +518,12 @@ void CShape::setStatic(bool sta)
     if (diff)
     {
         _shapeIsDynamicallyStatic = sta;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propShape_dynamic.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, !_shapeIsDynamicallyStatic);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
         if (!sta)
             setSetAutomaticallyToNonStaticIfGetsParent(false);
@@ -548,12 +548,12 @@ void CShape::setDynKinematic(bool kin)
     if (diff)
     {
         _shapeIsDynamicallyKinematic = kin;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propShape_kinematic.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _shapeIsDynamicallyKinematic);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -608,7 +608,7 @@ void CShape::scaleObject(double scalingFactor)
     _meshModificationCounter++;
     // Scale collision info
     if (_meshCalculationStructure != nullptr)
-        App::sceneContainer->pluginContainer->geomPlugin_scaleMesh(_meshCalculationStructure, scalingFactor);
+        App::scenes->pluginContainer->geomPlugin_scaleMesh(_meshCalculationStructure, scalingFactor);
     // Scale meshes and adjust textures:
     getMesh()->scale(scalingFactor);
     _dynamicsResetFlag = true;
@@ -1028,11 +1028,11 @@ void CShape::_serializeMesh(CSer& ar)
                 _mesh->serialize(ar, getObjectAliasAndHandle().c_str(), C7Vector::identityTransformation, true);
 
             // (if undo/redo under way, getSaveExistingCalculationStructuresTemp is false)
-            if (App::currentScene->environment->getSaveExistingCalculationStructuresTemp() &&
+            if (App::scene->environment->getSaveExistingCalculationStructuresTemp() &&
                 isMeshCalculationStructureInitialized())
             {
                 std::vector<unsigned char> serializationData;
-                App::sceneContainer->pluginContainer->geomPlugin_getMeshSerializationData(_meshCalculationStructure,
+                App::scenes->pluginContainer->geomPlugin_getMeshSerializationData(_meshCalculationStructure,
                                                                                           serializationData);
                 ar.storeDataName("Coj");
                 ar.setCountingMode(true);
@@ -1091,7 +1091,7 @@ void CShape::_serializeMesh(CSer& ar)
                             data.push_back(dummy);
                         }
                         _meshCalculationStructure =
-                            App::sceneContainer->pluginContainer->geomPlugin_getMeshFromSerializationData(&data[0]);
+                            App::scenes->pluginContainer->geomPlugin_getMeshFromSerializationData(&data[0]);
                     }
                     if (noHit)
                         ar.loadUnknownData();
@@ -1105,11 +1105,11 @@ void CShape::_serializeMesh(CSer& ar)
         if (ar.isStoring())
         {
             ar.clearIncrementCounter();
-            if (App::currentScene->environment->getSaveExistingCalculationStructuresTemp() &&
+            if (App::scene->environment->getSaveExistingCalculationStructuresTemp() &&
                 isMeshCalculationStructureInitialized())
             {
                 std::vector<unsigned char> collInfoData;
-                App::sceneContainer->pluginContainer->geomPlugin_getMeshSerializationData(_meshCalculationStructure,
+                App::scenes->pluginContainer->geomPlugin_getMeshSerializationData(_meshCalculationStructure,
                                                                                           collInfoData);
                 ar.xmlPushNewNode("calculationStructure");
                 if (ar.xmlSaveDataInline(int(collInfoData.size())))
@@ -1144,7 +1144,7 @@ void CShape::_serializeMesh(CSer& ar)
                 std::vector<int> wind;
                 _mesh->getCumulativeMeshes(C7Vector::identityTransformation, wvert, &wind, nullptr);
                 _meshCalculationStructure =
-                    App::sceneContainer->pluginContainer->geomPlugin_getMeshFromSerializationData(
+                    App::scenes->pluginContainer->geomPlugin_getMeshFromSerializationData(
                         (unsigned char*)str.c_str());
                 ar.xmlPopNode();
             }
@@ -1179,7 +1179,7 @@ bool CShape::computeMassAndInertia(double density)
     C3Vector diagI;
 
     if (_mesh->isPure())
-        mass = App::sceneContainer->pluginContainer->dyn_computeInertia(_objectHandle, localTr, diagI);
+        mass = App::scenes->pluginContainer->dyn_computeInertia(_objectHandle, localTr, diagI);
     else
     { // we use the convex hull
         std::vector<double> vert;
@@ -1187,7 +1187,7 @@ bool CShape::computeMassAndInertia(double density)
         std::vector<double> hull;
         std::vector<int> indices;
         if (CMeshRoutines::getConvexHull(vert, hull, indices))
-            mass = App::sceneContainer->pluginContainer->dyn_computePMI(hull, indices, localTr, diagI);
+            mass = App::scenes->pluginContainer->dyn_computePMI(hull, indices, localTr, diagI);
     }
     if (mass > 0.0)
     {
@@ -1324,7 +1324,7 @@ void CShape::removeMeshCalculationStructure()
     TRACE_INTERNAL;
     if (_meshCalculationStructure != nullptr)
     {
-        App::sceneContainer->pluginContainer->geomPlugin_destroyMesh(_meshCalculationStructure);
+        App::scenes->pluginContainer->geomPlugin_destroyMesh(_meshCalculationStructure);
         _meshCalculationStructure = nullptr;
     }
 }
@@ -1347,12 +1347,12 @@ void CShape::initializeMeshCalculationStructureIfNeeded()
         std::vector<int> wind;
         // use a centered mesh (required by the geom plugin)
         _mesh->getCumulativeMeshes(_mesh->getBB(nullptr).getInverse(), wvert, &wind, nullptr);
-        double maxTriSize = App::currentScene->environment->getCalculationMaxTriangleSize();
+        double maxTriSize = App::scene->environment->getCalculationMaxTriangleSize();
         double minTriSize = (std::max<double>(std::max<double>(_bbHalfSize(0), _bbHalfSize(1)), _bbHalfSize(2))) * 2.0 *
-                            App::currentScene->environment->getCalculationMinRelTriangleSize();
+                            App::scene->environment->getCalculationMinRelTriangleSize();
         if (maxTriSize < minTriSize)
             maxTriSize = minTriSize;
-        _meshCalculationStructure = App::sceneContainer->pluginContainer->geomPlugin_createMesh(
+        _meshCalculationStructure = App::scenes->pluginContainer->geomPlugin_createMesh(
             &wvert[0], (int)wvert.size(), &wind[0], (int)wind.size(), nullptr, maxTriSize,
             App::userSettings->triCountInOBB);
     }
@@ -1370,14 +1370,14 @@ void CShape::setCulling(bool culState)
     _mesh->setCulling(culState);
     if (App::getEventProtocolVersion() == 2)
     {
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = "color";
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->openKeyMap(cmd);
             ev->appendKeyBool("culling", culState);
             ev->appendKeyInt64("index", 0);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -1394,14 +1394,14 @@ void CShape::setVisibleEdges(bool v)
     _mesh->setVisibleEdges(v);
     if (App::getEventProtocolVersion() == 2)
     {
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = "color";
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, false);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, false);
             ev->openKeyMap(cmd);
             ev->appendKeyBool("showEdges", v);
             ev->appendKeyInt64("index", 0);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -1461,7 +1461,7 @@ bool CShape::doesShapeCollideWithShape(CShape* collidee, std::vector<double>* in
     std::vector<double>* _intersectP = nullptr;
     if (intersections != nullptr)
         _intersectP = &_intersect;
-    if (App::sceneContainer->pluginContainer->geomPlugin_getMeshMeshCollision(
+    if (App::scenes->pluginContainer->geomPlugin_getMeshMeshCollision(
             _meshCalculationStructure, getCumulCenteredMeshFrame(), collidee->_meshCalculationStructure,
             collidee->getCumulCenteredMeshFrame(), _intersectP, nullptr, nullptr))
     { // There was a collision
@@ -1481,7 +1481,7 @@ bool CShape::getDistanceToDummy_IfSmaller(CDummy* dummy, double& dist, double ra
 
     C3Vector dummyPos(dummy->getFullCumulativeTransformation().X);
     C3Vector rayPart0;
-    if (App::sceneContainer->pluginContainer->geomPlugin_getMeshPointDistanceIfSmaller(
+    if (App::scenes->pluginContainer->geomPlugin_getMeshPointDistanceIfSmaller(
             _meshCalculationStructure, getCumulCenteredMeshFrame(), dummyPos, dist, &rayPart0, &buffer))
     {
         rayPart0.getData(ray + 0);
@@ -1507,13 +1507,13 @@ bool CShape::getShapeShapeDistance_IfSmaller(CShape* it, double& dist, double ra
     C3Vector ptOnShapeB;
 
     bool smaller = false;
-    if (App::sceneContainer->pluginContainer->geomPlugin_getMeshRootObbVolume(shapeA->_meshCalculationStructure) <
-        App::sceneContainer->pluginContainer->geomPlugin_getMeshRootObbVolume(shapeB->_meshCalculationStructure))
-        smaller = App::sceneContainer->pluginContainer->geomPlugin_getMeshMeshDistanceIfSmaller(
+    if (App::scenes->pluginContainer->geomPlugin_getMeshRootObbVolume(shapeA->_meshCalculationStructure) <
+        App::scenes->pluginContainer->geomPlugin_getMeshRootObbVolume(shapeB->_meshCalculationStructure))
+        smaller = App::scenes->pluginContainer->geomPlugin_getMeshMeshDistanceIfSmaller(
             shapeA->_meshCalculationStructure, shapeATr, shapeB->_meshCalculationStructure, shapeBTr, dist, &ptOnShapeA,
             &ptOnShapeB, &buffer[0], &buffer[1]);
     else
-        smaller = App::sceneContainer->pluginContainer->geomPlugin_getMeshMeshDistanceIfSmaller(
+        smaller = App::scenes->pluginContainer->geomPlugin_getMeshMeshDistanceIfSmaller(
             shapeB->_meshCalculationStructure, shapeBTr, shapeA->_meshCalculationStructure, shapeATr, dist, &ptOnShapeB,
             &ptOnShapeA, &buffer[1], &buffer[0]);
 
@@ -1707,7 +1707,7 @@ CSceneObject* CShape::copyYourself()
         newShape->_mesh = _mesh->copyYourself();
 
     if (_meshCalculationStructure != nullptr)
-        newShape->_meshCalculationStructure = App::sceneContainer->pluginContainer->geomPlugin_copyMesh(_meshCalculationStructure);
+        newShape->_meshCalculationStructure = App::scenes->pluginContainer->geomPlugin_copyMesh(_meshCalculationStructure);
 
     delete newShape->_dynMaterial;
     newShape->_dynMaterial = _dynMaterial->copyYourself();
@@ -1822,49 +1822,49 @@ int CShape::setBoolProperty(const char* ppName, bool pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->setBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propShape_applyCulling.name)
         {
             setCulling(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_applyShowEdges.name)
         {
             setVisibleEdges(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_flipFaces.name)
         {
             invertFrontBack();
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_startInDynSleepMode.name)
         {
             setStartInDynamicSleeping(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_dynamic.name)
         {
             setStatic(!pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_kinematic.name)
         {
             setDynKinematic(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_respondable.name)
         {
             setRespondable(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_setToDynamicWithParent.name)
         {
             setSetAutomaticallyToNonStaticIfGetsParent(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -1875,49 +1875,49 @@ int CShape::getBoolProperty(const char* ppName, bool& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->getBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propShape_startInDynSleepMode.name)
         {
             pState = _startInDynamicSleeping;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_dynamic.name)
         {
             pState = !_shapeIsDynamicallyStatic;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_kinematic.name)
         {
             pState = _shapeIsDynamicallyKinematic;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_respondable.name)
         {
             pState = _shapeIsDynamicallyRespondable;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_setToDynamicWithParent.name)
         {
             pState = _setAutomaticallyToNonStaticIfGetsParent;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_convex.name)
         {
             pState = _mesh->isConvex();
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_primitive.name)
         {
             pState = _mesh->isPure();
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_compound.name)
         {
             pState = (_mesh->getComponentCount() > 1);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -1928,14 +1928,14 @@ int CShape::setIntProperty(const char* ppName, int pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->setIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propShape_respondableMask.name)
         {
             setRespondableMask(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -1946,14 +1946,14 @@ int CShape::getIntProperty(const char* ppName, int& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->getIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propShape_respondableMask.name)
         {
             pState = _respondableMask;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -1964,23 +1964,23 @@ int CShape::setFloatProperty(const char* ppName, double pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->setFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _mesh->setFloatProperty_wrapper(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propShape_applyShadingAngle.name)
         {
             setShadingAngle(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_applyColorTransparency.name)
         {
             float tr = float(1.0 - pState);
             _mesh->setColor(sim_colorcomponent_transparency, &tr);
             actualizeContainsTransparentComponent();
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -1991,9 +1991,9 @@ int CShape::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->getFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _mesh->getFloatProperty_wrapper(ppName, pState);
 
     return retVal;
@@ -2003,7 +2003,7 @@ int CShape::setStringProperty(const char* ppName, const char* pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setStringProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->setStringProperty(ppName, pState);
 
     return retVal;
@@ -2013,9 +2013,9 @@ int CShape::getStringProperty(const char* ppName, std::string& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getStringProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->getStringProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -2026,11 +2026,11 @@ int CShape::setVector2Property(const char* ppName, const double* pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setVector2Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->setVector2Property(ppName, pState);
-    //    if (retVal == -1)
+    //    if (retVal == sim_propertyret_unknownproperty)
     //        retVal = _mesh->setVector2Property_wrapper(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -2041,11 +2041,11 @@ int CShape::getVector2Property(const char* ppName, double* pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getVector2Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->getVector2Property(ppName, pState);
-    //    if (retVal == -1)
+    //    if (retVal == sim_propertyret_unknownproperty)
     //        retVal = _mesh->getVector2Property_wrapper(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -2056,21 +2056,21 @@ int CShape::setVector3Property(const char* ppName, const C3Vector& pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setVector3Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->setVector3Property(ppName, &pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _mesh->setVector3Property_wrapper(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propShape_initLinearVelocity.name)
         {
             setInitialDynamicLinearVelocity(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_initAngularVelocity.name)
         {
             setInitialDynamicAngularVelocity(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -2081,31 +2081,31 @@ int CShape::getVector3Property(const char* ppName, C3Vector& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getVector3Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->getVector3Property(ppName, &pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _mesh->getVector3Property_wrapper(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propShape_initLinearVelocity.name)
         {
             pState = _initialDynamicLinearVelocity;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_initAngularVelocity.name)
         {
             pState = _initialDynamicAngularVelocity;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_dynLinearVelocity.name)
         {
             pState = _dynamicLinearVelocity;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_dynAngularVelocity.name)
         {
             pState = _dynamicAngularVelocity;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -2116,11 +2116,11 @@ int CShape::setQuaternionProperty(const char* ppName, const C4Vector& pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setQuaternionProperty(ppName, pState);
-    //    if (retVal == -1)
+    //    if (retVal == sim_propertyret_unknownproperty)
     //        retVal = _dynMaterial->setQuaternionProperty(pName, &pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _mesh->setQuaternionProperty_wrapper(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -2131,11 +2131,11 @@ int CShape::getQuaternionProperty(const char* ppName, C4Vector& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getQuaternionProperty(ppName, pState);
-    //   if (retVal == -1)
+    //   if (retVal == sim_propertyret_unknownproperty)
     //       retVal = _dynMaterial->getQuaternionProperty(pName, &pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _mesh->getQuaternionProperty_wrapper(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -2146,22 +2146,22 @@ int CShape::setColorProperty(const char* ppName, const float* pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setColorProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propShape_applyColorDiffuse.name)
         {
             _mesh->setColor(sim_materialcomponent_diffuse, pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_applyColorSpecular.name)
         {
             _mesh->setColor(sim_materialcomponent_specular, pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propShape_applyColorEmission.name)
         {
             _mesh->setColor(sim_materialcomponent_emission, pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -2173,11 +2173,11 @@ int CShape::setFloatArrayProperty(const char* ppName, const double* v, int vL)
     if (v == nullptr)
         vL = 0;
     int retVal = CSceneObject::setFloatArrayProperty(ppName, v, vL);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->setFloatArrayProperty(ppName, v, vL);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _mesh->setFloatArrayProperty_wrapper(ppName, v, vL);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if ((strcmp(propShape_compoundColorDiffuse.name, ppName) == 0) || (strcmp(propShape_compoundColorSpecular.name, ppName) == 0) || (strcmp(propShape_compoundColorEmission.name, ppName) == 0))
         {
@@ -2192,7 +2192,7 @@ int CShape::setFloatArrayProperty(const char* ppName, const double* v, int vL)
                 std::vector<float> vec(v, v + vL);
                 setColor("@compound", c, vec.data());
             }
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(propShape_compoundColorTransparency.name, ppName) == 0)
         {
@@ -2202,7 +2202,7 @@ int CShape::setFloatArrayProperty(const char* ppName, const double* v, int vL)
                 std::vector<float> vec(v, v + vL);
                 setColor("@compound", sim_colorcomponent_transparency, vec.data());
             }
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(propShape_compoundShadingAngles.name, ppName) == 0)
         {
@@ -2213,7 +2213,7 @@ int CShape::setFloatArrayProperty(const char* ppName, const double* v, int vL)
                 for (size_t i = 0; i < meshes.size(); i++)
                     meshes[i]->setShadingAngle(v[i]);
             }
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
     return retVal;
@@ -2224,11 +2224,11 @@ int CShape::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
     std::string _pName(ppName);
     pState.clear();
     int retVal = CSceneObject::getFloatArrayProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->getFloatArrayProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _mesh->getFloatArrayProperty_wrapper(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if ((strcmp(propShape_compoundColorDiffuse.name, ppName) == 0) || (strcmp(propShape_compoundColorSpecular.name, ppName) == 0) || (strcmp(propShape_compoundColorEmission.name, ppName) == 0))
         {
@@ -2244,7 +2244,7 @@ int CShape::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
             pState.resize(res);
             for (int i = 0; i < res; i++)
                 pState[i] = vec[i];
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(propShape_compoundColorTransparency.name, ppName) == 0)
         {
@@ -2255,7 +2255,7 @@ int CShape::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
             pState.resize(res);
             for (int i = 0; i < res; i++)
                 pState[i] = vec[i];
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (strcmp(propShape_compoundShadingAngles.name, ppName) == 0)
         {
@@ -2263,7 +2263,7 @@ int CShape::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
             getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, meshes);
             for (size_t i = 0; i < meshes.size(); i++)
                 pState.push_back(meshes[i]->getShadingAngle());
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -2277,7 +2277,7 @@ int CShape::setIntArrayProperty(const char* ppName, const int* v, int vL)
         vL = 0;
     int retVal = CSceneObject::setIntArrayProperty(ppName, v, vL);
 
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if ((strcmp(propShape_compoundEdges.name, ppName) == 0) || (strcmp(propShape_compoundWireframe.name, ppName) == 0) || (strcmp(propShape_compoundCullings.name, ppName) == 0))
         {
@@ -2295,7 +2295,7 @@ int CShape::setIntArrayProperty(const char* ppName, const int* v, int vL)
                         meshes[i]->setCulling(v[i] != 0);
                 }
             }
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
     return retVal;
@@ -2306,7 +2306,7 @@ int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) co
     std::string _pName(ppName);
     pState.clear();
     int retVal = CSceneObject::getIntArrayProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(ppName, "meshes") == 0)
         {
@@ -2314,7 +2314,7 @@ int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) co
             getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
             for (size_t i = 0; i < all.size(); i++)
                 pState.push_back(all[i]->getObjectHandle());
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if ((strcmp(propShape_compoundEdges.name, ppName) == 0) || (strcmp(propShape_compoundWireframe.name, ppName) == 0) || (strcmp(propShape_compoundCullings.name, ppName) == 0))
         {
@@ -2329,7 +2329,7 @@ int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) co
                 else if (strcmp(propShape_compoundCullings.name, ppName) == 0)
                     pState.push_back(meshes[i]->getCulling());
             }
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -2341,7 +2341,7 @@ int CShape::getHandleArrayProperty(const char* ppName, std::vector<long long int
     std::string _pName(ppName);
     pState.clear();
     int retVal = CSceneObject::getHandleArrayProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(ppName, propShape_meshes.name) == 0)
         {
@@ -2349,7 +2349,7 @@ int CShape::getHandleArrayProperty(const char* ppName, std::vector<long long int
             getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
             for (size_t i = 0; i < all.size(); i++)
                 pState.push_back(all[i]->getObjectHandle());
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -2359,13 +2359,13 @@ int CShape::getHandleArrayProperty(const char* ppName, std::vector<long long int
 int CShape::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         appartenance = _objectTypeStr;
         retVal = _dynMaterial->getPropertyName(index, pName, excludeFlags);
-        if (retVal == -1)
+        if (retVal == sim_propertyret_unknownproperty)
             retVal = _mesh->getPropertyName_wrapper(index, pName, appartenance, excludeFlags);
-        if (retVal == -1)
+        if (retVal == sim_propertyret_unknownproperty)
         {
             for (size_t i = 0; i < allProps_shape.size(); i++)
             {
@@ -2378,7 +2378,7 @@ int CShape::getPropertyName(int& index, std::string& pName, std::string& apparte
                         {
                             pName = allProps_shape[i].name;
                             //pName = "shape." + pName;
-                            retVal = 1;
+                            retVal = sim_propertyret_ok;
                             break;
                         }
                     }
@@ -2392,11 +2392,11 @@ int CShape::getPropertyName(int& index, std::string& pName, std::string& apparte
 int CShape::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _mesh->getPropertyInfo_wrapper(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         for (size_t i = 0; i < allProps_shape.size(); i++)
         {

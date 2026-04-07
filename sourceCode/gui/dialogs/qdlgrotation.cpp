@@ -38,18 +38,18 @@ void CQDlgRotation::refresh()
 {
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
     int editMode = GuiApp::getEditModeType();
-    int lastSelID = App::currentScene->sceneObjects->getLastSelectionHandle();
+    int lastSelID = App::scene->sceneObjects->getLastSelectionHandle();
     lastLastSelectionID = lastSelID;
 
     ui->tabWidget->setCurrentIndex(currentTab);
 
     if (editMode == NO_EDIT_MODE)
     {
-        bool sel = (App::currentScene->sceneObjects->getSelectionCount() != 0);
-        bool bigSel = (App::currentScene->sceneObjects->getSelectionCount() > 1);
+        bool sel = (App::scene->sceneObjects->getSelectionCount() != 0);
+        bool bigSel = (App::scene->sceneObjects->getSelectionCount() > 1);
         _enableCoordinatePart(sel, bigSel, true);
         _enableTransformationPart(sel, sel, true);
-        CSceneObject* object = App::currentScene->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::scene->sceneObjects->getLastSelectionObject();
         if (sel && (object != nullptr))
         {
             // Coordinate part:
@@ -115,7 +115,7 @@ void CQDlgRotation::refresh()
             ui->qqOrCombo->addItem(utils::getAngleString(false, 30.0 * degToRad).c_str(), QVariant(30000));
             ui->qqOrCombo->addItem(utils::getAngleString(false, 45.0 * degToRad).c_str(), QVariant(45000));
 
-            if (App::currentScene->simulation->isSimulationStopped())
+            if (App::scene->simulation->isSimulationStopped())
             {
                 if (object->getObjectMovementOptions() & 4)
                     _selectItemOfCombobox(ui->qqOrCombo, -1);
@@ -303,7 +303,7 @@ bool CQDlgRotation::_setCoord_userUnit(double newValueInUserUnit, int index)
 {
     bool retVal = false;
     int editMode = GuiApp::getEditModeType();
-    CSceneObject* object = App::currentScene->sceneObjects->getLastSelectionObject();
+    CSceneObject* object = App::scene->sceneObjects->getLastSelectionObject();
     if ((editMode == NO_EDIT_MODE) && (object != nullptr))
     {
         C7Vector tr;
@@ -314,7 +314,7 @@ bool CQDlgRotation::_setCoord_userUnit(double newValueInUserUnit, int index)
         tr = _getNewTransf(tr, newValueInUserUnit, index);
         SSimulationThreadCommand cmd;
         cmd.cmdId = SET_TRANSF_POSITIONTRANSLATIONGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
+        cmd.intParams.push_back(App::scene->sceneObjects->getLastSelectionHandle());
         cmd.intParams.push_back(coordMode);
         cmd.transfParams.push_back(tr);
         App::appendSimulationThreadCommand(cmd);
@@ -378,16 +378,16 @@ bool CQDlgRotation::_applyCoord()
 {
     bool retVal = false;
     int editMode = GuiApp::getEditModeType();
-    CSceneObject* object = App::currentScene->sceneObjects->getLastSelectionObject();
-    size_t objSelSize = App::currentScene->sceneObjects->getSelectionCount();
+    CSceneObject* object = App::scene->sceneObjects->getLastSelectionObject();
+    size_t objSelSize = App::scene->sceneObjects->getSelectionCount();
     int editObjSelSize = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
     if ((editMode == NO_EDIT_MODE) && (object != nullptr) && (objSelSize > 1))
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = APPLY_OR_ORIENTATIONROTATIONGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
-        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
-            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        cmd.intParams.push_back(App::scene->sceneObjects->getLastSelectionHandle());
+        for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount() - 1; i++)
+            cmd.intParams.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         cmd.intParams.push_back(coordMode);
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -459,7 +459,7 @@ bool CQDlgRotation::_applyTransformation(int axis)
 { // axis: 0-2, or -1 for all axes
     bool retVal = false;
     int editMode = GuiApp::getEditModeType();
-    size_t objSelSize = App::currentScene->sceneObjects->getSelectionCount();
+    size_t objSelSize = App::scene->sceneObjects->getSelectionCount();
     int editObjSelSize = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
     if ((editMode == NO_EDIT_MODE) && (objSelSize > 0))
     {
@@ -474,8 +474,8 @@ bool CQDlgRotation::_applyTransformation(int axis)
             TX[axis] = rotAngles[axis];
         SSimulationThreadCommand cmd;
         cmd.cmdId = ROTATE_SELECTION_ORIENTATIONROTATIONGUITRIGGEREDCMD;
-        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
-            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
+            cmd.intParams.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         cmd.intParams.push_back(transfMode);
         cmd.doubleParams.push_back(TX[0]);
         cmd.doubleParams.push_back(TX[1]);
@@ -746,7 +746,7 @@ void CQDlgRotation::on_qqOrWorld_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(SET_ORRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,
-                                           App::currentScene->sceneObjects->getLastSelectionHandle(), 0);
+                                           App::scene->sceneObjects->getLastSelectionHandle(), 0);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -757,7 +757,7 @@ void CQDlgRotation::on_qqOrParent_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(SET_ORRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,
-                                           App::currentScene->sceneObjects->getLastSelectionHandle(), 1);
+                                           App::scene->sceneObjects->getLastSelectionHandle(), 1);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -768,7 +768,7 @@ void CQDlgRotation::on_qqOrOwn_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(SET_ORRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,
-                                           App::currentScene->sceneObjects->getLastSelectionHandle(), 2);
+                                           App::scene->sceneObjects->getLastSelectionHandle(), 2);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -778,13 +778,13 @@ void CQDlgRotation::on_qqOrA_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* object = App::currentScene->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::scene->sceneObjects->getLastSelectionObject();
         if (object != nullptr)
         {
             int permission = object->getObjectMovementPreferredAxes();
             permission = (permission & 0x07) | 0x08;
             App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle(), permission);
+                                               App::scene->sceneObjects->getLastSelectionHandle(), permission);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -795,13 +795,13 @@ void CQDlgRotation::on_qqOrB_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* object = App::currentScene->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::scene->sceneObjects->getLastSelectionObject();
         if (object != nullptr)
         {
             int permission = object->getObjectMovementPreferredAxes();
             permission = (permission & 0x07) | 0x10;
             App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle(), permission);
+                                               App::scene->sceneObjects->getLastSelectionHandle(), permission);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -812,13 +812,13 @@ void CQDlgRotation::on_qqOrG_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* object = App::currentScene->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::scene->sceneObjects->getLastSelectionObject();
         if (object != nullptr)
         {
             int permission = object->getObjectMovementPreferredAxes();
             permission = (permission & 0x07) | 0x20;
             App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle(), permission);
+                                               App::scene->sceneObjects->getLastSelectionHandle(), permission);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -830,7 +830,7 @@ void CQDlgRotation::on_qqOrCombo_activated(int index)
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(SET_ORSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD,
-                                           App::currentScene->sceneObjects->getLastSelectionHandle(), -1,
+                                           App::scene->sceneObjects->getLastSelectionHandle(), -1,
                                            double(ui->qqOrCombo->itemData(index).toInt()) * degToRad / 1000.0);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

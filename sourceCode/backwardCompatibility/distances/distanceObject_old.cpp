@@ -120,7 +120,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
     theName = theName.append(" (");
     if (_entity1Handle <= sim_object_sceneobjectend)
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_entity1Handle);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_entity1Handle);
         int t = it->getObjectType();
         if (t == sim_sceneobject_shape)
             theName += IDSN_SHAPE;
@@ -135,7 +135,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
     }
     else
     {
-        CCollection* it = App::currentScene->collections->getObjectFromHandle(_entity1Handle);
+        CCollection* it = App::scene->collections->getObjectFromHandle(_entity1Handle);
         if (it != nullptr)
         {
             theName += IDSN_COLLECTION;
@@ -146,7 +146,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
     theName = theName.append(" - ");
     if (_entity2Handle > sim_object_sceneobjectend)
     {
-        CCollection* it = App::currentScene->collections->getObjectFromHandle(_entity2Handle);
+        CCollection* it = App::scene->collections->getObjectFromHandle(_entity2Handle);
         if (it != nullptr)
         {
             theName += IDSN_COLLECTION;
@@ -158,7 +158,7 @@ std::string CDistanceObject_old::getObjectDescriptiveName() const
     {
         if (_entity2Handle != -1)
         {
-            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_entity2Handle);
+            CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_entity2Handle);
             int t = it->getObjectType();
             if (t == sim_sceneobject_shape)
                 theName += IDSN_SHAPE;
@@ -183,7 +183,7 @@ bool CDistanceObject_old::setObjectName(const char* newName, bool check)
     std::string nnn;
     CDistanceObject_old* it = nullptr;
     if (check)
-        it = App::currentScene->distances_old->getObjectFromHandle(_objectHandle);
+        it = App::scene->distances_old->getObjectFromHandle(_objectHandle);
     if (it != this)
         nnn = newName;
     else
@@ -194,7 +194,7 @@ bool CDistanceObject_old::setObjectName(const char* newName, bool check)
         {
             if (getObjectName() != nm)
             {
-                while (App::currentScene->distances_old->getObjectFromName(nm.c_str()) != nullptr)
+                while (App::scene->distances_old->getObjectFromName(nm.c_str()) != nullptr)
                     nm = tt::generateNewName_hashOrNoHash(nm.c_str(), !tt::isHashFree(nm.c_str()));
                 nnn = nm;
             }
@@ -228,9 +228,9 @@ void CDistanceObject_old::clearDistanceResult()
 double CDistanceObject_old::handleDistance()
 {
     clearDistanceResult();
-    if (!App::currentScene->mainSettings_old->distanceCalculationEnabled)
+    if (!App::scene->mainSettings_old->distanceCalculationEnabled)
         return (-1.0);
-    if (!App::sceneContainer->pluginContainer->isGeomPluginAvailable())
+    if (!App::scenes->pluginContainer->isGeomPluginAvailable())
         return (-1.0);
     int stTime = (int)VDateTime::getTimeInMs();
     _distance = DBL_MAX;

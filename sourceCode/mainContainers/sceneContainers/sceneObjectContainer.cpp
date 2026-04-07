@@ -138,7 +138,7 @@ int CSceneObjectContainer::addObjectToScene(CSceneObject* newObject, bool object
 int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newObject, bool objectIsACopy,
                                                             int suffixOffset, bool generateAfterCreateCallback)
 {
-    App::currentScene->environment->setSceneCanBeDiscardedWhenNewSceneOpened(false); // 4/3/2012
+    App::scene->environment->setSceneCanBeDiscardedWhenNewSceneOpened(false); // 4/3/2012
 
     std::string newObjName = newObject->getObjectName_old();
     if (objectIsACopy)
@@ -231,7 +231,7 @@ int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newObj
     if (newObject->getObjectType() == sim_sceneobject_graph)
     { // If the simulation is running, we have to empty the buffer!!! (otherwise we might have old and new data mixed
         // together (e.g. old data in future, new data in present!)
-        if ((App::currentScene->simulation != nullptr) && (!App::currentScene->simulation->isSimulationStopped()))
+        if ((App::scene->simulation != nullptr) && (!App::scene->simulation->isSimulationStopped()))
         {
             CGraph* graph = (CGraph*)newObject;
             graph->resetGraph();
@@ -240,7 +240,7 @@ int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newObj
 
     if (generateAfterCreateCallback)
     {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
 
         std::vector<int> hand;
@@ -258,10 +258,10 @@ int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newObj
         stack->insertDataIntoStackTable();
         // --------------------------------------
 
-        App::sceneContainer->callScripts(sim_syscb_aftercreate, stack, nullptr);
-        App::sceneContainer->interfaceStackContainer->destroyStack(stack);
+        App::scenes->callScripts(sim_syscb_aftercreate, stack, nullptr);
+        App::scenes->interfaceStackContainer->destroyStack(stack);
     }
-    App::sceneContainer->setModificationFlag(2); // object created
+    App::scenes->setModificationFlag(2); // object created
     newObject->recomputeModelInfluencedValues();
 
     newObject->setIsInScene(true);
@@ -322,7 +322,7 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                 CInterfaceStack* stack = nullptr;
                 if (generateBeforeAfterDeleteCallback)
                 {
-                    stack = App::sceneContainer->interfaceStackContainer->createStack();
+                    stack = App::scenes->interfaceStackContainer->createStack();
                     stack->pushTableOntoStack();
 
                     stack->pushTextOntoStack("objects");
@@ -349,7 +349,7 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                     stack->insertDataIntoStackTable();
                     // --------------------------------------
 
-                    App::sceneContainer->callScripts(sim_syscb_beforedelete, stack, nullptr);
+                    App::scenes->callScripts(sim_syscb_beforedelete, stack, nullptr);
                 }
 
                 for (size_t i = 0; i < toDestroyPtr.size(); i++)
@@ -358,7 +358,7 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                     if (it != nullptr)
                     {
                         // We announce the object will be erased:
-                        App::sceneContainer->announceObjectWillBeErased(it); // this may trigger other "interesting" things, such as customization script runs, etc.
+                        App::scenes->announceObjectWillBeErased(it); // this may trigger other "interesting" things, such as customization script runs, etc.
 
                         if ((it->getObjectType() == sim_sceneobject_shape) && (((CShape*)it)->getMesh() != nullptr))
                         {
@@ -372,18 +372,18 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                         //if ((it->getObjectType() == sim_sceneobject_script) && (((CScript*)it)->detachedScript != nullptr))
                         //    ((CScript*)it)->detachedScript->pushObjectRemoveEvent();
 
-                        App::sceneContainer->pushSceneObjectRemoveEvent(it);
+                        App::scenes->pushSceneObjectRemoveEvent(it);
                         _removeObject(it);
                     }
                 }
 
                 if (generateBeforeAfterDeleteCallback)
                 {
-                    App::sceneContainer->callScripts(sim_syscb_afterdelete, stack, nullptr);
-                    App::sceneContainer->interfaceStackContainer->destroyStack(stack);
+                    App::scenes->callScripts(sim_syscb_afterdelete, stack, nullptr);
+                    App::scenes->interfaceStackContainer->destroyStack(stack);
                 }
 
-                App::sceneContainer->setModificationFlag(1); // object erased
+                App::scenes->setModificationFlag(1); // object erased
             }
             if (itemsFailed)
                 App::logMsg(sim_verbosity_errors, "object removal can't be triggered from within the object itself: some objects were not removed.");
@@ -529,12 +529,12 @@ void CSceneObjectContainer::actualizeObjectInformation()
             it->setDirectDependentJoints(joints);
         }
 
-        App::currentScene->collections->actualizeAllCollections();
+        App::scene->collections->actualizeAllCollections();
 
         for (size_t i = 0; i < getObjectCount(sim_sceneobject_shape); i++)
             getShapeFromIndex(i)->clearLastParentForLocalGlobalRespondable();
 
-        App::currentScene->textureContainer->updateAllDependencies();
+        App::scene->textureContainer->updateAllDependencies();
 #ifdef SIM_WITH_GUI
         GuiApp::setRebuildHierarchyFlag();
 #endif
@@ -686,36 +686,36 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
         // We need to "fake" adding that object:
         f_objectHandles.push_back(obj->getObjectHandle());
         const char* cmd = propSceneObjectCont_objects.name;
-        CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, f_objectHandles.data(), f_objectHandles.size());
         else
             ev->appendKeyHandleArray(cmd, f_objectHandles.data(), f_objectHandles.size());
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
         if (App::getEventProtocolVersion() < 4)
         { // --- For backward compatibility ---
             cmd = propSceneObjectCont_objectHandles.name;
-            ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyInt32Array(cmd, f_objectHandles.data(), f_objectHandles.size());
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
 
         if (obj->getParent() == nullptr)
         { // We need to "fake" adding that orphan:
             f_orphanHandles.push_back(obj->getObjectHandle());
             cmd = propSceneObjectCont_orphans.name;
-            ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt32Array(cmd, f_orphanHandles.data(), f_orphanHandles.size());
             else
                 ev->appendKeyHandleArray(cmd, f_orphanHandles.data(), f_orphanHandles.size());
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
             if (App::getEventProtocolVersion() < 4)
             { // --- For backward compatibility ---
                 cmd = propSceneObjectCont_orphanHandles.name;
-                ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+                ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
                 ev->appendKeyInt32Array(cmd, f_orphanHandles.data(), f_orphanHandles.size());
-                App::sceneContainer->pushEvent();
+                App::scenes->pushEvent();
             }
         }
     }
@@ -725,18 +725,18 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
     for (size_t i = 0; i < _allObjects.size(); i++)
         arr.push_back(_allObjects[i]->getObjectHandle());
     const char* cmd = propSceneObjectCont_objects.name;
-    CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+    CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
     if (App::getEventProtocolVersion() <= 3)
         ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
     else
         ev->appendKeyHandleArray(cmd, arr.data(), arr.size());
-    App::sceneContainer->pushEvent();
+    App::scenes->pushEvent();
     if (App::getEventProtocolVersion() < 4)
     { // --- For backward compatibility ---
         cmd = propSceneObjectCont_objectHandles.name;
-        ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
     }
 
     // Make sure the orphan list has the same order:
@@ -744,35 +744,35 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
     for (size_t i = 0; i < _orphanObjects.size(); i++)
         arr.push_back(_orphanObjects[i]->getObjectHandle());
     cmd = propSceneObjectCont_orphans.name;
-    ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+    ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
     if (App::getEventProtocolVersion() <= 3)
         ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
     else
         ev->appendKeyHandleArray(cmd, arr.data(), arr.size());
-    App::sceneContainer->pushEvent();
+    App::scenes->pushEvent();
     if (App::getEventProtocolVersion() < 4)
     { // --- For backward compatibility ---
         cmd = propSceneObjectCont_orphanHandles.name;
-        ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
     }
 
 
     // Update the selection list:
     cmd = propSceneObjectCont_selection.name;
-    ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+    ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
     if (App::getEventProtocolVersion() <= 3)
         ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
     else
         ev->appendKeyHandleArray(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
-    App::sceneContainer->pushEvent();
+    App::scenes->pushEvent();
     if (App::getEventProtocolVersion() < 4)
     { // --- For backward compatibility ---
         cmd = propSceneObjectCont_selectionHandles.name;
-        ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
     }
 
     // Handle the main script and old associated scripts:
@@ -1560,7 +1560,7 @@ bool CSceneObjectContainer::setObjectParent(CSceneObject* object, CSceneObject* 
                 object->setLocalTransformation(parentTr.getInverse() * absTr);
             }
 
-            App::currentScene->sceneObjects->actualizeObjectInformation();
+            App::scene->sceneObjects->actualizeObjectInformation();
         }
     }
     return (retVal);
@@ -1753,21 +1753,21 @@ bool CSceneObjectContainer::setSelectedObjectHandles(const int* v, size_t length
                     it->setSelected(false);
             }
         }
-        if (App::sceneContainer->getEventsEnabled())
+        if (App::scenes->getEventsEnabled())
         {
             const char* cmd = propSceneObjectCont_selection.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
             else
                 ev->appendKeyHandleArray(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
             if (App::getEventProtocolVersion() < 4)
             { // --- For backward compatibility ---
                 cmd = propSceneObjectCont_selectionHandles.name;
-                ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+                ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
                 ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
-                App::sceneContainer->pushEvent();
+                App::scenes->pushEvent();
             }
         }
 #ifdef SIM_WITH_GUI
@@ -1937,7 +1937,7 @@ void CSceneObjectContainer::addModelObjects(std::vector<int>& selection) const
     std::unordered_set<CSceneObject*> objectsInOutputList;
     for (size_t i = 0; i < selection.size(); i++)
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(selection[i]);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(selection[i]);
         if (objectsInOutputList.find(it) == objectsInOutputList.end())
         {
             objectsInOutputList.insert(it);
@@ -1966,7 +1966,7 @@ void CSceneObjectContainer::addCompatibilityScripts(std::vector<int>& selection)
     std::unordered_set<int> objectsInOutputList;
     for (size_t i = 0; i < selection.size(); i++)
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(selection[i]);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(selection[i]);
         objectsInOutputList.insert(it->getObjectHandle());
     }
     for (size_t i = 0; i < _scriptList.size(); i++)
@@ -2011,7 +2011,7 @@ void CSceneObjectContainer::addObjectToSelection(int objectHandle)
                 {
                     std::vector<int> _sel(getSelectedObjectHandlesPtr()[0]);
                     _sel.push_back(objectHandle);
-                    App::currentScene->buttonBlockContainer_old->aSceneObjectWasSelected(objectHandle);
+                    App::scene->buttonBlockContainer_old->aSceneObjectWasSelected(objectHandle);
                     if (setSelectedObjectHandles(_sel.data(), _sel.size()))
                     {
 #ifdef SIM_WITH_GUI
@@ -2430,12 +2430,12 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar, bool noHeightfiel
         if (ar.xmlGetNode_string("fileName", str, false))
         { // try to load from file first
             std::string filename(ar.getFilenamePath() + str);
-            if (App::sceneContainer->pluginContainer->isAssimpPluginAvailable())
+            if (App::scenes->pluginContainer->isAssimpPluginAvailable())
             {
                 if (VFile::doesFileExist(filename.c_str()))
                 {
                     int cnt = 0;
-                    int* shapes = App::sceneContainer->pluginContainer->assimp_importShapes(filename.c_str(), 512, 1.0,
+                    int* shapes = App::scenes->pluginContainer->assimp_importShapes(filename.c_str(), 512, 1.0,
                                                                                             1, 32 + 128 + 256, &cnt);
                     if (shapes != nullptr)
                     {
@@ -2725,7 +2725,7 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar, const char* ori
         C7Vector x(frame.getInverse() * trOld);
         shape->setLocalTransformation(C7Vector::identityTransformation);
         ar.xmlAddNode_comment(" one of following tags is required: 'fileName' or 'vertices' and 'indices' ", false);
-        if (App::sceneContainer->pluginContainer->isAssimpPluginAvailable() &&
+        if (App::scenes->pluginContainer->isAssimpPluginAvailable() &&
             (!ar.xmlSaveDataInline(geom->getVerticesForDisplayAndDisk()->size() + geom->getIndices()->size() * 4)))
         {
             int shapeHandle = shape->getObjectHandle();
@@ -2735,7 +2735,7 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar, const char* ori
             if (wireframe)
                 shape->setShapeWireframe_OLD(
                     false); // The Assimp plugin will ignore wireframe shapes and not write them!!
-            App::sceneContainer->pluginContainer->assimp_exportShapes(
+            App::scenes->pluginContainer->assimp_exportShapes(
                 &shapeHandle, 1, (ar.getFilenamePath() + filename).c_str(), "collada", 1.0, 1, 256);
             if (wireframe)
                 shape->setShapeWireframe_OLD(true);
@@ -2922,26 +2922,26 @@ void CSceneObjectContainer::handleDataCallbacks()
             }
             if (customDataItems.size() > 0)
             {
-                CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->createStack();
+                CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
                 stack->pushTableOntoStack();
                 for (const auto& r : customDataItems)
                     stack->insertKeyBoolIntoStackTable(r.first.c_str(), r.second);
                 stack->pushTextOntoStack("customData");
                 for (size_t i = 0; i < scripts.size(); i++)
                     scripts[i]->systemCallScript(sim_syscb_data, stack, nullptr);
-                App::sceneContainer->interfaceStackContainer->destroyStack(stack);
+                App::scenes->interfaceStackContainer->destroyStack(stack);
             }
 
             if (signalItems.size() > 0)
             {
-                CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->createStack();
+                CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
                 stack->pushTableOntoStack();
                 for (const auto& r : signalItems)
                     stack->insertKeyBoolIntoStackTable(r.first.c_str(), r.second);
                 stack->pushTextOntoStack("signal");
                 for (size_t i = 0; i < scripts.size(); i++)
                     scripts[i]->systemCallScript(sim_syscb_data, stack, nullptr);
-                App::sceneContainer->interfaceStackContainer->destroyStack(stack);
+                App::scenes->interfaceStackContainer->destroyStack(stack);
             }
         }
         obj->clearCustomDataEvents();
@@ -3130,7 +3130,7 @@ void CSceneObjectContainer::callScripts(int callType, CInterfaceStack* inStack, 
     { // reverse order
 
         // main script
-        if (!App::currentScene->simulation->isSimulationStopped())
+        if (!App::scene->simulation->isSimulationStopped())
         {
             CDetachedScript* script = embeddedScriptContainer->getMainScript();
             if ((script != nullptr) && script->hasSystemFunctionOrHook(callType))
@@ -3153,7 +3153,7 @@ void CSceneObjectContainer::callScripts(int callType, CInterfaceStack* inStack, 
         // main script
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
         {
-            if (!App::currentScene->simulation->isSimulationStopped())
+            if (!App::scene->simulation->isSimulationStopped())
             {
                 CDetachedScript* script = embeddedScriptContainer->getMainScript();
                 if ((script != nullptr) && script->hasSystemFunctionOrHook(callType))
@@ -4154,7 +4154,7 @@ void CSceneObjectContainer::removeOrAddSpecificObjects(std::vector<CSceneObject*
                 CSceneObject* it2 = newObjs[i];
                 if ((objectType == -1) || (objectType == it2->getObjectType()))
                 {
-                    if ( (!onlyVisibleModelObjects) || ( (!it2->isObjectPartOfInvisibleModel()) && (App::currentScene->environment->getActiveLayers() & it2->getVisibilityLayer()) ) )
+                    if ( (!onlyVisibleModelObjects) || ( (!it2->isObjectPartOfInvisibleModel()) && (App::scene->environment->getActiveLayers() & it2->getVisibilityLayer()) ) )
                     {
                         if (objectsInOutputList.find(it2) == objectsInOutputList.end())
                         {
@@ -7026,24 +7026,24 @@ void CSceneObjectContainer::_setOrphanObjects(const std::vector<CSceneObject*>& 
     if (diff)
     {
         _orphanObjects.assign(newOrphanObjects.begin(), newOrphanObjects.end());
-        if (App::sceneContainer->getEventsEnabled())
+        if (App::scenes->getEventsEnabled())
         {
             std::vector<int> arr;
             for (size_t i = 0; i < _orphanObjects.size(); i++)
                 arr.push_back(_orphanObjects[i]->getObjectHandle());
             const char* cmd = propSceneObjectCont_orphans.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
             else
                 ev->appendKeyHandleArray(cmd, arr.data(), arr.size());
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
             if (App::getEventProtocolVersion() < 4)
             { // --- For backward compatibility ---
                 cmd = propSceneObjectCont_orphanHandles.name;
-                ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+                ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
                 ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
-                App::sceneContainer->pushEvent();
+                App::scenes->pushEvent();
             }
         }
     }
@@ -7066,24 +7066,24 @@ void CSceneObjectContainer::_setAllObjects(const std::vector<CSceneObject*>& new
     if (diff)
     {
         _allObjects.assign(newAllObjects.begin(), newAllObjects.end());
-        if (App::sceneContainer->getEventsEnabled())
+        if (App::scenes->getEventsEnabled())
         {
             std::vector<int> arr;
             for (size_t i = 0; i < _allObjects.size(); i++)
                 arr.push_back(_allObjects[i]->getObjectHandle());
             const char* cmd = propSceneObjectCont_objects.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
             else
                 ev->appendKeyHandleArray(cmd, arr.data(), arr.size());
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
             if (App::getEventProtocolVersion() < 4)
             { // --- For backward compatibility ---
                 cmd = propSceneObjectCont_objectHandles.name;
-                ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+                ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
                 ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
-                App::sceneContainer->pushEvent();
+                App::scenes->pushEvent();
             }
         }
     }

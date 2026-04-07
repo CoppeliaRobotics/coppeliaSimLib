@@ -113,7 +113,7 @@ int CDetachedScript::setHandle()
     _scriptHandle = _nextScriptHandle++;
     if (_nextScriptHandle > sim_object_detachedscriptend)
         _nextScriptHandle = sim_object_detachedscriptstart;
-    while ((App::currentScene != nullptr) && (App::currentScene->sceneObjects != nullptr) && (App::currentScene->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(_scriptHandle) != nullptr))
+    while ((App::scene != nullptr) && (App::scene->sceneObjects != nullptr) && (App::scene->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(_scriptHandle) != nullptr))
     {
         _scriptHandle++;
         if (_scriptHandle > sim_object_detachedscriptend)
@@ -136,10 +136,10 @@ void CDetachedScript::destroy(CDetachedScript* obj, bool registeredObject, bool 
                 VFile::eraseFile(fname.c_str());
         }
         if (announceScriptDestruction)
-            App::sceneContainer->announceScriptWillBeErased(obj->getScriptHandle(), obj->getScriptUid(), obj->isSimulationOrMainScript(), obj->isSceneSwitchPersistentScript());
+            App::scenes->announceScriptWillBeErased(obj->getScriptHandle(), obj->getScriptUid(), obj->isSimulationOrMainScript(), obj->isSceneSwitchPersistentScript());
     }
     if (obj->_addOnUiMenuHandle != -1)
-        App::sceneContainer->moduleMenuItemContainer->removeMenuItem(obj->_addOnUiMenuHandle);
+        App::scenes->moduleMenuItemContainer->removeMenuItem(obj->_addOnUiMenuHandle);
     delete obj;
 }
 
@@ -151,7 +151,7 @@ std::string CDetachedScript::getFilenameForExternalScriptEditor()
             _filenameForExternalScriptEditor = "mainScript-";
         else
         {
-            CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+            CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
             if (obj != nullptr)
             {
                 _filenameForExternalScriptEditor = obj->getObjectAlias();
@@ -163,7 +163,7 @@ std::string CDetachedScript::getFilenameForExternalScriptEditor()
             else
                 _filenameForExternalScriptEditor = "error-";
         }
-        std::string tmp(App::currentScene->environment->getSceneName());
+        std::string tmp(App::scene->environment->getSceneName());
         if (tmp.size() == 0)
             tmp = "newScene";
         _filenameForExternalScriptEditor += tmp + "-" + std::to_string(_scriptHandle);
@@ -279,8 +279,8 @@ void CDetachedScript::fromBufferToFile() const
 {
     if (App::userSettings->externalScriptEditor.size() > 0)
     { // write file
-        if ((App::currentScene == nullptr) || (App::currentScene->environment == nullptr) ||
-            (!App::currentScene->environment->getSceneLocked()))
+        if ((App::scene == nullptr) || (App::scene->environment == nullptr) ||
+            (!App::scene->environment->getSceneLocked()))
         {
             std::string fname = App::folders->getTempDataPath() + "/";
             fname.append(_filenameForExternalScriptEditor);
@@ -757,27 +757,27 @@ void CDetachedScript::addModulesDetectedInCode()
 
 void CDetachedScript::getMatchingFunctions(const char* txt, std::set<std::string>& v, const CDetachedScript* requestOrigin)
 {
-    App::sceneContainer->scriptCustomFuncAndVarContainer->insertAllFunctionNamesThatStartSame(txt, v); // old plugins
+    App::scenes->scriptCustomFuncAndVarContainer->insertAllFunctionNamesThatStartSame(txt, v); // old plugins
 
-    App::sceneContainer->codeEditorInfos->insertWhatStartsSame(txt, v, 1, requestOrigin);
+    App::scenes->codeEditorInfos->insertWhatStartsSame(txt, v, 1, requestOrigin);
 }
 
 void CDetachedScript::getMatchingConstants(const char* txt, std::set<std::string>& v, const CDetachedScript* requestOrigin)
 {
-    App::sceneContainer->scriptCustomFuncAndVarContainer->insertAllVariableNamesThatStartSame(txt, v); // old plugins
+    App::scenes->scriptCustomFuncAndVarContainer->insertAllVariableNamesThatStartSame(txt, v); // old plugins
 
-    App::sceneContainer->codeEditorInfos->insertWhatStartsSame(txt, v, 2, requestOrigin);
+    App::scenes->codeEditorInfos->insertWhatStartsSame(txt, v, 2, requestOrigin);
 }
 
 std::string CDetachedScript::getFunctionCalltip(const char* txt, const CDetachedScript* requestOrigin)
 {
-    std::string retVal = App::sceneContainer->codeEditorInfos->getFunctionCalltip(txt, requestOrigin);
+    std::string retVal = App::scenes->codeEditorInfos->getFunctionCalltip(txt, requestOrigin);
 
     if (retVal.size() == 0)
     { // Check old plugin functions' calltips:
-        for (size_t j = 0; j < App::sceneContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount(); j++)
+        for (size_t j = 0; j < App::scenes->scriptCustomFuncAndVarContainer->getCustomFunctionCount(); j++)
         {
-            CScriptCustomFunction* it = App::sceneContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(j);
+            CScriptCustomFunction* it = App::scenes->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(j);
             std::string n = it->getFunctionName();
             if (n.compare(txt) == 0)
             {
@@ -1073,7 +1073,7 @@ std::string CDetachedScript::getScriptName() const
         return (_addOnMenuName);
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization) || (_scriptType == sim_scripttype_passive))
     {
-        CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (obj != nullptr)
             return (obj->getObjectAlias());
         return ("error");
@@ -1109,7 +1109,7 @@ int CDetachedScript::getScriptState() const
 
 void CDetachedScript::pushObjectCreationEvent()
 {
-    CCbor* ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _scriptUid, nullptr, false);
+    CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _scriptUid, nullptr, false);
     ev->appendKeyText(propObject_objectType.name, getObjectTypeStr().c_str());
     ev->appendKeyBool(propDetachedScript_scriptDisabled.name, _scriptIsDisabled);
     ev->appendKeyBool(propDetachedScript_restartOnError.name, _autoRestartOnError);
@@ -1121,13 +1121,13 @@ void CDetachedScript::pushObjectCreationEvent()
     ev->appendKeyText(propDetachedScript_scriptName.name, getScriptName().c_str());
     ev->appendKeyText(propDetachedScript_addOnPath.name, _addOnPath.c_str());
     ev->appendKeyText(propDetachedScript_addOnMenuPath.name, _addOnMenuPath.c_str());
-    App::sceneContainer->pushEvent();
+    App::scenes->pushEvent();
 }
 
 void CDetachedScript::pushObjectRemoveEvent()
 {
-    App::sceneContainer->createEvent(EVENTTYPE_OBJECTREMOVED, _objectHandle, _scriptUid, nullptr, false);
-    App::sceneContainer->pushEvent();
+    App::scenes->createEvent(EVENTTYPE_OBJECTREMOVED, _objectHandle, _scriptUid, nullptr, false);
+    App::scenes->pushEvent();
 }
 
 void CDetachedScript::setScriptState(int state)
@@ -1136,13 +1136,13 @@ void CDetachedScript::setScriptState(int state)
     if (diff)
     {
         _scriptState = state;
-        if (isNotInCopyBuffer() && App::sceneContainer->getEventsEnabled())
+        if (isNotInCopyBuffer() && App::scenes->getEventsEnabled())
         {
             const char* cmd = propDetachedScript_scriptState.name;
             CCbor* ev;
-            ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyInt64(cmd, _scriptState);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -1152,7 +1152,7 @@ void CDetachedScript::setScriptExecPriority(int priority)
     bool diff = false;
     if (_sceneObjectHandle != -1)
     { // i.e. all new script objects, and all old associated scripts
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
         {
             int p = it->getScriptExecPriority();
@@ -1168,13 +1168,13 @@ void CDetachedScript::setScriptExecPriority(int priority)
     }
     if (diff)
     {
-        if (isNotInCopyBuffer() && App::sceneContainer->getEventsEnabled())
+        if (isNotInCopyBuffer() && App::scenes->getEventsEnabled())
         {
             const char* cmd = propDetachedScript_execPriority.name;
             CCbor* ev;
-            ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyInt64(cmd, priority);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -1184,7 +1184,7 @@ int CDetachedScript::getScriptExecPriority() const
     int retVal = sim_scriptexecorder_normal;
     if (_sceneObjectHandle != -1)
     { // i.e. all new script objects, and all old associated scripts
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
             retVal = it->getScriptExecPriority();
     }
@@ -1241,13 +1241,13 @@ void CDetachedScript::setScriptIsDisabled(bool isDisabled)
     if (diff)
     {
         _scriptIsDisabled = isDisabled;
-        if (isNotInCopyBuffer() && App::sceneContainer->getEventsEnabled())
+        if (isNotInCopyBuffer() && App::scenes->getEventsEnabled())
         {
             const char* cmd = propDetachedScript_scriptDisabled.name;
             CCbor* ev;
-            ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyBool(cmd, _scriptIsDisabled);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -1277,9 +1277,9 @@ bool CDetachedScript::isNotInCopyBuffer() const
     bool retVal = ((_scriptType == sim_scripttype_sandbox) || (_scriptType == sim_scripttype_addon));
     if (!retVal)
     {
-        if (App::currentScene->sceneObjects != nullptr)
+        if (App::scene->sceneObjects != nullptr)
         {
-            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+            CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
             if (it != nullptr)
                 retVal = it->getIsInScene();
         }
@@ -1298,13 +1298,13 @@ void CDetachedScript::setAutoRestartOnError(bool restart)
     if (diff)
     {
         _autoRestartOnError = restart;
-        if (isNotInCopyBuffer() && App::sceneContainer->getEventsEnabled())
+        if (isNotInCopyBuffer() && App::scenes->getEventsEnabled())
         {
             const char* cmd = propDetachedScript_restartOnError.name;
             CCbor* ev;
-            ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyBool(cmd, _autoRestartOnError);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -1373,13 +1373,13 @@ void CDetachedScript::setScriptText(const char* scriptTxt, bool toFileIfApplicab
         _scriptText = "";
         if (scriptTxt != nullptr)
             _scriptText = scriptTxt;
-        if (isNotInCopyBuffer() && App::sceneContainer->getEventsEnabled())
+        if (isNotInCopyBuffer() && App::scenes->getEventsEnabled())
         {
             const char* cmd = propDetachedScript_code.name;
             CCbor* ev;
-            ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyText(cmd, scriptTxt);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
         if (toFileIfApplicable)
             fromBufferToFile();
@@ -1426,7 +1426,7 @@ std::string CDetachedScript::getDescriptiveName() const
             retVal += "Customization script";
         else
             retVal += "Passive script";
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it == nullptr)
             retVal += " (unassociated)";
         else
@@ -1460,7 +1460,7 @@ std::string CDetachedScript::getShortDescriptiveName() const
         retVal += "mainScript";
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it == nullptr)
             retVal += "???";
         else
@@ -1504,7 +1504,7 @@ void CDetachedScript::performScriptLoadingMapping(const std::map<int, int>* map,
 
 void CDetachedScript::performSceneObjectLoadingMapping(const std::map<int, int>* map)
 {
-    if (App::currentScene->sceneObjects != nullptr)
+    if (App::scene->sceneObjects != nullptr)
         _sceneObjectHandle = CScene::getLoadingMapping(map, _sceneObjectHandle);
 }
 
@@ -1540,7 +1540,7 @@ int CDetachedScript::flagScriptForRemoval()
         GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(_scriptUid, _previousEditionWindowPosAndSize, true);
 #endif
 
-    if (App::currentScene->simulation->isSimulationStopped())
+    if (App::scene->simulation->isSimulationStopped())
     {
         if (isSimulationOrMainScript())
             return (2);
@@ -1601,21 +1601,21 @@ int CDetachedScript::systemCallMainScript(int optionalCallType, const CInterface
     int retVal = -1;
     if (optionalCallType == -1)
     {
-        App::currentScene->sceneObjects->resetScriptFlagCalledInThisSimulationStep();
+        App::scene->sceneObjects->resetScriptFlagCalledInThisSimulationStep();
         int startT = int(VDateTime::getTimeInMs());
 
         if (_scriptState < scriptState_initialized)
             retVal = systemCallScript(sim_syscb_init, inStack, outStack);
 
         retVal = systemCallScript(sim_syscb_actuation, inStack, outStack);
-        App::sceneContainer->dispatchEvents(); // make sure that remote worlds reflect CoppeliaSim's state before sensing
+        App::scenes->dispatchEvents(); // make sure that remote worlds reflect CoppeliaSim's state before sensing
         retVal = systemCallScript(sim_syscb_sensing, inStack, outStack);
 
-        if (App::currentScene->simulation->getSimulationState() == sim_simulation_lastbeforestop)
+        if (App::scene->simulation->getSimulationState() == sim_simulation_lastbeforestop)
             retVal = systemCallScript(sim_syscb_cleanup, inStack, outStack);
 
-        App::sceneContainer->calcInfo->setMainScriptExecutionTime(int(VDateTime::getTimeInMs()) - startT);
-        App::sceneContainer->calcInfo->setSimulationScriptExecCount(App::currentScene->sceneObjects->getCalledScriptsCountInThisSimulationStep(true));
+        App::scenes->calcInfo->setMainScriptExecutionTime(int(VDateTime::getTimeInMs()) - startT);
+        App::scenes->calcInfo->setSimulationScriptExecCount(App::scene->sceneObjects->getCalledScriptsCountInThisSimulationStep(true));
     }
     else
         retVal = systemCallScript(optionalCallType, inStack, outStack);
@@ -1688,7 +1688,7 @@ int CDetachedScript::systemCallScript(int callType, const CInterfaceStack* inSta
 
     if (_addOnUiMenuHandle != -1)
     {
-        CModuleMenuItem* m = App::sceneContainer->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle);
+        CModuleMenuItem* m = App::scenes->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle);
         if (m != nullptr)
         {
             std::string txt(_addOnMenuPath);
@@ -1718,7 +1718,7 @@ bool CDetachedScript::shouldTemporarilySuspendMainScript()
     bool retVal = false;
     if (_scriptType == sim_scripttype_sandbox)
         setScriptState(_scriptState & 7); // remove a possible error flag
-    CInterfaceStack* outStack = App::sceneContainer->interfaceStackContainer->createStack();
+    CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();
     _callSystemScriptFunction(sim_syscb_beforemainscript, nullptr, outStack);
     bool doNotRunMainScript;
     if (outStack->getStackMapBoolValue("doNotRunMainScript", doNotRunMainScript))
@@ -1726,7 +1726,7 @@ bool CDetachedScript::shouldTemporarilySuspendMainScript()
         if (doNotRunMainScript)
             retVal = true;
     }
-    App::sceneContainer->interfaceStackContainer->destroyStack(outStack);
+    App::scenes->interfaceStackContainer->destroyStack(outStack);
     return (retVal);
 }
 
@@ -1734,7 +1734,7 @@ void CDetachedScript::_handleInfoCallback()
 {
     if (_autoStartAddOn == -1)
     { // do this only once!
-        CInterfaceStack* outStack = App::sceneContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();
         systemCallScript(sim_syscb_info, nullptr, outStack);
         resetScript();
         bool boolVal = true;
@@ -1754,14 +1754,14 @@ void CDetachedScript::_handleInfoCallback()
                 _addOnMenuPath.replace(r, 1, " >> ");
                 r = _addOnMenuPath.find("\n");
             }
-            _addOnUiMenuHandle = App::sceneContainer->moduleMenuItemContainer->addMenuItem(menuEntry.c_str(), -1);
+            _addOnUiMenuHandle = App::scenes->moduleMenuItemContainer->addMenuItem(menuEntry.c_str(), -1);
         }
         boolVal = true;
         outStack->getStackMapBoolValue("menuEnabled", boolVal);
         if ((_addOnUiMenuHandle != -1) && (!boolVal))
-            App::sceneContainer->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle)->setState(0);
+            App::scenes->moduleMenuItemContainer->getItemFromHandle(_addOnUiMenuHandle)->setState(0);
 
-        App::sceneContainer->interfaceStackContainer->destroyStack(outStack);
+        App::scenes->interfaceStackContainer->destroyStack(outStack);
     }
 }
 
@@ -1913,7 +1913,10 @@ int CDetachedScript::___loadCode(const char* code, const char* functionsToFind, 
     { // A compilation error occurred!
         retVal = -1;
         if (errorMsg != nullptr)
-            errorMsg[0] = luaWrap_lua_tostring(L, -1);
+        {
+            errorMsg[0] = luaWrap_luaL_tolstring(L, -1, nullptr); // pushes a string onto the stack!
+            luaWrap_lua_pop(L, 1); // pop string
+        }
         luaWrap_lua_pop(L, 1); // pop error from stack
     }
     luaWrap_lua_settop(L, oldTop); // We restore lua's stack
@@ -2030,25 +2033,25 @@ int CDetachedScript::_callSystemScriptFunction(int callType, const CInterfaceSta
     else
         changeOverallYieldingForbidLevel(1, false);
 
-    CInterfaceStack* _outStack = App::sceneContainer->interfaceStackContainer->createStack();
+    CInterfaceStack* _outStack = App::scenes->interfaceStackContainer->createStack();
     if (outStack == nullptr)
         outStack = _outStack;
 
     // ---------------------------------
     if (_scriptType == sim_scripttype_main)
     { // corresponding calls for plugins:
-        int data[4] = {0, int(App::currentScene->simulation->getSimulationTime() * 1000.0), 0, 0};
+        int data[4] = {0, int(App::scene->simulation->getSimulationTime() * 1000.0), 0, 0};
         if (callType == sim_syscb_init)
-            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationinit, data);
         if (callType == sim_syscb_actuation)
-            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationactuation, data);
         if (callType == sim_syscb_sensing)
-            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationsensing, data);
         if (callType == sim_syscb_cleanup)
-            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationcleanup, data);
     }
 
@@ -2079,18 +2082,18 @@ int CDetachedScript::_callSystemScriptFunction(int callType, const CInterfaceSta
     }
     if (_scriptType == sim_scripttype_main)
     { // corresponding calls for plugins:
-        int data[4] = {1, int(App::currentScene->simulation->getSimulationTime() * 1000.0), 0, 0};
+        int data[4] = {1, int(App::scene->simulation->getSimulationTime() * 1000.0), 0, 0};
         if (callType == sim_syscb_init)
-            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationinit, data);
         if (callType == sim_syscb_actuation)
-            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationactuation, data);
         if (callType == sim_syscb_sensing)
-            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationsensing, data);
         if (callType == sim_syscb_cleanup)
-            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationcleanup, data);
     }
     // ---------------------------------
@@ -2137,7 +2140,7 @@ int CDetachedScript::_callSystemScriptFunction(int callType, const CInterfaceSta
             }
         }
     }
-    App::sceneContainer->interfaceStackContainer->destroyStack(_outStack);
+    App::scenes->interfaceStackContainer->destroyStack(_outStack);
     return (retVal);
 }
 
@@ -2196,7 +2199,7 @@ int CDetachedScript::_callScriptFunction(int sysCallType, const char* functionNa
                           (sysCallType == sim_syscb_aos_suspend) || (sysCallType == sim_syscb_aos_resume) ||
                           (sysCallType == sim_syscb_userconfig)))
     {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
 
         stack->pushTableOntoStack();
 
@@ -2216,8 +2219,8 @@ int CDetachedScript::_callScriptFunction(int sysCallType, const char* functionNa
         stack->insertDataIntoStackTable();
 
         stack->insertDataIntoStackTable();
-        App::sceneContainer->broadcastMsg(stack, _scriptHandle, 0);
-        App::sceneContainer->interfaceStackContainer->destroyStack(stack);
+        App::scenes->broadcastMsg(stack, _scriptHandle, 0);
+        App::scenes->interfaceStackContainer->destroyStack(stack);
     }
 
     if ((errorMsg != nullptr) && (errorMsg[0].size() > 1) && boost::algorithm::ends_with(errorMsg->c_str(), "\n\n"))
@@ -2294,7 +2297,8 @@ int CDetachedScript::_callScriptFunc(const char* functionName, const CInterfaceS
             retVal = -1;
             if (errorMsg != nullptr)
             {
-                errorMsg[0] = luaWrap_lua_tostring(L, -1);
+                errorMsg[0] = luaWrap_luaL_tolstring(L, -1, nullptr); // pushes a string onto the stack!
+                luaWrap_lua_pop(L, 1); // pop string
                 size_t p = errorMsg[0].find("__]]__");
                 if (p != std::string::npos)
                     errorMsg[0] = errorMsg[0].substr(0, p);
@@ -2349,12 +2353,12 @@ int CDetachedScript::callCustomScriptFunction(const char* functionName, CInterfa
             // hooks
             CInterfaceStack* inStack2 = nullptr;
             if (inStack)
-                inStack2 = App::sceneContainer->interfaceStackContainer->createStackCopy(inStack);
+                inStack2 = App::scenes->interfaceStackContainer->createStackCopy(inStack);
             else
-                inStack2 = App::sceneContainer->interfaceStackContainer->createStack();
+                inStack2 = App::scenes->interfaceStackContainer->createStack();
             inStack2->pushTextOntoStack(funcName.c_str(), true);
             retVal = _callScriptFunction(-1, "sysCall_ext", inStack2, outStack, &errMsg);
-            App::sceneContainer->interfaceStackContainer->destroyStack(inStack2);
+            App::scenes->interfaceStackContainer->destroyStack(inStack2);
         }
         if (!extFunc)
             retVal = _callScriptFunction(-1, funcName.c_str(), inStack, outStack, &errMsg);
@@ -2433,7 +2437,8 @@ bool CDetachedScript::_execScriptString(const char* scriptString, CInterfaceStac
         luaWrap_lua_insert(L, errindex);
         if (luaWrap_lua_pcall(L, 0, luaWrapGet_LUA_MULTRET(), errindex) != 0)
         { // a runtime error occurred!
-            std::string errMsg = luaWrap_lua_tostring(L, -1);
+            std::string errMsg = luaWrap_luaL_tolstring(L, -1, nullptr); // pushes a string onto the stack!
+            luaWrap_lua_pop(L, 1); // pop string
             if (outStack != nullptr)
             {
                 outStack->clear();
@@ -2452,7 +2457,8 @@ bool CDetachedScript::_execScriptString(const char* scriptString, CInterfaceStac
     }
     else
     { // A compilation error occurred!
-        std::string errMsg = luaWrap_lua_tostring(L, -1);
+        std::string errMsg = luaWrap_luaL_tolstring(L, -1, nullptr); // pushes a string onto the stack!
+        luaWrap_lua_pop(L, 1); // pop string
         if (outStack != nullptr)
         {
             outStack->clear();
@@ -2544,7 +2550,7 @@ void CDetachedScript::initScript()
         }
         else
         {
-            if ( ((_scriptType != sim_scripttype_simulation) && (_scriptType != sim_scripttype_main)) || (!App::currentScene->simulation->isSimulationStopped()) )
+            if ( ((_scriptType != sim_scripttype_simulation) && (_scriptType != sim_scripttype_main)) || (!App::scene->simulation->isSimulationStopped()) )
                 systemCallScript(sim_syscb_init, nullptr, nullptr);
         }
     }
@@ -2570,7 +2576,7 @@ bool CDetachedScript::_killInterpreterState()
             // if (_scriptType==sim_scripttype_addonfunction) // Not needed
             // if (_scriptType==sim_scripttype_sandbox) // Not needed
         }
-        App::sceneContainer->announceScriptStateWillBeErased(_scriptHandle, _scriptUid, isSimulationOrMainScript(), isSceneSwitchPersistentScript());
+        App::scenes->announceScriptStateWillBeErased(_scriptHandle, _scriptUid, isSimulationOrMainScript(), isSceneSwitchPersistentScript());
         luaWrap_lua_close((luaWrap_lua_State*)_interpreterState);
         _interpreterState = nullptr;
     }
@@ -2667,7 +2673,7 @@ bool CDetachedScript::prepareFilteredEventsBuffer(const std::vector<unsigned cha
     if (_eventFilters.size() > 0)
     {
         long long int mainScriptHandle = -1;
-        CDetachedScript* mainScript = App::currentScene->sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* mainScript = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
         if (mainScript != nullptr)
             mainScriptHandle = mainScript->getScriptHandle();
 
@@ -2680,7 +2686,7 @@ bool CDetachedScript::prepareFilteredEventsBuffer(const std::vector<unsigned cha
                 altT = sim_handle_sceneobject;
             else if ((t >= sim_object_detachedscriptstart) && (t <= sim_object_detachedscriptend))
             {
-                if (t == App::sceneContainer->sandboxScript->getScriptHandle())
+                if (t == App::scenes->sandboxScript->getScriptHandle())
                     altT = sim_handle_sandbox;
                 else if ((mainScriptHandle != -1) && (t == mainScriptHandle))
                     altT = sim_handle_mainscript;
@@ -2745,7 +2751,7 @@ void CDetachedScript::_announceErrorWasRaisedAndPossiblyPauseSimulation(const ch
         (errM.find("attempt to yield from outside a coroutine") == std::string::npos))
     { // silent error when breaking out of a threaded simulation script at simulation end
         if ((_scriptType == sim_scripttype_main) || (_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
-            App::currentScene->simulation->pauseOnErrorRequested();
+            App::scene->simulation->pauseOnErrorRequested();
         App::logScriptMsg(this, sim_verbosity_scripterrors, errM.c_str());
         _lastStackTraceback = errM;
     }
@@ -2825,12 +2831,12 @@ std::string CDetachedScript::getSearchPath_lua()
 
     retVal += App::folders->getInterpretersRootPath() + "/luarocks/share/lua/5.4/?.lua";
 
-    if (App::currentScene->environment->getScenePathAndName().compare("") != 0)
+    if (App::scene->environment->getScenePathAndName().compare("") != 0)
     {
         retVal += ";";
-        retVal += App::currentScene->environment->getScenePath() + "/?.lua";
+        retVal += App::scene->environment->getScenePath() + "/?.lua";
         retVal += ";";
-        retVal += App::currentScene->environment->getScenePath() + "/?/init.lua";
+        retVal += App::scene->environment->getScenePath() + "/?/init.lua";
     }
     if (App::userSettings->additionalLuaPath.length() > 0)
     {
@@ -2860,10 +2866,10 @@ std::string CDetachedScript::getSearchPath_python()
     retVal += "/?.py;";
     retVal += App::folders->getInterpretersRootPath();
     retVal += "/python/?.py;";
-    if (App::currentScene->environment->getScenePathAndName().compare("") != 0)
+    if (App::scene->environment->getScenePathAndName().compare("") != 0)
     {
         retVal += ";";
-        retVal += App::currentScene->environment->getScenePath();
+        retVal += App::scene->environment->getScenePath();
         retVal += "/?.py";
     }
     if (App::userSettings->additionalPythonPath.length() > 0)
@@ -3015,7 +3021,10 @@ bool CDetachedScript::_initInterpreterState(std::string* errorMsg)
     if (0 != _execSimpleString_safe_lua(L, "require('base')"))
     {
         if (errorMsg != nullptr)
-            errorMsg[0] = luaWrap_lua_tostring(L, -1);
+        {
+            errorMsg[0] = luaWrap_luaL_tolstring(L, -1, nullptr); // pushes a string onto the stack!
+            luaWrap_lua_pop(L, 1); // pop string
+        }
         _killInterpreterState();
         _initFunctionHookCount = 0;
     }
@@ -3038,7 +3047,7 @@ void CDetachedScript::_hookFunction_lua(void* LL, void* arr)
 {
     TRACE_INTERNAL;
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
-    CDetachedScript* it = App::sceneContainer->getDetachedScriptFromHandle(getScriptHandleFromInterpreterState_lua(L));
+    CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(getScriptHandleFromInterpreterState_lua(L));
     if (it == nullptr)
         return;
 
@@ -3060,12 +3069,12 @@ void CDetachedScript::_hookFunction_lua(void* LL, void* arr)
         {
             if (it->getScriptExecutionTimeInMs() > (App::userSettings->getAbortScriptExecutionTiming() * 1000))
             {
-                if (App::currentScene->simulation->showAndHandleEmergencyStopButton(
+                if (App::scene->simulation->showAndHandleEmergencyStopButton(
                         true, it->getShortDescriptiveName().c_str()))
                     it->terminateScriptExecutionExternally(true);
             }
             else
-                App::currentScene->simulation->showAndHandleEmergencyStopButton(false, "");
+                App::scene->simulation->showAndHandleEmergencyStopButton(false, "");
         }
 #endif
         //        luaWrap_luaL_dostring(L,"return coroutine.isyieldable()");
@@ -3196,14 +3205,14 @@ void CDetachedScript::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
         int dx = cnt - _sysFuncAndHookCnt_event[what];
         _sysFuncAndHookCnt_event[what] = cnt;
         if (_scriptType == sim_scripttype_addon)
-            App::sceneContainer->addOnScriptContainer->setSysFuncAndHookCnt(
-                sim_syscb_event, App::sceneContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
+            App::scenes->addOnScriptContainer->setSysFuncAndHookCnt(
+                sim_syscb_event, App::scenes->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
         else if (_scriptType != sim_scripttype_sandbox)
         {
             if (_scriptHandle < sim_object_detachedscriptstart)
-                App::currentScene->sceneObjects->setSysFuncAndHookCnt(sim_syscb_event, App::currentScene->sceneObjects->getSysFuncAndHookCnt(sim_syscb_event) + dx);
+                App::scene->sceneObjects->setSysFuncAndHookCnt(sim_syscb_event, App::scene->sceneObjects->getSysFuncAndHookCnt(sim_syscb_event) + dx);
             else
-                App::currentScene->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_event, App::currentScene->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
+                App::scene->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_event, App::scene->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
         }
     }
     if ((sysCall == sim_syscb_dyn) || (sysCall == -1))
@@ -3211,14 +3220,14 @@ void CDetachedScript::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
         int dx = cnt - _sysFuncAndHookCnt_dyn[what];
         _sysFuncAndHookCnt_dyn[what] = cnt;
         if (_scriptType == sim_scripttype_addon)
-            App::sceneContainer->addOnScriptContainer->setSysFuncAndHookCnt(
-                sim_syscb_dyn, App::sceneContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
+            App::scenes->addOnScriptContainer->setSysFuncAndHookCnt(
+                sim_syscb_dyn, App::scenes->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
         else if (_scriptType != sim_scripttype_sandbox)
         {
             if (_scriptHandle < sim_object_detachedscriptstart)
-                App::currentScene->sceneObjects->setSysFuncAndHookCnt(sim_syscb_dyn, App::currentScene->sceneObjects->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
+                App::scene->sceneObjects->setSysFuncAndHookCnt(sim_syscb_dyn, App::scene->sceneObjects->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
             else
-                App::currentScene->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_dyn, App::currentScene->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
+                App::scene->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_dyn, App::scene->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_dyn) + dx);
         }
     }
     if ((sysCall == sim_syscb_contact) || (sysCall == -1))
@@ -3226,15 +3235,15 @@ void CDetachedScript::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
         int dx = cnt - _sysFuncAndHookCnt_contact[what];
         _sysFuncAndHookCnt_contact[what] = cnt;
         if (_scriptType == sim_scripttype_addon)
-            App::sceneContainer->addOnScriptContainer->setSysFuncAndHookCnt(
+            App::scenes->addOnScriptContainer->setSysFuncAndHookCnt(
                 sim_syscb_contact,
-                App::sceneContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
+                App::scenes->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
         else if (_scriptType != sim_scripttype_sandbox)
         {
             if (_scriptHandle < sim_object_detachedscriptstart)
-                App::currentScene->sceneObjects->setSysFuncAndHookCnt(sim_syscb_contact, App::currentScene->sceneObjects->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
+                App::scene->sceneObjects->setSysFuncAndHookCnt(sim_syscb_contact, App::scene->sceneObjects->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
             else
-                App::currentScene->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_contact, App::currentScene->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
+                App::scene->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_contact, App::scene->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_contact) + dx);
         }
     }
     if ((sysCall == sim_syscb_joint) || (sysCall == -1))
@@ -3242,14 +3251,14 @@ void CDetachedScript::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
         int dx = cnt - _sysFuncAndHookCnt_joint[what];
         _sysFuncAndHookCnt_joint[what] = cnt;
         if (_scriptType == sim_scripttype_addon)
-            App::sceneContainer->addOnScriptContainer->setSysFuncAndHookCnt(
-                sim_syscb_joint, App::sceneContainer->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
+            App::scenes->addOnScriptContainer->setSysFuncAndHookCnt(
+                sim_syscb_joint, App::scenes->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
         else if (_scriptType != sim_scripttype_sandbox)
         {
             if (_scriptHandle < sim_object_detachedscriptstart)
-                App::currentScene->sceneObjects->setSysFuncAndHookCnt(sim_syscb_joint, App::currentScene->sceneObjects->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
+                App::scene->sceneObjects->setSysFuncAndHookCnt(sim_syscb_joint, App::scene->sceneObjects->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
             else
-                App::currentScene->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_joint, App::currentScene->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
+                App::scene->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_joint, App::scene->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_joint) + dx);
         }
     }
 }
@@ -3491,7 +3500,7 @@ void CDetachedScript::loadPluginFuncsAndVars(CPlugin* plug)
             }
             else
             { // stack variable
-                CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(dat->stackHandle);
+                CInterfaceStack* stack = App::scenes->interfaceStackContainer->getStack(dat->stackHandle);
                 buildOntoInterpreterStack_lua(L, stack, true);
                 luaWrap_lua_setglobal(L, variableName.c_str());
             }
@@ -3514,10 +3523,10 @@ void CDetachedScript::loadPluginFuncsAndVars(CPlugin* plug)
 
 void CDetachedScript::registerPluginFunctions()
 {
-    for (size_t i = 0; i < App::sceneContainer->scriptCustomFuncAndVarContainer->getCustomFunctionCount(); i++)
+    for (size_t i = 0; i < App::scenes->scriptCustomFuncAndVarContainer->getCustomFunctionCount(); i++)
     {
         CScriptCustomFunction* customFunc =
-            App::sceneContainer->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(i);
+            App::scenes->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(i);
         if (customFunc->hasCallback())
         {
             std::string functionName(customFunc->getFunctionName());
@@ -3571,10 +3580,10 @@ void CDetachedScript::_registerNewVariables_lua()
 
 bool CDetachedScript::registerPluginVariables(bool onlyRequireStatements)
 {
-    for (size_t i = 0; i < App::sceneContainer->scriptCustomFuncAndVarContainer->getCustomVariableCount(); i++)
+    for (size_t i = 0; i < App::scenes->scriptCustomFuncAndVarContainer->getCustomVariableCount(); i++)
     {
         CScriptCustomVariable* customVar =
-            App::sceneContainer->scriptCustomFuncAndVarContainer->getCustomVariableFromIndex(i);
+            App::scenes->scriptCustomFuncAndVarContainer->getCustomVariableFromIndex(i);
         std::string variableName(customVar->getVariableName());
         std::string variableValue(customVar->getVariableValue());
         int variableStackId = customVar->getVariableStackId();
@@ -3610,7 +3619,7 @@ bool CDetachedScript::registerPluginVariables(bool onlyRequireStatements)
             {
                 if (!onlyRequireStatements)
                 {
-                    CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->getStack(variableStackId);
+                    CInterfaceStack* stack = App::scenes->interfaceStackContainer->getStack(variableStackId);
                     buildOntoInterpreterStack_lua(L, stack, true);
                     luaWrap_lua_setglobal(L, variableName.c_str());
                 }
@@ -4432,16 +4441,16 @@ void CDetachedScript::signalRemoved(const char* sigName)
 
 int CDetachedScript::setBoolProperty(const char* pName, bool pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(propDetachedScript_scriptDisabled.name, pName) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         setScriptIsDisabled(pState);
     }
     else if (strcmp(propDetachedScript_restartOnError.name, pName) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         setAutoRestartOnError(pState);
     }
 
@@ -4450,16 +4459,16 @@ int CDetachedScript::setBoolProperty(const char* pName, bool pState)
 
 int CDetachedScript::getBoolProperty(const char* pName, bool& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(propDetachedScript_scriptDisabled.name, pName) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _scriptIsDisabled;
     }
     else if (strcmp(propDetachedScript_restartOnError.name, pName) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _autoRestartOnError;
     }
 
@@ -4468,11 +4477,11 @@ int CDetachedScript::getBoolProperty(const char* pName, bool& pState) const
 
 int CDetachedScript::setIntProperty(const char* pName, int pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(propDetachedScript_execPriority.name, pName) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         setScriptExecPriority(pState);
     }
 
@@ -4481,26 +4490,26 @@ int CDetachedScript::setIntProperty(const char* pName, int pState)
 
 int CDetachedScript::getIntProperty(const char* pName, int& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(propDetachedScript_execPriority.name, pName) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = getScriptExecPriority();
     }
     else if (strcmp(propDetachedScript_scriptType.name, pName) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _scriptType;
     }
     else if (strcmp(propDetachedScript_executionDepth.name, pName) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _executionDepth;
     }
     else if (strcmp(propDetachedScript_scriptState.name, pName) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _scriptState;
     }
 
@@ -4509,7 +4518,7 @@ int CDetachedScript::getIntProperty(const char* pName, int& pState) const
 
 int CDetachedScript::setLongProperty(const char* pName, long long int pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
@@ -4517,7 +4526,7 @@ int CDetachedScript::setLongProperty(const char* pName, long long int pState)
 int CDetachedScript::getLongProperty(const char* pName, long long int& pState) const
 {
     int retVal = Obj::getLongProperty(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -4526,18 +4535,18 @@ int CDetachedScript::getLongProperty(const char* pName, long long int& pState) c
 
 int CDetachedScript::getHandleProperty(const char* pName, long long int& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
 
 int CDetachedScript::setStringProperty(const char* pName, const char* pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(propDetachedScript_code.name, pName) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         setScriptText(pState);
     }
 
@@ -4547,11 +4556,11 @@ int CDetachedScript::setStringProperty(const char* pName, const char* pState)
 int CDetachedScript::getStringProperty(const char* pName, std::string& pState) const
 {
     int retVal = Obj::getStringProperty(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(propDetachedScript_code.name, pName) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
 #ifdef SIM_WITH_GUI
             if (GuiApp::mainWindow != nullptr)
                 GuiApp::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
@@ -4560,22 +4569,22 @@ int CDetachedScript::getStringProperty(const char* pName, std::string& pState) c
         }
         else if (strcmp(propDetachedScript_language.name, pName) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _lang;
         }
         else if (strcmp(propDetachedScript_scriptName.name, pName) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = getScriptName();
         }
         else if (strcmp(propDetachedScript_addOnPath.name, pName) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _addOnPath;
         }
         else if (strcmp(propDetachedScript_addOnMenuPath.name, pName) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _addOnMenuPath;
         }
     }
@@ -4587,7 +4596,7 @@ int CDetachedScript::getPropertyName(int& index, std::string& pName, std::string
 {
     appartenance = _objectTypeStr;
     int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         for (size_t i = 0; i < allProps_detachedScript.size(); i++)
         {
@@ -4599,7 +4608,7 @@ int CDetachedScript::getPropertyName(int& index, std::string& pName, std::string
                     if (index == -1)
                     {
                         pName = allProps_detachedScript[i].name;
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                         break;
                     }
                 }
@@ -4612,7 +4621,7 @@ int CDetachedScript::getPropertyName(int& index, std::string& pName, std::string
 int CDetachedScript::getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const
 {
     int retVal = Obj::getPropertyInfo(pName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         for (size_t i = 0; i < allProps_detachedScript.size(); i++)
         {
@@ -4636,7 +4645,7 @@ int CDetachedScript::getPropertyInfo(const char* pName, int& info, std::string& 
             }
         }
     }
-    if (retVal != -1)
+    if (retVal != sim_propertyret_unknownproperty)
     {
         if (strcmp(propDetachedScript_code.name, pName) == 0)
         {
@@ -4698,7 +4707,7 @@ int CDetachedScript::_getScriptNameIndexNumber_old() const
     int retVal = -1;
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
             retVal = tt::getNameSuffixNumber(it->getObjectName_old().c_str(), true);
     }
@@ -4708,7 +4717,7 @@ std::string CDetachedScript::getScriptPseudoName_old() const
 {
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization))
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_sceneObjectHandle);
         if (it != nullptr)
             return (it->getObjectName_old());
     }
@@ -4785,8 +4794,9 @@ int CDetachedScript::callScriptFunction_DEPRECATED(const char* functionName, SLu
         setExecutionDepth(_executionDepth - 1);
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = -1;
-        std::string errMsg = luaWrap_lua_tostring(L, -1);
-        luaWrap_lua_pop(L, 1); // pop error from stack
+
+        std::string errMsg = luaWrap_luaL_tolstring(L, -1, nullptr); // pushes a string onto the stack!
+        luaWrap_lua_pop(L, 2); // pop string and error
         _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
 
         // Following probably not needed:

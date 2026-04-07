@@ -207,12 +207,12 @@ void CLight::setLightSize(double size)
     if (_lightSize != size)
     {
         _lightSize = size;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propLight_size.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _lightSize);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
         computeBoundingBox();
     }
@@ -238,12 +238,12 @@ void CLight::setAttenuationFactors(const double fact[3])
         constantAttenuation = fact[0];
         linearAttenuation = fact[1];
         quadraticAttenuation = fact[2];
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propLight_attenuationFactors.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDoubleArray(cmd, fact, 3);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -254,12 +254,12 @@ void CLight::setLightActive(bool active)
     if (diff)
     {
         lightActive = active;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propLight_enabled.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, lightActive);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
 #ifdef SIM_WITH_GUI
         GuiApp::setRefreshHierarchyViewFlag();
@@ -279,12 +279,12 @@ void CLight::setSpotExponent(int e)
     if (diff)
     {
         _spotExponent = e;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propLight_spotExponent.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _spotExponent);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -301,12 +301,12 @@ void CLight::setSpotCutoffAngle(double co)
     if (diff)
     {
         _spotCutoffAngle = co;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propLight_spotCutoffAngle.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _spotCutoffAngle);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -810,16 +810,16 @@ int CLight::setBoolProperty(const char* ppName, bool pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propLight_enabled.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setLightActive(pState);
         }
         else if (_pName == propLight_povCastShadows.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             if (pState)
                 tt::insertKeyAndValue("shadow@povray", "true", _extensionString);
             else
@@ -834,16 +834,16 @@ int CLight::getBoolProperty(const char* ppName, bool& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propLight_enabled.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = lightActive;
         }
         else if (_pName == propLight_povCastShadows.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             std::string val;
             pState = true;
             if (tt::getValueOfKey("shadow@povray", _extensionString.c_str(), val))
@@ -858,11 +858,11 @@ int CLight::setIntProperty(const char* ppName, int pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propLight_spotExponent.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setSpotExponent(pState);
         }
     }
@@ -874,16 +874,16 @@ int CLight::getIntProperty(const char* ppName, int& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propLight_spotExponent.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _spotExponent;
         }
         else if (_pName == propLight_lightType.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _lightType;
         }
     }
@@ -895,21 +895,21 @@ int CLight::setFloatProperty(const char* ppName, double pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = objectColor.setFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = lightColor.setFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propLight_size.name)
         {
             setLightSize(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propLight_spotCutoffAngle.name)
         {
             setSpotCutoffAngle(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -920,21 +920,21 @@ int CLight::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = objectColor.getFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = lightColor.getFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propLight_size.name)
         {
             pState = _lightSize;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propLight_spotCutoffAngle.name)
         {
             pState = _spotCutoffAngle;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -945,7 +945,7 @@ int CLight::getStringProperty(const char* ppName, std::string& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getStringProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -956,9 +956,9 @@ int CLight::setColorProperty(const char* ppName, const float* pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setColorProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = objectColor.setColorProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = lightColor.setColorProperty(ppName, pState);
     return retVal;
 }
@@ -967,9 +967,9 @@ int CLight::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getColorProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = objectColor.getColorProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = lightColor.getColorProperty(ppName, pState);
     return retVal;
 }
@@ -978,7 +978,7 @@ int CLight::setVector3Property(const char* ppName, const C3Vector& pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setVector3Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -989,7 +989,7 @@ int CLight::getVector3Property(const char* ppName, C3Vector& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getVector3Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1002,14 +1002,14 @@ int CLight::setFloatArrayProperty(const char* ppName, const double* v, int vL)
     if (v == nullptr)
         vL = 0;
     int retVal = CSceneObject::setFloatArrayProperty(ppName, v, vL);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propLight_attenuationFactors.name)
         {
             if (vL >= 3)
             {
                 setAttenuationFactors(v);
-                retVal = 1;
+                retVal = sim_propertyret_ok;
             }
             else
                 retVal = 0;
@@ -1024,14 +1024,14 @@ int CLight::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
     std::string _pName(ppName);
     pState.clear();
     int retVal = CSceneObject::getFloatArrayProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propLight_attenuationFactors.name)
         {
             pState.push_back(constantAttenuation);
             pState.push_back(linearAttenuation);
             pState.push_back(quadraticAttenuation);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -1041,13 +1041,13 @@ int CLight::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
 int CLight::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         appartenance = _objectTypeStr;
         retVal = objectColor.getPropertyName(index, pName, excludeFlags);
-        if (retVal == -1)
+        if (retVal == sim_propertyret_unknownproperty)
             retVal = lightColor.getPropertyName(index, pName, excludeFlags);
-        if (retVal == -1)
+        if (retVal == sim_propertyret_unknownproperty)
         {
             for (size_t i = 0; i < allProps_light.size(); i++)
             {
@@ -1059,7 +1059,7 @@ int CLight::getPropertyName(int& index, std::string& pName, std::string& apparte
                         if (index == -1)
                         {
                             pName = allProps_light[i].name;
-                            retVal = 1;
+                            retVal = sim_propertyret_ok;
                             break;
                         }
                     }
@@ -1073,11 +1073,11 @@ int CLight::getPropertyName(int& index, std::string& pName, std::string& apparte
 int CLight::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = objectColor.getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = lightColor.getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         for (size_t i = 0; i < allProps_light.size(); i++)
         {

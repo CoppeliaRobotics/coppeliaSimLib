@@ -52,10 +52,10 @@ void CQDlgModelProperties::on_qqSelectThumbnail_clicked()
     int modelBase = modelBaseObject->getObjectHandle();
     while (true)
     {
-        if (App::currentScene->environment->modelThumbnail_notSerializedHere.hasImage())
+        if (App::scene->environment->modelThumbnail_notSerializedHere.hasImage())
         { // we already have a thumbnail!
             CQDlgModelThumbnailVisu dlg(this);
-            dlg.applyThumbnail(&App::currentScene->environment->modelThumbnail_notSerializedHere);
+            dlg.applyThumbnail(&App::scene->environment->modelThumbnail_notSerializedHere);
             keepCurrentThumbnail = (dlg.makeDialogModal() != VDIALOG_MODAL_RETURN_CANCEL);
         }
         if (!keepCurrentThumbnail)
@@ -67,7 +67,7 @@ void CQDlgModelProperties::on_qqSelectThumbnail_clicked()
             if (dlg.makeDialogModal() != VDIALOG_MODAL_RETURN_CANCEL)
             {
                 // We first apply the thumbnail in the UI thread scene (needed), then post a message for the sim thread
-                App::currentScene->environment->modelThumbnail_notSerializedHere.copyFrom(&dlg.thumbnail);
+                App::scene->environment->modelThumbnail_notSerializedHere.copyFrom(&dlg.thumbnail);
                 SSimulationThreadCommand cmd;
                 cmd.cmdId = SET_THUMBNAIL_GUITRIGGEREDCMD;
                 unsigned char* img = (unsigned char*)dlg.thumbnail.getPointerToUncompressedImage();

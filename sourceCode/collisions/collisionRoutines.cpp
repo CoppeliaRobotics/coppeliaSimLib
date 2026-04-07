@@ -9,19 +9,19 @@ bool CCollisionRoutine::doEntitiesCollide(int entity1ID, int entity2ID, std::vec
                                           int collidingObjectIDs[2])
 { // if entity2ID==-1, then all collidable objects are tested against entity1
     // We first check if objects are valid:
-    CSceneObject* object1 = App::currentScene->sceneObjects->getObjectFromHandle(entity1ID);
-    CSceneObject* object2 = App::currentScene->sceneObjects->getObjectFromHandle(entity2ID);
+    CSceneObject* object1 = App::scene->sceneObjects->getObjectFromHandle(entity1ID);
+    CSceneObject* object2 = App::scene->sceneObjects->getObjectFromHandle(entity2ID);
     CCollection* collection1 = nullptr;
     CCollection* collection2 = nullptr;
     if (object1 == nullptr)
     {
-        collection1 = App::currentScene->collections->getObjectFromHandle(entity1ID);
+        collection1 = App::scene->collections->getObjectFromHandle(entity1ID);
         if (collection1 == nullptr)
             return (false);
     }
     if (object2 == nullptr)
     {
-        collection2 = App::currentScene->collections->getObjectFromHandle(entity2ID);
+        collection2 = App::scene->collections->getObjectFromHandle(entity2ID);
         if ((collection2 == nullptr) && (entity2ID != -1))
             return (false);
     }
@@ -45,11 +45,11 @@ bool CCollisionRoutine::doEntitiesCollide(int entity1ID, int entity2ID, std::vec
             { // Special group here (all objects except the shape):
                 std::vector<CSceneObject*> exception;
                 exception.push_back(object1);
-                App::currentScene->sceneObjects->getAllCollidableObjectsFromSceneExcept(&exception, group);
+                App::scene->sceneObjects->getAllCollidableObjectsFromSceneExcept(&exception, group);
             }
             else
             { // Regular group here:
-                App::currentScene->collections->getCollidableObjectsFromCollection(entity2ID, group);
+                App::scene->collections->getCollidableObjectsFromCollection(entity2ID, group);
             }
 
             if (group.size() != 0)
@@ -79,7 +79,7 @@ bool CCollisionRoutine::doEntitiesCollide(int entity1ID, int entity2ID, std::vec
     else
     { // Here we have a group against...
         std::vector<CSceneObject*> group1;
-        App::currentScene->collections->getCollidableObjectsFromCollection(entity1ID, group1);
+        App::scene->collections->getCollidableObjectsFromCollection(entity1ID, group1);
         if (group1.size() != 0)
         {
             if (object2 != nullptr)
@@ -109,11 +109,11 @@ bool CCollisionRoutine::doEntitiesCollide(int entity1ID, int entity2ID, std::vec
                 std::vector<CSceneObject*> group2;
                 if (entity2ID == -1)
                 { // Special group here
-                    App::currentScene->sceneObjects->getAllCollidableObjectsFromSceneExcept(&group1, group2);
+                    App::scene->sceneObjects->getAllCollidableObjectsFromSceneExcept(&group1, group2);
                 }
                 else
                 { // Regular group here:
-                    App::currentScene->collections->getCollidableObjectsFromCollection(entity2ID, group2);
+                    App::scene->collections->getCollidableObjectsFromCollection(entity2ID, group2);
                 }
                 if (group2.size() != 0)
                 {
@@ -156,7 +156,7 @@ bool CCollisionRoutine::_doesShapeCollideWithShape(CShape* shape1, CShape* shape
     // Before building collision nodes, check if the shape's bounding boxes collide (new since 9/7/2014):
     if ((!shape1->isMeshCalculationStructureInitialized()) || (!shape2->isMeshCalculationStructureInitialized()))
     {
-        if (!App::sceneContainer->pluginContainer->geomPlugin_getBoxBoxCollision(
+        if (!App::scenes->pluginContainer->geomPlugin_getBoxBoxCollision(
                 shape1->getCumulativeTransformation() * shape1->getBB(nullptr), shape1->getBBHSize(),
                 shape2->getCumulativeTransformation() * shape2->getBB(nullptr), shape2->getBBHSize(), true))
             return (false);
@@ -273,7 +273,7 @@ bool CCollisionRoutine::_areObjectBoundingBoxesOverlapping(CSceneObject* obj1, C
         if (obj->getObjectType() == sim_sceneobject_dummy)
             halfSizes[cnt] = C3Vector(0.0001, 0.0001, 0.0001);
     }
-    return (App::sceneContainer->pluginContainer->geomPlugin_getBoxBoxCollision(m[0], halfSizes[0], m[1], halfSizes[1],
+    return (App::scenes->pluginContainer->geomPlugin_getBoxBoxCollision(m[0], halfSizes[0], m[1], halfSizes[1],
                                                                                 true));
 }
 
@@ -302,7 +302,7 @@ bool CCollisionRoutine::_doesOctreeCollideWithShape(COcTree* octree, CShape* sha
     // TODO_CACHING
     int meshCaching = -1;
     unsigned long long int ocCaching = 0;
-    return (App::sceneContainer->pluginContainer->geomPlugin_getMeshOctreeCollision(
+    return (App::scenes->pluginContainer->geomPlugin_getMeshOctreeCollision(
         shape->_meshCalculationStructure, shape->getCumulCenteredMeshFrame(), octree->getOctreeInfo(),
         octree->getCumulativeTransformation(), &meshCaching, &ocCaching));
 }
@@ -325,7 +325,7 @@ bool CCollisionRoutine::_doesOctreeCollideWithOctree(COcTree* octree1, COcTree* 
         return (false);
     if (!_areObjectBoundingBoxesOverlapping(octree1, octree2))
         return (false);
-    return (App::sceneContainer->pluginContainer->geomPlugin_getOctreeOctreeCollision(
+    return (App::scenes->pluginContainer->geomPlugin_getOctreeOctreeCollision(
         octree1->getOctreeInfo(), octree1->getFullCumulativeTransformation().getMatrix(), octree2->getOctreeInfo(),
         octree2->getFullCumulativeTransformation().getMatrix()));
 }
@@ -351,7 +351,7 @@ bool CCollisionRoutine::_doesOctreeCollideWithPointCloud(COcTree* octree, CPoint
     // TODO_CACHING
     unsigned long long int ocCaching = 0;
     unsigned long long int pcCaching = 0;
-    return (App::sceneContainer->pluginContainer->geomPlugin_getOctreePtcloudCollision(
+    return (App::scenes->pluginContainer->geomPlugin_getOctreePtcloudCollision(
         octree->getOctreeInfo(), octree->getFullCumulativeTransformation(), pointCloud->getPointCloudInfo(),
         pointCloud->getFullCumulativeTransformation(), &ocCaching, &pcCaching));
 }
@@ -370,7 +370,7 @@ bool CCollisionRoutine::_doesOctreeCollideWithDummy(COcTree* octree, CDummy* dum
 
     // TODO_CACHING
     unsigned long long int ocCaching = 0;
-    return (App::sceneContainer->pluginContainer->geomPlugin_getOctreePointCollision(
+    return (App::scenes->pluginContainer->geomPlugin_getOctreePointCollision(
         octree->getOctreeInfo(), octree->getFullCumulativeTransformation(), dummy->getFullCumulativeTransformation().X,
         nullptr, &ocCaching));
 }

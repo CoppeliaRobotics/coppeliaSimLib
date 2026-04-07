@@ -80,7 +80,7 @@ void CGhostObject::render(int displayAttributes, double simulationTime, double r
         doIt = (simulationTime >= startTime - 0.00005) && (simulationTime < endTime - 0.00005);
     if (doIt)
     {
-        CShape* shape = App::currentScene->sceneObjects->getShapeFromHandle(objectHandle);
+        CShape* shape = App::scene->sceneObjects->getShapeFromHandle(objectHandle);
         if (shape != nullptr)
             displayGhost(shape, tr, displayAttributes, options, double(transparencyFactor) / 255.0, color);
     }

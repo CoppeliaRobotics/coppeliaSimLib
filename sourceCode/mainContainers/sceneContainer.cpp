@@ -17,7 +17,7 @@ CSceneContainer::CSceneContainer()
 {
     TRACE_INTERNAL;
     customAppData_volatile.setItemsAreVolatile();
-    currentScene = nullptr;
+    scene = nullptr;
     _sessionId = utils::generateUniqueAlphaNumericString();
     pluginContainer = nullptr;
     codeEditorInfos = nullptr;
@@ -36,7 +36,7 @@ CSceneContainer::CSceneContainer()
     serialPortContainer = nullptr;
 #endif
     _currentSceneIndex = -1;
-    App::currentScene = nullptr;
+    App::scene = nullptr;
     _eventsEnabled = true;
     _eventSeq = 0;
     //_eventMutex.setName("eventMutex");
@@ -68,10 +68,10 @@ int CSceneContainer::getModificationFlags(bool clearTheFlagsAfter)
         _modificationFlags |= 128;
 #endif
     std::vector<long long int> currentUniqueIdsOfSel;
-    for (size_t i = 0; i < currentScene->sceneObjects->getSelectionCount(); i++)
+    for (size_t i = 0; i < scene->sceneObjects->getSelectionCount(); i++)
     {
-        CSceneObject* it = currentScene->sceneObjects->getObjectFromHandle(
-            currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        CSceneObject* it = scene->sceneObjects->getObjectFromHandle(
+            scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         if (it != nullptr)
             currentUniqueIdsOfSel.push_back(it->getObjectUid());
     }
@@ -103,17 +103,17 @@ int CSceneContainer::createNewScene()
     TRACE_INTERNAL;
 
     // Inform scripts about future switch to new scene (only if there is already at least one scene):
-    if (currentScene != nullptr)
+    if (scene != nullptr)
         callScripts(sim_syscb_beforeinstanceswitch, nullptr, nullptr);
 
     int oldSceneUiqueId = -1;
 
     // Inform plugins about future switch to new scene (only if there is already at least one scene):
-    if (currentScene != nullptr)
+    if (scene != nullptr)
     {
-        oldSceneUiqueId = currentScene->environment->getSceneUniqueID();
+        oldSceneUiqueId = scene->environment->getSceneUniqueID();
         int pluginData[4] = {_currentSceneIndex, CEnvironment::getNextSceneUniqueId(), oldSceneUiqueId, 0};
-        App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch, pluginData);
+        pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch, pluginData);
     }
 
 #ifdef SIM_WITH_GUI
@@ -124,16 +124,16 @@ int CSceneContainer::createNewScene()
     GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
 #endif
 
-    if (currentScene != nullptr)
-        currentScene->removeScene_oldIk();
+    if (scene != nullptr)
+        scene->removeScene_oldIk();
 
     // Create new scene and switch to it:
     CScene* w = new CScene();
     _currentSceneIndex = int(_scenes.size());
     _scenes.push_back(w);
-    currentScene = w;
-    App::currentScene = w;
-    currentScene->initializeScene();
+    scene = w;
+    App::scene = w;
+    scene->initializeScene();
 
     // Inform scripts about performed switch to new scene:
     App::pushGenesisEvents();
@@ -141,8 +141,8 @@ int CSceneContainer::createNewScene()
     callScripts(sim_syscb_afterinstanceswitch, nullptr, nullptr);
 
     // Inform plugins about performed switch to new scene:
-    int dat[4] = {getCurrentSceneIndex(), currentScene->environment->getSceneUniqueID(), oldSceneUiqueId, 0};
-    App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch, dat);
+    int dat[4] = {getCurrentSceneIndex(), scene->environment->getSceneUniqueID(), oldSceneUiqueId, 0};
+    pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch, dat);
     setModificationFlag(64); // instance switched
 
 #ifdef SIM_WITH_GUI
@@ -150,7 +150,7 @@ int CSceneContainer::createNewScene()
     cmdIn.cmdId = INSTANCE_WAS_JUST_CREATED_UITHREADCMD;
     GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
 #endif
-    currentScene->rebuildScene_oldIk();
+    scene->rebuildScene_oldIk();
 
     return (_currentSceneIndex);
 }
@@ -164,7 +164,7 @@ int CSceneContainer::destroyCurrentScene()
 {
     TRACE_INTERNAL;
 
-    if ((_currentSceneIndex == -1) || (currentScene == nullptr))
+    if ((_currentSceneIndex == -1) || (scene == nullptr))
         return (-1);
 
     int nextSceneIndex = -1;
@@ -179,15 +179,15 @@ int CSceneContainer::destroyCurrentScene()
         // Inform scripts about future scene switch:
         callScripts(sim_syscb_beforeinstanceswitch, nullptr, nullptr);
 
-        oldSceneUiqueId = currentScene->environment->getSceneUniqueID();
+        oldSceneUiqueId = scene->environment->getSceneUniqueID();
         // Inform plugins about future scene switch:
         int pluginData[4] = {-1, _scenes[nextSceneIndex]->environment->getSceneUniqueID(), oldSceneUiqueId, 0};
-        App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+        pluginContainer->sendEventCallbackMessageToAllPlugins(
             sim_message_eventcallback_instanceabouttoswitch, pluginData);
     }
 
     // Empty current scene:
-    CScene* w = currentScene;
+    CScene* w = scene;
     w->clearScene(true);
 
 #ifdef SIM_WITH_GUI
@@ -199,11 +199,11 @@ int CSceneContainer::destroyCurrentScene()
     GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
 #endif
 
-    currentScene->removeScene_oldIk();
+    scene->removeScene_oldIk();
 
     // Destroy current scene:
-    currentScene = nullptr;
-    App::currentScene = nullptr;
+    scene = nullptr;
+    App::scene = nullptr;
     w->deleteScene();
     delete w;
     _scenes.erase(_scenes.begin() + _currentSceneIndex);
@@ -213,8 +213,8 @@ int CSceneContainer::destroyCurrentScene()
     {
         // switch to another scene:
         _currentSceneIndex = nextSceneIndex;
-        currentScene = _scenes[_currentSceneIndex];
-        App::currentScene = currentScene;
+        scene = _scenes[_currentSceneIndex];
+        App::scene = scene;
 
         // Inform scripts about performed scene switch:
         App::pushGenesisEvents();
@@ -222,8 +222,8 @@ int CSceneContainer::destroyCurrentScene()
         callScripts(sim_syscb_afterinstanceswitch, nullptr, nullptr);
 
         // Inform plugins about performed scene switch:
-        int pluginData[4] = {_currentSceneIndex, currentScene->environment->getSceneUniqueID(), oldSceneUiqueId, 0};
-        App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch, pluginData);
+        int pluginData[4] = {_currentSceneIndex, scene->environment->getSceneUniqueID(), oldSceneUiqueId, 0};
+        pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch, pluginData);
         setModificationFlag(64); // instance switched
 
 #ifdef SIM_WITH_GUI
@@ -233,7 +233,7 @@ int CSceneContainer::destroyCurrentScene()
         cmdIn.intParams.push_back(_currentSceneIndex);
         GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
 #endif
-        currentScene->rebuildScene_oldIk();
+        scene->rebuildScene_oldIk();
     }
 
     return (_currentSceneIndex);
@@ -311,9 +311,9 @@ bool CSceneContainer::_switchToScene(int newSceneIndex)
     callScripts(sim_syscb_beforeinstanceswitch, nullptr, nullptr);
 
     // Inform plugins about future scene switch:
-    int oldSceneUiqueId = currentScene->environment->getSceneUniqueID();
+    int oldSceneUiqueId = scene->environment->getSceneUniqueID();
     int pluginData[4] = {_currentSceneIndex, _scenes[newSceneIndex]->environment->getSceneUniqueID(), oldSceneUiqueId, 0};
-    App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch, pluginData);
+    pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch, pluginData);
 
 #ifdef SIM_WITH_GUI
     // Inform UI about future scene switch:
@@ -323,15 +323,15 @@ bool CSceneContainer::_switchToScene(int newSceneIndex)
     cmdIn.intParams.push_back(newSceneIndex);
     GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
 
-    currentScene->pageContainer->clearAllLastMouseDownViewIndex();
+    scene->pageContainer->clearAllLastMouseDownViewIndex();
 #endif
 
-    currentScene->removeScene_oldIk();
+    scene->removeScene_oldIk();
 
     // Switch scenes:
     _currentSceneIndex = newSceneIndex;
-    currentScene = _scenes[_currentSceneIndex];
-    App::currentScene = currentScene;
+    scene = _scenes[_currentSceneIndex];
+    App::scene = scene;
 
     // Inform scripts about performed scene switch:
     App::pushGenesisEvents();
@@ -340,9 +340,9 @@ bool CSceneContainer::_switchToScene(int newSceneIndex)
 
     // Inform plugins about performed scene switch:
     pluginData[0] = _currentSceneIndex;
-    pluginData[1] = currentScene->environment->getSceneUniqueID();
+    pluginData[1] = scene->environment->getSceneUniqueID();
     pluginData[2] = oldSceneUiqueId;
-    App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch, pluginData);
+    pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch, pluginData);
     setModificationFlag(64); // instance switched
 
 #ifdef SIM_WITH_GUI
@@ -353,16 +353,16 @@ bool CSceneContainer::_switchToScene(int newSceneIndex)
     GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
 #endif
 
-    currentScene->rebuildScene_oldIk();
+    scene->rebuildScene_oldIk();
 
     return (true);
 }
 
 bool CSceneContainer::isSceneSwitchingLocked() const
 {
-    if (currentScene != nullptr)
+    if (scene != nullptr)
         return (false);
-    if (!currentScene->simulation->isSimulationStopped())
+    if (!scene->simulation->isSimulationStopped())
         return (true);
 #ifdef SIM_WITH_GUI
     if (GuiApp::getEditModeType() != NO_EDIT_MODE)
@@ -387,8 +387,8 @@ void CSceneContainer::getAllSceneNames(std::vector<std::string>& l) const
 CDetachedScript* CSceneContainer::getDetachedScriptFromHandle(int scriptHandle) const
 {
     CDetachedScript* retVal = nullptr;
-    if (currentScene != nullptr)
-        retVal = currentScene->getDetachedScriptFromHandle(scriptHandle);
+    if (scene != nullptr)
+        retVal = scene->getDetachedScriptFromHandle(scriptHandle);
     if ((retVal == nullptr) && (addOnScriptContainer != nullptr))
         retVal = addOnScriptContainer->getAddOnFromHandle(scriptHandle);
     if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getScriptHandle() == scriptHandle))
@@ -399,8 +399,8 @@ CDetachedScript* CSceneContainer::getDetachedScriptFromHandle(int scriptHandle) 
 CDetachedScript* CSceneContainer::getDetachedScriptFromUid(int uid) const
 {
     CDetachedScript* retVal = nullptr;
-    if (currentScene != nullptr)
-        retVal = currentScene->getDetachedScriptFromUid(uid);
+    if (scene != nullptr)
+        retVal = scene->getDetachedScriptFromUid(uid);
     if ((retVal == nullptr) && (addOnScriptContainer != nullptr))
         retVal = addOnScriptContainer->getAddOnFromUid(uid);
     if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getScriptUid() == uid))
@@ -410,7 +410,7 @@ CDetachedScript* CSceneContainer::getDetachedScriptFromUid(int uid) const
 
 int CSceneContainer::getSysFuncAndHookCnt(int sysCall) const
 {
-    int retVal = currentScene->sceneObjects->getSysFuncAndHookCnt(sysCall);
+    int retVal = scene->sceneObjects->getSysFuncAndHookCnt(sysCall);
     retVal += addOnScriptContainer->getSysFuncAndHookCnt(sysCall);
     if (sandboxScript != nullptr)
     {
@@ -428,13 +428,13 @@ void CSceneContainer::getActiveScripts(std::vector<CDetachedScript*>& scripts, b
         if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == CDetachedScript::scriptState_initialized))
             scripts.push_back(sandboxScript);
         addOnScriptContainer->getActiveScripts(scripts);
-        if (currentScene != nullptr)
-            currentScene->getActiveScripts(scripts, reverse, alsoLegacyScripts);
+        if (scene != nullptr)
+            scene->getActiveScripts(scripts, reverse, alsoLegacyScripts);
     }
     else
     {
-        if (currentScene != nullptr)
-            currentScene->getActiveScripts(scripts, reverse, alsoLegacyScripts);
+        if (scene != nullptr)
+            scene->getActiveScripts(scripts, reverse, alsoLegacyScripts);
         addOnScriptContainer->getActiveScripts(scripts);
         if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == CDetachedScript::scriptState_initialized))
             scripts.push_back(sandboxScript);
@@ -454,16 +454,16 @@ void CSceneContainer::callScripts(int callType, CInterfaceStack* inStack, CInter
         }
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
             addOnScriptContainer->callScripts(callType, inStack, outStack, scriptToExclude);
-        if (currentScene != nullptr)
+        if (scene != nullptr)
         {
             if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
-                currentScene->callScripts(callType, inStack, outStack, objectBranch, scriptToExclude);
+                scene->callScripts(callType, inStack, outStack, objectBranch, scriptToExclude);
         }
     }
     else
     { // regular order, from unimportant, to most important
-        if (currentScene != nullptr)
-            currentScene->callScripts(callType, inStack, outStack, objectBranch, scriptToExclude);
+        if (scene != nullptr)
+            scene->callScripts(callType, inStack, outStack, objectBranch, scriptToExclude);
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
             addOnScriptContainer->callScripts(callType, inStack, outStack, scriptToExclude);
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
@@ -491,20 +491,20 @@ bool CSceneContainer::shouldTemporarilySuspendMainScript()
     // Old plugins:
     int data[4] = {0, 0, 0, 0};
     int rtVal[4] = {-1, -1, -1, -1};
-    App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(
+    pluginContainer->sendEventCallbackMessageToAllPlugins_old(
         sim_message_eventcallback_mainscriptabouttobecalled, data, nullptr, rtVal);
     if (rtVal[0] != -1)
         retVal = true;
 
     // New plugins:
     int dat = -1;
-    App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+    pluginContainer->sendEventCallbackMessageToAllPlugins(
         sim_message_eventcallback_mainscriptabouttobecalled, &dat, nullptr, true);
     if (dat != -1)
         retVal = true;
 
     // simulation scripts & customization scripts:
-    if (currentScene->sceneObjects->shouldTemporarilySuspendMainScript())
+    if (scene->sceneObjects->shouldTemporarilySuspendMainScript())
         retVal = true;
 
     // Add-on scripts:
@@ -535,7 +535,7 @@ CCbor* CSceneContainer::createSceneObjectAddEvent(const CSceneObject* object)
 
 CCbor* CSceneContainer::createSceneObjectChangedEvent(long long int sceneObjectHandle, bool isCommonObjectData, const char* fieldName, bool mergeable)
 {
-    CSceneObject* object = currentScene->sceneObjects->getObjectFromHandle(sceneObjectHandle);
+    CSceneObject* object = scene->sceneObjects->getObjectFromHandle(sceneObjectHandle);
     return (createSceneObjectChangedEvent(object, isCommonObjectData, fieldName, mergeable));
 }
 
@@ -654,7 +654,7 @@ void CSceneContainer::dispatchEvents()
     if (VThread::isSimThread())
     {
         // Push the last changes that are not immediate:
-        currentScene->drawingCont->pushAppendNewPointEvents();
+        scene->drawingCont->pushAppendNewPointEvents();
         _eventMutex.lock("CSceneContainer::dispatchEvents");
         if (_events->getEventCnt() > 0)
         {
@@ -722,7 +722,7 @@ void CSceneContainer::dispatchEvents()
 void CSceneContainer::addMenu(VMenu* menu)
 { // GUI THREAD only
     TRACE_INTERNAL;
-    bool enabled = (!isSceneSwitchingLocked()) && currentScene->simulation->isSimulationStopped() &&
+    bool enabled = (!isSceneSwitchingLocked()) && scene->simulation->isSimulationStopped() &&
                    (!GuiApp::mainWindow->oglSurface->isPageSelectionActive()) &&
                    (!GuiApp::mainWindow->oglSurface->isViewSelectionActive()) &&
                    (GuiApp::getEditModeType() == NO_EDIT_MODE);
@@ -791,7 +791,7 @@ bool CSceneContainer::processGuiCommand(int commandID)
 
 void CSceneContainer::instancePass()
 {
-    currentScene->instancePass();
+    scene->instancePass();
     int auxData[4] = {getModificationFlags(true), 0, 0, 0};
     pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass, auxData);
 }
@@ -799,55 +799,55 @@ void CSceneContainer::instancePass()
 void CSceneContainer::simulationAboutToStart()
 {
     calcInfo->simulationAboutToStart();
-    currentScene->simulationAboutToStart();
+    scene->simulationAboutToStart();
 }
 
 void CSceneContainer::simulationPaused()
 {
-    currentScene->simulationPaused();
+    scene->simulationPaused();
 }
 
 void CSceneContainer::simulationAboutToResume()
 {
-    currentScene->simulationAboutToResume();
+    scene->simulationAboutToResume();
 }
 
 void CSceneContainer::simulationAboutToStep()
 {
     calcInfo->simulationAboutToStep();
-    currentScene->simulationAboutToStep();
+    scene->simulationAboutToStep();
 }
 
 void CSceneContainer::simulationAboutToEnd()
 {
-    currentScene->simulationAboutToEnd();
+    scene->simulationAboutToEnd();
 }
 
 void CSceneContainer::simulationEnded(bool removeNewObjects)
 {
-    currentScene->simulationEnded(removeNewObjects);
+    scene->simulationEnded(removeNewObjects);
     calcInfo->simulationEnded();
 }
 
 void CSceneContainer::announceObjectWillBeErased(const CSceneObject* object)
 {
-    currentScene->announceObjectWillBeErased(object);
+    scene->announceObjectWillBeErased(object);
 }
 
 void CSceneContainer::announceScriptWillBeErased(int scriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     // Inform plugins about this event:
     int pluginData[4] = {scriptHandle, int(scriptUid & 0xffffffff), int((scriptUid >> 32) & 0xffffffff), 0};
-    App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptabouttobedestroyed, pluginData);
+    pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptabouttobedestroyed, pluginData);
 
-    currentScene->announceScriptWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
+    scene->announceScriptWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
 }
 
 void CSceneContainer::announceScriptStateWillBeErased(int scriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     pluginContainer->announceScriptStateWillBeErased(scriptHandle, scriptUid);
     moduleMenuItemContainer->announceScriptStateWillBeErased(scriptHandle);
-    currentScene->announceScriptStateWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
+    scene->announceScriptStateWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
 #ifdef SIM_WITH_GUI
     if (GuiApp::mainWindow != nullptr)
         GuiApp::mainWindow->announceScriptStateWillBeErased(scriptHandle, scriptUid);

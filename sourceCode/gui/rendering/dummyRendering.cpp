@@ -55,7 +55,7 @@ void displayDummy(CDummy* dummy, CViewableBase* renderingObject, int displayAttr
             dummy->getDummyColor()->makeCurrentColor((displayAttrib & sim_displayattribute_useauxcomponent) != 0);
         CDummy* linkedDummy = nullptr;
         if (dummy->getLinkedDummyHandle() != -1)
-            linkedDummy = App::currentScene->sceneObjects->getDummyFromHandle(dummy->getLinkedDummyHandle());
+            linkedDummy = App::scene->sceneObjects->getDummyFromHandle(dummy->getLinkedDummyHandle());
         ogl::drawSphere(dummy->getDummySize() / 2.0, 12, 6, false);
         glDisable(GL_CULL_FACE);
         if (linkedDummy != nullptr)

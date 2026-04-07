@@ -36,13 +36,13 @@ void CQDlgShapeDyn::refresh()
     inMainRefreshRoutine = true;
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeAndNoSim =
-        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped();
-    bool sel = App::currentScene->sceneObjects->isLastSelectionOfType(sim_sceneobject_shape);
-    int sc = (int)App::currentScene->sceneObjects->getObjectCountInSelection(sim_sceneobject_shape);
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::scene->simulation->isSimulationStopped();
+    bool sel = App::scene->sceneObjects->isLastSelectionOfType(sim_sceneobject_shape);
+    int sc = (int)App::scene->sceneObjects->getObjectCountInSelection(sim_sceneobject_shape);
     bool notHeightfield = true;
     bool lastSelIsNotStatic = false;
     bool lastSelIsConvex = false;
-    CShape* it = App::currentScene->sceneObjects->getLastSelectionShape();
+    CShape* it = App::scene->sceneObjects->getLastSelectionShape();
     if (sel)
     {
         notHeightfield = (it->getMesh()->getPurePrimitiveType() != sim_primitiveshape_heightfield);
@@ -168,7 +168,7 @@ void CQDlgShapeDyn::on_qqDynamic_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_STATIC_SHAPEDYNGUITRIGGEREDCMD,
-                                           App::currentScene->sceneObjects->getLastSelectionHandle());
+                                           App::scene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -179,7 +179,7 @@ void CQDlgShapeDyn::on_qqSleepModeStart_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_STARTINSLEEPMODE_SHAPEDYNGUITRIGGEREDCMD,
-                                           App::currentScene->sceneObjects->getLastSelectionHandle());
+                                           App::scene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -189,12 +189,12 @@ void CQDlgShapeDyn::on_qqAdjustEngineProperties_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CShape* it = App::currentScene->sceneObjects->getLastSelectionShape();
+        CShape* it = App::scene->sceneObjects->getLastSelectionShape();
         if (it != nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId = SET_MATERIAL_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
+            cmd.intParams.push_back(App::scene->sceneObjects->getLastSelectionHandle());
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -206,7 +206,7 @@ void CQDlgShapeDyn::on_qqRespondable_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CShape* it = App::currentScene->sceneObjects->getLastSelectionShape();
+        CShape* it = App::scene->sceneObjects->getLastSelectionShape();
         if (it != nullptr)
         {
             if ((!it->getRespondable()) && (!it->getMesh()->isPure()) && (!it->getMesh()->isConvex()))
@@ -214,7 +214,7 @@ void CQDlgShapeDyn::on_qqRespondable_clicked()
                                                      IDS_MAKING_NON_PURE_CONCAVE_SHAPE_RESPONDABLE_WARNING,
                                                      VMESSAGEBOX_OKELI, VMESSAGEBOX_REPLY_OK);
             App::appendSimulationThreadCommand(TOGGLE_RESPONDABLE_SHAPEDYNGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle());
+                                               App::scene->sceneObjects->getLastSelectionHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -225,7 +225,7 @@ void CQDlgShapeDyn::_toggleRespondableBits(int bits)
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CShape* it = App::currentScene->sceneObjects->getLastSelectionShape();
+        CShape* it = App::scene->sceneObjects->getLastSelectionShape();
         if (it != nullptr)
         {
             App::appendSimulationThreadCommand(SET_RESPONDABLEMASK_SHAPEDYNGUITRIGGEREDCMD, it->getObjectHandle(),
@@ -324,7 +324,7 @@ void CQDlgShapeDyn::on_qqMass_editingFinished()
     {
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqMass->text().toStdString().c_str(), &ok);
-        CShape* shape = App::currentScene->sceneObjects->getLastSelectionShape();
+        CShape* shape = App::scene->sceneObjects->getLastSelectionShape();
         if (ok && (shape != nullptr))
         {
             App::appendSimulationThreadCommand(SET_MASS_SHAPEDYNGUITRIGGEREDCMD, shape->getObjectHandle(), -1, newVal);
@@ -385,7 +385,7 @@ void CQDlgShapeDyn::_inertiaChanged(size_t row, size_t col, QLineEdit* ct)
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CShape* shape = App::currentScene->sceneObjects->getLastSelectionShape();
+        CShape* shape = App::scene->sceneObjects->getLastSelectionShape();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ct->text().toStdString().c_str(), &ok);
         if (ok && (shape != nullptr))
@@ -410,7 +410,7 @@ void CQDlgShapeDyn::on_qqPX_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CShape* shape = App::currentScene->sceneObjects->getLastSelectionShape();
+        CShape* shape = App::scene->sceneObjects->getLastSelectionShape();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqPX->text().toStdString().c_str(), &ok);
         if (ok && (shape != nullptr))
@@ -434,7 +434,7 @@ void CQDlgShapeDyn::on_qqPY_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CShape* shape = App::currentScene->sceneObjects->getLastSelectionShape();
+        CShape* shape = App::scene->sceneObjects->getLastSelectionShape();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqPY->text().toStdString().c_str(), &ok);
         if (ok && (shape != nullptr))
@@ -458,7 +458,7 @@ void CQDlgShapeDyn::on_qqPZ_editingFinished()
         return;
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CShape* shape = App::currentScene->sceneObjects->getLastSelectionShape();
+        CShape* shape = App::scene->sceneObjects->getLastSelectionShape();
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqPZ->text().toStdString().c_str(), &ok);
         if (ok && (shape != nullptr))
@@ -482,9 +482,9 @@ void CQDlgShapeDyn::on_qqApplyMassAndInertiaProperties_clicked()
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = APPLY_DYNPARAMS_SHAPEDYNGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
-        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
-            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        cmd.intParams.push_back(App::scene->sceneObjects->getLastSelectionHandle());
+        for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount() - 1; i++)
+            cmd.intParams.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -496,7 +496,7 @@ void CQDlgShapeDyn::on_qqAutomaticToNonStatic_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_SETTODYNAMICIFGETSPARENT_SHAPEDYNGUITRIGGEREDCMD,
-                                           App::currentScene->sceneObjects->getLastSelectionHandle());
+                                           App::scene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -508,9 +508,9 @@ void CQDlgShapeDyn::on_qqApplyMaterialProperties_clicked()
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = APPLY_RESPONDABLEPARAMS_SHAPEDYNGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
-        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
-            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        cmd.intParams.push_back(App::scene->sceneObjects->getLastSelectionHandle());
+        for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount() - 1; i++)
+            cmd.intParams.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

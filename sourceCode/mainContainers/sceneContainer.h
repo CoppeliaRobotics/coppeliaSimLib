@@ -105,7 +105,7 @@ class CSceneContainer
     CAddOnScriptContainer* addOnScriptContainer;
     CDetachedScript* sandboxScript;
     CModuleMenuItemContainer* moduleMenuItemContainer;
-    CScene* currentScene;
+    CScene* scene;
 #ifdef SIM_WITH_GUI
     CGlobalGuiTextureContainer* globalGuiTextureCont;
     CSerialPortContainer* serialPortContainer;

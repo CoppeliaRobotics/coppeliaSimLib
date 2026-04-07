@@ -58,10 +58,10 @@ bool CPointCloudContainer_old::removeObject(int objectID)
     {
         if (_allObjects[i]->getObjectID() == objectID)
         {
-            if (App::sceneContainer->getEventsEnabled())
+            if (App::scenes->getEventsEnabled())
             {
-                App::sceneContainer->createEvent("drawingObjectRemoved", -1, _allObjects[i]->getObjectUniqueId(), nullptr, false);
-                App::sceneContainer->pushEvent();
+                App::scenes->createEvent("drawingObjectRemoved", -1, _allObjects[i]->getObjectUniqueId(), nullptr, false);
+                App::scenes->pushEvent();
             }
 
             delete _allObjects[i];

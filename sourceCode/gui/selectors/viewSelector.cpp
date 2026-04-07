@@ -68,9 +68,9 @@ void CViewSelector::render()
     viewSelectionSize[0] = 1;
     viewSelectionSize[1] = 1;
     // Compute grid size
-    for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
+    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromIndex(i);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromIndex(i);
         if ((it->getObjectType() == sim_sceneobject_camera) &&
             ((objectType == CAMERA_VIEW_SELECT_MODE) || (objectType == VIEWABLE_VIEW_SELECT_MODE)))
         {
@@ -133,7 +133,7 @@ void CViewSelector::render()
             if ((l + viewSelectionSize[0] * k) < int(viewSelectionBuffer.size()))
             {
                 glEnable(GL_SCISSOR_TEST);
-                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(
+                CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(
                     viewSelectionBuffer[l + viewSelectionSize[0] * k]);
 
                 if (mouseOver == l + viewSelectionSize[0] * k)
@@ -339,7 +339,7 @@ CSceneObject* CViewSelector::getViewableObject(int x, int y)
     int ind = getObjectIndexInViewSelection(pos);
     if (ind == -1)
         return (nullptr);
-    return (App::currentScene->sceneObjects->getObjectFromHandle(viewSelectionBuffer[ind]));
+    return (App::scene->sceneObjects->getObjectFromHandle(viewSelectionBuffer[ind]));
 }
 
 int CViewSelector::getCursor(int x, int y)
@@ -383,14 +383,14 @@ bool CViewSelector::processCommand(int commandID, int subViewIndex)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             CSPage* view =
-                App::currentScene->pageContainer->getPage(App::currentScene->pageContainer->getActivePageIndex());
+                App::scene->pageContainer->getPage(App::scene->pageContainer->getActivePageIndex());
             if (view == nullptr)
                 return (true);
             CSView* subView = view->getView(size_t(subViewIndex));
             if (subView == nullptr)
                 return (true);
-            int cameraNb = (int)App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_camera);
-            int rendSensNb = (int)App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_visionsensor);
+            int cameraNb = (int)App::scene->sceneObjects->getObjectCount(sim_sceneobject_camera);
+            int rendSensNb = (int)App::scene->sceneObjects->getObjectCount(sim_sceneobject_visionsensor);
 
             if (cameraNb + rendSensNb > 0)
                 GuiApp::mainWindow->oglSurface->startViewSelection(VIEWABLE_VIEW_SELECT_MODE, subViewIndex);

@@ -73,42 +73,42 @@ CPlugin::~CPlugin()
             */
     }
     if (geomPlugin_createMesh != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->currentGeomPlugin = nullptr;
+        App::scenes->pluginContainer->currentGeomPlugin = nullptr;
     if (bullet278_engine != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->bullet278Engine = nullptr;
+        App::scenes->pluginContainer->bullet278Engine = nullptr;
     if (bullet283_engine != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->bullet283Engine = nullptr;
+        App::scenes->pluginContainer->bullet283Engine = nullptr;
     if (ode_engine != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->odeEngine = nullptr;
+        App::scenes->pluginContainer->odeEngine = nullptr;
     if (vortex_engine != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->vortexEngine = nullptr;
+        App::scenes->pluginContainer->vortexEngine = nullptr;
     if (newton_engine != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->newtonEngine = nullptr;
+        App::scenes->pluginContainer->newtonEngine = nullptr;
     if (mujoco_engine != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->mujocoEngine = nullptr;
+        App::scenes->pluginContainer->mujocoEngine = nullptr;
     if (drake_engine != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->drakeEngine = nullptr;
+        App::scenes->pluginContainer->drakeEngine = nullptr;
     if (oldIkPlugin_createEnv != nullptr) // also check constructor above
     {
-        App::sceneContainer->pluginContainer->currentIKPlugin = nullptr;
-        App::sceneContainer->pluginContainer->ikEnvironment = -1;
+        App::scenes->pluginContainer->currentIKPlugin = nullptr;
+        App::scenes->pluginContainer->ikEnvironment = -1;
     }
     if (ruckigPlugin_pos != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->currentRuckigPlugin = nullptr;
+        App::scenes->pluginContainer->currentRuckigPlugin = nullptr;
     if (_codeEditor_openModal != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->currentCodeEditorPlugin = nullptr;
+        App::scenes->pluginContainer->currentCodeEditorPlugin = nullptr;
     if (_customUi_msgBox != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->currentUIPlugin = nullptr;
+        App::scenes->pluginContainer->currentUIPlugin = nullptr;
     if (_assimp_importShapes != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->currentAssimpPlugin = nullptr;
+        App::scenes->pluginContainer->currentAssimpPlugin = nullptr;
     if (povRayAddr != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->currentPovRayPlugin = nullptr;
+        App::scenes->pluginContainer->currentPovRayPlugin = nullptr;
     if (openGl3Addr != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->currentOpenGl3Plugin = nullptr;
+        App::scenes->pluginContainer->currentOpenGl3Plugin = nullptr;
     if (qhullAddr != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->currentConvexPlugin = nullptr;
+        App::scenes->pluginContainer->currentConvexPlugin = nullptr;
     if (decimatorAddr != nullptr) // also check constructor above
-        App::sceneContainer->pluginContainer->currentMeshDecimationPlugin = nullptr;
+        App::scenes->pluginContainer->currentMeshDecimationPlugin = nullptr;
     _pluginCallbackContainer.clear();
     _pluginVariableContainer.clear();
 }
@@ -200,12 +200,12 @@ void CPlugin::setHandle(int h)
 
 void CPlugin::pushCurrentPlugin()
 {
-    App::sceneContainer->pluginContainer->currentPluginStack.push_back(this);
+    App::scenes->pluginContainer->currentPluginStack.push_back(this);
 }
 
 void CPlugin::popCurrentPlugin()
 {
-    App::sceneContainer->pluginContainer->currentPluginStack.pop_back();
+    App::scenes->pluginContainer->currentPluginStack.pop_back();
 }
 
 CPluginCallbackContainer* CPlugin::getPluginCallbackContainer()
@@ -520,21 +520,21 @@ void CPlugin::_loadAuxEntryPoints()
 {
     povRayAddr = (ptrExtRenderer)(VVarious::resolveLibraryFuncName(instance, "simPovRay"));
     if (povRayAddr != nullptr)
-        App::sceneContainer->pluginContainer->currentPovRayPlugin = this;
+        App::scenes->pluginContainer->currentPovRayPlugin = this;
 
     openGl3Addr = (ptrExtRenderer)(VVarious::resolveLibraryFuncName(instance, "simOpenGL3Renderer"));
     if (openGl3Addr != nullptr)
-        App::sceneContainer->pluginContainer->currentOpenGl3Plugin = this;
+        App::scenes->pluginContainer->currentOpenGl3Plugin = this;
 
     hacdAddr = (ptrHACD)(VVarious::resolveLibraryFuncName(instance, "simHACD"));
     vhacdAddr = (ptrVHACD)(VVarious::resolveLibraryFuncName(instance, "simVHACD"));
     qhullAddr = (ptrQhull)(VVarious::resolveLibraryFuncName(instance, "simQhull"));
     if ((hacdAddr != nullptr) && (vhacdAddr != nullptr) && (qhullAddr != nullptr))
-        App::sceneContainer->pluginContainer->currentConvexPlugin = this;
+        App::scenes->pluginContainer->currentConvexPlugin = this;
 
     decimatorAddr = (ptrMeshDecimator)(VVarious::resolveLibraryFuncName(instance, "simDecimateMesh"));
     if (decimatorAddr != nullptr)
-        App::sceneContainer->pluginContainer->currentMeshDecimationPlugin = this;
+        App::scenes->pluginContainer->currentMeshDecimationPlugin = this;
 
     // For the dynamic plugins:
     dynPlugin_startSimulation = (ptr_dynPlugin_startSimulation_D)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_startSimulation_D"));
@@ -562,19 +562,19 @@ void CPlugin::_loadAuxEntryPoints()
     mujoco_engine = (ptr_dynPlugin_engine)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_mujoco"));
     drake_engine = (ptr_dynPlugin_engine)(VVarious::resolveLibraryFuncName(instance, "dynPlugin_drake"));
     if (bullet278_engine != nullptr)
-        App::sceneContainer->pluginContainer->bullet278Engine = this;
+        App::scenes->pluginContainer->bullet278Engine = this;
     if (bullet283_engine != nullptr)
-        App::sceneContainer->pluginContainer->bullet283Engine = this;
+        App::scenes->pluginContainer->bullet283Engine = this;
     if (ode_engine != nullptr)
-        App::sceneContainer->pluginContainer->odeEngine = this;
+        App::scenes->pluginContainer->odeEngine = this;
     if (vortex_engine != nullptr)
-        App::sceneContainer->pluginContainer->vortexEngine = this;
+        App::scenes->pluginContainer->vortexEngine = this;
     if (newton_engine != nullptr)
-        App::sceneContainer->pluginContainer->newtonEngine = this;
+        App::scenes->pluginContainer->newtonEngine = this;
     if (mujoco_engine != nullptr)
-        App::sceneContainer->pluginContainer->mujocoEngine = this;
+        App::scenes->pluginContainer->mujocoEngine = this;
     if (drake_engine != nullptr)
-        App::sceneContainer->pluginContainer->drakeEngine = this;
+        App::scenes->pluginContainer->drakeEngine = this;
 
     // For the geom plugin:
     geomPlugin_releaseBuffer =
@@ -766,7 +766,7 @@ void CPlugin::_loadAuxEntryPoints()
     geomPlugin_isPointInVolume =
         (ptr_geomPlugin_isPointInVolume)(VVarious::resolveLibraryFuncName(instance, "geomPlugin_isPointInVolume"));
     if (geomPlugin_createMesh != nullptr)
-        App::sceneContainer->pluginContainer->currentGeomPlugin = this;
+        App::scenes->pluginContainer->currentGeomPlugin = this;
 
     // For the IK plugin:
     oldIkPlugin_createEnv =
@@ -841,10 +841,10 @@ void CPlugin::_loadAuxEntryPoints()
         VVarious::resolveLibraryFuncName(instance, "ikPlugin_setObjectLocalTransformation"));
     if (oldIkPlugin_createEnv != nullptr)
     {
-        App::sceneContainer->pluginContainer->currentIKPlugin = this;
+        App::scenes->pluginContainer->currentIKPlugin = this;
         pushCurrentPlugin();
-        App::sceneContainer->pluginContainer->ikEnvironment =
-            App::sceneContainer->pluginContainer->currentIKPlugin->oldIkPlugin_createEnv();
+        App::scenes->pluginContainer->ikEnvironment =
+            App::scenes->pluginContainer->currentIKPlugin->oldIkPlugin_createEnv();
         popCurrentPlugin();
     }
 
@@ -855,7 +855,7 @@ void CPlugin::_loadAuxEntryPoints()
     ruckigPlugin_remove = (ptrRuckigPlugin_remove)(VVarious::resolveLibraryFuncName(instance, "ruckigPlugin_remove"));
     ruckigPlugin_dofs = (ptrRuckigPlugin_dofs)(VVarious::resolveLibraryFuncName(instance, "ruckigPlugin_dofs"));
     if (ruckigPlugin_pos != nullptr)
-        App::sceneContainer->pluginContainer->currentRuckigPlugin = this;
+        App::scenes->pluginContainer->currentRuckigPlugin = this;
 
     // For the code editor:
     _codeEditor_openModal =
@@ -866,18 +866,18 @@ void CPlugin::_loadAuxEntryPoints()
     _codeEditor_show = (ptrCodeEditor_show)(VVarious::resolveLibraryFuncName(instance, "codeEditor_show"));
     _codeEditor_close = (ptrCodeEditor_close)(VVarious::resolveLibraryFuncName(instance, "codeEditor_close"));
     if (_codeEditor_openModal != nullptr)
-        App::sceneContainer->pluginContainer->currentCodeEditorPlugin = this;
+        App::scenes->pluginContainer->currentCodeEditorPlugin = this;
 
     // Following 2 only used with deprecated API functions:
     _customUi_msgBox = (ptrCustomUi_msgBox)(VVarious::resolveLibraryFuncName(instance, "customUi_msgBox"));
     _customUi_fileDialog = (ptrCustomUi_fileDialog)(VVarious::resolveLibraryFuncName(instance, "customUi_fileDialog"));
     if (_customUi_msgBox != nullptr)
-        App::sceneContainer->pluginContainer->currentUIPlugin = this;
+        App::scenes->pluginContainer->currentUIPlugin = this;
 
     _assimp_importShapes = (ptrassimp_importShapes)(VVarious::resolveLibraryFuncName(instance, "assimp_importShapes"));
     _assimp_exportShapes = (ptrassimp_exportShapes)(VVarious::resolveLibraryFuncName(instance, "assimp_exportShapes"));
     _assimp_importMeshes = (ptrassimp_importMeshes)(VVarious::resolveLibraryFuncName(instance, "assimp_importMeshes"));
     _assimp_exportMeshes = (ptrassimp_exportMeshes)(VVarious::resolveLibraryFuncName(instance, "assimp_exportMeshes"));
     if (_assimp_importShapes != nullptr)
-        App::sceneContainer->pluginContainer->currentAssimpPlugin = this;
+        App::scenes->pluginContainer->currentAssimpPlugin = this;
 }

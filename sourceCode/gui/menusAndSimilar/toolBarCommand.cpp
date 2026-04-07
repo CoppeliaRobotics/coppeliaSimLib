@@ -17,8 +17,8 @@ bool CToolBarCommand::processCommand(int commandID)
         {
             if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
-                int pageIndex = App::currentScene->pageContainer->getActivePageIndex();
-                CSPage* page = App::currentScene->pageContainer->getPage(pageIndex);
+                int pageIndex = App::scene->pageContainer->getActivePageIndex();
+                CSPage* page = App::scene->pageContainer->getPage(pageIndex);
                 if (page != nullptr)
                 {
                     int ind = page->getLastMouseDownViewIndex();
@@ -27,7 +27,7 @@ bool CToolBarCommand::processCommand(int commandID)
                     CSView* view = page->getView(size_t(ind));
                     if (view != nullptr)
                     {
-                        CCamera* cam = App::currentScene->sceneObjects->getCameraFromHandle(view->getLinkedObjectID());
+                        CCamera* cam = App::scene->sceneObjects->getCameraFromHandle(view->getLinkedObjectID());
                         if ((cam != nullptr))
                         {
                             int viewSize[2];
@@ -139,7 +139,7 @@ bool CToolBarCommand::processCommand(int commandID)
     if (commandID == OBJECT_ROTATE_NAVIGATION_CMD)
     {
         bool rot = true;
-        if ((App::currentScene->sceneObjects != nullptr) && (GuiApp::mainWindow != nullptr))
+        if ((App::scene->sceneObjects != nullptr) && (GuiApp::mainWindow != nullptr))
             rot = GuiApp::mainWindow->editModeContainer->pathPointManipulation
                       ->getSelectedPathPointIndicesSize_nonEditMode() == 0;
         if ((GuiApp::mainWindow != nullptr) && rot &&
@@ -227,7 +227,7 @@ bool CToolBarCommand::processCommand(int commandID)
         {
             if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
-                App::currentScene->sceneObjects->deselectObjects();
+                App::scene->sceneObjects->deselectObjects();
                 GuiApp::mainWindow->editModeContainer->deselectEditModeBuffer();
             }
             else
@@ -244,7 +244,7 @@ bool CToolBarCommand::processCommand(int commandID)
         (commandID == SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD))
     {
         if ((GuiApp::mainWindow != nullptr) && (!GuiApp::mainWindow->oglSurface->isScenePageOrViewSelectionActive()))
-            App::currentScene->simulation->processCommand(commandID);
+            App::scene->simulation->processCommand(commandID);
         return (true);
     }
 
@@ -252,9 +252,9 @@ bool CToolBarCommand::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (App::currentScene->pageContainer->getActivePageIndex() != (commandID - VIEW_1_CMD))
+            if (App::scene->pageContainer->getActivePageIndex() != (commandID - VIEW_1_CMD))
             {
-                App::currentScene->pageContainer->setActivePage(commandID - VIEW_1_CMD);
+                App::scene->pageContainer->setActivePage(commandID - VIEW_1_CMD);
                 App::undoRedo_sceneChanged("");
                 std::string str(IDSNS_SWAPPED_TO_PAGE);
                 str += " ";

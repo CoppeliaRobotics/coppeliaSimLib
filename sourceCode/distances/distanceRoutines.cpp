@@ -82,19 +82,19 @@ bool CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(int entity1ID, int en
 
     bool returnValue = false;
     // We first check if objects are valid:
-    CSceneObject* object1 = App::currentScene->sceneObjects->getObjectFromHandle(entity1ID);
-    CSceneObject* object2 = App::currentScene->sceneObjects->getObjectFromHandle(entity2ID);
+    CSceneObject* object1 = App::scene->sceneObjects->getObjectFromHandle(entity1ID);
+    CSceneObject* object2 = App::scene->sceneObjects->getObjectFromHandle(entity2ID);
     CCollection* collection1 = nullptr;
     CCollection* collection2 = nullptr;
     if (object1 == nullptr)
     {
-        collection1 = App::currentScene->collections->getObjectFromHandle(entity1ID);
+        collection1 = App::scene->collections->getObjectFromHandle(entity1ID);
         if (collection1 == nullptr)
             return (false);
     }
     if (object2 == nullptr)
     {
-        collection2 = App::currentScene->collections->getObjectFromHandle(entity2ID);
+        collection2 = App::scene->collections->getObjectFromHandle(entity2ID);
         if ((collection2 == nullptr) && (entity2ID != -1))
             return (false);
     }
@@ -127,11 +127,11 @@ bool CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(int entity1ID, int en
             { // Special group here (all objects except the object):
                 std::vector<CSceneObject*> exception;
                 exception.push_back(object1);
-                App::currentScene->sceneObjects->getAllMeasurableObjectsFromSceneExcept(&exception, group);
+                App::scene->sceneObjects->getAllMeasurableObjectsFromSceneExcept(&exception, group);
             }
             else
             { // Regular group here:
-                App::currentScene->collections->getMeasurableObjectsFromCollection(entity2ID, group);
+                App::scene->collections->getMeasurableObjectsFromCollection(entity2ID, group);
             }
             if (group.size() != 0)
             {
@@ -155,7 +155,7 @@ bool CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(int entity1ID, int en
     else
     { // We have a group against...
         std::vector<CSceneObject*> group1;
-        App::currentScene->collections->getMeasurableObjectsFromCollection(entity1ID, group1);
+        App::scene->collections->getMeasurableObjectsFromCollection(entity1ID, group1);
         if (group1.size() != 0)
         {
             if (object2 != nullptr)
@@ -180,11 +180,11 @@ bool CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(int entity1ID, int en
                 std::vector<CSceneObject*> group2;
                 if (entity2ID == -1)
                 { // Special group here
-                    App::currentScene->sceneObjects->getAllMeasurableObjectsFromSceneExcept(&group1, group2);
+                    App::scene->sceneObjects->getAllMeasurableObjectsFromSceneExcept(&group1, group2);
                 }
                 else
                 { // Regular group here:
-                    App::currentScene->collections->getMeasurableObjectsFromCollection(entity2ID, group2);
+                    App::scene->collections->getMeasurableObjectsFromCollection(entity2ID, group2);
                 }
                 if (group2.size() != 0)
                 {
@@ -223,18 +223,18 @@ double CDistanceRoutine::_getApproxBoundingBoxDistance(CSceneObject* obj1, CScen
         if (isPt[1])
             return ((m[0].X - m[1].X).getLength()); // pt vs pt
         else
-            return (App::sceneContainer->pluginContainer->geomPlugin_getBoxPointDistance(m[1], halfSizes[1], true,
+            return (App::scenes->pluginContainer->geomPlugin_getBoxPointDistance(m[1], halfSizes[1], true,
                                                                                          m[0].X)); // pt vs box
     }
     else
     { // box vs ...
         if (isPt[1])
-            return (App::sceneContainer->pluginContainer->geomPlugin_getBoxPointDistance(m[0], halfSizes[0], true,
+            return (App::scenes->pluginContainer->geomPlugin_getBoxPointDistance(m[0], halfSizes[0], true,
                                                                                          m[1].X)); // box vs pt
         else
         {
             // box box is too slow here
-            return (App::sceneContainer->pluginContainer->geomPlugin_getApproxBoxBoxDistance(
+            return (App::scenes->pluginContainer->geomPlugin_getApproxBoxBoxDistance(
                 m[0], halfSizes[0], m[1], halfSizes[1])); // box vs box
         }
     }
@@ -314,7 +314,7 @@ bool CDistanceRoutine::_getShapeDummyDistanceIfSmaller(CShape* shape, CDummy* du
     C3Vector rayPart0;
     C3Vector rayPart1(dummyPos);
     int buffer = 0;
-    if (App::sceneContainer->pluginContainer->geomPlugin_getMeshPointDistanceIfSmaller(
+    if (App::scenes->pluginContainer->geomPlugin_getMeshPointDistanceIfSmaller(
             shape->_meshCalculationStructure, shape->getCumulCenteredMeshFrame(), dummyPos, dist, &rayPart0, &buffer))
     {
         rayPart0.getData(ray);
@@ -371,7 +371,7 @@ bool CDistanceRoutine::_getShapeShapeDistanceIfSmaller(CShape* shape1, CShape* s
     shape2->initializeMeshCalculationStructureIfNeeded();
 
     C3Vector minDistPt1, minDistPt2;
-    if (App::sceneContainer->pluginContainer->geomPlugin_getMeshMeshDistanceIfSmaller(
+    if (App::scenes->pluginContainer->geomPlugin_getMeshMeshDistanceIfSmaller(
             shape1->_meshCalculationStructure, shape1->getCumulCenteredMeshFrame(), shape2->_meshCalculationStructure,
             shape2->getCumulCenteredMeshFrame(), dist, &minDistPt1, &minDistPt2, cache1 + 1, cache2 + 1))
     {
@@ -409,7 +409,7 @@ bool CDistanceRoutine::_getOctreeDummyDistanceIfSmaller(COcTree* octree, CDummy*
     unsigned long long int cacheV = getExtendedCacheValue(cache1[1]);
     C3Vector dummyPos(dummy->getFullCumulativeTransformation().X);
     C3Vector minDistPt;
-    if (App::sceneContainer->pluginContainer->geomPlugin_getOctreePointDistanceIfSmaller(
+    if (App::scenes->pluginContainer->geomPlugin_getOctreePointDistanceIfSmaller(
             octree->getOctreeInfo(), octree->getFullCumulativeTransformation(), dummyPos, dist, &minDistPt, &cacheV))
     {
         minDistPt.getData(ray + 0);
@@ -467,7 +467,7 @@ bool CDistanceRoutine::_getOctreeShapeDistanceIfSmaller(COcTree* octree, CShape*
     unsigned long long int cache1V = getExtendedCacheValue(cache1[1]);
     C3Vector distPt1;
     C3Vector distPt2;
-    if (App::sceneContainer->pluginContainer->geomPlugin_getMeshOctreeDistanceIfSmaller(
+    if (App::scenes->pluginContainer->geomPlugin_getMeshOctreeDistanceIfSmaller(
             shape->_meshCalculationStructure, shape->getCumulCenteredMeshFrame(), octree->getOctreeInfo(),
             octree->getCumulativeTransformation(), dist, &distPt2, &distPt1, cache2 + 1, &cache1V))
     {
@@ -535,7 +535,7 @@ bool CDistanceRoutine::_getOctreeOctreeDistanceIfSmaller(COcTree* octree1, COcTr
     bool hasCoherency = getOctreesHaveCoherentMovement(octree1, octree2);
     C3Vector distPt1;
     C3Vector distPt2;
-    if (App::sceneContainer->pluginContainer->geomPlugin_getOctreeOctreeDistanceIfSmaller(
+    if (App::scenes->pluginContainer->geomPlugin_getOctreeOctreeDistanceIfSmaller(
             octree1->getOctreeInfo(), octree1->getFullCumulativeTransformation(), octree2->getOctreeInfo(),
             octree2->getFullCumulativeTransformation(), dist, &distPt1, &distPt2, &cache1V, &cache2V))
     {
@@ -576,7 +576,7 @@ bool CDistanceRoutine::_getPointCloudDummyDistanceIfSmaller(CPointCloud* pointCl
     unsigned long long int cacheV = getExtendedCacheValue(cache1[1]);
     C3Vector dummyPos(dummy->getFullCumulativeTransformation().X);
     C3Vector distPt;
-    if (App::sceneContainer->pluginContainer->geomPlugin_getPtcloudPointDistanceIfSmaller(
+    if (App::scenes->pluginContainer->geomPlugin_getPtcloudPointDistanceIfSmaller(
             pointCloud->getPointCloudInfo(), pointCloud->getFullCumulativeTransformation(), dummyPos, dist, &distPt,
             &cacheV))
     {
@@ -637,7 +637,7 @@ bool CDistanceRoutine::_getPointCloudShapeDistanceIfSmaller(CPointCloud* pointCl
     unsigned long long int cache1V = getExtendedCacheValue(cache1[1]);
     C3Vector distPt1;
     C3Vector distPt2;
-    if (App::sceneContainer->pluginContainer->geomPlugin_getMeshPtcloudDistanceIfSmaller(
+    if (App::scenes->pluginContainer->geomPlugin_getMeshPtcloudDistanceIfSmaller(
             shape->_meshCalculationStructure, shape->getCumulCenteredMeshFrame(), pointCloud->getPointCloudInfo(),
             pointCloud->getCumulativeTransformation(), dist, &distPt2, &distPt1, cache2 + 1, &cache1V))
     {
@@ -698,7 +698,7 @@ bool CDistanceRoutine::_getOctreePointCloudDistanceIfSmaller(COcTree* octree, CP
     unsigned long long int cache2V = getExtendedCacheValue(cache2[1]);
     C3Vector distPt1;
     C3Vector distPt2;
-    if (App::sceneContainer->pluginContainer->geomPlugin_getOctreePtcloudDistanceIfSmaller(
+    if (App::scenes->pluginContainer->geomPlugin_getOctreePtcloudDistanceIfSmaller(
             octree->getOctreeInfo(), octree->getFullCumulativeTransformation(), pointCloud->getPointCloudInfo(),
             pointCloud->getFullCumulativeTransformation(), dist, &distPt1, &distPt2, &cache1V, &cache2V))
     {
@@ -762,7 +762,7 @@ bool CDistanceRoutine::_getPointCloudPointCloudDistanceIfSmaller(CPointCloud* po
     unsigned long long int cache2V = getExtendedCacheValue(cache2[1]);
     C3Vector distPt1;
     C3Vector distPt2;
-    if (App::sceneContainer->pluginContainer->geomPlugin_getPtcloudPtcloudDistanceIfSmaller(
+    if (App::scenes->pluginContainer->geomPlugin_getPtcloudPtcloudDistanceIfSmaller(
             pointCloud1->getPointCloudInfo(), pointCloud1->getFullCumulativeTransformation(),
             pointCloud2->getPointCloudInfo(), pointCloud2->getFullCumulativeTransformation(), dist, &distPt1, &distPt2,
             &cache1V, &cache2V))
@@ -979,10 +979,10 @@ bool CDistanceRoutine::_getCachedDistanceIfSmaller(double& dist, double ray[7], 
         return (false); // Distance caching is turned off
     if ((cache1[0] < 0) || (cache2[0] < 0))
         return (false);
-    CSceneObject* object1 = App::currentScene->sceneObjects->getObjectFromHandle(cache1[0]);
+    CSceneObject* object1 = App::scene->sceneObjects->getObjectFromHandle(cache1[0]);
     if (object1 == nullptr)
         return (false);
-    CSceneObject* object2 = App::currentScene->sceneObjects->getObjectFromHandle(cache2[0]);
+    CSceneObject* object2 = App::scene->sceneObjects->getObjectFromHandle(cache2[0]);
     if (object2 == nullptr)
         return (false);
 

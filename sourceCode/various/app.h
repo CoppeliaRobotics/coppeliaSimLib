@@ -178,8 +178,8 @@ class App
     static CFolderSystem* folders;
     static CUserSettings* userSettings;
     static CSimThread* simThread;
-    static CSceneContainer* sceneContainer;
-    static CScene* currentScene; // actually sceneContainer->currentScene
+    static CSceneContainer* scenes;
+    static CScene* scene; // actually scenes->scene
     static CGm* gm;
     static std::vector<void*> callbacks;
     static InstancesList* instancesList;

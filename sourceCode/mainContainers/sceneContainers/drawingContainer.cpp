@@ -57,7 +57,7 @@ int CDrawingContainer::addObject(CDrawingObject* it)
 
 void CDrawingContainer::_publishAllDrawingObjectHandlesEvent() const
 {
-    if (App::sceneContainer->getEventsEnabled())
+    if (App::scenes->getEventsEnabled())
     {
         std::vector<int> handles;
         for (size_t i = 0; i < _allObjects.size(); i++)
@@ -66,12 +66,12 @@ void CDrawingContainer::_publishAllDrawingObjectHandlesEvent() const
             handles.push_back(dr->getObjectHandle());
         }
         const char* cmd = propDrawingObjectCont_drawingObjects.name;
-        CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, handles.data(), handles.size());
         else
             ev->appendKeyHandleArray(cmd, handles.data(), handles.size());
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
     }
 }
 
@@ -81,17 +81,17 @@ void CDrawingContainer::removeObject(int objectId)
     {
         if (_allObjects[i]->getObjectHandle() == objectId)
         {
-            if (App::sceneContainer->getEventsEnabled())
+            if (App::scenes->getEventsEnabled())
             {
                 if (App::getEventProtocolVersion()  >= 3)
                 {
-                    App::sceneContainer->createEvent(EVENTTYPE_OBJECTREMOVED,  _allObjects[i]->getObjectHandle(), _allObjects[i]->getObjectHandle(), nullptr, false);
-                    App::sceneContainer->pushEvent();
+                    App::scenes->createEvent(EVENTTYPE_OBJECTREMOVED,  _allObjects[i]->getObjectHandle(), _allObjects[i]->getObjectHandle(), nullptr, false);
+                    App::scenes->pushEvent();
                 }
                 if (App::getEventProtocolVersion() <= 3)
                 { // For backw. compatibility
-                    App::sceneContainer->createEvent("drawingObjectRemoved",  _allObjects[i]->getObjectHandle(), _allObjects[i]->getObjectHandle(), nullptr, false);
-                    App::sceneContainer->pushEvent();
+                    App::scenes->createEvent("drawingObjectRemoved",  _allObjects[i]->getObjectHandle(), _allObjects[i]->getObjectHandle(), nullptr, false);
+                    App::scenes->pushEvent();
                 }
             }
 
@@ -145,12 +145,12 @@ void CDrawingContainer::pushGenesisEvents()
         // We need to "fake" adding that drawing object:
         addedObjects.push_back(dr->getObjectHandle());
         const char* cmd = propDrawingObjectCont_drawingObjects.name;
-        CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, addedObjects.data(), addedObjects.size());
         else
             ev->appendKeyHandleArray(cmd, addedObjects.data(), addedObjects.size());
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
     }
 }
 
@@ -162,7 +162,7 @@ void CDrawingContainer::pushAppendNewPointEvents()
 
 int CDrawingContainer::getLongProperty(long long int target, const char* pName, long long int& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -178,7 +178,7 @@ int CDrawingContainer::getLongProperty(long long int target, const char* pName, 
 
 int CDrawingContainer::getHandleProperty(long long int target, const char* pName, long long int& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -194,7 +194,7 @@ int CDrawingContainer::getHandleProperty(long long int target, const char* pName
 
 int CDrawingContainer::getStringProperty(long long int target, const char* pName, std::string& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -210,7 +210,7 @@ int CDrawingContainer::getStringProperty(long long int target, const char* pName
 
 int CDrawingContainer::getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     pState.clear();
     if (target == -1)
     {
@@ -218,7 +218,7 @@ int CDrawingContainer::getHandleArrayProperty(long long int target, const char* 
         {
             for (size_t i = 0; i < _allObjects.size(); i++)
                 pState.push_back(_allObjects[i]->getObjectHandle());
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
     return retVal;
@@ -226,7 +226,7 @@ int CDrawingContainer::getHandleArrayProperty(long long int target, const char* 
 
 int CDrawingContainer::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
         for (size_t i = 0; i < allProps_drawCont.size(); i++)
@@ -239,7 +239,7 @@ int CDrawingContainer::getPropertyName(long long int target, int& index, std::st
                     if (index == -1)
                     {
                         pName = allProps_drawCont[i].name;
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                         break;
                     }
                 }
@@ -261,7 +261,7 @@ int CDrawingContainer::getPropertyName(long long int target, int& index, std::st
 
 int CDrawingContainer::getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
         for (size_t i = 0; i < allProps_drawCont.size(); i++)

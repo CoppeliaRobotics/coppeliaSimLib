@@ -154,7 +154,7 @@ void CEnvironment::appendGenesisData(CCbor* ev) const
     ev->appendKeyBool(propScene_saveCalculationStructs.name, _saveExistingCalculationStructures);
     ev->appendKeyInt64(propScene_sceneUid.name, _sceneUniqueID);
     int msh = -1;
-    CDetachedScript* it = App::currentScene->sceneObjects->embeddedScriptContainer->getMainScript();
+    CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
     if (it != nullptr)
         msh = it->getScriptHandle();
     ev->appendKeyInt64(propScene_visibilityLayers.name, _activeLayers);
@@ -180,15 +180,15 @@ void CEnvironment::setAmbientLight(const float c[3])
     {
         for (size_t i = 0; i < 3; i++)
             ambientLightColor[i] = c[i];
-        if (App::sceneContainer->getEventsEnabled())
+        if (App::scenes->getEventsEnabled())
         {
             const char* cmd = propScene_ambientLight.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyFloatArray(cmd, ambientLightColor, 3);
             else
                 ev->appendKeyColor(cmd, ambientLightColor);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -199,12 +199,12 @@ void CEnvironment::setActiveLayers(int l)
     if (diff)
     {
         _activeLayers = l;
-        if (App::sceneContainer->getEventsEnabled())
+        if (App::scenes->getEventsEnabled())
         {
             const char* cmd = propScene_visibilityLayers.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyInt64(cmd, _activeLayers);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
 #ifdef SIM_WITH_GUI
         GuiApp::setRefreshHierarchyViewFlag();
@@ -239,12 +239,12 @@ void CEnvironment::setSaveExistingCalculationStructures(bool s)
     if (diff)
     {
         _saveExistingCalculationStructures = s;
-        if (App::sceneContainer->getEventsEnabled())
+        if (App::scenes->getEventsEnabled())
         {
             const char* cmd = propScene_saveCalculationStructs.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyBool(cmd, _saveExistingCalculationStructures);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -318,12 +318,12 @@ void CEnvironment::setRequestFinalSave(bool finalSaveActivated)
     if (diff)
     {
         _requestFinalSave = finalSaveActivated;
-        if (App::sceneContainer->getEventsEnabled())
+        if (App::scenes->getEventsEnabled())
         {
             const char* cmd = propScene_finalSaveRequest.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyBool(cmd, _requestFinalSave);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -339,12 +339,12 @@ void CEnvironment::setSceneLocked()
     {
         setRequestFinalSave(false);
         _sceneIsLocked = true;
-        if (App::sceneContainer->getEventsEnabled())
+        if (App::scenes->getEventsEnabled())
         {
             const char* cmd = propScene_sceneIsLocked.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyBool(cmd, _sceneIsLocked);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -437,12 +437,12 @@ void CEnvironment::setAcknowledgement(const char* a)
     if (diff)
     {
         _acknowledgement = ack;
-        if (App::sceneContainer->getEventsEnabled())
+        if (App::scenes->getEventsEnabled())
         {
             const char* cmd = propScene_acknowledgment.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyText(cmd, _acknowledgement.c_str());
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -1046,12 +1046,12 @@ void CEnvironment::setScenePathAndName(const char* pathAndName)
     if (diff)
     {
         _scenePathAndName = pathAndName;
-        if (App::sceneContainer->getEventsEnabled())
+        if (App::scenes->getEventsEnabled())
         {
             const char* cmd = propScene_scenePath.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+            CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyText(cmd, _scenePathAndName.c_str());
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
 #ifdef SIM_WITH_GUI
         SUIThreadCommand cmdIn;
@@ -1092,16 +1092,16 @@ std::string CEnvironment::getSceneNameWithExt() const
 
 int CEnvironment::setBoolProperty(const char* pName, bool pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propScene_finalSaveRequest.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         setRequestFinalSave(pState);
     }
     else if (strcmp(pName, propScene_saveCalculationStructs.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         setSaveExistingCalculationStructures(pState);
     }
 
@@ -1110,21 +1110,21 @@ int CEnvironment::setBoolProperty(const char* pName, bool pState)
 
 int CEnvironment::getBoolProperty(const char* pName, bool& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propScene_finalSaveRequest.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _requestFinalSave;
     }
     else if (strcmp(pName, propScene_saveCalculationStructs.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _saveExistingCalculationStructures;
     }
     else if (strcmp(pName, propScene_sceneIsLocked.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _sceneIsLocked;
     }
 
@@ -1133,12 +1133,12 @@ int CEnvironment::getBoolProperty(const char* pName, bool& pState) const
 
 int CEnvironment::setIntProperty(const char* pName, int pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propScene_visibilityLayers.name) == 0)
     {
         setActiveLayers(pState);
-        retVal = 1;
+        retVal = sim_propertyret_ok;
     }
 
     return retVal;
@@ -1146,17 +1146,17 @@ int CEnvironment::setIntProperty(const char* pName, int pState)
 
 int CEnvironment::getIntProperty(const char* pName, int& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propScene_sceneUid.name) == 0)
     {
         pState = _sceneUniqueID;
-        retVal = 1;
+        retVal = sim_propertyret_ok;
     }
     else if (strcmp(pName, propScene_visibilityLayers.name) == 0)
     {
         pState = _activeLayers;
-        retVal = 1;
+        retVal = sim_propertyret_ok;
     }
 
     return retVal;
@@ -1164,22 +1164,22 @@ int CEnvironment::getIntProperty(const char* pName, int& pState) const
 
 int CEnvironment::getLongProperty(const char* pName, long long int& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
 
 int CEnvironment::getHandleProperty(const char* pName, long long int& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propScene_mainScript.name) == 0)
     {
-        CDetachedScript* it = App::currentScene->sceneObjects->embeddedScriptContainer->getMainScript();
+        CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
         pState = -1;
         if (it != nullptr)
             pState = it->getScriptHandle();
-        retVal = 1;
+        retVal = sim_propertyret_ok;
     }
 
     return retVal;
@@ -1187,17 +1187,17 @@ int CEnvironment::getHandleProperty(const char* pName, long long int& pState) co
 
 int CEnvironment::setStringProperty(const char* pName, const char* pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propScene_scenePath.name) == 0)
     {
         setScenePathAndName(pState);
-        retVal = 1;
+        retVal = sim_propertyret_ok;
     }
     else if (strcmp(pName, propScene_acknowledgment.name) == 0)
     {
         setAcknowledgement(pState);
-        retVal = 1;
+        retVal = sim_propertyret_ok;
     }
 
     return retVal;
@@ -1205,22 +1205,22 @@ int CEnvironment::setStringProperty(const char* pName, const char* pState)
 
 int CEnvironment::getStringProperty(const char* pName, std::string& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propScene_scenePath.name) == 0)
     {
         pState = _scenePathAndName;
-        retVal = 1;
+        retVal = sim_propertyret_ok;
     }
     else if (strcmp(pName, propScene_acknowledgment.name) == 0)
     {
         pState = _acknowledgement;
-        retVal = 1;
+        retVal = sim_propertyret_ok;
     }
     else if (strcmp(pName, propScene_sceneUidString.name) == 0)
     {
         pState = _sceneUniquePersistentIdString;
-        retVal = 1;
+        retVal = sim_propertyret_ok;
     }
 
     return retVal;
@@ -1228,12 +1228,12 @@ int CEnvironment::getStringProperty(const char* pName, std::string& pState) cons
 
 int CEnvironment::setColorProperty(const char* pName, const float* pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propScene_ambientLight.name) == 0)
     {
         setAmbientLight(pState);
-        retVal = 1;
+        retVal = sim_propertyret_ok;
     }
 
     return retVal;
@@ -1241,13 +1241,13 @@ int CEnvironment::setColorProperty(const char* pName, const float* pState)
 
 int CEnvironment::getColorProperty(const char* pName, float* pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propScene_ambientLight.name) == 0)
     {
         for (size_t i = 0; i < 3; i++)
             pState[i] = ambientLightColor[i];
-        retVal = 1;
+        retVal = sim_propertyret_ok;
     }
 
     return retVal;
@@ -1255,7 +1255,7 @@ int CEnvironment::getColorProperty(const char* pName, float* pState) const
 
 int CEnvironment::getPropertyName(int& index, std::string& pName, int excludeFlags) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     for (size_t i = 0; i < allProps_scene.size(); i++)
     {
@@ -1267,7 +1267,7 @@ int CEnvironment::getPropertyName(int& index, std::string& pName, int excludeFla
                 if (index == -1)
                 {
                     pName = allProps_scene[i].name;
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                     break;
                 }
             }
@@ -1279,7 +1279,7 @@ int CEnvironment::getPropertyName(int& index, std::string& pName, int excludeFla
 
 int CEnvironment::getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     for (size_t i = 0; i < allProps_scene.size(); i++)
     {

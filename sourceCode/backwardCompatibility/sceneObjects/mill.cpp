@@ -479,9 +479,9 @@ int CMill::handleMill(bool exceptExplicitHandling, double& milledSurface, double
         return (0); // We don't want to handle those
     _millDataValid = false;
     _calcTimeInMs = 0;
-    if (!App::currentScene->mainSettings_old->millsEnabled)
+    if (!App::scene->mainSettings_old->millsEnabled)
         return (0);
-    if (!App::sceneContainer->pluginContainer->isGeomPluginAvailable())
+    if (!App::scenes->pluginContainer->isGeomPluginAvailable())
         return (0);
 
     int stTime = (int)VDateTime::getTimeInMs();

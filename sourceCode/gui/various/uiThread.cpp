@@ -59,9 +59,9 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn, SUIThreadCo
     if ((cmdIn->cmdId > PLUGIN_START_PLUGUITHREADCMD) && (cmdIn->cmdId < PLUGIN_END_PLUGUITHREADCMD))
     {
         if (cmdIn->cmdId == PLUGIN_LOAD_AND_START_PLUGUITHREADCMD)
-            cmdOut->intParams.push_back(App::sceneContainer->pluginContainer->addAndInitPlugin_old(cmdIn->stringParams[0].c_str(), cmdIn->stringParams[1].c_str()));
+            cmdOut->intParams.push_back(App::scenes->pluginContainer->addAndInitPlugin_old(cmdIn->stringParams[0].c_str(), cmdIn->stringParams[1].c_str()));
         if (cmdIn->cmdId == PLUGIN_STOP_AND_UNLOAD_PLUGUITHREADCMD)
-            cmdOut->boolParams.push_back(App::sceneContainer->pluginContainer->unloadPlugin_old(cmdIn->intParams[0]));
+            cmdOut->boolParams.push_back(App::scenes->pluginContainer->unloadPlugin_old(cmdIn->intParams[0]));
     }
 
     if (cmdIn->cmdId == DESTROY_GL_TEXTURE_UITHREADCMD)
@@ -137,22 +137,22 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn, SUIThreadCo
 
     if (cmdIn->cmdId == INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD)
     {
-        App::sceneContainer->pluginContainer->uiCallAllPlugins(0);
+        App::scenes->pluginContainer->uiCallAllPlugins(0);
 
         // Old:
         int auxData[4] = {0, 0, 0, 0};
-        App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(
+        App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins_old(
             sim_message_eventcallback_uipass, auxData);
     }
     if (cmdIn->cmdId == CALL_PLUGIN_INITUI_FROM_UITHREAD_UITHREADCMD)
     {
-        CPlugin* it = App::sceneContainer->pluginContainer->getPluginFromHandle(cmdIn->intParams[0]);
+        CPlugin* it = App::scenes->pluginContainer->getPluginFromHandle(cmdIn->intParams[0]);
         if (it != nullptr)
             it->init_ui();
     }
     if (cmdIn->cmdId == CALL_PLUGIN_CLEANUPUI_FROM_UITHREAD_UITHREADCMD)
     {
-        CPlugin* it = App::sceneContainer->pluginContainer->getPluginFromHandle(cmdIn->intParams[0]);
+        CPlugin* it = App::scenes->pluginContainer->getPluginFromHandle(cmdIn->intParams[0]);
         if (it != nullptr)
             it->cleanup_ui();
     }
@@ -205,7 +205,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn, SUIThreadCo
         (cmdIn->cmdId == KEEP_THUMBNAIL_QUESTION_DLG_UITHREADCMD))
     {
         CQDlgModelThumbnailVisu dlg;
-        dlg.applyThumbnail(&App::currentScene->environment->modelThumbnail_notSerializedHere);
+        dlg.applyThumbnail(&App::scene->environment->modelThumbnail_notSerializedHere);
         cmdOut->boolParams.push_back(dlg.makeDialogModal() != VDIALOG_MODAL_RETURN_CANCEL);
     }
 
@@ -219,7 +219,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn, SUIThreadCo
         if (dlg.makeDialogModal() != VDIALOG_MODAL_RETURN_CANCEL)
         {
             // We first apply the thumbnail in the UI thread scene (needed), then post a message for the sim thread
-            App::currentScene->environment->modelThumbnail_notSerializedHere.copyFrom(&dlg.thumbnail);
+            App::scene->environment->modelThumbnail_notSerializedHere.copyFrom(&dlg.thumbnail);
             SSimulationThreadCommand cmd;
             cmd.cmdId = SET_THUMBNAIL_GUITRIGGEREDCMD;
             unsigned char* img = (unsigned char*)dlg.thumbnail.getPointerToUncompressedImage();
@@ -250,7 +250,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn, SUIThreadCo
     if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == OPEN_MODAL_SCRIPT_SIMULATION_PARAMETERS_UITHREADCMD))
     {
-        CSceneObject* object = App::currentScene->sceneObjects->getObjectFromHandle(cmdIn->intParams[0]);
+        CSceneObject* object = App::scene->sceneObjects->getObjectFromHandle(cmdIn->intParams[0]);
         if (object != nullptr)
         {
             CQDlgUserParameters theDialog(GuiApp::mainWindow);
@@ -275,7 +275,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn, SUIThreadCo
     if (GuiApp::canShowDialogs() &&
         (cmdIn->cmdId == OPEN_MODAL_MODEL_PROPERTIES_UITHREADCMD))
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(cmdIn->intParams[0]);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(cmdIn->intParams[0]);
         if (it != nullptr)
         {
             CQDlgModelProperties theDialog(GuiApp::mainWindow);

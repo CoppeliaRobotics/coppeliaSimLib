@@ -113,7 +113,7 @@ void CIkGroupContainer::setSuffix1ToSuffix2(int suffix1, int suffix2)
 
 void CIkGroupContainer::removeIkGroup(int ikGroupHandle)
 {
-    App::currentScene->announceIkGroupWillBeErased(ikGroupHandle);
+    App::scene->announceIkGroupWillBeErased(ikGroupHandle);
     _removeIkGroup(ikGroupHandle);
 #ifdef SIM_WITH_GUI
     GuiApp::setFullDialogRefreshFlag();
@@ -193,7 +193,7 @@ void CIkGroupContainer::announceIkGroupWillBeErased(int ikGroupHandle)
 int CIkGroupContainer::computeAllIkGroups(bool exceptExplicitHandling)
 {
     int performedCount = 0;
-    if (App::currentScene->mainSettings_old->ikCalculationEnabled)
+    if (App::scene->mainSettings_old->ikCalculationEnabled)
     {
         for (size_t i = 0; i < getObjectCount(); i++)
         {

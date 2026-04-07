@@ -77,7 +77,7 @@ CScene::~CScene()
 
 void CScene::removeScene_oldIk()
 {
-    App::sceneContainer->pluginContainer->oldIkPlugin_emptyEnvironment();
+    App::scenes->pluginContainer->oldIkPlugin_emptyEnvironment();
     sceneObjects->remove_oldIk();
     ikGroups_old->remove_oldIk();
 }
@@ -217,20 +217,20 @@ bool CScene::loadScene(CSer& ar, bool forUndoRedoOperation)
         retVal = _loadModelOrScene(ar, false, true, false, false, nullptr, nullptr, nullptr);
         if (!forUndoRedoOperation)
         {
-            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+            App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_sceneloaded);
-            App::sceneContainer->setModificationFlag(8); // scene loaded
+            App::scenes->setModificationFlag(8); // scene loaded
             outsideCommandQueue_old->addCommand(sim_message_scene_loaded, 0, 0, 0, 0, nullptr, 0);
         }
     }
 
-    App::sceneContainer->callScripts(sim_syscb_afterload, nullptr, nullptr);
+    App::scenes->callScripts(sim_syscb_afterload, nullptr, nullptr);
     return (retVal);
 }
 
 void CScene::saveScene(CSer& ar, bool regularSave /*= true*/)
 {
-    CInterfaceStack* stackForSaveCallback = App::sceneContainer->interfaceStackContainer->createStack();
+    CInterfaceStack* stackForSaveCallback = App::scenes->interfaceStackContainer->createStack();
     stackForSaveCallback->pushTableOntoStack();
     stackForSaveCallback->pushTextOntoStack("file");
     stackForSaveCallback->pushTextOntoStack(ar.getFilename().c_str());
@@ -241,14 +241,14 @@ void CScene::saveScene(CSer& ar, bool regularSave /*= true*/)
 
     if (ar.getFileType() == CSer::filetype_csim_xml_simplescene_file)
     {
-        App::sceneContainer->callScripts(sim_syscb_beforesave, stackForSaveCallback, nullptr);
+        App::scenes->callScripts(sim_syscb_beforesave, stackForSaveCallback, nullptr);
         _saveSimpleXmlScene(ar);
-        App::sceneContainer->callScripts(sim_syscb_aftersave, stackForSaveCallback, nullptr);
-        App::sceneContainer->interfaceStackContainer->destroyStack(stackForSaveCallback);
+        App::scenes->callScripts(sim_syscb_aftersave, stackForSaveCallback, nullptr);
+        App::scenes->interfaceStackContainer->destroyStack(stackForSaveCallback);
         return;
     }
 
-    App::sceneContainer->callScripts(sim_syscb_beforesave, stackForSaveCallback, nullptr);
+    App::scenes->callScripts(sim_syscb_beforesave, stackForSaveCallback, nullptr);
 
     // **** Following needed to save existing calculation structures:
     environment->setSaveExistingCalculationStructuresTemp(false);
@@ -608,8 +608,8 @@ void CScene::saveScene(CSer& ar, bool regularSave /*= true*/)
         ar.storeDataName(SER_END_OF_FILE);
     CMesh::clearTempVerticesIndicesNormalsAndEdges();
 
-    App::sceneContainer->callScripts(sim_syscb_aftersave, stackForSaveCallback, nullptr);
-    App::sceneContainer->interfaceStackContainer->destroyStack(stackForSaveCallback);
+    App::scenes->callScripts(sim_syscb_aftersave, stackForSaveCallback, nullptr);
+    App::scenes->interfaceStackContainer->destroyStack(stackForSaveCallback);
 }
 
 bool CScene::loadModel(CSer& ar, bool justLoadThumbnail, bool forceModelAsCopy, C7Vector* optionalModelTr,
@@ -623,13 +623,13 @@ bool CScene::loadModel(CSer& ar, bool justLoadThumbnail, bool forceModelAsCopy, 
                                    optionalModelBoundingBoxSize, optionalModelNonDefaultTranslationStepSize);
     if (!justLoadThumbnail)
     {
-        App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+        App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(
             sim_message_eventcallback_modelloaded);
-        App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+        App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(
             sim_message_model_loaded); // for backward compatibility
 
         outsideCommandQueue_old->addCommand(sim_message_model_loaded, 0, 0, 0, 0, nullptr, 0); // only for Lua
-        App::sceneContainer->setModificationFlag(4);                                           // model loaded
+        App::scenes->setModificationFlag(4);                                           // model loaded
     }
     return (retVal);
 }
@@ -650,7 +650,7 @@ void CScene::simulationAboutToStart()
     GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
 #endif
 
-    App::sceneContainer->callScripts(sim_syscb_beforesimulation, nullptr, nullptr);
+    App::scenes->callScripts(sim_syscb_beforesimulation, nullptr, nullptr);
 
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
     for (size_t i = 0; i < sceneObjects->getObjectCount(); i++)
@@ -666,7 +666,7 @@ void CScene::simulationAboutToStart()
         GuiApp::mainWindow->codeEditorContainer->simulationAboutToStart();
 #endif
 
-    if (!App::sceneContainer->pluginContainer->isGeomPluginAvailable())
+    if (!App::scenes->pluginContainer->isGeomPluginAvailable())
     {
 #ifdef SIM_WITH_GUI
         if (GuiApp::canShowDialogs())
@@ -691,12 +691,12 @@ void CScene::simulationAboutToStart()
     pathPlanning_old->simulationAboutToStart(); // old
     simulation->simulationAboutToStart();
 
-    App::sceneContainer->calcInfo->simulationAboutToStart();
+    App::scenes->calcInfo->simulationAboutToStart();
 
-    App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(
+    App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(
         sim_message_eventcallback_simulationabouttostart);
 
-    App::sceneContainer->setModificationFlag(2048); // simulation started
+    App::scenes->setModificationFlag(2048); // simulation started
 
 #ifdef SIM_WITH_GUI
     SSimulationThreadCommand cmd;
@@ -745,7 +745,7 @@ void CScene::simulationAboutToEnd()
 {
     TRACE_INTERNAL;
 
-    App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationabouttoend);
+    App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationabouttoend);
 
     sceneObjects->simulationAboutToEnd();
 
@@ -760,8 +760,8 @@ void CScene::simulationEnded(bool removeNewObjects)
     TRACE_INTERNAL;
     App::undoRedo_sceneChanged(""); // keeps this (this has the objects in their last position, including additional objects)
 
-    App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationended);
-    App::sceneContainer->setModificationFlag(4096); // simulation ended
+    App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationended);
+    App::scenes->setModificationFlag(4096); // simulation ended
 
     if (removeNewObjects)
     {
@@ -801,9 +801,9 @@ void CScene::simulationEnded(bool removeNewObjects)
     pathPlanning_old->simulationEnded();
     simulation->simulationEnded();
     commTubeContainer_old->simulationEnded();
-    App::sceneContainer->calcInfo->simulationEnded();
+    App::scenes->calcInfo->simulationEnded();
 #ifdef SIM_WITH_GUI
-    App::sceneContainer->serialPortContainer->simulationEnded();
+    App::scenes->serialPortContainer->simulationEnded();
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
     cmdIn.cmdId = SIMULATION_JUST_ENDED_UITHREADCMD;
@@ -815,7 +815,7 @@ void CScene::simulationEnded(bool removeNewObjects)
 
     App::undoRedo_sceneChanged(""); // keeps this (additional objects were removed, and object positions were reset)
 
-    App::sceneContainer->callScripts(sim_syscb_aftersimulation, nullptr, nullptr);
+    App::scenes->callScripts(sim_syscb_aftersimulation, nullptr, nullptr);
     for (size_t i = 0; i < sceneObjects->getObjectCount(sim_sceneobject_script); i++)
     {
         CScript* script = sceneObjects->getScriptFromIndex(i);
@@ -1228,7 +1228,7 @@ void CScene::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack
 
 void CScene::pushGenesisEvents()
 {
-    CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
+    CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, false);
     ev->appendKeyInt64(propObject_handle.name, _objectHandle);
     ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
     simulation->appendGenesisData(ev);
@@ -1237,7 +1237,7 @@ void CScene::pushGenesisEvents()
     customSceneData_volatile.appendEventData(nullptr, ev);
     dynamicsContainer->appendGenesisData(ev);
     sceneObjects->appendNonObjectGenesisData(ev);
-    App::sceneContainer->pushEvent();
+    App::scenes->pushEvent();
 
     sceneObjects->pushObjectGenesisEvents();
     collections->pushGenesisEvents();
@@ -1694,7 +1694,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
 
     if (!isScene)
     {
-        CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->createStack();
+        CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
 
         std::vector<int> hand;
@@ -1716,8 +1716,8 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
         stack->insertDataIntoStackTable();
         // --------------------------------------
 
-        App::sceneContainer->callScripts(sim_syscb_aftercreate, stack, nullptr);
-        App::sceneContainer->interfaceStackContainer->destroyStack(stack);
+        App::scenes->callScripts(sim_syscb_aftercreate, stack, nullptr);
+        App::scenes->interfaceStackContainer->destroyStack(stack);
     }
 
     // Following for backward compatibility for vision sensor filters:
@@ -3073,11 +3073,11 @@ int CScene::setBufferProperty(long long int target, const char* ppName, const ch
             if (pN.size() > 0)
             {
                 bool diff = customDataPtr->setData(pN.c_str(), buffer, bufferL, true);
-                if (diff && App::sceneContainer->getEventsEnabled())
+                if (diff && App::scenes->getEventsEnabled())
                 {
-                    CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
+                    CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, false);
                     customDataPtr->appendEventData(pN.c_str(), ev);
-                    App::sceneContainer->pushEvent();
+                    App::scenes->pushEvent();
                 }
                 retVal = 1;
             }
@@ -3898,11 +3898,11 @@ int CScene::removeProperty(long long int target, const char* ppName)
                 if (tp >= 0)
                 {
                     bool diff = customSceneData.clearData((propertyStrings[tp] + pN).c_str());
-                    if (diff && App::sceneContainer->getEventsEnabled())
+                    if (diff && App::scenes->getEventsEnabled())
                     {
-                        CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
+                        CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, false);
                         customSceneData.appendEventData(pN.c_str(), ev, true);
-                        App::sceneContainer->pushEvent();
+                        App::scenes->pushEvent();
                     }
                     retVal = 1;
                 }
@@ -3916,11 +3916,11 @@ int CScene::removeProperty(long long int target, const char* ppName)
                 if (tp >= 0)
                 {
                     bool diff = customSceneData_volatile.clearData((propertyStrings[tp] + pN).c_str());
-                    if (diff && App::sceneContainer->getEventsEnabled())
+                    if (diff && App::scenes->getEventsEnabled())
                     {
-                        CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, nullptr, false);
+                        CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, false);
                         customSceneData_volatile.appendEventData(pN.c_str(), ev, true);
-                        App::sceneContainer->pushEvent();
+                        App::scenes->pushEvent();
                     }
                     retVal = 1;
                 }
@@ -3953,12 +3953,12 @@ int CScene::getPropertyName(long long int target, int& index, std::string& pName
         if (retVal == sim_propertyret_unknownproperty)
         {
             appartenance = _objectTypeStr;
-            if ((retVal == sim_propertyret_unknownproperty) && (App::currentScene->dynamicsContainer != nullptr))
-                retVal = App::currentScene->dynamicsContainer->getPropertyName(index, pName, excludeFlags);
-            if ((retVal == sim_propertyret_unknownproperty) && (App::currentScene->simulation != nullptr))
-                retVal = App::currentScene->simulation->getPropertyName(index, pName, excludeFlags);
-            if ((retVal == sim_propertyret_unknownproperty) && (App::currentScene->environment != nullptr))
-                retVal = App::currentScene->environment->getPropertyName(index, pName, excludeFlags);
+            if ((retVal == sim_propertyret_unknownproperty) && (App::scene->dynamicsContainer != nullptr))
+                retVal = App::scene->dynamicsContainer->getPropertyName(index, pName, excludeFlags);
+            if ((retVal == sim_propertyret_unknownproperty) && (App::scene->simulation != nullptr))
+                retVal = App::scene->simulation->getPropertyName(index, pName, excludeFlags);
+            if ((retVal == sim_propertyret_unknownproperty) && (App::scene->environment != nullptr))
+                retVal = App::scene->environment->getPropertyName(index, pName, excludeFlags);
             if (retVal == sim_propertyret_unknownproperty)
                 retVal = sceneObjects->getPropertyName(-1, index, pName, appartenance, excludeFlags);
             if (retVal == sim_propertyret_unknownproperty)
@@ -4005,12 +4005,12 @@ int CScene::getPropertyInfo(long long int target, const char* ppName, int& info,
     {
         const char* pName = ppName;
         retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
-        if ((retVal == sim_propertyret_unknownproperty) && (App::currentScene->dynamicsContainer != nullptr))
-            retVal = App::currentScene->dynamicsContainer->getPropertyInfo(pName, info, infoTxt);
-        if ((retVal == sim_propertyret_unknownproperty) && (App::currentScene->simulation != nullptr))
-            retVal = App::currentScene->simulation->getPropertyInfo(pName, info, infoTxt);
-        if ((retVal == sim_propertyret_unknownproperty) && (App::currentScene->environment != nullptr))
-            retVal = App::currentScene->environment->getPropertyInfo(pName, info, infoTxt);
+        if ((retVal == sim_propertyret_unknownproperty) && (App::scene->dynamicsContainer != nullptr))
+            retVal = App::scene->dynamicsContainer->getPropertyInfo(pName, info, infoTxt);
+        if ((retVal == sim_propertyret_unknownproperty) && (App::scene->simulation != nullptr))
+            retVal = App::scene->simulation->getPropertyInfo(pName, info, infoTxt);
+        if ((retVal == sim_propertyret_unknownproperty) && (App::scene->environment != nullptr))
+            retVal = App::scene->environment->getPropertyInfo(pName, info, infoTxt);
         if (retVal == sim_propertyret_unknownproperty)
             retVal = sceneObjects->getPropertyInfo(-1, pName, info, infoTxt);
         if (retVal == sim_propertyret_unknownproperty)

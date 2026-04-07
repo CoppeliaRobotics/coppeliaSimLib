@@ -1571,7 +1571,7 @@ std::string CDynMaterialObject::_enumToProperty(int oldEnum, int type, int& inde
 
 int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* eev /* = nullptr*/)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
@@ -1579,16 +1579,16 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
     auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndexBitCoded, int simiIndex) {
         if ((pName == nullptr) || (propertyName == pName))
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             int nv = (arr[simiIndexBitCoded] | simiIndex) - (1 - pState) * simiIndex;
             if ((nv != arr[simiIndexBitCoded]) || (pName == nullptr))
             {
                 if (pName != nullptr)
                     arr[simiIndexBitCoded] = nv;
-                if ((_shapeHandleForEvents != -1) && App::sceneContainer->getEventsEnabled())
+                if ((_shapeHandleForEvents != -1) && App::scenes->getEventsEnabled())
                 {
                     if (ev == nullptr)
-                        ev = App::sceneContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                        ev = App::scenes->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
                     ev->appendKeyBool(propertyName.c_str(), arr[simiIndexBitCoded] & simiIndex);
                     if (pName != nullptr)
                         sendEngineString(ev);
@@ -1614,87 +1614,87 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
     handleProp(propMaterial_mujocoAdhesion.name, _mujocoIntParams, simi_mujoco_body_bitcoded, simi_mujoco_body_adhesion);
 
     if ((ev != nullptr) && (eev == nullptr))
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
     return retVal;
 }
 
 int CDynMaterialObject::getBoolProperty(const char* pName, bool& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propMaterial_bulletSticky.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_sticky;
     }
     else if (strcmp(pName, propMaterial_bulletNonDefaultCollisionMargin.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_usenondefaultcollisionmargin;
     }
     else if (strcmp(pName, propMaterial_bulletNonDefaultCollisionMarginConvex.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_usenondefaultcollisionmarginconvex;
     }
     else if (strcmp(pName, propMaterial_bulletAutoShrinkConvex.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_autoshrinkconvex;
     }
     else if (strcmp(pName, propMaterial_vortexPrimitiveShapesAsConvex.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_pureshapesasconvex;
     }
     else if (strcmp(pName, propMaterial_vortexConvexShapesAsRandom.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_convexshapesasrandom;
     }
     else if (strcmp(pName, propMaterial_vortexRandomShapesAsTerrain.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_randomshapesasterrain;
     }
     else if (strcmp(pName, propMaterial_vortexFastMoving.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_fastmoving;
     }
     else if (strcmp(pName, propMaterial_vortexAutoSlip.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_autoslip;
     }
     else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisSameAsPrimaryLinearAxis.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_seclinaxissameasprimlinaxis;
     }
     else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisSameAsPrimaryAngularAxis.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_secangaxissameasprimangaxis;
     }
     else if (strcmp(pName, propMaterial_vortexNormalAngularAxisSameAsPrimaryAngularAxis.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_normangaxissameasprimangaxis;
     }
     else if (strcmp(pName, propMaterial_vortexAutoAngularDamping.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_autoangulardamping;
     }
     else if (strcmp(pName, propMaterial_newtonFastMoving.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _newtonIntParams[simi_newton_body_bitcoded] & simi_newton_body_fastmoving;
     }
     else if (strcmp(pName, propMaterial_mujocoAdhesion.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _mujocoIntParams[simi_mujoco_body_bitcoded] & simi_mujoco_body_adhesion;
     }
 
@@ -1703,7 +1703,7 @@ int CDynMaterialObject::getBoolProperty(const char* pName, bool& pState) const
 
 int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev /* = nullptr*/)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
@@ -1711,15 +1711,15 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
     auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex) {
         if ((pName == nullptr) || (propertyName == pName))
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             if ((pState != arr[simiIndex]) || (pName == nullptr))
             {
                 if (pName != nullptr)
                     arr[simiIndex] = pState;
-                if ((_shapeHandleForEvents != -1) && App::sceneContainer->getEventsEnabled())
+                if ((_shapeHandleForEvents != -1) && App::scenes->getEventsEnabled())
                 {
                     if (ev == nullptr)
-                        ev = App::sceneContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                        ev = App::scenes->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
                     ev->appendKeyInt64(propertyName.c_str(), arr[simiIndex]);
                     if (pName != nullptr)
                         sendEngineString(ev);
@@ -1741,67 +1741,67 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
     handleProp(propMaterial_mujocoAdhesionForcelimited.name, _mujocoIntParams, simi_mujoco_body_adhesionforcelimited);
 
     if ((ev != nullptr) && (eev == nullptr))
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
     return retVal;
 }
 
 int CDynMaterialObject::getIntProperty(const char* pName, int& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propMaterial_odeMaxContacts.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _odeIntParams[simi_ode_body_maxcontacts];
     }
     else if (strcmp(pName, propMaterial_vortexPrimaryLinearAxisFrictionModel.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_primlinearaxisfrictionmodel];
     }
     else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisFrictionModel.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_seclinearaxisfrictionmodel];
     }
     else if (strcmp(pName, propMaterial_vortexPrimaryAngularAxisFrictionModel.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_primangulararaxisfrictionmodel];
     }
     else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisFrictionModel.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_secmangulararaxisfrictionmodel];
     }
     else if (strcmp(pName, propMaterial_vortexNormalAngularAxisFrictionModel.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_normalmangulararaxisfrictionmodel];
     }
     else if (strcmp(pName, propMaterial_vortexAutoSleepStepLiveThreshold.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_autosleepsteplivethreshold];
     }
     else if (strcmp(pName, propMaterial_vortexMaterialUniqueId.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_materialuniqueid];
     }
     else if (strcmp(pName, propMaterial_mujocoCondim.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _mujocoIntParams[simi_mujoco_body_condim];
     }
     else if (strcmp(pName, propMaterial_mujocoPriority.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _mujocoIntParams[simi_mujoco_body_priority];
     }
     else if (strcmp(pName, propMaterial_mujocoAdhesionForcelimited.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _mujocoIntParams[simi_mujoco_body_adhesionforcelimited];
     }
 
@@ -1810,7 +1810,7 @@ int CDynMaterialObject::getIntProperty(const char* pName, int& pState) const
 
 int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor* eev /* = nullptr*/)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
@@ -1818,15 +1818,15 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
     auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex) {
         if ((pName == nullptr) || (propertyName == pName))
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             if ((pState != arr[simiIndex]) || (pName == nullptr))
             {
                 if (pName != nullptr)
                     arr[simiIndex] = pState;
-                if ((_shapeHandleForEvents != -1) && App::sceneContainer->getEventsEnabled())
+                if ((_shapeHandleForEvents != -1) && App::scenes->getEventsEnabled())
                 {
                     if (ev == nullptr)
-                        ev = App::sceneContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                        ev = App::scenes->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
                     ev->appendKeyDouble(propertyName.c_str(), arr[simiIndex]);
                     if (pName != nullptr)
                         sendEngineString(ev);
@@ -1893,292 +1893,292 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
     handleProp(propMaterial_mujocoGravcomp.name, _mujocoFloatParams, simi_mujoco_body_gravcomp);
 
     if ((ev != nullptr) && (eev == nullptr))
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
     return retVal;
 }
 
 int CDynMaterialObject::getFloatProperty(const char* pName, double& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propMaterial_bulletRestitution.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _bulletFloatParams[simi_bullet_body_restitution];
     }
     else if (strcmp(pName, propMaterial_bulletFriction0.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _bulletFloatParams[simi_bullet_body_oldfriction];
     }
     else if (strcmp(pName, propMaterial_bulletFriction.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _bulletFloatParams[simi_bullet_body_friction];
     }
     else if (strcmp(pName, propMaterial_bulletLinearDamping.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _bulletFloatParams[simi_bullet_body_lineardamping];
     }
     else if (strcmp(pName, propMaterial_bulletAngularDamping.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _bulletFloatParams[simi_bullet_body_angulardamping];
     }
     else if (strcmp(pName, propMaterial_bulletNonDefaultCollisionMarginFactor.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor];
     }
     else if (strcmp(pName, propMaterial_bulletNonDefaultCollisionMarginFactorConvex.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex];
     }
     else if (strcmp(pName, propMaterial_odeFriction.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _odeFloatParams[simi_ode_body_friction];
     }
     else if (strcmp(pName, propMaterial_odeSoftErp.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _odeFloatParams[simi_ode_body_softerp];
     }
     else if (strcmp(pName, propMaterial_odeSoftCfm.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _odeFloatParams[simi_ode_body_softcfm];
     }
     else if (strcmp(pName, propMaterial_odeLinearDamping.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _odeFloatParams[simi_ode_body_lineardamping];
     }
     else if (strcmp(pName, propMaterial_odeAngularDamping.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _odeFloatParams[simi_ode_body_angulardamping];
     }
     else if (strcmp(pName, propMaterial_vortexPrimaryLinearAxisFriction.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primlinearaxisfriction];
     }
     else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisFriction.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_seclinearaxisfriction];
     }
     else if (strcmp(pName, propMaterial_vortexPrimaryAngularAxisFriction.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primangularaxisfriction];
     }
     else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisFriction.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_secangularaxisfriction];
     }
     else if (strcmp(pName, propMaterial_vortexNormalAngularAxisFriction.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_normalangularaxisfriction];
     }
     else if (strcmp(pName, propMaterial_vortexPrimaryLinearAxisStaticFrictionScale.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primlinearaxisstaticfrictionscale];
     }
     else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisStaticFrictionScale.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_seclinearaxisstaticfrictionscale];
     }
     else if (strcmp(pName, propMaterial_vortexPrimaryAngularAxisStaticFrictionScale.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primangularaxisstaticfrictionscale];
     }
     else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisStaticFrictionScale.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_secangularaxisstaticfrictionscale];
     }
     else if (strcmp(pName, propMaterial_vortexNormalAngularAxisStaticFrictionScale.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_normalangularaxisstaticfrictionscale];
     }
     else if (strcmp(pName, propMaterial_vortexCompliance.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_compliance];
     }
     else if (strcmp(pName, propMaterial_vortexDamping.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_damping];
     }
     else if (strcmp(pName, propMaterial_vortexRestitution.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_restitution];
     }
     else if (strcmp(pName, propMaterial_vortexRestitutionThreshold.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_restitutionthreshold];
     }
     else if (strcmp(pName, propMaterial_vortexAdhesiveForce.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_adhesiveforce];
     }
     else if (strcmp(pName, propMaterial_vortexLinearVelocityDamping.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_linearvelocitydamping];
     }
     else if (strcmp(pName, propMaterial_vortexAngularVelocityDamping.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_angularvelocitydamping];
     }
     else if (strcmp(pName, propMaterial_vortexPrimaryLinearAxisSlide.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primlinearaxisslide];
     }
     else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisSlide.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_seclinearaxisslide];
     }
     else if (strcmp(pName, propMaterial_vortexPrimaryAngularAxisSlide.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primangularaxisslide];
     }
     else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisSlide.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_secangularaxisslide];
     }
     else if (strcmp(pName, propMaterial_vortexNormalAngularAxisSlide.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_normalangularaxisslide];
     }
     else if (strcmp(pName, propMaterial_vortexPrimaryLinearAxisSlip.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primlinearaxisslip];
     }
     else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisSlip.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_seclinearaxisslip];
     }
     else if (strcmp(pName, propMaterial_vortexPrimaryAngularAxisSlip.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primangularaxisslip];
     }
     else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisSlip.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_secangularaxisslip];
     }
     else if (strcmp(pName, propMaterial_vortexNormalAngularAxisSlip.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_normalangularaxisslip];
     }
     else if (strcmp(pName, propMaterial_vortexAutoSleepLinearSpeedThreshold.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_autosleeplinearspeedthreshold];
     }
     else if (strcmp(pName, propMaterial_vortexAutoSleepLinearAccelerationThreshold.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_autosleeplinearaccelthreshold];
     }
     else if (strcmp(pName, propMaterial_vortexAutoSleepAngularSpeedThreshold.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_autosleepangularspeedthreshold];
     }
     else if (strcmp(pName, propMaterial_vortexAutoSleepAngularAccelerationThreshold.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_autosleepangularaccelthreshold];
     }
     else if (strcmp(pName, propMaterial_vortexSkinThickness.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_skinthickness];
     }
     else if (strcmp(pName, propMaterial_vortexAutoAngularDampingTensionRatio.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_autoangulardampingtensionratio];
     }
     else if (strcmp(pName, propMaterial_newtonStaticFriction.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _newtonFloatParams[simi_newton_body_staticfriction];
     }
     else if (strcmp(pName, propMaterial_newtonKineticFriction.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _newtonFloatParams[simi_newton_body_kineticfriction];
     }
     else if (strcmp(pName, propMaterial_newtonRestitution.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _newtonFloatParams[simi_newton_body_restitution];
     }
     else if (strcmp(pName, propMaterial_newtonLinearDrag.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _newtonFloatParams[simi_newton_body_lineardrag];
     }
     else if (strcmp(pName, propMaterial_newtonAngularDrag.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _newtonFloatParams[simi_newton_body_angulardrag];
     }
     else if (strcmp(pName, propMaterial_mujocoSolmix.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _mujocoFloatParams[simi_mujoco_body_solmix];
     }
     else if (strcmp(pName, propMaterial_mujocoMargin.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _mujocoFloatParams[simi_mujoco_body_margin];
     }
     else if (strcmp(pName, propMaterial_mujocoGap.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _mujocoFloatParams[simi_mujoco_body_gap];
     }
     else if (strcmp(pName, propMaterial_mujocoAdhesionGain.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _mujocoFloatParams[simi_mujoco_body_adhesiongain];
     }
     else if (strcmp(pName, propMaterial_mujocoAdhesionCtrl.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _mujocoFloatParams[simi_mujoco_body_adhesionctrl];
     }
     else if (strcmp(pName, propMaterial_mujocoGravcomp.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _mujocoFloatParams[simi_mujoco_body_gravcomp];
     }
 
@@ -2187,7 +2187,7 @@ int CDynMaterialObject::getFloatProperty(const char* pName, double& pState) cons
 
 void CDynMaterialObject::sendEngineString(CCbor* eev /*= nullptr*/)
 {
-    if ((_shapeHandleForEvents != -1) && App::sceneContainer->getEventsEnabled())
+    if ((_shapeHandleForEvents != -1) && App::scenes->getEventsEnabled())
     {
         CCbor* ev = nullptr;
         if (eev != nullptr)
@@ -2195,16 +2195,16 @@ void CDynMaterialObject::sendEngineString(CCbor* eev /*= nullptr*/)
         CEngineProperties prop;
         std::string current(prop.getObjectProperties(_shapeHandleForEvents));
         if (ev == nullptr)
-            ev = App::sceneContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propMaterial_engineProperties.name, true);
+            ev = App::scenes->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propMaterial_engineProperties.name, true);
         ev->appendKeyText(propMaterial_engineProperties.name, current.c_str());
         if ((ev != nullptr) && (eev == nullptr))
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
     }
 }
 
 int CDynMaterialObject::setStringProperty(const char* pName, const char* pState)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (strcmp(pName, propMaterial_engineProperties.name) == 0)
     {
         retVal = 0;
@@ -2212,7 +2212,7 @@ int CDynMaterialObject::setStringProperty(const char* pName, const char* pState)
         std::string current(prop.getObjectProperties(_shapeHandleForEvents));
         if (prop.setObjectProperties(_shapeHandleForEvents, pState))
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             std::string current2(prop.getObjectProperties(_shapeHandleForEvents));
             if (current != current2)
                 sendEngineString();
@@ -2223,10 +2223,10 @@ int CDynMaterialObject::setStringProperty(const char* pName, const char* pState)
 
 int CDynMaterialObject::getStringProperty(const char* pName, std::string& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (strcmp(pName, propMaterial_engineProperties.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         CEngineProperties prop;
         pState = prop.getObjectProperties(_shapeHandleForEvents);
     }
@@ -2235,7 +2235,7 @@ int CDynMaterialObject::getStringProperty(const char* pName, std::string& pState
 
 int CDynMaterialObject::setVector2Property(const char* pName, const double* pState, CCbor* eev /* = nullptr*/)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     std::string N;
     CCbor* ev = nullptr;
     if (eev != nullptr)
@@ -2244,7 +2244,7 @@ int CDynMaterialObject::setVector2Property(const char* pName, const double* pSta
     auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1) {
         if ((pName == nullptr) || (propertyName == pName))
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             bool pa = false;
             if (pState != nullptr)
             {
@@ -2258,10 +2258,10 @@ int CDynMaterialObject::setVector2Property(const char* pName, const double* pSta
                     for (size_t i = 0; i < 2; i++)
                         arr[simiIndex1 + i] = pState[i];
                 }
-                if ((_shapeHandleForEvents != -1) && App::sceneContainer->getEventsEnabled())
+                if ((_shapeHandleForEvents != -1) && App::scenes->getEventsEnabled())
                 {
                     if (ev == nullptr)
-                        ev = App::sceneContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                        ev = App::scenes->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
                     ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 2);
                     if (pName != nullptr)
                         sendEngineString(ev);
@@ -2271,20 +2271,20 @@ int CDynMaterialObject::setVector2Property(const char* pName, const double* pSta
     };
 
     if ((ev != nullptr) && (eev == nullptr))
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
     return retVal;
 }
 
 int CDynMaterialObject::getVector2Property(const char* pName, double* pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
 
 int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev /* = nullptr*/)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     std::string N;
     CCbor* ev = nullptr;
     if (eev != nullptr)
@@ -2293,7 +2293,7 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
     auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1) {
         if ((pName == nullptr) || (propertyName == pName))
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             bool pa = false;
             if (pState != nullptr)
             {
@@ -2307,10 +2307,10 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
                     for (size_t i = 0; i < 3; i++)
                         arr[simiIndex1 + i] = pState->data[i];
                 }
-                if ((_shapeHandleForEvents != -1) && App::sceneContainer->getEventsEnabled())
+                if ((_shapeHandleForEvents != -1) && App::scenes->getEventsEnabled())
                 {
                     if (ev == nullptr)
-                        ev = App::sceneContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                        ev = App::scenes->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
                     ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 3);
                     if (pName != nullptr)
                         sendEngineString(ev);
@@ -2322,17 +2322,17 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
     handleProp(propMaterial_vortexPrimaryAxisVector.name, _vortexFloatParams, simi_vortex_body_primaxisvectorx);
 
     if ((ev != nullptr) && (eev == nullptr))
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
     return retVal;
 }
 
 int CDynMaterialObject::getVector3Property(const char* pName, C3Vector* pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propMaterial_vortexPrimaryAxisVector.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState->setData(_vortexFloatParams.data() + simi_vortex_body_primaxisvectorx);
     }
 
@@ -2341,7 +2341,7 @@ int CDynMaterialObject::getVector3Property(const char* pName, C3Vector* pState) 
 
 int CDynMaterialObject::setFloatArrayProperty(const char* pName, const double* v, int vL, CCbor* eev /* = nullptr*/)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
@@ -2349,7 +2349,7 @@ int CDynMaterialObject::setFloatArrayProperty(const char* pName, const double* v
     auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1, size_t n) {
         if ((pName == nullptr) || (propertyName == pName))
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             bool pa = false;
             for (size_t i = 0; i < n; i++)
                 pa = pa || ((vL > i) && (arr[simiIndex1 + i] != v[i]));
@@ -2363,10 +2363,10 @@ int CDynMaterialObject::setFloatArrayProperty(const char* pName, const double* v
                             arr[simiIndex1 + i] = v[i];
                     }
                 }
-                if ((_shapeHandleForEvents != -1) && App::sceneContainer->getEventsEnabled())
+                if ((_shapeHandleForEvents != -1) && App::scenes->getEventsEnabled())
                 {
                     if (ev == nullptr)
-                        ev = App::sceneContainer->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
+                        ev = App::scenes->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
                     ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, n);
                     if (pName != nullptr)
                         sendEngineString(ev);
@@ -2382,17 +2382,17 @@ int CDynMaterialObject::setFloatArrayProperty(const char* pName, const double* v
     handleProp(propMaterial_mujocoAdhesionForcerange.name, _mujocoFloatParams, simi_mujoco_body_adhesionforcerange1, 2);
 
     if ((ev != nullptr) && (eev == nullptr))
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
     return retVal;
 }
 
 int CDynMaterialObject::getFloatArrayProperty(const char* pName, std::vector<double>& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     pState.clear();
 
     auto handleProp = [&](const std::vector<double>& arr, int simiIndex1, size_t n) {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         for (size_t i = 0; i < n; i++)
             pState.push_back(arr[simiIndex1 + i]);
     };
@@ -2413,12 +2413,7 @@ int CDynMaterialObject::getFloatArrayProperty(const char* pName, std::vector<dou
 
 int CDynMaterialObject::getPropertyName(int& index, std::string& pName, int excludeFlags) const
 {
-    return getPropertyName_static(index, pName, excludeFlags);
-}
-
-int CDynMaterialObject::getPropertyName_static(int& index, std::string& pName, int excludeFlags)
-{
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     for (size_t i = 0; i < allProps_material.size(); i++)
     {
         if ((pName.size() == 0) || utils::startsWith(allProps_material[i].name, pName.c_str()))
@@ -2429,7 +2424,7 @@ int CDynMaterialObject::getPropertyName_static(int& index, std::string& pName, i
                 if (index == -1)
                 {
                     pName = allProps_material[i].name;
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                     break;
                 }
             }
@@ -2440,12 +2435,7 @@ int CDynMaterialObject::getPropertyName_static(int& index, std::string& pName, i
 
 int CDynMaterialObject::getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const
 {
-    return getPropertyInfo_static(pName, info, infoTxt);
-}
-
-int CDynMaterialObject::getPropertyInfo_static(const char* pName, int& info, std::string& infoTxt)
-{
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     for (size_t i = 0; i < allProps_material.size(); i++)
     {
         if (strcmp(allProps_material[i].name, pName) == 0)

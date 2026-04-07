@@ -86,8 +86,8 @@ void displayShape(CShape* shape, CViewableBase* renderingObject, int displayAttr
                               sim_displayattribute_trianglewireframe);
             displayAttrib -= (sim_displayattribute_forbidedges | sim_displayattribute_forcewireframe |
                               sim_displayattribute_trianglewireframe);
-            bool textEnabledSaved = App::currentScene->environment->getShapeTexturesEnabled();
-            App::currentScene->environment->setShapeTexturesEnabled(true);
+            bool textEnabledSaved = App::scene->environment->getShapeTexturesEnabled();
+            App::scene->environment->setShapeTexturesEnabled(true);
             if (shape->getContainsTransparentComponent())
             {
                 GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->displayAllGeometricComponents(
@@ -98,7 +98,7 @@ void displayShape(CShape* shape, CViewableBase* renderingObject, int displayAttr
             else
                 GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->displayAllGeometricComponents(
                     shape, displayAttrib, nullptr, 0, 0);
-            App::currentScene->environment->setShapeTexturesEnabled(textEnabledSaved);
+            App::scene->environment->setShapeTexturesEnabled(textEnabledSaved);
         }
         else
         {
@@ -169,7 +169,7 @@ void _displayInertia(const C7Vector& tr, const C3Vector& pmi, double comFrameSiz
 
 void _displayTriangles(CMesh* geometric, int geomModifCounter, CTextureProperty* tp)
 {
-    if ((!App::currentScene->environment->getShapeTexturesEnabled()) ||
+    if ((!App::scene->environment->getShapeTexturesEnabled()) ||
         CEnvironment::getShapeTexturesTemporarilyDisabled())
         tp = nullptr;
     std::vector<float>* textureCoords = nullptr;

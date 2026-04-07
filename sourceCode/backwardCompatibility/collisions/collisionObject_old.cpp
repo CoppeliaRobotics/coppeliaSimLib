@@ -85,7 +85,7 @@ std::string CCollisionObject_old::getObjectDescriptiveName() const
     theName = theName.append(" (");
     if (_entity1Handle <= sim_object_sceneobjectend)
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_entity1Handle);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_entity1Handle);
         int t = it->getObjectType();
         if (t == sim_sceneobject_shape)
             theName += IDSN_SHAPE;
@@ -100,7 +100,7 @@ std::string CCollisionObject_old::getObjectDescriptiveName() const
     }
     else
     {
-        CCollection* it = App::currentScene->collections->getObjectFromHandle(_entity1Handle);
+        CCollection* it = App::scene->collections->getObjectFromHandle(_entity1Handle);
         if (it != nullptr)
         {
             theName += IDSN_COLLECTION;
@@ -111,7 +111,7 @@ std::string CCollisionObject_old::getObjectDescriptiveName() const
     theName = theName.append(" - ");
     if (_entity2Handle > sim_object_sceneobjectend)
     {
-        CCollection* it = App::currentScene->collections->getObjectFromHandle(_entity2Handle);
+        CCollection* it = App::scene->collections->getObjectFromHandle(_entity2Handle);
         if (it != nullptr)
         {
             theName += IDSN_COLLECTION;
@@ -123,7 +123,7 @@ std::string CCollisionObject_old::getObjectDescriptiveName() const
     {
         if (_entity2Handle != -1)
         {
-            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_entity2Handle);
+            CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_entity2Handle);
             int t = it->getObjectType();
             if (t == sim_sceneobject_shape)
                 theName += IDSN_SHAPE;
@@ -155,7 +155,7 @@ int CCollisionObject_old::getCollisionColor(int entityHandle) const
     // Here we need to check for the special case where object2ID==-1 (which means all other objects)
     if ((_entity2Handle == -1) && _collideeChangesColor && (entityHandle <= sim_object_sceneobjectend))
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(entityHandle);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(entityHandle);
         if ((it != nullptr) && (it->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_collidable))
         {
             if (_entity1Handle <= sim_object_sceneobjectend)
@@ -166,7 +166,7 @@ int CCollisionObject_old::getCollisionColor(int entityHandle) const
             else
             {
                 std::vector<CSceneObject*> group1;
-                App::currentScene->collections->getCollidableObjectsFromCollection(_entity1Handle, group1);
+                App::scene->collections->getCollidableObjectsFromCollection(_entity1Handle, group1);
                 bool isContained = false;
                 for (size_t i = 0; i < group1.size(); i++)
                 {
@@ -209,18 +209,18 @@ bool CCollisionObject_old::canComputeCollisionContour() const
         if (_entity2Handle > sim_object_sceneobjectend)
             return (true); // collection/collection
         else
-            return (App::currentScene->sceneObjects->getShapeFromHandle(_entity2Handle) != nullptr); // collection/shape
+            return (App::scene->sceneObjects->getShapeFromHandle(_entity2Handle) != nullptr); // collection/shape
     }
     else
     {
-        if (App::currentScene->sceneObjects->getShapeFromHandle(_entity1Handle) == nullptr)
+        if (App::scene->sceneObjects->getShapeFromHandle(_entity1Handle) == nullptr)
             return (false); // non-shape/something
         if (_entity2Handle == -1)
             return (true); // shape/allOtherObjects
         if (_entity2Handle > sim_object_sceneobjectend)
             return (true); // shape/collection
         else
-            return (App::currentScene->sceneObjects->getShapeFromHandle(_entity2Handle) != nullptr); // shape/shape
+            return (App::scene->sceneObjects->getShapeFromHandle(_entity2Handle) != nullptr); // shape/shape
     }
 }
 
@@ -234,7 +234,7 @@ bool CCollisionObject_old::setObjectName(const char* newName, bool check)
     std::string nnn;
     CCollisionObject_old* it = nullptr;
     if (check)
-        it = App::currentScene->collisions_old->getObjectFromHandle(_objectHandle);
+        it = App::scene->collisions_old->getObjectFromHandle(_objectHandle);
     if (it != this)
         nnn = newName;
     else
@@ -245,7 +245,7 @@ bool CCollisionObject_old::setObjectName(const char* newName, bool check)
         {
             if (getObjectName() != nm)
             {
-                while (App::currentScene->collisions_old->getObjectFromName(nm.c_str()) != nullptr)
+                while (App::scene->collisions_old->getObjectFromName(nm.c_str()) != nullptr)
                     nm = tt::generateNewName_hashOrNoHash(nm.c_str(), !tt::isHashFree(nm.c_str()));
                 nnn = nm.c_str();
             }
@@ -264,9 +264,9 @@ bool CCollisionObject_old::setObjectName(const char* newName, bool check)
 bool CCollisionObject_old::handleCollision()
 { // Return value true means there was a collision
     clearCollisionResult();
-    if (!App::currentScene->mainSettings_old->collisionDetectionEnabled)
+    if (!App::scene->mainSettings_old->collisionDetectionEnabled)
         return (false);
-    if (!App::sceneContainer->pluginContainer->isGeomPluginAvailable())
+    if (!App::scenes->pluginContainer->isGeomPluginAvailable())
         return (false);
     int stT = (int)VDateTime::getTimeInMs();
     int collObjs[2];

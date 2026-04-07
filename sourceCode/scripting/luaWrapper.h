@@ -72,6 +72,7 @@ luaWrap_lua_Number luaWrap_lua_tonumber(luaWrap_lua_State* L, int idx);
 int luaWrap_lua_toboolean(luaWrap_lua_State* L, int idx);
 const void* luaWrap_lua_topointer(luaWrap_lua_State* L, int idx);
 const char* luaWrap_lua_tostring(luaWrap_lua_State* L, int idx);
+const char* luaWrap_luaL_tolstring(luaWrap_lua_State* L, int idx, size_t* len);
 const char* luaWrap_lua_tobuffer(luaWrap_lua_State* L, int idx, size_t* len); // replaces luaWrap_lua_tolstring
 int luaWrap_lua_tohandle(luaWrap_lua_State* L, int idx); // works with an int or a metatable with a 'handle' field
 int luaWrap_lua_isnumber(luaWrap_lua_State* L, int idx);                      // see also luaWrap_lua_numbertype

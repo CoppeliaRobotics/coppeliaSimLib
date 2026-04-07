@@ -118,12 +118,12 @@ void CProxSensor::setShowVolume(bool s)
     if (_showVolume != s)
     {
         _showVolume = s;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_showVolume.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _showVolume);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -223,10 +223,10 @@ void CProxSensor::_setDetectedObjectAndInfo(int h, const C3Vector* detectedPt /*
             _detectedPoint = detectedPt[0];
             _detectedNormalVector = detectedN[0];
         }
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_detectedObjectHandle.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _detectedObjectHandle);
             if (App::getEventProtocolVersion() <= 3)
             {
@@ -238,7 +238,7 @@ void CProxSensor::_setDetectedObjectAndInfo(int h, const C3Vector* detectedPt /*
                 ev->appendKeyVector3(propProximitySensor_detectedPoint.name, _detectedPoint);
                 ev->appendKeyVector3(propProximitySensor_detectedNormal.name, _detectedNormalVector);
             }
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -258,12 +258,12 @@ void CProxSensor::setExplicitHandling(bool setExplicit)
     if (_explicitHandling != setExplicit)
     {
         _explicitHandling = setExplicit;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_explicitHandling.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _explicitHandling);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -671,12 +671,12 @@ void CProxSensor::serialize(CSer& ar)
             else
             {
                 std::string str;
-                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_sensableObject_deprecated);
+                CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_sensableObject_deprecated);
                 if (it != nullptr)
                     str = it->getObjectName_old();
                 else
                 {
-                    CCollection* coll = App::currentScene->collections->getObjectFromHandle(_sensableObject_deprecated);
+                    CCollection* coll = App::scene->collections->getObjectFromHandle(_sensableObject_deprecated);
                     if (coll != nullptr)
                         str = "@collection@" + coll->getCollectionName();
                 }
@@ -972,9 +972,9 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int& detectedObjectH
     if (exceptExplicitHandling && getExplicitHandling())
         return (false); // We don't want to handle those
     _calcTimeInMs = 0;
-    if (!App::currentScene->mainSettings_old->proximitySensorsEnabled)
+    if (!App::scene->mainSettings_old->proximitySensorsEnabled)
         return (false);
-    if (!App::sceneContainer->pluginContainer->isGeomPluginAvailable())
+    if (!App::scenes->pluginContainer->isGeomPluginAvailable())
         return (false);
     int stTime = (int)VDateTime::getTimeInMs();
 
@@ -999,7 +999,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int& detectedObjectH
 
         if (scripts.size() > 0)
         {
-            CInterfaceStack* inStack = App::sceneContainer->interfaceStackContainer->createStack();
+            CInterfaceStack* inStack = App::scenes->interfaceStackContainer->createStack();
             inStack->pushTableOntoStack();
 
             inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle());
@@ -1013,7 +1013,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int& detectedObjectH
                 if (script->hasSystemFunctionOrHook(sim_syscb_trigger))
                 {
                     bool hasTriggerWord = false;
-                    CInterfaceStack* outStack = App::sceneContainer->interfaceStackContainer->createStack();
+                    CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();
                     script->systemCallScript(sim_syscb_trigger, inStack, outStack);
                     if (outStack->getStackSize() >= 1)
                     {
@@ -1026,12 +1026,12 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int& detectedObjectH
                                 detectedObject = -1;
                         }
                     }
-                    App::sceneContainer->interfaceStackContainer->destroyStack(outStack);
+                    App::scenes->interfaceStackContainer->destroyStack(outStack);
                     if (hasTriggerWord)
                         break;
                 }
             }
-            App::sceneContainer->interfaceStackContainer->destroyStack(inStack);
+            App::scenes->interfaceStackContainer->destroyStack(inStack);
         }
     }
     _setDetectedObjectAndInfo(detectedObject, &detectedP, &detectedN);
@@ -1071,12 +1071,12 @@ void CProxSensor::setFrontFaceDetection(bool faceOn)
     if (_frontFaceDetection != faceOn)
     {
         _frontFaceDetection = faceOn;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_frontFaceDetection.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _frontFaceDetection);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
         if (!faceOn)
             setBackFaceDetection(true);
@@ -1088,12 +1088,12 @@ void CProxSensor::setBackFaceDetection(bool faceOn)
     if (_backFaceDetection != faceOn)
     {
         _backFaceDetection = faceOn;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_backFaceDetection.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _backFaceDetection);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
         if (!faceOn)
             setFrontFaceDetection(true);
@@ -1106,12 +1106,12 @@ void CProxSensor::setAllowedNormal(double al)
     if (_angleThreshold != al)
     {
         _angleThreshold = al;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_angleThreshold.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _angleThreshold);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -1126,12 +1126,12 @@ void CProxSensor::setExactMode(bool closestObjMode)
     if (_exactMode != closestObjMode)
     {
         _exactMode = closestObjMode;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_exactMode.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _exactMode);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
         _setDetectedObjectAndInfo(-1);
         _calcTimeInMs = 0;
@@ -1150,12 +1150,12 @@ void CProxSensor::setProxSensorSize(double newSize)
     if (diff)
     {
         _proxSensorSize = newSize;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propProximitySensor_size.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _proxSensorSize);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
         computeBoundingBox();
     }
@@ -1230,33 +1230,33 @@ int CProxSensor::setBoolProperty(const char* ppName, bool pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = convexVolume->setBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propProximitySensor_frontFaceDetection.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setFrontFaceDetection(pState);
         }
         else if (_pName == propProximitySensor_backFaceDetection.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setBackFaceDetection(pState);
         }
         else if (_pName == propProximitySensor_exactMode.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setExactMode(pState);
         }
         else if (_pName == propProximitySensor_explicitHandling.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setExplicitHandling(pState);
         }
         else if (_pName == propProximitySensor_showVolume.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setShowVolume(pState);
         }
     }
@@ -1268,38 +1268,38 @@ int CProxSensor::getBoolProperty(const char* ppName, bool& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = convexVolume->getBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propProximitySensor_frontFaceDetection.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _frontFaceDetection;
         }
         else if (_pName == propProximitySensor_backFaceDetection.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _backFaceDetection;
         }
         else if (_pName == propProximitySensor_exactMode.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _exactMode;
         }
         else if (_pName == propProximitySensor_explicitHandling.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _explicitHandling;
         }
         else if (_pName == propProximitySensor_showVolume.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _showVolume;
         }
         else if (_pName == propProximitySensor_randomizedDetection.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _randomizedDetection;
         }
     }
@@ -1311,9 +1311,9 @@ int CProxSensor::setIntProperty(const char* ppName, int pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = convexVolume->setIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1324,18 +1324,18 @@ int CProxSensor::getIntProperty(const char* ppName, int& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = convexVolume->getIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propProximitySensor_sensorType.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = sensorType;
         }
         else if (_pName == propProximitySensor_detectedObjectHandle.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _detectedObjectHandle;
         }
     }
@@ -1347,22 +1347,22 @@ int CProxSensor::setFloatProperty(const char* ppName, double pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = volumeColor.setFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = detectionRayColor.setFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = convexVolume->setFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propProximitySensor_size.name)
         {
             setProxSensorSize(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propProximitySensor_angleThreshold.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setAllowedNormal(pState);
         }
     }
@@ -1374,22 +1374,22 @@ int CProxSensor::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = volumeColor.getFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = detectionRayColor.getFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = convexVolume->getFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propProximitySensor_size.name)
         {
             pState = _proxSensorSize;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propProximitySensor_angleThreshold.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _angleThreshold;
         }
     }
@@ -1401,7 +1401,7 @@ int CProxSensor::getStringProperty(const char* ppName, std::string& pState) cons
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getStringProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1412,9 +1412,9 @@ int CProxSensor::setIntArray2Property(const char* ppName, const int* pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setIntArray2Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = convexVolume->setIntArray2Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1425,9 +1425,9 @@ int CProxSensor::getIntArray2Property(const char* ppName, int* pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getIntArray2Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = convexVolume->getIntArray2Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1438,9 +1438,9 @@ int CProxSensor::setVector2Property(const char* ppName, const double* pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setVector2Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = convexVolume->setVector2Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1451,9 +1451,9 @@ int CProxSensor::getVector2Property(const char* ppName, double* pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getVector2Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = convexVolume->getVector2Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1464,7 +1464,7 @@ int CProxSensor::setVector3Property(const char* ppName, const C3Vector& pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setVector3Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1475,16 +1475,16 @@ int CProxSensor::getVector3Property(const char* ppName, C3Vector& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getVector3Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propProximitySensor_detectedPoint.name)
         {
             pState = _detectedPoint;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propProximitySensor_detectedNormal.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _detectedNormalVector;
         }
     }
@@ -1496,9 +1496,9 @@ int CProxSensor::setColorProperty(const char* ppName, const float* pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setColorProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = volumeColor.setColorProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = detectionRayColor.setColorProperty(ppName, pState);
     return retVal;
 }
@@ -1507,9 +1507,9 @@ int CProxSensor::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getColorProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = volumeColor.getColorProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = detectionRayColor.getColorProperty(ppName, pState);
     return retVal;
 }
@@ -1520,9 +1520,9 @@ int CProxSensor::setFloatArrayProperty(const char* ppName, const double* v, int 
     if (v == nullptr)
         vL = 0;
     int retVal = CSceneObject::setFloatArrayProperty(ppName, v, vL);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = convexVolume->setFloatArrayProperty(ppName, v, vL);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1534,9 +1534,9 @@ int CProxSensor::getFloatArrayProperty(const char* ppName, std::vector<double>& 
     std::string _pName(ppName);
     pState.clear();
     int retVal = CSceneObject::getFloatArrayProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = convexVolume->getFloatArrayProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1549,9 +1549,9 @@ int CProxSensor::setIntArrayProperty(const char* ppName, const int* v, int vL)
     if (v == nullptr)
         vL = 0;
     int retVal = CSceneObject::setIntArrayProperty(ppName, v, vL);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = convexVolume->setIntArrayProperty(ppName, v, vL);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1563,9 +1563,9 @@ int CProxSensor::getIntArrayProperty(const char* ppName, std::vector<int>& pStat
     std::string _pName(ppName);
     pState.clear();
     int retVal = CSceneObject::getIntArrayProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = convexVolume->getIntArrayProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1575,15 +1575,15 @@ int CProxSensor::getIntArrayProperty(const char* ppName, std::vector<int>& pStat
 int CProxSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         appartenance = _objectTypeStr;
         retVal = volumeColor.getPropertyName(index, pName, excludeFlags);
-        if (retVal == -1)
+        if (retVal == sim_propertyret_unknownproperty)
             retVal = detectionRayColor.getPropertyName(index, pName, excludeFlags);
-        if (retVal == -1)
+        if (retVal == sim_propertyret_unknownproperty)
             retVal = convexVolume->getPropertyName(index, pName, excludeFlags);
-        if (retVal == -1)
+        if (retVal == sim_propertyret_unknownproperty)
         {
             for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
             {
@@ -1595,7 +1595,7 @@ int CProxSensor::getPropertyName(int& index, std::string& pName, std::string& ap
                         if (index == -1)
                         {
                             pName = allProps_proximitySensor[i].name;
-                            retVal = 1;
+                            retVal = sim_propertyret_ok;
                             break;
                         }
                     }
@@ -1609,13 +1609,13 @@ int CProxSensor::getPropertyName(int& index, std::string& pName, std::string& ap
 int CProxSensor::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = volumeColor.getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = detectionRayColor.getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = convexVolume->getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         for (size_t i = 0; i < allProps_proximitySensor.size(); i++)
         {

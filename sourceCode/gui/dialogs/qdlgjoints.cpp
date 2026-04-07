@@ -35,15 +35,15 @@ void CQDlgJoints::refresh()
     inMainRefreshRoutine = true;
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
-        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped();
-    bool sel = App::currentScene->sceneObjects->isLastSelectionOfType(sim_sceneobject_joint);
-    bool bigSel = (App::currentScene->sceneObjects->isLastSelectionOfType(sim_sceneobject_joint) &&
-                   (App::currentScene->sceneObjects->getObjectCountInSelection(sim_sceneobject_joint) > 1));
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::scene->simulation->isSimulationStopped();
+    bool sel = App::scene->sceneObjects->isLastSelectionOfType(sim_sceneobject_joint);
+    bool bigSel = (App::scene->sceneObjects->isLastSelectionOfType(sim_sceneobject_joint) &&
+                   (App::scene->sceneObjects->getObjectCountInSelection(sim_sceneobject_joint) > 1));
     bool revolute = false;
     bool prismatic = false;
     bool spherical = false;
     bool dynamic = false;
-    CJoint* it = App::currentScene->sceneObjects->getLastSelectionJoint();
+    CJoint* it = App::scene->sceneObjects->getLastSelectionJoint();
     if (sel)
     {
         revolute = (it->getJointType() == sim_joint_revolute);
@@ -213,7 +213,7 @@ void CQDlgJoints::on_qqCyclic_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(TOGGLE_CYCLIC_JOINTGUITRIGGEREDCMD,
-                                           App::currentScene->sceneObjects->getLastSelectionHandle());
+                                           App::scene->sceneObjects->getLastSelectionHandle());
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -230,7 +230,7 @@ void CQDlgJoints::on_qqLead_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_LEAD_JOINTGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::scene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -245,13 +245,13 @@ void CQDlgJoints::on_qqMinimum_editingFinished()
     {
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqMinimum->text().toStdString().c_str(), &ok);
-        CJoint* it = App::currentScene->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::scene->sceneObjects->getLastSelectionJoint();
         if (ok && (it != nullptr))
         {
             if (it->getJointType() != sim_joint_prismatic)
                 newVal *= degToRad;
             App::appendSimulationThreadCommand(SET_MINPOS_JOINTGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::scene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -266,13 +266,13 @@ void CQDlgJoints::on_qqRange_editingFinished()
     {
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqRange->text().toStdString().c_str(), &ok);
-        CJoint* it = App::currentScene->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::scene->sceneObjects->getLastSelectionJoint();
         if (ok && (it != nullptr))
         {
             if (it->getJointType() != sim_joint_prismatic)
                 newVal *= degToRad;
             App::appendSimulationThreadCommand(SET_RANGE_JOINTGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::scene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -287,13 +287,13 @@ void CQDlgJoints::on_qqPosition_editingFinished()
     {
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqPosition->text().toStdString().c_str(), &ok);
-        CJoint* it = App::currentScene->sceneObjects->getLastSelectionJoint();
+        CJoint* it = App::scene->sceneObjects->getLastSelectionJoint();
         if (ok && (it != nullptr))
         {
             if (it->getJointType() != sim_joint_prismatic)
                 newVal *= degToRad;
             App::appendSimulationThreadCommand(SET_POS_JOINTGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::scene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -306,9 +306,9 @@ void CQDlgJoints::on_qqApplyConfig_clicked()
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = APPLY_CONFIGPARAMS_JOINTGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
-        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
-            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        cmd.intParams.push_back(App::scene->sceneObjects->getLastSelectionHandle());
+        for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount() - 1; i++)
+            cmd.intParams.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -323,7 +323,7 @@ void CQDlgJoints::on_qqJointModeCombo_currentIndexChanged(int index)
         {
             int mode = ui->qqJointModeCombo->itemData(ui->qqJointModeCombo->currentIndex()).toInt();
             App::appendSimulationThreadCommand(SET_MODE_JOINTGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle(), mode);
+                                               App::scene->sceneObjects->getLastSelectionHandle(), mode);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
@@ -336,9 +336,9 @@ void CQDlgJoints::on_qqApplyMode_clicked()
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = APPLY_MODEPARAMS_JOINTGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
-        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
-            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        cmd.intParams.push_back(App::scene->sceneObjects->getLastSelectionHandle());
+        for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount() - 1; i++)
+            cmd.intParams.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -349,7 +349,7 @@ void CQDlgJoints::on_qqAdjustDependency_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (App::currentScene->sceneObjects->isLastSelectionOfType(sim_sceneobject_joint))
+        if (App::scene->sceneObjects->isLastSelectionOfType(sim_sceneobject_joint))
         {
             CQDlgDependencyEquation theDialog(this);
             theDialog.refresh();
@@ -379,7 +379,7 @@ void CQDlgJoints::on_qqLength_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_LENGTH_JOINTGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::scene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -397,7 +397,7 @@ void CQDlgJoints::on_qqDiameter_editingFinished()
         if (ok)
         {
             App::appendSimulationThreadCommand(SET_DIAMETER_JOINTGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle(), -1, newVal);
+                                               App::scene->sceneObjects->getLastSelectionHandle(), -1, newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -408,7 +408,7 @@ void CQDlgJoints::on_qqAdjustColorA_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CQDlgMaterial::displayMaterialDlg(COLOR_ID_JOINT_A, App::currentScene->sceneObjects->getLastSelectionHandle(),
+        CQDlgMaterial::displayMaterialDlg(COLOR_ID_JOINT_A, App::scene->sceneObjects->getLastSelectionHandle(),
                                           -1, GuiApp::mainWindow);
     }
 }
@@ -419,9 +419,9 @@ void CQDlgJoints::on_qqApplyAppearance_clicked()
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = APPLY_VISUALPARAMS_JOINTGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
-        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
-            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        cmd.intParams.push_back(App::scene->sceneObjects->getLastSelectionHandle());
+        for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount() - 1; i++)
+            cmd.intParams.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         App::appendSimulationThreadCommand(cmd);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

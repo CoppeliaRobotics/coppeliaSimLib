@@ -72,7 +72,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
     C7Vector camTrInv(camTr.getInverse());
     int editMode = NO_EDIT_MODE;
     int displAttributes = 0;
-    if (App::currentScene->simulation->getDynamicContentVisualizationOnly())
+    if (App::scene->simulation->getDynamicContentVisualizationOnly())
         displAttributes = sim_displayattribute_dynamiccontentonly;
 
 #ifdef SIM_WITH_GUI
@@ -172,13 +172,13 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
         std::vector<CSceneObject*> sel;
         if (editMode == NO_EDIT_MODE)
         {
-            CSceneObject* skybox = App::currentScene->sceneObjects->getObjectFromName_old(IDSOGL_SKYBOX_DO_NOT_RENAME);
+            CSceneObject* skybox = App::scene->sceneObjects->getObjectFromName_old(IDSOGL_SKYBOX_DO_NOT_RENAME);
             // 1. List of all visible objects, excluding this camera, the skybox and objects flaged as
             // "ignoreViewFitting":
             std::vector<CSceneObject*> visibleObjs;
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
+            for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
             {
-                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromIndex(i);
+                CSceneObject* it = App::scene->sceneObjects->getObjectFromIndex(i);
                 if (it != this)
                 {
                     bool displayMaybe = it->getShouldObjectBeDisplayed(_objectHandle, displAttributes);
@@ -193,9 +193,9 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
             // 1.b if the list of visible objects is empty, include the objects normally ignored for view fitting!
             if (visibleObjs.size() == 0)
             {
-                for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
+                for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
                 {
-                    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromIndex(i);
+                    CSceneObject* it = App::scene->sceneObjects->getObjectFromIndex(i);
                     if (it != this)
                     {
                         bool displayMaybe = it->getShouldObjectBeDisplayed(_objectHandle, displAttributes);
@@ -210,19 +210,19 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
             // 2. List of current selection, excluding this camera and the skybox objects:
             std::vector<int> tmp;
             if (useSystemSelection)
-                App::currentScene->sceneObjects->getSelectedObjectHandles(tmp);
+                App::scene->sceneObjects->getSelectedObjectHandles(tmp);
             else
             {
                 if (selectedObjects != nullptr)
                     tmp.assign(selectedObjects->begin(), selectedObjects->end());
             }
             if (includeModelObjects)
-                App::currentScene->sceneObjects->addModelObjects(tmp);
+                App::scene->sceneObjects->addModelObjects(tmp);
             std::vector<CSceneObject*> selectionVisibleObjs;
             for (int i = 0; i < int(tmp.size()); i++)
             { // We only wanna have visible objects, otherwise we get strange behaviour with some models!! And only
                 // objects that are not ignored by the view-fitting:
-                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(tmp[i]);
+                CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(tmp[i]);
                 if ((it != nullptr) && (it != this))
                 {
                     bool displayMaybe = it->getShouldObjectBeDisplayed(_objectHandle, displAttributes);
@@ -716,16 +716,16 @@ void CCamera::setAllowTranslation(bool allow)
     if (_allowTranslation != allow)
     {
         _allowTranslation = allow;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             std::string cmd;
             if (App::getEventProtocolVersion() == 2)
                 cmd = "allowTranslation";
             else
                 cmd = propCamera_translationEnabled.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd.c_str(), true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd.c_str(), true);
             ev->appendKeyBool(cmd.c_str(), _allowTranslation);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -740,16 +740,16 @@ void CCamera::setAllowRotation(bool allow)
     if (_allowRotation != allow)
     {
         _allowRotation = allow;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             std::string cmd;
             if (App::getEventProtocolVersion() == 2)
                 cmd = "allowRotation";
             else
                 cmd = propCamera_rotationEnabled.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd.c_str(), true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd.c_str(), true);
             ev->appendKeyBool(cmd.c_str(), _allowRotation);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -827,7 +827,7 @@ CCamera::~CCamera()
 void CCamera::handleCameraTracking()
 {
     TRACE_INTERNAL;
-    CSceneObject* tr = App::currentScene->sceneObjects->getObjectFromHandle(_trackedObjectHandle);
+    CSceneObject* tr = App::scene->sceneObjects->getObjectFromHandle(_trackedObjectHandle);
     if ((tr == nullptr) || (tr == this) || tr->hasAncestor(this))
         setTrackedObjectHandle(-1);
     else
@@ -881,12 +881,12 @@ void CCamera::setCameraSize(double size)
     if (_cameraSize != size)
     {
         _cameraSize = size;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propCamera_size.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _cameraSize);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
         computeBoundingBox();
     }
@@ -908,12 +908,12 @@ void CCamera::setUseParentObjectAsManipulationProxy(bool useParent)
     if (diff)
     {
         _useParentObjectAsManipulationProxy = useParent;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propCamera_parentAsManipProxy.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _useParentObjectAsManipulationProxy);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -928,19 +928,19 @@ void CCamera::setTrackedObjectHandle(int trackedObjHandle)
     int oldTr = _trackedObjectHandle;
     if ((trackedObjHandle != _objectHandle) && (trackedObjHandle != _trackedObjectHandle))
     {
-        if (App::currentScene->sceneObjects->getObjectFromHandle(trackedObjHandle) != nullptr)
+        if (App::scene->sceneObjects->getObjectFromHandle(trackedObjHandle) != nullptr)
             _trackedObjectHandle = trackedObjHandle;
         else
             _trackedObjectHandle = -1;
     }
     if (oldTr != _trackedObjectHandle)
     {
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propCamera_trackedObjectHandle.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _trackedObjectHandle);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
         handleCameraTracking();
 #ifdef SIM_WITH_GUI
@@ -1530,7 +1530,7 @@ void CCamera::serialize(CSer& ar)
         {
             if (!exhaustiveXml)
             {
-                int h = App::currentScene->pageContainer->getMainCameraHandle();
+                int h = App::scene->pageContainer->getMainCameraHandle();
                 ar.xmlAddNode_bool("mainCamera", h == _objectHandle);
             }
             int trck = -1;
@@ -1541,7 +1541,7 @@ void CCamera::serialize(CSer& ar)
             else
             {
                 std::string str;
-                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(trck);
+                CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(trck);
                 if (it != nullptr)
                     str = it->getObjectName_old();
                 ar.xmlAddNode_comment(
@@ -1851,7 +1851,7 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
         }
     }
 
-    //  App::currentScene->objCont->setUniqueSelectedPathID(-1);
+    //  App::scene->objCont->setUniqueSelectedPathID(-1);
 
     if (getInternalRendering())
     { // regular rendering
@@ -1866,7 +1866,7 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
             if (pass == -1)
                 break;
             if (pass == RENDERPASS)
-                App::currentScene->environment->setBackgroundColor(currentWinSize);
+                App::scene->environment->setBackgroundColor(currentWinSize);
             else
             {
                 glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -1955,15 +1955,15 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
 
             if (pass == RENDERPASS)
             {
-                App::currentScene->environment->activateAmbientLight(true);
-                App::currentScene->environment->activateFogIfEnabled(
-                    this, App::currentScene->simulation->getDynamicContentVisualizationOnly());
+                App::scene->environment->activateAmbientLight(true);
+                App::scene->environment->activateFogIfEnabled(
+                    this, App::scene->simulation->getDynamicContentVisualizationOnly());
                 _activateNonAmbientLights(-1, this);
             }
             else
             { // Without lights is faster
-                App::currentScene->environment->activateAmbientLight(false);
-                App::currentScene->environment->deactivateFog();
+                App::scene->environment->activateAmbientLight(false);
+                App::scene->environment->deactivateFog();
                 _activateNonAmbientLights(-2, nullptr);
             }
 
@@ -2003,7 +2003,7 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
                         else
                             sphereRadius = _orthoViewSize * 0.5 * sphereRadius / currentWinSize[1];
                     }
-                    App::currentScene->environment->temporarilyDeactivateFog();
+                    App::scene->environment->temporarilyDeactivateFog();
 
                     ogl::drawSphere(sphereRadius, 10, 5, true);
                     glPopMatrix();
@@ -2039,7 +2039,7 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
                     else
                     { // we display some neat wireframe!
                     }
-                    App::currentScene->environment->reactivateFogThatWasTemporarilyDisabled();
+                    App::scene->environment->reactivateFogThatWasTemporarilyDisabled();
                 }
                 else
                     manipOverlayNeeded = true;
@@ -2053,9 +2053,9 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
                 double val = _orthoViewSize;
                 if (_currentPerspective)
                     val = 2.0 * tan(_viewAngle * 0.5);
-                for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
+                for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
                 {
-                    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromIndex(i);
+                    CSceneObject* it = App::scene->sceneObjects->getObjectFromIndex(i);
                     it->displayManipulationModeOverlayGrid(this, val, _currentPerspective);
                 }
             }
@@ -2117,7 +2117,7 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
         }
     }
 
-    App::currentScene->environment->deactivateFog();
+    App::scene->environment->deactivateFog();
 
     // Following is used to generate an externally rendered view:
     if (!getInternalRendering())
@@ -2201,7 +2201,7 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
 void CCamera::_handleMirrors(int renderingMode, bool noSelection, int pass, int navigationMode, int currentWinSize[2],
                              CSView* subView)
 {
-    if (App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_mirror) == 0)
+    if (App::scene->sceneObjects->getObjectCount(sim_sceneobject_mirror) == 0)
         return;
 
     C7Vector camTr(getFullCumulativeTransformation());
@@ -2215,14 +2215,14 @@ void CCamera::_handleMirrors(int renderingMode, bool noSelection, int pass, int 
 
     std::vector<int> allMirrors;
     std::vector<double> allMirrorDist;
-    for (size_t mir = 0; mir < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_mirror); mir++)
+    for (size_t mir = 0; mir < App::scene->sceneObjects->getObjectCount(sim_sceneobject_mirror); mir++)
     {
-        CMirror* myMirror = App::currentScene->sceneObjects->getMirrorFromIndex(mir);
+        CMirror* myMirror = App::scene->sceneObjects->getMirrorFromIndex(mir);
         C7Vector mmtr(myMirror->getFullCumulativeTransformation());
         mmtr = camTri * mmtr;
 
         if ((!myMirror->isObjectPartOfInvisibleModel()) &&
-            (App::currentScene->environment->getActiveLayers() & myMirror->getVisibilityLayer()) &&
+            (App::scene->environment->getActiveLayers() & myMirror->getVisibilityLayer()) &&
             myMirror->getIsMirror())
         {
             allMirrors.push_back(myMirror->getObjectHandle());
@@ -2233,7 +2233,7 @@ void CCamera::_handleMirrors(int renderingMode, bool noSelection, int pass, int 
 
     for (int mir = 0; mir < int(allMirrors.size()); mir++)
     {
-        CMirror* myMirror = App::currentScene->sceneObjects->getMirrorFromHandle(allMirrors[mir]);
+        CMirror* myMirror = App::scene->sceneObjects->getMirrorFromHandle(allMirrors[mir]);
 
         C7Vector mtr(myMirror->getFullCumulativeTransformation());
         C7Vector mtri(mtr.getInverse());
@@ -2252,7 +2252,7 @@ void CCamera::_handleMirrors(int renderingMode, bool noSelection, int pass, int 
 
         C3Vector MirrCam(camTr.X - mtr.X);
         bool inFrontOfMirror =
-            (((MirrCam * mtrN) > 0.0) && myMirror->getActive() && (!App::currentScene->mainSettings_old->mirrorsDisabled));
+            (((MirrCam * mtrN) > 0.0) && myMirror->getActive() && (!App::scene->mainSettings_old->mirrorsDisabled));
 
         glStencilFunc(GL_ALWAYS, drawOk, drawOk);  // we can draw everywhere
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); // we draw drawOk where depth test passes
@@ -2326,12 +2326,12 @@ void CCamera::_handleMirrors(int renderingMode, bool noSelection, int pass, int 
 bool CCamera::_extRenderer_prepareView(int extRendererIndex, int resolution[2], bool perspective)
 { // Set-up the resolution, clear color, camera properties and camera pose:
 
-    bool retVal = App::sceneContainer->pluginContainer->selectExtRenderer(extRendererIndex);
+    bool retVal = App::scenes->pluginContainer->selectExtRenderer(extRendererIndex);
 
     void* data[30];
     data[0] = resolution + 0;
     data[1] = resolution + 1;
-    data[2] = App::currentScene->environment->fogBackgroundColor;
+    data[2] = App::scene->environment->fogBackgroundColor;
     C7Vector tr(getFullCumulativeTransformation());
     float x[3] = {(float)tr.X(0), (float)tr.X(1), (float)tr.X(2)};
     data[3] = x;
@@ -2380,13 +2380,13 @@ bool CCamera::_extRenderer_prepareView(int extRendererIndex, int resolution[2], 
     data[8] = &va;
     data[9] = &nearClip;
     data[10] = &farClip;
-    data[11] = App::currentScene->environment->ambientLightColor;
-    data[12] = App::currentScene->environment->fogBackgroundColor;
-    int fogType = App::currentScene->environment->getFogType();
-    float fogStart = (float)App::currentScene->environment->getFogStart();
-    float fogEnd = (float)App::currentScene->environment->getFogEnd();
-    float fogDensity = (float)App::currentScene->environment->getFogDensity();
-    bool fogEnabled = App::currentScene->environment->getFogEnabled();
+    data[11] = App::scene->environment->ambientLightColor;
+    data[12] = App::scene->environment->fogBackgroundColor;
+    int fogType = App::scene->environment->getFogType();
+    float fogStart = (float)App::scene->environment->getFogStart();
+    float fogEnd = (float)App::scene->environment->getFogEnd();
+    float fogDensity = (float)App::scene->environment->getFogDensity();
+    bool fogEnabled = App::scene->environment->getFogEnabled();
     data[13] = &fogType;
     data[14] = &fogStart;
     data[15] = &fogEnd;
@@ -2423,15 +2423,15 @@ bool CCamera::_extRenderer_prepareView(int extRendererIndex, int resolution[2], 
         data[28] = GuiApp::mainWindow->openglWidget;
 #endif
 
-    App::sceneContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_start, data);
+    App::scenes->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_start, data);
     return (retVal);
 }
 
 void CCamera::_extRenderer_prepareLights()
 { // Set-up the lights:
-    for (size_t li = 0; li < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_light); li++)
+    for (size_t li = 0; li < App::scene->sceneObjects->getObjectCount(sim_sceneobject_light); li++)
     {
-        CLight* light = App::currentScene->sceneObjects->getLightFromIndex(li);
+        CLight* light = App::scene->sceneObjects->getLightFromIndex(li);
         if (light->getLightActive())
         {
             void* data[20];
@@ -2469,7 +2469,7 @@ void CCamera::_extRenderer_prepareLights()
             data[10] = &povFadeXDist;
             data[12] = &povNoShadow;
 
-            App::sceneContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_light, data);
+            App::scenes->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_light, data);
         }
     }
 }
@@ -2483,7 +2483,7 @@ void CCamera::_extRenderer_retrieveImage(char* rgbBuffer)
     data[2] = &readRgb;
     bool readDepth = false;
     data[3] = &readDepth;
-    App::sceneContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_stop, data);
+    App::scenes->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_stop, data);
 }
 
 void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], CSView* subView, bool mirrored)
@@ -2507,7 +2507,7 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
             displayAttrib |= sim_displayattribute_trianglewireframe;
     }
 
-    if (App::currentScene->simulation->getDynamicContentVisualizationOnly())
+    if (App::scene->simulation->getDynamicContentVisualizationOnly())
         displayAttrib |= sim_displayattribute_dynamiccontentonly;
 
     int viewIndex = -1;
@@ -2526,16 +2526,16 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
 
     // If selection size is bigger than 10, we set up a fast index:
     std::vector<unsigned char>* selMap = nullptr; // An arry which will show which object is selected
-    if (App::currentScene->sceneObjects->getSelectionCount() > 10)
+    if (App::scene->sceneObjects->getSelectionCount() > 10)
     {
-        selMap = new std::vector<unsigned char>(App::currentScene->sceneObjects->getHighestObjectHandle() + 1, 0);
-        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
-            selMap->at(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i)) = 1;
+        selMap = new std::vector<unsigned char>(App::scene->sceneObjects->getHighestObjectHandle() + 1, 0);
+        for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
+            selMap->at(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i)) = 1;
     }
     int lastSel = -1;
-    if (App::currentScene->sceneObjects->getSelectionCount() > 0)
-        lastSel = App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(
-            App::currentScene->sceneObjects->getSelectionCount() - 1);
+    if (App::scene->sceneObjects->getSelectionCount() > 0)
+        lastSel = App::scene->sceneObjects->getObjectHandleFromSelectionIndex(
+            App::scene->sceneObjects->getSelectionCount() - 1);
 
     std::vector<CSceneObject*> toRender;
     CSceneObject* viewBoxObject = _getInfoOfWhatNeedsToBeRendered(toRender);
@@ -2598,7 +2598,7 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
         if (!shapeEditModeAndPicking)
         {
             if (getInternalRendering()) // following not yet implemented for ext. rendering
-                App::currentScene->renderYourGeneralObject3DStuff_beforeRegularObjects(
+                App::scene->renderYourGeneralObject3DStuff_beforeRegularObjects(
                     this, displayAttrib, currentWinSize, verticalViewSizeOrAngle,
                     _currentPerspective); // those objects are not supposed to be translucid!
         }
@@ -2624,10 +2624,10 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
                     }
                     else
                     {
-                        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
+                        for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
                         {
                             if (it->getObjectHandle() ==
-                                App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i))
+                                App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i))
                             {
                                 atr |= sim_displayattribute_selected;
                                 if (it->getObjectHandle() == lastSel)
@@ -2703,18 +2703,18 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
         if (!shapeEditModeAndPicking)
         {
             if (getInternalRendering()) // following not yet implemented for ext. rendering
-                App::currentScene->renderYourGeneralObject3DStuff_afterRegularObjects(
+                App::scene->renderYourGeneralObject3DStuff_afterRegularObjects(
                     this, displayAttrib, currentWinSize, verticalViewSizeOrAngle,
                     _currentPerspective); // those objects can be translucid
             if (getInternalRendering())   // following not yet implemented for ext. rendering
-                App::currentScene->renderYourGeneralObject3DStuff_onTopOfRegularObjects(
+                App::scene->renderYourGeneralObject3DStuff_onTopOfRegularObjects(
                     this, displayAttrib, currentWinSize, verticalViewSizeOrAngle,
                     _currentPerspective); // those objects are overlay
             if (getInternalRendering())
             { // Now we display all graphs' 3D curves that should appear on top of everything:
-                for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_graph); i++)
+                for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_graph); i++)
                 {
-                    CGraph* it = App::currentScene->sceneObjects->getGraphFromIndex(i);
+                    CGraph* it = App::scene->sceneObjects->getGraphFromIndex(i);
                     if (it != nullptr)
                     {
                         it->setJustDrawCurves(true);
@@ -2747,7 +2747,7 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
             {
                 // Wireless communication activities:
                 if ((displayAttrib & sim_displayattribute_dynamiccontentonly) == 0)
-                    App::currentScene->sceneObjects->embeddedScriptContainer->broadcastDataContainer.visualizeCommunications((int)VDateTime::getTimeInMs());
+                    App::scene->sceneObjects->embeddedScriptContainer->broadcastDataContainer.visualizeCommunications((int)VDateTime::getTimeInMs());
             }
         }
     }
@@ -2803,9 +2803,9 @@ CSceneObject* CCamera::_getInfoOfWhatNeedsToBeRendered(std::vector<CSceneObject*
     std::vector<double> transparentObjectDist;
     C7Vector camTrInv(getCumulativeTransformation().getInverse());
     CSceneObject* viewBoxObject = nullptr;
-    for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
+    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromIndex(i);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromIndex(i);
         if (it->getObjectType() == sim_sceneobject_shape)
         {
             CShape* sh = (CShape*)it;
@@ -2841,7 +2841,7 @@ CSceneObject* CCamera::_getInfoOfWhatNeedsToBeRendered(std::vector<CSceneObject*
 
     tt::orderAscending(transparentObjectDist, transparentObjects);
     for (int i = 0; i < int(transparentObjects.size()); i++)
-        toRender.push_back(App::currentScene->sceneObjects->getObjectFromHandle(transparentObjects[i]));
+        toRender.push_back(App::scene->sceneObjects->getObjectFromHandle(transparentObjects[i]));
 
     return (viewBoxObject);
 }
@@ -3046,7 +3046,7 @@ int CCamera::getSingleHit(int hits, unsigned int selectBuff[], bool ignoreDepthB
                 hitThatIgnoresTheSelectableFlag = nearestObj;
                 if ((nearestObj <= sim_object_sceneobjectend) && (GuiApp::getEditModeType() == NO_EDIT_MODE))
                 { // since 3/6/2013 we check for the selectable flag here instead of in the object display routine
-                    CSceneObject* theObj = App::currentScene->sceneObjects->getObjectFromHandle(nearestObj);
+                    CSceneObject* theObj = App::scene->sceneObjects->getObjectFromHandle(nearestObj);
                     if ((theObj != nullptr) &&
                         ((theObj->getCumulativeObjectProperty() & sim_objectproperty_selectable) == 0))
                         nearestObj = (unsigned int)-1;
@@ -3066,7 +3066,7 @@ int CCamera::getSingleHit(int hits, unsigned int selectBuff[], bool ignoreDepthB
                         if ((nearestObj <= sim_object_sceneobjectend) && (GuiApp::getEditModeType() == NO_EDIT_MODE))
                         { // since 3/6/2013 we check for the selectable flag here instead of in the object display
                             // routine
-                            CSceneObject* theObj = App::currentScene->sceneObjects->getObjectFromHandle(nearestObj);
+                            CSceneObject* theObj = App::scene->sceneObjects->getObjectFromHandle(nearestObj);
                             if ((theObj != nullptr) &&
                                 ((theObj->getCumulativeObjectProperty() & sim_objectproperty_selectable) == 0))
                                 nearestObj = (unsigned int)-1;
@@ -3083,7 +3083,7 @@ int CCamera::getSingleHit(int hits, unsigned int selectBuff[], bool ignoreDepthB
                         if ((nearestObj <= sim_object_sceneobjectend) && (GuiApp::getEditModeType() == NO_EDIT_MODE))
                         { // since 3/6/2013 we check for the selectable flag here instead of in the object display
                             // routine
-                            CSceneObject* theObj = App::currentScene->sceneObjects->getObjectFromHandle(nearestObj);
+                            CSceneObject* theObj = App::scene->sceneObjects->getObjectFromHandle(nearestObj);
                             if ((theObj != nullptr) &&
                                 ((theObj->getCumulativeObjectProperty() & sim_objectproperty_selectable) == 0))
                                 nearestObj = (unsigned int)-1;
@@ -3116,7 +3116,7 @@ int CCamera::getSeveralHits(int hits, unsigned int selectBuff[], std::vector<int
             {
                 if ((theHit <= sim_object_sceneobjectend) && (GuiApp::getEditModeType() == NO_EDIT_MODE))
                 { // since 3/6/2013 we check for the selectable flag here instead of in the object display routine
-                    CSceneObject* theObj = App::currentScene->sceneObjects->getObjectFromHandle(theHit);
+                    CSceneObject* theObj = App::scene->sceneObjects->getObjectFromHandle(theHit);
                     if ((theObj != nullptr) &&
                         ((theObj->getCumulativeObjectProperty() & sim_objectproperty_selectable) == 0))
                         theHit = (unsigned int)-1;
@@ -3140,7 +3140,7 @@ void CCamera::handleMouseUpHit(int hitId)
     if (hitId == -1)
     {
         if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
-            App::currentScene->sceneObjects->deselectObjects();
+            App::scene->sceneObjects->deselectObjects();
         else
             GuiApp::mainWindow->editModeContainer->deselectEditModeBuffer();
     }
@@ -3153,8 +3153,8 @@ void CCamera::handleMouseUpHit(int hitId)
         {
             if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
             {
-                App::currentScene->sceneObjects->deselectObjects();
-                App::currentScene->sceneObjects->addObjectToSelection(hitId);
+                App::scene->sceneObjects->deselectObjects();
+                App::scene->sceneObjects->addObjectToSelection(hitId);
             }
             else
             {
@@ -3190,7 +3190,7 @@ int CCamera::handleHits(int hits, unsigned int selectBuff[])
                                                             // edit mode!!!!!!!
                 {
                     if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
-                        App::currentScene->sceneObjects->addObjectToSelection(hitList[i]);
+                        App::scene->sceneObjects->addObjectToSelection(hitList[i]);
                     else
                         GuiApp::mainWindow->editModeContainer->addItemToEditModeBuffer(hitList[i], true);
                 }
@@ -3213,7 +3213,7 @@ int CCamera::handleHits(int hits, unsigned int selectBuff[])
             if (hitId == -1)
             {
                 if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
-                    App::currentScene->sceneObjects->deselectObjects();
+                    App::scene->sceneObjects->deselectObjects();
                 else
                     GuiApp::mainWindow->editModeContainer->deselectEditModeBuffer();
             }
@@ -3225,7 +3225,7 @@ int CCamera::handleHits(int hits, unsigned int selectBuff[])
                                                                      // not in path edit mode!!!!!!!
                 {
                     if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
-                        App::currentScene->sceneObjects->xorAddObjectToSelection(hitId);
+                        App::scene->sceneObjects->xorAddObjectToSelection(hitId);
                     else
                         GuiApp::mainWindow->editModeContainer->xorAddItemToEditModeBuffer(hitId, false);
                 }
@@ -3244,9 +3244,9 @@ int CCamera::handleHits(int hits, unsigned int selectBuff[])
 
             // OLD:
             int data[4] = {hitThatIgnoresTheSelectableFlag, 0, 0, 0};
-            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(
+            App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins_old(
                 sim_message_eventcallback_pickselectdown, data);
-            App::currentScene->outsideCommandQueue_old->addCommand(sim_message_pick_select_down,
+            App::scene->outsideCommandQueue_old->addCommand(sim_message_pick_select_down,
                                                                    hitThatIgnoresTheSelectableFlag, 0, 0, 0, nullptr, 0);
 
             return (hitId);
@@ -3260,16 +3260,16 @@ void CCamera::_handleBannerClick(int bannerID)
     TRACE_INTERNAL;
     if (GuiApp::getEditModeType() != NO_EDIT_MODE)
         return;
-    CBannerObject* it = App::currentScene->bannerCont_old->getObject(bannerID);
+    CBannerObject* it = App::scene->bannerCont_old->getObject(bannerID);
     if ((it != nullptr) && it->isVisible())
     {
         if (it->getOptions() & sim_banner_clickselectsparent)
         {
             if (it->getParentObjectHandle() >= 0)
-                App::currentScene->sceneObjects->addObjectToSelection(it->getParentObjectHandle());
+                App::scene->sceneObjects->addObjectToSelection(it->getParentObjectHandle());
         }
         if (it->getOptions() & sim_banner_clicktriggersevent)
-            App::currentScene->outsideCommandQueue_old->addCommand(sim_message_bannerclicked, bannerID, 0, 0, 0, nullptr,
+            App::scene->outsideCommandQueue_old->addCommand(sim_message_bannerclicked, bannerID, 0, 0, 0, nullptr,
                                                                    0);
     }
 }
@@ -3309,7 +3309,7 @@ bool CCamera::getInternalRendering() const
             if ((_renderMode == sim_rendermode_povray) || (_renderMode == sim_rendermode_extrenderer) ||
                 (_renderMode == sim_rendermode_opengl3))
             {
-                if (App::currentScene->simulation->isSimulationRunning() || (!_renderModeDuringSimulation))
+                if (App::scene->simulation->isSimulationRunning() || (!_renderModeDuringSimulation))
                     return (GuiApp::mainWindow->simulationRecorder->getIsRecording() != _renderModeDuringRecording);
             }
         }
@@ -3322,22 +3322,22 @@ int CCamera::setBoolProperty(const char* ppName, bool pState)
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::setBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propCamera_parentAsManipProxy.name)
         {
             setUseParentObjectAsManipulationProxy(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propCamera_translationEnabled.name)
         {
             setAllowTranslation(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propCamera_rotationEnabled.name)
         {
             setAllowRotation(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -3348,22 +3348,22 @@ int CCamera::getBoolProperty(const char* ppName, bool& pState) const
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::getBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propCamera_parentAsManipProxy.name)
         {
             pState = _useParentObjectAsManipulationProxy;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propCamera_translationEnabled.name)
         {
             pState = _allowTranslation;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propCamera_rotationEnabled.name)
         {
             pState = _allowRotation;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -3374,12 +3374,12 @@ int CCamera::setIntProperty(const char* ppName, int pState)
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::setIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propCamera_trackedObjectHandle.name)
         {
             setTrackedObjectHandle(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -3390,12 +3390,12 @@ int CCamera::getIntProperty(const char* ppName, int& pState) const
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::getIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propCamera_trackedObjectHandle.name)
         {
             pState = _trackedObjectHandle;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -3406,14 +3406,14 @@ int CCamera::setFloatProperty(const char* ppName, double pState)
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::setFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _color.setFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propCamera_size.name)
         {
             setCameraSize(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -3424,14 +3424,14 @@ int CCamera::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::getFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _color.getFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propCamera_size.name)
         {
             pState = _cameraSize;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -3442,7 +3442,7 @@ int CCamera::getStringProperty(const char* ppName, std::string& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getStringProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -3453,7 +3453,7 @@ int CCamera::setIntArray2Property(const char* ppName, const int* pState)
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::setIntArray2Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -3464,7 +3464,7 @@ int CCamera::getIntArray2Property(const char* ppName, int* pState) const
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::getIntArray2Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -3475,7 +3475,7 @@ int CCamera::setVector2Property(const char* ppName, const double* pState)
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::setVector2Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -3486,7 +3486,7 @@ int CCamera::getVector2Property(const char* ppName, double* pState) const
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::getVector2Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -3497,7 +3497,7 @@ int CCamera::setColorProperty(const char* ppName, const float* pState)
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::setColorProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _color.setColorProperty(ppName, pState);
     return retVal;
 }
@@ -3506,7 +3506,7 @@ int CCamera::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::getColorProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _color.getColorProperty(ppName, pState);
     return retVal;
 }
@@ -3515,7 +3515,7 @@ int CCamera::setVector3Property(const char* ppName, const C3Vector& pState)
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::setVector3Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -3526,7 +3526,7 @@ int CCamera::getVector3Property(const char* ppName, C3Vector& pState) const
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::getVector3Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -3539,7 +3539,7 @@ int CCamera::setFloatArrayProperty(const char* ppName, const double* v, int vL)
     if (v == nullptr)
         vL = 0;
     int retVal = CViewableBase::setFloatArrayProperty(ppName, v, vL);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -3551,7 +3551,7 @@ int CCamera::getFloatArrayProperty(const char* ppName, std::vector<double>& pSta
     std::string _pName(ppName);
     pState.clear();
     int retVal = CViewableBase::getFloatArrayProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -3564,7 +3564,7 @@ int CCamera::setIntArrayProperty(const char* ppName, const int* v, int vL)
     if (v == nullptr)
         vL = 0;
     int retVal = CViewableBase::setIntArrayProperty(ppName, v, vL);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -3576,7 +3576,7 @@ int CCamera::getIntArrayProperty(const char* ppName, std::vector<int>& pState) c
     std::string _pName(ppName);
     pState.clear();
     int retVal = CViewableBase::getIntArrayProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -3587,11 +3587,11 @@ int CCamera::getPropertyName(int& index, std::string& pName, std::string& appart
 {
     appartenance = _objectTypeStr; // important here too, since viewableBase items are part of camera
     int retVal = CViewableBase::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         appartenance = _objectTypeStr;
         retVal = _color.getPropertyName(index, pName, excludeFlags);
-        if (retVal == -1)
+        if (retVal == sim_propertyret_unknownproperty)
         {
             for (size_t i = 0; i < allProps_camera.size(); i++)
             {
@@ -3603,7 +3603,7 @@ int CCamera::getPropertyName(int& index, std::string& pName, std::string& appart
                         if (index == -1)
                         {
                             pName = allProps_camera[i].name;
-                            retVal = 1;
+                            retVal = sim_propertyret_ok;
                             break;
                         }
                     }
@@ -3617,9 +3617,9 @@ int CCamera::getPropertyName(int& index, std::string& pName, std::string& appart
 int CCamera::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = CViewableBase::getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _color.getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         for (size_t i = 0; i < allProps_camera.size(); i++)
         {

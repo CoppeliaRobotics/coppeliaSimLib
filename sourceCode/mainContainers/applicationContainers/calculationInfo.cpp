@@ -73,9 +73,9 @@ void CCalculationInfo::formatInfo()
     _scriptTxt[1] += " ms)";
 
     // Proximity sensor calculation:
-    if (App::sceneContainer->pluginContainer->isGeomPluginAvailable())
+    if (App::scenes->pluginContainer->isGeomPluginAvailable())
     {
-        if (!App::currentScene->mainSettings_old->proximitySensorsEnabled)
+        if (!App::scene->mainSettings_old->proximitySensorsEnabled)
             _sensTxt[0] = "&&fg930Proximity sensor handling disabled";
         else
             _sensTxt[0] = "Proximity sensor handling enabled";
@@ -89,7 +89,7 @@ void CCalculationInfo::formatInfo()
     _sensTxt[1] += boost::lexical_cast<std::string>(_sensCalcDuration) + " ms)";
 
     // Vision sensor calculation:
-    if (!App::currentScene->mainSettings_old->visionSensorsEnabled)
+    if (!App::scene->mainSettings_old->visionSensorsEnabled)
         _visionSensTxt[0] = "&&fg930Vision sensor handling disabled";
     else
         _visionSensTxt[0] = "Vision sensor handling enabled (FBO)";
@@ -99,15 +99,15 @@ void CCalculationInfo::formatInfo()
     _visionSensTxt[1] += boost::lexical_cast<std::string>(_rendSensCalcDuration) + " ms)";
 
     // Dynamics calculation:
-    if (!App::currentScene->dynamicsContainer->getDynamicsEnabled())
+    if (!App::scene->dynamicsContainer->getDynamicsEnabled())
         _dynamicsTxt[0] = "&&fg930Dynamics handling disabled";
     else
     {
-        if (App::currentScene->dynamicsContainer->isWorldThere())
+        if (App::scene->dynamicsContainer->isWorldThere())
         {
             _dynamicsTxt[0] = "Dynamics handling enabled (";
             int ver;
-            int eng = App::currentScene->dynamicsContainer->getDynamicEngineType(&ver);
+            int eng = App::scene->dynamicsContainer->getDynamicEngineType(&ver);
             if (eng == sim_physics_ode)
                 _dynamicsTxt[0] += IDS_ODE;
             if ((eng == sim_physics_bullet) && (ver == 0))
@@ -244,79 +244,79 @@ void CCalculationInfo::dynamicsEnd(int calcPasses, bool dynamicContent)
 #ifdef SIM_WITH_GUI
 void CCalculationInfo::printInformation()
 {
-    if (App::currentScene->buttonBlockContainer_old == nullptr)
+    if (App::scene->buttonBlockContainer_old == nullptr)
         return;
-    if (App::currentScene->sceneObjects == nullptr)
+    if (App::scene->sceneObjects == nullptr)
         return;
     for (int i = 0; i < INFO_BOX_ROW_COUNT; i++)
     {
-        if (App::currentScene->buttonBlockContainer_old->getInfoBoxButton(i, 0) == nullptr)
+        if (App::scene->buttonBlockContainer_old->getInfoBoxButton(i, 0) == nullptr)
             return;
-        if (App::currentScene->buttonBlockContainer_old->getInfoBoxButton(i, 1) == nullptr)
+        if (App::scene->buttonBlockContainer_old->getInfoBoxButton(i, 1) == nullptr)
             return;
-        App::currentScene->buttonBlockContainer_old->getInfoBoxButton(i, 0)->label = "";
-        App::currentScene->buttonBlockContainer_old->getInfoBoxButton(i, 1)->label = "";
+        App::scene->buttonBlockContainer_old->getInfoBoxButton(i, 0)->label = "";
+        App::scene->buttonBlockContainer_old->getInfoBoxButton(i, 1)->label = "";
     }
-    if (App::currentScene->buttonBlockContainer_old != nullptr)
+    if (App::scene->buttonBlockContainer_old != nullptr)
     {
         int pos = 0;
         std::string tmp;
         std::string txt;
         if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
         {
-            CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
+            CSceneObject* it = App::scene->sceneObjects->getLastSelectionObject();
             if (it != nullptr)
             {
 
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected objects:";
-                if (App::currentScene->sceneObjects->getSelectionCount() != 2)
-                    tmp = boost::lexical_cast<std::string>(App::currentScene->sceneObjects->getSelectionCount());
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected objects:";
+                if (App::scene->sceneObjects->getSelectionCount() != 2)
+                    tmp = boost::lexical_cast<std::string>(App::scene->sceneObjects->getSelectionCount());
                 else
                 {
-                    CSceneObject* it2 = App::currentScene->sceneObjects->getObjectFromHandle(
-                        App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(0));
+                    CSceneObject* it2 = App::scene->sceneObjects->getObjectFromHandle(
+                        App::scene->sceneObjects->getObjectHandleFromSelectionIndex(0));
                     C7Vector v0(it->getFullCumulativeTransformation());
                     C7Vector v1(it2->getFullCumulativeTransformation());
                     tmp = "2 (frame-frame distance=" + utils::getSizeString(false, (v0.X - v1.X).getLength()) + ")";
                 }
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
 
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
                     "Last selected object alias:";
                 tmp = it->getObjectAlias_printPath();
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
 
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Last selected object type:";
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Last selected object type:";
                 tmp = it->getObjectTypeInfoExtended();
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
 
                 C7Vector m(it->getCumulativeTransformation());
                 C3Vector euler(m.Q.getEulerAngles());
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
                     "Last selected object position:";
                 txt = "x: " + utils::getPosString(true, m.X(0)) + "    y: " + utils::getPosString(true, m.X(1)) +
                       "    z: " + utils::getPosString(true, m.X(2));
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
                     "Last selected object orientation:";
                 txt = "a: " + utils::getAngleString(true, euler(0)) +
                       "    b: " + utils::getAngleString(true, euler(1)) +
                       "    g: " + utils::getAngleString(true, euler(2));
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
             }
             else
             {
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected objects:";
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = "0";
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected objects:";
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = "0";
             }
         }
         if (GuiApp::getEditModeType() & VERTEX_EDIT_MODE)
         {
             if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 2)
             {
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected vertices:";
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected vertices:";
                 tmp = boost::lexical_cast<std::string>(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize());
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
             }
             else
             {
@@ -325,9 +325,9 @@ void CCalculationInfo::printInformation()
                 C3Vector p2(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(
                     GuiApp::mainWindow->editModeContainer->getEditModeBufferValue(1)));
                 double dist = (p2 - p1).getLength();
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected vertices:";
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected vertices:";
                 txt = "2 (distance=" + utils::getSizeString(false, dist) + ")";
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
             }
             if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 0)
             {
@@ -338,27 +338,27 @@ void CCalculationInfo::printInformation()
                     int lastV = GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
                     C3Vector v(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(lastV));
                     v *= m;
-                    App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
+                    App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
                         "Last selected vertex position:";
                     txt = "x: " + utils::getPosString(true, v(0)) + "    y: " + utils::getPosString(true, v(1)) +
                           "    z: " + utils::getPosString(true, v(2));
-                    App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
+                    App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
                 }
             }
         }
         if (GuiApp::getEditModeType() & TRIANGLE_EDIT_MODE)
         {
-            App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected triangles:";
+            App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected triangles:";
             tmp = boost::lexical_cast<std::string>(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize());
-            App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
+            App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
         }
         if (GuiApp::getEditModeType() & EDGE_EDIT_MODE)
         {
             if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() == 0)
             {
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected edges:";
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected edges:";
                 tmp = "0";
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
             }
             else
             {
@@ -373,10 +373,10 @@ void CCalculationInfo::printInformation()
                     double dist = (p2 - p1).getLength();
                     totLength += dist;
                 }
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected edges:";
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected edges:";
                 txt = boost::lexical_cast<std::string>(GuiApp::mainWindow->editModeContainer->getEditModeBufferSize()) +
                       " (total edge length=" + utils::getSizeString(false, totLength) + ")";
-                App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
+                App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
             }
         }
 
@@ -388,11 +388,11 @@ void CCalculationInfo::printInformation()
             {
                 if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 2)
                 {
-                    App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected path points:";
+                    App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected path points:";
                     txt = boost::lexical_cast<std::string>(
                         GuiApp::mainWindow->editModeContainer->getEditModeBufferSize());
                     txt += " (Bezier path length=" + utils::getSizeString(false, pc->getBezierNormalPathLength()) + ")";
-                    App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
+                    App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
                 }
                 else
                 {
@@ -401,9 +401,9 @@ void CCalculationInfo::printInformation()
                     CSimplePathPoint_old* pt2(
                         GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(1));
                     double dist = (pt2->getTransformation().X - pt1->getTransformation().X).getLength();
-                    App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected path points:";
+                    App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = "Selected path points:";
                     txt = "2 (distance=" + utils::getSizeString(false, dist) + ")";
-                    App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
+                    App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
                 }
                 if (GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() != 0)
                 {
@@ -411,47 +411,47 @@ void CCalculationInfo::printInformation()
                         GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(
                             GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() - 1));
                     //                  CSimplePathPoint_old*
-                    //                  pt(pc->getSimplePathPoint(App::currentScene->objCont->editModeBuffer[App::currentScene->objCont->editModeBuffer.size()-1]));
+                    //                  pt(pc->getSimplePathPoint(App::scene->objCont->editModeBuffer[App::scene->objCont->editModeBuffer.size()-1]));
                     C7Vector tr(path->getCumulativeTransformation());
                     C3Vector v(tr * pt->getTransformation().X);
-                    App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
+                    App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
                         "Last selected path point position:";
                     txt = "x: " + utils::getPosString(true, v(0)) + "    y: " + utils::getPosString(true, v(1)) +
                           "    z: " + utils::getPosString(true, v(2));
-                    App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
+                    App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
                     C3Vector euler((tr.Q * pt->getTransformation().Q).getEulerAngles());
-                    App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
+                    App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
                         "Last selected path point orientation:";
                     txt = "a: " + utils::getAngleString(true, euler(0)) +
                           "    b: " + utils::getAngleString(true, euler(1)) +
                           "    g: " + utils::getAngleString(true, euler(2));
-                    App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
+                    App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txt;
                 }
             }
         }
 
         std::string txtLeft, txtRight;
         int index = 0;
-        while (App::currentScene->simulation->getInfo(txtLeft, txtRight, index))
+        while (App::scene->simulation->getInfo(txtLeft, txtRight, index))
         {
-            App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = txtLeft;
-            App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txtRight;
+            App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = txtLeft;
+            App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = txtRight;
         }
-        if (App::currentScene->simulation->isSimulationRunning())
+        if (App::scene->simulation->isSimulationRunning())
         {
             // Script functionality:
-            App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = _scriptTxt[0];
-            App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = _scriptTxt[1];
+            App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = _scriptTxt[0];
+            App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = _scriptTxt[1];
             // Proximity sensor simulation:
-            App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = _sensTxt[0];
-            App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = _sensTxt[1];
+            App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = _sensTxt[0];
+            App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = _sensTxt[1];
 
             // Vision sensor simulation:
-            App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = _visionSensTxt[0];
-            App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = _visionSensTxt[1];
+            App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = _visionSensTxt[0];
+            App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = _visionSensTxt[1];
             // Dynamics calculation:
-            App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = _dynamicsTxt[0];
-            App::currentScene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = _dynamicsTxt[1];
+            App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label = _dynamicsTxt[0];
+            App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = _dynamicsTxt[1];
         }
     }
 }

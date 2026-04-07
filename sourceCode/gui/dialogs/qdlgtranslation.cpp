@@ -40,19 +40,19 @@ void CQDlgTranslation::refresh()
 {
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
     int editMode = GuiApp::getEditModeType();
-    int lastSelID = App::currentScene->sceneObjects->getLastSelectionHandle();
+    int lastSelID = App::scene->sceneObjects->getLastSelectionHandle();
     lastLastSelectionID = lastSelID;
 
     ui->tabWidget->setCurrentIndex(currentTab);
 
     if (editMode == NO_EDIT_MODE)
     {
-        bool sel = (App::currentScene->sceneObjects->getSelectionCount() != 0);
-        bool bigSel = (App::currentScene->sceneObjects->getSelectionCount() > 1);
+        bool sel = (App::scene->sceneObjects->getSelectionCount() != 0);
+        bool bigSel = (App::scene->sceneObjects->getSelectionCount() > 1);
         _enableCoordinatePart(sel, bigSel, true);
         _enableTranslationPart(sel, sel, true);
         _enableScalingPart(sel && (scaleMode != 2), sel && (scaleMode != 2), true);
-        CSceneObject* object = App::currentScene->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::scene->sceneObjects->getLastSelectionObject();
         if (sel && (object != nullptr))
         {
             // Coordinate part:
@@ -123,7 +123,7 @@ void CQDlgTranslation::refresh()
             ui->qqPosCombo->addItem(utils::getSizeString(false, 0.25).c_str(), QVariant(250));
             ui->qqPosCombo->addItem(utils::getSizeString(false, 0.5).c_str(), QVariant(500));
 
-            if (App::currentScene->simulation->isSimulationStopped())
+            if (App::scene->simulation->isSimulationStopped())
             {
                 if (object->getObjectMovementOptions() & 1)
                     _selectItemOfCombobox(ui->qqPosCombo, -1);
@@ -376,7 +376,7 @@ bool CQDlgTranslation::_setCoord_userUnit(double newValueInUserUnit, int index)
 {
     bool retVal = false;
     int editMode = GuiApp::getEditModeType();
-    CSceneObject* object = App::currentScene->sceneObjects->getLastSelectionObject();
+    CSceneObject* object = App::scene->sceneObjects->getLastSelectionObject();
     if ((editMode == NO_EDIT_MODE) && (object != nullptr))
     {
         C7Vector tr;
@@ -388,7 +388,7 @@ bool CQDlgTranslation::_setCoord_userUnit(double newValueInUserUnit, int index)
 
         SSimulationThreadCommand cmd;
         cmd.cmdId = SET_TRANSF_POSITIONTRANSLATIONGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
+        cmd.intParams.push_back(App::scene->sceneObjects->getLastSelectionHandle());
         cmd.intParams.push_back(coordMode);
         cmd.transfParams.push_back(tr);
         App::appendSimulationThreadCommand(cmd);
@@ -450,16 +450,16 @@ bool CQDlgTranslation::_applyCoord(int mask)
 {
     bool retVal = false;
     int editMode = GuiApp::getEditModeType();
-    CSceneObject* object = App::currentScene->sceneObjects->getLastSelectionObject();
-    size_t objSelSize = App::currentScene->sceneObjects->getSelectionCount();
+    CSceneObject* object = App::scene->sceneObjects->getLastSelectionObject();
+    size_t objSelSize = App::scene->sceneObjects->getSelectionCount();
     int editObjSelSize = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
     if ((editMode == NO_EDIT_MODE) && (object != nullptr) && (objSelSize > 1))
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = APPLY_POS_POSITIONTRANSLATIONGUITRIGGEREDCMD;
-        cmd.intParams.push_back(App::currentScene->sceneObjects->getLastSelectionHandle());
-        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount() - 1; i++)
-            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        cmd.intParams.push_back(App::scene->sceneObjects->getLastSelectionHandle());
+        for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount() - 1; i++)
+            cmd.intParams.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         cmd.intParams.push_back(coordMode);
         cmd.intParams.push_back(mask);
         App::appendSimulationThreadCommand(cmd);
@@ -542,7 +542,7 @@ bool CQDlgTranslation::_applyTranslation(int axis)
 { // axis: 0-2, or -1 for all axes
     bool retVal = false;
     int editMode = GuiApp::getEditModeType();
-    int objSelSize = (int)App::currentScene->sceneObjects->getSelectionCount();
+    int objSelSize = (int)App::scene->sceneObjects->getSelectionCount();
     int editObjSelSize = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
     if ((editMode == NO_EDIT_MODE) && (objSelSize > 0))
     {
@@ -557,8 +557,8 @@ bool CQDlgTranslation::_applyTranslation(int axis)
             TX[axis] = translationValues[axis];
         SSimulationThreadCommand cmd;
         cmd.cmdId = TRANSLATESCALE_SELECTION_POSITIONTRANSLATIONGUITRIGGEREDCMD;
-        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
-            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
+            cmd.intParams.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         cmd.intParams.push_back(translateMode);
         cmd.intParams.push_back(1);
         cmd.doubleParams.push_back(1.0);
@@ -621,7 +621,7 @@ bool CQDlgTranslation::_applyScaling(int axis)
 { // axis: 0-2, or -1 for all axes
     bool retVal = false;
     int editMode = GuiApp::getEditModeType();
-    size_t objSelSize = App::currentScene->sceneObjects->getSelectionCount();
+    size_t objSelSize = App::scene->sceneObjects->getSelectionCount();
     int editObjSelSize = GuiApp::mainWindow->editModeContainer->getEditModeBufferSize();
     if ((editMode == NO_EDIT_MODE) && (objSelSize > 0))
     {
@@ -636,8 +636,8 @@ bool CQDlgTranslation::_applyScaling(int axis)
             TX[axis] = scalingValues[axis];
         SSimulationThreadCommand cmd;
         cmd.cmdId = TRANSLATESCALE_SELECTION_POSITIONTRANSLATIONGUITRIGGEREDCMD;
-        for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
-            cmd.intParams.push_back(App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+        for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
+            cmd.intParams.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
         cmd.intParams.push_back(scaleMode);
         cmd.intParams.push_back(2);
         cmd.doubleParams.push_back(TX[0]);
@@ -1057,7 +1057,7 @@ void CQDlgTranslation::on_qqPosWorld_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(SET_POSRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,
-                                           App::currentScene->sceneObjects->getLastSelectionHandle(), 0);
+                                           App::scene->sceneObjects->getLastSelectionHandle(), 0);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -1068,7 +1068,7 @@ void CQDlgTranslation::on_qqPosParent_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(SET_POSRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,
-                                           App::currentScene->sceneObjects->getLastSelectionHandle(), 1);
+                                           App::scene->sceneObjects->getLastSelectionHandle(), 1);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -1079,7 +1079,7 @@ void CQDlgTranslation::on_qqPosOwn_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(SET_POSRELATIVETO_OBJECTMANIPGUITRIGGEREDCMD,
-                                           App::currentScene->sceneObjects->getLastSelectionHandle(), 2);
+                                           App::scene->sceneObjects->getLastSelectionHandle(), 2);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -1089,7 +1089,7 @@ void CQDlgTranslation::on_qqPosX_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* object = App::currentScene->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::scene->sceneObjects->getLastSelectionObject();
         if (object != nullptr)
         {
             int permission = object->getObjectMovementPreferredAxes();
@@ -1102,7 +1102,7 @@ void CQDlgTranslation::on_qqPosX_clicked()
                 low = 1;
             permission = low + high;
             App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle(), permission);
+                                               App::scene->sceneObjects->getLastSelectionHandle(), permission);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -1113,7 +1113,7 @@ void CQDlgTranslation::on_qqPosY_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* object = App::currentScene->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::scene->sceneObjects->getLastSelectionObject();
         if (object != nullptr)
         {
             int permission = object->getObjectMovementPreferredAxes();
@@ -1126,7 +1126,7 @@ void CQDlgTranslation::on_qqPosY_clicked()
                 low = 2;
             permission = low + high;
             App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle(), permission);
+                                               App::scene->sceneObjects->getLastSelectionHandle(), permission);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -1137,7 +1137,7 @@ void CQDlgTranslation::on_qqPosZ_clicked()
 { // mouse manip
     IF_UI_EVENT_CAN_READ_DATA
     {
-        CSceneObject* object = App::currentScene->sceneObjects->getLastSelectionObject();
+        CSceneObject* object = App::scene->sceneObjects->getLastSelectionObject();
         if (object != nullptr)
         {
             int permission = object->getObjectMovementPreferredAxes();
@@ -1150,7 +1150,7 @@ void CQDlgTranslation::on_qqPosZ_clicked()
                 low = 4;
             permission = low + high;
             App::appendSimulationThreadCommand(SET_PERMISSIONS_OBJECTMANIPGUITRIGGEREDCMD,
-                                               App::currentScene->sceneObjects->getLastSelectionHandle(), permission);
+                                               App::scene->sceneObjects->getLastSelectionHandle(), permission);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -1162,7 +1162,7 @@ void CQDlgTranslation::on_qqPosCombo_activated(int index)
     IF_UI_EVENT_CAN_READ_DATA
     {
         App::appendSimulationThreadCommand(SET_POSSTEPSIZE_OBJECTMANIPGUITRIGGEREDCMD,
-                                           App::currentScene->sceneObjects->getLastSelectionHandle(), -1,
+                                           App::scene->sceneObjects->getLastSelectionHandle(), -1,
                                            double(ui->qqPosCombo->itemData(index).toInt()) / 1000.0);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

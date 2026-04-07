@@ -81,7 +81,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
     {
         if (dType == GRAPH_SCENEOBJECT_JOINT_POSITION)
         {
-            CJoint* act = App::currentScene->sceneObjects->getJointFromHandle(it->getDataObjectID());
+            CJoint* act = App::scene->sceneObjects->getJointFromHandle(it->getDataObjectID());
             if (act != nullptr)
             {
                 if (act->getJointType() == sim_joint_prismatic)
@@ -118,7 +118,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         }
         if (dType == GRAPH_SCENEOBJECT_JOINT_VELOCITY)
         {
-            CJoint* act = App::currentScene->sceneObjects->getJointFromHandle(it->getDataObjectID());
+            CJoint* act = App::scene->sceneObjects->getJointFromHandle(it->getDataObjectID());
             if (act != nullptr)
             {
                 if (act->getJointType() == sim_joint_prismatic)
@@ -175,7 +175,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
         }
         if (dType == GRAPH_SCENEOBJECT_JOINT_DYN_FORCE_OR_TORQUE)
         { // New since 1/6/2011:
-            CJoint* act = App::currentScene->sceneObjects->getJointFromHandle(it->getDataObjectID());
+            CJoint* act = App::scene->sceneObjects->getJointFromHandle(it->getDataObjectID());
             if (act != nullptr)
             {
                 if (act->getJointType() == sim_joint_prismatic)
@@ -283,7 +283,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
     }
     if ((dType == GRAPH_SCENEOBJECT_PATH_POSITION) || (dType == GRAPH_SCENEOBJECT_PATH_POSITION_LINEAR_COMPONENT))
     { // We have to check if this is a path:
-        CPath_old* path = App::currentScene->sceneObjects->getPathFromHandle(it->getDataObjectID());
+        CPath_old* path = App::scene->sceneObjects->getPathFromHandle(it->getDataObjectID());
         if (path != nullptr)
         {
             if ((it->getDerivativeIntegralAndCumulative() == sim_stream_transf_raw) ||
@@ -297,7 +297,7 @@ std::string CGraphingRoutines_old::getDataUnit(CGraphData_old* it)
     }
     if (dType == GRAPH_SCENEOBJECT_PATH_POSITION_ANGULAR_COMPONENT)
     { // We have to check if this is a path:
-        CPath_old* path = App::currentScene->sceneObjects->getPathFromHandle(it->getDataObjectID());
+        CPath_old* path = App::scene->sceneObjects->getPathFromHandle(it->getDataObjectID());
         if (path != nullptr)
         {
             if ((it->getDerivativeIntegralAndCumulative() == sim_stream_transf_raw) ||
@@ -422,7 +422,7 @@ void CGraphingRoutines_old::adjustDataToUserMetric(const CGraphData_old* it, dou
     }
     if ((dType > GRAPH_SCENEOBJECT_JOINT_SUBSTART) && (dType < GRAPH_SCENEOBJECT_JOINT_SUBEND))
     {
-        CJoint* act = App::currentScene->sceneObjects->getJointFromHandle(it->getDataObjectID());
+        CJoint* act = App::scene->sceneObjects->getJointFromHandle(it->getDataObjectID());
         if (dType == GRAPH_SCENEOBJECT_JOINT_POSITION)
         { // We have to check if this is a joint and what type:
             if (act != nullptr)
@@ -449,7 +449,7 @@ void CGraphingRoutines_old::adjustDataToUserMetric(const CGraphData_old* it, dou
     }
     if (dType == GRAPH_SCENEOBJECT_PATH_POSITION_ANGULAR_COMPONENT)
     { // We have to check if this is a path:
-        CPath_old* path = App::currentScene->sceneObjects->getPathFromHandle(it->getDataObjectID());
+        CPath_old* path = App::scene->sceneObjects->getPathFromHandle(it->getDataObjectID());
         if (path != nullptr)
         {
             v *= radToDeg;
@@ -474,7 +474,7 @@ void CGraphingRoutines_old::getCyclicAndRangeValues(const CGraphData_old* it, bo
     }
     if (dType == GRAPH_SCENEOBJECT_JOINT_POSITION)
     { // We have to check if this is a joint and is cyclic:
-        CJoint* act = App::currentScene->sceneObjects->getJointFromHandle(it->getDataObjectID());
+        CJoint* act = App::scene->sceneObjects->getJointFromHandle(it->getDataObjectID());
         if (act != nullptr)
         {
             if (act->getIsCyclic())
@@ -487,7 +487,7 @@ void CGraphingRoutines_old::getCyclicAndRangeValues(const CGraphData_old* it, bo
     }
     if (dType == GRAPH_SCENEOBJECT_PATH_POSITION)
     { // We have to check if this is a path and is cyclic:
-        CPath_old* path = App::currentScene->sceneObjects->getPathFromHandle(it->getDataObjectID());
+        CPath_old* path = App::scene->sceneObjects->getPathFromHandle(it->getDataObjectID());
         if (path != nullptr)
         {
             if ((path->pathContainer->getAttributes() & sim_pathproperty_closed_path) != 0)
@@ -500,7 +500,7 @@ void CGraphingRoutines_old::getCyclicAndRangeValues(const CGraphData_old* it, bo
     }
     if (dType == GRAPH_SCENEOBJECT_PATH_POSITION_LINEAR_COMPONENT)
     { // We have to check if this is a path and is cyclic:
-        CPath_old* path = App::currentScene->sceneObjects->getPathFromHandle(it->getDataObjectID());
+        CPath_old* path = App::scene->sceneObjects->getPathFromHandle(it->getDataObjectID());
         if (path != nullptr)
         {
             if ((path->pathContainer->getAttributes() & sim_pathproperty_closed_path) != 0)
@@ -513,7 +513,7 @@ void CGraphingRoutines_old::getCyclicAndRangeValues(const CGraphData_old* it, bo
     }
     if (dType == GRAPH_SCENEOBJECT_PATH_POSITION_ANGULAR_COMPONENT)
     { // We have to check if this is a path and is cyclic:
-        CPath_old* path = App::currentScene->sceneObjects->getPathFromHandle(it->getDataObjectID());
+        CPath_old* path = App::scene->sceneObjects->getPathFromHandle(it->getDataObjectID());
         if (path != nullptr)
         {
             if ((path->pathContainer->getAttributes() & sim_pathproperty_closed_path) != 0)
@@ -760,22 +760,22 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
     {
         if (dataIndex == GRAPH_NOOBJECT_IK_OVERALL_CALCULATION_TIME)
         {
-            value = 0.0; // App::sceneContainer->calcInfo->getIkCalculationTime();
+            value = 0.0; // App::scenes->calcInfo->getIkCalculationTime();
             return (true);
         }
         if (dataIndex == GRAPH_NOOBJECT_DYNAMICS_OVERALL_CALCULATION_TIME)
         {
-            value = App::sceneContainer->calcInfo->getDynamicsCalculationTime();
+            value = App::scenes->calcInfo->getDynamicsCalculationTime();
             return (true);
         }
         if (dataIndex == GRAPH_NOOBJECT_MAINSCRIPT_EXECUTION_TIME)
         {
-            value = App::sceneContainer->calcInfo->getMainScriptExecutionTime();
+            value = App::scenes->calcInfo->getMainScriptExecutionTime();
             return (true);
         }
         if (dataIndex == GRAPH_NOOBJECT_RENDERING_TIME)
         {
-            value = App::sceneContainer->calcInfo->getRenderingDuration();
+            value = App::scenes->calcInfo->getRenderingDuration();
             return (true);
         }
         if (dataIndex == GRAPH_NOOBJECT_WORK_THREADS_EXECUTION_TIME)
@@ -785,16 +785,16 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
         }
         if (dataIndex == GRAPH_NOOBJECT_SIMULATIONPASS_EXECUTION_TIME)
         {
-            value = App::sceneContainer->calcInfo->getSimulationPassExecutionTime() +
-                    App::sceneContainer->calcInfo->getRenderingDuration(); // added second part on 3/4/2013
+            value = App::scenes->calcInfo->getSimulationPassExecutionTime() +
+                    App::scenes->calcInfo->getRenderingDuration(); // added second part on 3/4/2013
             return (true);
         }
         if (dataIndex == GRAPH_NOOBJECT_COLLISION_QUANTITY)
         {
             int q = 0;
-            for (size_t i = 0; i < App::currentScene->collisions_old->getObjectCount(); i++)
+            for (size_t i = 0; i < App::scene->collisions_old->getObjectCount(); i++)
             {
-                CCollisionObject_old* aColl = App::currentScene->collisions_old->getObjectFromIndex(i);
+                CCollisionObject_old* aColl = App::scene->collisions_old->getObjectFromIndex(i);
                 if (aColl != nullptr)
                     if (aColl->getCollisionResult())
                         q++;
@@ -804,27 +804,27 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
         }
         if (dataIndex == GRAPH_NOOBJECT_COLLISION_OVERALL_CALCULATION_TIME)
         {
-            value = 0.0; // App::sceneContainer->calcInfo->getCollisionCalculationTime();
+            value = 0.0; // App::scenes->calcInfo->getCollisionCalculationTime();
             return (true);
         }
         if (dataIndex == GRAPH_NOOBJECT_DISTANCE_OVERALL_CALCULATION_TIME)
         {
-            value = 0.0; // App::sceneContainer->calcInfo->getDistanceCalculationTime();
+            value = 0.0; // App::scenes->calcInfo->getDistanceCalculationTime();
             return (true);
         }
         if (dataIndex == GRAPH_NOOBJECT_PROXSENSOR_OVERALL_CALCULATION_TIME)
         {
-            value = App::sceneContainer->calcInfo->getProximitySensorCalculationTime();
+            value = App::scenes->calcInfo->getProximitySensorCalculationTime();
             return (true);
         }
         if (dataIndex == GRAPH_NOOBJECT_VISIONSENSOR_OVERALL_CALCULATION_TIME)
         {
-            value = App::sceneContainer->calcInfo->getVisionSensorCalculationTime();
+            value = App::scenes->calcInfo->getVisionSensorCalculationTime();
             return (true);
         }
         if (dataIndex == GRAPH_NOOBJECT_MILL_OVERALL_CALCULATION_TIME)
         {
-            value = 0.0; // App::sceneContainer->calcInfo->getMillingCalculationTime();
+            value = 0.0; // App::scenes->calcInfo->getMillingCalculationTime();
             return (true);
         }
         if ((dataIndex == GRAPH_NOOBJECT_MILL_OVERALL_CUT_SURFACE) ||
@@ -832,10 +832,10 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
         {
             bool validData = false;
             double totV = 0.0;
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_mill); i++)
+            for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_mill); i++)
             {
                 double v;
-                CMill* it = App::currentScene->sceneObjects->getMillFromIndex(i);
+                CMill* it = App::scene->sceneObjects->getMillFromIndex(i);
                 if (dataIndex == GRAPH_NOOBJECT_MILL_OVERALL_CUT_VOLUME)
                 {
                     if (it->getMilledVolume(v))
@@ -869,7 +869,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
 
     if ((dataIndex > GRAPH_IK_START) && (dataIndex < GRAPH_IK_END))
     {
-        CIkGroup_old* it = App::currentScene->ikGroups_old->getObjectFromHandle(objectID);
+        CIkGroup_old* it = App::scene->ikGroups_old->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         if (dataIndex == GRAPH_IK_CALCULATION_TIME)
@@ -885,7 +885,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
 
     if ((dataIndex > GRAPH_COLLISION_START) && (dataIndex < GRAPH_COLLISION_END))
     {
-        CCollisionObject_old* it = App::currentScene->collisions_old->getObjectFromHandle(objectID);
+        CCollisionObject_old* it = App::scene->collisions_old->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         if (dataIndex == GRAPH_COLLISION_BOOLEAN)
@@ -909,7 +909,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
     }
     if ((dataIndex > GRAPH_DISTANCE_START) && (dataIndex < GRAPH_DISTANCE_END))
     {
-        CDistanceObject_old* it = App::currentScene->distances_old->getObjectFromHandle(objectID);
+        CDistanceObject_old* it = App::scene->distances_old->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         double dist[7];
@@ -988,7 +988,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
 
     if ((dataIndex > GRAPH_SCENEOBJECT_JOINT_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_JOINT_SUBEND))
     {
-        CJoint* it = App::currentScene->sceneObjects->getJointFromHandle(objectID);
+        CJoint* it = App::scene->sceneObjects->getJointFromHandle(objectID);
         if (it == nullptr)
             return (false);
         if (dataIndex == GRAPH_SCENEOBJECT_JOINT_POSITION)
@@ -1027,7 +1027,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_FORCESENSOR_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_FORCESENSOR_SUBEND))
     {
-        CForceSensor* it = App::currentScene->sceneObjects->getForceSensorFromHandle(objectID);
+        CForceSensor* it = App::scene->sceneObjects->getForceSensorFromHandle(objectID);
         if (it == nullptr)
             return (false);
         C3Vector forces;
@@ -1100,7 +1100,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
 
     if ((dataIndex > GRAPH_SCENEOBJECT_PATH_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_PATH_SUBEND))
     {
-        CPath_old* it = App::currentScene->sceneObjects->getPathFromHandle(objectID);
+        CPath_old* it = App::scene->sceneObjects->getPathFromHandle(objectID);
         if (it == nullptr)
             return (false);
         if (dataIndex == GRAPH_SCENEOBJECT_PATH_POSITION)
@@ -1123,7 +1123,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
 
     if ((dataIndex > GRAPH_SCENEOBJECT_PROXSENSOR_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_PROXSENSOR_SUBEND))
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectID);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         if (it->getObjectType() != sim_sceneobject_proximitysensor)
@@ -1251,7 +1251,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_MILL_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_MILL_SUBEND))
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectID);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         if (it->getObjectType() != sim_sceneobject_mill)
@@ -1286,7 +1286,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_VISIONSENSOR_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_VISIONSENSOR_SUBEND))
     {
-        CVisionSensor* it = App::currentScene->sceneObjects->getVisionSensorFromHandle(objectID);
+        CVisionSensor* it = App::scene->sceneObjects->getVisionSensorFromHandle(objectID);
         if (it == nullptr)
             return (false);
         SHandlingResult* r = &it->sensorResult;
@@ -1418,7 +1418,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
     // DO FOLLOWING ONLY AFTER HAVING HANDLED ALL SCENEOBJECT SUB_CATEGORIES (e.g. Joints, paths, sensors, etc.)
     if ((dataIndex > GRAPH_SCENEOBJECT_START) && (dataIndex < GRAPH_SCENEOBJECT_END))
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectID);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         if ((dataIndex == GRAPH_SCENEOBJECT_ALL_X_ABS) || (dataIndex == GRAPH_SCENEOBJECT_ALL_Y_ABS) ||
@@ -1494,7 +1494,7 @@ bool CGraphingRoutines_old::getGraphObjectName(int dataIndex, int objectID, std:
     // objName is valid only if return value is true
     if ((dataIndex > GRAPH_IK_START) && (dataIndex < GRAPH_IK_END))
     {
-        CIkGroup_old* it = App::currentScene->ikGroups_old->getObjectFromHandle(objectID);
+        CIkGroup_old* it = App::scene->ikGroups_old->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         objName = it->getObjectName();
@@ -1504,7 +1504,7 @@ bool CGraphingRoutines_old::getGraphObjectName(int dataIndex, int objectID, std:
         return (false); // not supported anymore
     if ((dataIndex > GRAPH_COLLISION_START) && (dataIndex < GRAPH_COLLISION_END))
     {
-        CCollisionObject_old* it = App::currentScene->collisions_old->getObjectFromHandle(objectID);
+        CCollisionObject_old* it = App::scene->collisions_old->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         objName = it->getObjectName();
@@ -1512,7 +1512,7 @@ bool CGraphingRoutines_old::getGraphObjectName(int dataIndex, int objectID, std:
     }
     if ((dataIndex > GRAPH_DISTANCE_START) && (dataIndex < GRAPH_DISTANCE_END))
     {
-        CDistanceObject_old* it = App::currentScene->distances_old->getObjectFromHandle(objectID);
+        CDistanceObject_old* it = App::scene->distances_old->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         objName = it->getObjectName();
@@ -1520,7 +1520,7 @@ bool CGraphingRoutines_old::getGraphObjectName(int dataIndex, int objectID, std:
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_START) && (dataIndex < GRAPH_SCENEOBJECT_END))
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objectID);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(objectID);
         if (it == nullptr)
             return (false);
         objName = it->getObjectName_old();
@@ -1601,9 +1601,9 @@ bool CGraphingRoutines_old::getObjectsFromGraphCategory(int index, int dataIndex
     }
     if ((dataIndex > GRAPH_IK_START) && (dataIndex < GRAPH_IK_END))
     {
-        if (index >= int(App::currentScene->ikGroups_old->getObjectCount()))
+        if (index >= int(App::scene->ikGroups_old->getObjectCount()))
             return (false);
-        CIkGroup_old* it = App::currentScene->ikGroups_old->getObjectFromIndex(index);
+        CIkGroup_old* it = App::scene->ikGroups_old->getObjectFromIndex(index);
         if (it == nullptr)
             return (false);
         objectID = it->getObjectHandle();
@@ -1613,9 +1613,9 @@ bool CGraphingRoutines_old::getObjectsFromGraphCategory(int index, int dataIndex
         return (false); // not supported anymore
     if ((dataIndex > GRAPH_COLLISION_START) && (dataIndex < GRAPH_COLLISION_END))
     {
-        if (index >= int(App::currentScene->collisions_old->getObjectCount()))
+        if (index >= int(App::scene->collisions_old->getObjectCount()))
             return (false);
-        CCollisionObject_old* it = App::currentScene->collisions_old->getObjectFromIndex(index);
+        CCollisionObject_old* it = App::scene->collisions_old->getObjectFromIndex(index);
         if (it == nullptr)
             return (false);
         objectID = it->getObjectHandle();
@@ -1623,9 +1623,9 @@ bool CGraphingRoutines_old::getObjectsFromGraphCategory(int index, int dataIndex
     }
     if ((dataIndex > GRAPH_DISTANCE_START) && (dataIndex < GRAPH_DISTANCE_END))
     {
-        if (index >= int(App::currentScene->distances_old->getObjectCount()))
+        if (index >= int(App::scene->distances_old->getObjectCount()))
             return (false);
-        CDistanceObject_old* it = App::currentScene->distances_old->getObjectFromIndex(index);
+        CDistanceObject_old* it = App::scene->distances_old->getObjectFromIndex(index);
         if (it == nullptr)
             return (false);
         objectID = it->getObjectHandle();
@@ -1635,44 +1635,44 @@ bool CGraphingRoutines_old::getObjectsFromGraphCategory(int index, int dataIndex
     // HERE WE HAVE ALL SCENEOBJECT SUB-CATEGORIES (IMPORTANT TO PUT THEM BEFORE SCENEOBJECT IN GENERAL!)
     if ((dataIndex > GRAPH_SCENEOBJECT_JOINT_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_JOINT_SUBEND))
     {
-        if (index >= int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_joint)))
+        if (index >= int(App::scene->sceneObjects->getObjectCount(sim_sceneobject_joint)))
             return (false);
-        objectID = App::currentScene->sceneObjects->getJointFromIndex(index)->getObjectHandle();
+        objectID = App::scene->sceneObjects->getJointFromIndex(index)->getObjectHandle();
         return (true);
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_PATH_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_PATH_SUBEND))
     {
-        if (index >= int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_path)))
+        if (index >= int(App::scene->sceneObjects->getObjectCount(sim_sceneobject_path)))
             return (false);
-        objectID = App::currentScene->sceneObjects->getPathFromIndex(index)->getObjectHandle();
+        objectID = App::scene->sceneObjects->getPathFromIndex(index)->getObjectHandle();
         return (true);
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_PROXSENSOR_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_PROXSENSOR_SUBEND))
     {
-        if (index >= int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_proximitysensor)))
+        if (index >= int(App::scene->sceneObjects->getObjectCount(sim_sceneobject_proximitysensor)))
             return (false);
-        objectID = App::currentScene->sceneObjects->getProximitySensorFromIndex(index)->getObjectHandle();
+        objectID = App::scene->sceneObjects->getProximitySensorFromIndex(index)->getObjectHandle();
         return (true);
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_MILL_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_MILL_SUBEND))
     {
-        if (index >= int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_mill)))
+        if (index >= int(App::scene->sceneObjects->getObjectCount(sim_sceneobject_mill)))
             return (false);
-        objectID = App::currentScene->sceneObjects->getMillFromIndex(index)->getObjectHandle();
+        objectID = App::scene->sceneObjects->getMillFromIndex(index)->getObjectHandle();
         return (true);
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_FORCESENSOR_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_FORCESENSOR_SUBEND))
     {
-        if (index >= int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_forcesensor)))
+        if (index >= int(App::scene->sceneObjects->getObjectCount(sim_sceneobject_forcesensor)))
             return (false);
-        objectID = App::currentScene->sceneObjects->getForceSensorFromIndex(index)->getObjectHandle();
+        objectID = App::scene->sceneObjects->getForceSensorFromIndex(index)->getObjectHandle();
         return (true);
     }
     if ((dataIndex > GRAPH_SCENEOBJECT_VISIONSENSOR_SUBSTART) && (dataIndex < GRAPH_SCENEOBJECT_VISIONSENSOR_SUBEND))
     {
-        if (index >= int(App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_visionsensor)))
+        if (index >= int(App::scene->sceneObjects->getObjectCount(sim_sceneobject_visionsensor)))
             return (false);
-        objectID = App::currentScene->sceneObjects->getVisionSensorFromIndex(index)->getObjectHandle();
+        objectID = App::scene->sceneObjects->getVisionSensorFromIndex(index)->getObjectHandle();
         return (true);
     }
 
@@ -1680,9 +1680,9 @@ bool CGraphingRoutines_old::getObjectsFromGraphCategory(int index, int dataIndex
     // etc.)
     if ((dataIndex > GRAPH_SCENEOBJECT_START) && (dataIndex < GRAPH_SCENEOBJECT_END))
     {
-        if (index >= int(App::currentScene->sceneObjects->getObjectCount()))
+        if (index >= int(App::scene->sceneObjects->getObjectCount()))
             return (false);
-        objectID = App::currentScene->sceneObjects->getObjectFromIndex(index)->getObjectHandle();
+        objectID = App::scene->sceneObjects->getObjectFromIndex(index)->getObjectHandle();
         return (true);
     }
     return (false);

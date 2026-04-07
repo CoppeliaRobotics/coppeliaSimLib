@@ -1404,7 +1404,7 @@ void CSer::xmlAddNode_meshFile(const char* name, const char* localFilenameSuffix
 { // keep this as single precision float
     bool exhaustiveXml = ((getFileType() != CSer::filetype_csim_xml_simplescene_file) &&
                           (getFileType() != CSer::filetype_csim_xml_simplemodel_file));
-    if (_xmlUseImageAndMeshFileformats && App::sceneContainer->pluginContainer->isAssimpPluginAvailable() &&
+    if (_xmlUseImageAndMeshFileformats && App::scenes->pluginContainer->isAssimpPluginAvailable() &&
         (!exhaustiveXml))
     {
         std::string fn(getFilenameBase() + "_" + localFilenameSuffix + ".ply");
@@ -1428,7 +1428,7 @@ void CSer::xmlAddNode_meshFile(const char* name, const char* localFilenameSuffix
         _verticesSizes[0] = vl;
         _indices[0] = (int*)indices;
         _indicesSizes[0] = il;
-        App::sceneContainer->pluginContainer->assimp_exportMeshes(1, (const double**)_vertices, _verticesSizes,
+        App::scenes->pluginContainer->assimp_exportMeshes(1, (const double**)_vertices, _verticesSizes,
                                                                   (const int**)_indices, _indicesSizes,
                                                                   (getFilenamePath() + fn).c_str(), "ply", 1.0, 1, 256);
         delete[] _vertices;
@@ -2010,9 +2010,9 @@ bool CSer::xmlGetNode_meshFile(const char* name, std::vector<float>& vertices, s
                 int* _verticesSizes;
                 int** _indices;
                 int* _indicesSizes;
-                if (!App::sceneContainer->pluginContainer->isAssimpPluginAvailable())
+                if (!App::scenes->pluginContainer->isAssimpPluginAvailable())
                     App::logMsg(sim_verbosity_errors, "assimp plugin was not found. CoppeliaSim will now crash.");
-                int cnt = App::sceneContainer->pluginContainer->assimp_importMeshes(
+                int cnt = App::scenes->pluginContainer->assimp_importMeshes(
                     filename.c_str(), 1.0, 1, 16 + 256, &_vertices, &_verticesSizes, &_indices, &_indicesSizes);
                 if (cnt > 0)
                 {

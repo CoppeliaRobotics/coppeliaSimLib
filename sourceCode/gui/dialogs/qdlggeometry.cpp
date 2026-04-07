@@ -27,14 +27,14 @@ void CQDlgGeometry::refresh()
 {
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
-        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped();
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::scene->simulation->isSimulationStopped();
 
     if (!isLinkedDataValid())
         return;
     if (!insideRefreshTriggered)
         _setCurrentSizes();
     insideRefreshTriggered = false;
-    CShape* shape = App::currentScene->sceneObjects->getShapeFromHandle(_shapeHandle);
+    CShape* shape = App::scene->sceneObjects->getShapeFromHandle(_shapeHandle);
     if (shape == nullptr)
         return;
     bool g = !shape->getMesh()->isMesh();
@@ -130,7 +130,7 @@ void CQDlgGeometry::_initialize(int shapeHandle)
     isPureShape = true;
     isConvex = true;
     isGroup = false;
-    CShape* shape = App::currentScene->sceneObjects->getShapeFromHandle(_shapeHandle);
+    CShape* shape = App::scene->sceneObjects->getShapeFromHandle(_shapeHandle);
     if (shape != nullptr)
     {
         titleText = "Geometry associated with '";
@@ -151,7 +151,7 @@ void CQDlgGeometry::_initialize(int shapeHandle)
 
 void CQDlgGeometry::_setCurrentSizes()
 {
-    CShape* shape = App::currentScene->sceneObjects->getShapeFromHandle(_shapeHandle);
+    CShape* shape = App::scene->sceneObjects->getShapeFromHandle(_shapeHandle);
     if (shape != nullptr)
     {
         C3Vector bbSizes(shape->getBBHSize() * 2.0);
@@ -161,12 +161,12 @@ void CQDlgGeometry::_setCurrentSizes()
 
 bool CQDlgGeometry::isLinkedDataValid()
 {
-    if (!App::currentScene->simulation->isSimulationStopped())
+    if (!App::scene->simulation->isSimulationStopped())
         return (false);
     if (GuiApp::getEditModeType() != NO_EDIT_MODE)
         return (false);
-    if (App::currentScene->sceneObjects->getShapeFromHandle(_shapeHandle) != nullptr)
-        return (App::currentScene->sceneObjects->getLastSelectionHandle() == _shapeHandle);
+    if (App::scene->sceneObjects->getShapeFromHandle(_shapeHandle) != nullptr)
+        return (App::scene->sceneObjects->getLastSelectionHandle() == _shapeHandle);
     return (false);
 }
 
@@ -199,7 +199,7 @@ void CQDlgGeometry::_readSize(int index)
     QLineEdit* ww[3] = {ui->qqSizeX, ui->qqSizeY, ui->qqSizeZ};
     if (!isLinkedDataValid())
         return;
-    CShape* shape = App::currentScene->sceneObjects->getShapeFromHandle(_shapeHandle);
+    CShape* shape = App::scene->sceneObjects->getShapeFromHandle(_shapeHandle);
     if (shape != nullptr)
     {
         bool ok;
@@ -270,7 +270,7 @@ void CQDlgGeometry::_readScaling(int index)
     QLineEdit* ww[3] = {ui->qqScaleX, ui->qqScaleY, ui->qqScaleZ};
     if (!isLinkedDataValid())
         return;
-    CShape* shape = App::currentScene->sceneObjects->getShapeFromHandle(_shapeHandle);
+    CShape* shape = App::scene->sceneObjects->getShapeFromHandle(_shapeHandle);
     if (shape != nullptr)
     {
         bool ok;

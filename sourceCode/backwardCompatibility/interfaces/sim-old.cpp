@@ -572,7 +572,7 @@ SIM_DLLEXPORT int simAddDrawingObject(int objectType, float size, float duplicat
 SIM_DLLEXPORT int simAddDrawingObjectItem(int objectHandle, const float* itemData)
 {
     objectHandle = objectHandle & sim_handleflag_handlemask;
-    CDrawingObject* it = App::currentScene->drawingCont->getObjectFromHandle(objectHandle);
+    CDrawingObject* it = App::scene->drawingCont->getObjectFromHandle(objectHandle);
     int retVal = -1;
     if (it != nullptr)
     {

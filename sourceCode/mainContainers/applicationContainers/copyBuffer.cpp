@@ -235,7 +235,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
     std::vector<CButtonBlock*> buttonBlk;
 
     // And we add everything to the scene:
-    App::currentScene->addGeneralObjectsToSceneAndPerformMappings(&objectCopy, &collectionCopy, &collisionCopy, &distanceCopy, &ikGroupCopy, &pathPlanningTsk, &buttonBlk, &luaScriptCopy, textureObjectCopy, dynMaterialObjectCopy, true, SIM_PROGRAM_VERSION_NB, false);
+    App::scene->addGeneralObjectsToSceneAndPerformMappings(&objectCopy, &collectionCopy, &collisionCopy, &distanceCopy, &ikGroupCopy, &pathPlanningTsk, &buttonBlk, &luaScriptCopy, textureObjectCopy, dynMaterialObjectCopy, true, SIM_PROGRAM_VERSION_NB, false);
 
     // Enabled scripts (we previously don't wanted to have them react to object add event, etc., during the load operation)
     for (size_t i = 0; i < luaScriptCopy.size(); i++)
@@ -248,11 +248,11 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
     }
 
     if (selectionMode == 0)
-        App::currentScene->sceneObjects->deselectObjects();
+        App::scene->sceneObjects->deselectObjects();
     if ((selectionMode == 2) || (selectionMode == 3))
-        App::currentScene->sceneObjects->removeFromSelectionAllExceptModelBase(selectionMode == 3);
+        App::scene->sceneObjects->removeFromSelectionAllExceptModelBase(selectionMode == 3);
 
-    CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->createStack();
+    CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
     stack->pushTableOntoStack();
 
     std::vector<int> hand;
@@ -274,8 +274,8 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
     stack->insertDataIntoStackTable();
     // --------------------------------------
 
-    App::sceneContainer->callScripts(sim_syscb_aftercreate, stack, nullptr);
-    App::sceneContainer->interfaceStackContainer->destroyStack(stack);
+    App::scenes->callScripts(sim_syscb_aftercreate, stack, nullptr);
+    App::scenes->interfaceStackContainer->destroyStack(stack);
 
     return (1);
 }
@@ -303,7 +303,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
         sel.swap(selTmp);
         for (size_t i = 0; i < selTmp.size(); i++)
         {
-            if (App::currentScene->sceneObjects->getScriptFromHandle(selTmp[i]) == nullptr)
+            if (App::scene->sceneObjects->getScriptFromHandle(selTmp[i]) == nullptr)
                 sel.push_back(selTmp[i]);
         }
     }
@@ -318,7 +318,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     clearBuffer();
     _bufferIsFromLockedScene = fromLockedScene;
 
-    CInterfaceStack* stack = App::sceneContainer->interfaceStackContainer->createStack();
+    CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
     stack->pushTableOntoStack();
 
     stack->pushTextOntoStack("objects");
@@ -337,17 +337,17 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     stack->insertDataIntoStackTable();
     // --------------------------------------
 
-    App::sceneContainer->callScripts(sim_syscb_beforecopy, stack, nullptr); // could destroy or create objects in there!
+    App::scenes->callScripts(sim_syscb_beforecopy, stack, nullptr); // could destroy or create objects in there!
 
     // Copy objects in hierarchial order!
     std::vector<CSceneObject*> selObj;
     std::vector<CSceneObject*> selObjTmp;
-    App::currentScene->sceneObjects->getObjects_hierarchyOrder(selObjTmp);
+    App::scene->sceneObjects->getObjects_hierarchyOrder(selObjTmp);
     {
         std::map<CSceneObject*, bool> selObjMap;
         for (size_t i = 0; i < sel.size(); i++)
         {
-            CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(sel[i]);
+            CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(sel[i]);
             if (obj != nullptr)
                 selObjMap[obj] = true;
         }
@@ -381,8 +381,8 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
         objectBuffer.push_back(it);
     }
 
-    App::sceneContainer->callScripts(sim_syscb_aftercopy, stack, nullptr);
-    App::sceneContainer->interfaceStackContainer->destroyStack(stack);
+    App::scenes->callScripts(sim_syscb_aftercopy, stack, nullptr);
+    App::scenes->interfaceStackContainer->destroyStack(stack);
     // sceneObjects are copied. We need to prepare the parenting info:
     for (size_t i = 0; i < selObj.size(); i++)
     {
@@ -422,53 +422,53 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     // Other object copy:
     if ((options & 1) == 0)
     {
-        for (size_t i = 0; i < App::currentScene->sceneObjects->embeddedScriptContainer->allScripts.size(); i++)
+        for (size_t i = 0; i < App::scene->sceneObjects->embeddedScriptContainer->allScripts.size(); i++)
         { // Copy only old simulation scripts or customization scripts:
-            int st = App::currentScene->sceneObjects->embeddedScriptContainer->allScripts[i]->getScriptType();
+            int st = App::scene->sceneObjects->embeddedScriptContainer->allScripts[i]->getScriptType();
             if (((st == sim_scripttype_simulation) || (st == sim_scripttype_customization)) &&
-                (App::currentScene->sceneObjects->embeddedScriptContainer->allScripts[i]->getObjectHandleThatScriptIsAttachedTo(-1) !=
+                (App::scene->sceneObjects->embeddedScriptContainer->allScripts[i]->getObjectHandleThatScriptIsAttachedTo(-1) !=
                  -1))
-                luaScriptBuffer.push_back(App::currentScene->sceneObjects->embeddedScriptContainer->allScripts[i]->copyYourself());
+                luaScriptBuffer.push_back(App::scene->sceneObjects->embeddedScriptContainer->allScripts[i]->copyYourself());
         }
     }
     if ((options & 8) == 0)
     {
-        for (size_t i = 0; i < App::currentScene->textureContainer->_allTextureObjects.size(); i++)
-            textureObjectBuffer.push_back(App::currentScene->textureContainer->_allTextureObjects[i]->copyYourself());
+        for (size_t i = 0; i < App::scene->textureContainer->_allTextureObjects.size(); i++)
+            textureObjectBuffer.push_back(App::scene->textureContainer->_allTextureObjects[i]->copyYourself());
     }
 
     // Old:
-    for (size_t i = 0; i < App::currentScene->collections->getObjectCount(); i++)
+    for (size_t i = 0; i < App::scene->collections->getObjectCount(); i++)
     { // copy old the old collections (i.e. those that were created via the GUI):
-        CCollection* coll = App::currentScene->collections->getObjectFromIndex(i);
+        CCollection* coll = App::scene->collections->getObjectFromIndex(i);
         if (coll->getCreatorHandle() == -2)
             collectionBuffer.push_back(coll->copyYourself());
     }
-    for (size_t i = 0; i < App::currentScene->collisions_old->getObjectCount(); i++)
-        collisionBuffer.push_back(App::currentScene->collisions_old->getObjectFromIndex(i)->copyYourself());
-    for (size_t i = 0; i < App::currentScene->distances_old->getObjectCount(); i++)
-        distanceBuffer.push_back(App::currentScene->distances_old->getObjectFromIndex(i)->copyYourself());
-    for (size_t i = 0; i < App::currentScene->ikGroups_old->getObjectCount(); i++)
-        ikGroupBuffer.push_back(App::currentScene->ikGroups_old->getObjectFromIndex(i)->copyYourself());
+    for (size_t i = 0; i < App::scene->collisions_old->getObjectCount(); i++)
+        collisionBuffer.push_back(App::scene->collisions_old->getObjectFromIndex(i)->copyYourself());
+    for (size_t i = 0; i < App::scene->distances_old->getObjectCount(); i++)
+        distanceBuffer.push_back(App::scene->distances_old->getObjectFromIndex(i)->copyYourself());
+    for (size_t i = 0; i < App::scene->ikGroups_old->getObjectCount(); i++)
+        ikGroupBuffer.push_back(App::scene->ikGroups_old->getObjectFromIndex(i)->copyYourself());
 
     // Not supported anymore for copy/paste operations:
     /*
-    for (size_t i = 0; i < App::currentScene->pathPlanning_old->allObjects.size(); i++)
-        pathPlanningTaskBuffer.push_back(App::currentScene->pathPlanning_old->allObjects[i]->copyYourself());
-    for (size_t i = 0; i < App::currentScene->buttonBlockContainer_old->allBlocks.size(); i++)
+    for (size_t i = 0; i < App::scene->pathPlanning_old->allObjects.size(); i++)
+        pathPlanningTaskBuffer.push_back(App::scene->pathPlanning_old->allObjects[i]->copyYourself());
+    for (size_t i = 0; i < App::scene->buttonBlockContainer_old->allBlocks.size(); i++)
     {
-        if (((App::currentScene->buttonBlockContainer_old->allBlocks[i]->getAttributes() & sim_ui_property_systemblock) ==
+        if (((App::scene->buttonBlockContainer_old->allBlocks[i]->getAttributes() & sim_ui_property_systemblock) ==
              0) &&
-            (App::currentScene->buttonBlockContainer_old->allBlocks[i]->getObjectIDAttachedTo() != -1))
-            buttonBlockBuffer.push_back(App::currentScene->buttonBlockContainer_old->allBlocks[i]->copyYourself());
+            (App::scene->buttonBlockContainer_old->allBlocks[i]->getObjectIDAttachedTo() != -1))
+            buttonBlockBuffer.push_back(App::scene->buttonBlockContainer_old->allBlocks[i]->copyYourself());
     }
     */
 
     std::vector<CSceneObject*> unselected;
-    for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
+    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
     {
-        CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromIndex(i);
-        if (!App::currentScene->sceneObjects->isObjectInSelection(obj->getObjectHandle(), &sel))
+        CSceneObject* obj = App::scene->sceneObjects->getObjectFromIndex(i);
+        if (!App::scene->sceneObjects->isObjectInSelection(obj->getObjectHandle(), &sel))
             unselected.push_back(obj);
     }
 
@@ -651,12 +651,12 @@ void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7V
     //--------------------------- Here we serialize the buffer content -------------------
 
     // **** Following needed to save existing calculation structures:
-    App::currentScene->environment->setSaveExistingCalculationStructuresTemp(false);
-    if (App::currentScene->environment->getSaveExistingCalculationStructures())
+    App::scene->environment->setSaveExistingCalculationStructuresTemp(false);
+    if (App::scene->environment->getSaveExistingCalculationStructures())
     {
-        // removed on 10/9/2014 App::currentScene->environment->setSaveExistingCalculationStructures(false); // we clear
+        // removed on 10/9/2014 App::scene->environment->setSaveExistingCalculationStructures(false); // we clear
         // that flag
-        App::currentScene->environment->setSaveExistingCalculationStructuresTemp(true);
+        App::scene->environment->setSaveExistingCalculationStructuresTemp(true);
     }
     // ************************************************************
 
@@ -669,16 +669,16 @@ void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7V
     {
         ar.storeDataName(SER_MODEL_THUMBNAIL_INFO);
         ar.setCountingMode();
-        App::currentScene->environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(
+        App::scene->environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(
             ar, modelTr, modelBBSize, modelNonDefaultTranslationStepSize);
         if (ar.setWritingMode())
-            App::currentScene->environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(
+            App::scene->environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(
                 ar, modelTr, modelBBSize, modelNonDefaultTranslationStepSize);
     }
     else
     {
         ar.xmlPushNewNode(SERX_MODEL_THUMBNAIL_INFO);
-        App::currentScene->environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(
+        App::scene->environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(
             ar, modelTr, modelBBSize, modelNonDefaultTranslationStepSize);
         ar.xmlPopNode();
     }
@@ -688,14 +688,14 @@ void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7V
     {
         ar.storeDataName(SER_MODEL_THUMBNAIL);
         ar.setCountingMode();
-        App::currentScene->environment->modelThumbnail_notSerializedHere.serialize(ar, false);
+        App::scene->environment->modelThumbnail_notSerializedHere.serialize(ar, false);
         if (ar.setWritingMode())
-            App::currentScene->environment->modelThumbnail_notSerializedHere.serialize(ar, false);
+            App::scene->environment->modelThumbnail_notSerializedHere.serialize(ar, false);
     }
     else
     {
         ar.xmlPushNewNode(SERX_MODEL_THUMBNAIL);
-        App::currentScene->environment->modelThumbnail_notSerializedHere.serialize(ar, false);
+        App::scene->environment->modelThumbnail_notSerializedHere.serialize(ar, false);
         ar.xmlPopNode();
     }
 
@@ -727,11 +727,11 @@ void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7V
     for (size_t i = 0; i < textureObjectBuffer.size(); i++)
     {
         if (ar.isBinary())
-            App::currentScene->textureContainer->storeTextureObject(ar, textureObjectBuffer[i]);
+            App::scene->textureContainer->storeTextureObject(ar, textureObjectBuffer[i]);
         else
         {
             ar.xmlPushNewNode(SERX_TEXTURE);
-            App::currentScene->textureContainer->storeTextureObject(ar, textureObjectBuffer[i]);
+            App::scene->textureContainer->storeTextureObject(ar, textureObjectBuffer[i]);
             ar.xmlPopNode();
         }
     }
@@ -758,11 +758,11 @@ void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7V
     for (size_t i = 0; i < objectBuffer.size(); i++)
     {
         if (ar.isBinary())
-            App::currentScene->sceneObjects->writeSceneObject(ar, objectBuffer[i]);
+            App::scene->sceneObjects->writeSceneObject(ar, objectBuffer[i]);
         else
         {
             ar.xmlPushNewNode(SERX_SCENEOBJECT);
-            App::currentScene->sceneObjects->writeSceneObject(ar, objectBuffer[i]);
+            App::scene->sceneObjects->writeSceneObject(ar, objectBuffer[i]);
             ar.xmlPopNode();
         }
     }

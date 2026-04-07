@@ -483,12 +483,12 @@ void CMesh::setConvex_raw(bool c)
     if (_convex != c)
     {
         _convex = c;
-        if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
+        if ((_isInSceneShapeHandle != -1) && App::scenes->getEventsEnabled())
         {
             const char* cmd = propMesh_convex.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+            CCbor* ev = App::scenes->createObjectChangedEvent(_objectHandle, cmd, true);
             ev->appendKeyBool(cmd, _convex);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -518,15 +518,15 @@ void CMesh::pushObjectRemoveEvent()
 {
     _isInSceneShapeHandle = -1;
     _isInSceneShapeUid = -1;
-    App::sceneContainer->createEvent(EVENTTYPE_OBJECTREMOVED, _objectHandle, _objectHandle, nullptr, false);
-    App::sceneContainer->pushEvent();
+    App::scenes->createEvent(EVENTTYPE_OBJECTREMOVED, _objectHandle, _objectHandle, nullptr, false);
+    App::scenes->pushEvent();
 }
 
 void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vector& shapeRelTr)
 {
     _isInSceneShapeHandle = shapeHandle;
     _isInSceneShapeUid = shapeUid;
-    CCbor* ev = App::sceneContainer->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
+    CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
 
     if (App::getEventProtocolVersion() <= 3)
         ev->appendKeyInt64(propMesh_shape.name, _isInSceneShapeHandle);
@@ -594,7 +594,7 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vecto
         ev->appendKeyInt64(propMesh_textureID.name, _textureProperty->getTextureObjectID());
     }
 
-    App::sceneContainer->pushEvent();
+    App::scenes->pushEvent();
 }
 
 int CMesh::countTriangles() const
@@ -969,7 +969,7 @@ void CMesh::setHeightfieldData(const std::vector<double>& heights, int xCount, i
 
 double* CMesh::getHeightfieldData(int& xCount, int& yCount, double& minHeight, double& maxHeight)
 {
-    setHeightfieldDiamonds(App::currentScene->dynamicsContainer->getDynamicEngineType(nullptr) == sim_physics_mujoco);
+    setHeightfieldDiamonds(App::scene->dynamicsContainer->getDynamicEngineType(nullptr) == sim_physics_mujoco);
     if ((_purePrimitive != sim_primitiveshape_heightfield) || (_heightfieldHeights.size() == 0))
         return (nullptr);
     xCount = _heightfieldXCount;
@@ -1076,12 +1076,12 @@ void CMesh::setVisibleEdges(bool v)
     if (diff)
     {
         _visibleEdges = v;
-        if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
+        if ((_isInSceneShapeHandle != -1) && App::scenes->getEventsEnabled())
         {
             const char* cmd = propMesh_showEdges.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+            CCbor* ev = App::scenes->createObjectChangedEvent(_objectHandle, cmd, true);
             ev->appendKeyBool(cmd, _visibleEdges);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -1122,12 +1122,12 @@ void CMesh::setCulling(bool c)
     if (diff)
     {
         _culling = c;
-        if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
+        if ((_isInSceneShapeHandle != -1) && App::scenes->getEventsEnabled())
         {
             const char* cmd = propMesh_culling.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+            CCbor* ev = App::scenes->createObjectChangedEvent(_objectHandle, cmd, true);
             ev->appendKeyBool(cmd, _culling);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -1193,12 +1193,12 @@ void CMesh::setShadingAngle(double angle)
     if (diff)
     {
         _shadingAngle = angle;
-        if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
+        if ((_isInSceneShapeHandle != -1) && App::scenes->getEventsEnabled())
         {
             const char* cmd = propMesh_shadingAngle.name;
-            CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+            CCbor* ev = App::scenes->createObjectChangedEvent(_objectHandle, cmd, true);
             ev->appendKeyDouble(cmd, _shadingAngle);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
         _recomputeNormals();
         _edgeThresholdAngle = angle;
@@ -1859,21 +1859,21 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCum
             if (ar.setWritingMode())
                 edgeColor_DEPRECATED.serialize(ar, 1);
 
-            if (App::currentScene->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
+            if (App::scene->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
             { // undo/redo serialization:
                 ar.storeDataName("Ver");
-                ar << App::currentScene->undoBufferContainer->undoBufferArrays.addVertexBuffer(
-                    _verticesForDisplayAndDisk, App::currentScene->undoBufferContainer->getNextBufferId());
+                ar << App::scene->undoBufferContainer->undoBufferArrays.addVertexBuffer(
+                    _verticesForDisplayAndDisk, App::scene->undoBufferContainer->getNextBufferId());
                 ar.flush();
 
                 ar.storeDataName("Ind");
-                ar << App::currentScene->undoBufferContainer->undoBufferArrays.addIndexBuffer(
-                    _indices, App::currentScene->undoBufferContainer->getNextBufferId());
+                ar << App::scene->undoBufferContainer->undoBufferArrays.addIndexBuffer(
+                    _indices, App::scene->undoBufferContainer->getNextBufferId());
                 ar.flush();
 
                 ar.storeDataName("Nor");
-                ar << App::currentScene->undoBufferContainer->undoBufferArrays.addNormalsBuffer(
-                    _normalsForDisplayAndDisk, App::currentScene->undoBufferContainer->getNextBufferId());
+                ar << App::scene->undoBufferContainer->undoBufferArrays.addNormalsBuffer(
+                    _normalsForDisplayAndDisk, App::scene->undoBufferContainer->getNextBufferId());
                 ar.flush();
             }
             else
@@ -1988,7 +1988,7 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCum
                         ar >> byteQuantity;
                         edgeColor_DEPRECATED.serialize(ar, 1);
                     }
-                    if (App::currentScene->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
+                    if (App::scene->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
                     { // undo/redo serialization
                         if (theName.compare("Ver") == 0)
                         {
@@ -1996,7 +1996,7 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCum
                             ar >> byteQuantity;
                             int id;
                             ar >> id;
-                            App::currentScene->undoBufferContainer->undoBufferArrays.getVertexBuffer(
+                            App::scene->undoBufferContainer->undoBufferArrays.getVertexBuffer(
                                 id, _verticesForDisplayAndDisk);
                             _vertices.resize(_verticesForDisplayAndDisk.size());
                             for (size_t i = 0; i < _verticesForDisplayAndDisk.size(); i++)
@@ -2008,7 +2008,7 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCum
                             ar >> byteQuantity;
                             int id;
                             ar >> id;
-                            App::currentScene->undoBufferContainer->undoBufferArrays.getIndexBuffer(id, _indices);
+                            App::scene->undoBufferContainer->undoBufferArrays.getIndexBuffer(id, _indices);
                         }
                         if (theName.compare("Nor") == 0)
                         {
@@ -2016,7 +2016,7 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCum
                             ar >> byteQuantity;
                             int id;
                             ar >> id;
-                            App::currentScene->undoBufferContainer->undoBufferArrays.getNormalsBuffer(
+                            App::scene->undoBufferContainer->undoBufferArrays.getNormalsBuffer(
                                 id, _normalsForDisplayAndDisk);
                             _normals.resize(_normalsForDisplayAndDisk.size());
                             for (size_t i = 0; i < _normalsForDisplayAndDisk.size(); i++)
@@ -2700,7 +2700,7 @@ void CMesh::display_extRenderer(const C7Vector& cumulIFrameTr, CShape* geomData,
         data[29] = &povMaterial;
 
         CTextureProperty* tp = _textureProperty;
-        if ((!App::currentScene->environment->getShapeTexturesEnabled()) ||
+        if ((!App::scene->environment->getShapeTexturesEnabled()) ||
             CEnvironment::getShapeTexturesTemporarilyDisabled())
             tp = nullptr;
         bool textured = false;
@@ -2732,12 +2732,12 @@ void CMesh::display_extRenderer(const C7Vector& cumulIFrameTr, CShape* geomData,
             data[16] = &interpolateColors;
             data[17] = &applyMode;
             data[18] = &textured;
-            App::sceneContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_mesh, data);
+            App::scenes->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_mesh, data);
         }
         else
         {
             data[18] = &textured;
-            App::sceneContainer->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_mesh, data);
+            App::scenes->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_mesh, data);
         }
     }
     componentIndex++;
@@ -2816,12 +2816,12 @@ void CMesh::setTextureRepeatU(bool r)
         if (diff)
         {
             _textureProperty->setRepeatU(r);
-            if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
+            if ((_isInSceneShapeHandle != -1) && App::scenes->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureRepeatU.name;
-                CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+                CCbor* ev = App::scenes->createObjectChangedEvent(_objectHandle, cmd, true);
                 ev->appendKeyBool(cmd, r);
-                App::sceneContainer->pushEvent();
+                App::scenes->pushEvent();
             }
         }
     }
@@ -2843,12 +2843,12 @@ void CMesh::setTextureRepeatV(bool r)
         if (diff)
         {
             _textureProperty->setRepeatV(r);
-            if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
+            if ((_isInSceneShapeHandle != -1) && App::scenes->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureRepeatV.name;
-                CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+                CCbor* ev = App::scenes->createObjectChangedEvent(_objectHandle, cmd, true);
                 ev->appendKeyBool(cmd, r);
-                App::sceneContainer->pushEvent();
+                App::scenes->pushEvent();
             }
         }
     }
@@ -2870,12 +2870,12 @@ void CMesh::setTextureInterpolate(bool r)
         if (diff)
         {
             _textureProperty->setInterpolateColors(r);
-            if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
+            if ((_isInSceneShapeHandle != -1) && App::scenes->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureInterpolate.name;
-                CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+                CCbor* ev = App::scenes->createObjectChangedEvent(_objectHandle, cmd, true);
                 ev->appendKeyBool(cmd, r);
-                App::sceneContainer->pushEvent();
+                App::scenes->pushEvent();
             }
         }
     }
@@ -2897,12 +2897,12 @@ void CMesh::setTextureApplyMode(int m)
         if (diff)
         {
             _textureProperty->setApplyMode(m);
-            if ((_isInSceneShapeHandle != -1) && App::sceneContainer->getEventsEnabled())
+            if ((_isInSceneShapeHandle != -1) && App::scenes->getEventsEnabled())
             {
                 const char* cmd = propMesh_textureApplyMode.name;
-                CCbor* ev = App::sceneContainer->createObjectChangedEvent(_objectHandle, cmd, true);
+                CCbor* ev = App::scenes->createObjectChangedEvent(_objectHandle, cmd, true);
                 ev->appendKeyInt64(cmd, m);
-                App::sceneContainer->pushEvent();
+                App::scenes->pushEvent();
             }
         }
     }
@@ -2919,33 +2919,33 @@ int CMesh::getTextureApplyMode() const
 int CMesh::setBoolProperty(const char* ppName, bool pState, const C7Vector& shapeRelTr)
 {
     const char* pName = ppName;
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propMesh_showEdges.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         setVisibleEdges(pState);
     }
     else if (strcmp(pName, propMesh_culling.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         setCulling(pState);
     }
     else if (strcmp(pName, propMesh_textureRepeatU.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         if (_textureProperty != nullptr)
             setTextureRepeatU(pState);
     }
     else if (strcmp(pName, propMesh_textureRepeatV.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         if (_textureProperty != nullptr)
             setTextureRepeatV(pState);
     }
     else if (strcmp(pName, propMesh_textureInterpolate.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         if (_textureProperty != nullptr)
             setTextureInterpolate(pState);
     }
@@ -2956,21 +2956,21 @@ int CMesh::setBoolProperty(const char* ppName, bool pState, const C7Vector& shap
 int CMesh::getBoolProperty(const char* ppName, bool& pState, const C7Vector& shapeRelTr) const
 {
     const char* pName = ppName;
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propMesh_showEdges.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _visibleEdges;
     }
     else if (strcmp(pName, propMesh_culling.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _culling;
     }
     else if (strcmp(pName, propMesh_textureRepeatU.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         if (_textureProperty != nullptr)
             pState = getTextureRepeatU();
         else
@@ -2978,7 +2978,7 @@ int CMesh::getBoolProperty(const char* ppName, bool& pState, const C7Vector& sha
     }
     else if (strcmp(pName, propMesh_textureRepeatV.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         if (_textureProperty != nullptr)
             pState = getTextureRepeatV();
         else
@@ -2986,7 +2986,7 @@ int CMesh::getBoolProperty(const char* ppName, bool& pState, const C7Vector& sha
     }
     else if (strcmp(pName, propMesh_textureInterpolate.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         if (_textureProperty != nullptr)
             pState = getTextureInterpolate();
         else
@@ -2994,7 +2994,7 @@ int CMesh::getBoolProperty(const char* ppName, bool& pState, const C7Vector& sha
     }
     else if (strcmp(pName, propMesh_convex.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _convex;
     }
 
@@ -3004,11 +3004,11 @@ int CMesh::getBoolProperty(const char* ppName, bool& pState, const C7Vector& sha
 int CMesh::setIntProperty(const char* ppName, int pState, const C7Vector& shapeRelTr)
 {
     const char* pName = ppName;
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if ((strcmp(pName, propMesh_textureApplyMode.name) == 0) && (_textureProperty != nullptr))
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         setTextureApplyMode(pState);
     }
 
@@ -3018,11 +3018,11 @@ int CMesh::setIntProperty(const char* ppName, int pState, const C7Vector& shapeR
 int CMesh::getIntProperty(const char* ppName, int& pState, const C7Vector& shapeRelTr) const
 {
     const char* pName = ppName;
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propMesh_textureID.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         if (_textureProperty != nullptr)
             pState = _textureProperty->getTextureObjectID();
         else
@@ -3030,7 +3030,7 @@ int CMesh::getIntProperty(const char* ppName, int& pState, const C7Vector& shape
     }
     else if (strcmp(pName, propMesh_textureApplyMode.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         if (_textureProperty != nullptr)
             pState = getTextureApplyMode();
         else
@@ -3038,12 +3038,12 @@ int CMesh::getIntProperty(const char* ppName, int& pState, const C7Vector& shape
     }
     else if (strcmp(pName, propMesh_shapeUid.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _isInSceneShapeUid;
     }
     else if (strcmp(pName, propMesh_primitiveType.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _purePrimitive;
     }
 
@@ -3060,11 +3060,11 @@ int CMesh::getLongProperty(const char* ppName, long long int& pState, const C7Ve
 int CMesh::getHandleProperty(const char* ppName, long long int& pState, const C7Vector& shapeRelTr) const
 {
     const char* pName = ppName;
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propMesh_shape.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState = _isInSceneShapeHandle;
     }
 
@@ -3075,11 +3075,11 @@ int CMesh::setFloatProperty(const char* ppName, double pState, const C7Vector& s
 {
     const char* pName = ppName;
     int retVal = color.setFloatProperty(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(pName, propMesh_shadingAngle.name) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setShadingAngle(pState);
         }
     }
@@ -3090,11 +3090,11 @@ int CMesh::getFloatProperty(const char* ppName, double& pState, const C7Vector& 
 {
     const char* pName = ppName;
     int retVal = color.getFloatProperty(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(pName, propMesh_shadingAngle.name) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _shadingAngle;
         }
     }
@@ -3105,11 +3105,11 @@ int CMesh::getFloatProperty(const char* ppName, double& pState, const C7Vector& 
 int CMesh::setStringProperty(const char* ppName, const char* pState, const C7Vector& shapeRelTr)
 {
     const char* pName = ppName;
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propMesh_colorName.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         color.setColorName(pState);
     }
 
@@ -3121,11 +3121,11 @@ int CMesh::getStringProperty(const char* ppName, std::string& pState, const C7Ve
     const char* pName = ppName;
     int retVal = Obj::getStringProperty(ppName, pState);
 
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(pName, propMesh_colorName.name) == 0)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = color.getColorName();
         }
     }
@@ -3135,7 +3135,7 @@ int CMesh::getStringProperty(const char* ppName, std::string& pState, const C7Ve
 
 int CMesh::setBufferProperty(const char* ppName, const char* buffer, int bufferL, const C7Vector& shapeRelTr)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (buffer == nullptr)
         bufferL = 0;
 
@@ -3145,11 +3145,11 @@ int CMesh::setBufferProperty(const char* ppName, const char* buffer, int bufferL
 int CMesh::getBufferProperty(const char* ppName, std::string& pState, const C7Vector& shapeRelTr) const
 {
     const char* pName = ppName;
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propMesh_texture.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         if (_textureProperty != nullptr)
         {
             int ts[2];
@@ -3166,7 +3166,7 @@ int CMesh::getBufferProperty(const char* ppName, std::string& pState, const C7Ve
 
 int CMesh::setIntArray2Property(const char* ppName, const int* pState, const C7Vector& shapeRelTr)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
@@ -3174,11 +3174,11 @@ int CMesh::setIntArray2Property(const char* ppName, const int* pState, const C7V
 int CMesh::getIntArray2Property(const char* ppName, int* pState, const C7Vector& shapeRelTr) const
 {
     const char* pName = ppName;
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     if ((strcmp(pName, propMesh_textureResolution.name) == 0) && (_textureProperty != nullptr))
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         _textureProperty->getTextureObject()->getTextureSize(pState[0], pState[1]);
     }
 
@@ -3187,56 +3187,56 @@ int CMesh::getIntArray2Property(const char* ppName, int* pState, const C7Vector&
 
 int CMesh::setVector2Property(const char* ppName, const double* pState, const C7Vector& shapeRelTr)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
 
 int CMesh::getVector2Property(const char* ppName, double* pState, const C7Vector& shapeRelTr) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
 
 int CMesh::setVector3Property(const char* ppName, const C3Vector& pState, const C7Vector& shapeRelTr)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
 
 int CMesh::getVector3Property(const char* ppName, C3Vector& pState, const C7Vector& shapeRelTr) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
 
 int CMesh::setQuaternionProperty(const char* ppName, const C4Vector& pState, const C7Vector& shapeRelTr)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
 
 int CMesh::getQuaternionProperty(const char* ppName, C4Vector& pState, const C7Vector& shapeRelTr) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
 
 int CMesh::setPoseProperty(const char* ppName, const C7Vector& pState, const C7Vector& shapeRelTr)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
 
 int CMesh::getPoseProperty(const char* ppName, C7Vector& pState, const C7Vector& shapeRelTr) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
@@ -3245,7 +3245,7 @@ int CMesh::setColorProperty(const char* ppName, const float* pState, const C7Vec
 {
     const char* pName = ppName;
     int retVal = color.setColorProperty(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
     return retVal;
@@ -3255,7 +3255,7 @@ int CMesh::getColorProperty(const char* ppName, float* pState, const C7Vector& s
 {
     const char* pName = ppName;
     int retVal = color.getColorProperty(pName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
     return retVal;
@@ -3263,7 +3263,7 @@ int CMesh::getColorProperty(const char* ppName, float* pState, const C7Vector& s
 
 int CMesh::setFloatArrayProperty(const char* ppName, const double* v, int vL, const C7Vector& shapeRelTr)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (v == nullptr)
         vL = 0;
 
@@ -3273,12 +3273,12 @@ int CMesh::setFloatArrayProperty(const char* ppName, const double* v, int vL, co
 int CMesh::getFloatArrayProperty(const char* ppName, std::vector<double>& pState, const C7Vector& shapeRelTr) const
 {
     const char* pName = ppName;
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     pState.clear();
 
     if (strcmp(pName, propMesh_vertices.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState.resize(_verticesForDisplayAndDisk.size());
         for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)
         {
@@ -3292,7 +3292,7 @@ int CMesh::getFloatArrayProperty(const char* ppName, std::vector<double>& pState
     }
     else if (strcmp(pName, propMesh_normals.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState.resize(_indices.size() * 3);
         for (size_t j = 0; j < _indices.size(); j++)
         {
@@ -3306,7 +3306,7 @@ int CMesh::getFloatArrayProperty(const char* ppName, std::vector<double>& pState
     }
     else if ((strcmp(pName, propMesh_textureCoordinates.name) == 0) && (_textureProperty != nullptr))
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         const std::vector<float>* tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
         pState.resize(tc->size());
         for (size_t i = 0; i < tc->size(); i++)
@@ -3318,7 +3318,7 @@ int CMesh::getFloatArrayProperty(const char* ppName, std::vector<double>& pState
 
 int CMesh::setIntArrayProperty(const char* ppName, const int* v, int vL, const C7Vector& shapeRelTr)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (v == nullptr)
         vL = 0;
 
@@ -3328,12 +3328,12 @@ int CMesh::setIntArrayProperty(const char* ppName, const int* v, int vL, const C
 int CMesh::getIntArrayProperty(const char* ppName, std::vector<int>& pState, const C7Vector& shapeRelTr) const
 {
     const char* pName = ppName;
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     pState.clear();
 
     if (strcmp(pName, propMesh_indices.name) == 0)
     {
-        retVal = 1;
+        retVal = sim_propertyret_ok;
         pState.assign(_indices.begin(), _indices.end());
     }
 
@@ -3342,7 +3342,7 @@ int CMesh::getIntArrayProperty(const char* ppName, std::vector<int>& pState, con
 
 int CMesh::removeProperty(const char* ppName)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
@@ -3350,11 +3350,11 @@ int CMesh::removeProperty(const char* ppName)
 int CMesh::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         appartenance = _objectTypeStr;
         retVal = color.getPropertyName(index, pName, excludeFlags);
-        if (retVal == -1)
+        if (retVal == sim_propertyret_unknownproperty)
         {
             for (size_t i = 0; i < allProps_mesh.size(); i++)
             {
@@ -3368,7 +3368,7 @@ int CMesh::getPropertyName(int& index, std::string& pName, std::string& apparten
                             if (index == -1)
                             {
                                 pName = allProps_mesh[i].name;
-                                retVal = 1;
+                                retVal = sim_propertyret_ok;
                                 break;
                             }
                         }
@@ -3383,9 +3383,9 @@ int CMesh::getPropertyName(int& index, std::string& pName, std::string& apparten
 int CMesh::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = color.getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         for (size_t i = 0; i < allProps_mesh.size(); i++)
         {
@@ -3408,7 +3408,7 @@ int CMesh::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) 
                 break;
             }
         }
-        if (retVal != -1)
+        if (retVal != sim_propertyret_unknownproperty)
         {
             std::string _pName(ppName);
             if ((_pName == propMesh_textureCoordinates.name) && (_textureProperty != nullptr))

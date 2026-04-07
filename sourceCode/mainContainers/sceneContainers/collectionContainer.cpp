@@ -92,7 +92,7 @@ void CCollectionContainer::getCollidableObjectsFromCollection(long long int coll
         for (size_t i = 0; i < theGroup->getSceneObjectCountInCollection(); i++)
         {
             CSceneObject* anObject =
-                App::currentScene->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
+                App::scene->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
             if ((anObject != nullptr) && (anObject->isPotentiallyCollidable()))
             {
                 if ((anObject->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_collidable) ||
@@ -113,7 +113,7 @@ void CCollectionContainer::getMeasurableObjectsFromCollection(long long int coll
         for (size_t i = 0; i < theGroup->getSceneObjectCountInCollection(); i++)
         {
             CSceneObject* anObject =
-                App::currentScene->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
+                App::scene->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
             if ((anObject != nullptr) && (anObject->isPotentiallyMeasurable()))
             {
                 if ((anObject->getCumulativeObjectSpecialProperty() & sim_objectspecialproperty_measurable) ||
@@ -134,7 +134,7 @@ void CCollectionContainer::getDetectableObjectsFromCollection(long long int coll
         for (size_t i = 0; i < theGroup->getSceneObjectCountInCollection(); i++)
         {
             CSceneObject* anObject =
-                App::currentScene->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
+                App::scene->sceneObjects->getObjectFromHandle(theGroup->getSceneObjectHandleFromIndex(i));
             if ((anObject != nullptr) && (anObject->isPotentiallyDetectable()))
             {
                 if ((anObject->getCumulativeObjectSpecialProperty() & detectableMask) || overridePropertyFlags)
@@ -157,7 +157,7 @@ void CCollectionContainer::setUpDefaultValues()
 
 void CCollectionContainer::removeCollection(long long int collectionHandle)
 {
-    App::currentScene->announceCollectionWillBeErased(int(collectionHandle));
+    App::scene->announceCollectionWillBeErased(int(collectionHandle));
     _removeCollection(collectionHandle);
 #ifdef SIM_WITH_GUI
     GuiApp::setFullDialogRefreshFlag();
@@ -258,13 +258,13 @@ void CCollectionContainer::addCollectionToSelection(long long int collectionHand
     if (it != nullptr)
     {
         for (size_t i = 0; i < it->getSceneObjectCountInCollection(); i++)
-            App::currentScene->sceneObjects->addObjectToSelection(it->getSceneObjectHandleFromIndex(i));
+            App::scene->sceneObjects->addObjectToSelection(it->getSceneObjectHandleFromIndex(i));
     }
 }
 
 int CCollectionContainer::getLongProperty(long long int target, const char* pName, long long int& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -280,7 +280,7 @@ int CCollectionContainer::getLongProperty(long long int target, const char* pNam
 
 int CCollectionContainer::getHandleProperty(long long int target, const char* pName, long long int& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -296,7 +296,7 @@ int CCollectionContainer::getHandleProperty(long long int target, const char* pN
 
 int CCollectionContainer::getStringProperty(long long int target, const char* pName, std::string& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
     }
@@ -312,7 +312,7 @@ int CCollectionContainer::getStringProperty(long long int target, const char* pN
 
 int CCollectionContainer::getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     pState.clear();
     if (target == -1)
     {
@@ -320,7 +320,7 @@ int CCollectionContainer::getHandleArrayProperty(long long int target, const cha
         {
             for (size_t i = 0; i < _allCollections.size(); i++)
                 pState.push_back(_allCollections[i]->getObjectHandle());
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
     else
@@ -335,7 +335,7 @@ int CCollectionContainer::getHandleArrayProperty(long long int target, const cha
 
 int CCollectionContainer::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
         for (size_t i = 0; i < allProps_collCont.size(); i++)
@@ -348,7 +348,7 @@ int CCollectionContainer::getPropertyName(long long int target, int& index, std:
                     if (index == -1)
                     {
                         pName = allProps_collCont[i].name;
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                         break;
                     }
                 }
@@ -370,7 +370,7 @@ int CCollectionContainer::getPropertyName(long long int target, int& index, std:
 
 int CCollectionContainer::getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
         for (size_t i = 0; i < allProps_collCont.size(); i++)
@@ -417,17 +417,17 @@ void CCollectionContainer::_removeCollection(long long int collectionHandle)
     {
         if (_allCollections[i]->getObjectHandle() == collectionHandle)
         {
-            if (App::sceneContainer->getEventsEnabled())
+            if (App::scenes->getEventsEnabled())
             {
                 if (App::getEventProtocolVersion()  >= 3)
                 {
-                    App::sceneContainer->createEvent(EVENTTYPE_OBJECTREMOVED, collectionHandle, collectionHandle, nullptr, false);
-                    App::sceneContainer->pushEvent();
+                    App::scenes->createEvent(EVENTTYPE_OBJECTREMOVED, collectionHandle, collectionHandle, nullptr, false);
+                    App::scenes->pushEvent();
                 }
                 if (App::getEventProtocolVersion() <= 3)
                 { // For backw. compatibility
-                    App::sceneContainer->createEvent("collectionRemoved", -1, collectionHandle, nullptr, false);
-                    App::sceneContainer->pushEvent();
+                    App::scenes->createEvent("collectionRemoved", -1, collectionHandle, nullptr, false);
+                    App::scenes->pushEvent();
                 }
             }
             delete _allCollections[i];
@@ -442,18 +442,18 @@ void CCollectionContainer::_addCollection(CCollection* collection)
     _allCollections.push_back(collection);
     collection->pushCreationEvent();
 
-    if (App::sceneContainer->getEventsEnabled())
+    if (App::scenes->getEventsEnabled())
     {
         std::vector<long long int> handles;
         for (size_t i = 0; i < _allCollections.size(); i++)
             handles.push_back(_allCollections[i]->getObjectHandle());
         const char* cmd = propCollectionCont_collections.name;
-        CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt64Array(cmd, handles.data(), handles.size());
         else
             ev->appendKeyHandleArray(cmd, handles.data(), handles.size());
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
     }
 }
 
@@ -509,12 +509,12 @@ void CCollectionContainer::pushGenesisEvents() const
         // We need to "fake" adding that collection:
         addedCollections.push_back(coll->getObjectHandle());
         const char* cmd = propCollectionCont_collections.name;
-        CCbor* ev = App::sceneContainer->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, addedCollections.data(), addedCollections.size());
         else
             ev->appendKeyHandleArray(cmd, addedCollections.data(), addedCollections.size());
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
     }
 }
 

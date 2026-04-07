@@ -57,7 +57,7 @@ CPtCloud_old::CPtCloud_old(int pageMask, int layerMask, int parentHandle, int op
     if (normals != nullptr)
         _normals.assign(normals, normals + ptCnt * 3);
 
-    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_parentHandle);
+    CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_parentHandle);
     _parentUniqueId = -1;
     if (it != nullptr)
     {
@@ -119,7 +119,7 @@ bool CPtCloud_old::announceObjectWillBeErased(int objectHandleAttachedTo)
 
 void CPtCloud_old::pushAddEvent()
 {
-    if (App::sceneContainer->getEventsEnabled())
+    if (App::scenes->getEventsEnabled())
     {
         float c[9];
         c[0] = _defaultColors[0];
@@ -147,7 +147,7 @@ void CPtCloud_old::pushAddEvent()
             quaternions[4 * i + 3] = 1.0f;
         }
 
-        CCbor* ev = App::sceneContainer->createEvent("drawingObjectAdded", -1, _uniqueId, nullptr, false);
+        CCbor* ev = App::scenes->createEvent("drawingObjectAdded", -1, _uniqueId, nullptr, false);
         ev->appendKeyText("type", "point");
         ev->appendKeyFloatArray("color", c, 9);
         ev->appendKeyInt64("maxCnt", int(_vertices.size() / 3));
@@ -156,14 +156,14 @@ void CPtCloud_old::pushAddEvent()
         ev->appendKeyBool("cyclic", false);
         ev->appendKeyBool("overlay", false);
         ev->appendKeyBool("clearPoints", true);
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
 
-        ev = App::sceneContainer->createEvent("drawingObjectChanged", -1, _uniqueId, nullptr, false);
+        ev = App::scenes->createEvent("drawingObjectChanged", -1, _uniqueId, nullptr, false);
         ev->appendKeyDoubleArray("points", _vertices.data(), _vertices.size());
         ev->appendKeyFloatArray("quaternions", quaternions.data(), quaternions.size());
         ev->appendKeyFloatArray("colors", _colors.data(), _colors.size());
         ev->appendKeyBool("clearPoints", true);
-        App::sceneContainer->pushEvent();
+        App::scenes->pushEvent();
     }
 }
 
@@ -172,14 +172,14 @@ void CPtCloud_old::draw(int displayAttrib)
 {
     if (((displayAttrib & sim_displayattribute_forvisionsensor) == 0) || ((_options & 2) == 0))
     {
-        int currentPage = App::currentScene->pageContainer->getActivePageIndex();
+        int currentPage = App::scene->pageContainer->getActivePageIndex();
         int p = 1 << currentPage;
         if ((_pageMask == 0) || ((_pageMask & p) != 0))
         {
-            int currentLayers = App::currentScene->environment->getActiveLayers();
+            int currentLayers = App::scene->environment->getActiveLayers();
             if (((currentLayers & _layerMask) != 0) && (_vertices.size() != 0))
             {
-                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_parentHandle);
+                CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_parentHandle);
                 displayPtCloud_old(this, it);
             }
         }

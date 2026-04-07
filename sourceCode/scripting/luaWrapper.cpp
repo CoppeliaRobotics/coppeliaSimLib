@@ -145,6 +145,11 @@ const char* luaWrap_lua_tostring(luaWrap_lua_State* L, int idx)
     return luaWrap_lua_tobuffer(L, idx, &len);
 }
 
+const char* luaWrap_luaL_tolstring(luaWrap_lua_State* L, int idx, size_t* len)
+{
+    return luaL_tolstring((lua_State*)L, idx, len);
+}
+
 int luaWrap_lua_isnumber(luaWrap_lua_State* L, int idx)
 { // see also luaWrap_lua_numbertype
     return (lua_isnumber((lua_State*)L, idx));

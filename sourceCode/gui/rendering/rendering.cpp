@@ -251,8 +251,8 @@ void makeColorCurrent(const CColorObject* visParam, bool forceNonTransparent, bo
         if (visParam->getFlash())
         {
             float t = 0.0;
-            if (visParam->getUseSimulationTime() && (!App::currentScene->simulation->isSimulationStopped()))
-                t = (float)App::currentScene->simulation->getSimulationTime();
+            if (visParam->getUseSimulationTime() && (!App::scene->simulation->isSimulationStopped()))
+                t = (float)App::scene->simulation->getSimulationTime();
             if (!visParam->getUseSimulationTime())
                 t = float(VDateTime::getTimeInMs()) / 1000.0;
             t += visParam->getFlashPhase() / visParam->getFlashFrequency();
@@ -313,11 +313,11 @@ void _activateNonAmbientLights(int lightHandle, CViewableBase* viewable)
     // First deactivate all:
     for (int i = 0; i < CLight::getMaxAvailableOglLights(); i++)
         glDisable(GL_LIGHT0 + i);
-    App::currentScene->environment->setNonAmbientLightsActive(false);
+    App::scene->environment->setNonAmbientLightsActive(false);
 
     if (lightHandle > -2)
     {
-        App::currentScene->environment->setNonAmbientLightsActive(true);
+        App::scene->environment->setNonAmbientLightsActive(true);
         float lightPos[4];
         float lightDir[3];
         int activeLightCounter = 0;
@@ -326,9 +326,9 @@ void _activateNonAmbientLights(int lightHandle, CViewableBase* viewable)
         std::vector<CLight*> lList;
         if (lightHandle == -1)
         {
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_light); i++)
+            for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_light); i++)
             {
-                CLight* light = App::currentScene->sceneObjects->getLightFromIndex(i);
+                CLight* light = App::scene->sceneObjects->getLightFromIndex(i);
                 lList.push_back(light);
             }
         }
@@ -336,19 +336,19 @@ void _activateNonAmbientLights(int lightHandle, CViewableBase* viewable)
         {
             if (lightHandle <= sim_object_sceneobjectend)
             {
-                CLight* light = App::currentScene->sceneObjects->getLightFromHandle(lightHandle);
+                CLight* light = App::scene->sceneObjects->getLightFromHandle(lightHandle);
                 if (light != nullptr)
                     lList.push_back(light);
             }
             else
             {
-                CCollection* gr = App::currentScene->collections->getObjectFromHandle(lightHandle);
+                CCollection* gr = App::scene->collections->getObjectFromHandle(lightHandle);
                 if (gr != nullptr)
                 {
                     for (size_t i = 0; i < gr->getSceneObjectCountInCollection(); i++)
                     {
                         CLight* light =
-                            App::currentScene->sceneObjects->getLightFromHandle(gr->getSceneObjectHandleFromIndex(i));
+                            App::scene->sceneObjects->getLightFromHandle(gr->getSceneObjectHandleFromIndex(i));
                         if (light != nullptr)
                             lList.push_back(light);
                     }
@@ -448,14 +448,14 @@ void _enableAuxClippingPlanes(int objID)
 
 void _prepareOrEnableAuxClippingPlanes(bool prepare, int objID)
 {
-    if (App::currentScene->mainSettings_old->clippingPlanesDisabled)
+    if (App::scene->mainSettings_old->clippingPlanesDisabled)
         return;
     int cpi = 0;
-    for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_mirror); i++)
+    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_mirror); i++)
     {
         if (cpi < 5)
         {
-            CMirror* it = App::currentScene->sceneObjects->getMirrorFromIndex(i);
+            CMirror* it = App::scene->sceneObjects->getMirrorFromIndex(i);
             if ((!it->getIsMirror()) && it->getActive())
             {
                 if (prepare)
@@ -472,7 +472,7 @@ void _prepareOrEnableAuxClippingPlanes(bool prepare, int objID)
                     bool clipIt = false;
                     if (clipObj > sim_object_sceneobjectend)
                     { // collection
-                        CCollection* coll = App::currentScene->collections->getObjectFromHandle(clipObj);
+                        CCollection* coll = App::scene->collections->getObjectFromHandle(clipObj);
                         clipIt = coll->isObjectInCollection(objID);
                     }
                     else
@@ -495,7 +495,7 @@ void _disableAuxClippingPlanes()
 void _selectLights(CSceneObject* object, CViewableBase* viewable)
 {
     object->setRestoreToDefaultLights(false);
-    if (App::currentScene->environment->areNonAmbientLightsActive())
+    if (App::scene->environment->areNonAmbientLightsActive())
     {
         if (object->getSpecificLight() != -1)
         {
@@ -599,7 +599,7 @@ void _displayBoundingBox(const C3Vector* objectFrame, const C7Vector& absBBFrame
     ogl::addBuffer3DPoints(bbMax(0) + dx(0), bbMax(1) + dx(1), bbMax(2) + dx(2));
     ogl::drawRandom3dLines(&ogl::buffer[0], (int)ogl::buffer.size() / 3, false, nullptr);
     ogl::buffer.clear();
-    App::currentScene->environment->reactivateFogThatWasTemporarilyDisabled();
+    App::scene->environment->reactivateFogThatWasTemporarilyDisabled();
 
     C4Vector r(absBBFrame.Q);
     C3Vector absV;
@@ -646,7 +646,7 @@ void _displayBoundingBox(const C3Vector* objectFrame, const C7Vector& absBBFrame
             corner(i) = bbMax(i) + dx(i);
         corner2(i) = corner(i) * (1.05 + 0.025 * double((object->getObjectHandle() >> ((2 - i) * 2)) % 4));
     }
-    App::currentScene->environment->temporarilyDeactivateFog();
+    App::scene->environment->temporarilyDeactivateFog();
     ogl::drawSingle3dLine(corner.data, corner2.data, nullptr);
     ogl::drawBitmapTextTo3dPosition(corner2.data, object->getDisplayName().c_str(), nullptr);
 
@@ -656,7 +656,7 @@ void _displayBoundingBox(const C3Vector* objectFrame, const C7Vector& absBBFrame
         ogl::drawSingle3dLine(objectFrame->data, C3Vector::zeroVector.data, nullptr);
     }
 
-    App::currentScene->environment->reactivateFogThatWasTemporarilyDisabled();
+    App::scene->environment->reactivateFogThatWasTemporarilyDisabled();
     glLineWidth(1.0);
     glDisable(GL_LINE_STIPPLE);
 }
@@ -692,12 +692,12 @@ bool _start3DTextureDisplay(CTextureProperty* tp)
         return (false);
     CTextureObject* it = nullptr;
     if (_textureOrVisionSensorObjectID > sim_object_sceneobjectend)
-        it = App::currentScene->textureContainer->getObject(_textureOrVisionSensorObjectID);
+        it = App::scene->textureContainer->getObject(_textureOrVisionSensorObjectID);
     CVisionSensor* rs = nullptr;
     if ((_textureOrVisionSensorObjectID >= sim_object_sceneobjectstart) &&
         (_textureOrVisionSensorObjectID <= sim_object_sceneobjectend))
     {
-        rs = App::currentScene->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
+        rs = App::scene->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
         if (rs != nullptr)
             it = rs->getTextureObject();
     }
@@ -724,12 +724,12 @@ bool _start2DTextureDisplay(CTextureProperty* tp)
         return (false);
     CTextureObject* it = nullptr;
     if (_textureOrVisionSensorObjectID > sim_object_sceneobjectend)
-        it = App::currentScene->textureContainer->getObject(_textureOrVisionSensorObjectID);
+        it = App::scene->textureContainer->getObject(_textureOrVisionSensorObjectID);
     CVisionSensor* rs = nullptr;
     if ((_textureOrVisionSensorObjectID >= sim_object_sceneobjectstart) &&
         (_textureOrVisionSensorObjectID <= sim_object_sceneobjectend))
     {
-        rs = App::currentScene->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
+        rs = App::scene->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
         if (rs != nullptr)
             it = rs->getTextureObject();
     }

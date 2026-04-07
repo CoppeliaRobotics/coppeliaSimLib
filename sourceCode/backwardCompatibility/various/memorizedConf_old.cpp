@@ -34,7 +34,7 @@ CMemorizedConf_old::~CMemorizedConf_old()
 
 int CMemorizedConf_old::getParentCount()
 {
-    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromUid(uniqueID);
+    CSceneObject* it = App::scene->sceneObjects->getObjectFromUid(uniqueID);
     if (it == nullptr)
         return (0);
     return (it->getParentCount());
@@ -42,7 +42,7 @@ int CMemorizedConf_old::getParentCount()
 
 void CMemorizedConf_old::restore()
 {
-    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromUid(uniqueID);
+    CSceneObject* it = App::scene->sceneObjects->getObjectFromUid(uniqueID);
     if (it == nullptr)
         return;
     it->setDynamicsResetFlag(true, false); // dynamically enabled objects have to be reset first!
@@ -66,7 +66,7 @@ void CMemorizedConf_old::restore()
 
 bool CMemorizedConf_old::doesStillExist()
 {
-    return (App::currentScene->sceneObjects->getObjectFromUid(uniqueID) != nullptr);
+    return (App::scene->sceneObjects->getObjectFromUid(uniqueID) != nullptr);
 }
 
 void CMemorizedConf_old::serializeToMemory(std::vector<char>& data)

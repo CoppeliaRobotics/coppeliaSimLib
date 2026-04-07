@@ -22,36 +22,36 @@ void CQDlgFog::refresh()
 {
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool noEditModeNoSim =
-        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped();
+        (GuiApp::getEditModeType() == NO_EDIT_MODE) && App::scene->simulation->isSimulationStopped();
 
     ui->qqFogEnabled->setEnabled(noEditModeNoSim);
-    ui->qqFogEnabled->setChecked(App::currentScene->environment->getFogEnabled());
+    ui->qqFogEnabled->setChecked(App::scene->environment->getFogEnabled());
 
-    ui->qqLinear->setEnabled(App::currentScene->environment->getFogEnabled() && noEditModeNoSim);
-    ui->qqExp->setEnabled(App::currentScene->environment->getFogEnabled() && noEditModeNoSim);
-    ui->qqExp2->setEnabled(App::currentScene->environment->getFogEnabled() && noEditModeNoSim);
-    ui->qqStartDistance->setEnabled(App::currentScene->environment->getFogEnabled() &&
-                                    (App::currentScene->environment->getFogType() == 0) && noEditModeNoSim);
-    ui->qqEndDistance->setEnabled(App::currentScene->environment->getFogEnabled() &&
-                                  (App::currentScene->environment->getFogType() == 0) && noEditModeNoSim);
-    ui->qqDensity->setEnabled(App::currentScene->environment->getFogEnabled() &&
-                              (App::currentScene->environment->getFogType() != 0) && noEditModeNoSim);
-    ui->qqAdjustColor->setEnabled(App::currentScene->environment->getFogEnabled() && noEditModeNoSim);
+    ui->qqLinear->setEnabled(App::scene->environment->getFogEnabled() && noEditModeNoSim);
+    ui->qqExp->setEnabled(App::scene->environment->getFogEnabled() && noEditModeNoSim);
+    ui->qqExp2->setEnabled(App::scene->environment->getFogEnabled() && noEditModeNoSim);
+    ui->qqStartDistance->setEnabled(App::scene->environment->getFogEnabled() &&
+                                    (App::scene->environment->getFogType() == 0) && noEditModeNoSim);
+    ui->qqEndDistance->setEnabled(App::scene->environment->getFogEnabled() &&
+                                  (App::scene->environment->getFogType() == 0) && noEditModeNoSim);
+    ui->qqDensity->setEnabled(App::scene->environment->getFogEnabled() &&
+                              (App::scene->environment->getFogType() != 0) && noEditModeNoSim);
+    ui->qqAdjustColor->setEnabled(App::scene->environment->getFogEnabled() && noEditModeNoSim);
 
-    ui->qqLinear->setChecked(App::currentScene->environment->getFogType() == 0);
-    ui->qqExp->setChecked(App::currentScene->environment->getFogType() == 1);
-    ui->qqExp2->setChecked(App::currentScene->environment->getFogType() == 2);
-    if (App::currentScene->environment->getFogType() != 0)
+    ui->qqLinear->setChecked(App::scene->environment->getFogType() == 0);
+    ui->qqExp->setChecked(App::scene->environment->getFogType() == 1);
+    ui->qqExp2->setChecked(App::scene->environment->getFogType() == 2);
+    if (App::scene->environment->getFogType() != 0)
     {
         ui->qqStartDistance->setText("");
         ui->qqEndDistance->setText("");
-        ui->qqDensity->setText(utils::get0To1String(false, App::currentScene->environment->getFogDensity()).c_str());
+        ui->qqDensity->setText(utils::get0To1String(false, App::scene->environment->getFogDensity()).c_str());
     }
     else
     {
         ui->qqStartDistance->setText(
-            utils::getSizeString(false, App::currentScene->environment->getFogStart()).c_str());
-        ui->qqEndDistance->setText(utils::getSizeString(false, App::currentScene->environment->getFogEnd()).c_str());
+            utils::getSizeString(false, App::scene->environment->getFogStart()).c_str());
+        ui->qqEndDistance->setText(utils::getSizeString(false, App::scene->environment->getFogEnd()).c_str());
         ui->qqDensity->setText("");
     }
 

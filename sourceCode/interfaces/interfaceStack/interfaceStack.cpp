@@ -1681,11 +1681,11 @@ int CInterfaceStack::setBoolProperty(const char*ppName, bool pState)
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             replaceStackObjectFromIndex(stackIndex, new CInterfaceStackBool(pState));
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -1698,7 +1698,7 @@ int CInterfaceStack::setBoolProperty(const char*ppName, bool pState)
                     if (tbl->isTableArray())
                     {
                         tbl->appendArrayObject_bool(pState);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -1706,7 +1706,7 @@ int CInterfaceStack::setBoolProperty(const char*ppName, bool pState)
                     if (tbl->isTableMap())
                     {
                         tbl->appendMapObject_bool(key.c_str(), pState);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -1723,14 +1723,14 @@ int CInterfaceStack::getBoolProperty(const char*ppName, bool& pState) const
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
             if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_bool) )
             {
                 pState = ((CInterfaceStackBool*)it)->getValue();
-                retVal = 1;
+                retVal = sim_propertyret_ok;
             }
         }
         else
@@ -1747,7 +1747,7 @@ int CInterfaceStack::getBoolProperty(const char*ppName, bool& pState) const
                 if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_bool) )
                 {
                     pState = ((CInterfaceStackBool*)it)->getValue();
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
         }
@@ -1762,11 +1762,11 @@ int CInterfaceStack::setIntProperty(const char*ppName, int pState)
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             replaceStackObjectFromIndex(stackIndex, new CInterfaceStackInteger(pState));
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -1779,7 +1779,7 @@ int CInterfaceStack::setIntProperty(const char*ppName, int pState)
                     if (tbl->isTableArray())
                     {
                         tbl->appendArrayObject_int32(pState);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -1787,7 +1787,7 @@ int CInterfaceStack::setIntProperty(const char*ppName, int pState)
                     if (tbl->isTableMap())
                     {
                         tbl->appendMapObject_int32(key.c_str(), pState);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -1804,14 +1804,14 @@ int CInterfaceStack::getIntProperty(const char*ppName, int& pState) const
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
             if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
             {
                 pState = int(((CInterfaceStackInteger*)it)->getValue());
-                retVal = 1;
+                retVal = sim_propertyret_ok;
             }
         }
         else
@@ -1828,7 +1828,7 @@ int CInterfaceStack::getIntProperty(const char*ppName, int& pState) const
                 if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
                 {
                     pState = int(((CInterfaceStackInteger*)it)->getValue());
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
         }
@@ -1843,11 +1843,11 @@ int CInterfaceStack::setLongProperty(const char*ppName, long long int pState)
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             replaceStackObjectFromIndex(stackIndex, new CInterfaceStackInteger(pState));
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -1860,7 +1860,7 @@ int CInterfaceStack::setLongProperty(const char*ppName, long long int pState)
                     if (tbl->isTableArray())
                     {
                         tbl->appendArrayObject_int64(pState);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -1868,7 +1868,7 @@ int CInterfaceStack::setLongProperty(const char*ppName, long long int pState)
                     if (tbl->isTableMap())
                     {
                         tbl->appendMapObject_int64(key.c_str(), pState);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -1880,7 +1880,7 @@ int CInterfaceStack::setLongProperty(const char*ppName, long long int pState)
 int CInterfaceStack::getLongProperty(const char*ppName, long long int& pState) const
 {
     int retVal = Obj::getLongProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         std::string key;
         int arrIndex;
@@ -1888,14 +1888,14 @@ int CInterfaceStack::getLongProperty(const char*ppName, long long int& pState) c
         retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
         if (retVal == 0)
         {
-            retVal = -1;
+            retVal = sim_propertyret_unknownproperty;
             if (key.size() == 0)
             {
                 CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
                 if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
                 {
                     pState = ((CInterfaceStackInteger*)it)->getValue();
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
             else
@@ -1912,7 +1912,7 @@ int CInterfaceStack::getLongProperty(const char*ppName, long long int& pState) c
                     if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_integer) )
                     {
                         pState = ((CInterfaceStackInteger*)it)->getValue();
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -1928,11 +1928,11 @@ int CInterfaceStack::setHandleProperty(const char*ppName, long long int pState)
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             replaceStackObjectFromIndex(stackIndex, new CInterfaceStackHandle(pState));
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -1945,7 +1945,7 @@ int CInterfaceStack::setHandleProperty(const char*ppName, long long int pState)
                     if (tbl->isTableArray())
                     {
                         tbl->appendArrayObject_handle(pState);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -1953,7 +1953,7 @@ int CInterfaceStack::setHandleProperty(const char*ppName, long long int pState)
                     if (tbl->isTableMap())
                     {
                         tbl->appendMapObject_handle(key.c_str(), pState);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -1970,14 +1970,14 @@ int CInterfaceStack::getHandleProperty(const char*ppName, long long int& pState)
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
             if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_handle) )
             {
                 pState = ((CInterfaceStackHandle*)it)->getValue();
-                retVal = 1;
+                retVal = sim_propertyret_ok;
             }
         }
         else
@@ -1994,7 +1994,7 @@ int CInterfaceStack::getHandleProperty(const char*ppName, long long int& pState)
                 if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_handle) )
                 {
                     pState = ((CInterfaceStackHandle*)it)->getValue();
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
         }
@@ -2009,11 +2009,11 @@ int CInterfaceStack::setFloatProperty(const char*ppName, double pState)
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             replaceStackObjectFromIndex(stackIndex, new CInterfaceStackNumber(pState));
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -2026,7 +2026,7 @@ int CInterfaceStack::setFloatProperty(const char*ppName, double pState)
                     if (tbl->isTableArray())
                     {
                         tbl->appendArrayObject_double(pState);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -2034,7 +2034,7 @@ int CInterfaceStack::setFloatProperty(const char*ppName, double pState)
                     if (tbl->isTableMap())
                     {
                         tbl->appendMapObject_double(key.c_str(), pState);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2051,14 +2051,14 @@ int CInterfaceStack::getFloatProperty(const char*ppName, double& pState) const
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
             if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_double) )
             {
                 pState = ((CInterfaceStackNumber*)it)->getValue();
-                retVal = 1;
+                retVal = sim_propertyret_ok;
             }
         }
         else
@@ -2075,7 +2075,7 @@ int CInterfaceStack::getFloatProperty(const char*ppName, double& pState) const
                 if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_double) )
                 {
                     pState = ((CInterfaceStackNumber*)it)->getValue();
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
         }
@@ -2090,11 +2090,11 @@ int CInterfaceStack::setStringProperty(const char*ppName, const char* pState)
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             replaceStackObjectFromIndex(stackIndex, new CInterfaceStackString(pState));
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -2107,7 +2107,7 @@ int CInterfaceStack::setStringProperty(const char*ppName, const char* pState)
                     if (tbl->isTableArray())
                     {
                         tbl->appendArrayObject_text(pState);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -2115,7 +2115,7 @@ int CInterfaceStack::setStringProperty(const char*ppName, const char* pState)
                     if (tbl->isTableMap())
                     {
                         tbl->appendMapObject_text(key.c_str(), pState);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2127,15 +2127,15 @@ int CInterfaceStack::setStringProperty(const char*ppName, const char* pState)
 int CInterfaceStack::getStringProperty(const char* ppName, std::string& pState) const
 {
     int retVal = Obj::getStringProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(propStack_content.name, ppName) == 0)
         {
             printContent(-1, pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         std::string key;
         int arrIndex;
@@ -2143,14 +2143,14 @@ int CInterfaceStack::getStringProperty(const char* ppName, std::string& pState) 
         retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
         if (retVal == 0)
         {
-            retVal = -1;
+            retVal = sim_propertyret_unknownproperty;
             if (key.size() == 0)
             {
                 CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
                 if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && ((CInterfaceStackString*)it)->isText() )
                 {
                     pState = ((CInterfaceStackString*)it)->getValue(nullptr);
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
             else
@@ -2167,7 +2167,7 @@ int CInterfaceStack::getStringProperty(const char* ppName, std::string& pState) 
                     if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_string) && ((CInterfaceStackString*)it)->isText() )
                     {
                         pState = ((CInterfaceStackString*)it)->getValue(nullptr);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2183,11 +2183,11 @@ int CInterfaceStack::setBufferProperty(const char*ppName, const char* buffer, in
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             replaceStackObjectFromIndex(stackIndex, new CInterfaceStackString(buffer, bufferL, true));
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -2200,7 +2200,7 @@ int CInterfaceStack::setBufferProperty(const char*ppName, const char* buffer, in
                     if (tbl->isTableArray())
                     {
                         tbl->appendArrayObject_buffer(buffer, bufferL);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -2208,7 +2208,7 @@ int CInterfaceStack::setBufferProperty(const char*ppName, const char* buffer, in
                     if (tbl->isTableMap())
                     {
                         tbl->appendMapObject_buffer(key.c_str(), buffer, bufferL);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2225,7 +2225,7 @@ int CInterfaceStack::getBufferProperty(const char*ppName, std::string& pState) c
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
@@ -2234,7 +2234,7 @@ int CInterfaceStack::getBufferProperty(const char*ppName, std::string& pState) c
                 size_t l;
                 const char* val = ((CInterfaceStackString*)it)->getValue(&l);
                 pState.assign(val, val + l);
-                retVal = 1;
+                retVal = sim_propertyret_ok;
             }
         }
         else
@@ -2253,7 +2253,7 @@ int CInterfaceStack::getBufferProperty(const char*ppName, std::string& pState) c
                     size_t l;
                     const char* val = ((CInterfaceStackString*)it)->getValue(&l);
                     pState.assign(val, val + l);
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
         }
@@ -2268,13 +2268,13 @@ int CInterfaceStack::setIntArray2Property(const char*ppName, const int* pState)
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackTable* tbl = new CInterfaceStackTable();
             tbl->setInt32Array(pState, 2);
             replaceStackObjectFromIndex(stackIndex, tbl);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -2289,7 +2289,7 @@ int CInterfaceStack::setIntArray2Property(const char*ppName, const int* pState)
                         CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
                         tbl2->setInt32Array(pState, 2);
                         tbl->appendArrayObject(tbl2);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -2299,7 +2299,7 @@ int CInterfaceStack::setIntArray2Property(const char*ppName, const int* pState)
                         CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
                         tbl2->setInt32Array(pState, 2);
                         tbl->appendMapObject_object(key.c_str(), tbl2);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2316,7 +2316,7 @@ int CInterfaceStack::getIntArray2Property(const char*ppName, int* pState) const
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
@@ -2327,7 +2327,7 @@ int CInterfaceStack::getIntArray2Property(const char*ppName, int* pState) const
                 if (tbl->areAllValuesThis(sim_stackitem_integer, true) && (arrSize == 2))
                 {
                     tbl->getInt32Array(pState, int(arrSize));
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
         }
@@ -2349,7 +2349,7 @@ int CInterfaceStack::getIntArray2Property(const char*ppName, int* pState) const
                     if (tbl->areAllValuesThis(sim_stackitem_integer, true) && (arrSize == 2))
                     {
                         tbl->getInt32Array(pState, int(arrSize));
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2365,13 +2365,13 @@ int CInterfaceStack::setVector2Property(const char*ppName, const double* pState)
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackTable* tbl = new CInterfaceStackTable();
             tbl->setDoubleArray(pState, 2);
             replaceStackObjectFromIndex(stackIndex, tbl);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -2386,7 +2386,7 @@ int CInterfaceStack::setVector2Property(const char*ppName, const double* pState)
                         CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
                         tbl2->setDoubleArray(pState, 2);
                         tbl->appendArrayObject(tbl2);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -2396,7 +2396,7 @@ int CInterfaceStack::setVector2Property(const char*ppName, const double* pState)
                         CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
                         tbl2->setDoubleArray(pState, 2);
                         tbl->appendMapObject_object(key.c_str(), tbl2);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2413,7 +2413,7 @@ int CInterfaceStack::getVector2Property(const char*ppName, double* pState) const
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
@@ -2427,7 +2427,7 @@ int CInterfaceStack::getVector2Property(const char*ppName, double* pState) const
                     {
                         pState[0] = M->data[0];
                         pState[1] = M->data[1];
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2453,7 +2453,7 @@ int CInterfaceStack::getVector2Property(const char*ppName, double* pState) const
                         {
                             pState[0] = M->data[0];
                             pState[1] = M->data[1];
-                            retVal = 1;
+                            retVal = sim_propertyret_ok;
                         }
                     }
                 }
@@ -2470,12 +2470,12 @@ int CInterfaceStack::setVector3Property(const char*ppName, const C3Vector& pStat
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data, 3, 1);
             replaceStackObjectFromIndex(stackIndex, m);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -2489,7 +2489,7 @@ int CInterfaceStack::setVector3Property(const char*ppName, const C3Vector& pStat
                     {
                         CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data, 3, 1);
                         tbl->appendArrayObject(m);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -2498,7 +2498,7 @@ int CInterfaceStack::setVector3Property(const char*ppName, const C3Vector& pStat
                     {
                         CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data, 3, 1);
                         tbl->appendMapObject_object(key.c_str(), m);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2515,7 +2515,7 @@ int CInterfaceStack::getVector3Property(const char*ppName, C3Vector& pState) con
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
@@ -2528,7 +2528,7 @@ int CInterfaceStack::getVector3Property(const char*ppName, C3Vector& pState) con
                     if ((w->rows == 3) && (w->cols == 1))
                     {
                         pState.setData(w->data.data());
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2553,7 +2553,7 @@ int CInterfaceStack::getVector3Property(const char*ppName, C3Vector& pState) con
                         if ((w->rows == 3) && (w->cols == 1))
                         {
                             pState.setData(w->data.data());
-                            retVal = 1;
+                            retVal = sim_propertyret_ok;
                         }
                     }
                 }
@@ -2570,12 +2570,12 @@ int CInterfaceStack::setMatrixProperty(const char*ppName, const CMatrix& pState)
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data.data(), pState.rows, pState.cols);
             replaceStackObjectFromIndex(stackIndex, m);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -2589,7 +2589,7 @@ int CInterfaceStack::setMatrixProperty(const char*ppName, const CMatrix& pState)
                     {
                         CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data.data(), pState.rows, pState.cols);
                         tbl->appendArrayObject(m);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -2598,7 +2598,7 @@ int CInterfaceStack::setMatrixProperty(const char*ppName, const CMatrix& pState)
                     {
                         CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data.data(), pState.rows, pState.cols);
                         tbl->appendMapObject_object(key.c_str(), m);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2615,7 +2615,7 @@ int CInterfaceStack::getMatrixProperty(const char*ppName, CMatrix& pState) const
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
@@ -2626,7 +2626,7 @@ int CInterfaceStack::getMatrixProperty(const char*ppName, CMatrix& pState) const
                     CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
                     const CMatrix* w = m->getValue();
                     pState.set(w[0]);
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
         }
@@ -2648,7 +2648,7 @@ int CInterfaceStack::getMatrixProperty(const char*ppName, CMatrix& pState) const
                         CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
                         const CMatrix* w = m->getValue();
                         pState.set(w[0]);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2664,12 +2664,12 @@ int CInterfaceStack::setMatrix3x3Property(const char*ppName, const CMatrix& pSta
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data.data(), pState.rows, pState.cols);
             replaceStackObjectFromIndex(stackIndex, m);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -2683,7 +2683,7 @@ int CInterfaceStack::setMatrix3x3Property(const char*ppName, const CMatrix& pSta
                     {
                         CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data.data(), pState.rows, pState.cols);
                         tbl->appendArrayObject(m);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -2692,7 +2692,7 @@ int CInterfaceStack::setMatrix3x3Property(const char*ppName, const CMatrix& pSta
                     {
                         CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data.data(), pState.rows, pState.cols);
                         tbl->appendMapObject_object(key.c_str(), m);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2709,7 +2709,7 @@ int CInterfaceStack::getMatrix3x3Property(const char*ppName, CMatrix& pState) co
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
@@ -2722,7 +2722,7 @@ int CInterfaceStack::getMatrix3x3Property(const char*ppName, CMatrix& pState) co
                     if ((w->rows == 3) && (w->cols == 3))
                     {
                         pState.set(w[0]);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2747,7 +2747,7 @@ int CInterfaceStack::getMatrix3x3Property(const char*ppName, CMatrix& pState) co
                         if ((w->rows == 3) && (w->cols == 3))
                         {
                             pState.set(w[0]);
-                            retVal = 1;
+                            retVal = sim_propertyret_ok;
                         }
                     }
                 }
@@ -2764,12 +2764,12 @@ int CInterfaceStack::setMatrix4x4Property(const char*ppName, const CMatrix& pSta
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data.data(), pState.rows, pState.cols);
             replaceStackObjectFromIndex(stackIndex, m);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -2783,7 +2783,7 @@ int CInterfaceStack::setMatrix4x4Property(const char*ppName, const CMatrix& pSta
                     {
                         CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data.data(), pState.rows, pState.cols);
                         tbl->appendArrayObject(m);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -2792,7 +2792,7 @@ int CInterfaceStack::setMatrix4x4Property(const char*ppName, const CMatrix& pSta
                     {
                         CInterfaceStackMatrix* m = new CInterfaceStackMatrix(pState.data.data(), pState.rows, pState.cols);
                         tbl->appendMapObject_object(key.c_str(), m);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2809,7 +2809,7 @@ int CInterfaceStack::getMatrix4x4Property(const char*ppName, CMatrix& pState) co
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
@@ -2822,7 +2822,7 @@ int CInterfaceStack::getMatrix4x4Property(const char*ppName, CMatrix& pState) co
                     if ((w->rows == 4) && (w->cols == 4))
                     {
                         pState.set(w[0]);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2847,7 +2847,7 @@ int CInterfaceStack::getMatrix4x4Property(const char*ppName, CMatrix& pState) co
                         if ((w->rows == 4) && (w->cols == 4))
                         {
                             pState.set(w[0]);
-                            retVal = 1;
+                            retVal = sim_propertyret_ok;
                         }
                     }
                 }
@@ -2864,12 +2864,12 @@ int CInterfaceStack::setQuaternionProperty(const char*ppName, const C4Vector& pS
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackQuaternion* q = new CInterfaceStackQuaternion(pState.data, false);
             replaceStackObjectFromIndex(stackIndex, q);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -2883,7 +2883,7 @@ int CInterfaceStack::setQuaternionProperty(const char*ppName, const C4Vector& pS
                     {
                         CInterfaceStackQuaternion* q = new CInterfaceStackQuaternion(pState.data, false);
                         tbl->appendArrayObject(q);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -2892,7 +2892,7 @@ int CInterfaceStack::setQuaternionProperty(const char*ppName, const C4Vector& pS
                     {
                         CInterfaceStackQuaternion* q = new CInterfaceStackQuaternion(pState.data, false);
                         tbl->appendMapObject_object(key.c_str(), q);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2909,7 +2909,7 @@ int CInterfaceStack::getQuaternionProperty(const char*ppName, C4Vector& pState) 
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
@@ -2919,7 +2919,7 @@ int CInterfaceStack::getQuaternionProperty(const char*ppName, C4Vector& pState) 
                 {
                     CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)it;
                     pState = q->getValue()[0];
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
         }
@@ -2940,7 +2940,7 @@ int CInterfaceStack::getQuaternionProperty(const char*ppName, C4Vector& pState) 
                     {
                         CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)it;
                         pState = q->getValue()[0];
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -2956,14 +2956,14 @@ int CInterfaceStack::setPoseProperty(const char*ppName, const C7Vector& pState)
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         double dat[7];
         pState.getData(dat);
         if (key.size() == 0)
         {
             CInterfaceStackPose* q = new CInterfaceStackPose(dat, false);
             replaceStackObjectFromIndex(stackIndex, q);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -2977,7 +2977,7 @@ int CInterfaceStack::setPoseProperty(const char*ppName, const C7Vector& pState)
                     {
                         CInterfaceStackPose* q = new CInterfaceStackPose(dat, false);
                         tbl->appendArrayObject(q);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -2986,7 +2986,7 @@ int CInterfaceStack::setPoseProperty(const char*ppName, const C7Vector& pState)
                     {
                         CInterfaceStackPose* q = new CInterfaceStackPose(dat, false);
                         tbl->appendMapObject_object(key.c_str(), q);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -3003,7 +3003,7 @@ int CInterfaceStack::getPoseProperty(const char*ppName, C7Vector& pState) const
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
@@ -3013,7 +3013,7 @@ int CInterfaceStack::getPoseProperty(const char*ppName, C7Vector& pState) const
                 {
                     CInterfaceStackPose* q = (CInterfaceStackPose*)it;
                     pState = q->getValue()[0];
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
         }
@@ -3034,7 +3034,7 @@ int CInterfaceStack::getPoseProperty(const char*ppName, C7Vector& pState) const
                     {
                         CInterfaceStackPose* q = (CInterfaceStackPose*)it;
                         pState = q->getValue()[0];
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -3050,12 +3050,12 @@ int CInterfaceStack::setColorProperty(const char*ppName, const float* pState)
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackColor* c = new CInterfaceStackColor(pState);
             replaceStackObjectFromIndex(stackIndex, c);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -3069,7 +3069,7 @@ int CInterfaceStack::setColorProperty(const char*ppName, const float* pState)
                     {
                         CInterfaceStackColor* c = new CInterfaceStackColor(pState);
                         tbl->appendArrayObject(c);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -3078,7 +3078,7 @@ int CInterfaceStack::setColorProperty(const char*ppName, const float* pState)
                     {
                         CInterfaceStackColor* c = new CInterfaceStackColor(pState);
                         tbl->appendMapObject_object(key.c_str(), c);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -3095,7 +3095,7 @@ int CInterfaceStack::getColorProperty(const char*ppName, float* pState) const
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
@@ -3107,7 +3107,7 @@ int CInterfaceStack::getColorProperty(const char*ppName, float* pState) const
                     pState[0] = c->getValue()[0];
                     pState[1] = c->getValue()[1];
                     pState[2] = c->getValue()[2];
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
         }
@@ -3130,7 +3130,7 @@ int CInterfaceStack::getColorProperty(const char*ppName, float* pState) const
                         pState[0] = c->getValue()[0];
                         pState[1] = c->getValue()[1];
                         pState[2] = c->getValue()[2];
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -3146,13 +3146,13 @@ int CInterfaceStack::setFloatArrayProperty(const char*ppName, const double* v, i
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackTable* tbl = new CInterfaceStackTable();
             tbl->setDoubleArray(v, vL);
             replaceStackObjectFromIndex(stackIndex, tbl);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -3167,7 +3167,7 @@ int CInterfaceStack::setFloatArrayProperty(const char*ppName, const double* v, i
                         CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
                         tbl2->setDoubleArray(v, vL);
                         tbl->appendArrayObject(tbl2);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -3177,7 +3177,7 @@ int CInterfaceStack::setFloatArrayProperty(const char*ppName, const double* v, i
                         CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
                         tbl2->setDoubleArray(v, vL);
                         tbl->appendMapObject_object(key.c_str(), tbl2);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -3194,7 +3194,7 @@ int CInterfaceStack::getFloatArrayProperty(const char*ppName, std::vector<double
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
@@ -3206,7 +3206,7 @@ int CInterfaceStack::getFloatArrayProperty(const char*ppName, std::vector<double
                 {
                     pState.resize(arrSize);
                     tbl->getDoubleArray(pState.data(), int(arrSize));
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
         }
@@ -3229,7 +3229,7 @@ int CInterfaceStack::getFloatArrayProperty(const char*ppName, std::vector<double
                     {
                         pState.resize(arrSize);
                         tbl->getDoubleArray(pState.data(), int(arrSize));
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -3245,13 +3245,13 @@ int CInterfaceStack::setIntArrayProperty(const char*ppName, const int* v, int vL
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackTable* tbl = new CInterfaceStackTable();
             tbl->setInt32Array(v, vL);
             replaceStackObjectFromIndex(stackIndex, tbl);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -3266,7 +3266,7 @@ int CInterfaceStack::setIntArrayProperty(const char*ppName, const int* v, int vL
                         CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
                         tbl2->setInt32Array(v, vL);
                         tbl->appendArrayObject(tbl2);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -3276,7 +3276,7 @@ int CInterfaceStack::setIntArrayProperty(const char*ppName, const int* v, int vL
                         CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
                         tbl2->setInt32Array(v, vL);
                         tbl->appendMapObject_object(key.c_str(), tbl2);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -3293,7 +3293,7 @@ int CInterfaceStack::getIntArrayProperty(const char*ppName, std::vector<int>& pS
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
@@ -3305,7 +3305,7 @@ int CInterfaceStack::getIntArrayProperty(const char*ppName, std::vector<int>& pS
                 {
                     pState.resize(arrSize);
                     tbl->getInt32Array(pState.data(), int(arrSize));
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
         }
@@ -3328,7 +3328,7 @@ int CInterfaceStack::getIntArrayProperty(const char*ppName, std::vector<int>& pS
                     {
                         pState.resize(arrSize);
                         tbl->getInt32Array(pState.data(), int(arrSize));
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -3344,12 +3344,12 @@ int CInterfaceStack::setHandleArrayProperty(const char*ppName, const long long i
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackHandleArray* arr = new CInterfaceStackHandleArray(v, vL);
             replaceStackObjectFromIndex(stackIndex, arr);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -3363,7 +3363,7 @@ int CInterfaceStack::setHandleArrayProperty(const char*ppName, const long long i
                     {
                         CInterfaceStackHandleArray* arr = new CInterfaceStackHandleArray(v, vL);
                         tbl->appendArrayObject(arr);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -3372,7 +3372,7 @@ int CInterfaceStack::setHandleArrayProperty(const char*ppName, const long long i
                     {
                         CInterfaceStackHandleArray* arr = new CInterfaceStackHandleArray(v, vL);
                         tbl->appendMapObject_object(key.c_str(), arr);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -3389,7 +3389,7 @@ int CInterfaceStack::getHandleArrayProperty(const char*ppName, std::vector<long 
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
@@ -3401,7 +3401,7 @@ int CInterfaceStack::getHandleArrayProperty(const char*ppName, std::vector<long 
                     size_t cnt;
                     const long long int* a = arr->getValue(&cnt);
                     pState.assign(a, a + cnt);
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
         }
@@ -3424,7 +3424,7 @@ int CInterfaceStack::getHandleArrayProperty(const char*ppName, std::vector<long 
                         size_t cnt;
                         const long long int* a = arr->getValue(&cnt);
                         pState.assign(a, a + cnt);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -3440,13 +3440,13 @@ int CInterfaceStack::setStringArrayProperty(const char*ppName, const std::vector
     int retVal = _getStackLocation_write(ppName, stackIndex, key);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackTable* tbl = new CInterfaceStackTable();
             tbl->setTextArray(pState.data(), pState.size());
             replaceStackObjectFromIndex(stackIndex, tbl);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else
         { // we want to append an array or map item
@@ -3461,7 +3461,7 @@ int CInterfaceStack::setStringArrayProperty(const char*ppName, const std::vector
                         CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
                         tbl2->setTextArray(pState.data(), pState.size());
                         tbl->appendArrayObject(tbl2);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
                 else
@@ -3471,7 +3471,7 @@ int CInterfaceStack::setStringArrayProperty(const char*ppName, const std::vector
                         CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
                         tbl2->setTextArray(pState.data(), pState.size());
                         tbl->appendMapObject_object(key.c_str(), tbl2);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -3488,7 +3488,7 @@ int CInterfaceStack::getStringArrayProperty(const char*ppName, std::vector<std::
     int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
     if (retVal == 0)
     {
-        retVal = -1;
+        retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
             CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
@@ -3498,7 +3498,7 @@ int CInterfaceStack::getStringArrayProperty(const char*ppName, std::vector<std::
                 if (tbl->areAllValuesThis(sim_stackitem_string, true))
                 {
                     tbl->getTextArray(pState);
-                    retVal = 1;
+                    retVal = sim_propertyret_ok;
                 }
             }
         }
@@ -3519,7 +3519,7 @@ int CInterfaceStack::getStringArrayProperty(const char*ppName, std::vector<std::
                     if (tbl->areAllValuesThis(sim_stackitem_string, true))
                     {
                         tbl->getTextArray(pState);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                     }
                 }
             }
@@ -3530,7 +3530,7 @@ int CInterfaceStack::getStringArrayProperty(const char*ppName, std::vector<std::
 
 int CInterfaceStack::removeProperty(const char*ppName)
 {
-    int retVal = -1;
+    int retVal = sim_propertyret_unknownproperty;
     int stackIndex;
     if (tt::stringToInt(ppName, stackIndex))
     {
@@ -3542,7 +3542,7 @@ int CInterfaceStack::removeProperty(const char*ppName)
             if (obj != nullptr)
             {
                 delete obj;
-                retVal = 1;
+                retVal = sim_propertyret_ok;
             }
         }
     }
@@ -3552,7 +3552,7 @@ int CInterfaceStack::removeProperty(const char*ppName)
 int CInterfaceStack::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         appartenance = _objectTypeStr;
         for (size_t i = 0; i < allProps_stack.size(); i++)
@@ -3565,14 +3565,14 @@ int CInterfaceStack::getPropertyName(int& index, std::string& pName, std::string
                     if (index == -1)
                     {
                         pName = allProps_stack[i].name;
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                         break;
                     }
                 }
             }
         }
     }
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         int flags = (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude);
         for (size_t i = 0; i < getStackSize(); i++)
@@ -3585,7 +3585,7 @@ int CInterfaceStack::getPropertyName(int& index, std::string& pName, std::string
                     if (index == -1)
                     {
                         pName = std::to_string(i);
-                        retVal = 1;
+                        retVal = sim_propertyret_ok;
                         break;
                     }
                 }
@@ -3598,7 +3598,7 @@ int CInterfaceStack::getPropertyName(int& index, std::string& pName, std::string
 int CInterfaceStack::getPropertyInfo(const char*ppName, int& info, std::string& infoTxt) const
 {
     int retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         for (size_t i = 0; i < allProps_stack.size(); i++)
         {
@@ -3622,7 +3622,7 @@ int CInterfaceStack::getPropertyInfo(const char*ppName, int& info, std::string& 
             }
         }
     }
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         int stackIndex;
         if (tt::stringToInt(ppName, stackIndex))

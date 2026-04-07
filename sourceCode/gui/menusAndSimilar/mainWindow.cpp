@@ -97,7 +97,7 @@ CMainWindow::CMainWindow(int operationalUiParts)
 
     // the simulator instances were created before the main window was created,
     // so duplicate the correct instance count here:
-    for (int i = 0; i < App::sceneContainer->getSceneCount(); i++)
+    for (int i = 0; i < App::scenes->getSceneCount(); i++)
         newInstanceAboutToBeCreated();
 
     // Required for MacOS apparently:
@@ -184,7 +184,7 @@ CMainWindow::CMainWindow(int operationalUiParts)
 
     // --- Tab widget ---
     tabBar = new QTabBar();
-    int ind = tabBar->addTab(App::currentScene->environment->getSceneNameForUi().c_str());
+    int ind = tabBar->addTab(App::scene->environment->getSceneNameForUi().c_str());
     tabBar->setTabVisible(ind, _operationalUiParts & sim_gui_menubar);
 
 #ifdef MAC_SIM
@@ -606,22 +606,22 @@ void CMainWindow::callDialogFunction(const SUIThreadCommand* cmdIn, SUIThreadCom
 void CMainWindow::refreshDialogs_uiThread()
 {
     static std::string scenePath;
-    std::string p(App::currentScene->environment->getScenePathAndName());
+    std::string p(App::scene->environment->getScenePathAndName());
     if (scenePath != p)
     {
         scenePath = p;
         setWindowFilePath(scenePath.c_str());
     }
-    App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_guipass);
+    App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins_old(sim_message_eventcallback_guipass);
 
     // We refresh dialogs and the toolbar here:
     //----------------------------------------------------------------------------------
-    if (App::sceneContainer->getCurrentSceneIndex() != lastInstance)
+    if (App::scenes->getCurrentSceneIndex() != lastInstance)
     {
         GuiApp::setFullDialogRefreshFlag();
         GuiApp::setToolbarRefreshFlag();
         createDefaultMenuBar();
-        lastInstance = App::sceneContainer->getCurrentSceneIndex();
+        lastInstance = App::scenes->getCurrentSceneIndex();
         refreshDimensions();
         // If the instance was switched, we close all material/color dialogs:
         dlgCont->visibleInstanceAboutToSwitch();
@@ -634,7 +634,7 @@ void CMainWindow::refreshDialogs_uiThread()
         if (!_dialogRefreshDontPublishFlag)
         {
             int data[4] = {_fullDialogRefreshFlag ? 2 : 0, 0, 0, 0};
-            App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(
+            App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins_old(
                 sim_message_eventcallback_refreshdialogs, data);
         }
         _dialogRefreshDontPublishFlag = false;
@@ -666,7 +666,7 @@ void CMainWindow::refreshDialogs_uiThread()
         else
         { // We display the simulation time instead:
             title = IDS____SIMULATION_TIME__;
-            title += utils::getTimeString(false, App::currentScene->simulation->getSimulationTime());
+            title += utils::getTimeString(false, App::scene->simulation->getSimulationTime());
         }
         title += " (";
         title += utils::getDoubleString(false, _fps, 1, 2);
@@ -682,18 +682,18 @@ void CMainWindow::refreshDialogs_uiThread()
 
         if (editModeContainer->getEditModeType() == NO_EDIT_MODE)
         {
-            if (App::currentScene->simulation->isSimulationRunning())
+            if (App::scene->simulation->isSimulationRunning())
                 title += IDS____SIMULATION_RUNNING;
-            else if (App::currentScene->simulation->isSimulationPaused())
+            else if (App::scene->simulation->isSimulationPaused())
                 title += IDS____SIMULATION_PAUSED;
             else
                 title += IDS____SIMULATION_STOPPED;
         }
 
-        if (App::currentScene->environment->getScenePathAndName().compare("") == 0)
+        if (App::scene->environment->getScenePathAndName().compare("") == 0)
             title = std::string(IDS_NEW_FILE) + title;
         else
-            title = App::currentScene->environment->getSceneName() + title;
+            title = App::scene->environment->getSceneName() + title;
         title = CSimFlavor::getStringVal(2) + " - " + title;
         setWindowTitle(title.c_str());
     }
@@ -723,8 +723,8 @@ void CMainWindow::renderScene()
         IF_UI_EVENT_CAN_READ_DATA // needed when the render is triggered by a resize (i.e. the SIM thread could be
                                   // writing to resources)
         {
-            App::sceneContainer->calcInfo->clearRenderingTime();
-            App::sceneContainer->calcInfo->renderingStart();
+            App::scenes->calcInfo->clearRenderingTime();
+            App::scenes->calcInfo->renderingStart();
 
             int startTime = (int)VDateTime::getTimeInMs();
             _fps = 1.0 / (double(VDateTime::getTimeDiffInMs(lastTimeRenderingStarted, startTime)) / 1000.0);
@@ -737,8 +737,8 @@ void CMainWindow::renderScene()
 
             if (windowHandle()->isExposed())
             {
-                if ((!App::getOpenGlDisplayEnabled()) && (App::currentScene->simulation != nullptr) &&
-                    (App::currentScene->simulation->isSimulationStopped()))
+                if ((!App::getOpenGlDisplayEnabled()) && (App::scene->simulation != nullptr) &&
+                    (App::scene->simulation->isSimulationStopped()))
                     App::setOpenGlDisplayEnabled(true);
 
                 bool swapTheBuffers = false;
@@ -811,7 +811,7 @@ void CMainWindow::renderScene()
                 }
                 _renderingTimeInMs = VDateTime::getTimeDiffInMs(startTime);
             }
-            App::sceneContainer->calcInfo->renderingEnd();
+            App::scenes->calcInfo->renderingEnd();
         }
         ins = false;
     }
@@ -872,13 +872,13 @@ void CMainWindow::createDefaultMenuBar()
                                           (std::string(IDS_TOOLS_MENU_ITEM) + DUMMY_SPACE_QMENUBAR_QT5).c_str());
             connect(_toolsSystemMenu->getQMenu(), SIGNAL(aboutToShow()), this, SLOT(_aboutToShowToolsSystemMenu()));
 
-            if (App::sceneContainer->moduleMenuItemContainer->getItemCount() != 0)
+            if (App::scenes->moduleMenuItemContainer->getItemCount() != 0)
             { // Modules (plugins+add-ons)
                 VMenu* m = new VMenu();
-                App::sceneContainer->moduleMenuItemContainer->_menuHandle = new VMenu();
-                _menubar->appendMenuAndDetach(App::sceneContainer->moduleMenuItemContainer->_menuHandle, menuBarEnabled,
+                App::scenes->moduleMenuItemContainer->_menuHandle = new VMenu();
+                _menubar->appendMenuAndDetach(App::scenes->moduleMenuItemContainer->_menuHandle, menuBarEnabled,
                                               (std::string("Modules") + DUMMY_SPACE_QMENUBAR_QT5).c_str());
-                connect(App::sceneContainer->moduleMenuItemContainer->_menuHandle->getQMenu(), SIGNAL(aboutToShow()),
+                connect(App::scenes->moduleMenuItemContainer->_menuHandle->getQMenu(), SIGNAL(aboutToShow()),
                         this, SLOT(_aboutToShowCustomMenu()));
             }
             {
@@ -1473,8 +1473,8 @@ void CMainWindow::editModeEnded()
 void CMainWindow::_actualizetoolbarButtonState()
 { // This is only for the default toolbars
     bool allowFitToView = false;
-    int pageIndex = App::currentScene->pageContainer->getActivePageIndex();
-    CSPage* page = App::currentScene->pageContainer->getPage(pageIndex);
+    int pageIndex = App::scene->pageContainer->getActivePageIndex();
+    CSPage* page = App::scene->pageContainer->getPage(pageIndex);
     if (page != nullptr)
     {
         int ind = page->getLastMouseDownViewIndex();
@@ -1483,7 +1483,7 @@ void CMainWindow::_actualizetoolbarButtonState()
         CSView* view = page->getView(size_t(ind));
         if (view != nullptr)
         {
-            CCamera* cam = App::currentScene->sceneObjects->getCameraFromHandle(view->getLinkedObjectID());
+            CCamera* cam = App::scene->sceneObjects->getCameraFromHandle(view->getLinkedObjectID());
             allowFitToView = (cam != nullptr);
         }
     }
@@ -1492,25 +1492,25 @@ void CMainWindow::_actualizetoolbarButtonState()
     bool noUiNorMultishapeEditMode = (editModeContainer->getEditModeType() != MULTISHAPE_EDIT_MODE);
     bool noSelector = ((!oglSurface->isPageSelectionActive()) && (!oglSurface->isViewSelectionActive()));
 
-    size_t selS = App::currentScene->sceneObjects->getSelectionCount();
+    size_t selS = App::scene->sceneObjects->getSelectionCount();
     bool disassembleEnabled = false;
     bool assembleEnabled = false;
     if (selS == 1)
-        disassembleEnabled = GuiApp::canDisassemble(App::currentScene->sceneObjects->getLastSelectionHandle());
+        disassembleEnabled = GuiApp::canDisassemble(App::scene->sceneObjects->getLastSelectionHandle());
     else if (selS == 2)
-        assembleEnabled = GuiApp::canAssemble(App::currentScene->sceneObjects->getLastSelectionHandle(),
-                                              App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(0));
+        assembleEnabled = GuiApp::canAssemble(App::scene->sceneObjects->getLastSelectionHandle(),
+                                              App::scene->sceneObjects->getObjectHandleFromSelectionIndex(0));
 
     bool transferDnaAllowed = false;
     if ((selS == 1) && noSelector && (editModeContainer->getEditModeType() == NO_EDIT_MODE) &&
-        App::currentScene->simulation->isSimulationStopped())
+        App::scene->simulation->isSimulationStopped())
     {
-        CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
+        CSceneObject* it = App::scene->sceneObjects->getLastSelectionObject();
         if (it->getModelBase())
         {
             std::vector<CSceneObject*> toExplore;
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getOrphanCount(); i++)
-                toExplore.push_back(App::currentScene->sceneObjects->getOrphanFromIndex(i));
+            for (size_t i = 0; i < App::scene->sceneObjects->getOrphanCount(); i++)
+                toExplore.push_back(App::scene->sceneObjects->getOrphanFromIndex(i));
             while (toExplore.size() > 0)
             {
                 CSceneObject* obj = toExplore[0];
@@ -1546,17 +1546,17 @@ void CMainWindow::_actualizetoolbarButtonState()
         _toolbarActionObjectShift->setEnabled(noUiNorMultishapeEditMode && noSelector && _toolbarButtonObjectShiftEnabled);
         _toolbarActionObjectShift->setChecked((getMouseMode() & 0x00ff) == sim_navigation_objectshift);
         bool rot = true;
-        if (App::currentScene->sceneObjects != nullptr)
+        if (App::scene->sceneObjects != nullptr)
             rot = editModeContainer->pathPointManipulation->getSelectedPathPointIndicesSize_nonEditMode() == 0;
         _toolbarActionObjectRotate->setEnabled(noUiNorMultishapeEditMode && rot && noSelector && _toolbarButtonObjectRotateEnabled);
         _toolbarActionObjectRotate->setChecked((getMouseMode() & 0x00ff) == sim_navigation_objectrotate);
         _toolbarActionClickSelection->setEnabled(noSelector);
         _toolbarActionClickSelection->setChecked((getMouseMode() & 0x0300) == sim_navigation_clickselection);
-        _toolbarActionUndo->setEnabled(App::currentScene->undoBufferContainer->canUndo() && noSelector);
-        _toolbarActionRedo->setEnabled(App::currentScene->undoBufferContainer->canRedo() && noSelector);
-        _engineSelectCombo->setEnabled((editModeContainer->getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped() && App::currentScene->dynamicsContainer->getDynamicsEnabled() && noSelector);
+        _toolbarActionUndo->setEnabled(App::scene->undoBufferContainer->canUndo() && noSelector);
+        _toolbarActionRedo->setEnabled(App::scene->undoBufferContainer->canRedo() && noSelector);
+        _engineSelectCombo->setEnabled((editModeContainer->getEditModeType() == NO_EDIT_MODE) && App::scene->simulation->isSimulationStopped() && App::scene->dynamicsContainer->getDynamicsEnabled() && noSelector);
         int ver;
-        int eng = App::currentScene->dynamicsContainer->getDynamicEngineType(&ver);
+        int eng = App::scene->dynamicsContainer->getDynamicEngineType(&ver);
         if ((eng == sim_physics_bullet) && (ver == 0))
             _engineSelectCombo->setCurrentIndex(0);
         if ((eng == sim_physics_bullet) && (ver == 283))
@@ -1573,24 +1573,24 @@ void CMainWindow::_actualizetoolbarButtonState()
         if (eng == sim_physics_drake)
             _engineSelectCombo->setCurrentIndex(6);
 #endif
-        _toolbarActionStart->setEnabled(_toolbarButtonPlayEnabled && (editModeContainer->getEditModeType() == NO_EDIT_MODE) && (!App::currentScene->simulation->isSimulationRunning()) && noSelector);
-        _toolbarActionStart->setChecked(App::currentScene->simulation->isSimulationRunning());
-        _toolbarActionPause->setEnabled(_toolbarButtonPauseEnabled && (editModeContainer->getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationRunning() && noSelector);
-        _toolbarActionPause->setChecked(App::currentScene->simulation->isSimulationPaused());
-        _toolbarActionStop->setEnabled(_toolbarButtonStopEnabled && (editModeContainer->getEditModeType() == NO_EDIT_MODE) && (!App::currentScene->simulation->isSimulationStopped()) && noSelector);
-        _toolbarActionRealTime->setEnabled((editModeContainer->getEditModeType() == NO_EDIT_MODE) && App::currentScene->simulation->isSimulationStopped() && noSelector);
-        _toolbarActionRealTime->setChecked(App::currentScene->simulation->getIsRealTimeSimulation());
-        _toolbarActionReduceSpeed->setEnabled(App::currentScene->simulation->canGoSlower() && noSelector);
-        _toolbarActionIncreaseSpeed->setEnabled(App::currentScene->simulation->canGoFaster() && noSelector);
+        _toolbarActionStart->setEnabled(_toolbarButtonPlayEnabled && (editModeContainer->getEditModeType() == NO_EDIT_MODE) && (!App::scene->simulation->isSimulationRunning()) && noSelector);
+        _toolbarActionStart->setChecked(App::scene->simulation->isSimulationRunning());
+        _toolbarActionPause->setEnabled(_toolbarButtonPauseEnabled && (editModeContainer->getEditModeType() == NO_EDIT_MODE) && App::scene->simulation->isSimulationRunning() && noSelector);
+        _toolbarActionPause->setChecked(App::scene->simulation->isSimulationPaused());
+        _toolbarActionStop->setEnabled(_toolbarButtonStopEnabled && (editModeContainer->getEditModeType() == NO_EDIT_MODE) && (!App::scene->simulation->isSimulationStopped()) && noSelector);
+        _toolbarActionRealTime->setEnabled((editModeContainer->getEditModeType() == NO_EDIT_MODE) && App::scene->simulation->isSimulationStopped() && noSelector);
+        _toolbarActionRealTime->setChecked(App::scene->simulation->getIsRealTimeSimulation());
+        _toolbarActionReduceSpeed->setEnabled(App::scene->simulation->canGoSlower() && noSelector);
+        _toolbarActionIncreaseSpeed->setEnabled(App::scene->simulation->canGoFaster() && noSelector);
         _toolbarLabel->setText(CSimFlavor::getStringVal(21).c_str());
         if (CSimFlavor::getBoolVal(12))
         {
             _toolbarActionCameraAngle->setEnabled(noSelector);
             _toolbarActionCameraAngle->setChecked((getMouseMode() & 0x00ff) == sim_navigation_cameraangle);
             _toolbarActionTransferDna->setEnabled(transferDnaAllowed);
-            _toolbarActionDynamicContentVisualization->setEnabled((!App::currentScene->simulation->isSimulationStopped()) && noSelector);
-            _toolbarActionDynamicContentVisualization->setChecked(App::currentScene->simulation->getDynamicContentVisualizationOnly());
-            _toolbarActionToggleVisualization->setEnabled(App::currentScene->simulation->isSimulationRunning() && noSelector);
+            _toolbarActionDynamicContentVisualization->setEnabled((!App::scene->simulation->isSimulationStopped()) && noSelector);
+            _toolbarActionDynamicContentVisualization->setChecked(App::scene->simulation->getDynamicContentVisualizationOnly());
+            _toolbarActionToggleVisualization->setEnabled(App::scene->simulation->isSimulationRunning() && noSelector);
             _toolbarActionToggleVisualization->setChecked(!App::getOpenGlDisplayEnabled());
             _toolbarActionPageSelector->setEnabled((!oglSurface->isViewSelectionActive()));
             _toolbarActionPageSelector->setChecked(oglSurface->isPageSelectionActive());
@@ -1605,8 +1605,8 @@ void CMainWindow::_actualizetoolbarButtonState()
             _toolbarActionObjectProperties->setEnabled(_toolbarButtonObjPropEnabled && noEditMode && noSelector);
             _toolbarActionObjectProperties->setChecked(dlgCont->isVisible(OBJECT_DLG));
             _toolbarActionShapeEdition->setEnabled((noSelector && (selS == 1) &&
-                                                    App::currentScene->sceneObjects->isLastSelectionOfType(sim_sceneobject_shape) &&
-                                                    App::currentScene->simulation->isSimulationStopped() &&
+                                                    App::scene->sceneObjects->isLastSelectionOfType(sim_sceneobject_shape) &&
+                                                    App::scene->simulation->isSimulationStopped() &&
                                                     (editModeContainer->getEditModeType() == NO_EDIT_MODE)) ||
                                                    (editModeContainer->getEditModeType() & SHAPE_EDIT_MODE) ||
                                                    (editModeContainer->getEditModeType() & MULTISHAPE_EDIT_MODE));
@@ -1620,8 +1620,8 @@ void CMainWindow::_actualizetoolbarButtonState()
                 _toolbarActionCollections->setEnabled(noEditMode && noSelector);
                 _toolbarActionCollections->setChecked(dlgCont->isVisible(COLLECTION_DLG));
                 _toolbarActionPathEdition->setEnabled((noSelector && (selS == 1) &&
-                                                       App::currentScene->sceneObjects->isLastSelectionOfType(sim_sceneobject_path) &&
-                                                       App::currentScene->simulation->isSimulationStopped() &&
+                                                       App::scene->sceneObjects->isLastSelectionOfType(sim_sceneobject_path) &&
+                                                       App::scene->simulation->isSimulationStopped() &&
                                                        (editModeContainer->getEditModeType() == NO_EDIT_MODE)) ||
                                                       (editModeContainer->getEditModeType() & PATH_EDIT_MODE_OLD));
                 _toolbarActionPathEdition->setChecked(editModeContainer->getEditModeType() == PATH_EDIT_MODE_OLD);
@@ -1630,7 +1630,7 @@ void CMainWindow::_actualizetoolbarButtonState()
 
         _toolbarActionModelBrowser->setEnabled(noEditMode && noSelector && _toolbarButtonBrowserEnabled);
         _toolbarActionModelBrowser->setChecked(dlgCont->isVisible(BROWSER_DLG));
-        _toolbarActionSceneHierarchy->setEnabled(noEditMode && noSelector && _toolbarButtonHierarchyEnabled && ((!App::userSettings->sceneHierarchyHiddenDuringSimulation) || App::currentScene->simulation->isSimulationStopped()));
+        _toolbarActionSceneHierarchy->setEnabled(noEditMode && noSelector && _toolbarButtonHierarchyEnabled && ((!App::userSettings->sceneHierarchyHiddenDuringSimulation) || App::scene->simulation->isSimulationStopped()));
         _toolbarActionSceneHierarchy->setChecked(dlgCont->isVisible(HIERARCHY_DLG));
         _toolbarActionAviRecorder->setEnabled(noEditMode && noSelector && (CAuxLibVideo::video_recorderGetEncoderString != nullptr));
         _toolbarActionAviRecorder->setChecked(dlgCont->isVisible(AVI_RECORDER_DLG));
@@ -1652,19 +1652,19 @@ void CMainWindow::_recomputeClientSizeAndPos()
 void CMainWindow::_engineSelectedViaToolbar(int index)
 {
     if (index == 0)
-        App::currentScene->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_78_ENGINE_SCCMD);
+        App::scene->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_78_ENGINE_SCCMD);
     if (index == 1)
-        App::currentScene->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_83_ENGINE_SCCMD);
+        App::scene->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_83_ENGINE_SCCMD);
     if (index == 2)
-        App::currentScene->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_ODE_ENGINE_SCCMD);
+        App::scene->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_ODE_ENGINE_SCCMD);
     if (index == 3)
-        App::currentScene->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_VORTEX_ENGINE_SCCMD);
+        App::scene->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_VORTEX_ENGINE_SCCMD);
     if (index == 4)
-        App::currentScene->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD);
+        App::scene->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_NEWTON_ENGINE_SCCMD);
     if (index == 5)
-        App::currentScene->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD);
+        App::scene->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_MUJOCO_ENGINE_SCCMD);
     if (index == 6)
-        App::currentScene->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_DRAKE_ENGINE_SCCMD);
+        App::scene->simulation->processCommand(SIMULATION_COMMANDS_TOGGLE_TO_DRAKE_ENGINE_SCCMD);
 }
 
 void CMainWindow::_simPopupMessageHandler(int id)
@@ -1691,15 +1691,15 @@ void CMainWindow::_simMessageHandler(int id)
     if (!processed)
         processed = CAddOperations::processCommand(id, nullptr);
     if (!processed)
-        processed = App::currentScene->simulation->processCommand(id);
+        processed = App::scene->simulation->processCommand(id);
     if (!processed)
         processed = dlgCont->processCommand(id);
     if (!processed)
         processed = CHelpMenu::processCommand(id);
     if (!processed)
-        processed = App::sceneContainer->processGuiCommand(id);
+        processed = App::scenes->processGuiCommand(id);
     if (!processed)
-        processed = App::sceneContainer->moduleMenuItemContainer->processCommand(id);
+        processed = App::scenes->moduleMenuItemContainer->processCommand(id);
     GuiApp::setToolbarRefreshFlag();
 }
 
@@ -1727,7 +1727,7 @@ void CMainWindow::_aboutToShowAddSystemMenu()
 void CMainWindow::_aboutToShowSimulationSystemMenu()
 {
     _simulationSystemMenu->clear();
-    App::currentScene->simulation->addMenu(_simulationSystemMenu);
+    App::scene->simulation->addMenu(_simulationSystemMenu);
 }
 
 void CMainWindow::_aboutToShowToolsSystemMenu()
@@ -1745,13 +1745,13 @@ void CMainWindow::_aboutToShowHelpSystemMenu()
 void CMainWindow::_aboutToShowInstancesSystemMenu()
 {
     _instancesSystemMenu->clear();
-    App::sceneContainer->addMenu(_instancesSystemMenu);
+    App::scenes->addMenu(_instancesSystemMenu);
 }
 
 void CMainWindow::_aboutToShowCustomMenu()
 {
-    App::sceneContainer->moduleMenuItemContainer->_menuHandle->clear();
-    App::sceneContainer->moduleMenuItemContainer->addMenus(App::sceneContainer->moduleMenuItemContainer->_menuHandle);
+    App::scenes->moduleMenuItemContainer->_menuHandle->clear();
+    App::scenes->moduleMenuItemContainer->addMenus(App::scenes->moduleMenuItemContainer->_menuHandle);
 }
 
 void CMainWindow::statusbarSplitterMoved(int pos, int index)
@@ -1968,15 +1968,15 @@ void CMainWindow::newInstanceAboutToBeCreated()
 void CMainWindow::newInstanceWasJustCreated()
 {
     TRACE_INTERNAL;
-    int ind = tabBar->addTab(App::currentScene->environment->getSceneNameForUi().c_str());
+    int ind = tabBar->addTab(App::scene->environment->getSceneNameForUi().c_str());
     tabBar->setTabVisible(ind, _operationalUiParts & sim_gui_menubar);
-    tabBar->setCurrentIndex(App::sceneContainer->getCurrentSceneIndex());
+    tabBar->setCurrentIndex(App::scenes->getCurrentSceneIndex());
 }
 
 void CMainWindow::instanceAboutToBeDestroyed(int currentInstanceIndex)
 {
     TRACE_INTERNAL;
-    codeEditorContainer->sceneClosed(App::currentScene->environment->getSceneUniqueID());
+    codeEditorContainer->sceneClosed(App::scene->environment->getSceneUniqueID());
 
     tabBar->removeTab(currentInstanceIndex);
 }
@@ -2007,7 +2007,7 @@ void CMainWindow::newSceneNameWasSet(const char* name)
 
 void CMainWindow::tabBarIndexChanged(int newIndex)
 {
-    App::sceneContainer->processGuiCommand(SWITCH_TOINSTANCEWITHTHUMBNAILSAVEINDEX0_GUIGUICMD + newIndex);
+    App::scenes->processGuiCommand(SWITCH_TOINSTANCEWITHTHUMBNAILSAVEINDEX0_GUIGUICMD + newIndex);
 }
 
 void CMainWindow::_closeDialogTemporarilyIfOpened(int dlgID, std::vector<int>& vect)

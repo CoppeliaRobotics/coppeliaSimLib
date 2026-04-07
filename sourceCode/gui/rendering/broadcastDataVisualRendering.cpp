@@ -40,7 +40,7 @@ void displayEmitterOrReceiver(CBroadcastDataVisual* it)
                                 0.462 * it->_actionRadius,
                                 it->_actionRadius};
 
-        App::currentScene->environment->wirelessEmissionVolumeColor.makeCurrentColor(false);
+        App::scene->environment->wirelessEmissionVolumeColor.makeCurrentColor(false);
 
         int vertSubdiv = int(it->_emissionAngle1 * 24.0 / piValue);
         if (vertSubdiv > 12)
@@ -99,7 +99,7 @@ void displayEmitterOrReceiver(CBroadcastDataVisual* it)
     }
     else
     {
-        App::currentScene->environment->wirelessReceptionVolumeColor.makeCurrentColor(false);
+        App::scene->environment->wirelessReceptionVolumeColor.makeCurrentColor(false);
         unsigned short stipple = 255;
         glLineStipple(1, stipple);
         glLineWidth(4.0);

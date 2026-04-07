@@ -86,12 +86,12 @@ void CForceSensor::setFilterSampleSize(int c)
     if (_filterSampleSize != c)
     {
         _filterSampleSize = c;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propForceSensor_filterSampleSize.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _filterSampleSize);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -110,12 +110,12 @@ void CForceSensor::setFilterType(int t)
     if (_filterType != t)
     {
         _filterType = t;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propForceSensor_filterType.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _filterType);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -138,12 +138,12 @@ void CForceSensor::setForceThreshold(double t)
     if (_forceThreshold != t)
     {
         _forceThreshold = t;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propForceSensor_forceThreshold.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _forceThreshold);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -159,12 +159,12 @@ void CForceSensor::setTorqueThreshold(double t)
     if (_torqueThreshold != t)
     {
         _torqueThreshold = t;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propForceSensor_torqueThreshold.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _torqueThreshold);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -179,12 +179,12 @@ void CForceSensor::setEnableForceThreshold(bool e)
     if (_forceThresholdEnabled != e)
     {
         _forceThresholdEnabled = e;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propForceSensor_forceThresholdEnabled.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _forceThresholdEnabled);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -199,12 +199,12 @@ void CForceSensor::setEnableTorqueThreshold(bool e)
     if (_torqueThresholdEnabled != e)
     {
         _torqueThresholdEnabled = e;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propForceSensor_torqueThresholdEnabled.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _torqueThresholdEnabled);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -220,12 +220,12 @@ void CForceSensor::setConsecutiveViolationsToTrigger(int count)
     if (_consecutiveViolationsToTrigger != count)
     {
         _consecutiveViolationsToTrigger = count;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propForceSensor_consecutiveViolationsToTrigger.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _consecutiveViolationsToTrigger);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -285,10 +285,10 @@ void CForceSensor::_setForceAndTorque(bool valid, const C3Vector* f /*= nullptr*
     {
         _lastForce_dynStep = vf;
         _lastTorque_dynStep = vt;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propForceSensor_sensorForce.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
             {
                 ev->appendKeyDoubleArray(cmd, _lastForce_dynStep.data, 3);
@@ -299,7 +299,7 @@ void CForceSensor::_setForceAndTorque(bool valid, const C3Vector* f /*= nullptr*
                 ev->appendKeyVector3(cmd, _lastForce_dynStep);
                 ev->appendKeyVector3(propForceSensor_sensorTorque.name, _lastTorque_dynStep);
             }
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -321,10 +321,10 @@ void CForceSensor::_setFilteredForceAndTorque(bool valid, const C3Vector* f /*= 
     {
         _filteredDynamicForces = vf;
         _filteredDynamicTorques = vt;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propForceSensor_filteredSensorForce.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
             {
                 ev->appendKeyDoubleArray(cmd, _filteredDynamicForces.data, 3);
@@ -335,7 +335,7 @@ void CForceSensor::_setFilteredForceAndTorque(bool valid, const C3Vector* f /*= 
                 ev->appendKeyVector3(cmd, _filteredDynamicForces);
                 ev->appendKeyVector3(propForceSensor_filteredSensorTorque.name, _filteredDynamicTorques);
             }
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -401,7 +401,7 @@ bool CForceSensor::getDynamicForces(C3Vector& f, bool dynamicStepValue) const
 {
     if (dynamicStepValue)
     {
-        if (App::currentScene->dynamicsContainer->getCurrentlyInDynamicsCalculations())
+        if (App::scene->dynamicsContainer->getCurrentlyInDynamicsCalculations())
         {
             if (!_lastForceAndTorqueValid_dynStep)
                 return (false);
@@ -423,7 +423,7 @@ bool CForceSensor::getDynamicTorques(C3Vector& t, bool dynamicStepValue) const
 {
     if (dynamicStepValue)
     {
-        if (App::currentScene->dynamicsContainer->getCurrentlyInDynamicsCalculations())
+        if (App::scene->dynamicsContainer->getCurrentlyInDynamicsCalculations())
         {
             if (!_lastForceAndTorqueValid_dynStep)
                 return (false);
@@ -461,7 +461,7 @@ void CForceSensor::_handleSensorTriggering()
             getAttachedScripts(scripts, -1, false);
             if (scripts.size() > 0)
             {
-                CInterfaceStack* inStack = App::sceneContainer->interfaceStackContainer->createStack();
+                CInterfaceStack* inStack = App::scenes->interfaceStackContainer->createStack();
                 inStack->pushTableOntoStack();
                 inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle());
                 inStack->insertKeyDoubleArrayIntoStackTable("force", _lastForce_dynStep.data, 3);
@@ -474,7 +474,7 @@ void CForceSensor::_handleSensorTriggering()
                     if (script->hasSystemFunctionOrHook(sim_syscb_trigger))
                         script->systemCallScript(sim_syscb_trigger, inStack, nullptr);
                 }
-                App::sceneContainer->interfaceStackContainer->destroyStack(inStack);
+                App::scenes->interfaceStackContainer->destroyStack(inStack);
             }
             _currentThresholdViolationCount = 0;
         }
@@ -503,10 +503,10 @@ void CForceSensor::setIntrinsicTransformationError(const C7Vector& tr)
     if (diff)
     {
         _intrinsicTransformationError = tr;
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propForceSensor_intrinsicError.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
             {
                 double p[7];
@@ -515,7 +515,7 @@ void CForceSensor::setIntrinsicTransformationError(const C7Vector& tr)
             }
             else
                 ev->appendKeyPose(cmd, _intrinsicTransformationError);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -624,12 +624,12 @@ void CForceSensor::setForceSensorSize(double s)
     {
         _forceSensorSize = s;
         computeBoundingBox();
-        if (_isInScene && App::sceneContainer->getEventsEnabled())
+        if (_isInScene && App::scenes->getEventsEnabled())
         {
             const char* cmd = propForceSensor_size.name;
-            CCbor* ev = App::sceneContainer->createSceneObjectChangedEvent(this, false, cmd, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _forceSensorSize);
-            App::sceneContainer->pushEvent();
+            App::scenes->pushEvent();
         }
     }
 }
@@ -1043,16 +1043,16 @@ int CForceSensor::setBoolProperty(const char* ppName, bool pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propForceSensor_forceThresholdEnabled.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setEnableForceThreshold(pState);
         }
         else if (_pName == propForceSensor_torqueThresholdEnabled.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setEnableTorqueThreshold(pState);
         }
     }
@@ -1064,16 +1064,16 @@ int CForceSensor::getBoolProperty(const char* ppName, bool& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getBoolProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propForceSensor_forceThresholdEnabled.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _forceThresholdEnabled;
         }
         else if (_pName == propForceSensor_torqueThresholdEnabled.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _torqueThresholdEnabled;
         }
     }
@@ -1085,21 +1085,21 @@ int CForceSensor::setIntProperty(const char* ppName, int pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propForceSensor_filterType.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setFilterType(pState);
         }
         else if (_pName == propForceSensor_filterSampleSize.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setFilterSampleSize(pState);
         }
         else if (_pName == propForceSensor_consecutiveViolationsToTrigger.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             setConsecutiveViolationsToTrigger(pState);
         }
     }
@@ -1111,21 +1111,21 @@ int CForceSensor::getIntProperty(const char* ppName, int& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getIntProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propForceSensor_filterType.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _filterType;
         }
         else if (_pName == propForceSensor_filterSampleSize.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _filterSampleSize;
         }
         else if (_pName == propForceSensor_consecutiveViolationsToTrigger.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _consecutiveViolationsToTrigger;
         }
     }
@@ -1137,24 +1137,24 @@ int CForceSensor::setFloatProperty(const char* ppName, double pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _color.setFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propForceSensor_size.name)
         {
             setForceSensorSize(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propForceSensor_forceThreshold.name)
         {
             setForceThreshold(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propForceSensor_torqueThreshold.name)
         {
             setTorqueThreshold(pState);
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -1165,24 +1165,24 @@ int CForceSensor::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _color.getFloatProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propForceSensor_size.name)
         {
             pState = _forceSensorSize;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propForceSensor_forceThreshold.name)
         {
             pState = _forceThreshold;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propForceSensor_torqueThreshold.name)
         {
             pState = _torqueThreshold;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -1193,7 +1193,7 @@ int CForceSensor::getStringProperty(const char* ppName, std::string& pState) con
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getStringProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1204,7 +1204,7 @@ int CForceSensor::setVector3Property(const char* ppName, const C3Vector& pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setVector3Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1215,37 +1215,37 @@ int CForceSensor::getVector3Property(const char* ppName, C3Vector& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getVector3Property(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propForceSensor_sensorAverageForce.name)
         {
             pState = _filteredDynamicForces;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propForceSensor_sensorAverageTorque.name)
         {
             pState = _filteredDynamicTorques;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         if (_pName == propForceSensor_filteredSensorForce.name)
         {
             pState = _filteredDynamicForces;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propForceSensor_filteredSensorTorque.name)
         {
             pState = _filteredDynamicTorques;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propForceSensor_sensorForce.name)
         {
             pState = _lastForce_dynStep;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
         else if (_pName == propForceSensor_sensorTorque.name)
         {
             pState = _lastTorque_dynStep;
-            retVal = 1;
+            retVal = sim_propertyret_ok;
         }
     }
 
@@ -1256,7 +1256,7 @@ int CForceSensor::setPoseProperty(const char* ppName, const C7Vector& pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setPoseProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
     }
 
@@ -1267,11 +1267,11 @@ int CForceSensor::getPoseProperty(const char* ppName, C7Vector& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getPoseProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propForceSensor_intrinsicError.name)
         {
-            retVal = 1;
+            retVal = sim_propertyret_ok;
             pState = _intrinsicTransformationError;
         }
     }
@@ -1283,7 +1283,7 @@ int CForceSensor::setColorProperty(const char* ppName, const float* pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setColorProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _color.setColorProperty(ppName, pState);
     return retVal;
 }
@@ -1292,7 +1292,7 @@ int CForceSensor::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getColorProperty(ppName, pState);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
         retVal = _color.getColorProperty(ppName, pState);
     return retVal;
 }
@@ -1300,11 +1300,11 @@ int CForceSensor::getColorProperty(const char* ppName, float* pState) const
 int CForceSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         appartenance = _objectTypeStr;
         retVal = _color.getPropertyName(index, pName, excludeFlags);
-        if (retVal == -1)
+        if (retVal == sim_propertyret_unknownproperty)
         {
             for (size_t i = 0; i < allProps_forceSensor.size(); i++)
             {
@@ -1316,7 +1316,7 @@ int CForceSensor::getPropertyName(int& index, std::string& pName, std::string& a
                         if (index == -1)
                         {
                             pName = allProps_forceSensor[i].name;
-                            retVal = 1;
+                            retVal = sim_propertyret_ok;
                             break;
                         }
                     }
@@ -1330,10 +1330,10 @@ int CForceSensor::getPropertyName(int& index, std::string& pName, std::string& a
 int CForceSensor::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
-    if (retVal == -1)
+    if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _color.getPropertyInfo(ppName, info, infoTxt);
-        if (retVal == -1)
+        if (retVal == sim_propertyret_unknownproperty)
         {
             for (size_t i = 0; i < allProps_forceSensor.size(); i++)
             {

@@ -102,9 +102,9 @@ void CHierarchy::rebuildHierarchy()
 
     if (GuiApp::getEditModeType() == NO_EDIT_MODE)
     {
-        CHierarchyElement* newEl = new CHierarchyElement(-App::sceneContainer->getCurrentSceneIndex() - 1);
+        CHierarchyElement* newEl = new CHierarchyElement(-App::scenes->getCurrentSceneIndex() - 1);
         newEl->addYourChildren();
-        std::string sceneName = App::currentScene->environment->getSceneName();
+        std::string sceneName = App::scene->environment->getSceneName();
         newEl->setSceneName(sceneName.c_str());
         rootElements.push_back(newEl);
     }
@@ -150,7 +150,7 @@ void CHierarchy::looseFocus()
 
 void CHierarchy::keyPress(int key)
 {
-    if (App::currentScene->sceneObjects == nullptr)
+    if (App::scene->sceneObjects == nullptr)
         return;
     refreshViewFlag = App::userSettings->hierarchyRefreshCnt;
 
@@ -187,13 +187,13 @@ void CHierarchy::keyPress(int key)
 
         if (key == CTRL_SPACE_KEY)
         {
-            App::currentScene->simulation->keyPress(key);
+            App::scene->simulation->keyPress(key);
             return;
         }
 
         if (key == CTRL_E_KEY)
         {
-            App::sceneContainer->keyPress(key);
+            App::scenes->keyPress(key);
             return;
         }
 
@@ -208,7 +208,7 @@ void CHierarchy::keyPress(int key)
         int em = GuiApp::getEditModeType();
         if (em == NO_EDIT_MODE)
         {
-            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(labelEditObjectID);
+            CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(labelEditObjectID);
             if ((key == ENTER_KEY) || (key == TAB_KEY))
             {
                 if ((em == NO_EDIT_MODE) && (it != nullptr))
@@ -217,12 +217,12 @@ void CHierarchy::keyPress(int key)
                     {
                         if (editionText[editionText.size() - 1] == '#')
                             editionText.pop_back();
-                        if (App::currentScene->sceneObjects->setObjectName_old(it, editionText.c_str(), true))
+                        if (App::scene->sceneObjects->setObjectName_old(it, editionText.c_str(), true))
                             App::undoRedo_sceneChanged("");
                     }
                     else
                     {
-                        if (App::currentScene->sceneObjects->setObjectAlias(it, editionText.c_str(), true))
+                        if (App::scene->sceneObjects->setObjectAlias(it, editionText.c_str(), true))
                             App::undoRedo_sceneChanged("");
                     }
                     GuiApp::setFullDialogRefreshFlag();
@@ -321,7 +321,7 @@ bool CHierarchy::render()
 
         if (_mouseDownDragObjectID != -1)
         {
-            if (App::currentScene->sceneObjects->getLastSelectionHandle() != _mouseDownDragObjectID)
+            if (App::scene->sceneObjects->getLastSelectionHandle() != _mouseDownDragObjectID)
                 _mouseDownDragObjectID = -1; // we probably pressed esc
             if (_mouseDownDragObjectID != -1)
             {
@@ -333,12 +333,12 @@ bool CHierarchy::render()
                 {
                     dropID = objectIDWhereTheMouseCurrentlyIs_minus9999ForNone;
                     if (dropID == -9999)
-                        dropID = -App::sceneContainer->getCurrentSceneIndex() - 1; // scene
+                        dropID = -App::scenes->getCurrentSceneIndex() - 1; // scene
                     else
                     {
                         if (dropID < 0)
                         {
-                            if (dropID != -App::sceneContainer->getCurrentSceneIndex() - 1)
+                            if (dropID != -App::scenes->getCurrentSceneIndex() - 1)
                                 dropID = -9999;
                         }
                     }
@@ -803,7 +803,7 @@ bool CHierarchy::leftMouseDown(int x, int y, int selectionStatus)
     bool canSelect = true;
     if ((objID >= 0) && (selectionStatus != CTRLSELECTION) && (selectionStatus != SHIFTSELECTION))
     { // Expansion/collapse
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objID);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(objID);
         if (it != nullptr)
         {
             SSimulationThreadCommand cmd;
@@ -821,17 +821,17 @@ bool CHierarchy::leftMouseDown(int x, int y, int selectionStatus)
             int objID = getActionObjectID(mouseDownRelativePosition[1], HIERARCHY_HALF_INTER_LINE_SPACE * GuiApp::sc);
             if (objID >= 0)
             {
-                CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(objID);
+                CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(objID);
                 if (obj != nullptr) // just in case
                 {
                     if (selectionStatus == CTRLSELECTION)
                     {
-                        App::currentScene->sceneObjects->xorAddObjectToSelection(objID); // Normal selection/deselection
+                        App::scene->sceneObjects->xorAddObjectToSelection(objID); // Normal selection/deselection
                     }
                     else
                     {
-                        App::currentScene->sceneObjects->deselectObjects();
-                        App::currentScene->sceneObjects->addObjectToSelection(objID); // Normal selection
+                        App::scene->sceneObjects->deselectObjects();
+                        App::scene->sceneObjects->addObjectToSelection(objID); // Normal selection
                         int dxv[2];
                         if (getLineObjectID(mouseDownRelativePosition[1], dxv) == objID)
                         {
@@ -845,7 +845,7 @@ bool CHierarchy::leftMouseDown(int x, int y, int selectionStatus)
             else
             {
                 if (objID == -9999)
-                    App::currentScene->sceneObjects->deselectObjects();
+                    App::scene->sceneObjects->deselectObjects();
                 else
                 {
                     _worldSelectID_down = objID;
@@ -898,18 +898,18 @@ void CHierarchy::leftMouseUp(int x, int y)
     bool hierarchDragUnderway = ((abs(dx) > 8) || (abs(dy) > 8));
     if ((_mouseDownDragObjectID != -1) && hierarchDragUnderway)
     {
-        if (App::currentScene->sceneObjects->getLastSelectionHandle() == _mouseDownDragObjectID)
+        if (App::scene->sceneObjects->getLastSelectionHandle() == _mouseDownDragObjectID)
         {
 
             if (objectIDWhereTheMouseCurrentlyIs_minus9999ForNone == -9999)
                 objectIDWhereTheMouseCurrentlyIs_minus9999ForNone =
-                    -App::sceneContainer->getCurrentSceneIndex() - 1; // scene
+                    -App::scenes->getCurrentSceneIndex() - 1; // scene
             else
             {
                 if (objectIDWhereTheMouseCurrentlyIs_minus9999ForNone < 0)
                 {
                     if (objectIDWhereTheMouseCurrentlyIs_minus9999ForNone !=
-                        -App::sceneContainer->getCurrentSceneIndex() - 1)
+                        -App::scenes->getCurrentSceneIndex() - 1)
                         objectIDWhereTheMouseCurrentlyIs_minus9999ForNone = -9999;
                 }
             }
@@ -946,10 +946,10 @@ void CHierarchy::leftMouseUp(int x, int y)
         {
             for (int i = 0; i < int(objToBeSelected.size()); i++)
             {
-                CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(objToBeSelected[i]);
+                CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(objToBeSelected[i]);
                 if (obj != nullptr) // Just in case
                 {
-                    App::currentScene->sceneObjects->addObjectToSelection(objToBeSelected[i]); // Normal selection
+                    App::scene->sceneObjects->addObjectToSelection(objToBeSelected[i]); // Normal selection
                 }
             }
         }
@@ -970,7 +970,7 @@ void CHierarchy::leftMouseUp(int x, int y)
     {
         int nii = (-_worldSelectID_down) - 1;
         _worldSelectID_down = -9999;
-        App::sceneContainer->setInstanceIndexWithThumbnails(nii);
+        App::scenes->setInstanceIndexWithThumbnails(nii);
     }
 }
 bool CHierarchy::rightMouseDown(int x, int y)
@@ -1024,15 +1024,15 @@ void CHierarchy::rightMouseUp(int x, int y, int absX, int absY, QWidget* mainWin
             CAddOperations::addMenu(addMenu, nullptr, false, objectIDWhereTheMouseCurrentlyIs_minus9999ForNone);
             mainMenu.appendMenuAndDetach(addMenu, true, IDS_ADD_MENU_ITEM);
 
-            size_t selSize = App::currentScene->sceneObjects->getSelectionCount();
+            size_t selSize = App::scene->sceneObjects->getSelectionCount();
             VMenu* hierarchyColoringMenu = new VMenu();
             bool cols[4] = {false, false, false, false};
             if (selSize > 0)
             {
                 for (size_t i = 0; i < selSize; i++)
                 {
-                    CSceneObject* anO = App::currentScene->sceneObjects->getObjectFromHandle(
-                        App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+                    CSceneObject* anO = App::scene->sceneObjects->getObjectFromHandle(
+                        App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
                     int colInd = anO->getHierarchyColorIndex();
                     if (colInd == -1)
                         cols[0] = true;
@@ -1176,7 +1176,7 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
     int scriptID = getScriptActionObjectID(mouseDownRelativePosition[0], mouseDownRelativePosition[1]);
     if (scriptID != -1)
     {
-        CDetachedScript* it = App::currentScene->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(scriptID);
+        CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(scriptID);
         if (it != nullptr)
         {
             // Process the command via the simulation thread (delayed):
@@ -1211,12 +1211,12 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
             {
                 if (objID >= 0)
                 { // Regular object
-                    App::currentScene->sceneObjects->deselectObjects();
-                    App::currentScene->sceneObjects->addObjectToSelection(objID);
+                    App::scene->sceneObjects->deselectObjects();
+                    App::scene->sceneObjects->addObjectToSelection(objID);
                     GuiApp::setFullDialogRefreshFlag();
                     GuiApp::mainWindow->dlgCont->processCommand(OPEN_OBJECT_DLG_OBJECT_SPECIFIC_PART_CMD);
 
-                    CScript* it = App::currentScene->sceneObjects->getScriptFromHandle(objID);
+                    CScript* it = App::scene->sceneObjects->getScriptFromHandle(objID);
                     if (it != nullptr)
                     { // new scripts
                         // Process the command via the simulation thread (delayed):
@@ -1238,7 +1238,7 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
         objID = getActionModelID_icon(mouseDownRelativePosition[0], mouseDownRelativePosition[1]);
         if (objID >= 0)
         { // yes!
-            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objID);
+            CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(objID);
             if (it != nullptr)
             {
                 // Process the command via the simulation thread (delayed):
@@ -1254,7 +1254,7 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
         objID = getSimulationActionObjectID(mouseDownRelativePosition[0], mouseDownRelativePosition[1]);
         if (objID != -1)
         { // yes!
-            CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objID);
+            CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(objID);
             if (it != nullptr)
             {
                 std::string txt;
@@ -1315,7 +1315,7 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
         if (objID == -9999)
             objID = -1;
         labelEditObjectID = objID;
-        CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(objID);
+        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(objID);
         if (it != nullptr)
         {
             editionText = it->getObjectAlias();
@@ -1560,7 +1560,7 @@ void CHierarchy::drawEditionLabel(int textPosX, int textPosY)
 
 void CHierarchy::addMenu(VMenu* menu)
 {
-    int selCnt = int(App::currentScene->sceneObjects->getSelectionCount());
+    int selCnt = int(App::scene->sceneObjects->getSelectionCount());
     bool selection = selCnt > 0;
     menu->appendMenuItem(true, false, EXPAND_HIERARCHY_CMD, "Expand all");
     menu->appendMenuItem(true, false, COLLAPSE_HIERARCHY_CMD, "Collapse all");
@@ -1573,8 +1573,8 @@ void CHierarchy::addMenu(VMenu* menu)
 
     if ((selCnt == 1) && (App::userSettings->externalScriptEditor.size() > 0))
     {
-        int h = App::currentScene->sceneObjects->getLastSelectionHandle();
-        CScript* script = App::currentScene->sceneObjects->getScriptFromHandle(h);
+        int h = App::scene->sceneObjects->getLastSelectionHandle();
+        CScript* script = App::scene->sceneObjects->getScriptFromHandle(h);
         if (script != nullptr)
         { // new scripts
             bool enabled = (!script->detachedScript->getScriptIsDisabled()) && ((script->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) == 0);
@@ -1585,13 +1585,13 @@ void CHierarchy::addMenu(VMenu* menu)
         }
         else
         { // old scripts
-            CDetachedScript* childS = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, h);
-            CDetachedScript* custS = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, h);
+            CDetachedScript* childS = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, h);
+            CDetachedScript* custS = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, h);
             if ((childS != nullptr) || (custS != nullptr))
             {
                 menu->appendMenuSeparator();
                 if (childS != nullptr)
-                    menu->appendMenuItem(App::currentScene->simulation->getSimulationState() != sim_simulation_stopped,
+                    menu->appendMenuItem(App::scene->simulation->getSimulationState() != sim_simulation_stopped,
                                          false, RESTART_CHILD_SCRIPT_CMD, "Restart simulation script");
                 if (custS != nullptr)
                     menu->appendMenuItem(true, false, RESTART_CUSTOMIZATION_SCRIPT_CMD, "Restart customization script");
@@ -1607,9 +1607,9 @@ bool CHierarchy::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
+            for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
             {
-                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromIndex(i);
+                CSceneObject* it = App::scene->sceneObjects->getObjectFromIndex(i);
                 it->setObjectProperty(it->getObjectProperty() | sim_objectproperty_collapsed);
                 if (commandID == EXPAND_HIERARCHY_CMD)
                     it->setObjectProperty(it->getObjectProperty() - sim_objectproperty_collapsed);
@@ -1632,14 +1632,14 @@ bool CHierarchy::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CSceneObject* it = App::currentScene->sceneObjects->getLastSelectionObject();
+            CSceneObject* it = App::scene->sceneObjects->getLastSelectionObject();
 
-            int order = App::currentScene->sceneObjects->getObjectSequence(it);
+            int order = App::scene->sceneObjects->getObjectSequence(it);
             if (commandID == MOVE_UP_HIERARCHY_CMD)
                 order--;
             else
                 order++;
-            if ((order >= 0) && (App::currentScene->sceneObjects->setObjectSequence(it, order)))
+            if ((order >= 0) && (App::scene->sceneObjects->setObjectSequence(it, order)))
             {
                 if (commandID == MOVE_UP_HIERARCHY_CMD)
                     App::logMsg(sim_verbosity_msgs, "Object moved up in scene hierarchy.");
@@ -1661,10 +1661,10 @@ bool CHierarchy::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
+            for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
             {
-                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(
-                    App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+                CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(
+                    App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
                 std::vector<CSceneObject*> toExplore;
                 toExplore.push_back(it);
                 while (toExplore.size() != 0)
@@ -1696,10 +1696,10 @@ bool CHierarchy::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            for (size_t i = 0; i < App::currentScene->sceneObjects->getSelectionCount(); i++)
+            for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
             {
-                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(
-                    App::currentScene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+                CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(
+                    App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
                 it->setHierarchyColorIndex(commandID - HIERARCHY_COLORING_NONE_CMD - 1);
             }
             App::undoRedo_sceneChanged("");
@@ -1717,12 +1717,12 @@ bool CHierarchy::processCommand(int commandID)
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId = RESTART_SCRIPT_CMD;
-        int h = App::currentScene->sceneObjects->getLastSelectionHandle();
+        int h = App::scene->sceneObjects->getLastSelectionHandle();
         CDetachedScript* s = nullptr;
         if (commandID == RESTART_CHILD_SCRIPT_CMD)
-            s = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, h);
+            s = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, h);
         if (commandID == RESTART_CUSTOMIZATION_SCRIPT_CMD)
-            s = App::currentScene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, h);
+            s = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, h);
         if (s == nullptr)
             cmd.intParams.push_back(h);
         else
@@ -1738,9 +1738,9 @@ void CHierarchy::_drawLinesLinkingDummies(int maxRenderedPos[2])
 {
     std::vector<int>
         positions; // contains only objects that have a dummy linking to another, as child (or the dummy itself)
-    for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_dummy); i++)
+    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_dummy); i++)
     {
-        CDummy* dummy = App::currentScene->sceneObjects->getDummyFromIndex(i);
+        CDummy* dummy = App::scene->sceneObjects->getDummyFromIndex(i);
         if ((dummy->getLinkedDummyHandle() != -1) && (dummy->getDummyType() != sim_dummytype_default) &&
             (dummy->getDummyType() != sim_dummytype_assembly))
         {
@@ -1763,8 +1763,8 @@ void CHierarchy::_drawLinesLinkingDummies(int maxRenderedPos[2])
                         int wv = 0;
                         if (dummyID == idToSearch)
                             wv |= 1; // the dummy is visible (otherwise it is not visible (built on a collapsed item))
-                        if (App::currentScene->sceneObjects->isObjectSelected(dummyID) ||
-                            App::currentScene->sceneObjects->isObjectSelected(linkedDummyID))
+                        if (App::scene->sceneObjects->isObjectSelected(dummyID) ||
+                            App::scene->sceneObjects->isObjectSelected(linkedDummyID))
                             wv |= 2; // one of the dummies is selected
                         positions.push_back(wv);
                         positions.push_back(dummy->getDummyType());

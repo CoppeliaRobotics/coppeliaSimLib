@@ -138,7 +138,7 @@ bool CSimRecorder::recordFrameIfNeeded(int resX, int resY, int posX, int posY)
         bool validFrame = true;
         if (!getManualStart())
         {
-            double simTime = App::currentScene->simulation->getSimulationTime();
+            double simTime = App::scene->simulation->getSimulationTime();
             if (_simulationTimeOfLastFrame != simTime)
                 _simulationTimeOfLastFrame = simTime;
             else
@@ -296,7 +296,7 @@ bool CSimRecorder::willNextFrameBeRecorded()
         bool validFrame = true;
         if (!getManualStart())
         {
-            if (_simulationTimeOfLastFrame == App::currentScene->simulation->getSimulationTime())
+            if (_simulationTimeOfLastFrame == App::scene->simulation->getSimulationTime())
                 validFrame = false;
         }
 
@@ -400,7 +400,7 @@ int CSimRecorder::getFrameRate()
 {
     if (_autoFrameRate)
     {
-        int frate = int((1.0 / App::currentScene->simulation->getTimeStep()) + 0.5);
+        int frate = int((1.0 / App::scene->simulation->getTimeStep()) + 0.5);
         return (tt::getLimitedInt(1, 120, frate)); // the recorder probably doesn't support that high (120)
     }
     return (_frameRate);

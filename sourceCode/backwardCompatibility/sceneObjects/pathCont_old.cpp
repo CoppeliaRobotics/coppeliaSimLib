@@ -217,7 +217,7 @@ bool CPathCont_old::_getBezierPointsForVirtualDistance(double& l, int& index0, i
 
 void CPathCont_old::handlePath(CPath_old* it, double deltaTime)
 { // DEPRECATED
-    if (App::currentScene->mainSettings_old->pathMotionHandlingEnabled_DEPRECATED)
+    if (App::scene->mainSettings_old->pathMotionHandlingEnabled_DEPRECATED)
     { // we should not forget to call _handleAttachedDummies even when the path motion is disabled!!
         handlePath_keepObjectUnchanged(deltaTime, _position, _nominalVelocity, _targetNominalVelocity, _maxAcceleration,
                                        (_attributes & sim_pathproperty_invert_velocity_deprecated) != 0,
@@ -973,7 +973,7 @@ void CPathCont_old::createEquivalent(int pathHandle)
         opt += 2;
     txt += std::to_string(opt) + ",";
     txt += std::to_string(_bezierPathPoints.size()) + ")\nsim.setObjectMatrix(newPath,-1,m)";
-    App::sceneContainer->sandboxScript->executeScriptString(txt.c_str(), nullptr);
+    App::scenes->sandboxScript->executeScriptString(txt.c_str(), nullptr);
 }
 
 CBezierPathPoint_old* CPathCont_old::_addBezierPathPoint(const C7Vector& transf, double maxRelAbsVelocity,
@@ -1569,9 +1569,9 @@ void CPathCont_old::setPosition(double p)
         _startPosition = _getInterpolatedBezierCurvePoint(ind, t).X;
     // Following is not elegant at all. Change later! (maybe simply merge the CPathCont_old and CPath_old)
     CPath_old* parentPathObject = nullptr;
-    for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(sim_sceneobject_path); i++)
+    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_path); i++)
     {
-        parentPathObject = App::currentScene->sceneObjects->getPathFromIndex(i);
+        parentPathObject = App::scene->sceneObjects->getPathFromIndex(i);
         if (parentPathObject != nullptr)
         { // Can happen during object destruction!
             if (parentPathObject->pathContainer == this)

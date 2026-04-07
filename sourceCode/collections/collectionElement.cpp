@@ -44,11 +44,11 @@ std::string CCollectionElement::getMainObjectTempName() const
 
 void CCollectionElement::addOrRemoveYourObjects(std::vector<int>* theObjects) const
 {
-    CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_mainObjectHandle);
+    CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_mainObjectHandle);
     if (it == nullptr)
     {
-        for (size_t i = 0; i < App::currentScene->sceneObjects->getObjectCount(); i++)
-            addOrRemoveAnObject(theObjects, App::currentScene->sceneObjects->getObjectFromIndex(i)->getObjectHandle());
+        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
+            addOrRemoveAnObject(theObjects, App::scene->sceneObjects->getObjectFromIndex(i)->getObjectHandle());
     }
     if (_elementType == sim_collectionelement_loose)
         addOrRemoveAnObject(theObjects, it->getObjectHandle());
@@ -170,7 +170,7 @@ void CCollectionElement::serialize(CSer& ar)
             else
             {
                 std::string str;
-                CSceneObject* it = App::currentScene->sceneObjects->getObjectFromHandle(_mainObjectHandle);
+                CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(_mainObjectHandle);
                 if (it != nullptr)
                     str = it->getObjectName_old();
                 ar.xmlAddNode_comment(" 'objectName' tag: required if 'type' is not 'everything'. Has to be an "

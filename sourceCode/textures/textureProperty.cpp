@@ -100,7 +100,7 @@ bool CTextureProperty::getRepeatV()
 
 void CTextureProperty::addTextureDependencies(long long int objID, long long int objSubID)
 {
-    CTextureObject* it = App::currentScene->textureContainer->getObject(_textureOrVisionSensorObjectID);
+    CTextureObject* it = App::scene->textureContainer->getObject(_textureOrVisionSensorObjectID);
     if (it != nullptr)
         it->addDependentObject(objID, objSubID);
 }
@@ -177,12 +177,12 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId, c
     C7Vector tr(_textureRelativeConfig.getInverse());
     CTextureObject* it = nullptr;
     if (_textureOrVisionSensorObjectID > sim_object_sceneobjectend)
-        it = App::currentScene->textureContainer->getObject(_textureOrVisionSensorObjectID);
+        it = App::scene->textureContainer->getObject(_textureOrVisionSensorObjectID);
     else
     {
 #ifdef SIM_WITH_GUI
         CVisionSensor* rend =
-            App::currentScene->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
+            App::scene->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
         if (rend != nullptr)
             it = rend->getTextureObject();
 #endif
@@ -445,12 +445,12 @@ void CTextureProperty::setTextureObjectID(int id)
 CTextureObject* CTextureProperty::getTextureObject()
 {
     if (_textureOrVisionSensorObjectID > sim_object_sceneobjectend)
-        return (App::currentScene->textureContainer->getObject(_textureOrVisionSensorObjectID));
+        return (App::scene->textureContainer->getObject(_textureOrVisionSensorObjectID));
 #ifdef SIM_WITH_GUI
     if ((_textureOrVisionSensorObjectID >= sim_object_sceneobjectstart) &&
         (_textureOrVisionSensorObjectID <= sim_object_sceneobjectend))
     {
-        CVisionSensor* rs = App::currentScene->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
+        CVisionSensor* rs = App::scene->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
         if (rs != nullptr)
             return (rs->getTextureObject());
     }

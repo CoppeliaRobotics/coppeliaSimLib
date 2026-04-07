@@ -105,7 +105,7 @@ bool CModuleMenuItemContainer::processCommand(int commandID)
         }
     }
 
-    if (App::sceneContainer->addOnScriptContainer->processCommand(commandID))
+    if (App::scenes->addOnScriptContainer->processCommand(commandID))
         return (true);
     else
     {
@@ -115,10 +115,10 @@ bool CModuleMenuItemContainer::processCommand(int commandID)
             if (it->getHandle() == commandID)
             {
                 int data[4] = {commandID, it->getState(), 0, 0};
-                App::sceneContainer->pluginContainer->sendEventCallbackMessageToAllPlugins_old(
+                App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins_old(
                     sim_message_eventcallback_menuitemselected, data);
 
-                App::sceneContainer->pluginContainer->uiCallAllPlugins(sim_message_eventcallback_menuitemselected,
+                App::scenes->pluginContainer->uiCallAllPlugins(sim_message_eventcallback_menuitemselected,
                                                                        data);
                 return (true);
             }

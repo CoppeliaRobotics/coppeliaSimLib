@@ -124,22 +124,22 @@ int CCollisionObjectContainer_old::addNewObject(int entity1Handle, int entity2Ha
     // We check if the objects are valid:
     if (entity1Handle <= sim_object_sceneobjectend)
     {
-        if (App::currentScene->sceneObjects->getObjectFromHandle(entity1Handle) == nullptr)
+        if (App::scene->sceneObjects->getObjectFromHandle(entity1Handle) == nullptr)
             return (-1);
     }
     else
     {
-        if (App::currentScene->collections->getObjectFromHandle(entity1Handle) == nullptr)
+        if (App::scene->collections->getObjectFromHandle(entity1Handle) == nullptr)
             return (-1);
     }
     if (entity2Handle > sim_object_sceneobjectend)
     {
-        if (App::currentScene->collections->getObjectFromHandle(entity2Handle) == nullptr)
+        if (App::scene->collections->getObjectFromHandle(entity2Handle) == nullptr)
             return (-1);
     }
     else
     {
-        if ((App::currentScene->sceneObjects->getObjectFromHandle(entity2Handle) == nullptr) && (entity2Handle != -1))
+        if ((App::scene->sceneObjects->getObjectFromHandle(entity2Handle) == nullptr) && (entity2Handle != -1))
             return (-1);
     }
     // We check if we try to check an object against itself (forbidden, except for collections):
@@ -157,10 +157,10 @@ int CCollisionObjectContainer_old::addNewObject(int entity1Handle, int entity2Ha
     // Now check if the combination is valid:
     if ((entity1Handle <= sim_object_sceneobjectend) && (entity2Handle <= sim_object_sceneobjectend))
     {
-        int t1 = App::currentScene->sceneObjects->getObjectFromHandle(entity1Handle)->getObjectType();
+        int t1 = App::scene->sceneObjects->getObjectFromHandle(entity1Handle)->getObjectType();
         int t2 = sim_sceneobject_octree;
         if (entity2Handle != -1)
-            t2 = App::currentScene->sceneObjects->getObjectFromHandle(entity2Handle)->getObjectType();
+            t2 = App::scene->sceneObjects->getObjectFromHandle(entity2Handle)->getObjectType();
         if (t1 == sim_sceneobject_shape)
         {
             if ((t2 != sim_sceneobject_shape) && (t2 != sim_sceneobject_octree))
@@ -188,7 +188,7 @@ int CCollisionObjectContainer_old::addNewObject(int entity1Handle, int entity2Ha
 
 void CCollisionObjectContainer_old::removeObject(int objectHandle)
 {
-    App::currentScene->announceCollisionWillBeErased(objectHandle);
+    App::scene->announceCollisionWillBeErased(objectHandle);
     _removeObject(objectHandle);
 }
 

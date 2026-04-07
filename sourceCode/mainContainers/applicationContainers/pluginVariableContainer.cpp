@@ -32,7 +32,7 @@ void CPluginVariableContainer::clear()
     for (size_t i = 0; i < _allVariables_vect.size(); i++)
     {
         if (_allVariables_vect[i].stackHandle != -1)
-            App::sceneContainer->interfaceStackContainer->destroyStack(_allVariables_vect[i].stackHandle);
+            App::scenes->interfaceStackContainer->destroyStack(_allVariables_vect[i].stackHandle);
     }
     _allVariables_vect.clear();
     _allVariables_map.clear();
@@ -56,7 +56,7 @@ bool CPluginVariableContainer::addVariable(const char* varName, const char* varV
     { // variable already exists. Replace it
         it->varValue = varValue;
         if (it->stackHandle != -1)
-            App::sceneContainer->interfaceStackContainer->destroyStack(it->stackHandle);
+            App::scenes->interfaceStackContainer->destroyStack(it->stackHandle);
         it->stackHandle = stackHandle;
     }
     return (retVal);

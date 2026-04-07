@@ -103,7 +103,7 @@ void CSoftButton::announceSceneObjectWillBeErased(int objID)
 {
     if (_textureProperty != nullptr)
     {
-        CSceneObject* obj = App::currentScene->sceneObjects->getObjectFromHandle(objID);
+        CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(objID);
         if ((obj != nullptr) && _textureProperty->announceObjectWillBeErased(obj))
         {
             delete _textureProperty;
@@ -114,7 +114,7 @@ void CSoftButton::announceSceneObjectWillBeErased(int objID)
 
 void CSoftButton::performSceneObjectLoadingMapping(const std::map<int, int>* map)
 {
-    if (App::currentScene->sceneObjects != nullptr)
+    if (App::scene->sceneObjects != nullptr)
     {
         if (_textureProperty != nullptr)
             _textureProperty->performObjectLoadingMapping(map);
@@ -123,7 +123,7 @@ void CSoftButton::performSceneObjectLoadingMapping(const std::map<int, int>* map
 
 void CSoftButton::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
-    if (App::currentScene->sceneObjects != nullptr)
+    if (App::scene->sceneObjects != nullptr)
     {
         if (_textureProperty != nullptr)
             _textureProperty->performTextureObjectLoadingMapping(map, 0);
