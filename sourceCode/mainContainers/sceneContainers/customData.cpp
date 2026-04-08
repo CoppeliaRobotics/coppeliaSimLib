@@ -414,50 +414,63 @@ void CCustomData::appendEventData(const char* tag, CCbor* ev, bool remove /*= fa
             {
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
+                ev->appendKeyVector2(tg.c_str(), (double*)dat.data());
             }
             else if (tg.find(proptypetag_vector3) != std::string::npos)
             {
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
+                ev->appendKeyVector3(tg.c_str(), (double*)dat.data());
             }
             else if (tg.find(proptypetag_quaternion) != std::string::npos)
             {
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
+                ev->appendKeyQuaternion(tg.c_str(), (double*)dat.data(), true);
             }
             else if (tg.find(proptypetag_pose) != std::string::npos)
             {
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
+                ev->appendKeyPose(tg.c_str(), (double*)dat.data(), true);
             }
             else if (tg.find(proptypetag_matrix3x3) != std::string::npos)
             {
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyDoubleArray(tg.c_str(), (double*)dat.data(), dat.size() / sizeof(double));
+                ev->appendKeyMatrix(tg.c_str(), (double*)dat.data(), 3, 3);
             }
             else if (tg.find(proptypetag_matrix4x4) != std::string::npos)
             {
-                double m[16];
-                for (size_t j = 0; j < 12; j++)
-                    m[j] = ((double*)dat.data())[j];
-                m[12] = 0.0;
-                m[13] = 0.0;
-                m[14] = 0.0;
-                m[15] = 1.0;
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyDoubleArray(tg.c_str(), m, 16);
+                ev->appendKeyMatrix(tg.c_str(), (double*)dat.data(), 4, 4);
+            }
+            else if (tg.find(proptypetag_matrix) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                tg = _eventPrefix + tg;
+                int r = ((int*)dat.data())[0];
+                int c = ((int*)dat.data())[1];
+                ev->appendKeyMatrix(tg.c_str(), (double*)(dat.data() + 2 * sizeof(int)), r, c);
+            }
+            else if (tg.find(proptypetag_handle) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                tg = _eventPrefix + tg;
+                ev->appendKeyHandle(tg.c_str(), ((long long int*)dat.data())[0]);
+            }
+            else if (tg.find(proptypetag_handlearray) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                tg = _eventPrefix + tg;
+                ev->appendKeyHandleArray(tg.c_str(), (long long int*)dat.data(), dat.size() / sizeof(long long int));
             }
             else if (tg.find(proptypetag_color) != std::string::npos)
             {
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyFloatArray(tg.c_str(), (float*)dat.data(), dat.size() / sizeof(float));
+                ev->appendKeyColor(tg.c_str(), (float*)dat.data());
             }
             else if (tg.find(proptypetag_floatarray) != std::string::npos)
             {
@@ -481,7 +494,7 @@ void CCustomData::appendEventData(const char* tag, CCbor* ev, bool remove /*= fa
             {
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyInt32Array(tg.c_str(), (int*)dat.data(), dat.size() / sizeof(long long int));
+                ev->appendKeyInt64Array(tg.c_str(), (long long int*)dat.data(), dat.size() / sizeof(long long int));
             }
             else
             {

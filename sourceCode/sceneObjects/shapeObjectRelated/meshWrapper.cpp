@@ -489,16 +489,16 @@ void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia, bool force
         getPMIFromInertia(_iMatrix, _pmiRotFrame, _pmi);
         if ((_parentObjectHandle >= 0) && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propMeshWrapper_inertia.name;
-            CCbor* ev = App::scenes->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
-            double dat[9];
-            _in *= _mass;
-            _in.getData(dat);
-            ev->appendKeyDoubleArray(cmd, dat, 9);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(_parentObjectHandle, false, propMeshWrapper_inertiaMatrix.name, true);
+            ev->appendKeyMatrix(propMeshWrapper_inertiaMatrix.name, _iMatrix * _mass);
             C3Vector pmi(_pmi * _mass);
             ev->appendKeyDoubleArray(propMeshWrapper_pmi.name, pmi.data, 3);
             if (App::getEventProtocolVersion() <= 3)
             {
+                double dat[9];
+                _in *= _mass;
+                _in.getData(dat);
+                ev->appendKeyDoubleArray(propMeshWrapper_inertia.name, dat, 9);
                 _pmiRotFrame.getData(dat, true);
                 ev->appendKeyDoubleArray(propMeshWrapper_pmiQuaternion.name, dat, 4);
             }
@@ -1269,14 +1269,15 @@ void CMeshWrapper::addObjectEventData(int parentObjectHandle, CCbor* ev)
             ev->appendKeyDoubleArray(propMeshWrapper_com.name, _com.data, 3);
         else
             ev->appendKeyVector3(propMeshWrapper_com.name, _com);
-        C3X3Matrix inertia(_iMatrix * _mass);
-        double dat[9];
-        inertia.getData(dat);
-        ev->appendKeyDoubleArray(propMeshWrapper_inertia.name, dat, 9);
+        ev->appendKeyMatrix(propMeshWrapper_inertiaMatrix.name, _iMatrix * _mass);
         C3Vector pmi(_pmi * _mass);
         ev->appendKeyDoubleArray(propMeshWrapper_pmi.name, pmi.data, 3);
         if (App::getEventProtocolVersion() <= 3)
         {
+            C3X3Matrix inertia(_iMatrix * _mass);
+            double dat[9];
+            inertia.getData(dat);
+            ev->appendKeyDoubleArray(propMeshWrapper_inertia.name, dat, 9);
             _pmiRotFrame.getData(dat, true);
             ev->appendKeyDoubleArray(propMeshWrapper_pmiQuaternion.name, dat, 4);
         }
@@ -1332,6 +1333,44 @@ int CMeshWrapper::getVector3Property_wrapper(const char* pName, C3Vector& pState
     {
         retVal = sim_propertyret_ok;
         pState = _com;
+    }
+
+    return retVal;
+}
+
+int CMeshWrapper::setMatrix3x3Property_wrapper(const char* pName, const CMatrix& pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (strcmp(propMeshWrapper_inertiaMatrix.name, pName) == 0)
+    {
+        if ((pState.rows == 3) && (pState.cols == 3))
+        {
+            retVal = sim_propertyret_ok;
+            C3X3Matrix m;
+            for (size_t i = 0; i< 3; i++)
+            {
+                m.axis[0](i) = pState(i,0);
+                m.axis[1](i) = pState(i,1);
+                m.axis[2](i) = pState(i,2);
+            }
+            setInertiaAndComputePMI(m * (1.0 / _mass));
+        }
+        else
+            retVal = sim_propertyret_unavailable;
+    }
+
+    return retVal;
+}
+
+int CMeshWrapper::getMatrix3x3Property_wrapper(const char* pName, CMatrix& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (strcmp(propMeshWrapper_inertiaMatrix.name, pName) == 0)
+    {
+        pState = CMatrix(_iMatrix * _mass);
+        retVal = sim_propertyret_ok;
     }
 
     return retVal;

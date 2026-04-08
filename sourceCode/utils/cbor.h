@@ -45,7 +45,9 @@ class CCbor
     void appendDoubleArray(const double* v, size_t cnt);
     void appendMatrix(const double* v, size_t rows, size_t cols);
     void appendMatrix(const C3X3Matrix& m);
+    void appendMatrix(const C4X4Matrix& m);
     void appendMatrix(const CMatrix& m);
+    void appendVector2(const double* v);
     void appendVector3(const double* v);
     void appendVector3(const C3Vector& v);
     void appendQuaternion(const double* v, bool xyzwLayout = false);
@@ -75,7 +77,9 @@ class CCbor
     void appendKeyBool(const char* key, bool v);
     void appendKeyMatrix(const char* key, const double* v, size_t rows, size_t cols);
     void appendKeyMatrix(const char* key, const C3X3Matrix& m);
+    void appendKeyMatrix(const char* key, const C4X4Matrix& m);
     void appendKeyMatrix(const char* key, const CMatrix& m);
+    void appendKeyVector2(const char* key, const double* v);
     void appendKeyVector3(const char* key, const double* v);
     void appendKeyVector3(const char* key, const C3Vector& v);
     void appendKeyQuaternion(const char* key, const double* v, bool xyzwLayout = false);

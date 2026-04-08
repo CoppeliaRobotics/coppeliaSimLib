@@ -5643,6 +5643,120 @@ int CSceneObjectContainer::getVector3Property(long long int target, const char* 
     return retVal;
 }
 
+int CSceneObjectContainer::setMatrix3x3Property(long long int target, const char* pName, const CMatrix& pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CSceneObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+        {
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->setMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->setMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->setMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->setMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->setMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->setMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->setMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->setMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->setMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->setMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->setMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->setMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->setMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->setMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->setMatrix3x3Property(pName, pState);
+        }
+        else
+        {
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return sim_propertyret_unknownproperty;
+        }
+        retVal = sim_propertyret_unknowntarget;
+    }
+    return retVal;
+}
+
+int CSceneObjectContainer::getMatrix3x3Property(long long int target, const char* pName, CMatrix& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CSceneObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+        {
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->getMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->getMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->getMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->getMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->getMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->getMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->getMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->getMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->getMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->getMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->getMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->getMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->getMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->getMatrix3x3Property(pName, pState);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->getMatrix3x3Property(pName, pState);
+        }
+        else
+        {
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return sim_propertyret_unknownproperty;
+        }
+        retVal = sim_propertyret_unknowntarget;
+    }
+    return retVal;
+}
+
 int CSceneObjectContainer::setQuaternionProperty(long long int target, const char* pName, const C4Vector& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
@@ -6860,9 +6974,9 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                         break;
                     }
                     case sim_propertytype_matrix3x3: {
-                        std::vector<double> state;
-                        //result = obj->getFloatArrayProperty(name.c_str(), state);
-                        //dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
+                        CMatrix state;
+                        result = obj->getMatrix3x3Property(name.c_str(), state);
+                        dnaString.append(reinterpret_cast<const char*>(state.data.data()), state.data.size() * sizeof(double));
                         break;
                     }
                     case sim_propertytype_matrix4x4: {

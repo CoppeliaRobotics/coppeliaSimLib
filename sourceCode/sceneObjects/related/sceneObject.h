@@ -133,6 +133,8 @@ class CSceneObject : public Obj
     virtual int getVector2Property(const char* pName, double* pState) const;
     virtual int setVector3Property(const char* pName, const C3Vector& pState);
     virtual int getVector3Property(const char* pName, C3Vector& pState) const;
+    virtual int setMatrix3x3Property(const char* pName, const CMatrix& pState);
+    virtual int getMatrix3x3Property(const char* pName, CMatrix& pState) const;
     virtual int setQuaternionProperty(const char* pName, const C4Vector& pState);
     virtual int getQuaternionProperty(const char* pName, C4Vector& pState) const;
     virtual int setPoseProperty(const char* pName, const C7Vector& pState);

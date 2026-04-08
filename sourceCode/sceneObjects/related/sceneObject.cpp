@@ -6550,6 +6550,20 @@ int CSceneObject::getVector3Property(const char* ppName, C3Vector& pState) const
     return retVal;
 }
 
+int CSceneObject::setMatrix3x3Property(const char* ppName, const CMatrix& pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    return retVal;
+}
+
+int CSceneObject::getMatrix3x3Property(const char* ppName, CMatrix& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    return retVal;
+}
+
 int CSceneObject::setQuaternionProperty(const char* ppName, const C4Vector& pState)
 {
     std::string _pName(ppName);

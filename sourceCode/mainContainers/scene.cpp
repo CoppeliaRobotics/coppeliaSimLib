@@ -3280,10 +3280,7 @@ int CScene::setVector3Property(long long int target, const char* ppName, const C
         }
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
-    {
-        const char* pName = ppName;
-        retVal = sceneObjects->setVector3Property(target, pName, pState);
-    }
+        retVal = sceneObjects->setVector3Property(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
@@ -3376,8 +3373,7 @@ int CScene::setMatrix3x3Property(long long int target, const char* ppName, const
     {
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
-    {
-    }
+        retVal = sceneObjects->setMatrix3x3Property(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
@@ -3397,8 +3393,7 @@ int CScene::getMatrix3x3Property(long long int target, const char* ppName, CMatr
     {
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
-    {
-    }
+        retVal = sceneObjects->getMatrix3x3Property(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }

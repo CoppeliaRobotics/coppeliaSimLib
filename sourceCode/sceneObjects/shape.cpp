@@ -2112,6 +2112,24 @@ int CShape::getVector3Property(const char* ppName, C3Vector& pState) const
     return retVal;
 }
 
+int CShape::setMatrix3x3Property(const char* ppName, const CMatrix& pState)
+{
+    int retVal = CSceneObject::setMatrix3x3Property(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+        retVal = _mesh->setMatrix3x3Property_wrapper(ppName, pState);
+
+    return retVal;
+}
+
+int CShape::getMatrix3x3Property(const char* ppName, CMatrix& pState) const
+{
+    int retVal = CSceneObject::getMatrix3x3Property(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+        retVal = _mesh->getMatrix3x3Property_wrapper(ppName, pState);
+
+    return retVal;
+}
+
 int CShape::setQuaternionProperty(const char* ppName, const C4Vector& pState)
 {
     std::string _pName(ppName);

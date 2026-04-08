@@ -500,7 +500,8 @@ struct SJointProperty
 #define MESHWRAPPER_PROPERTIES \
     FUNCX(propMeshWrapper_mass, "mass", sim_propertytype_float, 0,  jsonStr({{"label", "Mass"}, {"description", ""}}), "") \
     FUNCX(propMeshWrapper_com, "centerOfMass", sim_propertytype_vector3, 0,  jsonStr({{"label", "Center of mass"}, {"description", "Center of mass, relative to the shape's reference frame"}}), "") \
-    FUNCX(propMeshWrapper_inertia, "inertia", sim_propertytype_floatarray, 0,  jsonStr({{"label", "Inertia tensor"}, {"description", "Inertia tensor, relative to the shape's reference frame"}}), "") \
+    FUNCX(propMeshWrapper_inertia, "inertia", sim_propertytype_floatarray, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Inertia tensor"}, {"description", "Inertia tensor, relative to the shape's reference frame"}}), "") \
+    FUNCX(propMeshWrapper_inertiaMatrix, "inertiaMatrix", sim_propertytype_matrix3x3, 0,  jsonStr({{"label", "Inertia matrix"}, {"description", "Inertia matrix, relative to the shape's reference frame"}}), "") \
     FUNCX(propMeshWrapper_pmi, "principalMomentOfInertia", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Principal moment of inertia"}, {"description", "Principal moment of inertia, relative to pmiQuaternion"}}), "") \
     FUNCX(propMeshWrapper_pmiQuaternion, "pmiQuaternion", sim_propertytype_quaternion, sim_propertyinfo_notwritable,  jsonStr({{"label", "Quaternion of the principal moment of inertia"}, {"description", "Quaternion of the principal moment of inertia, relative to the shape's reference frame"}}), "")
 

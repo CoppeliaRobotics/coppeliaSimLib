@@ -89,6 +89,8 @@ class CMeshWrapper : public Obj
     int getFloatProperty_wrapper(const char* pName, double& pState) const;
     int setVector3Property_wrapper(const char* pName, const C3Vector& pState);
     int getVector3Property_wrapper(const char* pName, C3Vector& pState) const;
+    int setMatrix3x3Property_wrapper(const char* pName, const CMatrix& pState);
+    int getMatrix3x3Property_wrapper(const char* pName, CMatrix& pState) const;
     int setQuaternionProperty_wrapper(const char* pName, const C4Vector& pState);
     int getQuaternionProperty_wrapper(const char* pName, C4Vector& pState) const;
     int setFloatArrayProperty_wrapper(const char* pName, const double* v, int vL);

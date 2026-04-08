@@ -199,9 +199,22 @@ void CCbor::appendMatrix(const C3X3Matrix& m)
     appendMatrix(v, 3, 3);
 }
 
+void CCbor::appendMatrix(const C4X4Matrix& m)
+{
+    _handleDataField();
+    double v[16];
+    m.getData(v);
+    appendMatrix(v, 4, 4);
+}
+
 void CCbor::appendMatrix(const CMatrix& m)
 {
     appendMatrix(m.data.data(), m.rows, m.cols);
+}
+
+void CCbor::appendVector2(const double* v)
+{
+    appendMatrix(v, 2, 1);
 }
 
 void CCbor::appendVector3(const double* v)
@@ -708,10 +721,22 @@ void CCbor::appendKeyMatrix(const char* key, const C3X3Matrix& m)
     appendMatrix(m);
 }
 
+void CCbor::appendKeyMatrix(const char* key, const C4X4Matrix& m)
+{
+    appendText(key);
+    appendMatrix(m);
+}
+
 void CCbor::appendKeyMatrix(const char* key, const CMatrix& m)
 {
     appendText(key);
     appendMatrix(m);
+}
+
+void CCbor::appendKeyVector2(const char* key, const double* v)
+{
+    appendText(key);
+    appendVector2(v);
 }
 
 void CCbor::appendKeyVector3(const char* key, const double* v)

@@ -77,6 +77,8 @@ class CShape : public CSceneObject
     int getVector2Property(const char* pName, double* pState) const override;
     int setVector3Property(const char* pName, const C3Vector& pState) override;
     int getVector3Property(const char* pName, C3Vector& pState) const override;
+    int setMatrix3x3Property(const char* pName, const CMatrix& pState) override;
+    int getMatrix3x3Property(const char* pName, CMatrix& pState) const override;
     int setQuaternionProperty(const char* pName, const C4Vector& pState) override;
     int getQuaternionProperty(const char* pName, C4Vector& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;
