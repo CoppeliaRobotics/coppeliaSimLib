@@ -3,6 +3,10 @@
 #include <simLib/simTypes.h>
 #include <luaWrapper.h>
 #include <vector>
+#include <simMath/3Vector.h>
+#include <simMath/4Vector.h>
+#include <simMath/7Vector.h>
+#include <simMath/mXnMatrix.h>
 
 class CScriptCustomFunction;
 
@@ -19,6 +23,13 @@ enum
     lua_arg_userdata,
     lua_arg_table,
     lua_arg_handle,
+    lua_arg_vector3,
+    lua_arg_vector,
+    lua_arg_quaternion,
+    lua_arg_pose,
+    lua_arg_matrix,
+    lua_arg_matrix3x3,
+    lua_arg_matrix4x4,
     lua_arg_optional = 64
 };
 
@@ -48,6 +59,11 @@ int fetchBoolArg(luaWrap_lua_State* L, int index, bool defaultValue = false);
 long long int fetchLongArg(luaWrap_lua_State* L, int index, long long int defaultValue = -1);
 int fetchIntArg(luaWrap_lua_State* L, int index, int defaultValue = -1);
 int fetchHandleArg(luaWrap_lua_State* L, int index, int defaultValue = -1);
+C3Vector fetchVector3Arg(luaWrap_lua_State* L, int index);
+void fetchVectorArg(luaWrap_lua_State* L, int index, std::vector<double>& outArr);
+C4Vector fetchQuaternionArg(luaWrap_lua_State* L, int index);
+C7Vector fetchPoseArg(luaWrap_lua_State* L, int index);
+CMatrix fetchMatrixArg(luaWrap_lua_State* L, int index);
 double fetchDoubleArg(luaWrap_lua_State* L, int index, double defaultValue = 0.0);
 std::string fetchTextArg(luaWrap_lua_State* L, int index, const char* txt = "");
 std::string fetchBufferArg(luaWrap_lua_State* L, int index);
@@ -363,6 +379,12 @@ extern int _simSetVector2Property(luaWrap_lua_State* L);
 extern int _simGetVector2Property(luaWrap_lua_State* L);
 extern int _simSetVector3Property(luaWrap_lua_State* L);
 extern int _simGetVector3Property(luaWrap_lua_State* L);
+extern int _simSetMatrixProperty(luaWrap_lua_State* L);
+extern int _simGetMatrixProperty(luaWrap_lua_State* L);
+extern int _simSetMatrix3x3Property(luaWrap_lua_State* L);
+extern int _simGetMatrix3x3Property(luaWrap_lua_State* L);
+extern int _simSetMatrix4x4Property(luaWrap_lua_State* L);
+extern int _simGetMatrix4x4Property(luaWrap_lua_State* L);
 extern int _simSetQuaternionProperty(luaWrap_lua_State* L);
 extern int _simGetQuaternionProperty(luaWrap_lua_State* L);
 extern int _simSetPoseProperty(luaWrap_lua_State* L);

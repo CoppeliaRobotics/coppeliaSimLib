@@ -592,7 +592,7 @@ bool luaWrap_lua_ismatrix(luaWrap_lua_State* L, int idx, size_t* rows /*= nullpt
     return retVal;
 }
 
-bool luaWrap_lua_isvector3(luaWrap_lua_State* L, int idx, std::vector<double>* vectorData /*= nullptr*/, bool strict /*= false*/)
+bool luaWrap_lua_isvector3(luaWrap_lua_State* L, int idx, double* vectorData /*= nullptr*/, bool strict /*= false*/)
 {
     bool retVal = false;
     int abs_idx = lua_absindex((lua_State*)L, idx);
@@ -601,6 +601,40 @@ bool luaWrap_lua_isvector3(luaWrap_lua_State* L, int idx, std::vector<double>* v
     if (luaWrap_lua_ismatrix(L, abs_idx, &rows, &cols, &dat))
     {
         if ((rows == 3) && (cols == 1))
+        {
+            if (vectorData != nullptr)
+                memcpy(vectorData, dat.data(), sizeof(double) * 3);
+            retVal = true;
+        }
+    }
+    if ((!retVal) && (!strict))
+    {
+        if (luaWrap_lua_isnonbuffertable(L, abs_idx))
+        {
+            int s = int(lua_rawlen((lua_State*)L, abs_idx));
+            if (s == 3)
+            {
+                if (getDoublesFromTable(L, abs_idx, s, dat.data()))
+                {
+                    if (vectorData != nullptr)
+                        memcpy(vectorData, dat.data(), sizeof(double) * 3);
+                    retVal = true;
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+bool luaWrap_lua_isvector(luaWrap_lua_State* L, int idx, std::vector<double>* vectorData /*= nullptr*/, bool strict /*= false*/)
+{
+    bool retVal = false;
+    int abs_idx = lua_absindex((lua_State*)L, idx);
+    size_t rows, cols;
+    std::vector<double> dat;
+    if (luaWrap_lua_ismatrix(L, abs_idx, &rows, &cols, &dat))
+    {
+        if (cols == 1)
         {
             if (vectorData != nullptr)
                 dat.swap(vectorData[0]);
@@ -612,22 +646,19 @@ bool luaWrap_lua_isvector3(luaWrap_lua_State* L, int idx, std::vector<double>* v
         if (luaWrap_lua_isnonbuffertable(L, abs_idx))
         {
             int s = int(lua_rawlen((lua_State*)L, abs_idx));
-            if (s == 3)
+            dat.resize(s);
+            if (getDoublesFromTable(L, abs_idx, s, dat.data()))
             {
-                dat.resize(s);
-                if (getDoublesFromTable(L, abs_idx, s, dat.data()))
-                {
-                    if (vectorData != nullptr)
-                        dat.swap(vectorData[0]);
-                    retVal = true;
-                }
+                if (vectorData != nullptr)
+                    dat.swap(vectorData[0]);
+                retVal = true;
             }
         }
     }
     return retVal;
 }
 
-bool luaWrap_lua_isquaternion(luaWrap_lua_State* L, int idx, std::vector<double>* quaternionData /*= nullptr*/, bool strict /*= false*/)
+bool luaWrap_lua_isquaternion(luaWrap_lua_State* L, int idx, double* quaternionData /*= nullptr*/, bool strict /*= false*/)
 {
     bool retVal = false;
     int abs_idx = lua_absindex((lua_State*)L, idx);
@@ -641,12 +672,10 @@ bool luaWrap_lua_isquaternion(luaWrap_lua_State* L, int idx, std::vector<double>
             {
                 if (luaL_callmeta((lua_State*)L, abs_idx, "data") == 1)
                 {
-                    size_t n = lua_rawlen((lua_State*)L, -1);
-                    quaternionData->clear();
-                    for (size_t i = 1; i <= n; i++)
+                    for (size_t i = 1; i <= 4; i++)
                     {
                         lua_rawgeti((lua_State*)L, -1, (lua_Integer)i);
-                        quaternionData->push_back(lua_tonumber((lua_State*)L, -1));
+                        quaternionData[i - 1] = lua_tonumber((lua_State*)L, -1);
                         lua_pop((lua_State*)L, 1);
                     }
                 }
@@ -666,7 +695,7 @@ bool luaWrap_lua_isquaternion(luaWrap_lua_State* L, int idx, std::vector<double>
                 if (getDoublesFromTable(L, abs_idx, s, dat.data()))
                 {
                     if (quaternionData != nullptr)
-                        dat.swap(quaternionData[0]);
+                        memcpy(quaternionData, dat.data(), sizeof(double) * 4);
                     retVal = true;
                 }
             }
@@ -675,7 +704,7 @@ bool luaWrap_lua_isquaternion(luaWrap_lua_State* L, int idx, std::vector<double>
     return retVal;
 }
 
-bool luaWrap_lua_ispose(luaWrap_lua_State* L, int idx, std::vector<double>* poseData /*= nullptr*/, bool strict /*= false*/)
+bool luaWrap_lua_ispose(luaWrap_lua_State* L, int idx, double* poseData /*= nullptr*/, bool strict /*= false*/)
 {
     bool retVal = false;
     int abs_idx = lua_absindex((lua_State*)L, idx);
@@ -689,12 +718,10 @@ bool luaWrap_lua_ispose(luaWrap_lua_State* L, int idx, std::vector<double>* pose
             {
                 if (luaL_callmeta((lua_State*)L, abs_idx, "data") == 1)
                 {
-                    size_t n = lua_rawlen((lua_State*)L, -1);
-                    poseData->clear();
-                    for (size_t i = 1; i <= n; i++)
+                    for (size_t i = 1; i <= 7; i++)
                     {
                         lua_rawgeti((lua_State*)L, -1, (lua_Integer)i);
-                        poseData->push_back(lua_tonumber((lua_State*)L, -1));
+                        poseData[i - 1] = lua_tonumber((lua_State*)L, -1);
                         lua_pop((lua_State*)L, 1);
                     }
                 }
@@ -714,7 +741,7 @@ bool luaWrap_lua_ispose(luaWrap_lua_State* L, int idx, std::vector<double>* pose
                 if (getDoublesFromTable(L, abs_idx, s, dat.data()))
                 {
                     if (poseData != nullptr)
-                        dat.swap(poseData[0]);
+                        memcpy(poseData, dat.data(), sizeof(double) * 7);
                     retVal = true;
                 }
             }

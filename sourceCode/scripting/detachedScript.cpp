@@ -4153,6 +4153,7 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
             std::vector<double> dat;
             std::vector<long long int> handleArray;
             float color[3];
+            double ddat[7];
             if (luaWrap_lua_isbuffer(L, index))
             {
                 size_t l;
@@ -4161,10 +4162,10 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
             }
             else if (luaWrap_lua_ishandle(L, index, &handleVal))
                 retVal = new CInterfaceStackHandle(luaWrap_lua_tohandle(L, index));
-            else if (luaWrap_lua_isquaternion(L, index, &dat, true))
-                retVal = new CInterfaceStackQuaternion(dat.data(), true);
-            else if (luaWrap_lua_ispose(L, index, &dat, true))
-                retVal = new CInterfaceStackPose(dat.data(), true);
+            else if (luaWrap_lua_isquaternion(L, index, ddat, true))
+                retVal = new CInterfaceStackQuaternion(ddat, true);
+            else if (luaWrap_lua_ispose(L, index, ddat, true))
+                retVal = new CInterfaceStackPose(ddat, true);
             else if (luaWrap_lua_ismatrix(L, index, &rows, &cols, &dat))
                 retVal = new CInterfaceStackMatrix(dat.data(), rows, cols);
             else if (luaWrap_lua_iscolor(L, index, color))

@@ -87,9 +87,10 @@ bool luaWrap_lua_isbuffer(luaWrap_lua_State* L, int idx);         // a buffer (a
 bool luaWrap_lua_ishandle(luaWrap_lua_State* L, int idx, int* handleVal = nullptr);         // a metatable with a 'handle' field
 bool luaWrap_lua_ishandlearray(luaWrap_lua_State* L, int idx, std::vector<long long int>* handles = nullptr, bool strict = false);         // a objectArray metatable
 bool luaWrap_lua_ismatrix(luaWrap_lua_State* L, int idx, size_t* rows = nullptr, size_t* cols = nullptr, std::vector<double>* matrixData = nullptr);
-bool luaWrap_lua_isvector3(luaWrap_lua_State* L, int idx, std::vector<double>* vectorData = nullptr, bool strict = false);
-bool luaWrap_lua_isquaternion(luaWrap_lua_State* L, int idx, std::vector<double>* quaternionData = nullptr, bool strict = false);
-bool luaWrap_lua_ispose(luaWrap_lua_State* L, int idx, std::vector<double>* poseData = nullptr, bool strict = false);
+bool luaWrap_lua_isvector3(luaWrap_lua_State* L, int idx, double* vectorData = nullptr, bool strict = false);
+bool luaWrap_lua_isvector(luaWrap_lua_State* L, int idx, std::vector<double>* vectorData = nullptr, bool strict = false);
+bool luaWrap_lua_isquaternion(luaWrap_lua_State* L, int idx, double* quaternionData = nullptr, bool strict = false);
+bool luaWrap_lua_ispose(luaWrap_lua_State* L, int idx, double* poseData = nullptr, bool strict = false);
 bool luaWrap_lua_iscolor(luaWrap_lua_State* L, int idx, float colorData[3] = nullptr, bool strict = false);
 int luaWrap_lua_getmetatable(luaWrap_lua_State* L, int idx);
 int luaWrap_lua_rawequal(luaWrap_lua_State* L, int idx1, int idx2);

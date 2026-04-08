@@ -426,6 +426,12 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getVector2Property", _simGetVector2Property},
     {"sim.setVector3Property", _simSetVector3Property},
     {"sim.getVector3Property", _simGetVector3Property},
+    {"sim.setMatrixProperty", _simSetMatrixProperty},
+    {"sim.getMatrixProperty", _simGetMatrixProperty},
+    {"sim.setMatrix3x3Property", _simSetMatrix3x3Property},
+    {"sim.getMatrix3x3Property", _simGetMatrix3x3Property},
+    {"sim.setMatrix4x4Property", _simSetMatrix4x4Property},
+    {"sim.getMatrix4x4Property", _simGetMatrix4x4Property},
     {"sim.setQuaternionProperty", _simSetQuaternionProperty},
     {"sim.getQuaternionProperty", _simGetQuaternionProperty},
     {"sim.setPoseProperty", _simSetPoseProperty},
@@ -2359,6 +2365,115 @@ bool checkOneInputArgument(luaWrap_lua_State* L, int index, int type, std::strin
         }
         return true;
     }
+    if (type == lua_arg_vector3)
+    {
+        if (!luaWrap_lua_isvector3(L, index))
+        {
+            if (errStr != nullptr)
+            {
+                std::string msg("bad argument #");
+                msg += std::to_string(index - argOffset);
+                msg += " (expecting a vector3).";
+                errStr->assign(msg.c_str());
+            }
+            return false; // error
+        }
+        return true;
+    }
+    if (type == lua_arg_vector)
+    {
+        size_t r, c;
+        if ((!luaWrap_lua_ismatrix(L, index, &r, &c)) || (c != 1))
+        {
+            if (errStr != nullptr)
+            {
+                std::string msg("bad argument #");
+                msg += std::to_string(index - argOffset);
+                msg += " (expecting a vector).";
+                errStr->assign(msg.c_str());
+            }
+            return false; // error
+        }
+        return true;
+    }
+    if (type == lua_arg_matrix3x3)
+    {
+        size_t r, c;
+        if ((!luaWrap_lua_ismatrix(L, index, &r, &c)) || (r != 3) || (c != 3))
+        {
+            if (errStr != nullptr)
+            {
+                std::string msg("bad argument #");
+                msg += std::to_string(index - argOffset);
+                msg += " (expecting a matrix3x3).";
+                errStr->assign(msg.c_str());
+            }
+            return false; // error
+        }
+        return true;
+    }
+    if (type == lua_arg_matrix4x4)
+    {
+        size_t r, c;
+        if ((!luaWrap_lua_ismatrix(L, index, &r, &c)) || (r != 4) || (c != 4))
+        {
+            if (errStr != nullptr)
+            {
+                std::string msg("bad argument #");
+                msg += std::to_string(index - argOffset);
+                msg += " (expecting a matrix4x4).";
+                errStr->assign(msg.c_str());
+            }
+            return false; // error
+        }
+        return true;
+    }
+    if (type == lua_arg_matrix)
+    {
+        size_t r, c;
+        if (!luaWrap_lua_ismatrix(L, index, &r, &c))
+        {
+            if (errStr != nullptr)
+            {
+                std::string msg("bad argument #");
+                msg += std::to_string(index - argOffset);
+                msg += " (expecting a matrix).";
+                errStr->assign(msg.c_str());
+            }
+            return false; // error
+        }
+        return true;
+    }
+    if (type == lua_arg_quaternion)
+    {
+        if (!luaWrap_lua_isquaternion(L, index))
+        {
+            if (errStr != nullptr)
+            {
+                std::string msg("bad argument #");
+                msg += std::to_string(index - argOffset);
+                msg += " (expecting a quaternion).";
+                errStr->assign(msg.c_str());
+            }
+            return false; // error
+        }
+        return true;
+    }
+    if (type == lua_arg_pose)
+    {
+        if (!luaWrap_lua_ispose(L, index))
+        {
+            if (errStr != nullptr)
+            {
+                std::string msg("bad argument #");
+                msg += std::to_string(index - argOffset);
+                msg += " (expecting a pose).";
+                errStr->assign(msg.c_str());
+            }
+            return false; // error
+        }
+        return true;
+    }
     if (type == lua_arg_function)
     {
         if (!luaWrap_lua_isfunction(L, index))
@@ -2421,6 +2536,73 @@ int fetchHandleArg(luaWrap_lua_State* L, int index, int defaultValue /*= -1*/)
     int argCnt = luaWrap_lua_gettop(L);
     if (argCnt >= index)
         retVal = luaWrap_lua_tohandle(L, index);
+    return retVal;
+}
+
+C3Vector fetchVector3Arg(luaWrap_lua_State* L, int index)
+{
+    C3Vector retVal;
+    retVal.clear();
+    int argCnt = luaWrap_lua_gettop(L);
+    if (argCnt >= index)
+    {
+        double dat[3];
+        if (luaWrap_lua_isvector3(L, index, dat, false))
+            retVal.setData(dat);
+    }
+    return retVal;
+}
+
+void fetchVectorArg(luaWrap_lua_State* L, int index, std::vector<double>& outArr)
+{
+    outArr.clear();
+    int argCnt = luaWrap_lua_gettop(L);
+    if (argCnt >= index)
+        luaWrap_lua_isvector(L, index, &outArr, false);
+}
+
+C4Vector fetchQuaternionArg(luaWrap_lua_State* L, int index)
+{
+    C4Vector retVal;
+    retVal.setIdentity();
+    int argCnt = luaWrap_lua_gettop(L);
+    if (argCnt >= index)
+    {
+        double dat[4];
+        if (luaWrap_lua_isquaternion(L, index, dat, false))
+            retVal.setData(dat, true);
+    }
+    return retVal;
+}
+
+C7Vector fetchPoseArg(luaWrap_lua_State* L, int index)
+{
+    C7Vector retVal;
+    retVal.setIdentity();
+    int argCnt = luaWrap_lua_gettop(L);
+    if (argCnt >= index)
+    {
+        double dat[7];
+        if (luaWrap_lua_ispose(L, index, dat, false))
+            retVal.setData(dat, true);
+    }
+    return retVal;
+}
+
+CMatrix fetchMatrixArg(luaWrap_lua_State* L, int index)
+{
+    CMatrix retVal;
+    int argCnt = luaWrap_lua_gettop(L);
+    if (argCnt >= index)
+    {
+        size_t rows, cols;
+        std::vector<double> dat;
+        if (luaWrap_lua_ismatrix(L, index, &rows, &cols, &dat))
+        {
+            retVal.resize(rows, cols, 0.0);
+            retVal.data.assign(dat.begin(), dat.end());
+        }
+    }
     return retVal;
 }
 
@@ -5443,6 +5625,242 @@ int _simGetVector3Property(luaWrap_lua_State* L)
         if (CALL_C_API(simGetVector3Property, target, pName.c_str(), pValue) > 0)
         {
             pushDoubleTableOntoStack(L, 3, pValue);
+            LUA_END(1);
+        }
+        if (noError)
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetMatrixProperty(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setMatrixProperty");
+
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_matrix, 0))
+    {
+        long long int target = luaWrap_lua_tointeger(L, 1);
+        if (target == sim_handle_self)
+            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        CMatrix pValue = fetchMatrixArg(L, 3);
+        bool noError = false;
+        if (luaWrap_lua_isnonbuffertable(L, 4))
+        {
+            CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
+            CDetachedScript::buildFromInterpreterStack_lua(L, stack, 4, 1);
+            stack->getStackMapBoolValue("noError", noError);
+            App::scenes->interfaceStackContainer->destroyStack(stack);
+        }
+        if (CALL_C_API(simSetMatrixProperty, target, pName.c_str(), pValue.data.data(), pValue.rows, pValue.cols) > 0)
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            {
+                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
+            }
+        }
+        if (noError)
+            LUA_END(0);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetMatrixProperty(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getMatrixProperty");
+
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        long long int target = luaWrap_lua_tointeger(L, 1);
+        if (target == sim_handle_self)
+            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        bool noError = false;
+        if (luaWrap_lua_isnonbuffertable(L, 3))
+        {
+            CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
+            CDetachedScript::buildFromInterpreterStack_lua(L, stack, 3, 1);
+            stack->getStackMapBoolValue("noError", noError);
+            App::scenes->interfaceStackContainer->destroyStack(stack);
+        }
+        double* pValue;
+        int r, c;
+        if (CALL_C_API(simGetMatrixProperty, target, pName.c_str(), &pValue, &r, &c) > 0)
+        {
+            luaWrap_lua_pushmatrix(L, pValue, r, c);
+            delete[] pValue;
+            LUA_END(1);
+        }
+        if (noError)
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetMatrix3x3Property(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setMatrix3x3Property");
+
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_matrix3x3, 0))
+    {
+        long long int target = luaWrap_lua_tointeger(L, 1);
+        if (target == sim_handle_self)
+            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        CMatrix pValue = fetchMatrixArg(L, 3);
+        bool noError = false;
+        if (luaWrap_lua_isnonbuffertable(L, 4))
+        {
+            CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
+            CDetachedScript::buildFromInterpreterStack_lua(L, stack, 4, 1);
+            stack->getStackMapBoolValue("noError", noError);
+            App::scenes->interfaceStackContainer->destroyStack(stack);
+        }
+        if (CALL_C_API(simSetMatrix3x3Property, target, pName.c_str(), pValue.data.data()) > 0)
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            {
+                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
+            }
+        }
+        if (noError)
+            LUA_END(0);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetMatrix3x3Property(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getMatrix3x3Property");
+
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        long long int target = luaWrap_lua_tointeger(L, 1);
+        if (target == sim_handle_self)
+            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        bool noError = false;
+        if (luaWrap_lua_isnonbuffertable(L, 3))
+        {
+            CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
+            CDetachedScript::buildFromInterpreterStack_lua(L, stack, 3, 1);
+            stack->getStackMapBoolValue("noError", noError);
+            App::scenes->interfaceStackContainer->destroyStack(stack);
+        }
+        double pValue[3 * 3];
+        if (CALL_C_API(simGetMatrix3x3Property, target, pName.c_str(), pValue) > 0)
+        {
+            luaWrap_lua_pushmatrix(L, pValue, 3, 3);
+            LUA_END(1);
+        }
+        if (noError)
+        {
+            luaWrap_lua_pushnil(L);
+            LUA_END(1);
+        }
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simSetMatrix4x4Property(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setMatrix4x4Property");
+
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_matrix4x4, 0))
+    {
+        long long int target = luaWrap_lua_tointeger(L, 1);
+        if (target == sim_handle_self)
+            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        CMatrix pValue = fetchMatrixArg(L, 3);
+        bool noError = false;
+        if (luaWrap_lua_isnonbuffertable(L, 4))
+        {
+            CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
+            CDetachedScript::buildFromInterpreterStack_lua(L, stack, 4, 1);
+            stack->getStackMapBoolValue("noError", noError);
+            App::scenes->interfaceStackContainer->destroyStack(stack);
+        }
+        if (CALL_C_API(simSetMatrix4x4Property, target, pName.c_str(), pValue.data.data()) > 0)
+        {
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            {
+                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalSet(nn.c_str(), target);
+            }
+        }
+        if (noError)
+            LUA_END(0);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simGetMatrix4x4Property(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.getMatrix4x4Property");
+
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        long long int target = luaWrap_lua_tointeger(L, 1);
+        if (target == sim_handle_self)
+            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        bool noError = false;
+        if (luaWrap_lua_isnonbuffertable(L, 3))
+        {
+            CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
+            CDetachedScript::buildFromInterpreterStack_lua(L, stack, 3, 1);
+            stack->getStackMapBoolValue("noError", noError);
+            App::scenes->interfaceStackContainer->destroyStack(stack);
+        }
+        double pValue[4 * 4];
+        if (CALL_C_API(simGetMatrix4x4Property, target, pName.c_str(), pValue) > 0)
+        {
+            luaWrap_lua_pushmatrix(L, pValue, 4, 4);
             LUA_END(1);
         }
         if (noError)
