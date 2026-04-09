@@ -21,6 +21,7 @@ CSceneContainer::CSceneContainer()
     _sessionId = utils::generateUniqueAlphaNumericString();
     pluginContainer = nullptr;
     codeEditorInfos = nullptr;
+    customObjects = nullptr;
     copyBuffer = nullptr;
     sandboxScript = nullptr;
     addOnScriptContainer = nullptr;
@@ -249,6 +250,7 @@ void CSceneContainer::initialize()
     TRACE_INTERNAL;
 
     simulatorMessageQueue = new CSimulatorMessageQueue();
+    customObjects = new CustomObjectContainer();
     copyBuffer = new CCopyBuffer();
     moduleMenuItemContainer = new CModuleMenuItemContainer();
 #ifdef SIM_WITH_GUI
@@ -293,6 +295,7 @@ void CSceneContainer::deinitialize()
 #endif
     delete moduleMenuItemContainer;
     delete copyBuffer;
+    delete customObjects;
     delete simulatorMessageQueue;
     delete calcInfo;
 }
@@ -852,49 +855,5 @@ void CSceneContainer::announceScriptStateWillBeErased(int scriptHandle, long lon
     if (GuiApp::mainWindow != nullptr)
         GuiApp::mainWindow->announceScriptStateWillBeErased(scriptHandle, scriptUid);
 #endif
-    releaseCustomObjectsFromScriptHandle(scriptHandle);
-}
-
-long long int CSceneContainer::createCustomObject(const char* objectTypeStr, const char* objectMetaInfo, int detachedScriptOrigin)
-{
-    long long int h = sim_object_customstart;
-    while (getCustomObject(h))
-        h++;
-    CustomObject* obj = new CustomObject(h, objectTypeStr, objectMetaInfo, detachedScriptOrigin);
-    customObjects.insert({h, obj});
-    return h;
-}
-
-CustomObject* CSceneContainer::getCustomObject(long long int h)
-{
-    CustomObject* retVal = nullptr;
-    auto it = customObjects.find(h);
-    if (it != customObjects.end())
-        retVal = it->second;
-    return retVal;
-}
-
-void CSceneContainer::releaseCustomObject(long long int h)
-{
-    auto it = customObjects.find(h);
-    if (it != customObjects.end())
-    {
-        delete it->second;
-        customObjects.erase(it);
-    }
-}
-
-void CSceneContainer::releaseCustomObjectsFromScriptHandle(int scriptHandle)
-{
-    for (auto it = customObjects.begin(); it != customObjects.end(); )
-    {
-        CustomObject* obj = it->second;
-        if (obj->getScriptHandle() == scriptHandle)
-        {
-            delete obj;
-            it = customObjects.erase(it);  // erase returns next valid iterator
-        }
-        else
-            ++it;
-    }
+    customObjects->announceScriptStateWillBeErased(scriptHandle);
 }

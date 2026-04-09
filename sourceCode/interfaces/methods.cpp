@@ -6637,7 +6637,7 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
         int h = -1;
         if (currentScript != nullptr)
             h = currentScript->getScriptHandle();
-        pushLong(outStack, App::scenes->createCustomObject(typeStr.c_str(), metaInfoStr.c_str(), h));
+        pushLong(outStack, App::scenes->customObjects->addObject(typeStr.c_str(), metaInfoStr.c_str(), h));
     }
     return errMsg;
 }
@@ -6646,7 +6646,7 @@ std::string _method_releaseCustomObject(int targetObj, const char* method, CDeta
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_integer}))
-        App::scenes->releaseCustomObject(fetchHandle(inStack, 0));
+        App::scenes->customObjects->removeObject(fetchHandle(inStack, 0));
     return errMsg;
 }
 

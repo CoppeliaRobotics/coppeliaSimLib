@@ -1595,21 +1595,9 @@ int App::setBoolProperty(long long int target, const char* ppName, bool pState)
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setBoolProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setBoolProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setBoolProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setBoolProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setBoolProperty(target, pName, pState);
     else
@@ -1684,21 +1672,9 @@ int App::getBoolProperty(long long int target, const char* ppName, bool& pState)
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getBoolProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getBoolProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getBoolProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getBoolProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getBoolProperty(target, pName, pState);
     else
@@ -1754,21 +1730,9 @@ int App::setIntProperty(long long int target, const char* ppName, int pState)
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setIntProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setIntProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setIntProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setIntProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setIntProperty(target, pName, pState);
     else
@@ -1879,21 +1843,9 @@ int App::getIntProperty(long long int target, const char* ppName, int& pState)
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getIntProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getIntProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getIntProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getIntProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getIntProperty(target, pName, pState);
     else
@@ -1923,21 +1875,9 @@ int App::setLongProperty(long long int target, const char* ppName, long long int
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setLongProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setLongProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setLongProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setLongProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setLongProperty(target, pName, pState);
     else
@@ -1976,21 +1916,9 @@ int App::getLongProperty(long long int target, const char* ppName, long long int
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getLongProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getLongProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getLongProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getLongProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getLongProperty(target, pName, pState);
     else
@@ -2020,21 +1948,9 @@ int App::setHandleProperty(long long int target, const char* ppName, long long i
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setHandleProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setHandleProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setHandleProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setHandleProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setHandleProperty(target, pName, pState);
     else
@@ -2069,21 +1985,9 @@ int App::getHandleProperty(long long int target, const char* ppName, long long i
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getHandleProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getHandleProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getHandleProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getHandleProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getHandleProperty(target, pName, pState);
     else
@@ -2125,21 +2029,9 @@ int App::setFloatProperty(long long int target, const char* ppName, double pStat
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setFloatProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setFloatProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setFloatProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setFloatProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setFloatProperty(target, pName, pState);
     else
@@ -2195,21 +2087,9 @@ int App::getFloatProperty(long long int target, const char* ppName, double& pSta
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getFloatProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getFloatProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getFloatProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getFloatProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getFloatProperty(target, pName, pState);
     else
@@ -2344,21 +2224,9 @@ int App::setStringProperty(long long int target, const char* ppName, const char*
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setStringProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setStringProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setStringProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setStringProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setStringProperty(target, pName, pState);
     else
@@ -2665,21 +2533,9 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getStringProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getStringProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getStringProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getStringProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getStringProperty(target, pName, pState);
     else
@@ -2749,21 +2605,9 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setBufferProperty(ppName, buffer, bufferL);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setBufferProperty(target, ppName, buffer, bufferL);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setBufferProperty(ppName, buffer, bufferL);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setBufferProperty(target, ppName, buffer, bufferL);
     else if (scene != nullptr)
         retVal = scene->setBufferProperty(target, pName, buffer, bufferL);
     else
@@ -2818,21 +2662,9 @@ int App::getBufferProperty(long long int target, const char* ppName, std::string
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getBufferProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getBufferProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getBufferProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getBufferProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getBufferProperty(target, pName, pState);
     else
@@ -2862,21 +2694,9 @@ int App::setIntArray2Property(long long int target, const char* ppName, const in
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setIntArray2Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setIntArray2Property(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setIntArray2Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setIntArray2Property(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setIntArray2Property(target, pName, pState);
     else
@@ -2906,21 +2726,9 @@ int App::getIntArray2Property(long long int target, const char* ppName, int* pSt
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getIntArray2Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getIntArray2Property(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getIntArray2Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getIntArray2Property(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getIntArray2Property(target, pName, pState);
     else
@@ -2950,21 +2758,9 @@ int App::setVector2Property(long long int target, const char* ppName, const doub
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setVector2Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setVector2Property(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setVector2Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setVector2Property(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setVector2Property(target, pName, pState);
     else
@@ -2994,21 +2790,9 @@ int App::getVector2Property(long long int target, const char* ppName, double* pS
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getVector2Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getVector2Property(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getVector2Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getVector2Property(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getVector2Property(target, pName, pState);
     else
@@ -3038,21 +2822,9 @@ int App::setVector3Property(long long int target, const char* ppName, const C3Ve
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setVector3Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setVector3Property(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setVector3Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setVector3Property(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setVector3Property(target, pName, pState);
     else
@@ -3082,21 +2854,9 @@ int App::getVector3Property(long long int target, const char* ppName, C3Vector& 
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getVector3Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getVector3Property(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getVector3Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getVector3Property(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getVector3Property(target, pName, pState);
     else
@@ -3124,21 +2884,9 @@ int App::setMatrixProperty(long long int target, const char* ppName, const CMatr
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setMatrixProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setMatrixProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setMatrixProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setMatrixProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setMatrixProperty(target, pName, pState);
     else
@@ -3166,21 +2914,9 @@ int App::getMatrixProperty(long long int target, const char* ppName, CMatrix& pS
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getMatrixProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getMatrixProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getMatrixProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getMatrixProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getMatrixProperty(target, pName, pState);
     else
@@ -3208,21 +2944,9 @@ int App::setMatrix3x3Property(long long int target, const char* ppName, const CM
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setMatrix3x3Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setMatrix3x3Property(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setMatrix3x3Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setMatrix3x3Property(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setMatrix3x3Property(target, pName, pState);
     else
@@ -3250,21 +2974,9 @@ int App::getMatrix3x3Property(long long int target, const char* ppName, CMatrix&
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getMatrix3x3Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getMatrix3x3Property(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getMatrix3x3Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getMatrix3x3Property(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getMatrix3x3Property(target, pName, pState);
     else
@@ -3292,21 +3004,9 @@ int App::setMatrix4x4Property(long long int target, const char* ppName, const CM
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setMatrix4x4Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setMatrix4x4Property(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setMatrix4x4Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setMatrix4x4Property(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setMatrix4x4Property(target, pName, pState);
     else
@@ -3334,21 +3034,9 @@ int App::getMatrix4x4Property(long long int target, const char* ppName, CMatrix&
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getMatrix4x4Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getMatrix4x4Property(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getMatrix4x4Property(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getMatrix4x4Property(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getMatrix4x4Property(target, pName, pState);
     else
@@ -3378,21 +3066,9 @@ int App::setQuaternionProperty(long long int target, const char* ppName, const C
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setQuaternionProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setQuaternionProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setQuaternionProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setQuaternionProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setQuaternionProperty(target, pName, pState);
     else
@@ -3427,21 +3103,9 @@ int App::getQuaternionProperty(long long int target, const char* ppName, C4Vecto
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getQuaternionProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getQuaternionProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getQuaternionProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getQuaternionProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getQuaternionProperty(target, pName, pState);
     else
@@ -3471,21 +3135,9 @@ int App::setPoseProperty(long long int target, const char* ppName, const C7Vecto
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setPoseProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setPoseProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setPoseProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setPoseProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setPoseProperty(target, pName, pState);
     else
@@ -3515,21 +3167,9 @@ int App::getPoseProperty(long long int target, const char* ppName, C7Vector& pSt
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getPoseProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getPoseProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getPoseProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getPoseProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getPoseProperty(target, pName, pState);
     else
@@ -3559,21 +3199,9 @@ int App::setColorProperty(long long int target, const char* ppName, const float*
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setColorProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setColorProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setColorProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setColorProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setColorProperty(target, pName, pState);
     else
@@ -3603,21 +3231,9 @@ int App::getColorProperty(long long int target, const char* ppName, float* pStat
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getColorProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getColorProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getColorProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getColorProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getColorProperty(target, pName, pState);
     else
@@ -3647,21 +3263,9 @@ int App::setFloatArrayProperty(long long int target, const char* ppName, const d
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setFloatArrayProperty(ppName, v, vL);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setFloatArrayProperty(target, ppName, v, vL);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setFloatArrayProperty(ppName, v, vL);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setFloatArrayProperty(target, ppName, v, vL);
     else if (scene != nullptr)
         retVal = scene->setFloatArrayProperty(target, pName, v, vL);
     else
@@ -3692,21 +3296,9 @@ int App::getFloatArrayProperty(long long int target, const char* ppName, std::ve
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getFloatArrayProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getFloatArrayProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getFloatArrayProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getFloatArrayProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getFloatArrayProperty(target, pName, pState);
     else
@@ -3736,21 +3328,9 @@ int App::setIntArrayProperty(long long int target, const char* ppName, const int
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setIntArrayProperty(ppName, v, vL);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setIntArrayProperty(target, ppName, v, vL);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setIntArrayProperty(ppName, v, vL);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setIntArrayProperty(target, ppName, v, vL);
     else if (scene != nullptr)
         retVal = scene->setIntArrayProperty(target, pName, v, vL);
     else
@@ -3781,21 +3361,9 @@ int App::getIntArrayProperty(long long int target, const char* ppName, std::vect
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getIntArrayProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getIntArrayProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getIntArrayProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getIntArrayProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getIntArrayProperty(target, pName, pState);
     else
@@ -3825,21 +3393,9 @@ int App::setHandleArrayProperty(long long int target, const char* ppName, const 
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setHandleArrayProperty(ppName, v, vL);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setHandleArrayProperty(target, ppName, v, vL);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setHandleArrayProperty(ppName, v, vL);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setHandleArrayProperty(target, ppName, v, vL);
     else if (scene != nullptr)
         retVal = scene->setHandleArrayProperty(target, pName, v, vL);
     else
@@ -3877,21 +3433,9 @@ int App::getHandleArrayProperty(long long int target, const char* ppName, std::v
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getHandleArrayProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getHandleArrayProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getHandleArrayProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getHandleArrayProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getHandleArrayProperty(target, pName, pState);
     else
@@ -3929,21 +3473,9 @@ int App::setStringArrayProperty(long long int target, const char* ppName, const 
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->setStringArrayProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->setStringArrayProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->setStringArrayProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->setStringArrayProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->setStringArrayProperty(target, pName, pState);
     else
@@ -3984,21 +3516,9 @@ int App::getStringArrayProperty(long long int target, const char* ppName, std::v
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getStringArrayProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getStringArrayProperty(target, ppName, pState);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getStringArrayProperty(ppName, pState);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getStringArrayProperty(target, ppName, pState);
     else if (scene != nullptr)
         retVal = scene->getStringArrayProperty(target, pName, pState);
     else
@@ -4079,21 +3599,9 @@ int App::removeProperty(long long int target, const char* ppName)
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->removeProperty(ppName);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->removeProperty(target, ppName);
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->removeProperty(ppName);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->removeProperty(target, ppName);
     else if (scene != nullptr)
         retVal = scene->removeProperty(target, pName);
     else
@@ -4171,13 +3679,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
         }
     }
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getPropertyName(index, pName, appartenance, excludeFlags);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getPropertyName(target, index, pName, appartenance, excludeFlags);
     else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
@@ -4191,13 +3693,7 @@ int App::getPropertyName(long long int target, int& index, std::string& pName, s
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getPropertyName(index, pName, appartenance, excludeFlags);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getPropertyName(target, index, pName, appartenance, excludeFlags);
     else if (scene != nullptr)
         retVal = scene->getPropertyName(target, index, pName, appartenance, excludeFlags);
     else
@@ -4292,13 +3788,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
         }
     }
     else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
-    {
-        CustomObject* obj = scenes->getCustomObject(target);
-        if (obj != nullptr)
-            retVal = obj->getPropertyInfo(pName, info, infoTxt);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->customObjects->getPropertyInfo(target, pName, info, infoTxt);
     else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
@@ -4308,13 +3798,7 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-    {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->getStack(target);
-        if (stack != nullptr)
-            retVal = stack->getPropertyInfo(ppName, info, infoTxt);
-        else
-            retVal = sim_propertyret_unknowntarget;
-    }
+        retVal = scenes->interfaceStackContainer->getPropertyInfo(target, ppName, info, infoTxt);
     else if (scene != nullptr)
         retVal = scene->getPropertyInfo(target, pName, info, infoTxt);
     else

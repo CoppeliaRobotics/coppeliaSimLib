@@ -578,6 +578,9 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/mainContainers/applicationContainers/codeEditorFunctions.cpp
     sourceCode/mainContainers/applicationContainers/codeEditorVariables.cpp
     sourceCode/mainContainers/applicationContainers/serialPortContainer.cpp
+    sourceCode/mainContainers/applicationContainers/customObjectContainer.cpp
+    sourceCode/mainContainers/applicationContainers/customObject.cpp
+    sourceCode/mainContainers/applicationContainers/customProperties.cpp
 
     sourceCode/scripting/detachedScript.cpp
     sourceCode/scripting/outsideCommandQueueForScript.cpp
@@ -632,8 +635,6 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/various/folderSystem.cpp
     sourceCode/various/app.cpp
     sourceCode/various/obj.cpp
-    sourceCode/various/customObject.cpp
-    sourceCode/various/customProperties.cpp
     sourceCode/various/simThread.cpp
     sourceCode/various/dynMaterialObject.cpp
     sourceCode/various/sigHandler.cpp

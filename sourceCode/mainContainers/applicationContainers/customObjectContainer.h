@@ -1,18 +1,17 @@
 #pragma once
 
-#include <interfaceStack.h>
+#include <customObject.h>
 
-class CInterfaceStackContainer
+class CustomObjectContainer
 {
   public:
-    CInterfaceStackContainer();
-    virtual ~CInterfaceStackContainer();
+    CustomObjectContainer();
+    virtual ~CustomObjectContainer();
 
-    CInterfaceStack* createStack();
-    CInterfaceStack* createStackCopy(const CInterfaceStack* original);
-    bool destroyStack(int id);
-    bool destroyStack(CInterfaceStack* stack);
-    CInterfaceStack* getStack(int id) const;
+    long long int addObject(const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle);
+    CustomObject* getObject(long long int objectHandle) const;
+    void removeObject(long long int objectHandle);
+    void announceScriptStateWillBeErased(int scriptHandle);
 
     int setBoolProperty(long long int target, const char* pName, bool pState);
     int getBoolProperty(long long int target, const char* pName, bool& pState) const;
@@ -59,5 +58,5 @@ class CInterfaceStackContainer
     int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const;
 
   protected:
-    std::vector<CInterfaceStack*> _allStacks;
+    std::map<long long int, CustomObject*> _customObjects;
 };

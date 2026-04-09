@@ -456,6 +456,9 @@ HEADERS += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorFunctions.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorVariables.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/serialPortContainer.h \
+    $$PWD/sourceCode/mainContainers/applicationContainers/customObjectContainer.h \
+    $$PWD/sourceCode/mainContainers/applicationContainers/customObject.h \
+    $$PWD/sourceCode/mainContainers/applicationContainers/customProperties.h \
 
 HEADERS += $$PWD/sourceCode/scripting/detachedScript.h \
     $$PWD/sourceCode/scripting/outsideCommandQueueForScript.h \
@@ -515,8 +518,6 @@ HEADERS += $$PWD/sourceCode/various/simConfig.h \
     $$PWD/sourceCode/various/userSettings.h \
     $$PWD/sourceCode/various/app.h \
     $$PWD/sourceCode/various/obj.h \
-    $$PWD/sourceCode/various/customObject.h \
-    $$PWD/sourceCode/various/customProperties.h \
     $$PWD/sourceCode/various/simThread.h \
     $$PWD/sourceCode/various/folderSystem.h \
     $$PWD/sourceCode/various/dynMaterialObject.h \
@@ -852,6 +853,9 @@ SOURCES += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.cpp 
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorFunctions.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorVariables.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/serialPortContainer.cpp \
+    $$PWD/sourceCode/mainContainers/applicationContainers/customObjectContainer.cpp \
+    $$PWD/sourceCode/mainContainers/applicationContainers/customObject.cpp \
+    $$PWD/sourceCode/mainContainers/applicationContainers/customProperties.cpp \
 
 SOURCES += $$PWD/sourceCode/scripting/detachedScript.cpp \
     $$PWD/sourceCode/scripting/outsideCommandQueueForScript.cpp \
@@ -911,8 +915,6 @@ SOURCES += $$PWD/sourceCode/various/userSettings.cpp \
     $$PWD/sourceCode/various/folderSystem.cpp \
     $$PWD/sourceCode/various/app.cpp \
     $$PWD/sourceCode/various/obj.cpp \
-    $$PWD/sourceCode/various/customObject.cpp \
-    $$PWD/sourceCode/various/customProperties.cpp \
     $$PWD/sourceCode/various/simThread.cpp \
     $$PWD/sourceCode/various/dynMaterialObject.cpp \
     $$PWD/sourceCode/various/sigHandler.cpp \
