@@ -92,7 +92,7 @@ class Obj
     virtual int getBoolProperty(const char* pName, bool& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setIntProperty(const char* pName, int pState) { return sim_propertyret_unknownproperty; }
     virtual int getIntProperty(const char* pName, int& pState) const { return sim_propertyret_unknownproperty; }
-    virtual int setLongProperty(const char* pName, long long int pState) { return sim_propertyret_unknownproperty; }
+    virtual int setLongProperty(const char* pName, long long int pState);
     virtual int getLongProperty(const char* pName, long long int& pState) const;
     virtual int setFloatProperty(const char* pName, double pState) { return sim_propertyret_unknownproperty; }
     virtual int getFloatProperty(const char* pName, double& pState) const { return sim_propertyret_unknownproperty; }

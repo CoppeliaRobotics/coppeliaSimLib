@@ -6630,14 +6630,24 @@ std::string _method_getPropertyInfo(int targetObj, const char* method, CDetached
 std::string _method_createCustomObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_string}))
     {
         std::string typeStr = fetchText(inStack, 0);
         std::string metaInfoStr = fetchText(inStack, 1);
         int h = -1;
         if (currentScript != nullptr)
             h = currentScript->getScriptHandle();
-        pushLong(outStack, App::scenes->customObjects->addObject(typeStr.c_str(), metaInfoStr.c_str(), h));
+        long long int retVal;
+        if (metaInfoStr.size() == 0)
+        {
+            retVal = App::scenes->customObjects->addObject(typeStr.c_str(), h);
+            if (retVal != -1)
+                pushLong(outStack, retVal);
+            else
+                errMsg = SIM_ERROR_CLASS_INEXISTANT;
+        }
+        else
+             pushLong(outStack, App::scenes->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), h));
     }
     return errMsg;
 }
@@ -6645,8 +6655,18 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
 std::string _method_releaseCustomObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_integer}))
-        App::scenes->customObjects->removeObject(fetchHandle(inStack, 0));
+    if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_string}))
+    {
+        long long int h = fetchHandle(inStack, 0);
+        std::string typeStr = fetchText(inStack, 1);
+        bool success;
+        if (typeStr.size() > 0)
+            success = App::scenes->customObjects->removeClass(typeStr.c_str());
+        else
+           success = App::scenes->customObjects->removeItem(h);
+        if (!success)
+            errMsg = SIM_ERROR_OBJECTCLASS_INEXISTANT;
+    }
     return errMsg;
 }
 

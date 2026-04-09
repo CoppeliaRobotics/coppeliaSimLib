@@ -48,6 +48,19 @@ std::string Obj::getObjectMetaInfo() const
     return _objectMetaInfo;
 }
 
+int Obj::setLongProperty(const char* ppName, long long int pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (strcmp(ppName, propObject_handle.name) == 0)
+    {
+        _objectHandle = pState;
+        retVal = sim_propertyret_ok;
+    }
+
+    return retVal;
+}
+
 int Obj::getLongProperty(const char* ppName, long long int& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;

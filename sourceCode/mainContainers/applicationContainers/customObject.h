@@ -6,8 +6,10 @@
 class CustomObject: public Obj
 {
   public:
-    CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo, int scriptHandle);
+    CustomObject(long long int handle,const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle); // class definition
     virtual ~CustomObject();
+
+    CustomObject* createObject(long long int handle, int originScriptHandle) const;
 
     int setBoolProperty(const char* pName, bool pState) override;
     int getBoolProperty(const char* pName, bool& pState) const override;
@@ -58,7 +60,7 @@ class CustomObject: public Obj
 
     int getScriptHandle() const;
 
-  private:
+  protected:
     int _scriptHandle;
     CCustomProperties _customProperties;
 };

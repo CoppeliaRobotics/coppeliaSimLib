@@ -1,16 +1,23 @@
 #include <customObject.h>
 #include <utils.h>
 
-CustomObject::CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo, int scriptHandle)
+CustomObject::CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle)
 {
     _objectHandle = handle;
     _objectTypeStr = objectTypeStr;
     _objectMetaInfo = objectMetaInfo;
-    _scriptHandle = scriptHandle;
+    _scriptHandle = originScriptHandle;
 }
 
 CustomObject::~CustomObject()
 {
+}
+
+CustomObject* CustomObject::createObject(long long int handle, int originScriptHandle) const
+{
+    CustomObject* object = new CustomObject(handle, _objectTypeStr.c_str(), _objectMetaInfo.c_str(), originScriptHandle);
+    object->_customProperties.copyFrom(&_customProperties);
+    return object;
 }
 
 int CustomObject::getScriptHandle() const

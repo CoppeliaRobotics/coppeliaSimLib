@@ -53,6 +53,8 @@ class CCustomProperties
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
 
+    void copyFrom(const CCustomProperties* source);
+
     bool saveToFile(const char* filename) const;
     bool loadFromFile(const char* filename);
 
@@ -62,7 +64,7 @@ class CCustomProperties
     void clear();
     size_t getPropertyCount() const;
 
-  private:
+  protected:
     // Layout of value buffer:
     //   [0..3]   int32: property type
     //   [4..7]   int32: property info/flags

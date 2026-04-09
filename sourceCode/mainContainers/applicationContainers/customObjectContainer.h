@@ -8,10 +8,20 @@ class CustomObjectContainer
     CustomObjectContainer();
     virtual ~CustomObjectContainer();
 
-    long long int addObject(const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle);
-    CustomObject* getObject(long long int objectHandle) const;
-    void removeObject(long long int objectHandle);
+    long long int getFreshHandle() const;
+    CustomObject* getItem(long long int objectHandle) const;
+    bool removeItem(long long int objectHandle);
     void announceScriptStateWillBeErased(int scriptHandle);
+
+    long long int addClass(const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle);
+    bool removeClass(const char* objectTypeStr);
+    bool removeClass(long long int objectHandle);
+    CustomObject* getClass(long long int objectHandle) const;
+    CustomObject* getClass(const char* objectTypeStr) const;
+
+    long long int addObject(const char* objectTypeStr, int originScriptHandle);
+    CustomObject* getObject(long long int objectHandle) const;
+    bool removeObject(long long int objectHandle);
 
     int setBoolProperty(long long int target, const char* pName, bool pState);
     int getBoolProperty(long long int target, const char* pName, bool& pState) const;
@@ -58,5 +68,6 @@ class CustomObjectContainer
     int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const;
 
   protected:
+    std::vector<CustomObject*> _customClasses;
     std::map<long long int, CustomObject*> _customObjects;
 };

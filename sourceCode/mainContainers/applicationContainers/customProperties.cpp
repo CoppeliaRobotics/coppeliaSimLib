@@ -22,6 +22,11 @@ size_t CCustomProperties::getPropertyCount() const
     return _properties.size();
 }
 
+void CCustomProperties::copyFrom(const CCustomProperties* source)
+{
+    _properties = source->_properties;
+}
+
 void CCustomProperties::_writeInt32(std::string& buf, size_t offset, int32_t val)
 {
     unsigned char b[4];
