@@ -112,33 +112,43 @@ void CCustomProperties::_setPropertyRaw(const char* pName, int propType, int pro
     _properties[pName] = _packProperty(propType, propInfo, infoTxt, data, dataLen);
 }
 
-void CCustomProperties::_updatePropertyData(const char* pName, const char* data, size_t dataLen)
+bool CCustomProperties::_updatePropertyData(const char* pName, const char* data, size_t dataLen)
 {
     auto it = _properties.find(pName);
     if (it == _properties.end())
-        return;
+        return false;
 
     int propType, propInfo;
     std::string infoTxt;
     size_t dataOffset;
     if (!_unpackHeader(it->second, propType, propInfo, infoTxt, dataOffset))
-        return;
+        return false;
+
+    // Check if the data is actually different
+    size_t oldDataLen = it->second.size() - dataOffset;
+    const char* oldData = it->second.data() + dataOffset;
+    size_t newDataLen = (data != nullptr) ? dataLen : 0;
+
+    if (oldDataLen == newDataLen && (newDataLen == 0 || memcmp(oldData, data, newDataLen) == 0))
+        return false;
 
     // Rebuild: keep header, replace data
     std::string newBuf;
-    newBuf.reserve(dataOffset + dataLen);
+    newBuf.reserve(dataOffset + newDataLen);
     newBuf.assign(it->second.data(), dataOffset);
-    if (data != nullptr && dataLen > 0)
-        newBuf.append(data, dataLen);
+    if (newDataLen > 0)
+        newBuf.append(data, newDataLen);
     it->second = std::move(newBuf);
+    return true;
 }
 
-int CCustomProperties::setBoolProperty(const char* pName, bool pState)
+int CCustomProperties::setBoolProperty(const char* pName, bool pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -148,12 +158,13 @@ int CCustomProperties::setBoolProperty(const char* pName, bool pState)
         if (propType != sim_propertytype_bool)
             return sim_propertyret_unavailable;
         char val = pState ? 1 : 0;
-        _updatePropertyData(pName, &val, 1);
+        valueChange = _updatePropertyData(pName, &val, 1);
     }
     else
     {
         char val = pState ? 1 : 0;
         _setPropertyRaw(pName, sim_propertytype_bool, sim_propertyinfo_removable, "", &val, 1);
+        valueChange = true;
     }
     return sim_propertyret_ok;
 }
@@ -177,12 +188,13 @@ int CCustomProperties::getBoolProperty(const char* pName, bool& pState) const
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setIntProperty(const char* pName, int pState)
+int CCustomProperties::setIntProperty(const char* pName, int pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -191,10 +203,13 @@ int CCustomProperties::setIntProperty(const char* pName, int pState)
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_int)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, (const char*)&pState, sizeof(int));
+        valueChange = _updatePropertyData(pName, (const char*)&pState, sizeof(int));
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_int, sim_propertyinfo_removable, "", (const char*)&pState, sizeof(int));
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -217,12 +232,13 @@ int CCustomProperties::getIntProperty(const char* pName, int& pState) const
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setLongProperty(const char* pName, long long int pState)
+int CCustomProperties::setLongProperty(const char* pName, long long int pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -231,10 +247,13 @@ int CCustomProperties::setLongProperty(const char* pName, long long int pState)
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_long)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, (const char*)&pState, sizeof(long long int));
+        valueChange = _updatePropertyData(pName, (const char*)&pState, sizeof(long long int));
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_long, sim_propertyinfo_removable, "", (const char*)&pState, sizeof(long long int));
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -257,12 +276,13 @@ int CCustomProperties::getLongProperty(const char* pName, long long int& pState)
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setFloatProperty(const char* pName, double pState)
+int CCustomProperties::setFloatProperty(const char* pName, double pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -271,10 +291,13 @@ int CCustomProperties::setFloatProperty(const char* pName, double pState)
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_float)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, (const char*)&pState, sizeof(double));
+        valueChange = _updatePropertyData(pName, (const char*)&pState, sizeof(double));
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_float, sim_propertyinfo_removable, "", (const char*)&pState, sizeof(double));
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -297,12 +320,13 @@ int CCustomProperties::getFloatProperty(const char* pName, double& pState) const
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setHandleProperty(const char* pName, long long int pState)
+int CCustomProperties::setHandleProperty(const char* pName, long long int pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -311,10 +335,13 @@ int CCustomProperties::setHandleProperty(const char* pName, long long int pState
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_handle)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, (const char*)&pState, sizeof(long long int));
+        valueChange = _updatePropertyData(pName, (const char*)&pState, sizeof(long long int));
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_handle, sim_propertyinfo_removable, "", (const char*)&pState, sizeof(long long int));
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -337,7 +364,7 @@ int CCustomProperties::getHandleProperty(const char* pName, long long int& pStat
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setStringProperty(const char* pName, const char* pState)
+int CCustomProperties::setStringProperty(const char* pName, const char* pState, bool& valueChange)
 {
     size_t sLen = (pState != nullptr) ? std::strlen(pState) : 0;
 
@@ -345,6 +372,7 @@ int CCustomProperties::setStringProperty(const char* pName, const char* pState)
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -359,7 +387,7 @@ int CCustomProperties::setStringProperty(const char* pName, const char* pState)
         std::memcpy(&packed[0], &len32, 4);
         if (sLen > 0)
             std::memcpy(&packed[4], pState, sLen);
-        _updatePropertyData(pName, packed.data(), packed.size());
+        valueChange = _updatePropertyData(pName, packed.data(), packed.size());
     }
     else
     {
@@ -369,6 +397,7 @@ int CCustomProperties::setStringProperty(const char* pName, const char* pState)
         if (sLen > 0)
             std::memcpy(&packed[4], pState, sLen);
         _setPropertyRaw(pName, sim_propertytype_string, sim_propertyinfo_removable, "", packed.data(), packed.size());
+        valueChange = true;
     }
     return sim_propertyret_ok;
 }
@@ -398,7 +427,7 @@ int CCustomProperties::getStringProperty(const char* pName, std::string& pState)
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setBufferProperty(const char* pName, const char* buffer, int bufferL)
+int CCustomProperties::setBufferProperty(const char* pName, const char* buffer, int bufferL, bool& valueChange)
 {
     if (buffer == nullptr)
         bufferL = 0;
@@ -407,6 +436,7 @@ int CCustomProperties::setBufferProperty(const char* pName, const char* buffer, 
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     // Store as: length(4 bytes) + buffer data
     std::string packed(4 + (size_t)bufferL, '\0');
@@ -422,10 +452,13 @@ int CCustomProperties::setBufferProperty(const char* pName, const char* buffer, 
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_buffer)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, packed.data(), packed.size());
+        valueChange = _updatePropertyData(pName, packed.data(), packed.size());
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_buffer, sim_propertyinfo_removable, "", packed.data(), packed.size());
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -454,12 +487,13 @@ int CCustomProperties::getBufferProperty(const char* pName, std::string& pState)
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setIntArray2Property(const char* pName, const int* pState)
+int CCustomProperties::setIntArray2Property(const char* pName, const int* pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -468,10 +502,13 @@ int CCustomProperties::setIntArray2Property(const char* pName, const int* pState
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_intarray2)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, (const char*)pState, 2 * sizeof(int));
+        valueChange = _updatePropertyData(pName, (const char*)pState, 2 * sizeof(int));
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_intarray2, sim_propertyinfo_removable, "", (const char*)pState, 2 * sizeof(int));
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -494,12 +531,13 @@ int CCustomProperties::getIntArray2Property(const char* pName, int* pState) cons
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setVector2Property(const char* pName, const double* pState)
+int CCustomProperties::setVector2Property(const char* pName, const double* pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -508,10 +546,13 @@ int CCustomProperties::setVector2Property(const char* pName, const double* pStat
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_vector2)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, (const char*)pState, 2 * sizeof(double));
+        valueChange = _updatePropertyData(pName, (const char*)pState, 2 * sizeof(double));
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_vector2, sim_propertyinfo_removable, "", (const char*)pState, 2 * sizeof(double));
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -534,12 +575,13 @@ int CCustomProperties::getVector2Property(const char* pName, double* pState) con
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setVector3Property(const char* pName, const C3Vector& pState)
+int CCustomProperties::setVector3Property(const char* pName, const C3Vector& pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -548,10 +590,13 @@ int CCustomProperties::setVector3Property(const char* pName, const C3Vector& pSt
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_vector3)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, (const char*)pState.data, 3 * sizeof(double));
+        valueChange = _updatePropertyData(pName, (const char*)pState.data, 3 * sizeof(double));
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_vector3, sim_propertyinfo_removable, "", (const char*)pState.data, 3 * sizeof(double));
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -574,7 +619,7 @@ int CCustomProperties::getVector3Property(const char* pName, C3Vector& pState) c
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setMatrixProperty(const char* pName, const CMatrix& pState)
+int CCustomProperties::setMatrixProperty(const char* pName, const CMatrix& pState, bool& valueChange)
 {
     // Store: rows(4) + cols(4) + data(rows*cols*sizeof(double))
     int32_t rows = (int32_t)pState.rows;
@@ -590,6 +635,7 @@ int CCustomProperties::setMatrixProperty(const char* pName, const CMatrix& pStat
     std::string infoTxt;
     const char* dp;
     size_t dl;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dp, dl);
     if (alreadyPresent)
@@ -598,10 +644,13 @@ int CCustomProperties::setMatrixProperty(const char* pName, const CMatrix& pStat
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_matrix)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, packed.data(), packed.size());
+        valueChange = _updatePropertyData(pName, packed.data(), packed.size());
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_matrix, sim_propertyinfo_removable, "", packed.data(), packed.size());
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -633,13 +682,14 @@ int CCustomProperties::getMatrixProperty(const char* pName, CMatrix& pState) con
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setMatrix3x3Property(const char* pName, const CMatrix& pState)
+int CCustomProperties::setMatrix3x3Property(const char* pName, const CMatrix& pState, bool& valueChange)
 {
     // Expect 3x3 matrix = 9 doubles
     int propType, propInfo;
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -648,10 +698,13 @@ int CCustomProperties::setMatrix3x3Property(const char* pName, const CMatrix& pS
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_matrix3x3)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, (const char*)pState.data.data(), 9 * sizeof(double));
+        valueChange = _updatePropertyData(pName, (const char*)pState.data.data(), 9 * sizeof(double));
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_matrix3x3, sim_propertyinfo_removable, "", (const char*)pState.data.data(), 9 * sizeof(double));
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -677,12 +730,13 @@ int CCustomProperties::getMatrix3x3Property(const char* pName, CMatrix& pState) 
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setMatrix4x4Property(const char* pName, const CMatrix& pState)
+int CCustomProperties::setMatrix4x4Property(const char* pName, const CMatrix& pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -691,10 +745,13 @@ int CCustomProperties::setMatrix4x4Property(const char* pName, const CMatrix& pS
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_matrix4x4)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, (const char*)pState.data.data(), 16 * sizeof(double));
+        valueChange = _updatePropertyData(pName, (const char*)pState.data.data(), 16 * sizeof(double));
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_matrix4x4, sim_propertyinfo_removable, "", (const char*)pState.data.data(), 16 * sizeof(double));
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -720,12 +777,13 @@ int CCustomProperties::getMatrix4x4Property(const char* pName, CMatrix& pState) 
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setQuaternionProperty(const char* pName, const C4Vector& pState)
+int CCustomProperties::setQuaternionProperty(const char* pName, const C4Vector& pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     double dat[4];
     pState.getData(dat, true);
@@ -736,10 +794,13 @@ int CCustomProperties::setQuaternionProperty(const char* pName, const C4Vector& 
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_quaternion)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, (const char*)dat, 4 * sizeof(double));
+        valueChange = _updatePropertyData(pName, (const char*)dat, 4 * sizeof(double));
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_quaternion, sim_propertyinfo_removable, "", (const char*)dat, 4 * sizeof(double));
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -762,12 +823,13 @@ int CCustomProperties::getQuaternionProperty(const char* pName, C4Vector& pState
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setPoseProperty(const char* pName, const C7Vector& pState)
+int CCustomProperties::setPoseProperty(const char* pName, const C7Vector& pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     double dat[7];
@@ -778,10 +840,13 @@ int CCustomProperties::setPoseProperty(const char* pName, const C7Vector& pState
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_pose)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, (const char*)dat, 7 * sizeof(double));
+        valueChange = _updatePropertyData(pName, (const char*)dat, 7 * sizeof(double));
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_pose, sim_propertyinfo_removable, "", (const char*)dat, 7 * sizeof(double));
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -808,12 +873,13 @@ int CCustomProperties::getPoseProperty(const char* pName, C7Vector& pState) cons
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setColorProperty(const char* pName, const float* pState)
+int CCustomProperties::setColorProperty(const char* pName, const float* pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -822,10 +888,13 @@ int CCustomProperties::setColorProperty(const char* pName, const float* pState)
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_color)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, (const char*)pState, 3 * sizeof(float));
+        valueChange = _updatePropertyData(pName, (const char*)pState, 3 * sizeof(float));
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_color, sim_propertyinfo_removable, "", (const char*)pState, 3 * sizeof(float));
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -848,7 +917,7 @@ int CCustomProperties::getColorProperty(const char* pName, float* pState) const
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setFloatArrayProperty(const char* pName, const double* v, int vL)
+int CCustomProperties::setFloatArrayProperty(const char* pName, const double* v, int vL, bool& valueChange)
 {
     if (v == nullptr)
         vL = 0;
@@ -863,6 +932,7 @@ int CCustomProperties::setFloatArrayProperty(const char* pName, const double* v,
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -871,10 +941,13 @@ int CCustomProperties::setFloatArrayProperty(const char* pName, const double* v,
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_floatarray)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, packed.data(), packed.size());
+        valueChange = _updatePropertyData(pName, packed.data(), packed.size());
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_floatarray, sim_propertyinfo_removable, "", packed.data(), packed.size());
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -906,7 +979,7 @@ int CCustomProperties::getFloatArrayProperty(const char* pName, std::vector<doub
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setIntArrayProperty(const char* pName, const int* v, int vL)
+int CCustomProperties::setIntArrayProperty(const char* pName, const int* v, int vL, bool& valueChange)
 {
     if (v == nullptr)
         vL = 0;
@@ -921,6 +994,7 @@ int CCustomProperties::setIntArrayProperty(const char* pName, const int* v, int 
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -929,10 +1003,14 @@ int CCustomProperties::setIntArrayProperty(const char* pName, const int* v, int 
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_intarray)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, packed.data(), packed.size());
+        valueChange = _updatePropertyData(pName, packed.data(), packed.size());
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_intarray, sim_propertyinfo_removable, "", packed.data(), packed.size());
+        valueChange = true;
+
+    }
     return sim_propertyret_ok;
 }
 
@@ -964,7 +1042,7 @@ int CCustomProperties::getIntArrayProperty(const char* pName, std::vector<int>& 
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setHandleArrayProperty(const char* pName, const long long int* v, int vL)
+int CCustomProperties::setHandleArrayProperty(const char* pName, const long long int* v, int vL, bool& valueChange)
 {
     if (v == nullptr)
         vL = 0;
@@ -979,6 +1057,7 @@ int CCustomProperties::setHandleArrayProperty(const char* pName, const long long
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -987,10 +1066,13 @@ int CCustomProperties::setHandleArrayProperty(const char* pName, const long long
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_handlearray)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, packed.data(), packed.size());
+        valueChange = _updatePropertyData(pName, packed.data(), packed.size());
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_handlearray, sim_propertyinfo_removable, "", packed.data(), packed.size());
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 
@@ -1022,7 +1104,7 @@ int CCustomProperties::getHandleArrayProperty(const char* pName, std::vector<lon
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setStringArrayProperty(const char* pName, const std::vector<std::string>& pState)
+int CCustomProperties::setStringArrayProperty(const char* pName, const std::vector<std::string>& pState, bool& valueChange)
 {
     // Pack: count(4) + for each string: len(4) + data
     size_t totalSize = 4;
@@ -1050,6 +1132,7 @@ int CCustomProperties::setStringArrayProperty(const char* pName, const std::vect
     std::string infoTxt;
     const char* dataPtr;
     size_t dataLen;
+    valueChange = false;
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -1058,10 +1141,13 @@ int CCustomProperties::setStringArrayProperty(const char* pName, const std::vect
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_stringarray)
             return sim_propertyret_unavailable;
-        _updatePropertyData(pName, packed.data(), packed.size());
+        valueChange = _updatePropertyData(pName, packed.data(), packed.size());
     }
     else
+    {
         _setPropertyRaw(pName, sim_propertytype_stringarray, sim_propertyinfo_removable, "", packed.data(), packed.size());
+        valueChange = true;
+    }
     return sim_propertyret_ok;
 }
 

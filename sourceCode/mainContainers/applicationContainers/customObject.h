@@ -11,6 +11,8 @@ class CustomObject: public Obj
 
     CustomObject* createObject(long long int handle, int originScriptHandle) const;
 
+    void pushObjectCreationEvent() const;
+
     int setBoolProperty(const char* pName, bool pState) override;
     int getBoolProperty(const char* pName, bool& pState) const override;
     int setIntProperty(const char* pName, int pState) override;
@@ -62,6 +64,9 @@ class CustomObject: public Obj
     int getScriptHandle() const;
 
   protected:
+    void _triggerEvent(const char* pName, CCbor* evv = nullptr) const;
+
+    bool _isClass;
     int _scriptHandle;
     CCustomProperties _customProperties;
 };

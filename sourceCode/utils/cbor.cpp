@@ -714,7 +714,7 @@ void CCbor::appendKeyMatrix(const char* key, const double* v, size_t rows, size_
     appendText(key);
     appendMatrix(v, rows, cols);
 }
-
+/*
 void CCbor::appendKeyMatrix(const char* key, const C3X3Matrix& m)
 {
     appendText(key);
@@ -726,7 +726,7 @@ void CCbor::appendKeyMatrix(const char* key, const C4X4Matrix& m)
     appendText(key);
     appendMatrix(m);
 }
-
+*/
 void CCbor::appendKeyMatrix(const char* key, const CMatrix& m)
 {
     appendText(key);

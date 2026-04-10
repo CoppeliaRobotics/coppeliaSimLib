@@ -13,6 +13,12 @@ CustomObjectContainer::~CustomObjectContainer()
         delete it->second;
 }
 
+void CustomObjectContainer::pushGenesisEvents() const
+{
+    for (auto it = _customObjects.begin(); it != _customObjects.end(); )
+        it->second->pushObjectCreationEvent();
+}
+
 long long int CustomObjectContainer::getFreshHandle() const
 {
     long long int retVal = sim_object_customstart;
@@ -126,6 +132,7 @@ long long int CustomObjectContainer::addObject(const char* objectTypeStr, int or
         retVal = getFreshHandle();
         CustomObject* obj = classObj->createObject(retVal, originScriptHandle);
         _customObjects.insert({retVal, obj});
+        obj->pushObjectCreationEvent();
     }
     return retVal;
 }

@@ -1,5 +1,6 @@
 #include <customObject.h>
 #include <utils.h>
+#include <app.h>
 
 CustomObject::CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle)
 {
@@ -7,16 +8,23 @@ CustomObject::CustomObject(long long int handle, const char* objectTypeStr, cons
     _objectTypeStr = objectTypeStr;
     _objectMetaInfo = objectMetaInfo;
     _scriptHandle = originScriptHandle;
+    _isClass = true;
 }
 
 CustomObject::~CustomObject()
 {
+    if (!_isClass)
+    {
+        App::scenes->createEvent(EVENTTYPE_OBJECTREMOVED, _objectHandle, _objectHandle, nullptr, false);
+        App::scenes->pushEvent();
+    }
 }
 
 CustomObject* CustomObject::createObject(long long int handle, int originScriptHandle) const
 {
     CustomObject* object = new CustomObject(handle, _objectTypeStr.c_str(), _objectMetaInfo.c_str(), originScriptHandle);
     object->_customProperties.copyFrom(&_customProperties);
+    object->_isClass = false;
     return object;
 }
 
@@ -25,11 +33,183 @@ int CustomObject::getScriptHandle() const
     return _scriptHandle;
 }
 
+void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/) const
+{
+    if (!_isClass)
+    {
+        int flags;
+        std::string infoTxt;
+        int t = getPropertyInfo(pName, flags, infoTxt);
+        if (t >= sim_propertytype_start)
+        {
+            if ((flags & (sim_propertyinfo_silent | sim_propertyinfo_constant)) == 0)
+            {
+                CCbor* ev = evv;
+                if (evv == nullptr)
+                    ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
+                if (t == sim_propertytype_bool)
+                {
+                    bool v;
+                    if (getBoolProperty(pName, v) > 0)
+                        ev->appendKeyBool(pName, v);
+                }
+                else if (t == sim_propertytype_int)
+                {
+                    int v;
+                    if (getIntProperty(pName, v) > 0)
+                        ev->appendKeyInt64(pName, v);
+                }
+                else if (t == sim_propertytype_long)
+                {
+                    long long int v;
+                    if (getLongProperty(pName, v) > 0)
+                        ev->appendKeyInt64(pName, v);
+                }
+                else if (t == sim_propertytype_float)
+                {
+                    double v;
+                    if (getFloatProperty(pName, v) > 0)
+                        ev->appendKeyDouble(pName, v);
+                }
+                else if (t == sim_propertytype_handle)
+                {
+                    long long int v;
+                    if (getHandleProperty(pName, v) > 0)
+                        ev->appendKeyHandle(pName, v);
+                }
+                else if (t == sim_propertytype_string)
+                {
+                    std::string v;
+                    if (getStringProperty(pName, v) > 0)
+                        ev->appendKeyText(pName, v.c_str());
+                }
+                else if (t == sim_propertytype_buffer)
+                {
+                    std::string v;
+                    if (getBufferProperty(pName, v) > 0)
+                        ev->appendKeyBuff(pName, (unsigned char*)v.data(), v.size());
+                }
+                else if (t == sim_propertytype_intarray2)
+                {
+                    int v[2];
+                    if (getIntArray2Property(pName, v) > 0)
+                        ev->appendKeyInt32Array(pName, v, 2);
+                }
+                else if (t == sim_propertytype_vector2)
+                {
+                    double v[2];
+                    if (getVector2Property(pName, v) > 0)
+                        ev->appendKeyDoubleArray(pName, v, 2);
+                }
+                else if (t == sim_propertytype_vector3)
+                {
+                    C3Vector v;
+                    if (getVector3Property(pName, v) > 0)
+                        ev->appendKeyVector3(pName, v);
+                }
+                else if (t == sim_propertytype_quaternion)
+                {
+                    C4Vector v;
+                    if (getQuaternionProperty(pName, v) > 0)
+                        ev->appendKeyQuaternion(pName, v);
+                }
+                else if (t == sim_propertytype_pose)
+                {
+                    C7Vector v;
+                    if (getPoseProperty(pName, v) > 0)
+                        ev->appendKeyPose(pName, v);
+                }
+                else if (t == sim_propertytype_matrix3x3)
+                {
+                    CMatrix v;
+                    if (getMatrix3x3Property(pName, v) > 0)
+                        ev->appendKeyMatrix(pName, v.data.data(), v.rows, v.cols);
+                }
+                else if (t == sim_propertytype_matrix4x4)
+                {
+                    CMatrix v;
+                    if (getMatrix4x4Property(pName, v) > 0)
+                        ev->appendKeyMatrix(pName, v.data.data(), v.rows, v.cols);
+                }
+                else if (t == sim_propertytype_matrix)
+                {
+                    CMatrix v;
+                    if (getMatrixProperty(pName, v) > 0)
+                        ev->appendKeyMatrix(pName, v.data.data(), v.rows, v.cols);
+                }
+                else if (t == sim_propertytype_color)
+                {
+                    float v[3];
+                    if (getColorProperty(pName, v) > 0)
+                        ev->appendKeyFloatArray(pName, v, 3);
+                }
+                else if (t == sim_propertytype_floatarray)
+                {
+                    std::vector<double> v;
+                    if (getFloatArrayProperty(pName, v) > 0)
+                        ev->appendKeyDoubleArray(pName, v.data(), v.size());
+                }
+                else if (t == sim_propertytype_intarray)
+                {
+                    std::vector<int> v;
+                    if (getIntArrayProperty(pName, v) > 0)
+                        ev->appendKeyInt32Array(pName, v.data(), v.size());
+                }
+                else if (t == sim_propertytype_handlearray)
+                {
+                    std::vector<long long int> v;
+                    if (getHandleArrayProperty(pName, v) > 0)
+                        ev->appendKeyHandleArray(pName, v.data(), v.size());
+                }
+                else if (t == sim_propertytype_stringarray)
+                {
+                    std::vector<std::string> v;
+                    if (getStringArrayProperty(pName, v) > 0)
+                        ev->appendKeyTextArray(pName, v);
+                }
+                if (evv == nullptr)
+                    App::scenes->pushEvent();
+            }
+        }
+        else
+        { // property removed
+            CCbor* ev = evv;
+            if (evv == nullptr)
+                ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
+            ev->appendKeyNull(pName);
+            if (evv == nullptr)
+                App::scenes->pushEvent();
+        }
+    }
+}
+
+void CustomObject::pushObjectCreationEvent() const
+{
+    CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
+    ev->appendKeyText(propObject_objectType.name, getObjectTypeStr().c_str());
+    int indexI = 0;
+    int index = indexI;
+    std::string pName, appartenance;
+    while (sim_propertyret_ok == getPropertyName(index, pName, appartenance, 0))
+    {
+       if (appartenance == getObjectTypeStr())
+            _triggerEvent(pName.c_str(), ev);
+        index = ++indexI;
+        pName.clear();
+    }
+    App::scenes->pushEvent();
+}
+
 int CustomObject::setBoolProperty(const char* pName, bool pState)
 {
     int retVal = Obj::setBoolProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setBoolProperty(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setBoolProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -45,7 +225,12 @@ int CustomObject::setIntProperty(const char* pName, int pState)
 {
     int retVal = Obj::setIntProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setIntProperty(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setIntProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -61,7 +246,12 @@ int CustomObject::setLongProperty(const char* pName, long long int pState)
 {
     int retVal = Obj::setLongProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setLongProperty(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setLongProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -77,7 +267,12 @@ int CustomObject::setFloatProperty(const char* pName, double pState)
 {
     int retVal = Obj::setFloatProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setFloatProperty(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setFloatProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -93,7 +288,12 @@ int CustomObject::setHandleProperty(const char* pName, long long int pState)
 {
     int retVal = Obj::setHandleProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setHandleProperty(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setHandleProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -109,7 +309,12 @@ int CustomObject::setStringProperty(const char* pName, const char* pState)
 {
     int retVal = Obj::setStringProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setStringProperty(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setStringProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -125,7 +330,12 @@ int CustomObject::setBufferProperty(const char* pName, const char* buffer, int b
 {
     int retVal = Obj::setBufferProperty(pName, buffer, bufferL);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setBufferProperty(pName, buffer, bufferL);
+    {
+        bool changed = false;
+        retVal = _customProperties.setBufferProperty(pName, buffer, bufferL, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -141,7 +351,12 @@ int CustomObject::setIntArray2Property(const char* pName, const int* pState)
 {
     int retVal = Obj::setIntArray2Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setIntArray2Property(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setIntArray2Property(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -157,7 +372,12 @@ int CustomObject::setVector2Property(const char* pName, const double* pState)
 {
     int retVal = Obj::setVector2Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setVector2Property(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setVector2Property(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -173,7 +393,12 @@ int CustomObject::setVector3Property(const char* pName, const C3Vector& pState)
 {
     int retVal = Obj::setVector3Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setVector3Property(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setVector3Property(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -189,7 +414,12 @@ int CustomObject::setMatrixProperty(const char* pName, const CMatrix& pState)
 {
     int retVal = Obj::setMatrixProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setMatrixProperty(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setMatrixProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -205,7 +435,12 @@ int CustomObject::setMatrix3x3Property(const char* pName, const CMatrix& pState)
 {
     int retVal = Obj::setMatrix3x3Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setMatrix3x3Property(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setMatrix3x3Property(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -221,7 +456,12 @@ int CustomObject::setMatrix4x4Property(const char* pName, const CMatrix& pState)
 {
     int retVal = Obj::setMatrix4x4Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setMatrix4x4Property(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setMatrix4x4Property(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -237,7 +477,12 @@ int CustomObject::setQuaternionProperty(const char* pName, const C4Vector& pStat
 {
     int retVal = Obj::setQuaternionProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setQuaternionProperty(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setQuaternionProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -253,7 +498,12 @@ int CustomObject::setPoseProperty(const char* pName, const C7Vector& pState)
 {
     int retVal = Obj::setPoseProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setPoseProperty(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setPoseProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -269,7 +519,12 @@ int CustomObject::setColorProperty(const char* pName, const float* pState)
 {
     int retVal = Obj::setColorProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setColorProperty(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setColorProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -285,7 +540,12 @@ int CustomObject::setFloatArrayProperty(const char* pName, const double* v, int 
 {
     int retVal = Obj::setFloatArrayProperty(pName, v, vL);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setFloatArrayProperty(pName, v, vL);
+    {
+        bool changed = false;
+        retVal = _customProperties.setFloatArrayProperty(pName, v, vL, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -304,7 +564,12 @@ int CustomObject::setIntArrayProperty(const char* pName, const int* v, int vL)
         vL = 0;
     int retVal = Obj::setIntArrayProperty(pName, v, vL);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setIntArrayProperty(pName, v, vL);
+    {
+        bool changed = false;
+        retVal = _customProperties.setIntArrayProperty(pName, v, vL, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -323,7 +588,12 @@ int CustomObject::setHandleArrayProperty(const char* pName, const long long int*
         vL = 0;
     int retVal = Obj::setHandleArrayProperty(pName, v, vL);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setHandleArrayProperty(pName, v, vL);
+    {
+        bool changed = false;
+        retVal = _customProperties.setHandleArrayProperty(pName, v, vL, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -340,7 +610,12 @@ int CustomObject::setStringArrayProperty(const char* pName, const std::vector<st
 {
     int retVal = Obj::setStringArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.setStringArrayProperty(pName, pState);
+    {
+        bool changed = false;
+        retVal = _customProperties.setStringArrayProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -357,7 +632,11 @@ int CustomObject::removeProperty(const char* pName)
 {
     int retVal = Obj::removeProperty(pName);
     if (retVal == sim_propertyret_unknownproperty)
+    {
         retVal = _customProperties.removeProperty(pName);
+        if (retVal == sim_propertyret_ok)
+            _triggerEvent(pName);
+    }
     return retVal;
 }
 
@@ -365,7 +644,11 @@ int CustomObject::getPropertyName(int& index, std::string& pName, std::string& a
 {
     int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == sim_propertyret_unknownproperty)
+    {
         retVal = _customProperties.getPropertyName(index, pName, appartenance, excludeFlags);
+        if (retVal == sim_propertyret_ok)
+            appartenance = getObjectTypeStr();
+    }
     return retVal;
 }
 

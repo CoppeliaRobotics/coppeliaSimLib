@@ -8,6 +8,8 @@ class CustomObjectContainer
     CustomObjectContainer();
     virtual ~CustomObjectContainer();
 
+    void pushGenesisEvents() const;
+
     long long int getFreshHandle() const;
     CustomObject* getItem(long long int objectHandle) const;
     bool removeItem(long long int objectHandle);

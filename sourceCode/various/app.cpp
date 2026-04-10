@@ -4176,6 +4176,9 @@ void App::pushGenesisEvents()
 
         scene->pushGenesisEvents();
 
+        if (scenes->customObjects != nullptr)
+            scenes->customObjects->pushGenesisEvents();
+
         ev = scenes->createEvent(EVENTTYPE_GENESISEND, -1, -1, nullptr, false);
         scenes->pushEvent();
     }
