@@ -6544,16 +6544,20 @@ std::string _method_removeProperty(int targetObj, const char* method, CDetachedS
         }
         if (errMsg.size() == 0)
         {
-            CALL_C_API(simRemoveProperty, targetObj, pName.c_str());
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (CALL_C_API(simRemoveProperty, targetObj, pName.c_str()) == sim_propertyret_ok)
             {
-                std::string nn(pName);
-                if (targetObj == sim_handle_app)
-                    nn = "app." + nn;
-                else if (targetObj != sim_handle_scene)
-                    nn = "obj." + nn;
-                currentScript->signalRemoved(nn.c_str());
+                if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                {
+                    std::string nn(pName);
+                    if (targetObj == sim_handle_app)
+                        nn = "app." + nn;
+                    else if (targetObj != sim_handle_scene)
+                        nn = "obj." + nn;
+                    currentScript->signalRemoved(nn.c_str());
+                }
             }
+            else
+                errMsg = CApiErrors::getAndClearLastError();
         }
     }
     return errMsg;
@@ -6589,8 +6593,13 @@ std::string _method_getPropertyName(int targetObj, const char* method, CDetached
             }
             else
             {
-                pushNull(outStack);
-                pushNull(outStack);
+                if (App::isTargetValid(targetObj))
+                {
+                    pushNull(outStack);
+                    pushNull(outStack);
+                }
+                else
+                    errMsg = SIM_ERROR_TARGET_DOES_NOT_EXIST;
             }
         }
     }
@@ -6612,8 +6621,8 @@ std::string _method_getPropertyInfo(int targetObj, const char* method, CDetached
         }
         SPropertyInfo infos;
         int res = CALL_C_API(simGetPropertyInfo, targetObj, pName.c_str(), &infos, &opt);
-        if (res > 0)
-        {
+        if ((res == sim_propertyret_ok) || (res == sim_propertyret_unknownproperty))
+        { // both should not generate an error!
             pushInt(outStack, infos.type);
             pushInt(outStack, infos.flags);
             if (infos.infoTxt == nullptr)
@@ -6624,6 +6633,8 @@ std::string _method_getPropertyInfo(int targetObj, const char* method, CDetached
                 delete[] infos.infoTxt;
             }
         }
+        else
+            errMsg = CApiErrors::getAndClearLastError();
     }
     return errMsg;
 }

@@ -3135,7 +3135,7 @@ int simGetPropertyInfo_internal(long long int target, const char* ppName, SPrope
         else
         {
             infos->type = -1; // property does not exist;
-            retVal = sim_propertyret_unavailable;
+            retVal = sim_propertyret_unknownproperty; // do not generate an error here!
         }
         return retVal;
     }

@@ -6481,17 +6481,20 @@ int _simRemoveProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::scenes->interfaceStackContainer->destroyStack(stack);
         }
-        CALL_C_API(simRemoveProperty, target, pName.c_str());
-        if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+        int ret = CALL_C_API(simRemoveProperty, target, pName.c_str());
+        if (ret == sim_propertyret_ok)
         {
-            int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-            CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
-            std::string nn(pName);
-            if (target == sim_handle_app)
-                nn = "app." + nn;
-            else if (target != sim_handle_scene)
-                nn = "obj." + nn;
-            it->signalRemoved(nn.c_str());
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            {
+                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
+                std::string nn(pName);
+                if (target == sim_handle_app)
+                    nn = "app." + nn;
+                else if (target != sim_handle_scene)
+                    nn = "obj." + nn;
+                it->signalRemoved(nn.c_str());
+            }
         }
         if (noError)
             LUA_END(0);
@@ -6567,8 +6570,8 @@ int _simGetPropertyInfo(luaWrap_lua_State* L)
         }
         SPropertyInfo infos;
         int res = CALL_C_API(simGetPropertyInfo, target, pName.c_str(), &infos, &opt);
-        if (res > 0)
-        {
+        if ((res == sim_propertyret_ok) || (res == sim_propertyret_unknownproperty))
+        { // both should not generate an error
             luaWrap_lua_pushinteger(L, infos.type);
             luaWrap_lua_pushinteger(L, infos.flags);
             if (infos.infoTxt == nullptr)
