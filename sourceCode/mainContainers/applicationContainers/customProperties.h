@@ -52,6 +52,7 @@ class CCustomProperties
     int removeProperty(const char* pName);
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
+    int setPropertyInfo(const char* pName, int info, const char* infoTxt);
 
     void copyFrom(const CCustomProperties* source);
 

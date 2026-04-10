@@ -3806,6 +3806,27 @@ int App::getPropertyInfo(long long int target, const char* ppName, int& info, st
     return retVal;
 }
 
+int App::setPropertyInfo(long long int target, const char* ppName, int info, const char* infoTxt)
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (!_resolveTarget(target))
+        retVal = sim_propertyret_unknowntarget;
+
+    if (target == sim_handle_app)
+        retVal = sim_propertyret_unavailable;
+    else if ((target >= sim_object_customstart) && (target < sim_object_customend) && (scenes != nullptr))
+        retVal = scenes->customObjects->setPropertyInfo(target, ppName, info, infoTxt);
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+        retVal = sim_propertyret_unavailable; // sandbox, main, add-ons, or old associated scripts:
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+        retVal = sim_propertyret_unavailable;
+    else if (scene != nullptr)
+        retVal = sim_propertyret_unavailable;
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
 bool App::isTargetValid(long long int target)
 {
     int ind = 0;

@@ -449,6 +449,7 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.removeProperty", _simRemoveProperty},
     {"sim.getPropertyName", _simGetPropertyName},
     {"sim.getPropertyInfo", _simGetPropertyInfo},
+    {"sim.setPropertyInfo", _simSetPropertyInfo},
     {"sim.setEventFilters", _simSetEventFilters},
 
     {"sim.test", _simTest},
@@ -6586,6 +6587,28 @@ int _simGetPropertyInfo(luaWrap_lua_State* L)
     luaWrap_lua_pushnil(L);
     luaWrap_lua_pushnil(L);
     LUA_END(3);
+}
+
+int _simSetPropertyInfo(luaWrap_lua_State* L)
+{
+    TRACE_LUA_API;
+    LUA_START("sim.setPropertyInfo");
+
+    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 0, lua_arg_string, 0))
+    {
+        long long int target = luaWrap_lua_tointeger(L, 1);
+        if (target == sim_handle_self)
+            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+        std::string pName(luaWrap_lua_tostring(L, 2));
+        SPropertyInfo infos;
+        infos.flags = luaWrap_lua_tointeger(L, 3);
+        std::string infoTxt = luaWrap_lua_tostring(L, 4);
+        infos.infoTxt = (char*)infoTxt.c_str();
+        CALL_C_API(simSetPropertyInfo, target, pName.c_str(), &infos);
+    }
+
+    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
+    LUA_END(0);
 }
 
 int _simSetEventFilters(luaWrap_lua_State* L)

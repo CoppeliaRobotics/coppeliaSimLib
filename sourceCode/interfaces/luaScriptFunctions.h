@@ -402,6 +402,7 @@ extern int _simGetStringArrayProperty(luaWrap_lua_State* L);
 extern int _simRemoveProperty(luaWrap_lua_State* L);
 extern int _simGetPropertyName(luaWrap_lua_State* L);
 extern int _simGetPropertyInfo(luaWrap_lua_State* L);
+extern int _simSetPropertyInfo(luaWrap_lua_State* L);
 extern int _simSetEventFilters(luaWrap_lua_State* L);
 
 

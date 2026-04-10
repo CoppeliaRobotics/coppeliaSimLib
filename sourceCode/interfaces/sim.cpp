@@ -1354,6 +1354,11 @@ SIM_DLLEXPORT int simGetPropertyInfo(long long int target, const char* pName, SP
     return simGetPropertyInfo_internal(target, pName, infos, options);
 }
 
+SIM_DLLEXPORT int simSetPropertyInfo(long long int target, const char* pName, const SPropertyInfo* infos)
+{
+    return simSetPropertyInfo_internal(target, pName, infos);
+}
+
 SIM_DLLEXPORT int simCallMethod(long long int target, const char* name, int inputStack, int outputStack)
 { // backw. compatibility version
     return simCallMethod_internal(target, name, App::getNewHandleFromOldHandle(inputStack), App::getNewHandleFromOldHandle(outputStack), nullptr);

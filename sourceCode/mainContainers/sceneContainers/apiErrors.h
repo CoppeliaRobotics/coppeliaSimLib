@@ -116,6 +116,7 @@
 #define SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN "property could not be written."
 #define SIM_ERROR_PROPERTY_CANNOT_BE_READ "property could not be read."
 #define SIM_ERROR_PROPERTY_CANNOT_BE_REMOVED "property cannot be removed."
+#define SIM_ERROR_PROPERTY_CANNOT_BE_MODIFIED "property cannot be modified."
 #define SIM_ERROR_PROPERTY_TYPE_MISMATCH "property type mismatch."
 #define SIM_ERROR_INVALID_PROPERTY_NAME "invalid property name."
 #define SIM_ERROR_PROPERTY_INVALID_SIZE "invalid size."

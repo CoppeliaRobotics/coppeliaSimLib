@@ -157,6 +157,7 @@ class App
     static int removeProperty(long long int target, const char* pName);
     static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags);
     static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt);
+    static int setPropertyInfo(long long int target, const char* pName, int info, const char* infoTxt);
     static bool isTargetValid(long long int target);
 
     static void undoRedo_sceneChanged(const char* txt);

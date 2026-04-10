@@ -90,6 +90,7 @@ int simGetStringArrayProperty_internal(long long int target, const char* pName, 
 int simRemoveProperty_internal(long long int target, const char* pName);
 char* simGetPropertyName_internal(long long int target, int index, SPropertyOptions* options);
 int simGetPropertyInfo_internal(long long int target, const char* pName, SPropertyInfo* infos, SPropertyOptions* options);
+int simSetPropertyInfo_internal(long long int target, const char* pName, const SPropertyInfo* infos);
 
 int simCallMethod_internal(long long int target, const char* name, int inputStack, int outputStack, void* currentScript);
 void simRegCallback_internal(int index, void* callback);

@@ -573,3 +573,18 @@ int CustomObjectContainer::getPropertyInfo(long long int target, const char* ppN
         retVal = obj->getPropertyInfo(ppName, info, infoTxt);
     return retVal;
 }
+
+int CustomObjectContainer::setPropertyInfo(long long int target, const char* ppName, int info, const char* infoTxt)
+{
+    int retVal = sim_propertyret_unknowntarget;
+    CustomObject* obj = getClass(target);
+    if (obj != nullptr)
+        retVal = obj->setPropertyInfo(ppName, info, infoTxt);
+    else
+    {
+        obj = getObject(target);
+        if (obj != nullptr)
+            retVal = sim_propertyret_unavailable;
+    }
+    return retVal;
+}

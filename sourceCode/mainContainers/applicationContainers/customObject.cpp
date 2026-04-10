@@ -376,3 +376,15 @@ int CustomObject::getPropertyInfo(const char* pName, int& info, std::string& inf
         retVal = _customProperties.getPropertyInfo(pName, info, infoTxt);
     return retVal;
 }
+
+int CustomObject::setPropertyInfo(const char* pName, int info, const char* infoTxt)
+{
+    int dInfo;
+    std::string dInfoTxt;
+    int retVal = Obj::getPropertyInfo(pName, dInfo, dInfoTxt);
+    if (retVal == sim_propertyret_unknownproperty)
+        retVal = _customProperties.setPropertyInfo(pName, info, infoTxt);
+    else
+        retVal = sim_propertyret_unavailable;
+    return retVal;
+}

@@ -199,6 +199,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["removeProperty"] = _method_removeProperty;
         funcTable["getPropertyName"] = _method_getPropertyName;
         funcTable["getPropertyInfo"] = _method_getPropertyInfo;
+        funcTable["setPropertyInfo"] = _method_setPropertyInfo;
         funcTable["createCustomObject"] = _method_createCustomObject;
         funcTable["releaseCustomObject"] = _method_releaseCustomObject;
         funcTable["isValid"] = _method_isValid;
@@ -6623,6 +6624,23 @@ std::string _method_getPropertyInfo(int targetObj, const char* method, CDetached
                 delete[] infos.infoTxt;
             }
         }
+    }
+    return errMsg;
+}
+
+std::string _method_setPropertyInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer, arg_string}))
+    {
+        std::string pName = fetchText(inStack, 0);
+        SPropertyInfo infos;
+        infos.flags = fetchInt(inStack, 1);
+        std::string infoTxt = fetchText(inStack, 2);
+        infos.infoTxt = (char*)infoTxt.c_str();
+        int res = CALL_C_API(simSetPropertyInfo, targetObj, pName.c_str(), &infos);
+        if (res != sim_propertyret_ok)
+            errMsg = CApiErrors::getAndClearLastError();
     }
     return errMsg;
 }

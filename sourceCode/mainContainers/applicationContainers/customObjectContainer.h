@@ -66,6 +66,7 @@ class CustomObjectContainer
     int removeProperty(long long int target, const char* pName);
     int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
     int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const;
+    int setPropertyInfo(long long int target, const char* pName, int info, const char* infoTxt);
 
   protected:
     std::vector<CustomObject*> _customClasses;

@@ -1164,6 +1164,43 @@ int CCustomProperties::getPropertyInfo(const char* pName, int& info, std::string
     return propType;
 }
 
+int CCustomProperties::setPropertyInfo(const char* pName, int info, const char* infoTxt)
+{
+    int propType, propInfo;
+    std::string propInfoTxt;
+    const char* dataPtr;
+    size_t dataLen;
+
+    if (!_findProperty(pName, propType, propInfo, propInfoTxt, dataPtr, dataLen))
+        return sim_propertyret_unknownproperty;
+
+    std::string newBuf;
+
+    // type (unchanged)
+    int32_t t = propType;
+    newBuf.append((const char*)&t, sizeof(int32_t));
+
+    // flags
+    int32_t newFlags = info;
+    newBuf.append((const char*)&newFlags, sizeof(int32_t));
+
+    // info text
+    std::string newInfoTxt;
+    if (infoTxt != nullptr)
+        newInfoTxt = infoTxt;
+    int32_t txtLen = (int32_t)newInfoTxt.size();
+    newBuf.append((const char*)&txtLen, sizeof(int32_t));
+    if (txtLen > 0)
+        newBuf.append(newInfoTxt.data(), txtLen);
+
+    // property data (unchanged)
+    if (dataLen > 0)
+        newBuf.append(dataPtr, dataLen);
+
+    _properties[pName] = newBuf;
+    return sim_propertyret_ok;
+}
+
 std::string CCustomProperties::serialize() const
 {
     // Format:

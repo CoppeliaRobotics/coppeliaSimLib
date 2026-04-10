@@ -276,6 +276,7 @@ SIM_DLLEXPORT int simGetStringArrayProperty2(long long int target, const char* p
 SIM_DLLEXPORT int simRemoveProperty(long long int target, const char* pName);
 SIM_DLLEXPORT char* simGetPropertyName(long long int target, int index, SPropertyOptions* options);
 SIM_DLLEXPORT int simGetPropertyInfo(long long int target, const char*, SPropertyInfo* infos, SPropertyOptions* options);
+SIM_DLLEXPORT int simSetPropertyInfo(long long int target, const char*, const SPropertyInfo* infos);
 
 SIM_DLLEXPORT int simCallMethod(long long int target, const char* name, int inputStack, int outputStack);
 SIM_DLLEXPORT int simTest(int mode, void* ptr1, void* ptr2, void* ptr3);
