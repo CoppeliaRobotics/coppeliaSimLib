@@ -7,10 +7,7 @@ CustomObjectContainer::CustomObjectContainer()
 
 CustomObjectContainer::~CustomObjectContainer()
 {
-    for (size_t i = 0; i < _customClasses.size(); i++)
-        delete _customClasses[i];
-    for (auto it = _customObjects.begin(); it != _customObjects.end(); )
-        delete it->second;
+    clear();
 }
 
 void CustomObjectContainer::pushGenesisEvents() const
@@ -184,6 +181,16 @@ void CustomObjectContainer::announceScriptStateWillBeErased(int scriptHandle)
         else
             i++;
     }
+}
+
+void CustomObjectContainer::clear()
+{
+    for (size_t i = 0; i < _customClasses.size(); i++)
+        delete _customClasses[i];
+    _customClasses.clear();
+    for (auto it = _customObjects.begin(); it != _customObjects.end(); )
+        delete it->second;
+    _customObjects.clear();
 }
 
 void CustomObjectContainer::_storeClasses() const
@@ -417,42 +424,6 @@ int CustomObjectContainer::getMatrixProperty(long long int target, const char* p
     CustomObject* obj = getItem(target);
     if (obj != nullptr)
         retVal = obj->getMatrixProperty(ppName, pState);
-    return retVal;
-}
-
-int CustomObjectContainer::setMatrix3x3Property(long long int target, const char* ppName, const CMatrix& pState)
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CustomObject* obj = getItem(target);
-    if (obj != nullptr)
-        retVal = obj->setMatrix3x3Property(ppName, pState);
-    return retVal;
-}
-
-int CustomObjectContainer::getMatrix3x3Property(long long int target, const char* ppName, CMatrix& pState) const
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CustomObject* obj = getItem(target);
-    if (obj != nullptr)
-        retVal = obj->getMatrix3x3Property(ppName, pState);
-    return retVal;
-}
-
-int CustomObjectContainer::setMatrix4x4Property(long long int target, const char* ppName, const CMatrix& pState)
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CustomObject* obj = getItem(target);
-    if (obj != nullptr)
-        retVal = obj->setMatrix4x4Property(ppName, pState);
-    return retVal;
-}
-
-int CustomObjectContainer::getMatrix4x4Property(long long int target, const char* ppName, CMatrix& pState) const
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CustomObject* obj = getItem(target);
-    if (obj != nullptr)
-        retVal = obj->getMatrix4x4Property(ppName, pState);
     return retVal;
 }
 

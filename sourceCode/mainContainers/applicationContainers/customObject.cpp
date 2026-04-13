@@ -119,18 +119,6 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/) co
                     if (getPoseProperty(pName, v) > 0)
                         ev->appendKeyPose(pName, v);
                 }
-                else if (t == sim_propertytype_matrix3x3)
-                {
-                    CMatrix v;
-                    if (getMatrix3x3Property(pName, v) > 0)
-                        ev->appendKeyMatrix(pName, v.data.data(), v.rows, v.cols);
-                }
-                else if (t == sim_propertytype_matrix4x4)
-                {
-                    CMatrix v;
-                    if (getMatrix4x4Property(pName, v) > 0)
-                        ev->appendKeyMatrix(pName, v.data.data(), v.rows, v.cols);
-                }
                 else if (t == sim_propertytype_matrix)
                 {
                     CMatrix v;
@@ -428,48 +416,6 @@ int CustomObject::getMatrixProperty(const char* pName, CMatrix& pState) const
     int retVal = Obj::getMatrixProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
         retVal = _customProperties.getMatrixProperty(pName, pState);
-    return retVal;
-}
-
-int CustomObject::setMatrix3x3Property(const char* pName, const CMatrix& pState)
-{
-    int retVal = Obj::setMatrix3x3Property(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        bool changed = false;
-        retVal = _customProperties.setMatrix3x3Property(pName, pState, changed);
-        if (changed)
-            _triggerEvent(pName);
-    }
-    return retVal;
-}
-
-int CustomObject::getMatrix3x3Property(const char* pName, CMatrix& pState) const
-{
-    int retVal = Obj::getMatrix3x3Property(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.getMatrix3x3Property(pName, pState);
-    return retVal;
-}
-
-int CustomObject::setMatrix4x4Property(const char* pName, const CMatrix& pState)
-{
-    int retVal = Obj::setMatrix4x4Property(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        bool changed = false;
-        retVal = _customProperties.setMatrix4x4Property(pName, pState, changed);
-        if (changed)
-            _triggerEvent(pName);
-    }
-    return retVal;
-}
-
-int CustomObject::getMatrix4x4Property(const char* pName, CMatrix& pState) const
-{
-    int retVal = Obj::getMatrix4x4Property(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.getMatrix4x4Property(pName, pState);
     return retVal;
 }
 

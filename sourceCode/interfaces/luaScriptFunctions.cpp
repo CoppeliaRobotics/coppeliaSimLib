@@ -428,10 +428,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getVector3Property", _simGetVector3Property},
     {"sim.setMatrixProperty", _simSetMatrixProperty},
     {"sim.getMatrixProperty", _simGetMatrixProperty},
-    {"sim.setMatrix3x3Property", _simSetMatrix3x3Property},
-    {"sim.getMatrix3x3Property", _simGetMatrix3x3Property},
-    {"sim.setMatrix4x4Property", _simSetMatrix4x4Property},
-    {"sim.getMatrix4x4Property", _simGetMatrix4x4Property},
     {"sim.setQuaternionProperty", _simSetQuaternionProperty},
     {"sim.getQuaternionProperty", _simGetQuaternionProperty},
     {"sim.setPoseProperty", _simSetPoseProperty},
@@ -866,6 +862,10 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.object_drawingstart", sim_object_drawingstart},
     {"sim.object_drawingend", sim_object_drawingend},
     {"sim.object_customstart", sim_object_customstart},
+    {"sim.object_customappstart", sim_object_customappstart},
+    {"sim.object_customappend", sim_object_customappend},
+    {"sim.object_customscenestart", sim_object_customscenestart},
+    {"sim.object_customsceneend", sim_object_customsceneend},
     {"sim.object_customend", sim_object_customend},
     {"sim.object_variousstart", sim_object_variousstart},
     // language:
@@ -1029,8 +1029,6 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertytype_vector3", sim_propertytype_vector3},
     {"sim.propertytype_quaternion", sim_propertytype_quaternion},
     {"sim.propertytype_pose", sim_propertytype_pose},
-    {"sim.propertytype_matrix3x3", sim_propertytype_matrix3x3},
-    {"sim.propertytype_matrix4x4", sim_propertytype_matrix4x4},
     {"sim.propertytype_color", sim_propertytype_color},
     {"sim.propertytype_floatarray", sim_propertytype_floatarray},
     {"sim.propertytype_intarray", sim_propertytype_intarray},
@@ -2391,38 +2389,6 @@ bool checkOneInputArgument(luaWrap_lua_State* L, int index, int type, std::strin
                 std::string msg("bad argument #");
                 msg += std::to_string(index - argOffset);
                 msg += " (expecting a vector).";
-                errStr->assign(msg.c_str());
-            }
-            return false; // error
-        }
-        return true;
-    }
-    if (type == lua_arg_matrix3x3)
-    {
-        size_t r, c;
-        if ((!luaWrap_lua_ismatrix(L, index, &r, &c)) || (r != 3) || (c != 3))
-        {
-            if (errStr != nullptr)
-            {
-                std::string msg("bad argument #");
-                msg += std::to_string(index - argOffset);
-                msg += " (expecting a matrix3x3).";
-                errStr->assign(msg.c_str());
-            }
-            return false; // error
-        }
-        return true;
-    }
-    if (type == lua_arg_matrix4x4)
-    {
-        size_t r, c;
-        if ((!luaWrap_lua_ismatrix(L, index, &r, &c)) || (r != 4) || (c != 4))
-        {
-            if (errStr != nullptr)
-            {
-                std::string msg("bad argument #");
-                msg += std::to_string(index - argOffset);
-                msg += " (expecting a matrix4x4).";
                 errStr->assign(msg.c_str());
             }
             return false; // error
@@ -5706,162 +5672,6 @@ int _simGetMatrixProperty(luaWrap_lua_State* L)
         {
             luaWrap_lua_pushmatrix(L, pValue, r, c);
             delete[] pValue;
-            LUA_END(1);
-        }
-        if (noError)
-        {
-            luaWrap_lua_pushnil(L);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetMatrix3x3Property(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setMatrix3x3Property");
-
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_matrix3x3, 0))
-    {
-        long long int target = luaWrap_lua_tointeger(L, 1);
-        if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-        std::string pName(luaWrap_lua_tostring(L, 2));
-        CMatrix pValue = fetchMatrixArg(L, 3);
-        bool noError = false;
-        if (luaWrap_lua_isnonbuffertable(L, 4))
-        {
-            CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
-            CDetachedScript::buildFromInterpreterStack_lua(L, stack, 4, 1);
-            stack->getStackMapBoolValue("noError", noError);
-            App::scenes->interfaceStackContainer->destroyStack(stack);
-        }
-        if (CALL_C_API(simSetMatrix3x3Property, target, pName.c_str(), pValue.data.data()) > 0)
-        {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
-            {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-                CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
-                std::string nn(pName);
-                if (target == sim_handle_app)
-                    nn = "app." + nn;
-                else if (target != sim_handle_scene)
-                    nn = "obj." + nn;
-                it->signalSet(nn.c_str(), target);
-            }
-        }
-        if (noError)
-            LUA_END(0);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGetMatrix3x3Property(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getMatrix3x3Property");
-
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
-    {
-        long long int target = luaWrap_lua_tointeger(L, 1);
-        if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-        std::string pName(luaWrap_lua_tostring(L, 2));
-        bool noError = false;
-        if (luaWrap_lua_isnonbuffertable(L, 3))
-        {
-            CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
-            CDetachedScript::buildFromInterpreterStack_lua(L, stack, 3, 1);
-            stack->getStackMapBoolValue("noError", noError);
-            App::scenes->interfaceStackContainer->destroyStack(stack);
-        }
-        double pValue[3 * 3];
-        if (CALL_C_API(simGetMatrix3x3Property, target, pName.c_str(), pValue) > 0)
-        {
-            luaWrap_lua_pushmatrix(L, pValue, 3, 3);
-            LUA_END(1);
-        }
-        if (noError)
-        {
-            luaWrap_lua_pushnil(L);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetMatrix4x4Property(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setMatrix4x4Property");
-
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_matrix4x4, 0))
-    {
-        long long int target = luaWrap_lua_tointeger(L, 1);
-        if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-        std::string pName(luaWrap_lua_tostring(L, 2));
-        CMatrix pValue = fetchMatrixArg(L, 3);
-        bool noError = false;
-        if (luaWrap_lua_isnonbuffertable(L, 4))
-        {
-            CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
-            CDetachedScript::buildFromInterpreterStack_lua(L, stack, 4, 1);
-            stack->getStackMapBoolValue("noError", noError);
-            App::scenes->interfaceStackContainer->destroyStack(stack);
-        }
-        if (CALL_C_API(simSetMatrix4x4Property, target, pName.c_str(), pValue.data.data()) > 0)
-        {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
-            {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-                CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
-                std::string nn(pName);
-                if (target == sim_handle_app)
-                    nn = "app." + nn;
-                else if (target != sim_handle_scene)
-                    nn = "obj." + nn;
-                it->signalSet(nn.c_str(), target);
-            }
-        }
-        if (noError)
-            LUA_END(0);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGetMatrix4x4Property(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getMatrix4x4Property");
-
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
-    {
-        long long int target = luaWrap_lua_tointeger(L, 1);
-        if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-        std::string pName(luaWrap_lua_tostring(L, 2));
-        bool noError = false;
-        if (luaWrap_lua_isnonbuffertable(L, 3))
-        {
-            CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
-            CDetachedScript::buildFromInterpreterStack_lua(L, stack, 3, 1);
-            stack->getStackMapBoolValue("noError", noError);
-            App::scenes->interfaceStackContainer->destroyStack(stack);
-        }
-        double pValue[4 * 4];
-        if (CALL_C_API(simGetMatrix4x4Property, target, pName.c_str(), pValue) > 0)
-        {
-            luaWrap_lua_pushmatrix(L, pValue, 4, 4);
             LUA_END(1);
         }
         if (noError)

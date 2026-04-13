@@ -23,6 +23,7 @@
 #include <collisionObjectContainer_old.h>
 #include <ikGroupContainer.h>
 #include <sceneObjectContainer.h>
+#include <customObjectContainer.h>
 #include <obj.h>
 
 struct SLoadOperationIssue
@@ -105,10 +106,6 @@ class CScene : public Obj
     int getVector3Property(long long int target, const char* pName, C3Vector& pState) const;
     int setMatrixProperty(long long int target, const char* pName, const CMatrix& pState);
     int getMatrixProperty(long long int target, const char* pName, CMatrix& pState) const;
-    int setMatrix3x3Property(long long int target, const char* pName, const CMatrix& pState);
-    int getMatrix3x3Property(long long int target, const char* pName, CMatrix& pState) const;
-    int setMatrix4x4Property(long long int target, const char* pName, const CMatrix& pState);
-    int getMatrix4x4Property(long long int target, const char* pName, CMatrix& pState) const;
     int setQuaternionProperty(long long int target, const char* pName, const C4Vector& pState);
     int getQuaternionProperty(long long int target, const char* pName, C4Vector& pState) const;
     int setPoseProperty(long long int target, const char* pName, const C7Vector& pState);
@@ -124,8 +121,9 @@ class CScene : public Obj
     int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
     int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState) const;
     int removeProperty(long long int target, const char* pName);
-    int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags);
-    int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt);
+    int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
+    int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const;
+    int setPropertyInfo(long long int target, const char* pName, int info, const char* infoTxt);
 
     // Old:
     void announceIkGroupWillBeErased(int ikGroupHandle);
@@ -156,6 +154,7 @@ class CScene : public Obj
     CDrawingContainer* drawingCont;
     CCollectionContainer* collections;
     CSceneObjectContainer* sceneObjects;
+    CustomObjectContainer* customObjects;
 
     // Old:
     CMainSettings* mainSettings_old;

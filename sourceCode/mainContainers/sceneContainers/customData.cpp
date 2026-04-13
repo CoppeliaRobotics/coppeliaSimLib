@@ -434,18 +434,6 @@ void CCustomData::appendEventData(const char* tag, CCbor* ev, bool remove /*= fa
                 tg = _eventPrefix + tg;
                 ev->appendKeyPose(tg.c_str(), (double*)dat.data(), true);
             }
-            else if (tg.find(proptypetag_matrix3x3) != std::string::npos)
-            {
-                tg.erase(0, p + 2);
-                tg = _eventPrefix + tg;
-                ev->appendKeyMatrix(tg.c_str(), (double*)dat.data(), 3, 3);
-            }
-            else if (tg.find(proptypetag_matrix4x4) != std::string::npos)
-            {
-                tg.erase(0, p + 2);
-                tg = _eventPrefix + tg;
-                ev->appendKeyMatrix(tg.c_str(), (double*)dat.data(), 4, 4);
-            }
             else if (tg.find(proptypetag_matrix) != std::string::npos)
             {
                 tg.erase(0, p + 2);

@@ -6550,14 +6550,14 @@ int CSceneObject::getVector3Property(const char* ppName, C3Vector& pState) const
     return retVal;
 }
 
-int CSceneObject::setMatrix3x3Property(const char* ppName, const CMatrix& pState)
+int CSceneObject::setMatrixProperty(const char* ppName, const CMatrix& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
 
-int CSceneObject::getMatrix3x3Property(const char* ppName, CMatrix& pState) const
+int CSceneObject::getMatrixProperty(const char* ppName, CMatrix& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 

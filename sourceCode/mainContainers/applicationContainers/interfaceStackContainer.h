@@ -36,10 +36,6 @@ class CInterfaceStackContainer
     int getVector3Property(long long int target, const char* pName, C3Vector& pState) const;
     int setMatrixProperty(long long int target, const char* pName, const CMatrix& pState);
     int getMatrixProperty(long long int target, const char* pName, CMatrix& pState) const;
-    int setMatrix3x3Property(long long int target, const char* pName, const CMatrix& pState);
-    int getMatrix3x3Property(long long int target, const char* pName, CMatrix& pState) const;
-    int setMatrix4x4Property(long long int target, const char* pName, const CMatrix& pState);
-    int getMatrix4x4Property(long long int target, const char* pName, CMatrix& pState) const;
     int setQuaternionProperty(long long int target, const char* pName, const C4Vector& pState);
     int getQuaternionProperty(long long int target, const char* pName, C4Vector& pState) const;
     int setPoseProperty(long long int target, const char* pName, const C7Vector& pState);

@@ -1338,7 +1338,7 @@ int CMeshWrapper::getVector3Property_wrapper(const char* pName, C3Vector& pState
     return retVal;
 }
 
-int CMeshWrapper::setMatrix3x3Property_wrapper(const char* pName, const CMatrix& pState)
+int CMeshWrapper::setMatrixProperty_wrapper(const char* pName, const CMatrix& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
@@ -1363,7 +1363,7 @@ int CMeshWrapper::setMatrix3x3Property_wrapper(const char* pName, const CMatrix&
     return retVal;
 }
 
-int CMeshWrapper::getMatrix3x3Property_wrapper(const char* pName, CMatrix& pState) const
+int CMeshWrapper::getMatrixProperty_wrapper(const char* pName, CMatrix& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 

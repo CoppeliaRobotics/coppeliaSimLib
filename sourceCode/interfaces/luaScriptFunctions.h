@@ -28,8 +28,6 @@ enum
     lua_arg_quaternion,
     lua_arg_pose,
     lua_arg_matrix,
-    lua_arg_matrix3x3,
-    lua_arg_matrix4x4,
     lua_arg_optional = 64
 };
 
@@ -381,10 +379,6 @@ extern int _simSetVector3Property(luaWrap_lua_State* L);
 extern int _simGetVector3Property(luaWrap_lua_State* L);
 extern int _simSetMatrixProperty(luaWrap_lua_State* L);
 extern int _simGetMatrixProperty(luaWrap_lua_State* L);
-extern int _simSetMatrix3x3Property(luaWrap_lua_State* L);
-extern int _simGetMatrix3x3Property(luaWrap_lua_State* L);
-extern int _simSetMatrix4x4Property(luaWrap_lua_State* L);
-extern int _simGetMatrix4x4Property(luaWrap_lua_State* L);
 extern int _simSetQuaternionProperty(luaWrap_lua_State* L);
 extern int _simGetQuaternionProperty(luaWrap_lua_State* L);
 extern int _simSetPoseProperty(luaWrap_lua_State* L);

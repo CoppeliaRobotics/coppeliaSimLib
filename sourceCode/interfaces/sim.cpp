@@ -1249,26 +1249,6 @@ SIM_DLLEXPORT int simGetMatrixProperty(long long int target, const char* pName, 
     return simGetMatrixProperty_internal(target, pName, pState, r, c);
 }
 
-SIM_DLLEXPORT int simSetMatrix3x3Property(long long int target, const char* pName, const double* pState)
-{
-    return simSetMatrix3x3Property_internal(target, pName, pState);
-}
-
-SIM_DLLEXPORT int simGetMatrix3x3Property(long long int target, const char* pName, double* pState)
-{
-    return simGetMatrix3x3Property_internal(target, pName, pState);
-}
-
-SIM_DLLEXPORT int simSetMatrix4x4Property(long long int target, const char* pName, const double* pState)
-{
-    return simSetMatrix4x4Property_internal(target, pName, pState);
-}
-
-SIM_DLLEXPORT int simGetMatrix4x4Property(long long int target, const char* pName, double* pState)
-{
-    return simGetMatrix4x4Property_internal(target, pName, pState);
-}
-
 SIM_DLLEXPORT int simSetQuaternionProperty(long long int target, const char* pName, const double* pState)
 {
     return simSetQuaternionProperty_internal(target, pName, pState);

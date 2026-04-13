@@ -35,10 +35,6 @@ class CustomObject: public Obj
     int getVector3Property(const char* pName, C3Vector& pState) const override;
     int setMatrixProperty(const char* pName, const CMatrix& pState) override;
     int getMatrixProperty(const char* pName, CMatrix& pState) const override;
-    int setMatrix3x3Property(const char* pName, const CMatrix& pState) override;
-    int getMatrix3x3Property(const char* pName, CMatrix& pState) const override;
-    int setMatrix4x4Property(const char* pName, const CMatrix& pState) override;
-    int getMatrix4x4Property(const char* pName, CMatrix& pState) const override;
     int setQuaternionProperty(const char* pName, const C4Vector& pState) override;
     int getQuaternionProperty(const char* pName, C4Vector& pState) const override;
     int setPoseProperty(const char* pName, const C7Vector& pState) override;

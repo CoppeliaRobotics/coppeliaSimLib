@@ -136,10 +136,6 @@ class App
     static int getVector3Property(long long int target, const char* pName, C3Vector& pState);
     static int setMatrixProperty(long long int target, const char* pName, const CMatrix& pState);
     static int getMatrixProperty(long long int target, const char* pName, CMatrix& pState);
-    static int setMatrix3x3Property(long long int target, const char* pName, const CMatrix& pState);
-    static int getMatrix3x3Property(long long int target, const char* pName, CMatrix& pState);
-    static int setMatrix4x4Property(long long int target, const char* pName, const CMatrix& pState);
-    static int getMatrix4x4Property(long long int target, const char* pName, CMatrix& pState);
     static int setQuaternionProperty(long long int target, const char* pName, const C4Vector& pState);
     static int getQuaternionProperty(long long int target, const char* pName, C4Vector& pState);
     static int setPoseProperty(long long int target, const char* pName, const C7Vector& pState);

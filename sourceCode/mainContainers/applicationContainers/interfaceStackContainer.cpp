@@ -269,42 +269,6 @@ int CInterfaceStackContainer::getMatrixProperty(long long int target, const char
     return retVal;
 }
 
-int CInterfaceStackContainer::setMatrix3x3Property(long long int target, const char* ppName, const CMatrix& pState)
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CInterfaceStack* stack = getStack(target);
-    if (stack != nullptr)
-        retVal = stack->setMatrix3x3Property(ppName, pState);
-    return retVal;
-}
-
-int CInterfaceStackContainer::getMatrix3x3Property(long long int target, const char* ppName, CMatrix& pState) const
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CInterfaceStack* stack = getStack(target);
-    if (stack != nullptr)
-        retVal = stack->getMatrix3x3Property(ppName, pState);
-    return retVal;
-}
-
-int CInterfaceStackContainer::setMatrix4x4Property(long long int target, const char* ppName, const CMatrix& pState)
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CInterfaceStack* stack = getStack(target);
-    if (stack != nullptr)
-        retVal = stack->setMatrix4x4Property(ppName, pState);
-    return retVal;
-}
-
-int CInterfaceStackContainer::getMatrix4x4Property(long long int target, const char* ppName, CMatrix& pState) const
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CInterfaceStack* stack = getStack(target);
-    if (stack != nullptr)
-        retVal = stack->getMatrix4x4Property(ppName, pState);
-    return retVal;
-}
-
 int CInterfaceStackContainer::setQuaternionProperty(long long int target, const char* ppName, const C4Vector& pState)
 {
     int retVal = sim_propertyret_unknowntarget;

@@ -52,6 +52,7 @@ CScene::CScene()
     collisions_old = nullptr;
     ikGroups_old = nullptr;
     sceneObjects = nullptr;
+    customObjects = nullptr;
     commTubeContainer_old = nullptr;
     dynamicsContainer = nullptr;
     undoBufferContainer = nullptr;
@@ -95,6 +96,7 @@ void CScene::initializeScene()
     distances_old = new CDistanceObjectContainer_old();
     collisions_old = new CCollisionObjectContainer_old();
     sceneObjects = new CSceneObjectContainer();
+    customObjects = new CustomObjectContainer();
     pathPlanning_old = new CRegisteredPathPlanningTasks();
     environment = new CEnvironment();
     pageContainer = new CPageContainer();
@@ -119,6 +121,7 @@ void CScene::clearScene(bool notCalledFromUndoFunction)
     if (notCalledFromUndoFunction)
         undoBufferContainer->emptySceneProcedure();
     environment->setSceneIsClosingFlag(true);
+    customObjects->clear();
     sceneObjects->eraseAllObjects(true);
     collections->removeAllCollections();
     collections->setUpDefaultValues();
@@ -161,6 +164,8 @@ void CScene::deleteScene()
     environment = nullptr;
     delete pathPlanning_old;
     pathPlanning_old = nullptr;
+    delete customObjects;
+    customObjects = nullptr;
     delete sceneObjects;
     sceneObjects = nullptr;
     delete collisions_old;
@@ -2685,6 +2690,8 @@ int CScene::setBoolProperty(long long int target, const char* ppName, bool pStat
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setBoolProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -2720,6 +2727,8 @@ int CScene::getBoolProperty(long long int target, const char* ppName, bool& pSta
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getBoolProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -2755,6 +2764,8 @@ int CScene::setIntProperty(long long int target, const char* ppName, int pState)
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setIntProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -2790,6 +2801,8 @@ int CScene::getIntProperty(long long int target, const char* ppName, int& pState
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getIntProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -2831,6 +2844,8 @@ int CScene::setLongProperty(long long int target, const char* ppName, long long 
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setLongProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -2859,6 +2874,8 @@ int CScene::getLongProperty(long long int target, const char* ppName, long long 
     {
         retVal = drawingCont->getLongProperty(target, ppName, pState);
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getLongProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -2883,6 +2900,8 @@ int CScene::setHandleProperty(long long int target, const char* ppName, long lon
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setHandleProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -2908,6 +2927,8 @@ int CScene::getHandleProperty(long long int target, const char* ppName, long lon
     {
         retVal = drawingCont->getHandleProperty(target, ppName, pState);
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getHandleProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -2941,6 +2962,8 @@ int CScene::setFloatProperty(long long int target, const char* ppName, double pS
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setFloatProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -2974,6 +2997,8 @@ int CScene::getFloatProperty(long long int target, const char* ppName, double& p
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getFloatProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3007,6 +3032,8 @@ int CScene::setStringProperty(long long int target, const char* ppName, const ch
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setStringProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3048,6 +3075,8 @@ int CScene::getStringProperty(long long int target, const char* ppName, std::str
         const char* pName = ppName;
         retVal = drawingCont->getStringProperty(target, pName, pState);
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getStringProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3094,6 +3123,8 @@ int CScene::setBufferProperty(long long int target, const char* ppName, const ch
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setBufferProperty(target, ppName, buffer, bufferL);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3135,6 +3166,8 @@ int CScene::getBufferProperty(long long int target, const char* ppName, std::str
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getBufferProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3166,6 +3199,8 @@ int CScene::setIntArray2Property(long long int target, const char* ppName, const
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setIntArray2Property(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3197,6 +3232,8 @@ int CScene::getIntArray2Property(long long int target, const char* ppName, int* 
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getIntArray2Property(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3228,6 +3265,8 @@ int CScene::setVector2Property(long long int target, const char* ppName, const d
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setVector2Property(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3259,6 +3298,8 @@ int CScene::getVector2Property(long long int target, const char* ppName, double*
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getVector2Property(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3287,6 +3328,8 @@ int CScene::setVector3Property(long long int target, const char* ppName, const C
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setVector3Property(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3318,6 +3361,8 @@ int CScene::getVector3Property(long long int target, const char* ppName, C3Vecto
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getVector3Property(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3339,6 +3384,8 @@ int CScene::setMatrixProperty(long long int target, const char* ppName, const CM
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setMatrixProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3360,88 +3407,8 @@ int CScene::getMatrixProperty(long long int target, const char* ppName, CMatrix&
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
-    else
-        retVal = sim_propertyret_unknowntarget;
-    return retVal;
-}
-
-int CScene::setMatrix3x3Property(long long int target, const char* ppName, const CMatrix& pState)
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (target == sim_handle_scene)
-    {
-    }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
-        retVal = sceneObjects->setMatrix3x3Property(target, ppName, pState);
-    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
-    {
-    }
-    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
-    {
-    }
-    else
-        retVal = sim_propertyret_unknowntarget;
-    return retVal;
-}
-
-int CScene::getMatrix3x3Property(long long int target, const char* ppName, CMatrix& pState) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (target == sim_handle_scene)
-    {
-    }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
-        retVal = sceneObjects->getMatrix3x3Property(target, ppName, pState);
-    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
-    {
-    }
-    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
-    {
-    }
-    else
-        retVal = sim_propertyret_unknowntarget;
-    return retVal;
-}
-
-int CScene::setMatrix4x4Property(long long int target, const char* ppName, const CMatrix& pState)
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (target == sim_handle_scene)
-    {
-    }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
-    {
-    }
-    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
-    {
-    }
-    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
-    {
-    }
-    else
-        retVal = sim_propertyret_unknowntarget;
-    return retVal;
-}
-
-int CScene::getMatrix4x4Property(long long int target, const char* ppName, CMatrix& pState) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (target == sim_handle_scene)
-    {
-    }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
-    {
-    }
-    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
-    {
-    }
-    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
-    {
-    }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getMatrixProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3471,6 +3438,8 @@ int CScene::setQuaternionProperty(long long int target, const char* ppName, cons
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setQuaternionProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3500,6 +3469,8 @@ int CScene::getQuaternionProperty(long long int target, const char* ppName, C4Ve
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getQuaternionProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3529,6 +3500,8 @@ int CScene::setPoseProperty(long long int target, const char* ppName, const C7Ve
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setPoseProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3558,6 +3531,8 @@ int CScene::getPoseProperty(long long int target, const char* ppName, C7Vector& 
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getPoseProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3589,6 +3564,8 @@ int CScene::setColorProperty(long long int target, const char* ppName, const flo
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setColorProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3620,6 +3597,8 @@ int CScene::getColorProperty(long long int target, const char* ppName, float* pS
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getColorProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3651,6 +3630,8 @@ int CScene::setFloatArrayProperty(long long int target, const char* ppName, cons
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setFloatArrayProperty(target, ppName, v, vL);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3683,6 +3664,8 @@ int CScene::getFloatArrayProperty(long long int target, const char* ppName, std:
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getFloatArrayProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3714,6 +3697,8 @@ int CScene::setIntArrayProperty(long long int target, const char* ppName, const 
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setIntArrayProperty(target, ppName, v, vL);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3746,6 +3731,8 @@ int CScene::getIntArrayProperty(long long int target, const char* ppName, std::v
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getIntArrayProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3775,6 +3762,8 @@ int CScene::setHandleArrayProperty(long long int target, const char* ppName, con
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setHandleArrayProperty(target, ppName, v, vL);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3813,6 +3802,8 @@ int CScene::getHandleArrayProperty(long long int target, const char* ppName, std
         const char* pName = ppName;
         retVal = drawingCont->getHandleArrayProperty(target, pName, pState);
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getHandleArrayProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3842,6 +3833,8 @@ int CScene::setStringArrayProperty(long long int target, const char* ppName, con
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setStringArrayProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3872,6 +3865,8 @@ int CScene::getStringArrayProperty(long long int target, const char* ppName, std
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getStringArrayProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3933,12 +3928,14 @@ int CScene::removeProperty(long long int target, const char* ppName)
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->removeProperty(target, ppName);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
-int CScene::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags)
+int CScene::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
@@ -3987,12 +3984,14 @@ int CScene::getPropertyName(long long int target, int& index, std::string& pName
     {
         retVal = drawingCont->getPropertyName(target, index, pName, appartenance, excludeFlags);
     }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getPropertyName(target, index, pName, appartenance, excludeFlags);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
 
-int CScene::getPropertyInfo(long long int target, const char* ppName, int& info, std::string& infoTxt)
+int CScene::getPropertyInfo(long long int target, const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
@@ -4053,10 +4052,32 @@ int CScene::getPropertyInfo(long long int target, const char* ppName, int& info,
         retVal = collections->getPropertyInfo(target, ppName, info, infoTxt);
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
         retVal = drawingCont->getPropertyInfo(target, ppName, info, infoTxt);
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getPropertyInfo(target, ppName, info, infoTxt);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
 }
+
+int CScene::setPropertyInfo(long long int target, const char* pName, int info, const char* infoTxt)
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (target == sim_handle_scene)
+        retVal = sim_propertyret_unavailable;
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+        retVal = sim_propertyret_unavailable;
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
+        retVal = sim_propertyret_unavailable;
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
+        retVal = sim_propertyret_unavailable;
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setPropertyInfo(target, pName, info, infoTxt);
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
 
 #ifdef SIM_WITH_GUI
 void CScene::renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase* renderingObject, int displayAttrib,

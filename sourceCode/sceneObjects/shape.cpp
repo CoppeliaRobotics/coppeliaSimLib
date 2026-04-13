@@ -2112,20 +2112,20 @@ int CShape::getVector3Property(const char* ppName, C3Vector& pState) const
     return retVal;
 }
 
-int CShape::setMatrix3x3Property(const char* ppName, const CMatrix& pState)
+int CShape::setMatrixProperty(const char* ppName, const CMatrix& pState)
 {
-    int retVal = CSceneObject::setMatrix3x3Property(ppName, pState);
+    int retVal = CSceneObject::setMatrixProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _mesh->setMatrix3x3Property_wrapper(ppName, pState);
+        retVal = _mesh->setMatrixProperty_wrapper(ppName, pState);
 
     return retVal;
 }
 
-int CShape::getMatrix3x3Property(const char* ppName, CMatrix& pState) const
+int CShape::getMatrixProperty(const char* ppName, CMatrix& pState) const
 {
-    int retVal = CSceneObject::getMatrix3x3Property(ppName, pState);
+    int retVal = CSceneObject::getMatrixProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _mesh->getMatrix3x3Property_wrapper(ppName, pState);
+        retVal = _mesh->getMatrixProperty_wrapper(ppName, pState);
 
     return retVal;
 }

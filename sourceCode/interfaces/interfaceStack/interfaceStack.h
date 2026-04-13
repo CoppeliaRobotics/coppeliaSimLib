@@ -156,10 +156,6 @@ class CInterfaceStack : public Obj
     int getVector3Property(const char* pName, C3Vector& pState) const;
     int setMatrixProperty(const char* pName, const CMatrix& pState);
     int getMatrixProperty(const char* pName, CMatrix& pState) const;
-    int setMatrix3x3Property(const char* pName, const CMatrix& pState);
-    int getMatrix3x3Property(const char* pName, CMatrix& pState) const;
-    int setMatrix4x4Property(const char* pName, const CMatrix& pState);
-    int getMatrix4x4Property(const char* pName, CMatrix& pState) const;
     int setQuaternionProperty(const char* pName, const C4Vector& pState);
     int getQuaternionProperty(const char* pName, C4Vector& pState) const;
     int setPoseProperty(const char* pName, const C7Vector& pState);
