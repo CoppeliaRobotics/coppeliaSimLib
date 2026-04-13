@@ -837,3 +837,5 @@ SIM_DLLEXPORT char* simGetBufferProperty(long long int target, const char* pName
 SIM_DLLEXPORT double* simGetFloatArrayProperty(long long int target, const char* pName, int* vL);
 SIM_DLLEXPORT int* simGetIntArrayProperty(long long int target, const char* pName, int* vL);
 SIM_DLLEXPORT char* simGetPluginName(int index);
+SIM_DLLEXPORT int simGetPropertyInfo_lib1(long long int target, const char*, SPropertyInfo* infos, SPropertyOptions* options);
+

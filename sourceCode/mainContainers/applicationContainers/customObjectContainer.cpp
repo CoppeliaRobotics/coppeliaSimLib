@@ -186,6 +186,32 @@ void CustomObjectContainer::announceScriptStateWillBeErased(int scriptHandle)
     }
 }
 
+void CustomObjectContainer::_storeClasses() const
+{
+    /*
+    CSer serObj("", filetype_csim_bin_generic_file);
+
+    filetype_unspecified_file
+    serObj = new CSer(_pathAndFilename.c_str(), CSer::getFileTypeFromName(_pathAndFilename.c_str()));
+    retVal = serObj->writeOpenBinary(App::userSettings->compressFiles);
+
+
+    for (size_t i = 0; i < _customClasses.size(); i++)
+    {
+        CustomObject* cl = _customClasses[i];
+        if (cl->getObjectHandle() == -1)
+        { // Only classes that have finished their definition process
+
+        }
+    }
+
+    App::scene->saveScene(serObj[0], !autoSaveMechanism);
+    serObj->writeClose();
+}
+delete serObj;
+    */
+}
+
 int CustomObjectContainer::setBoolProperty(long long int target, const char* ppName, bool pState)
 {
     int retVal = sim_propertyret_unknowntarget;
@@ -194,8 +220,10 @@ int CustomObjectContainer::setBoolProperty(long long int target, const char* ppN
     {
         if (strcmp(ppName, "_configDone_") == 0)
         {
+            CustomObject* classObj = getClass(target);
             retVal = sim_propertyret_ok;
-            obj->setLongProperty("handle", -1);
+            classObj->setLongProperty("handle", -1);
+            _storeClasses();
         }
         else
             retVal = obj->setBoolProperty(ppName, pState);

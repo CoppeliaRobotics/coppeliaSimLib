@@ -6612,17 +6612,19 @@ std::string _method_getPropertyInfo(int targetObj, const char* method, CDetached
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
     {
         std::string pName = fetchText(inStack, 0);
+        bool noError = false;
         SPropertyOptions opt;
         if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
             map->fetchBoolFromKey("shortInfoTxt", opt.shortInfoTxt, &errMsg);
             map->fetchInt32FromKey("bitCoded", opt.bitCoded, &errMsg);
         }
         SPropertyInfo infos;
         int res = CALL_C_API(simGetPropertyInfo, targetObj, pName.c_str(), &infos, &opt);
-        if ((res == sim_propertyret_ok) || (res == sim_propertyret_unknownproperty))
-        { // both should not generate an error!
+        if (res == sim_propertyret_ok)
+        {
             pushInt(outStack, infos.type);
             pushInt(outStack, infos.flags);
             if (infos.infoTxt == nullptr)
@@ -6634,7 +6636,10 @@ std::string _method_getPropertyInfo(int targetObj, const char* method, CDetached
             }
         }
         else
-            errMsg = CApiErrors::getAndClearLastError();
+        {
+            if (!noError)
+                errMsg = CApiErrors::getAndClearLastError();
+        }
     }
     return errMsg;
 }
@@ -6666,17 +6671,22 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
         int h = -1;
         if (currentScript != nullptr)
             h = currentScript->getScriptHandle();
-        long long int retVal;
         if (metaInfoStr.size() == 0)
         {
-            retVal = App::scenes->customObjects->addObject(typeStr.c_str(), h);
+            long long int retVal = App::scenes->customObjects->addObject(typeStr.c_str(), h);
             if (retVal != -1)
                 pushLong(outStack, retVal);
             else
                 errMsg = SIM_ERROR_CLASS_INEXISTANT;
         }
         else
-             pushLong(outStack, App::scenes->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), h));
+        {
+            long long int retVal = App::scenes->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), h);
+            if (retVal >= 0)
+                pushLong(outStack, retVal);
+            else
+                errMsg = SIM_ERROR_CLASS_ALREADYDEFINED;
+        }
     }
     return errMsg;
 }

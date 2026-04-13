@@ -6559,19 +6559,21 @@ int _simGetPropertyInfo(luaWrap_lua_State* L)
             target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         SPropertyOptions opt;
+        bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
         {
             CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
             CDetachedScript::buildFromInterpreterStack_lua(L, stack, 3, 1);
             // stack->getStackMapInt32Value("objectType", opt.objectType); not supported anymore since 19.03.2026
             stack->getStackMapBoolValue("shortInfoTxt", opt.shortInfoTxt);
+            stack->getStackMapBoolValue("noError", noError);
             stack->getStackMapInt32Value("bitCoded", opt.bitCoded);
             App::scenes->interfaceStackContainer->destroyStack(stack);
         }
         SPropertyInfo infos;
         int res = CALL_C_API(simGetPropertyInfo, target, pName.c_str(), &infos, &opt);
-        if ((res == sim_propertyret_ok) || (res == sim_propertyret_unknownproperty))
-        { // both should not generate an error
+        if (res == sim_propertyret_ok)
+        {
             luaWrap_lua_pushinteger(L, infos.type);
             luaWrap_lua_pushinteger(L, infos.flags);
             if (infos.infoTxt == nullptr)
@@ -6583,13 +6585,18 @@ int _simGetPropertyInfo(luaWrap_lua_State* L)
             }
             LUA_END(3);
         }
+        else
+        {
+            if (noError)
+            {
+                CALL_C_API(simGetLastError);
+                LUA_END(0);
+            }
+        }
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushnil(L);
-    luaWrap_lua_pushnil(L);
-    luaWrap_lua_pushnil(L);
-    LUA_END(3);
+    LUA_END(0);
 }
 
 int _simSetPropertyInfo(luaWrap_lua_State* L)

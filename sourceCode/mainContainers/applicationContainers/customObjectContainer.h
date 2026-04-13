@@ -71,6 +71,8 @@ class CustomObjectContainer
     int setPropertyInfo(long long int target, const char* pName, int info, const char* infoTxt);
 
   protected:
+    void _storeClasses() const;
+
     std::vector<CustomObject*> _customClasses;
     std::map<long long int, CustomObject*> _customObjects;
 };

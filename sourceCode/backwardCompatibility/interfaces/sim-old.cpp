@@ -3886,3 +3886,14 @@ SIM_DLLEXPORT char* simGetPluginName(int index)
     return (simGetPluginName_internal(index, nullptr));
 }
 
+SIM_DLLEXPORT int simGetPropertyInfo_lib1(long long int target, const char* pName, SPropertyInfo* infos, SPropertyOptions* options)
+{ // original function returned 0 when property was unknown. Since 13.04.2026 it returns however -1 in that case, and generates an error
+    int retVal = simGetPropertyInfo_internal(target, pName, infos, options);
+    if (retVal == -1)
+    {
+        retVal = 0;
+        simGetLastError();
+    }
+    return retVal;
+}
+

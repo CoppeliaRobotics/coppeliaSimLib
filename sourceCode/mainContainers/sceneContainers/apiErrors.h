@@ -8,6 +8,7 @@
 #define SIM_ERROR_CANNOT_SET_GET_PARAM_SIM "cannot set/get parameter: simulation run state is wrong."
 #define SIM_ERROR_OBJECT_INEXISTANT "object does not exist."
 #define SIM_ERROR_CLASS_INEXISTANT "class does not exist."
+#define SIM_ERROR_CLASS_ALREADYDEFINED "class is already defined."
 #define SIM_ERROR_OBJECTCLASS_INEXISTANT "object/class does not exist."
 #define SIM_ERROR_OBJECT_INEXISTANT_OR_ILL_FORMATTED_PATH "object does not exist, or alias/path is ill formatted."
 #define SIM_ERROR_INVALID_PROXY_OBJECT "proxy object does not exist."

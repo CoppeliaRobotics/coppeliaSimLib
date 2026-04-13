@@ -32,6 +32,7 @@ class CSer
         filetype_csim_xml_xmodel_file,      // .simmodel.xml
         filetype_csim_xml_simplescene_file, // .simscene.xml
         filetype_csim_xml_simplemodel_file, // .simmodel.xml
+        filetype_csim_bin_generic_file,     // .ttg
     };
 
     CSer(const char* filename, char filetype);             // saving to/restoring from file
