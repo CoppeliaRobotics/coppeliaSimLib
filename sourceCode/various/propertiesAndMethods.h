@@ -514,6 +514,7 @@ struct SJointProperty
     FUNCX(propMesh_shadingAngle, "shadingAngle", sim_propertytype_float, 0,  jsonStr({{"label", "Shading angle"}, {"description", ""}}), "") \
     FUNCX(propMesh_showEdges, "showEdges", sim_propertytype_bool, 0,  jsonStr({{"label", "Visible edges"}, {"description", ""}}), "") \
     FUNCX(propMesh_culling, "culling", sim_propertytype_bool, 0,  jsonStr({{"label", "Backface culling"}, {"description", ""}}), "") \
+    FUNCX(propMesh_wireframe, "wireframe", sim_propertytype_bool, 0,  jsonStr({{"label", "Wireframe"}, {"description", ""}}), "") \
     FUNCX(propMesh_shapeUid, "shapeUid", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Shape UID"}, {"description", "Unique identifier of parent shape"}}), "") \
     FUNCX(propMesh_shape, "shape", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Shape handle"}, {"description", ""}, {"handleType", "shape"}}), "") \
     FUNCX(propMesh_primitiveType, "primitiveType", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Primitive type"}, {"description", ""}}), "") \

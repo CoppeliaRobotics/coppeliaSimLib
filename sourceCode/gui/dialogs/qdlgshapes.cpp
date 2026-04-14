@@ -77,7 +77,7 @@ void CQDlgShapes::refresh()
     {
         ui->qqShadingAngle->setText(utils::getAngleString(false, it->getSingleMesh()->getShadingAngle()).c_str());
         ui->qqBackfaceCulling->setChecked(it->getSingleMesh()->getCulling());
-        ui->qqWireframe->setChecked(it->getSingleMesh()->getWireframe_OLD());
+        ui->qqWireframe->setChecked(it->getSingleMesh()->getWireframe());
         ui->qqShowEdges->setChecked(it->getSingleMesh()->getVisibleEdges());
     }
     else

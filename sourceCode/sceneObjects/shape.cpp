@@ -1443,14 +1443,14 @@ void CShape::setHideEdgeBorders_OLD(bool v)
 bool CShape::getShapeWireframe_OLD() const
 {
     if (getMesh()->isMesh())
-        return (getSingleMesh()->getWireframe_OLD());
+        return (getSingleMesh()->getWireframe());
     return (false);
 }
 
 void CShape::setShapeWireframe_OLD(bool w)
 {
     if (getMesh()->isMesh())
-        getSingleMesh()->setWireframe_OLD(w);
+        getSingleMesh()->setWireframe(w);
 }
 
 bool CShape::doesShapeCollideWithShape(CShape* collidee, std::vector<double>* intersections)
@@ -1605,7 +1605,7 @@ void CShape::addObjectEventData(CCbor* ev)
             int options = 0;
             if (geom->getCulling())
                 options |= 1;
-            if (geom->getWireframe_OLD())
+            if (geom->getWireframe())
                 options |= 2;
             ev->appendKeyInt64("options", options);
 
@@ -2308,7 +2308,7 @@ int CShape::setIntArrayProperty(const char* ppName, const int* v, int vL)
                     if (strcmp(propShape_compoundEdges.name, ppName) == 0)
                         meshes[i]->setVisibleEdges(v[i] != 0);
                     else if (strcmp(propShape_compoundWireframe.name, ppName) == 0)
-                        meshes[i]->setWireframe_OLD(v[i] != 0);
+                        meshes[i]->setWireframe(v[i] != 0);
                     else if (strcmp(propShape_compoundCullings.name, ppName) == 0)
                         meshes[i]->setCulling(v[i] != 0);
                 }
@@ -2343,7 +2343,7 @@ int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) co
                 if (strcmp(propShape_compoundEdges.name, ppName) == 0)
                     pState.push_back(meshes[i]->getVisibleEdges());
                 else if (strcmp(propShape_compoundWireframe.name, ppName) == 0)
-                    pState.push_back(meshes[i]->getWireframe_OLD());
+                    pState.push_back(meshes[i]->getWireframe());
                 else if (strcmp(propShape_compoundCullings.name, ppName) == 0)
                     pState.push_back(meshes[i]->getCulling());
             }

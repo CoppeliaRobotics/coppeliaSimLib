@@ -2414,7 +2414,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     it->getSingleMesh()->setInsideAndOutsideFacesSameColor_DEPRECATED(
                         last->getSingleMesh()->getInsideAndOutsideFacesSameColor_DEPRECATED());
                     it->getSingleMesh()->setEdgeWidth_DEPRECATED(last->getSingleMesh()->getEdgeWidth_DEPRECATED());
-                    it->getSingleMesh()->setWireframe_OLD(last->getSingleMesh()->getWireframe_OLD());
+                    it->getSingleMesh()->setWireframe(last->getSingleMesh()->getWireframe());
                     it->getSingleMesh()->setShadingAngle(last->getSingleMesh()->getShadingAngle());
                     it->getSingleMesh()->setEdgeThresholdAngle(last->getSingleMesh()->getEdgeThresholdAngle());
                     it->getSingleMesh()->setHideEdgeBorders_OLD(last->getSingleMesh()->getHideEdgeBorders_OLD());

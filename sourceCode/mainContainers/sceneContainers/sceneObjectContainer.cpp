@@ -2582,7 +2582,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar, bool noHeightfiel
         if (ar.xmlGetNode_bool("culling", b, false))
             retVal->setCulling(b);
         if (ar.xmlGetNode_bool("wireframe", b, false))
-            retVal->getSingleMesh()->setWireframe_OLD(b);
+            retVal->getSingleMesh()->setWireframe(b);
         if (ar.xmlPushChildNode("color", false))
         {
             int rgb[3];
@@ -2822,7 +2822,7 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar, const char* ori
     // now the visual attributes:
     ar.xmlAddNode_float("shadingAngle", geom->getShadingAngle() * 180.0 / piValue);
     ar.xmlAddNode_bool("culling", geom->getCulling());
-    ar.xmlAddNode_bool("wireframe", geom->getWireframe_OLD());
+    ar.xmlAddNode_bool("wireframe", geom->getWireframe());
 
     ar.xmlPushNewNode("color");
     int rgb[3];

@@ -219,7 +219,7 @@ void displayGeometric(const C7Vector& cumulIFrameTr, CMesh* geometric, CShape* g
     if (geometric->getDisplayInverted_DEPRECATED())
         glFrontFace(GL_CW);
 
-    bool wire = (geometric->getWireframe_OLD() || (displayAttrib & sim_displayattribute_forcewireframe)) &&
+    bool wire = (geometric->getWireframe() || (displayAttrib & sim_displayattribute_forcewireframe)) &&
                 ((displayAttrib & sim_displayattribute_depthpass) == 0);
     bool meantAsWire = wire;
     if (displayAttrib & sim_displayattribute_forbidwireframe)
@@ -493,7 +493,7 @@ void displayGeometricGhost(const C7Vector& cumulIFrameTr, CMesh* geometric, CSha
     if (geometric->getDisplayInverted_DEPRECATED())
         glFrontFace(GL_CW);
 
-    bool wire = (geometric->getWireframe_OLD() || (displayAttrib & sim_displayattribute_forcewireframe)) &&
+    bool wire = (geometric->getWireframe() || (displayAttrib & sim_displayattribute_forcewireframe)) &&
                 ((displayAttrib & sim_displayattribute_depthpass) == 0);
     bool meantAsWire = wire;
     if (displayAttrib & sim_displayattribute_forbidwireframe)

@@ -12069,7 +12069,7 @@ int simGetShapeViz_internal(int shapeHandle, int index, struct SShapeVizInfo* in
                 info->options = 0;
                 if (geom->getCulling())
                     info->options |= 1;
-                if (geom->getWireframe_OLD())
+                if (geom->getWireframe())
                     info->options |= 2;
             }
 
@@ -12135,7 +12135,7 @@ int simGetShapeViz_internal(int shapeHandle, int index, struct SShapeVizInfo* in
                     info->textureOptions |= 2;
                 if (tp->getInterpolateColors())
                     info->textureOptions |= 4;
-                if (geom->getWireframe_OLD())
+                if (geom->getWireframe())
                     info->textureOptions |= 8;
                 info->textureId = tp->getTextureObjectID();
             }
@@ -12146,7 +12146,7 @@ int simGetShapeViz_internal(int shapeHandle, int index, struct SShapeVizInfo* in
                 info->textureCoords = nullptr;
                 info->textureId = -1;
                 info->textureOptions = 0;
-                if (geom->getWireframe_OLD())
+                if (geom->getWireframe())
                     info->textureOptions |= 8;
             }
             return (retVal);
@@ -12185,7 +12185,7 @@ int simGetShapeVizf_internal(int shapeHandle, int index, struct SShapeVizInfof* 
                 info->options = 0;
                 if (geom->getCulling())
                     info->options |= 1;
-                if (geom->getWireframe_OLD())
+                if (geom->getWireframe())
                     info->options |= 2;
             }
 
@@ -12251,7 +12251,7 @@ int simGetShapeVizf_internal(int shapeHandle, int index, struct SShapeVizInfof* 
                     info->textureOptions |= 2;
                 if (tp->getInterpolateColors())
                     info->textureOptions |= 4;
-                if (geom->getWireframe_OLD())
+                if (geom->getWireframe())
                     info->textureOptions |= 8;
                 info->textureId = tp->getTextureObjectID();
             }
@@ -12262,7 +12262,7 @@ int simGetShapeVizf_internal(int shapeHandle, int index, struct SShapeVizInfof* 
                 info->textureCoords = nullptr;
                 info->textureId = -1;
                 info->textureOptions = 0;
-                if (geom->getWireframe_OLD())
+                if (geom->getWireframe())
                     info->textureOptions |= 8;
             }
             return (retVal);

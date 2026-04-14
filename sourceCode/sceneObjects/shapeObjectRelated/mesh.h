@@ -97,8 +97,8 @@ class CMesh : public CMeshWrapper
 
     void setInsideAndOutsideFacesSameColor_DEPRECATED(bool s);
     bool getInsideAndOutsideFacesSameColor_DEPRECATED() const;
-    void setWireframe_OLD(bool w);
-    bool getWireframe_OLD() const;
+    void setWireframe(bool w);
+    bool getWireframe() const;
 
     std::vector<double>* getVertices();
     std::vector<int>* getIndices();
@@ -196,7 +196,7 @@ class CMesh : public CMeshWrapper
     bool _culling;
     bool _displayInverted_DEPRECATED;
     bool _insideAndOutsideFacesSameColor_DEPRECATED;
-    bool _wireframe_OLD;
+    bool _wireframe;
     int _edgeWidth_DEPRERCATED;
     double _shadingAngle;
     double _edgeThresholdAngle;

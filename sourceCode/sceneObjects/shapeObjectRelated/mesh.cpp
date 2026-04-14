@@ -143,7 +143,7 @@ void CMesh::_commonInit()
     _culling = false;
     _convex = false;
     _displayInverted_DEPRECATED = false;
-    _wireframe_OLD = false;
+    _wireframe = false;
     _insideAndOutsideFacesSameColor_DEPRECATED = true;
     _shadingAngle = 0.0;
     _edgeThresholdAngle = 0.0;
@@ -226,7 +226,7 @@ CMesh* CMesh::copyYourself()
     newIt->_culling = _culling;
     newIt->_displayInverted_DEPRECATED = _displayInverted_DEPRECATED;
     newIt->_insideAndOutsideFacesSameColor_DEPRECATED = _insideAndOutsideFacesSameColor_DEPRECATED;
-    newIt->_wireframe_OLD = _wireframe_OLD;
+    newIt->_wireframe = _wireframe;
     newIt->_shadingAngle = _shadingAngle;
     newIt->_edgeThresholdAngle = _edgeThresholdAngle;
     newIt->_edgeWidth_DEPRERCATED = _edgeWidth_DEPRERCATED;
@@ -566,6 +566,7 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vecto
     ev->appendKeyDouble(propMesh_shadingAngle.name, _shadingAngle);
     ev->appendKeyBool(propMesh_showEdges.name, _visibleEdges);
     ev->appendKeyBool(propMesh_culling.name, _culling);
+    ev->appendKeyBool(propMesh_wireframe.name, _wireframe);
     ev->appendKeyBool(propMesh_convex.name, _convex);
     ev->appendKeyText(propMesh_colorName.name, color.getColorName().c_str());
 
@@ -1156,7 +1157,7 @@ void CMesh::takeVisualAttributesFrom(CMesh* origin)
     setCulling(origin->_culling);
     _displayInverted_DEPRECATED = origin->_displayInverted_DEPRECATED;
     _insideAndOutsideFacesSameColor_DEPRECATED = origin->_insideAndOutsideFacesSameColor_DEPRECATED;
-    _wireframe_OLD = origin->_wireframe_OLD;
+    _wireframe = origin->_wireframe;
     _edgeWidth_DEPRERCATED = origin->_edgeWidth_DEPRERCATED;
     if ((origin->_textureProperty != nullptr) && (_textureProperty != nullptr))
     {
@@ -1221,14 +1222,25 @@ void CMesh::setEdgeThresholdAngle(double angle)
     }
 }
 
-void CMesh::setWireframe_OLD(bool w)
+void CMesh::setWireframe(bool w)
 {
-    _wireframe_OLD = w;
+    bool diff = (_wireframe != w);
+    if (diff)
+    {
+        _wireframe = w;
+        if ((_isInSceneShapeHandle != -1) && App::scenes->getEventsEnabled())
+        {
+            const char* cmd = propMesh_wireframe.name;
+            CCbor* ev = App::scenes->createObjectChangedEvent(_objectHandle, cmd, true);
+            ev->appendKeyBool(cmd, _wireframe);
+            App::scenes->pushEvent();
+        }
+    }
 }
 
-bool CMesh::getWireframe_OLD() const
+bool CMesh::getWireframe() const
 {
-    return (_wireframe_OLD);
+    return _wireframe;
 }
 
 std::vector<double>* CMesh::getVertices()
@@ -1923,7 +1935,7 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCum
             unsigned char nothing = 0;
             SIM_SET_CLEAR_BIT(nothing, 0, _visibleEdges);
             SIM_SET_CLEAR_BIT(nothing, 1, _culling);
-            SIM_SET_CLEAR_BIT(nothing, 2, _wireframe_OLD);
+            SIM_SET_CLEAR_BIT(nothing, 2, _wireframe);
             SIM_SET_CLEAR_BIT(nothing, 3, _insideAndOutsideFacesSameColor_DEPRECATED);
             // RESERVED... DO NOT USE  // SIM_SET_CLEAR_BIT(nothing,4,true); // means: we do not have to make the
             // convectivity test for this shape (was already done). Added this on 16/1/2013
@@ -2240,7 +2252,7 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCum
                         ar >> nothing;
                         _visibleEdges = SIM_IS_BIT_SET(nothing, 0);
                         _culling = SIM_IS_BIT_SET(nothing, 1);
-                        _wireframe_OLD = SIM_IS_BIT_SET(nothing, 2);
+                        _wireframe = SIM_IS_BIT_SET(nothing, 2);
                         _insideAndOutsideFacesSameColor_DEPRECATED = SIM_IS_BIT_SET(nothing, 3);
                         // reserved   doTheConvectivityTest=!SIM_IS_BIT_SET(nothing,4); // version 3.0.1 was buggy
                         // reserved doTheConvectivityTest=!SIM_IS_BIT_SET(nothing,5); // since version 3.0.2
@@ -2378,7 +2390,7 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCum
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("edgesVisible", _visibleEdges);
             ar.xmlAddNode_bool("culling", _culling);
-            ar.xmlAddNode_bool("wireframe", _wireframe_OLD);
+            ar.xmlAddNode_bool("wireframe", _wireframe);
             ar.xmlAddNode_comment(" 'hideEdgeBorders' tag: deprecated, for backward compatibility ", false);
             ar.xmlAddNode_bool("hideEdgeBorders", _hideEdgeBorders_OLD);
             ar.xmlPopNode();
@@ -2457,7 +2469,7 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCum
             {
                 ar.xmlGetNode_bool("edgesVisible", _visibleEdges);
                 ar.xmlGetNode_bool("culling", _culling);
-                ar.xmlGetNode_bool("wireframe", _wireframe_OLD);
+                ar.xmlGetNode_bool("wireframe", _wireframe);
                 ar.xmlGetNode_bool("hideEdgeBorders", _hideEdgeBorders_OLD, false);
                 ar.xmlPopNode();
             }
@@ -2585,7 +2597,7 @@ bool CMesh::getNonCalculatedTextureCoordinates(std::vector<float>& texCoords)
 void CMesh::display_extRenderer(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib, const C7Vector& tr,
                                 int shapeHandle, int& componentIndex)
 { // function has virtual/non-virtual counterpart!
-    if (!_wireframe_OLD)
+    if (!_wireframe)
     {
         // Mesh change:
         //        if (_extRendererMeshId == 0)
@@ -2794,6 +2806,8 @@ std::string CMesh::getMeshState() const
     retVal.append(reinterpret_cast<const char*>(&b), sizeof(b));
     getBoolProperty(propMesh_culling.name, b, tr);
     retVal.append(reinterpret_cast<const char*>(&b), sizeof(b));
+    getBoolProperty(propMesh_wireframe.name, b, tr);
+    retVal.append(reinterpret_cast<const char*>(&b), sizeof(b));
     getBoolProperty(propMesh_convex.name, b, tr);
     retVal.append(reinterpret_cast<const char*>(&b), sizeof(b));
     int intV;
@@ -2931,6 +2945,11 @@ int CMesh::setBoolProperty(const char* ppName, bool pState, const C7Vector& shap
         retVal = sim_propertyret_ok;
         setCulling(pState);
     }
+    else if (strcmp(pName, propMesh_wireframe.name) == 0)
+    {
+        retVal = sim_propertyret_ok;
+        setWireframe(pState);
+    }
     else if (strcmp(pName, propMesh_textureRepeatU.name) == 0)
     {
         retVal = sim_propertyret_ok;
@@ -2967,6 +2986,11 @@ int CMesh::getBoolProperty(const char* ppName, bool& pState, const C7Vector& sha
     {
         retVal = sim_propertyret_ok;
         pState = _culling;
+    }
+    else if (strcmp(pName, propMesh_wireframe.name) == 0)
+    {
+        retVal = sim_propertyret_ok;
+        pState = _wireframe;
     }
     else if (strcmp(pName, propMesh_textureRepeatU.name) == 0)
     {
