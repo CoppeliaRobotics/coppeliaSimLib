@@ -73,8 +73,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["saveScene"] = _method_saveScene;
         funcTable["saveSceneToBuffer"] = _method_saveSceneToBuffer;
         funcTable["removeModel"] = _method_removeModel;
-        funcTable["_remove"] = _method__remove;
-        funcTable["_removeObjects"] = _method__removeObjects;
+        funcTable["remove"] = _method_remove;
+        funcTable["removeObjects"] = _method_removeObjects;
         funcTable["duplicateObjects"] = _method_duplicateObjects;
         funcTable["addItem"] = _method_addItem;
         funcTable["removeItem"] = _method_removeItem;
@@ -2063,7 +2063,7 @@ std::string _method_removeModel(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method__remove(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_remove(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_bool | arg_optional}))
@@ -2094,7 +2094,7 @@ std::string _method__remove(int targetObj, const char* method, CDetachedScript* 
     return errMsg;
 }
 
-std::string _method__removeObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_removeObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray, arg_bool | arg_optional}))

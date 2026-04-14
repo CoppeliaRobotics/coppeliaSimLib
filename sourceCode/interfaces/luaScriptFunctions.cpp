@@ -6493,29 +6493,17 @@ int _callMethod(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_handle, 0, lua_arg_string, 0))
     {
         long long int target = fetchHandleArg(L, 1);
-        functionName = fetchTextArg(L, 2);
+        std::string methodName = fetchTextArg(L, 2);
+
         CInterfaceStack* inStack = App::scenes->interfaceStackContainer->createStack();
 
-        /*
-        App::removeProperty(sim_handle_app, "signal.test");
-        if (functionName == "setHandleArrayProperty")
-            App::setBufferProperty(sim_handle_app, "signal.test", "1", 1);
-        std::string tmp;
-        if (App::getBufferProperty(sim_handle_app, "signal.test", tmp) == 1)
-            printf("START\n");
-        */
 
         CDetachedScript::buildFromInterpreterStack_lua(L, inStack, 3, 0); // skip the two first args
 
-        /*
-        App::removeProperty(sim_handle_app, "signal.test");
-        if (functionName == "setHandleArrayProperty")
-            printf("STOP\n");
-        */
 
         CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();
         CDetachedScript* currentScript = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
-        int res = CALL_C_API(simCallMethod, target, functionName.c_str(), inStack->getObjectHandle(), outStack->getObjectHandle(), currentScript);
+        int res = CALL_C_API(simCallMethod, target, methodName.c_str(), inStack->getObjectHandle(), outStack->getObjectHandle(), currentScript);
         if (res == 1)
         {
             // int s = CDetachedScript::buildOntoInterpreterStack_lua(L, outStack, false, true); // insert also type info
