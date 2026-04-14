@@ -6,7 +6,7 @@
 class CustomObject: public Obj
 {
   public:
-    CustomObject(long long int handle,const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle); // class definition
+    CustomObject(long long int handle,const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle, int storageLocation); // class definition
     virtual ~CustomObject();
 
     CustomObject* createObject(long long int handle, int originScriptHandle) const;
@@ -49,6 +49,10 @@ class CustomObject: public Obj
     int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const override;
     int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState) override;
     int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const override;
+    int setMethodProperty(const char* pName, const void* pState) override;
+    int getMethodProperty(const char* pName, void*& pState) const override;
+    int setMethodProperty(const char* pName, const std::string& pState) override;
+    int getMethodProperty(const char* pName, std::string& pState) const override;
     int removeProperty(const char* pName) override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
@@ -64,5 +68,6 @@ class CustomObject: public Obj
 
     bool _isClass;
     int _scriptHandle;
+    int _storageLocation;
     CCustomProperties _customProperties;
 };

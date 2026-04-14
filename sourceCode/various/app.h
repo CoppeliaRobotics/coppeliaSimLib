@@ -150,6 +150,10 @@ class App
     static int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState); // ALL handle items have to be of the same type
     static int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
     static int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState);
+    static int setMethodProperty(long long int target, const char* pName, const void* pState);
+    static int getMethodProperty(long long int target, const char* pName, void*& pState);
+    static int setMethodProperty(long long int target, const char* pName, const std::string& pState);
+    static int getMethodProperty(long long int target, const char* pName, std::string& pState);
     static int removeProperty(long long int target, const char* pName);
     static int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags);
     static int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt);

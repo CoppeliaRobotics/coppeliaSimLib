@@ -250,7 +250,7 @@ void CSceneContainer::initialize()
     TRACE_INTERNAL;
 
     simulatorMessageQueue = new CSimulatorMessageQueue();
-    customObjects = new CustomObjectContainer();
+    customObjects = new CustomObjectContainer(sim_handle_app);
     copyBuffer = new CCopyBuffer();
     moduleMenuItemContainer = new CModuleMenuItemContainer();
 #ifdef SIM_WITH_GUI

@@ -3406,6 +3406,104 @@ int App::getStringArrayProperty(long long int target, const char* ppName, std::v
     return retVal;
 }
 
+int App::setMethodProperty(long long int target, const char* ppName, const void* pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (!_resolveTarget(target))
+        retVal = sim_propertyret_unknowntarget;
+
+    const char* pName = ppName;
+    if (target == sim_handle_app)
+    {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+    }
+    else if ((target >= sim_object_customappstart) && (target < sim_object_customappend) && (scenes != nullptr))
+        retVal = scenes->customObjects->setMethodProperty(target, ppName, pState);
+    else if (scene != nullptr)
+        retVal = scene->setMethodProperty(target, ppName, pState);
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
+int App::getMethodProperty(long long int target, const char* ppName, void*& pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (!_resolveTarget(target))
+        retVal = sim_propertyret_unknowntarget;
+
+    if (target == sim_handle_app)
+    {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+    }
+    else if ((target >= sim_object_customappstart) && (target < sim_object_customappend) && (scenes != nullptr))
+        retVal = scenes->customObjects->getMethodProperty(target, ppName, pState);
+    else if (scene != nullptr)
+        retVal = scene->getMethodProperty(target, ppName, pState);
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
+int App::setMethodProperty(long long int target, const char* ppName, const std::string& pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (!_resolveTarget(target))
+        retVal = sim_propertyret_unknowntarget;
+
+    const char* pName = ppName;
+    if (target == sim_handle_app)
+    {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+    }
+    else if ((target >= sim_object_customappstart) && (target < sim_object_customappend) && (scenes != nullptr))
+        retVal = scenes->customObjects->setMethodProperty(target, ppName, pState);
+    else if (scene != nullptr)
+        retVal = scene->setMethodProperty(target, ppName, pState);
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
+int App::getMethodProperty(long long int target, const char* ppName, std::string& pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (!_resolveTarget(target))
+        retVal = sim_propertyret_unknowntarget;
+
+    if (target == sim_handle_app)
+    {
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+    {
+    }
+    else if ((target >= sim_object_customappstart) && (target < sim_object_customappend) && (scenes != nullptr))
+        retVal = scenes->customObjects->getMethodProperty(target, ppName, pState);
+    else if (scene != nullptr)
+        retVal = scene->getMethodProperty(target, ppName, pState);
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
 int App::removeProperty(long long int target, const char* ppName)
 {
     int retVal = sim_propertyret_unknownproperty;

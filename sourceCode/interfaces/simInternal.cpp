@@ -1970,6 +1970,8 @@ int simGetMatrixProperty_internal(long long int target, const char* ppName, doub
             {
                 pState[0] = new double[m.rows * m.cols];
                 memcpy(pState[0], m.data.data(), m.rows * m.cols * sizeof(double));
+                r[0] = (int)m.rows;
+                c[0] = (int)m.cols;
             }
             else if (retVal == sim_propertyret_unknowntarget)
                 CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
@@ -2861,6 +2863,108 @@ int simGetStringArrayProperty_internal(long long int target, const char* ppName,
                 {
                     CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
                     retVal = sim_propertyret_typemismatch;
+                }
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simSetMethodProperty_internal(long long int target, const char* ppName, const void* v)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = sim_propertyret_invalidname;
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
+        {
+            std::string pName(ppName);
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_stringarray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_stringarray))))
+            {
+                retVal = sim_propertyret_unavailable;
+                CApiErrors::setLastError(__func__, SIM_ERROR_OPERATION_UNAVAILABLE);
+            }
+            else
+            {
+                retVal = App::setMethodProperty(target, pName.c_str(), v);
+                if (retVal != sim_propertyret_ok)
+                {
+                    if (retVal == sim_propertyret_unknowntarget)
+                        CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                    else
+                    {
+                        std::string err("'");
+                        err += pName + "' ";
+                        int info;
+                        std::string infoTxt;
+                        int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
+                        if (p < sim_propertytype_start)
+                        {
+                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                            retVal = sim_propertyret_unknownproperty;
+                        }
+                        else if ((p & 0xff) == sim_propertytype_method)
+                        {
+                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN).c_str());
+                            retVal = sim_propertyret_notwritable;
+                        }
+                        else
+                        {
+                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                            retVal = sim_propertyret_typemismatch;
+                        }
+                    }
+                }
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetMethodProperty_internal(long long int target, const char* ppName, void** v)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = sim_propertyret_unavailable;
+        std::string pName(ppName);
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_stringarray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_stringarray))))
+            CApiErrors::setLastError(__func__, SIM_ERROR_OPERATION_UNAVAILABLE);
+        else
+        {
+            retVal = App::getMethodProperty(target, pName.c_str(), v[0]);
+            if (retVal != sim_propertyret_ok)
+            {
+                if (retVal == sim_propertyret_unknowntarget)
+                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                else
+                {
+                    std::string err("'");
+                    err += pName + "' ";
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
+                    if (p < sim_propertytype_start)
+                    {
+                        CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                        retVal = sim_propertyret_unknownproperty;
+                    }
+                    else if ((p & 0xff) == sim_propertytype_method)
+                    {
+                        CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_CANNOT_BE_READ).c_str());
+                        retVal = sim_propertyret_notreadable;
+                    }
+                    else
+                    {
+                        CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                        retVal = sim_propertyret_typemismatch;
+                    }
                 }
             }
         }

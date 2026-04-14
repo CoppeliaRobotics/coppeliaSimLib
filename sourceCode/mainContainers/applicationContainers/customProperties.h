@@ -44,13 +44,17 @@ class CCustomProperties
     int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const;
     int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState, bool& valueChange);
     int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const;
+    int setMethodProperty(const char* pName, const void* pState, bool& valueChange);
+    int getMethodProperty(const char* pName, void*& pState) const;
+    int setMethodProperty(const char* pName, const std::string& pState, bool& valueChange);
+    int getMethodProperty(const char* pName, std::string& pState) const;
 
     int removeProperty(const char* pName);
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
     int setPropertyInfo(const char* pName, int info, const char* infoTxt);
 
-    void copyFrom(const CCustomProperties* source);
+    void copyFromExceptMethods(const CCustomProperties* source);
 
     bool saveToFile(const char* filename) const;
     bool loadFromFile(const char* filename);

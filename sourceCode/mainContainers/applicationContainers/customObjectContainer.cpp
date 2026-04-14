@@ -1,8 +1,9 @@
 #include <customObjectContainer.h>
 #include <app.h>
 
-CustomObjectContainer::CustomObjectContainer()
+CustomObjectContainer::CustomObjectContainer(int storageLocation)
 {
+    _storageLocation = storageLocation;
 }
 
 CustomObjectContainer::~CustomObjectContainer()
@@ -46,8 +47,8 @@ long long int CustomObjectContainer::addClass(const char* objectTypeStr, const c
     if (getClass(objectTypeStr) == nullptr)
     {
         retVal = getFreshHandle();
-        CustomObject* obj = new CustomObject(retVal, objectTypeStr, objectMetaInfo, originScriptHandle);
-        _customClasses.push_back(obj);
+        CustomObject* obj = new CustomObject(retVal, objectTypeStr, objectMetaInfo, originScriptHandle, _storageLocation);
+        _customClasses.insert({objectTypeStr, obj});
     }
     return retVal;
 }
@@ -55,17 +56,12 @@ long long int CustomObjectContainer::addClass(const char* objectTypeStr, const c
 bool CustomObjectContainer::removeClass(const char* objectTypeStr)
 {
     bool retVal = false;
-    for (size_t i = 0; i < _customClasses.size(); i++)
+    auto it = _customClasses.find(objectTypeStr);
+    if (it != _customClasses.end())
     {
-        std::string t;
-        _customClasses[i]->getStringProperty("objectType", t);
-        if (t == objectTypeStr)
-        {
-            delete _customClasses[i];
-            _customClasses.erase(_customClasses.begin() + i);
-            retVal = true;
-            break;
-        }
+        delete it->second;
+        _customClasses.erase(it);
+        retVal = true;
     }
     return retVal;
 }
@@ -73,14 +69,12 @@ bool CustomObjectContainer::removeClass(const char* objectTypeStr)
 bool CustomObjectContainer::removeClass(long long int objectHandle)
 {
     bool retVal = false;
-    for (size_t i = 0; i < _customClasses.size(); i++)
+    for (auto it = _customClasses.begin(); it != _customClasses.end(); ++it)
     {
-        long long int h;
-        _customClasses[i]->getLongProperty("handle", h);
-        if (h == objectHandle)
+        if (it->second->getObjectHandle() == objectHandle)
         {
-            delete _customClasses[i];
-            _customClasses.erase(_customClasses.begin() + i);
+            delete it->second;
+            _customClasses.erase(it);
             retVal = true;
             break;
         }
@@ -91,29 +85,20 @@ bool CustomObjectContainer::removeClass(long long int objectHandle)
 CustomObject* CustomObjectContainer::getClass(const char* objectTypeStr) const
 {
     CustomObject* retVal = nullptr;
-    for (size_t i = 0; i < _customClasses.size(); i++)
-    {
-        std::string t;
-        _customClasses[i]->getStringProperty("objectType", t);
-        if (t == objectTypeStr)
-        {
-            retVal = _customClasses[i];
-            break;
-        }
-    }
+    auto it = _customClasses.find(objectTypeStr);
+    if (it != _customClasses.end())
+        retVal = it->second;
     return retVal;
 }
 
 CustomObject* CustomObjectContainer::getClass(long long int objectHandle) const
 {
     CustomObject* retVal = nullptr;
-    for (size_t i = 0; i < _customClasses.size(); i++)
+    for (auto it = _customClasses.begin(); it != _customClasses.end(); ++it)
     {
-        long long int h;
-        _customClasses[i]->getLongProperty("handle", h);
-        if (h == objectHandle)
+        if (it->second->getObjectHandle() == objectHandle)
         {
-            retVal = _customClasses[i];
+            retVal = it->second;
             break;
         }
     }
@@ -169,24 +154,23 @@ void CustomObjectContainer::announceScriptStateWillBeErased(int scriptHandle)
         else
             ++it;
     }
-    int i = 0;
-    while (i < _customClasses.size())
+    for (auto it = _customClasses.begin(); it != _customClasses.end(); )
     {
-        CustomObject* obj = _customClasses[i];
+        CustomObject* obj = it->second;
         if (obj->getScriptHandle() == scriptHandle)
         {
             delete obj;
-            _customClasses.erase(_customClasses.begin() + i);
+            it = _customClasses.erase(it);  // erase returns next valid iterator
         }
         else
-            i++;
+            ++it;
     }
 }
 
 void CustomObjectContainer::clear()
 {
-    for (size_t i = 0; i < _customClasses.size(); i++)
-        delete _customClasses[i];
+    for (auto it = _customClasses.begin(); it != _customClasses.end(); )
+        delete it->second;
     _customClasses.clear();
     for (auto it = _customObjects.begin(); it != _customObjects.end(); )
         delete it->second;
@@ -550,6 +534,42 @@ int CustomObjectContainer::getStringArrayProperty(long long int target, const ch
     CustomObject* obj = getItem(target);
     if (obj != nullptr)
         retVal = obj->getStringArrayProperty(ppName, pState);
+    return retVal;
+}
+
+int CustomObjectContainer::setMethodProperty(long long int target, const char* ppName, const void* pState)
+{
+    int retVal = sim_propertyret_unknowntarget;
+    CustomObject* obj = getItem(target);
+    if (obj != nullptr)
+        retVal = obj->setMethodProperty(ppName, pState);
+    return retVal;
+}
+
+int CustomObjectContainer::getMethodProperty(long long int target, const char* ppName, void*& pState) const
+{
+    int retVal = sim_propertyret_unknowntarget;
+    CustomObject* obj = getItem(target);
+    if (obj != nullptr)
+        retVal = obj->getMethodProperty(ppName, pState);
+    return retVal;
+}
+
+int CustomObjectContainer::setMethodProperty(long long int target, const char* ppName, const std::string& pState)
+{
+    int retVal = sim_propertyret_unknowntarget;
+    CustomObject* obj = getItem(target);
+    if (obj != nullptr)
+        retVal = obj->setMethodProperty(ppName, pState);
+    return retVal;
+}
+
+int CustomObjectContainer::getMethodProperty(long long int target, const char* ppName, std::string& pState) const
+{
+    int retVal = sim_propertyret_unknowntarget;
+    CustomObject* obj = getItem(target);
+    if (obj != nullptr)
+        retVal = obj->getMethodProperty(ppName, pState);
     return retVal;
 }
 

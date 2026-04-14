@@ -190,6 +190,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["setVector3Property"] = _method_setVector3Property;
         funcTable["getMatrixProperty"] = _method_getMatrixProperty;
         funcTable["setMatrixProperty"] = _method_setMatrixProperty;
+        funcTable["getMethodProperty"] = _method_getMethodProperty;
+        funcTable["setMethodProperty"] = _method_setMethodProperty;
         funcTable["_getTableProperty"] = _method__getTableProperty;
         funcTable["_setTableProperty"] = _method__setTableProperty;
         funcTable["removeProperty"] = _method_removeProperty;
@@ -6300,6 +6302,88 @@ std::string _method_setMatrixProperty(int targetObj, const char* method, CDetach
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                     errMsg.clear();
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_getMethodProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    {
+        std::string pName = fetchText(inStack, 0);
+        bool noError = false;
+        if (hasNonNullArg(inStack, 1))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            std::string byteCode;
+            int res = App::getMethodProperty(targetObj, pName.c_str(), byteCode);
+            if (res == sim_propertyret_ok)
+                pushBuffer(outStack, byteCode.data(), byteCode.size());
+            else
+            {
+                if (res == sim_propertyret_unknowntarget)
+                    errMsg = SIM_ERROR_TARGET_DOES_NOT_EXIST;
+                else
+                {
+                    std::string err("'");
+                    err += pName + "' ";
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(targetObj, pName.c_str(), info, infoTxt);
+                    if (p < sim_propertytype_start)
+                        errMsg = err + SIM_ERROR_UNKNOWN_PROPERTY;
+                    else if ((p & 0xff) == sim_propertytype_method)
+                        errMsg = err + SIM_ERROR_PROPERTY_CANNOT_BE_READ;
+                    else
+                       errMsg = err + SIM_ERROR_PROPERTY_TYPE_MISMATCH;
+                }
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_setMethodProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, -1, -1, arg_optional | arg_table, 0, arg_any}))
+    {
+        std::string pName = fetchText(inStack, 0);
+        std::string pValue = fetchBuffer(inStack, 1);
+        bool noError = false;
+        if (hasNonNullArg(inStack, 2))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            int res = App::setMethodProperty(targetObj, pName.c_str(), pValue);
+            if (res != sim_propertyret_ok)
+            {
+                if (res == sim_propertyret_unknowntarget)
+                    errMsg = SIM_ERROR_TARGET_DOES_NOT_EXIST;
+                else
+                {
+                    std::string err("'");
+                    err += pName + "' ";
+                    int info;
+                    std::string infoTxt;
+                    int p = App::getPropertyInfo(targetObj, pName.c_str(), info, infoTxt);
+                    if (p < sim_propertytype_start)
+                        errMsg = err + SIM_ERROR_UNKNOWN_PROPERTY;
+                    else if ((p & 0xff) == sim_propertytype_method)
+                        errMsg = err + SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN;
+                    else
+                       errMsg = err + SIM_ERROR_PROPERTY_TYPE_MISMATCH;
+                }
             }
         }
     }

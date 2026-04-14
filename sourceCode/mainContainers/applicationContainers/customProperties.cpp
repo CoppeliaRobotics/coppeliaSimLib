@@ -22,9 +22,23 @@ size_t CCustomProperties::getPropertyCount() const
     return _properties.size();
 }
 
-void CCustomProperties::copyFrom(const CCustomProperties* source)
+void CCustomProperties::copyFromExceptMethods(const CCustomProperties* source)
 {
     _properties = source->_properties;
+    std::string pName, appart;
+    int index = 0;
+    int ind = index;
+    while (getPropertyName(ind, pName, appart, 0) == sim_propertyret_ok)
+    {
+        int info;
+        std::string infoTxt;
+        if (getPropertyInfo(pName.c_str(), info, infoTxt) == sim_propertytype_method)
+            removeProperty(pName.c_str());
+        else
+            index++;
+        ind = index;
+        pName.clear();
+    }
 }
 
 void CCustomProperties::_writeInt32(std::string& buf, size_t offset, int32_t val)
@@ -1092,6 +1106,108 @@ int CCustomProperties::getStringArrayProperty(const char* pName, std::vector<std
     }
     return sim_propertyret_ok;
 }
+
+int CCustomProperties::setMethodProperty(const char* pName, const void* pState, bool& valueChange)
+{
+    std::string packed;
+    packed.append((const char*)&pState, sizeof(void*));
+
+    int propType, propInfo;
+    std::string infoTxt;
+    const char* dataPtr;
+    size_t dataLen;
+    valueChange = false;
+
+    bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
+    if (alreadyPresent)
+    {
+        if (propInfo & sim_propertyinfo_notwritable)
+            return sim_propertyret_unavailable;
+        if (propType != sim_propertytype_method)
+            return sim_propertyret_unavailable;
+        valueChange = _updatePropertyData(pName, packed.data(), packed.size());
+    }
+    else
+    {
+        _setPropertyRaw(pName, sim_propertytype_method, sim_propertyinfo_removable, "", packed.data(), packed.size());
+        valueChange = true;
+    }
+    return sim_propertyret_ok;
+}
+
+int CCustomProperties::getMethodProperty(const char* pName, void*& pState) const
+{
+    pState = nullptr;
+    int propType, propInfo;
+    std::string infoTxt;
+    const char* dataPtr;
+    size_t dataLen;
+
+    if (!_findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen))
+        return sim_propertyret_unknownproperty;
+
+    if (propInfo & sim_propertyinfo_notreadable)
+        return sim_propertyret_unavailable;
+    if (propType != sim_propertytype_method)
+        return sim_propertyret_unavailable;
+    if (dataLen >= sizeof(void*))
+    {
+        memcpy(&pState, dataPtr, sizeof(void*));
+    }
+    return sim_propertyret_ok;
+}
+
+int CCustomProperties::setMethodProperty(const char* pName, const std::string& pState, bool& valueChange)
+{
+    std::string packed;
+    if (pState.size() > 0)
+        packed.append(pState.data(), pState.size());
+
+    int propType, propInfo;
+    std::string infoTxt;
+    const char* dataPtr;
+    size_t dataLen;
+    valueChange = false;
+
+    bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
+    if (alreadyPresent)
+    {
+        if (propInfo & sim_propertyinfo_notwritable)
+            return sim_propertyret_unavailable;
+        if (propType != sim_propertytype_method)
+            return sim_propertyret_unavailable;
+        valueChange = _updatePropertyData(pName, packed.data(), packed.size());
+    }
+    else
+    {
+        _setPropertyRaw(pName, sim_propertytype_method, sim_propertyinfo_removable, "", packed.data(), packed.size());
+        valueChange = true;
+    }
+    return sim_propertyret_ok;
+}
+
+int CCustomProperties::getMethodProperty(const char* pName, std::string& pState) const
+{
+    pState.clear();
+    int propType, propInfo;
+    std::string infoTxt;
+    const char* dataPtr;
+    size_t dataLen;
+
+    if (!_findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen))
+        return sim_propertyret_unknownproperty;
+
+    if (propInfo & sim_propertyinfo_notreadable)
+        return sim_propertyret_unavailable;
+    if (propType != sim_propertytype_method)
+        return sim_propertyret_unavailable;
+    if (dataLen > 0)
+    {
+        pState.assign(dataPtr, dataLen);
+    }
+    return sim_propertyret_ok;
+}
+
 
 int CCustomProperties::removeProperty(const char* pName)
 {

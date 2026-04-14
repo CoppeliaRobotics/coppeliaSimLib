@@ -6974,27 +6974,9 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                         break;
                     }
                     case sim_propertytype_matrix: {
-                        std::vector<double> state;
-                        //result = obj->getFloatArrayProperty(name.c_str(), state);
-                        //dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
-                        break;
-                    }
-                    case sim_propertytype_array: {
-                        std::vector<double> state;
-                        //result = obj->getFloatArrayProperty(name.c_str(), state);
-                        //dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
-                        break;
-                    }
-                    case sim_propertytype_map: {
-                        std::vector<double> state;
-                        //result = obj->getFloatArrayProperty(name.c_str(), state);
-                        //dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
-                        break;
-                    }
-                    case sim_propertytype_null: {
-                        std::vector<double> state;
-                        //result = obj->getFloatArrayProperty(name.c_str(), state);
-                        //dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
+                        CMatrix state;
+                        result = obj->getMatrixProperty(name.c_str(), state);
+                        dnaString.append(reinterpret_cast<const char*>(state.data.data()), state.data.size() * sizeof(double));
                         break;
                     }
                     default:

@@ -1319,6 +1319,16 @@ SIM_DLLEXPORT int simGetStringArrayProperty2(long long int target, const char* p
     return simGetStringArrayProperty_internal(target, pName, v, cnt);
 }
 
+SIM_DLLEXPORT int simSetMethodProperty(long long int target, const char* pName, const void* v)
+{
+    return simSetMethodProperty_internal(target, pName, v);
+}
+
+SIM_DLLEXPORT int simGetMethodProperty(long long int target, const char* pName, void** v)
+{
+    return simGetMethodProperty_internal(target, pName, v);
+}
+
 SIM_DLLEXPORT int simRemoveProperty(long long int target, const char* pName)
 {
     return simRemoveProperty_internal(target, pName);

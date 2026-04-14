@@ -111,6 +111,7 @@
 #define SIM_ERROR_BAD_INDICES "bad indices."
 #define SIM_ERROR_BAD_VERTICES "bad vertices."
 #define SIM_ERROR_NOT_A_STRING "not a string."
+#define SIM_ERROR_OPERATION_UNAVAILABLE "operation not available."
 #define SIM_ERROR_TARGET_DOES_NOT_EXIST "target does not exist."
 #define SIM_ERROR_UNKNOWN_PROPERTY "property is unknown."
 #define SIM_ERROR_PROPERTY_IS_CORRUPT "property is corrupt."

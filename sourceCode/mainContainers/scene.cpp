@@ -96,7 +96,7 @@ void CScene::initializeScene()
     distances_old = new CDistanceObjectContainer_old();
     collisions_old = new CCollisionObjectContainer_old();
     sceneObjects = new CSceneObjectContainer();
-    customObjects = new CustomObjectContainer();
+    customObjects = new CustomObjectContainer(sim_handle_scene);
     pathPlanning_old = new CRegisteredPathPlanningTasks();
     environment = new CEnvironment();
     pageContainer = new CPageContainer();
@@ -1245,6 +1245,7 @@ void CScene::pushGenesisEvents()
     App::scenes->pushEvent();
 
     sceneObjects->pushObjectGenesisEvents();
+    customObjects->pushGenesisEvents();
     collections->pushGenesisEvents();
 
     drawingCont->pushGenesisEvents();
@@ -3374,10 +3375,11 @@ int CScene::setMatrixProperty(long long int target, const char* ppName, const CM
 
     if (target == sim_handle_scene)
     {
+        if (sceneObjects != nullptr)
+            retVal = sceneObjects->setMatrixProperty(-1, ppName, pState);
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
-    {
-    }
+        retVal = sceneObjects->setMatrixProperty(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
@@ -3397,10 +3399,11 @@ int CScene::getMatrixProperty(long long int target, const char* ppName, CMatrix&
 
     if (target == sim_handle_scene)
     {
+        if (sceneObjects != nullptr)
+            retVal = sceneObjects->getMatrixProperty(-1, ppName, pState);
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
-    {
-    }
+        retVal = sceneObjects->getMatrixProperty(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
@@ -3420,18 +3423,14 @@ int CScene::setQuaternionProperty(long long int target, const char* ppName, cons
 
     if (target == sim_handle_scene)
     {
-        const char* pName = ppName;
         if (sceneObjects != nullptr)
-            retVal = sceneObjects->setQuaternionProperty(-1, pName, pState);
+            retVal = sceneObjects->setQuaternionProperty(-1, ppName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
         }
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
-    {
-        const char* pName = ppName;
-        retVal = sceneObjects->setQuaternionProperty(target, pName, pState);
-    }
+        retVal = sceneObjects->setQuaternionProperty(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
@@ -3867,6 +3866,98 @@ int CScene::getStringArrayProperty(long long int target, const char* ppName, std
     }
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
         retVal = customObjects->getStringArrayProperty(target, ppName, pState);
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
+int CScene::setMethodProperty(long long int target, const char* ppName, const void* pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (target == sim_handle_scene)
+    {
+    }
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    {
+    }
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
+    {
+    }
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
+    {
+    }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setMethodProperty(target, ppName, pState);
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
+int CScene::getMethodProperty(long long int target, const char* ppName, void*& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (target == sim_handle_scene)
+    {
+    }
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    {
+    }
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
+    {
+    }
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
+    {
+    }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getMethodProperty(target, ppName, pState);
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
+int CScene::setMethodProperty(long long int target, const char* ppName, const std::string& pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (target == sim_handle_scene)
+    {
+    }
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    {
+    }
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
+    {
+    }
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
+    {
+    }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setMethodProperty(target, ppName, pState);
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
+int CScene::getMethodProperty(long long int target, const char* ppName, std::string& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (target == sim_handle_scene)
+    {
+    }
+    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    {
+    }
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
+    {
+    }
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
+    {
+    }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getMethodProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;

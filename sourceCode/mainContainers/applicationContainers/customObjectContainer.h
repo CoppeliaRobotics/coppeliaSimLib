@@ -5,7 +5,7 @@
 class CustomObjectContainer
 {
   public:
-    CustomObjectContainer();
+    CustomObjectContainer(int storageLocation);
     virtual ~CustomObjectContainer();
 
     void pushGenesisEvents() const;
@@ -62,6 +62,10 @@ class CustomObjectContainer
     int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const;
     int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
     int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState) const;
+    int setMethodProperty(long long int target, const char* pName, const void* pState);
+    int getMethodProperty(long long int target, const char* pName, void*& pState) const;
+    int setMethodProperty(long long int target, const char* pName, const std::string& pState);
+    int getMethodProperty(long long int target, const char* pName, std::string& pState) const;
     int removeProperty(long long int target, const char* pName);
     int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
     int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const;
@@ -70,6 +74,7 @@ class CustomObjectContainer
   protected:
     void _storeClasses() const;
 
-    std::vector<CustomObject*> _customClasses;
+    int _storageLocation;
+    std::map<std::string, CustomObject*> _customClasses;
     std::map<long long int, CustomObject*> _customObjects;
 };

@@ -2,12 +2,13 @@
 #include <utils.h>
 #include <app.h>
 
-CustomObject::CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle)
+CustomObject::CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle, int storageLocation)
 {
     _objectHandle = handle;
     _objectTypeStr = objectTypeStr;
     _objectMetaInfo = objectMetaInfo;
     _scriptHandle = originScriptHandle;
+    _storageLocation = storageLocation;
     _isClass = true;
 }
 
@@ -22,8 +23,8 @@ CustomObject::~CustomObject()
 
 CustomObject* CustomObject::createObject(long long int handle, int originScriptHandle) const
 {
-    CustomObject* object = new CustomObject(handle, _objectTypeStr.c_str(), _objectMetaInfo.c_str(), originScriptHandle);
-    object->_customProperties.copyFrom(&_customProperties);
+    CustomObject* object = new CustomObject(handle, _objectTypeStr.c_str(), _objectMetaInfo.c_str(), originScriptHandle, _storageLocation);
+    object->_customProperties.copyFromExceptMethods(&_customProperties);
     object->_isClass = false;
     return object;
 }
@@ -571,6 +572,68 @@ int CustomObject::getStringArrayProperty(const char* pName, std::vector<std::str
     int retVal = Obj::getStringArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
         retVal = _customProperties.getStringArrayProperty(pName, pState);
+    return retVal;
+}
+
+int CustomObject::setMethodProperty(const char* pName, const void* pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        bool changed = false;
+        retVal = _customProperties.setMethodProperty(pName, pState, changed);
+        //if (changed)
+        //    _triggerEvent(pName);
+    }
+    return retVal;
+}
+
+int CustomObject::getMethodProperty(const char* pName, void*& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (retVal == sim_propertyret_unknownproperty)
+        retVal = _customProperties.getMethodProperty(pName, pState);
+    if ((!_isClass) && (retVal == sim_propertyret_unknownproperty))
+    {
+        CustomObject* cl = nullptr;
+        if (_storageLocation == sim_handle_app)
+            cl = App::scenes->customObjects->getClass(getObjectTypeStr().c_str());
+        else if (_storageLocation == sim_handle_scene)
+            cl = App::scene->customObjects->getClass(getObjectTypeStr().c_str());
+        if (cl != nullptr)
+            retVal = getMethodProperty(pName, pState);
+    }
+    return retVal;
+}
+
+int CustomObject::setMethodProperty(const char* pName, const std::string& pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        bool changed = false;
+        retVal = _customProperties.setMethodProperty(pName, pState, changed);
+        //if (changed)
+        //    _triggerEvent(pName);
+    }
+    return retVal;
+}
+
+int CustomObject::getMethodProperty(const char* pName, std::string& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (retVal == sim_propertyret_unknownproperty)
+        retVal = _customProperties.getMethodProperty(pName, pState);
+    if ((!_isClass) && (retVal == sim_propertyret_unknownproperty))
+    {
+        CustomObject* cl = nullptr;
+        if (_storageLocation == sim_handle_app)
+            cl = App::scenes->customObjects->getClass(getObjectTypeStr().c_str());
+        else if (_storageLocation == sim_handle_scene)
+            cl = App::scene->customObjects->getClass(getObjectTypeStr().c_str());
+        if (cl != nullptr)
+            retVal = getMethodProperty(pName, pState);
+    }
     return retVal;
 }
 

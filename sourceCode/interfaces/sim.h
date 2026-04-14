@@ -269,6 +269,8 @@ SIM_DLLEXPORT int simSetHandleArrayProperty(long long int target, const char* pN
 SIM_DLLEXPORT int simGetHandleArrayProperty2(long long int target, const char* pName, long long int** v, int* vL);
 SIM_DLLEXPORT int simSetStringArrayProperty(long long int target, const char* pName, const char* v, int cnt);
 SIM_DLLEXPORT int simGetStringArrayProperty2(long long int target, const char* pName, char** v, int* cnt);
+SIM_DLLEXPORT int simSetMethodProperty(long long int target, const char* pName, const void* v);
+SIM_DLLEXPORT int simGetMethodProperty(long long int target, const char* pName, void** v);
 SIM_DLLEXPORT int simRemoveProperty(long long int target, const char* pName);
 SIM_DLLEXPORT char* simGetPropertyName(long long int target, int index, SPropertyOptions* options);
 SIM_DLLEXPORT int simGetPropertyInfo(long long int target, const char*, SPropertyInfo* infos, SPropertyOptions* options);

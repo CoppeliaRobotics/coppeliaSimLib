@@ -120,6 +120,10 @@ class CScene : public Obj
     int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const; // ALL handle items have to be of the same type
     int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
     int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState) const;
+    int setMethodProperty(long long int target, const char* pName, const void* pState);
+    int getMethodProperty(long long int target, const char* pName, void*& pState) const;
+    int setMethodProperty(long long int target, const char* pName, const std::string& pState);
+    int getMethodProperty(long long int target, const char* pName, std::string& pState) const;
     int removeProperty(long long int target, const char* pName);
     int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
     int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const;

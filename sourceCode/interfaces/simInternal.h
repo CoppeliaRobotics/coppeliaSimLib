@@ -83,6 +83,8 @@ int simSetHandleArrayProperty_internal(long long int target, const char* pName, 
 int simGetHandleArrayProperty_internal(long long int target, const char* pName, long long int** v, int* vL); // ALL handle items have to be of the same type
 int simSetStringArrayProperty_internal(long long int target, const char* pName, const char* v, int cnt);
 int simGetStringArrayProperty_internal(long long int target, const char* pName, char** v, int* cnt);
+int simSetMethodProperty_internal(long long int target, const char* pName, const void* v);
+int simGetMethodProperty_internal(long long int target, const char* pName, void** v);
 int simRemoveProperty_internal(long long int target, const char* pName);
 char* simGetPropertyName_internal(long long int target, int index, SPropertyOptions* options);
 int simGetPropertyInfo_internal(long long int target, const char* pName, SPropertyInfo* infos, SPropertyOptions* options);
