@@ -62,6 +62,8 @@ class CustomObject: public Obj
     const CCustomProperties& getCustomProperties() const { return _customProperties; }
 
     int getScriptHandle() const;
+    bool getVolatile() const;
+    void setVolatile(bool v);
 
   protected:
     void _triggerEvent(const char* pName, CCbor* evv = nullptr) const;
@@ -69,5 +71,6 @@ class CustomObject: public Obj
     bool _isClass;
     int _scriptHandle;
     int _storageLocation;
+    bool _volatile;
     CCustomProperties _customProperties;
 };

@@ -22,7 +22,7 @@ class CustomObjectContainer
     CustomObject* getClass(long long int objectHandle) const;
     CustomObject* getClass(const char* objectTypeStr) const;
 
-    long long int addObject(const char* objectTypeStr, int originScriptHandle);
+    long long int addObject(const char* objectTypeStr, bool isVolatile, int originScriptHandle);
     CustomObject* getObject(long long int objectHandle) const;
     bool removeObject(long long int objectHandle);
 

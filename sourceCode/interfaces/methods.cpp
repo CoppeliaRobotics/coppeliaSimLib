@@ -41,6 +41,7 @@ namespace {
     constexpr int arg_vector        = sim_stackitem_exvector;
     constexpr int arg_vector2       = sim_stackitem_exvector2;
     constexpr int arg_vector3       = sim_stackitem_exvector3;
+    constexpr int arg_map           = sim_stackitem_exmap;
     constexpr int arg_any           = sim_stackitem_exany;
     constexpr int arg_optional      = sim_stackitem_exoptional;
 }
@@ -151,9 +152,9 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["unpackUInt8Table"] = _method_unpackUInt8Table;
         funcTable["groupShapes"] = _method_groupShapes;
         funcTable["mergeShapes"] = _method_mergeShapes;
-        funcTable["_createCamera"] = _method__createCamera;
-        funcTable["_createLight"] = _method__createLight;
-        funcTable["_createGraph"] = _method__createGraph;
+        funcTable["createCamera"] = _method_createCamera;
+        funcTable["createLight"] = _method_createLight;
+        funcTable["createGraph"] = _method_createGraph;
         funcTable["getBoolProperty"] = _method_getBoolProperty;
         funcTable["getBufferProperty"] = _method_getBufferProperty;
         funcTable["getColorProperty"] = _method_getColorProperty;
@@ -192,8 +193,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["setMatrixProperty"] = _method_setMatrixProperty;
         funcTable["getMethodProperty"] = _method_getMethodProperty;
         funcTable["setMethodProperty"] = _method_setMethodProperty;
-        funcTable["_getTableProperty"] = _method__getTableProperty;
-        funcTable["_setTableProperty"] = _method__setTableProperty;
+        funcTable["getTableProperty"] = _method_getTableProperty;
+        funcTable["setTableProperty"] = _method_setTableProperty;
         funcTable["removeProperty"] = _method_removeProperty;
         funcTable["getPropertyName"] = _method_getPropertyName;
         funcTable["getPropertyInfo"] = _method_getPropertyInfo;
@@ -218,7 +219,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
 
 bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std::string* errStr, std::vector<int> inargs)
 { // inargs: a list of desired types. Following 3 types are special:
-    // arg_table is followed by 2 auxiliary values: size (-1 for any, 0 for a map) and type of content (arg_any for any)
+    // arg_table is followed by 2 auxiliary values: size (-1 for any) and type of content (arg_any for any)
     // arg_matrix is followed by 2 auxiliary values: rows (-1 for any) and cols (-1 for any)
     // arg_any stands for any (is ignored)
     // The type argument can be combined with arg_optional, in which case the arg can be missing or nil
@@ -323,6 +324,8 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                         retVal = (t == arg_integer);
                     else if (desiredArgType == arg_handle)
                         retVal = (t == arg_integer);
+                    else if (desiredArgType == arg_map)
+                        retVal = (t == arg_table);
                     else if (t == arg_matrix)
                     {
                         CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)arg;
@@ -365,8 +368,6 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                                         retVal = false;
                                 }
                             }
-                            else
-                                retVal = false;
                         }
                         else
                             retVal = false;
@@ -406,6 +407,8 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                                 msg += "a vector2";
                             else if (desiredArgType == arg_handlearray)
                                 msg += "a handle/object array";
+                            else if (desiredArgType == arg_map)
+                                msg += "a map";
                             else
                                 msg += "an unknown type";
                             msg += ").";
@@ -3419,7 +3422,7 @@ std::string _method_alignBoundingBox(int targetObj, const char* method, CDetache
 std::string _method_logInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_table | arg_optional, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_map | arg_optional}))
     {
         std::string msg = fetchText(inStack, 0);
         if (hasNonNullArg(inStack, 0))
@@ -3469,7 +3472,7 @@ std::string _method_logInfo(int targetObj, const char* method, CDetachedScript* 
 std::string _method_logWarn(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_table | arg_optional, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_map | arg_optional}))
     {
         std::string msg = fetchText(inStack, 0);
         if (hasNonNullArg(inStack, 0))
@@ -3519,7 +3522,7 @@ std::string _method_logWarn(int targetObj, const char* method, CDetachedScript* 
 std::string _method_logError(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_table | arg_optional, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_map | arg_optional}))
     {
         std::string msg = fetchText(inStack, 0);
         if (hasNonNullArg(inStack, 0))
@@ -3623,7 +3626,7 @@ std::string _method_getStepping(int targetObj, const char* method, CDetachedScri
 std::string _method_getObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table | arg_optional, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string origPath = fetchText(inStack, 0);
         std::string path(origPath);
@@ -3704,7 +3707,7 @@ std::string _method_announceChange(int targetObj, const char* method, CDetachedS
 std::string _method_getObjectFromUid(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_table | arg_optional, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_map | arg_optional}))
     {
         long long int uid = fetchLong(inStack, 0);
         bool noError = false;
@@ -3782,7 +3785,7 @@ std::string _method_addForce(int targetObj, const char* method, CDetachedScript*
 {
     std::string errMsg;
     CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
-    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_vector3, arg_vector3 | arg_optional, arg_table | arg_optional, 0, arg_any}))
+    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_vector3, arg_vector3 | arg_optional, arg_map | arg_optional}))
     {
         C3Vector force = fetchVector3(inStack, 0);
         C3Vector pos;
@@ -3820,7 +3823,7 @@ std::string _method_addTorque(int targetObj, const char* method, CDetachedScript
 {
     std::string errMsg;
     CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
-    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_vector3, arg_table | arg_optional, 0, arg_any}))
+    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_vector3, arg_map | arg_optional}))
     {
         C3Vector torque = fetchVector3(inStack, 0);
         bool reset = false;
@@ -4925,10 +4928,10 @@ std::string _method_unpackUInt8Table(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
-std::string _method__createCamera(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_createCamera(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_map}))
     {
         CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
         double clipp[2] = {0.05, 30.0};
@@ -4951,10 +4954,10 @@ std::string _method__createCamera(int targetObj, const char* method, CDetachedSc
     return errMsg;
 }
 
-std::string _method__createLight(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_createLight(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_map}))
     {
         CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
         int lightType = sim_light_omnidirectional;
@@ -4969,10 +4972,10 @@ std::string _method__createLight(int targetObj, const char* method, CDetachedScr
     return errMsg;
 }
 
-std::string _method__createGraph(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_createGraph(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_map}))
     {
         float backgroundColor[3] = {0.1f, 0.1f, 0.1f};
         float foregroundColor[3] = {0.8f, 0.8f, 0.8f};
@@ -5003,7 +5006,7 @@ std::string _method__createGraph(int targetObj, const char* method, CDetachedScr
 std::string _method_getBoolProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5034,7 +5037,7 @@ std::string _method_getBoolProperty(int targetObj, const char* method, CDetached
 std::string _method_getBufferProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5069,7 +5072,7 @@ std::string _method_getBufferProperty(int targetObj, const char* method, CDetach
 std::string _method_getColorProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5100,7 +5103,7 @@ std::string _method_getColorProperty(int targetObj, const char* method, CDetache
 std::string _method_getFloatArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5135,7 +5138,7 @@ std::string _method_getFloatArrayProperty(int targetObj, const char* method, CDe
 std::string _method_getFloatProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5166,7 +5169,7 @@ std::string _method_getFloatProperty(int targetObj, const char* method, CDetache
 std::string _method_getStringArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5210,7 +5213,7 @@ std::string _method_getStringArrayProperty(int targetObj, const char* method, CD
 std::string _method_getHandleArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5246,7 +5249,7 @@ std::string _method_getHandleArrayProperty(int targetObj, const char* method, CD
 std::string _method_getHandleProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5277,7 +5280,7 @@ std::string _method_getHandleProperty(int targetObj, const char* method, CDetach
 std::string _method_getIntArray2Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5308,7 +5311,7 @@ std::string _method_getIntArray2Property(int targetObj, const char* method, CDet
 std::string _method_getIntArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5343,7 +5346,7 @@ std::string _method_getIntArrayProperty(int targetObj, const char* method, CDeta
 std::string _method_getIntProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5374,7 +5377,7 @@ std::string _method_getIntProperty(int targetObj, const char* method, CDetachedS
 std::string _method_getLongProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5405,7 +5408,7 @@ std::string _method_getLongProperty(int targetObj, const char* method, CDetached
 std::string _method_getPoseProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5440,7 +5443,7 @@ std::string _method_getPoseProperty(int targetObj, const char* method, CDetached
 std::string _method_getQuaternionProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5475,7 +5478,7 @@ std::string _method_getQuaternionProperty(int targetObj, const char* method, CDe
 std::string _method_getStringProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5510,7 +5513,7 @@ std::string _method_getStringProperty(int targetObj, const char* method, CDetach
 std::string _method_getVector2Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5541,7 +5544,7 @@ std::string _method_getVector2Property(int targetObj, const char* method, CDetac
 std::string _method_getVector3Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -5572,7 +5575,7 @@ std::string _method_getVector3Property(int targetObj, const char* method, CDetac
 std::string _method_setBoolProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_bool, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_bool, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool pValue = fetchBool(inStack, 1);
@@ -5610,7 +5613,7 @@ std::string _method_setBoolProperty(int targetObj, const char* method, CDetached
 std::string _method_setBufferProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::string pValue = fetchBuffer(inStack, 1);
@@ -5648,7 +5651,7 @@ std::string _method_setBufferProperty(int targetObj, const char* method, CDetach
 std::string _method_setColorProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_color, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_color, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         float pValue[3];
@@ -5687,7 +5690,7 @@ std::string _method_setColorProperty(int targetObj, const char* method, CDetache
 std::string _method_setFloatArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, -1, arg_double, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, -1, arg_double, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::vector<double> pValue;
@@ -5726,7 +5729,7 @@ std::string _method_setFloatArrayProperty(int targetObj, const char* method, CDe
 std::string _method_setFloatProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_double, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_double, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         double pValue = fetchDouble(inStack, 1);
@@ -5764,7 +5767,7 @@ std::string _method_setFloatProperty(int targetObj, const char* method, CDetache
 std::string _method_setStringArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, -1, arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, -1, arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::vector<std::string> pValue;
@@ -5810,7 +5813,7 @@ std::string _method_setStringArrayProperty(int targetObj, const char* method, CD
 std::string _method_setHandleArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_handlearray, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_handlearray, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::vector<long long int> pValue;
@@ -5849,7 +5852,7 @@ std::string _method_setHandleArrayProperty(int targetObj, const char* method, CD
 std::string _method_setHandleProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_handle, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_handle, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         long long int pValue = fetchHandle(inStack, 1);
@@ -5887,7 +5890,7 @@ std::string _method_setHandleProperty(int targetObj, const char* method, CDetach
 std::string _method_setIntArray2Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, -1, arg_integer, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, -1, arg_integer, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::vector<int> pValue;
@@ -5926,7 +5929,7 @@ std::string _method_setIntArray2Property(int targetObj, const char* method, CDet
 std::string _method_setIntArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, -1, arg_integer, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, -1, arg_integer, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::vector<int> pValue;
@@ -5965,7 +5968,7 @@ std::string _method_setIntArrayProperty(int targetObj, const char* method, CDeta
 std::string _method_setIntProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         int pValue = fetchInt(inStack, 1);
@@ -6003,7 +6006,7 @@ std::string _method_setIntProperty(int targetObj, const char* method, CDetachedS
 std::string _method_setLongProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         long long int pValue = fetchLong(inStack, 1);
@@ -6041,7 +6044,7 @@ std::string _method_setLongProperty(int targetObj, const char* method, CDetached
 std::string _method_setPoseProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_pose, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_pose, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         C7Vector pState = fetchPose(inStack, 1);
@@ -6081,7 +6084,7 @@ std::string _method_setPoseProperty(int targetObj, const char* method, CDetached
 std::string _method_setQuaternionProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_quaternion, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_quaternion, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         C4Vector pState = fetchQuaternion(inStack, 1);
@@ -6121,7 +6124,7 @@ std::string _method_setQuaternionProperty(int targetObj, const char* method, CDe
 std::string _method_setStringProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::string pValue = fetchText(inStack, 1);
@@ -6159,7 +6162,7 @@ std::string _method_setStringProperty(int targetObj, const char* method, CDetach
 std::string _method_setVector2Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_vector2, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_vector2, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::vector<double> pValue;
@@ -6198,7 +6201,7 @@ std::string _method_setVector2Property(int targetObj, const char* method, CDetac
 std::string _method_setVector3Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_vector3, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_vector3, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         C3Vector pValue = fetchVector3(inStack, 1);
@@ -6236,7 +6239,7 @@ std::string _method_setVector3Property(int targetObj, const char* method, CDetac
 std::string _method_getMatrixProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -6273,7 +6276,7 @@ std::string _method_getMatrixProperty(int targetObj, const char* method, CDetach
 std::string _method_setMatrixProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_matrix, -1, -1, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_matrix, -1, -1, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         CMatrix pValue = fetchMatrix(inStack, 1);
@@ -6311,7 +6314,7 @@ std::string _method_setMatrixProperty(int targetObj, const char* method, CDetach
 std::string _method_getMethodProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -6353,7 +6356,7 @@ std::string _method_getMethodProperty(int targetObj, const char* method, CDetach
 std::string _method_setMethodProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, -1, -1, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, -1, -1, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::string pValue = fetchBuffer(inStack, 1);
@@ -6390,10 +6393,10 @@ std::string _method_setMethodProperty(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method__getTableProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getTableProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -6426,10 +6429,10 @@ std::string _method__getTableProperty(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method__setTableProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setTableProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::string pValue = fetchBuffer(inStack, 1);
@@ -6467,7 +6470,7 @@ std::string _method__setTableProperty(int targetObj, const char* method, CDetach
 std::string _method_removeProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -6500,7 +6503,7 @@ std::string _method_removeProperty(int targetObj, const char* method, CDetachedS
 std::string _method_getPropertyName(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_map}))
     {
         int index = fetchInt(inStack, 0);
         SPropertyOptions opt;
@@ -6543,7 +6546,7 @@ std::string _method_getPropertyName(int targetObj, const char* method, CDetached
 std::string _method_getPropertyInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_table, 0, arg_any}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
@@ -6598,28 +6601,60 @@ std::string _method_setPropertyInfo(int targetObj, const char* method, CDetached
 std::string _method_createCustomObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_string}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string typeStr = fetchText(inStack, 0);
-        std::string metaInfoStr = fetchText(inStack, 1);
-        int h = -1;
-        if (currentScript != nullptr)
-            h = currentScript->getScriptHandle();
-        if (metaInfoStr.size() == 0)
+        std::string metaInfoStr;
+        int storageLocation = sim_handle_scene;
+        bool scriptPersistent = false;
+        bool isVolatile = true;
+        if (hasNonNullArg(inStack, 1))
         {
-            long long int retVal = App::scenes->customObjects->addObject(typeStr.c_str(), h);
-            if (retVal != -1)
-                pushLong(outStack, retVal);
-            else
-                errMsg = SIM_ERROR_CLASS_INEXISTANT;
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchStringFromKey("classMetaInfo", metaInfoStr, &errMsg);
+            map->fetchBoolFromKey("scriptPersistent", scriptPersistent, &errMsg);
+            map->fetchBoolFromKey("volatile", isVolatile, &errMsg);
+            map->fetchInt32FromKey("storageLocation", storageLocation, &errMsg);
         }
-        else
+        if (errMsg.size() == 0)
         {
-            long long int retVal = App::scenes->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), h);
-            if (retVal >= 0)
-                pushLong(outStack, retVal);
+            int h = -1;
+            if ((currentScript != nullptr) && scriptPersistent)
+                h = currentScript->getScriptHandle();
+            if (metaInfoStr.size() == 0)
+            {
+                long long int retVal = -1;
+                if (storageLocation == sim_handle_app)
+                    retVal = App::scenes->customObjects->addObject(typeStr.c_str(), isVolatile, h);
+                else if (storageLocation == sim_handle_scene)
+                    retVal = App::scene->customObjects->addObject(typeStr.c_str(), isVolatile, h);
+                else
+                    errMsg = SIM_ERROR_INVALID_INPUT;
+                if (errMsg.size() == 0)
+                {
+                    if (retVal != -1)
+                        pushLong(outStack, retVal);
+                    else
+                        errMsg = SIM_ERROR_CLASS_INEXISTANT;
+                }
+            }
             else
-                errMsg = SIM_ERROR_CLASS_ALREADYDEFINED;
+            {
+                long long int retVal = -1;
+                if (storageLocation == sim_handle_app)
+                    retVal = App::scenes->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), h);
+                else if (storageLocation == sim_handle_scene)
+                    retVal = App::scene->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), h);
+                else
+                    errMsg = SIM_ERROR_INVALID_INPUT;
+                if (errMsg.size() == 0)
+                {
+                    if (retVal >= 0)
+                        pushLong(outStack, retVal);
+                    else
+                        errMsg = SIM_ERROR_CLASS_ALREADYDEFINED;
+                }
+            }
         }
     }
     return errMsg;
@@ -6628,10 +6663,15 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
 std::string _method_releaseCustomObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_string}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_map}))
     {
         long long int h = fetchHandle(inStack, 0);
-        std::string typeStr = fetchText(inStack, 1);
+        std::string typeStr;
+        if (hasNonNullArg(inStack, 1))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchStringFromKey("class", typeStr, &errMsg);
+        }
         bool success;
         if (typeStr.size() > 0)
             success = App::scenes->customObjects->removeClass(typeStr.c_str());
@@ -6654,7 +6694,7 @@ std::string _method_addCurve(int targetObj, const char* method, CDetachedScript*
 {
     std::string errMsg;
     CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table, 2, arg_integer, arg_optional | arg_color, arg_optional | arg_table, 0, arg_any}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table, 2, arg_integer, arg_optional | arg_color, arg_optional | arg_map}))
     {
         std::vector<int> streamIds;
         fetchIntArray(inStack, 0, streamIds);
@@ -6707,7 +6747,7 @@ std::string _method_addSignal(int targetObj, const char* method, CDetachedScript
 {
     std::string errMsg;
     CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_optional | arg_color, arg_optional | arg_table, 0, arg_any}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_optional | arg_color, arg_optional | arg_map}))
     {
         float color[3];
         fetchColor(inStack, 0, color, {1.0f, 0.0f, 0.0f});
@@ -6832,7 +6872,7 @@ std::string _method_snapshotTrace(int targetObj, const char* method, CDetachedSc
 {
     std::string errMsg;
     CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_color, arg_optional | arg_table, 0, arg_any}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_color, arg_optional | arg_map}))
     {
         int trace = fetchInt(inStack, 0);
         float color[3];

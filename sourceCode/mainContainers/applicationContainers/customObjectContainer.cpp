@@ -19,7 +19,11 @@ void CustomObjectContainer::pushGenesisEvents() const
 
 long long int CustomObjectContainer::getFreshHandle() const
 {
-    long long int retVal = sim_object_customstart;
+    long long int retVal;
+    if (_storageLocation == sim_handle_app)
+        retVal = sim_object_customappstart;
+    if (_storageLocation == sim_handle_scene)
+        retVal = sim_object_customscenestart;
     while ((getObject(retVal) != nullptr) || (getClass(retVal) != nullptr))
         retVal++;
     return retVal;
@@ -49,6 +53,8 @@ long long int CustomObjectContainer::addClass(const char* objectTypeStr, const c
         retVal = getFreshHandle();
         CustomObject* obj = new CustomObject(retVal, objectTypeStr, objectMetaInfo, originScriptHandle, _storageLocation);
         _customClasses.insert({objectTypeStr, obj});
+        obj->setIntProperty("storageLocation", _storageLocation);
+        obj->setPropertyInfo("storageLocation", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
     }
     return retVal;
 }
@@ -105,7 +111,7 @@ CustomObject* CustomObjectContainer::getClass(long long int objectHandle) const
     return retVal;
 }
 
-long long int CustomObjectContainer::addObject(const char* objectTypeStr, int originScriptHandle)
+long long int CustomObjectContainer::addObject(const char* objectTypeStr, bool isVolatile, int originScriptHandle)
 {
     long long int retVal = -1;
     CustomObject* classObj = getClass(objectTypeStr);
@@ -113,6 +119,7 @@ long long int CustomObjectContainer::addObject(const char* objectTypeStr, int or
     {
         retVal = getFreshHandle();
         CustomObject* obj = classObj->createObject(retVal, originScriptHandle);
+        obj->setVolatile(isVolatile);
         _customObjects.insert({retVal, obj});
         obj->pushObjectCreationEvent();
     }

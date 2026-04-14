@@ -9,6 +9,7 @@ CustomObject::CustomObject(long long int handle, const char* objectTypeStr, cons
     _objectMetaInfo = objectMetaInfo;
     _scriptHandle = originScriptHandle;
     _storageLocation = storageLocation;
+    _volatile = true;
     _isClass = true;
 }
 
@@ -34,6 +35,16 @@ int CustomObject::getScriptHandle() const
     return _scriptHandle;
 }
 
+bool CustomObject::getVolatile() const
+{
+    return _volatile;
+}
+
+void CustomObject::setVolatile(bool v)
+{
+    _volatile = v;
+}
+
 void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/) const
 {
     if (!_isClass)
@@ -43,7 +54,7 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/) co
         int t = getPropertyInfo(pName, flags, infoTxt);
         if (t >= sim_propertytype_start)
         {
-            if ((flags & (sim_propertyinfo_silent | sim_propertyinfo_constant)) == 0)
+            if ((flags & (sim_propertyinfo_silent)) == 0)
             {
                 CCbor* ev = evv;
                 if (evv == nullptr)
