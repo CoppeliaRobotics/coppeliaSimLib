@@ -54,7 +54,7 @@ class CustomObject: public Obj
     int setMethodProperty(const char* pName, const std::string& pState) override;
     int getMethodProperty(const char* pName, std::string& pState) const override;
     int removeProperty(const char* pName) override;
-    int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags, bool methodsOnly = false) const;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
     int setPropertyInfo(const char* pName, int info, const char* infoTxt);
 

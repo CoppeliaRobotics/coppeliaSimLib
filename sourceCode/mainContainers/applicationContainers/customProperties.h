@@ -50,7 +50,7 @@ class CCustomProperties
     int getMethodProperty(const char* pName, std::string& pState) const;
 
     int removeProperty(const char* pName);
-    int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags, bool methodsOnly = false) const;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
     int setPropertyInfo(const char* pName, int info, const char* infoTxt);
 

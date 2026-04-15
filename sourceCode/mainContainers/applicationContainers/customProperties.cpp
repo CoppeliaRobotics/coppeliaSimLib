@@ -1228,7 +1228,7 @@ int CCustomProperties::removeProperty(const char* pName)
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+int CCustomProperties::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags, bool methodsOnly /*= false*/) const
 {
     for (auto it = _properties.begin(); it != _properties.end(); ++it)
     {
@@ -1244,11 +1244,14 @@ int CCustomProperties::getPropertyName(int& index, std::string& pName, std::stri
         {
             if ((propInfo & excludeFlags) == 0)
             {
-                index--;
-                if (index == -1)
+                if ((!methodsOnly) || (propType == sim_propertytype_method))
                 {
-                    pName = propName;
-                    return sim_propertyret_ok;
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = propName;
+                        return sim_propertyret_ok;
+                    }
                 }
             }
         }

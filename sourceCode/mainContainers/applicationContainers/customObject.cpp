@@ -17,8 +17,11 @@ CustomObject::~CustomObject()
 {
     if (!_isClass)
     {
-        App::scenes->createEvent(EVENTTYPE_OBJECTREMOVED, _objectHandle, _objectHandle, nullptr, false);
-        App::scenes->pushEvent();
+        if ((App::scenes != nullptr) && App::scenes->getEventsEnabled())
+        {
+            App::scenes->createEvent(EVENTTYPE_OBJECTREMOVED, _objectHandle, _objectHandle, nullptr, false);
+            App::scenes->pushEvent();
+        }
     }
 }
 
@@ -47,7 +50,7 @@ void CustomObject::setVolatile(bool v)
 
 void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/) const
 {
-    if (!_isClass)
+    if ((!_isClass) && (App::scenes != nullptr) && App::scenes->getEventsEnabled())
     {
         int flags;
         std::string infoTxt;
@@ -185,19 +188,22 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/) co
 
 void CustomObject::pushObjectCreationEvent() const
 {
-    CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
-    ev->appendKeyText(propObject_objectType.name, getObjectTypeStr().c_str());
-    int indexI = 0;
-    int index = indexI;
-    std::string pName, appartenance;
-    while (sim_propertyret_ok == getPropertyName(index, pName, appartenance, 0))
+    if ((App::scenes != nullptr) && App::scenes->getEventsEnabled())
     {
-       if (appartenance == getObjectTypeStr())
-            _triggerEvent(pName.c_str(), ev);
-        index = ++indexI;
-        pName.clear();
+        CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
+        ev->appendKeyText(propObject_objectType.name, getObjectTypeStr().c_str());
+        int indexI = 0;
+        int index = indexI;
+        std::string pName, appartenance;
+        while (sim_propertyret_ok == getPropertyName(index, pName, appartenance, 0))
+        {
+           if (appartenance == getObjectTypeStr())
+                _triggerEvent(pName.c_str(), ev);
+            index = ++indexI;
+            pName.clear();
+        }
+        App::scenes->pushEvent();
     }
-    App::scenes->pushEvent();
 }
 
 int CustomObject::setBoolProperty(const char* pName, bool pState)
@@ -660,12 +666,24 @@ int CustomObject::removeProperty(const char* pName)
     return retVal;
 }
 
-int CustomObject::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+int CustomObject::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags, bool methodsOnly /*= false*/) const
 {
-    int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
+    int retVal = sim_propertyret_unknownproperty;
+    if (!methodsOnly)
+        retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        retVal = _customProperties.getPropertyName(index, pName, appartenance, excludeFlags);
+        retVal = _customProperties.getPropertyName(index, pName, appartenance, excludeFlags, methodsOnly);
+        if ((!_isClass) && (retVal == sim_propertyret_unknownproperty))
+        {
+            CustomObject* cl = nullptr;
+            if (_target == sim_handle_app)
+                cl = App::scenes->customObjects->getClass(getObjectTypeStr().c_str());
+            else if (_target == sim_handle_scene)
+                cl = App::scene->customObjects->getClass(getObjectTypeStr().c_str());
+            if (cl != nullptr)
+                retVal = cl->getPropertyName(index, pName, appartenance, excludeFlags, true);
+        }
         if (retVal == sim_propertyret_ok)
             appartenance = getObjectTypeStr();
     }
@@ -676,7 +694,19 @@ int CustomObject::getPropertyInfo(const char* pName, int& info, std::string& inf
 {
     int retVal = Obj::getPropertyInfo(pName, info, infoTxt);
     if (retVal == sim_propertyret_unknownproperty)
+    {
         retVal = _customProperties.getPropertyInfo(pName, info, infoTxt);
+        if ((!_isClass) && (retVal == sim_propertyret_unknownproperty))
+        {
+            CustomObject* cl = nullptr;
+            if (_target == sim_handle_app)
+                cl = App::scenes->customObjects->getClass(getObjectTypeStr().c_str());
+            else if (_target == sim_handle_scene)
+                cl = App::scene->customObjects->getClass(getObjectTypeStr().c_str());
+            if (cl != nullptr)
+                retVal = cl->getPropertyInfo(pName, info, infoTxt);
+        }
+    }
     return retVal;
 }
 
