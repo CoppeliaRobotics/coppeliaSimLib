@@ -200,7 +200,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["getPropertyInfo"] = _method_getPropertyInfo;
         funcTable["setPropertyInfo"] = _method_setPropertyInfo;
         funcTable["createCustomObject"] = _method_createCustomObject;
-        funcTable["releaseCustomObject"] = _method_releaseCustomObject;
+        funcTable["removeCustomObject"] = _method_removeCustomObject;
         funcTable["isValid"] = _method_isValid;
         funcTable["addCurve"] = _method_addCurve;
         funcTable["addSignal"] = _method_addSignal;
@@ -6605,7 +6605,6 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
     {
         std::string typeStr = fetchText(inStack, 0);
         std::string metaInfoStr;
-        int storageLocation = sim_handle_scene;
         bool scriptPersistent = false;
         bool isVolatile = true;
         if (hasNonNullArg(inStack, 1))
@@ -6614,7 +6613,6 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
             map->fetchStringFromKey("classMetaInfo", metaInfoStr, &errMsg);
             map->fetchBoolFromKey("scriptPersistent", scriptPersistent, &errMsg);
             map->fetchBoolFromKey("volatile", isVolatile, &errMsg);
-            map->fetchInt32FromKey("storageLocation", storageLocation, &errMsg);
         }
         if (errMsg.size() == 0)
         {
@@ -6624,43 +6622,33 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
             if (metaInfoStr.size() == 0)
             {
                 long long int retVal = -1;
-                if (storageLocation == sim_handle_app)
+                if (targetObj == sim_handle_app)
                     retVal = App::scenes->customObjects->addObject(typeStr.c_str(), isVolatile, h);
-                else if (storageLocation == sim_handle_scene)
+                else if (targetObj == sim_handle_scene)
                     retVal = App::scene->customObjects->addObject(typeStr.c_str(), isVolatile, h);
+                if (retVal != -1)
+                    pushLong(outStack, retVal);
                 else
-                    errMsg = SIM_ERROR_INVALID_INPUT;
-                if (errMsg.size() == 0)
-                {
-                    if (retVal != -1)
-                        pushLong(outStack, retVal);
-                    else
-                        errMsg = SIM_ERROR_CLASS_INEXISTANT;
-                }
+                    errMsg = SIM_ERROR_CLASS_INEXISTANT;
             }
             else
             {
                 long long int retVal = -1;
-                if (storageLocation == sim_handle_app)
+                if (targetObj == sim_handle_app)
                     retVal = App::scenes->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), h);
-                else if (storageLocation == sim_handle_scene)
+                else if (targetObj == sim_handle_scene)
                     retVal = App::scene->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), h);
+                if (retVal >= 0)
+                    pushLong(outStack, retVal);
                 else
-                    errMsg = SIM_ERROR_INVALID_INPUT;
-                if (errMsg.size() == 0)
-                {
-                    if (retVal >= 0)
-                        pushLong(outStack, retVal);
-                    else
-                        errMsg = SIM_ERROR_CLASS_ALREADYDEFINED;
-                }
+                    errMsg = SIM_ERROR_CLASS_ALREADYDEFINED;
             }
         }
     }
     return errMsg;
 }
 
-std::string _method_releaseCustomObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_removeCustomObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_map}))
@@ -6672,13 +6660,26 @@ std::string _method_releaseCustomObject(int targetObj, const char* method, CDeta
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchStringFromKey("class", typeStr, &errMsg);
         }
-        bool success;
-        if (typeStr.size() > 0)
-            success = App::scenes->customObjects->removeClass(typeStr.c_str());
-        else
-           success = App::scenes->customObjects->removeItem(h);
-        if (!success)
-            errMsg = SIM_ERROR_OBJECTCLASS_INEXISTANT;
+        if (errMsg.size() == 0)
+        {
+            bool success = false;
+            if (typeStr.size() > 0)
+            {
+                if (targetObj == sim_handle_app)
+                    success = App::scenes->customObjects->removeClass(typeStr.c_str());
+                else if (targetObj == sim_handle_scene)
+                    success = App::scene->customObjects->removeClass(typeStr.c_str());
+            }
+            else
+            {
+                if (targetObj == sim_handle_app)
+                   success = App::scenes->customObjects->removeItem(h);
+                else if (targetObj == sim_handle_scene)
+                    success = App::scene->customObjects->removeItem(h);
+            }
+            if (!success)
+                errMsg = SIM_ERROR_OBJECTCLASS_INEXISTANT;
+        }
     }
     return errMsg;
 }

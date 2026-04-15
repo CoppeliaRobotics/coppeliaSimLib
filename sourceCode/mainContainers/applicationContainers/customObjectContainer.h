@@ -5,7 +5,7 @@
 class CustomObjectContainer
 {
   public:
-    CustomObjectContainer(int storageLocation);
+    CustomObjectContainer(int target);
     virtual ~CustomObjectContainer();
 
     void pushGenesisEvents() const;
@@ -25,6 +25,8 @@ class CustomObjectContainer
     long long int addObject(const char* objectTypeStr, bool isVolatile, int originScriptHandle);
     CustomObject* getObject(long long int objectHandle) const;
     bool removeObject(long long int objectHandle);
+    void getAllObjectHandles(std::vector<long long int>& objects) const;
+    void getAllClassNames(std::vector<std::string>& classes) const;
 
     int setBoolProperty(long long int target, const char* pName, bool pState);
     int getBoolProperty(long long int target, const char* pName, bool& pState) const;
@@ -73,8 +75,10 @@ class CustomObjectContainer
 
   protected:
     void _storeClasses() const;
+    void _notifyObjectListChanged() const;
+    void _notifyClassListChanged() const;
 
-    int _storageLocation;
+    int _target;
     std::map<std::string, CustomObject*> _customClasses;
     std::map<long long int, CustomObject*> _customObjects;
 };

@@ -6,7 +6,7 @@
 class CustomObject: public Obj
 {
   public:
-    CustomObject(long long int handle,const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle, int storageLocation); // class definition
+    CustomObject(long long int handle,const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle, int target); // class definition
     virtual ~CustomObject();
 
     CustomObject* createObject(long long int handle, int originScriptHandle) const;
@@ -70,7 +70,7 @@ class CustomObject: public Obj
 
     bool _isClass;
     int _scriptHandle;
-    int _storageLocation;
+    int _target;
     bool _volatile;
     CCustomProperties _customProperties;
 };

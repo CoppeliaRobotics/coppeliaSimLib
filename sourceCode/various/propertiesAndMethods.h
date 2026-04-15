@@ -190,6 +190,8 @@ struct SJointProperty
     FUNCX(propApp_idleFps, "idleFps", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Loaded plugin names"}, {"description", ""}}), "") \
     FUNCX(propApp_pluginNames, "pluginNames", sim_propertytype_stringarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Plugins"}, {"description", "List of plugins"}}), "") \
     FUNCX(propApp_addOns, "addOns", sim_propertytype_handlearray, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Add-ons"}, {"description", "List of add-ons"}, {"handleType", "detachedScript"}}), "") \
+    FUNCX(propApp_customObjects, "customObjects", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Custom objects"}, {"description", "List of app custom objects"}, {"handleType", "customObject"}}), "") \
+    FUNCX(propApp_customClasses, "customClasses", sim_propertytype_stringarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Custom classes"}, {"description", "List of app custom classes"}}), "") \
     FUNCX(propApp_sandbox, "sandbox", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Sandbox"}, {"description", "Handle of the sandbox script"}, {"handleType", "detachedScript"}}), "") \
     FUNCX(propApp_appArgs, "appArgs", sim_propertytype_stringarray, sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App args"}, {"description", ""}}), "") \
     FUNCX(propApp_appArg1, "appArg1", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 1"}, {"description", ""}}), "") \
@@ -271,9 +273,11 @@ struct SJointProperty
     FUNCX(propApp_METHOD_cancelScheduledExecution, "cancelScheduledExecution", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_openFile, "openFile", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_createCustomObject, "createCustomObject", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_releaseCustomObject, "releaseCustomObject", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_registerClass, "registerClass", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_removeCustomObject, "removeCustomObject", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_quit, "quit", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
+
+    // FUNCX(propApp_METHOD_registerClass, "registerClass", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+
 
 #define DETACHEDSCRIPT_PROPERTIES \
     FUNCX(propDetachedScript_scriptDisabled, "scriptDisabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Enabled"}, {"description", "Script is enabled"}}), "") \
@@ -452,6 +456,8 @@ struct SJointProperty
     FUNCX(propScene_acknowledgment, "acknowledgment", sim_propertytype_string, 0,  jsonStr({{"label", "Acknowledgment"}, {"description", "Scene acknowledgment"}}), "") \
     FUNCX(propScene_sceneUidString, "sceneUidString", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Scene UID string"}, {"description", "Scene unique identifier string"}}), "") \
     FUNCX(propScene_ambientLight, "ambientLight", sim_propertytype_color, 0,  jsonStr({{"label", "Ambient light"}, {"description", ""}}), "") \
+    FUNCX(propScene_customObjects, "customObjects", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Custom objects"}, {"description", "List of scene custom objects"}, {"handleType", "customObject"}}), "") \
+    FUNCX(propScene_customClasses, "customClasses", sim_propertytype_stringarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Custom classes"}, {"description", "List of scene custom classes"}}), "") \
     FUNCX(propScene_METHOD_createObject, "createObject", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_removeObjects, "removeObjects", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_duplicateObjects, "duplicateObjects", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
@@ -474,6 +480,8 @@ struct SJointProperty
     FUNCX(propScene_METHOD_startSimulation, "startSimulation", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_pauseSimulation, "pauseSimulation", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_stopSimulation, "stopSimulation", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propScene_METHOD_createCustomObject, "createCustomObject", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propScene_METHOD_removeCustomObject, "removeCustomObject", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_groupShapes, "groupShapes", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_mergeShapes, "mergeShapes", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 

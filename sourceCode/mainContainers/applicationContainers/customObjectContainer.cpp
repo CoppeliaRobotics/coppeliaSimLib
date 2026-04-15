@@ -1,9 +1,9 @@
 #include <customObjectContainer.h>
 #include <app.h>
 
-CustomObjectContainer::CustomObjectContainer(int storageLocation)
+CustomObjectContainer::CustomObjectContainer(int target)
 {
-    _storageLocation = storageLocation;
+    _target = target;
 }
 
 CustomObjectContainer::~CustomObjectContainer()
@@ -20,9 +20,9 @@ void CustomObjectContainer::pushGenesisEvents() const
 long long int CustomObjectContainer::getFreshHandle() const
 {
     long long int retVal;
-    if (_storageLocation == sim_handle_app)
+    if (_target == sim_handle_app)
         retVal = sim_object_customappstart;
-    if (_storageLocation == sim_handle_scene)
+    if (_target == sim_handle_scene)
         retVal = sim_object_customscenestart;
     while ((getObject(retVal) != nullptr) || (getClass(retVal) != nullptr))
         retVal++;
@@ -51,10 +51,11 @@ long long int CustomObjectContainer::addClass(const char* objectTypeStr, const c
     if (getClass(objectTypeStr) == nullptr)
     {
         retVal = getFreshHandle();
-        CustomObject* obj = new CustomObject(retVal, objectTypeStr, objectMetaInfo, originScriptHandle, _storageLocation);
+        CustomObject* obj = new CustomObject(retVal, objectTypeStr, objectMetaInfo, originScriptHandle, _target);
         _customClasses.insert({objectTypeStr, obj});
-        obj->setIntProperty("storageLocation", _storageLocation);
-        obj->setPropertyInfo("storageLocation", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
+        obj->setIntProperty("target", _target);
+        obj->setPropertyInfo("target", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
+        _notifyClassListChanged();
     }
     return retVal;
 }
@@ -68,6 +69,7 @@ bool CustomObjectContainer::removeClass(const char* objectTypeStr)
         delete it->second;
         _customClasses.erase(it);
         retVal = true;
+        _notifyClassListChanged();
     }
     return retVal;
 }
@@ -82,6 +84,7 @@ bool CustomObjectContainer::removeClass(long long int objectHandle)
             delete it->second;
             _customClasses.erase(it);
             retVal = true;
+            _notifyClassListChanged();
             break;
         }
     }
@@ -122,6 +125,7 @@ long long int CustomObjectContainer::addObject(const char* objectTypeStr, bool i
         obj->setVolatile(isVolatile);
         _customObjects.insert({retVal, obj});
         obj->pushObjectCreationEvent();
+        _notifyObjectListChanged();
     }
     return retVal;
 }
@@ -144,44 +148,103 @@ bool CustomObjectContainer::removeObject(long long int objectHandle)
         delete it->second;
         _customObjects.erase(it);
         retVal = true;
+        _notifyObjectListChanged();
     }
     return retVal;
 }
 
+void CustomObjectContainer::getAllObjectHandles(std::vector<long long int>& objects) const
+{
+    objects.clear();
+    for (auto it = _customObjects.begin(); it != _customObjects.end(); ++it)
+        objects.push_back(it->first);
+}
+
+void CustomObjectContainer::getAllClassNames(std::vector<std::string>& classes) const
+{
+    classes.clear();
+    for (auto it = _customClasses.begin(); it != _customClasses.end(); ++it)
+        classes.push_back(it->second->getObjectTypeStr());
+}
+
+void CustomObjectContainer::_notifyObjectListChanged() const
+{
+    if ((App::scenes != nullptr) && App::scenes->getEventsEnabled())
+    {
+        std::vector<long long int> customObjectList;
+        getAllObjectHandles(customObjectList);
+        CCbor* ev = App::scenes->createObjectChangedEvent(_target, nullptr, true);
+        if (_target == sim_handle_app)
+            ev->appendKeyHandleArray(propApp_customObjects.name, customObjectList.data(), customObjectList.size());
+        if (_target == sim_handle_scene)
+            ev->appendKeyHandleArray(propScene_customObjects.name, customObjectList.data(), customObjectList.size());
+        App::scenes->pushEvent();
+    }
+}
+
+void CustomObjectContainer::_notifyClassListChanged() const
+{
+    if ((App::scenes != nullptr) && App::scenes->getEventsEnabled())
+    {
+        std::vector<std::string> customClassList;
+        getAllClassNames(customClassList);
+        CCbor* ev = App::scenes->createObjectChangedEvent(_target, nullptr, true);
+        if (_target == sim_handle_app)
+            ev->appendKeyTextArray(propApp_customClasses.name, customClassList);
+        if (_target == sim_handle_scene)
+            ev->appendKeyTextArray(propScene_customClasses.name, customClassList);
+        App::scenes->pushEvent();
+    }
+}
+
 void CustomObjectContainer::announceScriptStateWillBeErased(int scriptHandle)
 {
+    bool notify = false;
     for (auto it = _customObjects.begin(); it != _customObjects.end(); )
     {
         CustomObject* obj = it->second;
         if (obj->getScriptHandle() == scriptHandle)
         {
+            notify = true;
             delete obj;
             it = _customObjects.erase(it);  // erase returns next valid iterator
         }
         else
             ++it;
     }
+    if (notify)
+        _notifyObjectListChanged();
+    notify = false;
     for (auto it = _customClasses.begin(); it != _customClasses.end(); )
     {
         CustomObject* obj = it->second;
         if (obj->getScriptHandle() == scriptHandle)
         {
+            notify = true;
             delete obj;
             it = _customClasses.erase(it);  // erase returns next valid iterator
         }
         else
             ++it;
     }
+    if (notify)
+        _notifyClassListChanged();
 }
 
 void CustomObjectContainer::clear()
 {
-    for (auto it = _customClasses.begin(); it != _customClasses.end(); )
+    bool notify = (_customClasses.size() > 0);
+    for (auto it = _customClasses.begin(); it != _customClasses.end(); ++it )
         delete it->second;
     _customClasses.clear();
-    for (auto it = _customObjects.begin(); it != _customObjects.end(); )
+    if (notify)
+        _notifyClassListChanged();
+    notify = (_customObjects.size() > 0);
+    for (auto it = _customObjects.begin(); it != _customObjects.end(); ++it )
         delete it->second;
     _customObjects.clear();
+    if (notify)
+        _notifyObjectListChanged();
 }
 
 void CustomObjectContainer::_storeClasses() const

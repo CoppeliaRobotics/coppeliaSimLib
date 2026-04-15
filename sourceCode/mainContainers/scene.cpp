@@ -1241,6 +1241,14 @@ void CScene::pushGenesisEvents()
     customSceneData.appendEventData(nullptr, ev);
     customSceneData_volatile.appendEventData(nullptr, ev);
     dynamicsContainer->appendGenesisData(ev);
+
+    std::vector<long long int> customObjectList;
+    customObjects->getAllObjectHandles(customObjectList);
+    ev->appendKeyHandleArray(propScene_customObjects.name, customObjectList.data(), customObjectList.size());
+    std::vector<std::string> customClassList;
+    customObjects->getAllClassNames(customClassList);
+    ev->appendKeyTextArray(propScene_customClasses.name, customClassList);
+
     sceneObjects->appendNonObjectGenesisData(ev);
     App::scenes->pushEvent();
 
@@ -3784,6 +3792,11 @@ int CScene::getHandleArrayProperty(long long int target, const char* ppName, std
             retVal = drawingCont->getHandleArrayProperty(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
+            if (strcmp(ppName, propScene_customObjects.name) == 0)
+            {
+                customObjects->getAllObjectHandles(pState);
+                retVal = sim_propertyret_ok;
+            }
         }
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
@@ -3851,6 +3864,11 @@ int CScene::getStringArrayProperty(long long int target, const char* ppName, std
             retVal = sceneObjects->getStringArrayProperty(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
+            if (strcmp(ppName, propScene_customClasses.name) == 0)
+            {
+                customObjects->getAllClassNames(pState);
+                retVal = sim_propertyret_ok;
+            }
         }
     }
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))

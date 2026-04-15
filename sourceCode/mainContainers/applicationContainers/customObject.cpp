@@ -2,13 +2,13 @@
 #include <utils.h>
 #include <app.h>
 
-CustomObject::CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle, int storageLocation)
+CustomObject::CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle, int target)
 {
     _objectHandle = handle;
     _objectTypeStr = objectTypeStr;
     _objectMetaInfo = objectMetaInfo;
     _scriptHandle = originScriptHandle;
-    _storageLocation = storageLocation;
+    _target = target;
     _volatile = true;
     _isClass = true;
 }
@@ -24,7 +24,7 @@ CustomObject::~CustomObject()
 
 CustomObject* CustomObject::createObject(long long int handle, int originScriptHandle) const
 {
-    CustomObject* object = new CustomObject(handle, _objectTypeStr.c_str(), _objectMetaInfo.c_str(), originScriptHandle, _storageLocation);
+    CustomObject* object = new CustomObject(handle, _objectTypeStr.c_str(), _objectMetaInfo.c_str(), originScriptHandle, _target);
     object->_customProperties.copyFromExceptMethods(&_customProperties);
     object->_isClass = false;
     return object;
@@ -607,9 +607,9 @@ int CustomObject::getMethodProperty(const char* pName, void*& pState) const
     if ((!_isClass) && (retVal == sim_propertyret_unknownproperty))
     {
         CustomObject* cl = nullptr;
-        if (_storageLocation == sim_handle_app)
+        if (_target == sim_handle_app)
             cl = App::scenes->customObjects->getClass(getObjectTypeStr().c_str());
-        else if (_storageLocation == sim_handle_scene)
+        else if (_target == sim_handle_scene)
             cl = App::scene->customObjects->getClass(getObjectTypeStr().c_str());
         if (cl != nullptr)
             retVal = getMethodProperty(pName, pState);
@@ -638,9 +638,9 @@ int CustomObject::getMethodProperty(const char* pName, std::string& pState) cons
     if ((!_isClass) && (retVal == sim_propertyret_unknownproperty))
     {
         CustomObject* cl = nullptr;
-        if (_storageLocation == sim_handle_app)
+        if (_target == sim_handle_app)
             cl = App::scenes->customObjects->getClass(getObjectTypeStr().c_str());
-        else if (_storageLocation == sim_handle_scene)
+        else if (_target == sim_handle_scene)
             cl = App::scene->customObjects->getClass(getObjectTypeStr().c_str());
         if (cl != nullptr)
             retVal = getMethodProperty(pName, pState);
