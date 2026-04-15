@@ -612,7 +612,7 @@ int CustomObject::getMethodProperty(const char* pName, void*& pState) const
         else if (_target == sim_handle_scene)
             cl = App::scene->customObjects->getClass(getObjectTypeStr().c_str());
         if (cl != nullptr)
-            retVal = getMethodProperty(pName, pState);
+            retVal = cl->getMethodProperty(pName, pState);
     }
     return retVal;
 }
@@ -643,7 +643,7 @@ int CustomObject::getMethodProperty(const char* pName, std::string& pState) cons
         else if (_target == sim_handle_scene)
             cl = App::scene->customObjects->getClass(getObjectTypeStr().c_str());
         if (cl != nullptr)
-            retVal = getMethodProperty(pName, pState);
+            retVal = cl->getMethodProperty(pName, pState);
     }
     return retVal;
 }

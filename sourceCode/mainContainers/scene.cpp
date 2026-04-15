@@ -513,6 +513,23 @@ void CScene::saveScene(CSer& ar, bool regularSave /*= true*/)
         customSceneData.serializeData(ar, nullptr);
         ar.xmlPopNode();
     }
+
+    if (ar.isBinary())
+    {
+        ar.storeDataName(SER_CUSTOMOBJECTS);
+        ar.setCountingMode();
+        customObjects->serialize(ar);
+        if (ar.setWritingMode())
+            customObjects->serialize(ar);
+    }
+    else
+    {
+        ar.xmlPushNewNode(SERX_CUSTOMOBJECTS);
+        customObjects->serialize(ar);
+        ar.xmlPopNode();
+    }
+
+
     // Keep a while for backward compatibility (e.g. until V4.4.0)
     //------------------------------------------------------------
     if (ar.isBinary())
@@ -1497,6 +1514,12 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
                     customSceneData.serializeData(ar, nullptr);
                     noHit = false;
                 }
+                if (theName.compare(SER_CUSTOMOBJECTS) == 0)
+                {
+                    ar >> byteQuantity;
+                    customObjects->serialize(ar);
+                    noHit = false;
+                }
                 if (theName.compare(SER_SCENE_CUSTOM_DATA_OLD) == 0)
                 { // for backward compatibility
                     ar >> byteQuantity;
@@ -1613,6 +1636,11 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
         if (ar.xmlPushChildNode(SERX_SCENE_CUSTOM_DATA, false))
         {
             customSceneData.serializeData(ar, nullptr);
+            ar.xmlPopNode();
+        }
+        if (ar.xmlPushChildNode(SERX_CUSTOMOBJECTS, false))
+        {
+            customObjects->serialize(ar);
             ar.xmlPopNode();
         }
         if (ar.xmlPushChildNode(SERX_SCENE_CUSTOM_DATA_OLD, false))

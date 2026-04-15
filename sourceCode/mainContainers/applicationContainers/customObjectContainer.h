@@ -1,6 +1,7 @@
 #pragma once
 
 #include <customObject.h>
+#include <ser.h>
 
 class CustomObjectContainer
 {
@@ -9,6 +10,7 @@ class CustomObjectContainer
     virtual ~CustomObjectContainer();
 
     void pushGenesisEvents() const;
+    void serialize(CSer& ar);
 
     long long int getFreshHandle() const;
     CustomObject* getItem(long long int objectHandle) const;

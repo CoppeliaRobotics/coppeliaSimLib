@@ -1007,6 +1007,14 @@ CSer& CSer::operator<<(const long& v)
     return (*this);
 }
 
+CSer& CSer::operator<<(const long long int& v)
+{
+    unsigned char* tmp = (unsigned char*)(&v);
+    for (int i = 0; i < int(sizeof(v)); i++)
+        buffer.push_back(tmp[i]);
+    return (*this);
+}
+
 CSer& CSer::operator<<(const unsigned char& v)
 {
     buffer.push_back(v);
@@ -1091,6 +1099,14 @@ CSer& CSer::operator>>(quint64& v)
 }
 
 CSer& CSer::operator>>(long& v)
+{
+    unsigned char* tmp = (unsigned char*)(&v);
+    for (int i = 0; i < int(sizeof(v)); i++)
+        tmp[i] = _fileBuffer[_fileBufferReadPointer++];
+    return (*this);
+}
+
+CSer& CSer::operator>>(long long int& v)
 {
     unsigned char* tmp = (unsigned char*)(&v);
     for (int i = 0; i < int(sizeof(v)); i++)

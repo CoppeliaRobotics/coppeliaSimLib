@@ -53,6 +53,7 @@
 #define SER_LUA_SCRIPT "LST"
 #define SER_SCENE_CUSTOM_DATA "CDA"
 #define SER_SCENE_CUSTOM_DATA_OLD "CDS"
+#define SER_CUSTOMOBJECTS "COB"
 //#define SER_GEOMETRIC_CONSTRAINT_OBJECT_old "GCO" reserved tag
 #define SER_SIMULATION "SIM"
 // #define SER_MODEL_ACKNOWLEDGEMENTOLD_20100714       "MAC" reserved tag
@@ -92,6 +93,7 @@
 #define SERX_SIMULATION "simulation"
 #define SERX_SCENE_CUSTOM_DATA "customSceneData"
 #define SERX_SCENE_CUSTOM_DATA_OLD "sceneCustomData"
+#define SERX_CUSTOMOBJECTS "customObjects"
 #define SERX_VIEWS "views"
 #define SERX_COLLECTION "collection"
 #define SERX_LUA_SCRIPT "script" // legacy scripts

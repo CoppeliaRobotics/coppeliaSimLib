@@ -60,6 +60,7 @@ class CSer
     CSer& operator<<(const unsigned int& v);
     CSer& operator<<(const quint64& v);
     CSer& operator<<(const long& v);
+    CSer& operator<<(const long long int& v);
     CSer& operator<<(const unsigned char& v);
     CSer& operator<<(const char& v);
     CSer& operator<<(const std::string& v);
@@ -71,6 +72,7 @@ class CSer
     CSer& operator>>(unsigned int& v);
     CSer& operator>>(quint64& v);
     CSer& operator>>(long& v);
+    CSer& operator>>(long long int& v);
     CSer& operator>>(unsigned char& v);
     CSer& operator>>(char& v);
     CSer& operator>>(std::string& v);
