@@ -28,17 +28,18 @@ void CCustomProperties::copyFromExceptMethods(const CCustomProperties* source)
     std::string pName, appart;
     int index = 0;
     int ind = index;
+    std::vector<std::string> toRemove;
     while (getPropertyName(ind, pName, appart, 0) == sim_propertyret_ok)
     {
         int info;
         std::string infoTxt;
         if (getPropertyInfo(pName.c_str(), info, infoTxt) == sim_propertytype_method)
-            removeProperty(pName.c_str());
-        else
-            index++;
-        ind = index;
+            toRemove.push_back(pName);
+        ind = ++index;
         pName.clear();
     }
+    for (size_t i = 0; i < toRemove.size(); i++)
+        removeProperty(pName.c_str());
 }
 
 void CCustomProperties::_writeInt32(std::string& buf, size_t offset, int32_t val)

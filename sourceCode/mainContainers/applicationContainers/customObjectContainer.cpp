@@ -199,6 +199,7 @@ long long int CustomObjectContainer::addClass(const char* objectTypeStr, const c
         obj->setIntProperty("target", _target);
         obj->setPropertyInfo("target", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
         obj->setMethodProperty("remove", nullptr);
+        obj->setPropertyInfo("remove", sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "");
         _notifyClassListChanged();
     }
     return retVal;
@@ -268,6 +269,8 @@ long long int CustomObjectContainer::addObject(const char* objectTypeStr, bool i
         CustomObject* obj = classObj->createObject(retVal, originScriptHandle);
         obj->setVolatile(isVolatile);
         _customObjects.insert({retVal, obj});
+        obj->setBoolProperty("isCustomObject", true);
+        obj->setPropertyInfo("isCustomObject", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
         obj->pushObjectCreationEvent();
         _notifyObjectListChanged();
     }
