@@ -275,6 +275,7 @@ void CSceneContainer::initialize()
 void CSceneContainer::deinitialize()
 {
     TRACE_INTERNAL;
+    _eventsEnabled = false;
     delete _events;
 
     copyBuffer->clearBuffer();
