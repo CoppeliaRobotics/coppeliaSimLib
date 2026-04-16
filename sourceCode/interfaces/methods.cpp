@@ -6351,21 +6351,24 @@ std::string _method_getMethodProperty(int targetObj, const char* method, CDetach
                 pushBuffer(outStack, byteCode.data(), byteCode.size());
             else
             {
-                if (res == sim_propertyret_unknowntarget)
-                    errMsg = SIM_ERROR_TARGET_DOES_NOT_EXIST;
-                else
+                if (!noError)
                 {
-                    std::string err("'");
-                    err += pName + "' ";
-                    int info;
-                    std::string infoTxt;
-                    int p = App::getPropertyInfo(targetObj, pName.c_str(), info, infoTxt);
-                    if (p < sim_propertytype_start)
-                        errMsg = err + SIM_ERROR_UNKNOWN_PROPERTY;
-                    else if ((p & 0xff) == sim_propertytype_method)
-                        errMsg = err + SIM_ERROR_PROPERTY_CANNOT_BE_READ;
+                    if (res == sim_propertyret_unknowntarget)
+                        errMsg = SIM_ERROR_TARGET_DOES_NOT_EXIST;
                     else
-                       errMsg = err + SIM_ERROR_PROPERTY_TYPE_MISMATCH;
+                    {
+                        std::string err("'");
+                        err += pName + "' ";
+                        int info;
+                        std::string infoTxt;
+                        int p = App::getPropertyInfo(targetObj, pName.c_str(), info, infoTxt);
+                        if (p < sim_propertytype_start)
+                            errMsg = err + SIM_ERROR_UNKNOWN_PROPERTY;
+                        else if ((p & 0xff) == sim_propertytype_method)
+                            errMsg = err + SIM_ERROR_PROPERTY_CANNOT_BE_READ;
+                        else
+                           errMsg = err + SIM_ERROR_PROPERTY_TYPE_MISMATCH;
+                    }
                 }
             }
         }
@@ -6389,7 +6392,7 @@ std::string _method_setMethodProperty(int targetObj, const char* method, CDetach
         if (errMsg.size() == 0)
         {
             int res = App::setMethodProperty(targetObj, pName.c_str(), pValue);
-            if (res != sim_propertyret_ok)
+            if ((res != sim_propertyret_ok) && (!noError))
             {
                 if (res == sim_propertyret_unknowntarget)
                     errMsg = SIM_ERROR_TARGET_DOES_NOT_EXIST;
