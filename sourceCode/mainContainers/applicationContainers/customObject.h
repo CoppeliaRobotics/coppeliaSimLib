@@ -1,6 +1,7 @@
 #pragma once
 
 #include <obj.h>
+#include <ser.h>
 #include <customProperties.h>
 
 class CustomObject: public Obj
@@ -12,6 +13,7 @@ class CustomObject: public Obj
     CustomObject* createObject(long long int handle, int originScriptHandle) const;
 
     void pushObjectCreationEvent() const;
+    void serialize(CSer& ar);
 
     int setBoolProperty(const char* pName, bool pState) override;
     int getBoolProperty(const char* pName, bool& pState) const override;

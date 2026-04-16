@@ -10,7 +10,7 @@ CustomObject::CustomObject(long long int handle, const char* objectTypeStr, cons
     _scriptHandle = originScriptHandle;
     _target = target;
     _volatile = true;
-    _isClass = true;
+    _isClass = (strlen(objectMetaInfo) > 0);
 }
 
 CustomObject::~CustomObject()
@@ -203,6 +203,147 @@ void CustomObject::pushObjectCreationEvent() const
             pName.clear();
         }
         App::scenes->pushEvent();
+    }
+}
+
+void CustomObject::serialize(CSer& ar)
+{
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        { // Storing
+            std::vector<std::string> names;
+            std::vector<std::string> data;
+            _customProperties.getAllPropertyData(names, data);
+            ar.storeDataName("obj");
+            ar << _objectTypeStr;
+            ar << int(names.size());
+            for (size_t i = 0; i < names.size(); i++)
+            {
+                ar << names[i];
+                ar << data[i];
+            }
+            ar.flush();
+
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        { // Loading
+            int byteQuantity;
+            std::string theName = "";
+            while (theName.compare(SER_END_OF_OBJECT) != 0)
+            {
+                theName = ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT) != 0)
+                {
+                    bool noHit = true;
+                    if (theName.compare("obj") == 0)
+                    {
+                        noHit = false;
+                        ar >> byteQuantity;
+                        ar >> _objectTypeStr;
+                        int cnt;
+                        ar >> cnt;
+                        std::vector<std::string> names;
+                        std::vector<std::string> data;
+                        std::string s;
+                        for (int i = 0; i < cnt; i++)
+                        {
+                            ar >> s;
+                            names.push_back(s);
+                            ar >> s;
+                            data.push_back(s);
+                        }
+                        _customProperties.setAllPropertyData(names, data);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
+        }
+    }
+    else
+    {
+        /*
+        if (ar.isStoring())
+        {
+            size_t totSize = 0;
+            for (size_t i = 0; i < _data.size(); i++)
+                totSize += _data[i].data.size();
+            if (ar.xmlSaveDataInline(totSize))
+            {
+                for (size_t i = 0; i < _data.size(); i++)
+                {
+                    ar.xmlPushNewNode("data");
+                    ar.xmlAddNode_string("tag", _data[i].tag.c_str());
+                    std::string str(base64_encode((unsigned char*)_data[i].data.c_str(), _data[i].data.size()));
+                    ar.xmlAddNode_string("data_base64Coded", str.c_str());
+                    ar.xmlPopNode();
+                }
+            }
+            else
+            {
+                CSer* serObj = nullptr;
+                if (objectName != nullptr)
+                    serObj = ar.xmlAddNode_binFile("file", (std::string("objectCustomData_") + objectName).c_str());
+                else
+                    serObj = ar.xmlAddNode_binFile("file", "sceneCustomData");
+                serObj[0] << int(_data.size());
+                for (size_t i = 0; i < _data.size(); i++)
+                {
+                    serObj[0] << _data[i].tag;
+                    serObj[0] << int(_data[i].data.size());
+                    for (size_t j = 0; j < _data[i].data.size(); j++)
+                        serObj[0] << _data[i].data[j];
+                }
+                serObj->flush();
+                serObj->writeClose();
+                delete serObj;
+            }
+        }
+        else
+        {
+            CSer* serObj = ar.xmlGetNode_binFile("file", false);
+            if (serObj == nullptr)
+            {
+                if (ar.xmlPushChildNode("data", false))
+                {
+                    while (true)
+                    {
+                        SCustomData dat;
+                        ar.xmlGetNode_string("tag", dat.tag);
+                        std::string data;
+                        ar.xmlGetNode_string("data_base64Coded", data);
+                        data = base64_decode(data);
+                        dat.data = data;
+                        _data.push_back(dat);
+                        if (!ar.xmlPushSiblingNode("data", false))
+                            break;
+                    }
+                    ar.xmlPopNode();
+                }
+            }
+            else
+            {
+                int s;
+                serObj[0] >> s;
+                for (size_t i = 0; i < size_t(s); i++)
+                {
+                    SCustomData dat;
+                    serObj[0] >> dat.tag;
+                    int l;
+                    serObj[0] >> l;
+                    ar >> l;
+                    dat.data.resize(size_t(l));
+                    for (size_t j = 0; j < size_t(l); j++)
+                        ar >> dat.data[j];
+                    _data.push_back(dat);
+                }
+                serObj->readClose();
+                delete serObj;
+            }
+        }
+*/
     }
 }
 

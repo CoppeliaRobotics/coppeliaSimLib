@@ -19,9 +19,9 @@ void CustomObjectContainer::pushGenesisEvents() const
 
 void CustomObjectContainer::serialize(CSer& ar)
 {
-    /*
     if (ar.isBinary())
     {
+        /*
         if (ar.isStoring())
         { // Storing
             for (auto it = _customObjects.begin(); it != _customObjects.end(); ++it)
@@ -49,35 +49,27 @@ void CustomObjectContainer::serialize(CSer& ar)
                 if (theName.compare(SER_END_OF_OBJECT) != 0)
                 {
                     bool noHit = true;
-                    if (theName.compare("Dst") == 0)
+                    if (theName.compare("Obj") == 0)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        CGraphDataStream* it = new CGraphDataStream();
-                        it->serialize(ar, startingPoint, numberOfPoints, bufferSize);
-                        _dataStreams.push_back(it);
-                    }
-                    if (theName == "Cdt")
-                    {
-                        noHit = false;
-                        ar >> byteQuantity;
-                        SCustomData dat;
-                        ar >> dat.tag;
-                        int l;
-                        ar >> l;
-                        dat.data.resize(size_t(l));
-                        for (size_t i = 0; i < size_t(l); i++)
-                            ar >> dat.data[i];
-                        _data.push_back(dat);
+                        long long int h;
+                        ar >> h;
+                        CustomObject* obj = new CustomObject(h, "", "", -1, _target);
+                        obj->serialize(ar);
+                        obj->setVolatile(false);
+                        _customObjects.insert({h, obj});
                     }
                     if (noHit)
                         ar.loadUnknownData();
                 }
             }
         }
+*/
     }
     else
     {
+        /*
         if (ar.isStoring())
         {
             size_t totSize = 0;
@@ -156,8 +148,8 @@ void CustomObjectContainer::serialize(CSer& ar)
                 delete serObj;
             }
         }
-    }
 */
+    }
 }
 
 long long int CustomObjectContainer::getFreshHandle() const

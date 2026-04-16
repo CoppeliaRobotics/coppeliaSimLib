@@ -22,6 +22,22 @@ size_t CCustomProperties::getPropertyCount() const
     return _properties.size();
 }
 
+void CCustomProperties::getAllPropertyData(std::vector<std::string>& names, std::vector<std::string>& data) const
+{
+    for (auto it = _properties.begin(); it != _properties.end(); ++it )
+    {
+        names.push_back(it->first);
+        data.push_back(it->second);
+    }
+}
+
+void CCustomProperties::setAllPropertyData(const std::vector<std::string>& names, const std::vector<std::string>& data)
+{
+    clear();
+    for (size_t i = 0; i < names.size(); i++)
+        _properties.insert({names[i], data[i]});
+}
+
 void CCustomProperties::copyFromExceptMethods(const CCustomProperties* source)
 {
     _properties = source->_properties;

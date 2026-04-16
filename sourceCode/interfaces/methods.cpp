@@ -213,7 +213,27 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
 
     std::string retVal("__notFound__");
     if (funcTable.find(method) != funcTable.end())
-        retVal = funcTable[method](targetObj, method, currentScript, inStack, outStack);
+        retVal = funcTable[method](targetObj, method, currentScript, inStack, outStack); // hard-coded method
+    else
+    {
+        void* func;
+        if (App::getMethodProperty(targetObj, method, func) == sim_propertyret_ok)
+        { // method provided via property
+            typedef char* (*MethodFunc)(long long int, const char*, long long int,  long long int,  long long int);
+            MethodFunc methodFunc = reinterpret_cast<MethodFunc>(func);
+            long long int scriptHandle = -1;
+            if (currentScript != nullptr)
+                scriptHandle = currentScript->getObjectHandle();
+            char* err = methodFunc(targetObj, method, scriptHandle, inStack->getObjectHandle(), outStack->getObjectHandle());
+            if (err == nullptr)
+                retVal.clear();
+            else
+            {
+                retVal = err;
+                delete[] err;
+            }
+        }
+    }
     return retVal;
 }
 
@@ -6276,7 +6296,7 @@ std::string _method_getMatrixProperty(int targetObj, const char* method, CDetach
 std::string _method_setMatrixProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_matrix, -1, -1, arg_optional | arg_map}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_matrix, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         CMatrix pValue = fetchMatrix(inStack, 1);
@@ -6356,10 +6376,10 @@ std::string _method_getMethodProperty(int targetObj, const char* method, CDetach
 std::string _method_setMethodProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, -1, -1, arg_optional | arg_map}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
-        std::string pValue = fetchBuffer(inStack, 1);
+        std::string pValue = fetchBuffer(inStack, 1); // can be nil, in which case we register a dummy function
         bool noError = false;
         if (hasNonNullArg(inStack, 2))
         {
@@ -6617,7 +6637,7 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
         if (errMsg.size() == 0)
         {
             int h = -1;
-            if ((currentScript != nullptr) && scriptPersistent)
+            if ((currentScript != nullptr) && (!scriptPersistent) && isVolatile)
                 h = currentScript->getScriptHandle();
             if (metaInfoStr.size() == 0)
             {
