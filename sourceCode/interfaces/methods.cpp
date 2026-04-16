@@ -6296,7 +6296,7 @@ std::string _method_getMatrixProperty(int targetObj, const char* method, CDetach
 std::string _method_setMatrixProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_matrix, arg_optional | arg_map}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_matrix, -1, -1, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         CMatrix pValue = fetchMatrix(inStack, 1);
