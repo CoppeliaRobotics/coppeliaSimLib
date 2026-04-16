@@ -6639,11 +6639,11 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
         }
         if (errMsg.size() == 0)
         {
-            int h = -1;
-            if ((currentScript != nullptr) && (!scriptPersistent) && isVolatile)
-                h = currentScript->getScriptHandle();
             if (metaInfoStr.size() == 0)
             {
+                int h = -1;
+                if ((currentScript != nullptr) && (!scriptPersistent) && isVolatile)
+                    h = currentScript->getScriptHandle();
                 long long int retVal = -1;
                 if (targetObj == sim_handle_app)
                     retVal = App::scenes->customObjects->addObject(typeStr.c_str(), isVolatile, h);
@@ -6658,9 +6658,9 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
             {
                 long long int retVal = -1;
                 if (targetObj == sim_handle_app)
-                    retVal = App::scenes->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), h);
+                    retVal = App::scenes->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), -1);
                 else if (targetObj == sim_handle_scene)
-                    retVal = App::scene->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), h);
+                    retVal = App::scene->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), -1);
                 if (retVal >= 0)
                     pushLong(outStack, retVal);
                 else
