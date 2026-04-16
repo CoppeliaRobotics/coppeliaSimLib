@@ -190,8 +190,8 @@ long long int CustomObjectContainer::addClass(const char* objectTypeStr, const c
         _customClasses.insert({objectTypeStr, obj});
         obj->setIntProperty("target", _target);
         obj->setPropertyInfo("target", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
-        obj->setMethodProperty("remove", nullptr);
-        obj->setPropertyInfo("remove", sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "");
+        //obj->setMethodProperty("remove", nullptr);
+        //obj->setPropertyInfo("remove", sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "");
         _notifyClassListChanged();
     }
     return retVal;

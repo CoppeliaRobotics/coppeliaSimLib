@@ -6678,10 +6678,12 @@ std::string _method_removeCustomObject(int targetObj, const char* method, CDetac
     {
         long long int h = fetchHandle(inStack, 0);
         std::string typeStr;
+        bool noError = false;
         if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchStringFromKey("class", typeStr, &errMsg);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
         {
@@ -6700,7 +6702,7 @@ std::string _method_removeCustomObject(int targetObj, const char* method, CDetac
                 else if (targetObj == sim_handle_scene)
                     success = App::scene->customObjects->removeItem(h);
             }
-            if (!success)
+            if ((!success) && (!noError))
                 errMsg = SIM_ERROR_OBJECTCLASS_INEXISTANT;
         }
     }
