@@ -2153,7 +2153,24 @@ int CDetachedScript::_callScriptFunction(int sysCallType, const char* functionNa
     {
         if (_functionHooks_before[2 * i + 0].compare(functionName) == 0)
         {
-            int r = _callScriptFunc(_functionHooks_before[2 * i + 1].c_str(), inStack, nullptr, &err);
+            std::string func(_functionHooks_before[2 * i + 1]);
+            size_t p = func.find(':');
+            int r;
+            if (p == std::string::npos)
+                r = _callScriptFunc(func.c_str(), inStack, nullptr, &err);
+            else
+            {
+                int h;
+                if (tt::stringToInt(func.substr(0, p).c_str(), h))
+                {
+                    func.erase(0, p + 1);
+                    int inStackH = -1;
+                    if (inStack != nullptr)
+                        inStackH = inStack->getObjectHandle();
+                    simCallMethod_internal(h, func.c_str(), inStackH, -1, getObjectHandle());
+                }
+                r = 1; // for now
+            }
             if (r < 0)
             {
                 retVal = r;
@@ -2182,7 +2199,24 @@ int CDetachedScript::_callScriptFunction(int sysCallType, const char* functionNa
     {
         if (_functionHooks_after[2 * i + 0].compare(functionName) == 0)
         {
-            int r = _callScriptFunc(_functionHooks_after[2 * i + 1].c_str(), inStack, nullptr, &err);
+            std::string func(_functionHooks_after[2 * i + 1]);
+            size_t p = func.find(':');
+            int r;
+            if (p == std::string::npos)
+                r = _callScriptFunc(func.c_str(), inStack, nullptr, &err);
+            else
+            {
+                int h;
+                if (tt::stringToInt(func.substr(0, p).c_str(), h))
+                {
+                    func.erase(0, p + 1);
+                    int inStackH = -1;
+                    if (inStack != nullptr)
+                        inStackH = inStack->getObjectHandle();
+                    simCallMethod_internal(h, func.c_str(), inStackH, -1, getObjectHandle());
+                }
+                r = 1; // for now
+            }
             if (r < 0)
             {
                 retVal = r;

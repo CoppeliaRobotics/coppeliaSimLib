@@ -6412,10 +6412,11 @@ int _callMethod(luaWrap_lua_State* L)
     {
         long long int target = fetchHandleArg(L, 1);
         std::string methodName = fetchTextArg(L, 2);
+        methodName = "@" + methodName;
         CInterfaceStack* inStack = App::scenes->interfaceStackContainer->createStack();
         CDetachedScript::buildFromInterpreterStack_lua(L, inStack, 3, 0); // skip the two first args
         CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();
-        int res = CALL_C_API(simCallMethod, target, methodName.c_str(), -inStack->getObjectHandle(), outStack->getObjectHandle(), CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+        int res = CALL_C_API(simCallMethod, target, methodName.c_str(), inStack->getObjectHandle(), outStack->getObjectHandle(), CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
         if (res == 1)
         {
             int s = int(CDetachedScript::buildOntoInterpreterStack_lua(L, outStack, false, false));

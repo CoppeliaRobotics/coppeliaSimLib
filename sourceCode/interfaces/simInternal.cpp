@@ -3023,14 +3023,16 @@ int simSetPropertyInfo_internal(long long int target, const char* ppName, const 
     return -1;
 }
 
-int simCallMethod_internal(long long int target, const char* name, int inputStack, int outputStack, int detachedScript)
+int simCallMethod_internal(long long int target, const char* nname, int inputStack, int outputStack, int detachedScript)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        bool luaCalling = (inputStack < 0);
-        inputStack = abs(inputStack);
+        std::string name(nname);
+        bool luaCalling = (name[0] == '@');
+        if (luaCalling)
+            name.erase(name.begin());
         CInterfaceStack* inStack = App::scenes->interfaceStackContainer->getStack(inputStack);
         CInterfaceStack* outStack = App::scenes->interfaceStackContainer->getStack(outputStack);
         CDetachedScript* currentScript = App::scenes->getDetachedScriptFromHandle(detachedScript);
@@ -3046,7 +3048,7 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
             _outStack = App::scenes->interfaceStackContainer->createStack();
         _outStack->clear();
 
-        std::string err(callMethod(target, name, currentScript, _inStack, _outStack));
+        std::string err(callMethod(target, name.c_str(), currentScript, _inStack, _outStack));
 
         if (inStack == nullptr)
             App::scenes->interfaceStackContainer->destroyStack(_inStack);
@@ -3089,15 +3091,16 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
                     outStack->clear();
                 if (VThread::isSimThread())
                 {
-                    std::string methodName(name);
-                    methodName = "@" + methodName; // to indicate that we come from c
+                    name = "@" + name; // to indicate that we come from c
                     CInterfaceStack* inStackT = App::scenes->interfaceStackContainer->createStack();
                     if (inStack != nullptr)
                         inStackT->copyFrom(inStack);
-                    inStackT->insertItem(0, new CInterfaceStackString(methodName.c_str()));
+                    inStackT->insertItem(0, new CInterfaceStackString(name.c_str()));
                     inStackT->insertItem(0, new CInterfaceStackHandle(target));
                     std::string errorMsg;
-                    retVal = currentScript->callCustomScriptFunction("@sim.callMethod", inStackT, outStackT, &errorMsg); // @ here to indicate we do not want to call sysCall_ext
+                    std::string ss;
+                    inStackT->printContent(-1, ss);
+                    retVal = currentScript->callCustomScriptFunction("@__2.sim.callMethod", inStackT, outStackT, &errorMsg); // @ here to indicate we do not want to call sysCall_ext, and __2 is the only global variable in sim-2!
                     App::scenes->interfaceStackContainer->destroyStack(inStackT);
                 }
                 if (retVal <= 0)
@@ -10197,7 +10200,21 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
                 }
 
                 CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();
-                retVal = script->callCustomScriptFunction(funcName.c_str(), stack, outStack);
+                p = funcName.find(':');
+                if (p == std::string::npos)
+                    retVal = script->callCustomScriptFunction(funcName.c_str(), stack, outStack);
+                else
+                {
+                    int h;
+                    if (tt::stringToInt(funcName.substr(0, p).c_str(), h))
+                    {
+                        funcName.erase(0, p + 1);
+                        retVal = simCallMethod_internal(h, funcName.c_str(), stack->getObjectHandle(), outStack->getObjectHandle(), script->getObjectHandle());
+                    }
+                    else
+                        retVal = 0;
+                }
+
                 if (outStack->getStackSize() > 0)
                 { // when the script is a Python script, we must check for other errors, since the call is handled
                     // via sysCall_ext:

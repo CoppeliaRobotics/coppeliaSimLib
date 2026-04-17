@@ -708,22 +708,24 @@ int CustomObject::getStringArrayProperty(const char* pName, std::vector<std::str
 
 int CustomObject::setMethodProperty(const char* pName, const void* pState)
 {
+    std::string ppN(pName);
+    ppN += "@cfunc";
     int retVal = sim_propertyret_unknownproperty;
     if (retVal == sim_propertyret_unknownproperty)
     {
         bool changed = false;
-        retVal = _customProperties.setMethodProperty(pName, pState, changed);
-        //if (changed)
-        //    _triggerEvent(pName);
+        retVal = _customProperties.setMethodProperty(ppN.c_str(), pState, changed);
     }
     return retVal;
 }
 
 int CustomObject::getMethodProperty(const char* pName, void*& pState) const
 {
+    std::string ppN(pName);
+    ppN += "@cfunc";
     int retVal = sim_propertyret_unknownproperty;
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.getMethodProperty(pName, pState);
+        retVal = _customProperties.getMethodProperty(ppN.c_str(), pState);
     if ((!_isClass) && (retVal == sim_propertyret_unknownproperty))
     {
         CustomObject* cl = nullptr;
@@ -732,7 +734,7 @@ int CustomObject::getMethodProperty(const char* pName, void*& pState) const
         else if (_target == sim_handle_scene)
             cl = App::scene->customObjects->getClass(getObjectTypeStr().c_str());
         if (cl != nullptr)
-            retVal = cl->getMethodProperty(pName, pState);
+            retVal = cl->getMethodProperty(ppN.c_str(), pState);
     }
     return retVal;
 }
