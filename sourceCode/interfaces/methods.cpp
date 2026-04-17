@@ -2741,14 +2741,44 @@ std::string _method_callFunction(int targetObj, const char* method, CDetachedScr
         {
             CInterfaceStack* inStack2 = App::scenes->interfaceStackContainer->createStackCopy(inStack);
             delete inStack2->detachStackObjectFromIndex(0);
-            int rr = target->callCustomScriptFunction(funcName.c_str(), inStack2, outStack);
-            App::scenes->interfaceStackContainer->destroyStack(inStack2);
-            if (rr != 1)
+
+            size_t p = funcName.find(':');
+            if (p == std::string::npos)
             {
-                if (rr == -1)
-                    errMsg = SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
-                else // rr==0
-                    errMsg = SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
+                int rr = target->callCustomScriptFunction(funcName.c_str(), inStack2, outStack);
+                if (rr != 1)
+                {
+                    if (rr == -1)
+                        errMsg = SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
+                    else // rr==0
+                        errMsg = SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
+                }
+            }
+            else
+            {
+                int h;
+                if (tt::stringToInt(funcName.substr(0, p).c_str(), h))
+                {
+                    funcName.erase(0, p + 1);
+                    funcName = "@" + funcName; // to indicate that we come from c
+                    CInterfaceStack* inStackT = App::scenes->interfaceStackContainer->createStack();
+                    inStackT->copyFrom(inStack);
+                    inStackT->insertItem(0, new CInterfaceStackString(funcName.c_str()));
+                    inStackT->insertItem(0, new CInterfaceStackHandle(h));
+                    std::string errorMsg;
+                    int rr = target->callCustomScriptFunction("@__2.sim.callMethod", inStackT, outStack, &errMsg); // @ here to indicate we do not want to call sysCall_ext, and __2 is the only global variable in sim-2!
+                    App::scenes->interfaceStackContainer->destroyStack(inStackT);
+                    if (rr <= 0)
+                        errMsg = SIM_ERROR_FAILED_CALLING_METHOD;
+                    else
+                    {
+                        CInterfaceStackString* res = (CInterfaceStackString*)outStack->detachStackObjectFromIndex(0); // first ret val is always an error string
+                        size_t l;
+                        std::string err(res->getValue(&l));
+                        if (err.size() > 0)
+                            errMsg = err;
+                    }
+                }
             }
         }
         else
