@@ -3098,8 +3098,6 @@ int simCallMethod_internal(long long int target, const char* nname, int inputSta
                     inStackT->insertItem(0, new CInterfaceStackString(name.c_str()));
                     inStackT->insertItem(0, new CInterfaceStackHandle(target));
                     std::string errorMsg;
-                    std::string ss;
-                    inStackT->printContent(-1, ss);
                     retVal = currentScript->callCustomScriptFunction("@__2.sim.callMethod", inStackT, outStackT, &errorMsg); // @ here to indicate we do not want to call sysCall_ext, and __2 is the only global variable in sim-2!
                     App::scenes->interfaceStackContainer->destroyStack(inStackT);
                 }

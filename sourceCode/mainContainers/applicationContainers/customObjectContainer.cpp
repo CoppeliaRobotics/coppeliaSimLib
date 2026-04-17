@@ -13,7 +13,7 @@ CustomObjectContainer::~CustomObjectContainer()
 
 void CustomObjectContainer::pushGenesisEvents() const
 {
-    for (auto it = _customObjects.begin(); it != _customObjects.end(); )
+    for (auto it = _customObjects.begin(); it != _customObjects.end(); ++it)
         it->second->pushObjectCreationEvent();
 }
 
