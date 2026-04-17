@@ -2311,7 +2311,6 @@ void CDynamicsContainer::appendGenesisData(CCbor* ev)
     setIntProperty(nullptr, 0, ev);
     setFloatProperty(nullptr, 0.0, ev);
     setIntArray2Property(nullptr, nullptr, ev);
-    setVector2Property(nullptr, nullptr, ev);
     setVector3Property(nullptr, nullptr, ev);
     setFloatArrayProperty(nullptr, nullptr, 0, ev);
     _sendEngineString(ev);
@@ -3158,109 +3157,6 @@ int CDynamicsContainer::getIntArray2Property(const char* pName, int* pState, boo
 
     // Engine-only properties:
     // ------------------------
-    // ------------------------
-
-    return retVal;
-}
-
-int CDynamicsContainer::setVector2Property(const char* pName, const double* pState, CCbor* eev /* = nullptr*/)
-{
-    int retVal = sim_propertyret_unknownproperty;
-    CCbor* ev = nullptr;
-    if (eev != nullptr)
-        ev = eev;
-
-    if ((eev == nullptr) && (pName != nullptr))
-    { // regular properties (i.e. non-engine properties)
-    }
-
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        // Following only for engine properties:
-        // -------------------------------------
-        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1) {
-            if ((pName == nullptr) || (propertyName == pName))
-            {
-                retVal = sim_propertyret_ok;
-                bool pa = false;
-                if (pState != nullptr)
-                {
-                    for (size_t i = 0; i < 2; i++)
-                        pa = pa || ((pState != nullptr) && (arr[simiIndex1 + i] != pState[i]));
-                }
-                if ((pName == nullptr) || pa)
-                {
-                    if (pName != nullptr)
-                    {
-                        for (size_t i = 0; i < 2; i++)
-                            arr[simiIndex1 + i] = pState[i];
-                    }
-                    if (App::scenes->getEventsEnabled())
-                    {
-                        if (ev == nullptr)
-                            ev = App::scenes->createObjectChangedEvent(sim_handle_scene, propertyName.c_str(), true);
-                        ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 2);
-                        if (pName != nullptr)
-                            _sendEngineString(ev);
-                    }
-                }
-            }
-        };
-
-        //        handleProp(propDynCont_mujocoContactParamsSolref.name, _mujocoFloatParams, simi_mujoco_global_overridesolref1);
-
-        if ((ev != nullptr) && (eev == nullptr))
-            App::scenes->pushEvent();
-        // -------------------------------------
-    }
-
-    if (retVal == 1)
-        checkIfEngineSettingsAreDefault();
-
-    return retVal;
-}
-
-int CDynamicsContainer::getVector2Property(const char* pName, double* pState, bool getDefaultValue /*= false*/) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-    // First non-engine properties:
-
-    // Engine-only properties:
-    // ------------------------
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        const double* bulletFloatParams = _bulletFloatParams.data();
-        const double* odeFloatParams = _odeFloatParams.data();
-        const double* vortexFloatParams = _vortexFloatParams.data();
-        const double* newtonFloatParams = _newtonFloatParams.data();
-        const double* mujocoFloatParams = _mujocoFloatParams.data();
-        std::vector<double> __bulletFloatParams;
-        std::vector<double> __odeFloatParams;
-        std::vector<double> __vortexFloatParams;
-        std::vector<double> __newtonFloatParams;
-        std::vector<double> __mujocoFloatParams;
-        if (getDefaultValue)
-        {
-            getBulletDefaultFloatParams(__bulletFloatParams);
-            getOdeDefaultFloatParams(__odeFloatParams);
-            getVortexDefaultFloatParams(__vortexFloatParams);
-            getNewtonDefaultFloatParams(__newtonFloatParams);
-            getMujocoDefaultFloatParams(__mujocoFloatParams);
-            bulletFloatParams = __bulletFloatParams.data();
-            odeFloatParams = __odeFloatParams.data();
-            vortexFloatParams = __vortexFloatParams.data();
-            newtonFloatParams = __newtonFloatParams.data();
-            mujocoFloatParams = __mujocoFloatParams.data();
-        }
-        auto handleProp = [&](const double* arr, int simiIndex1) {
-            retVal = sim_propertyret_ok;
-            for (size_t i = 0; i < 2; i++)
-                pState[i] = arr[simiIndex1 + i];
-        };
-
-        //        if (strcmp(pName, propDynCont_mujocoContactParamsSolref.name) == 0)
-        //            handleProp(mujocoFloatParams, simi_mujoco_global_overridesolref1);
-    }
     // ------------------------
 
     return retVal;

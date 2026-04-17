@@ -128,8 +128,6 @@ class CMesh : public CMeshWrapper
     int getBufferProperty(const char* pName, std::string& pState, const C7Vector& shapeRelTr) const;
     int setIntArray2Property(const char* pName, const int* pState, const C7Vector& shapeRelTr);
     int getIntArray2Property(const char* pName, int* pState, const C7Vector& shapeRelTr) const;
-    int setVector2Property(const char* pName, const double* pState, const C7Vector& shapeRelTr);
-    int getVector2Property(const char* pName, double* pState, const C7Vector& shapeRelTr) const;
     int setVector3Property(const char* pName, const C3Vector& pState, const C7Vector& shapeRelTr);
     int getVector3Property(const char* pName, C3Vector& pState, const C7Vector& shapeRelTr) const;
     int setQuaternionProperty(const char* pName, const C4Vector& pState, const C7Vector& shapeRelTr);

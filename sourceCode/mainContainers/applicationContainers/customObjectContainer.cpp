@@ -566,24 +566,6 @@ int CustomObjectContainer::getIntArray2Property(long long int target, const char
     return retVal;
 }
 
-int CustomObjectContainer::setVector2Property(long long int target, const char* ppName, const double* pState)
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CustomObject* obj = getItem(target);
-    if (obj != nullptr)
-        retVal = obj->setVector2Property(ppName, pState);
-    return retVal;
-}
-
-int CustomObjectContainer::getVector2Property(long long int target, const char* ppName, double* pState) const
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CustomObject* obj = getItem(target);
-    if (obj != nullptr)
-        retVal = obj->getVector2Property(ppName, pState);
-    return retVal;
-}
-
 int CustomObjectContainer::setVector3Property(long long int target, const char* ppName, const C3Vector& pState)
 {
     int retVal = sim_propertyret_unknowntarget;

@@ -206,8 +206,6 @@ class CJoint : public CSceneObject
     int getFloatProperty(const char* pName, double& pState) const override;
     int setIntArray2Property(const char* pName, const int* pState, CCbor* eev = nullptr);
     int getIntArray2Property(const char* pName, int* pState) const override;
-    int setVector2Property(const char* pName, const double* pState, CCbor* eev = nullptr);
-    int getVector2Property(const char* pName, double* pState) const override;
     int setVector3Property(const char* pName, const C3Vector& pState, CCbor* eev = nullptr);
     int getVector3Property(const char* pName, C3Vector& pState) const override;
     int setStringProperty(const char* pName, const char* pState) override;

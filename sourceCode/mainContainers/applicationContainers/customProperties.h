@@ -24,8 +24,6 @@ class CCustomProperties
     int getBufferProperty(const char* pName, std::string& pState) const;
     int setIntArray2Property(const char* pName, const int* pState, bool& valueChange);
     int getIntArray2Property(const char* pName, int* pState) const;
-    int setVector2Property(const char* pName, const double* pState, bool& valueChange);
-    int getVector2Property(const char* pName, double* pState) const;
     int setVector3Property(const char* pName, const C3Vector& pState, bool& valueChange);
     int getVector3Property(const char* pName, C3Vector& pState) const;
     int setMatrixProperty(const char* pName, const CMatrix& pState, bool& valueChange);

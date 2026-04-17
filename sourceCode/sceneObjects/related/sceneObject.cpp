@@ -6421,22 +6421,6 @@ int CSceneObject::getIntArray2Property(const char* ppName, int* pState) const
     return retVal;
 }
 
-int CSceneObject::setVector2Property(const char* ppName, const double* pState)
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
-int CSceneObject::getVector2Property(const char* ppName, double* pState) const
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
 int CSceneObject::setVector3Property(const char* ppName, const C3Vector& pState)
 {
     std::string _pName(ppName);

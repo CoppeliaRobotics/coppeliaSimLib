@@ -39,7 +39,6 @@ namespace {
     constexpr int arg_color         = sim_stackitem_color;
     constexpr int arg_handlearray   = sim_stackitem_handlearray;
     constexpr int arg_vector        = sim_stackitem_exvector;
-    constexpr int arg_vector2       = sim_stackitem_exvector2;
     constexpr int arg_vector3       = sim_stackitem_exvector3;
     constexpr int arg_map           = sim_stackitem_exmap;
     constexpr int arg_any           = sim_stackitem_exany;
@@ -170,7 +169,6 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["getPoseProperty"] = _method_getPoseProperty;
         funcTable["getQuaternionProperty"] = _method_getQuaternionProperty;
         funcTable["getStringProperty"] = _method_getStringProperty;
-        funcTable["getVector2Property"] = _method_getVector2Property;
         funcTable["getVector3Property"] = _method_getVector3Property;
         funcTable["setBoolProperty"] = _method_setBoolProperty;
         funcTable["setBufferProperty"] = _method_setBufferProperty;
@@ -187,7 +185,6 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["setPoseProperty"] = _method_setPoseProperty;
         funcTable["setQuaternionProperty"] = _method_setQuaternionProperty;
         funcTable["setStringProperty"] = _method_setStringProperty;
-        funcTable["setVector2Property"] = _method_setVector2Property;
         funcTable["setVector3Property"] = _method_setVector3Property;
         funcTable["getMatrixProperty"] = _method_getMatrixProperty;
         funcTable["setMatrixProperty"] = _method_setMatrixProperty;
@@ -224,7 +221,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
             long long int scriptHandle = -1;
             if (currentScript != nullptr)
                 scriptHandle = currentScript->getObjectHandle();
-            char* err = methodFunc(targetObj, method, scriptHandle, inStack->getObjectHandle(), outStack->getObjectHandle());
+            char* err = methodFunc(targetObj, method, inStack->getObjectHandle(), outStack->getObjectHandle(), scriptHandle);
             if (err == nullptr)
                 retVal.clear();
             else
@@ -351,8 +348,6 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                         CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)arg;
                         if ( (desiredArgType == arg_vector) && (m->getValue()->cols == 1) )
                             retVal = true;
-                        else if ( (desiredArgType == arg_vector2) && (m->getValue()->cols == 1) && (m->getValue()->rows == 2) )
-                            retVal = true;
                         else if ( (desiredArgType == arg_vector3) && (m->getValue()->cols == 1) && (m->getValue()->rows == 3) )
                             retVal = true;
                     }
@@ -377,8 +372,6 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                                             retVal = (tbl->getArraySize() == 3);
                                         else if (desiredArgType == arg_vector)
                                             retVal = (tbl->getArraySize() >= 1);
-                                        else if (desiredArgType == arg_vector2)
-                                            retVal = (tbl->getArraySize() == 2);
                                         else if (desiredArgType == arg_vector3)
                                             retVal = (tbl->getArraySize() == 3);
                                         else
@@ -423,8 +416,6 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                                 msg += "a vector";
                             else if (desiredArgType == arg_vector3)
                                 msg += "a vector3";
-                            else if (desiredArgType == arg_vector2)
-                                msg += "a vector2";
                             else if (desiredArgType == arg_handlearray)
                                 msg += "a handle/object array";
                             else if (desiredArgType == arg_map)
@@ -1049,11 +1040,6 @@ void pushVector3(CInterfaceStack* outStack, const C3Vector& v)
 void pushVector(CInterfaceStack* outStack, const double* v, size_t length)
 {
     outStack->pushMatrixOntoStack(v, length, 1);
-}
-
-void pushVector2(CInterfaceStack* outStack, const double v[2])
-{
-    outStack->pushMatrixOntoStack(v, 2, 1);
 }
 
 void pushMatrix(CInterfaceStack* outStack, const CMatrix& v)
@@ -5530,37 +5516,6 @@ std::string _method_getStringProperty(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_getVector2Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
-    {
-        std::string pName = fetchText(inStack, 0);
-        bool noError = false;
-        if (hasNonNullArg(inStack, 1))
-        {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
-        if (errMsg.size() == 0)
-        {
-            double pValue[2];
-            if (CALL_C_API(simGetVector2Property, targetObj, pName.c_str(), pValue) > 0)
-                pushVector2(outStack, pValue);
-            else
-            {
-                errMsg = CApiErrors::getAndClearLastError();
-                if (noError)
-                {
-                    pushNull(outStack);
-                    errMsg.clear();
-                }
-            }
-        }
-    }
-    return errMsg;
-}
-
 std::string _method_getVector3Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
@@ -6157,45 +6112,6 @@ std::string _method_setStringProperty(int targetObj, const char* method, CDetach
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetStringProperty, targetObj, pName.c_str(), pValue.c_str()) > 0)
-            {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
-                {
-                    std::string nn(pName);
-                    if (targetObj == sim_handle_app)
-                        nn = "app." + nn;
-                    else if (targetObj != sim_handle_scene)
-                        nn = "obj." + nn;
-                    currentScript->signalSet(nn.c_str(), targetObj);
-                }
-            }
-            else
-            {
-                errMsg = CApiErrors::getAndClearLastError();
-                if (noError)
-                    errMsg.clear();
-            }
-        }
-    }
-    return errMsg;
-}
-
-std::string _method_setVector2Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_vector2, arg_optional | arg_map}))
-    {
-        std::string pName = fetchText(inStack, 0);
-        std::vector<double> pValue;
-        fetchDoubleArray(inStack, 1, pValue);
-        bool noError = false;
-        if (hasNonNullArg(inStack, 2))
-        {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
-        if (errMsg.size() == 0)
-        {
-            if (CALL_C_API(simSetVector2Property, targetObj, pName.c_str(), pValue.data()) > 0)
             {
                 if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
                 {

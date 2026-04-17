@@ -3209,20 +3209,6 @@ int CMesh::getIntArray2Property(const char* ppName, int* pState, const C7Vector&
     return retVal;
 }
 
-int CMesh::setVector2Property(const char* ppName, const double* pState, const C7Vector& shapeRelTr)
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
-int CMesh::getVector2Property(const char* ppName, double* pState, const C7Vector& shapeRelTr) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
 int CMesh::setVector3Property(const char* ppName, const C3Vector& pState, const C7Vector& shapeRelTr)
 {
     int retVal = sim_propertyret_unknownproperty;

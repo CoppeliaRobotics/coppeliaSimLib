@@ -215,24 +215,6 @@ int CInterfaceStackContainer::getIntArray2Property(long long int target, const c
     return retVal;
 }
 
-int CInterfaceStackContainer::setVector2Property(long long int target, const char* ppName, const double* pState)
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CInterfaceStack* stack = getStack(target);
-    if (stack != nullptr)
-        retVal = stack->setVector2Property(ppName, pState);
-    return retVal;
-}
-
-int CInterfaceStackContainer::getVector2Property(long long int target, const char* ppName, double* pState) const
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CInterfaceStack* stack = getStack(target);
-    if (stack != nullptr)
-        retVal = stack->getVector2Property(ppName, pState);
-    return retVal;
-}
-
 int CInterfaceStackContainer::setVector3Property(long long int target, const char* ppName, const C3Vector& pState)
 {
     int retVal = sim_propertyret_unknowntarget;

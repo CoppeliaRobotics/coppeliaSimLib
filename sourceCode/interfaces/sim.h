@@ -249,8 +249,6 @@ SIM_DLLEXPORT int simSetBufferProperty(long long int target, const char* pName, 
 SIM_DLLEXPORT int simGetBufferProperty2(long long int target, const char* pName, char** buffer, int* bufferL);
 SIM_DLLEXPORT int simSetIntArray2Property(long long int target, const char* pName, const int* pState);
 SIM_DLLEXPORT int simGetIntArray2Property(long long int target, const char* pName, int* pState);
-SIM_DLLEXPORT int simSetVector2Property(long long int target, const char* pName, const double* pState);
-SIM_DLLEXPORT int simGetVector2Property(long long int target, const char* pName, double* pState);
 SIM_DLLEXPORT int simSetVector3Property(long long int target, const char* pName, const double* pState);
 SIM_DLLEXPORT int simGetVector3Property(long long int target, const char* pName, double* pState);
 SIM_DLLEXPORT int simSetMatrixProperty(long long int target, const char* pName, const double* pState, int r, int c);

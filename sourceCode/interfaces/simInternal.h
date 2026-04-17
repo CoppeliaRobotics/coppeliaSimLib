@@ -63,8 +63,6 @@ int simSetBufferProperty_internal(long long int target, const char* pName, const
 int simGetBufferProperty_internal(long long int target, const char* pName, char** buffer, int* bufferL);
 int simSetIntArray2Property_internal(long long int target, const char* pName, const int* pState);
 int simGetIntArray2Property_internal(long long int target, const char* pName, int* pState);
-int simSetVector2Property_internal(long long int target, const char* pName, const double* pState);
-int simGetVector2Property_internal(long long int target, const char* pName, double* pState);
 int simSetVector3Property_internal(long long int target, const char* pName, const double* pState);
 int simGetVector3Property_internal(long long int target, const char* pName, double* pState);
 int simSetMatrixProperty_internal(long long int target, const char* pName, const double* pState, int r, int c);

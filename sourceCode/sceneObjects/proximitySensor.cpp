@@ -1434,32 +1434,6 @@ int CProxSensor::getIntArray2Property(const char* ppName, int* pState) const
     return retVal;
 }
 
-int CProxSensor::setVector2Property(const char* ppName, const double* pState)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::setVector2Property(ppName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-        retVal = convexVolume->setVector2Property(ppName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-    }
-
-    return retVal;
-}
-
-int CProxSensor::getVector2Property(const char* ppName, double* pState) const
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getVector2Property(ppName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-        retVal = convexVolume->getVector2Property(ppName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-    }
-
-    return retVal;
-}
-
 int CProxSensor::setVector3Property(const char* ppName, const C3Vector& pState)
 {
     std::string _pName(ppName);

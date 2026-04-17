@@ -75,7 +75,6 @@ struct SJointProperty
 #define proptypetag_buffer ""
 #define proptypetag_intarray2 "&ivect2&."
 #define proptypetag_long "&lng&."
-#define proptypetag_vector2 "&vect2&."
 #define proptypetag_vector3 "&vect3&."
 #define proptypetag_quaternion "&quat&."
 #define proptypetag_pose "&pose&."

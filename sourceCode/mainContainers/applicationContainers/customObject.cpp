@@ -110,12 +110,6 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/) co
                     if (getIntArray2Property(pName, v) > 0)
                         ev->appendKeyInt32Array(pName, v, 2);
                 }
-                else if (t == sim_propertytype_vector2)
-                {
-                    double v[2];
-                    if (getVector2Property(pName, v) > 0)
-                        ev->appendKeyDoubleArray(pName, v, 2);
-                }
                 else if (t == sim_propertytype_vector3)
                 {
                     C3Vector v;
@@ -512,27 +506,6 @@ int CustomObject::getIntArray2Property(const char* pName, int* pState) const
     int retVal = Obj::getIntArray2Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
         retVal = _customProperties.getIntArray2Property(pName, pState);
-    return retVal;
-}
-
-int CustomObject::setVector2Property(const char* pName, const double* pState)
-{
-    int retVal = Obj::setVector2Property(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        bool changed = false;
-        retVal = _customProperties.setVector2Property(pName, pState, changed);
-        if (changed)
-            _triggerEvent(pName);
-    }
-    return retVal;
-}
-
-int CustomObject::getVector2Property(const char* pName, double* pState) const
-{
-    int retVal = Obj::getVector2Property(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.getVector2Property(pName, pState);
     return retVal;
 }
 

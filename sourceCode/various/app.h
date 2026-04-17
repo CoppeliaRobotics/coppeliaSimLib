@@ -130,8 +130,6 @@ class App
     static int getBufferProperty(long long int target, const char* pName, std::string& pState);
     static int setIntArray2Property(long long int target, const char* pName, const int* pState);
     static int getIntArray2Property(long long int target, const char* pName, int* pState);
-    static int setVector2Property(long long int target, const char* pName, const double* pState);
-    static int getVector2Property(long long int target, const char* pName, double* pState);
     static int setVector3Property(long long int target, const char* pName, const C3Vector& pState);
     static int getVector3Property(long long int target, const char* pName, C3Vector& pState);
     static int setMatrixProperty(long long int target, const char* pName, const CMatrix& pState);

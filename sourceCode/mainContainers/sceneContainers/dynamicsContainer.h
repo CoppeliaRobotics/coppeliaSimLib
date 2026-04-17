@@ -283,8 +283,6 @@ class CDynamicsContainer
     int getStringProperty(const char* pName, std::string& pState) const;
     int setIntArray2Property(const char* pName, const int* pState, CCbor* eev = nullptr);
     int getIntArray2Property(const char* pName, int* pState, bool getDefaultValue = false) const;
-    int setVector2Property(const char* pName, const double* pState, CCbor* eev = nullptr);
-    int getVector2Property(const char* pName, double* pState, bool getDefaultValue = false) const;
     int setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev = nullptr);
     int getVector3Property(const char* pName, C3Vector& pState, bool getDefaultValue = false) const;
     int setFloatArrayProperty(const char* pName, const double* v, int vL, CCbor* eev = nullptr);

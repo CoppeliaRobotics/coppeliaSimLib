@@ -199,8 +199,6 @@ class CSceneObjectContainer
     int getBufferProperty(long long int target, const char* pName, std::string& pState) const;
     int setIntArray2Property(long long int target, const char* pName, const int* pState);
     int getIntArray2Property(long long int target, const char* pName, int* pState) const;
-    int setVector2Property(long long int target, const char* pName, const double* pState);
-    int getVector2Property(long long int target, const char* pName, double* pState) const;
     int setVector3Property(long long int target, const char* pName, const C3Vector& pState);
     int getVector3Property(long long int target, const char* pName, C3Vector& pState) const;
     int setMatrixProperty(long long int target, const char* pName, const CMatrix& pState);

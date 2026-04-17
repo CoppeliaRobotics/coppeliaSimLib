@@ -839,3 +839,5 @@ SIM_DLLEXPORT int* simGetIntArrayProperty(long long int target, const char* pNam
 SIM_DLLEXPORT char* simGetPluginName(int index);
 SIM_DLLEXPORT int simGetPropertyInfo_lib1(long long int target, const char*, SPropertyInfo* infos, SPropertyOptions* options);
 
+SIM_DLLEXPORT int simSetVector2Property(long long int target, const char* pName, const double* pState) {return -1;};
+SIM_DLLEXPORT int simGetVector2Property(long long int target, const char* pName, double* pState) {return -1;};

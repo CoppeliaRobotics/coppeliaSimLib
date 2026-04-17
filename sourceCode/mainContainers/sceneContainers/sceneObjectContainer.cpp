@@ -5415,120 +5415,6 @@ int CSceneObjectContainer::getIntArray2Property(long long int target, const char
     return retVal;
 }
 
-int CSceneObjectContainer::setVector2Property(long long int target, const char* pName, const double* pState)
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (target == -1)
-    {
-    }
-    else
-    {
-        CSceneObject* it = getObjectFromHandle(int(target));
-        if (it != nullptr)
-        {
-            int objType = it->getObjectType();
-            if (objType == sim_sceneobject_shape)
-                return ((CShape*)it)->setVector2Property(pName, pState);
-            if (objType == sim_sceneobject_joint)
-                return ((CJoint*)it)->setVector2Property(pName, pState);
-            if (objType == sim_sceneobject_dummy)
-                return ((CDummy*)it)->setVector2Property(pName, pState);
-            if (objType == sim_sceneobject_marker)
-                return ((CMarker*)it)->setVector2Property(pName, pState);
-            if (objType == sim_sceneobject_script)
-                return ((CScript*)it)->setVector2Property(pName, pState);
-            if (objType == sim_sceneobject_proximitysensor)
-                return ((CProxSensor*)it)->setVector2Property(pName, pState);
-            if (objType == sim_sceneobject_visionsensor)
-                return ((CVisionSensor*)it)->setVector2Property(pName, pState);
-            if (objType == sim_sceneobject_forcesensor)
-                return ((CForceSensor*)it)->setVector2Property(pName, pState);
-            if (objType == sim_sceneobject_light)
-                return ((CLight*)it)->setVector2Property(pName, pState);
-            if (objType == sim_sceneobject_camera)
-                return ((CCamera*)it)->setVector2Property(pName, pState);
-            if (objType == sim_sceneobject_graph)
-                return ((CGraph*)it)->setVector2Property(pName, pState);
-            if (objType == sim_sceneobject_pointcloud)
-                return ((CPointCloud*)it)->setVector2Property(pName, pState);
-            if (objType == sim_sceneobject_octree)
-                return ((COcTree*)it)->setVector2Property(pName, pState);
-            if (objType == sim_sceneobject_path)
-                return ((CPath_old*)it)->setVector2Property(pName, pState);
-            if (objType == sim_sceneobject_mill)
-                return ((CMill*)it)->setVector2Property(pName, pState);
-            if (objType == sim_sceneobject_mirror)
-                return ((CMirror*)it)->setVector2Property(pName, pState);
-        }
-        else
-        {
-            C7Vector shapeRelTr;
-            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
-            if (mesh != nullptr)
-                return mesh->setVector2Property(pName, pState, shapeRelTr);
-        }
-        retVal = sim_propertyret_unknowntarget;
-    }
-    return retVal;
-}
-
-int CSceneObjectContainer::getVector2Property(long long int target, const char* pName, double* pState) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (target == -1)
-    {
-    }
-    else
-    {
-        CSceneObject* it = getObjectFromHandle(int(target));
-        if (it != nullptr)
-        {
-            int objType = it->getObjectType();
-            if (objType == sim_sceneobject_shape)
-                return ((CShape*)it)->getVector2Property(pName, pState);
-            if (objType == sim_sceneobject_joint)
-                return ((CJoint*)it)->getVector2Property(pName, pState);
-            if (objType == sim_sceneobject_dummy)
-                return ((CDummy*)it)->getVector2Property(pName, pState);
-            if (objType == sim_sceneobject_marker)
-                return ((CMarker*)it)->getVector2Property(pName, pState);
-            if (objType == sim_sceneobject_script)
-                return ((CScript*)it)->getVector2Property(pName, pState);
-            if (objType == sim_sceneobject_proximitysensor)
-                return ((CProxSensor*)it)->getVector2Property(pName, pState);
-            if (objType == sim_sceneobject_visionsensor)
-                return ((CVisionSensor*)it)->getVector2Property(pName, pState);
-            if (objType == sim_sceneobject_forcesensor)
-                return ((CForceSensor*)it)->getVector2Property(pName, pState);
-            if (objType == sim_sceneobject_light)
-                return ((CLight*)it)->getVector2Property(pName, pState);
-            if (objType == sim_sceneobject_camera)
-                return ((CCamera*)it)->getVector2Property(pName, pState);
-            if (objType == sim_sceneobject_graph)
-                return ((CGraph*)it)->getVector2Property(pName, pState);
-            if (objType == sim_sceneobject_pointcloud)
-                return ((CPointCloud*)it)->getVector2Property(pName, pState);
-            if (objType == sim_sceneobject_octree)
-                return ((COcTree*)it)->getVector2Property(pName, pState);
-            if (objType == sim_sceneobject_path)
-                return ((CPath_old*)it)->getVector2Property(pName, pState);
-            if (objType == sim_sceneobject_mill)
-                return ((CMill*)it)->getVector2Property(pName, pState);
-            if (objType == sim_sceneobject_mirror)
-                return ((CMirror*)it)->getVector2Property(pName, pState);
-        }
-        else
-        {
-            C7Vector shapeRelTr;
-            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
-            if (mesh != nullptr)
-                return mesh->getVector2Property(pName, pState, shapeRelTr);
-        }
-        retVal = sim_propertyret_unknowntarget;
-    }
-    return retVal;
-}
-
 int CSceneObjectContainer::setVector3Property(long long int target, const char* pName, const C3Vector& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
@@ -6915,12 +6801,6 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                     case sim_propertytype_intarray2: {
                         int state[2];
                         result = obj->getIntArray2Property(name.c_str(), state);
-                        dnaString.append(reinterpret_cast<const char*>(state), sizeof(state));
-                        break;
-                    }
-                    case sim_propertytype_vector2: {
-                        double state[2];
-                        result = obj->getVector2Property(name.c_str(), state);
                         dnaString.append(reinterpret_cast<const char*>(state), sizeof(state));
                         break;
                     }

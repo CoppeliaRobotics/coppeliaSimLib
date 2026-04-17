@@ -355,12 +355,6 @@ void CPersistentDataContainer::appendEventData(const char* dataName, CCbor* ev, 
                 tg = CUSTOMDATAPREFIX + tg;
                 ev->appendKeyText(tg.c_str(), dat.c_str());
             }
-            else if (tg.find(proptypetag_vector2) != std::string::npos)
-            {
-                tg.erase(0, p + 2);
-                tg = CUSTOMDATAPREFIX + tg;
-                ev->appendKeyVector2(tg.c_str(), (double*)dat.data());
-            }
             else if (tg.find(proptypetag_vector3) != std::string::npos)
             {
                 tg.erase(0, p + 2);

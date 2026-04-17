@@ -367,17 +367,6 @@ bool CJoint::setEngineFloatParam_old(int what, double v)
         if (setFloatProperty(prop.c_str(), v) > 0)
             return true;
     }
-    prop = _enumToProperty(what, sim_propertytype_vector2, indexWithArrays);
-    if (prop.size() > 0)
-    {
-        double w[2];
-        if (getVector2Property(prop.c_str(), w) > 0)
-        {
-            w[indexWithArrays] = v;
-            if (setVector2Property(prop.c_str(), w) > 0)
-                return true;
-        }
-    }
     prop = _enumToProperty(what, sim_propertytype_vector3, indexWithArrays);
     if (prop.size() > 0)
     {
@@ -2095,7 +2084,6 @@ void CJoint::addObjectEventData(CCbor* ev)
     setIntProperty(nullptr, 0, ev);
     setFloatProperty(nullptr, 0.0, ev);
     setIntArray2Property(nullptr, nullptr, ev);
-    setVector2Property(nullptr, nullptr, ev);
     C3Vector dummy;
     setVector3Property(nullptr, dummy, ev);
     setFloatArrayProperty(nullptr, nullptr, 0, ev);
@@ -4361,13 +4349,6 @@ double CJoint::getEngineFloatParam_old(int what, bool* ok) const
         if (getFloatProperty(prop.c_str(), v) > 0)
             return v;
     }
-    prop = _enumToProperty(what, sim_propertytype_vector2, indexWithArrays);
-    if (prop.size() > 0)
-    {
-        double v[2];
-        if (getVector2Property(prop.c_str(), v) > 0)
-            return v[indexWithArrays];
-    }
     prop = _enumToProperty(what, sim_propertytype_vector3, indexWithArrays);
     if (prop.size() > 0)
     {
@@ -5582,91 +5563,6 @@ int CJoint::getIntArray2Property(const char* ppName, int* pState) const
 
         //if (_pName == propJoint_bulletPosPid.name)
         //    handleProp(_bulletIntParams, simi_bullet_joint_pospid1);
-        // ------------------------
-    }
-
-    return retVal;
-}
-
-int CJoint::setVector2Property(const char* ppName, const double* pState, CCbor* eev /* = nullptr*/)
-{
-    const char* pName = nullptr;
-    std::string _pName;
-    if (ppName != nullptr)
-    {
-        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint.");
-        pName = _pName.c_str();
-    }
-
-    int retVal = sim_propertyret_unknownproperty;
-    CCbor* ev = nullptr;
-    if (eev != nullptr)
-        ev = eev;
-
-    if ((eev == nullptr) && (pName != nullptr))
-    { // regular properties (i.e. non-engine properties)
-        retVal = CSceneObject::setVector2Property(pName, pState);
-        if (retVal == sim_propertyret_unknownproperty)
-        {
-        }
-    }
-
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        // Following only for engine properties:
-        // -------------------------------------
-        auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1) {
-            if ((pName == nullptr) || (propertyName == pName))
-            {
-                retVal = sim_propertyret_ok;
-                bool pa = false;
-                if (pState != nullptr)
-                {
-                    for (size_t i = 0; i < 2; i++)
-                        pa = pa || (arr[simiIndex1 + i] != pState[i]);
-                }
-                if ((pName == nullptr) || pa)
-                {
-                    if (pName != nullptr)
-                    {
-                        for (size_t i = 0; i < 2; i++)
-                            arr[simiIndex1 + i] = pState[i];
-                    }
-                    if (_isInScene && App::scenes->getEventsEnabled())
-                    {
-                        if (ev == nullptr)
-                            ev = App::scenes->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
-                        ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 2);
-                        if (pName != nullptr)
-                            _sendEngineString(ev);
-                    }
-                }
-            }
-        };
-
-        if ((ev != nullptr) && (eev == nullptr))
-            App::scenes->pushEvent();
-        // -------------------------------------
-    }
-
-    return retVal;
-}
-
-int CJoint::getVector2Property(const char* ppName, double* pState) const
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getVector2Property(ppName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    { // First non-engine properties:
-
-        // Engine-only properties:
-        // ------------------------
-        auto handleProp = [&](const std::vector<double>& arr, int simiIndex1) {
-            retVal = sim_propertyret_ok;
-            for (size_t i = 0; i < 2; i++)
-                pState[i] = arr[simiIndex1 + i];
-        };
-
         // ------------------------
     }
 

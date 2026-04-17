@@ -1219,16 +1219,6 @@ SIM_DLLEXPORT int simGetIntArray2Property(long long int target, const char* pNam
     return simGetIntArray2Property_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simSetVector2Property(long long int target, const char* pName, const double* pState)
-{
-    return simSetVector2Property_internal(target, pName, pState);
-}
-
-SIM_DLLEXPORT int simGetVector2Property(long long int target, const char* pName, double* pState)
-{
-    return simGetVector2Property_internal(target, pName, pState);
-}
-
 SIM_DLLEXPORT int simSetVector3Property(long long int target, const char* pName, const double* pState)
 {
     return simSetVector3Property_internal(target, pName, pState);

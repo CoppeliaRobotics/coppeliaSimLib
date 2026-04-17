@@ -373,8 +373,6 @@ extern int _simSetBufferProperty(luaWrap_lua_State* L);
 extern int _simGetBufferProperty(luaWrap_lua_State* L);
 extern int _simSetIntArray2Property(luaWrap_lua_State* L);
 extern int _simGetIntArray2Property(luaWrap_lua_State* L);
-extern int _simSetVector2Property(luaWrap_lua_State* L);
-extern int _simGetVector2Property(luaWrap_lua_State* L);
 extern int _simSetVector3Property(luaWrap_lua_State* L);
 extern int _simGetVector3Property(luaWrap_lua_State* L);
 extern int _simSetMatrixProperty(luaWrap_lua_State* L);

@@ -749,26 +749,6 @@ int CViewableBase::getIntArray2Property(const char* pName, int* pState) const
     return retVal;
 }
 
-int CViewableBase::setVector2Property(const char* pName, const double* pState)
-{
-    int retVal = CSceneObject::setVector2Property(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-    }
-
-    return retVal;
-}
-
-int CViewableBase::getVector2Property(const char* pName, double* pState) const
-{
-    int retVal = CSceneObject::getVector2Property(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-    }
-
-    return retVal;
-}
-
 int CViewableBase::setVector3Property(const char* pName, const C3Vector& pState)
 {
     int retVal = CSceneObject::setVector3Property(pName, pState);

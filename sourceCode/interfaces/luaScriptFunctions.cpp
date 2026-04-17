@@ -422,8 +422,6 @@ const SLuaCommands simLuaCommands[] = {
     {"sim.getBufferProperty", _simGetBufferProperty},
     {"sim.setIntArray2Property", _simSetIntArray2Property},
     {"sim.getIntArray2Property", _simGetIntArray2Property},
-    {"sim.setVector2Property", _simSetVector2Property},
-    {"sim.getVector2Property", _simGetVector2Property},
     {"sim.setVector3Property", _simSetVector3Property},
     {"sim.getVector3Property", _simGetVector3Property},
     {"sim.setMatrixProperty", _simSetMatrixProperty},
@@ -1025,7 +1023,6 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertytype_buffer", sim_propertytype_buffer},
     {"sim.propertytype_intarray2", sim_propertytype_intarray2},
     {"sim.propertytype_long", sim_propertytype_long},
-    {"sim.propertytype_vector2", sim_propertytype_vector2},
     {"sim.propertytype_vector3", sim_propertytype_vector3},
     {"sim.propertytype_quaternion", sim_propertytype_quaternion},
     {"sim.propertytype_pose", sim_propertytype_pose},
@@ -5434,85 +5431,6 @@ int _simGetIntArray2Property(luaWrap_lua_State* L)
         if (CALL_C_API(simGetIntArray2Property, target, pName.c_str(), pValue) > 0)
         {
             pushIntTableOntoStack(L, 2, pValue);
-            LUA_END(1);
-        }
-        if (noError)
-        {
-            luaWrap_lua_pushnil(L);
-            LUA_END(1);
-        }
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simSetVector2Property(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.setVector2Property");
-
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 2))
-    {
-        long long int target = luaWrap_lua_tointeger(L, 1);
-        if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-        std::string pName(luaWrap_lua_tostring(L, 2));
-        double pValue[2];
-        getDoublesFromTable(L, 3, 2, pValue);
-        bool noError = false;
-        if (luaWrap_lua_isnonbuffertable(L, 4))
-        {
-            CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
-            CDetachedScript::buildFromInterpreterStack_lua(L, stack, 4, 1);
-            stack->getStackMapBoolValue("noError", noError);
-            App::scenes->interfaceStackContainer->destroyStack(stack);
-        }
-        if (CALL_C_API(simSetVector2Property, target, pName.c_str(), pValue) > 0)
-        {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
-            {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-                CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
-                std::string nn(pName);
-                if (target == sim_handle_app)
-                    nn = "app." + nn;
-                else if (target != sim_handle_scene)
-                    nn = "obj." + nn;
-                it->signalSet(nn.c_str(), target);
-            }
-        }
-        if (noError)
-            LUA_END(0);
-    }
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simGetVector2Property(luaWrap_lua_State* L)
-{
-    TRACE_LUA_API;
-    LUA_START("sim.getVector2Property");
-
-    if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
-    {
-        long long int target = luaWrap_lua_tointeger(L, 1);
-        if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-        std::string pName(luaWrap_lua_tostring(L, 2));
-        bool noError = false;
-        if (luaWrap_lua_isnonbuffertable(L, 3))
-        {
-            CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
-            CDetachedScript::buildFromInterpreterStack_lua(L, stack, 3, 1);
-            stack->getStackMapBoolValue("noError", noError);
-            App::scenes->interfaceStackContainer->destroyStack(stack);
-        }
-        double pValue[2];
-        if (CALL_C_API(simGetVector2Property, target, pName.c_str(), pValue) > 0)
-        {
-            pushDoubleTableOntoStack(L, 2, pValue);
             LUA_END(1);
         }
         if (noError)

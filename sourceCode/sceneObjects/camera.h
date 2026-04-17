@@ -63,8 +63,6 @@ class CCamera : public CViewableBase
     int getStringProperty(const char* ppName, std::string& pState) const override;
     int setIntArray2Property(const char* pName, const int* pState) override;
     int getIntArray2Property(const char* pName, int* pState) const override;
-    int setVector2Property(const char* pName, const double* pState) override;
-    int getVector2Property(const char* pName, double* pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;
     int getColorProperty(const char* pName, float* pState) const override;
     int setVector3Property(const char* pName, const C3Vector& pState) override;

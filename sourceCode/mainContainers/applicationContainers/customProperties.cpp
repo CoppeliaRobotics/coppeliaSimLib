@@ -562,50 +562,6 @@ int CCustomProperties::getIntArray2Property(const char* pName, int* pState) cons
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setVector2Property(const char* pName, const double* pState, bool& valueChange)
-{
-    int propType, propInfo;
-    std::string infoTxt;
-    const char* dataPtr;
-    size_t dataLen;
-    valueChange = false;
-
-    bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
-    if (alreadyPresent)
-    {
-        if (propInfo & sim_propertyinfo_notwritable)
-            return sim_propertyret_unavailable;
-        if (propType != sim_propertytype_vector2)
-            return sim_propertyret_unavailable;
-        valueChange = _updatePropertyData(pName, (const char*)pState, 2 * sizeof(double));
-    }
-    else
-    {
-        _setPropertyRaw(pName, sim_propertytype_vector2, sim_propertyinfo_removable, "", (const char*)pState, 2 * sizeof(double));
-        valueChange = true;
-    }
-    return sim_propertyret_ok;
-}
-
-int CCustomProperties::getVector2Property(const char* pName, double* pState) const
-{
-    int propType, propInfo;
-    std::string infoTxt;
-    const char* dataPtr;
-    size_t dataLen;
-
-    if (!_findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen))
-        return sim_propertyret_unknownproperty;
-
-    if (propInfo & sim_propertyinfo_notreadable)
-        return sim_propertyret_unavailable;
-    if (propType != sim_propertytype_vector2)
-        return sim_propertyret_unavailable;
-    if (dataLen >= 2 * sizeof(double))
-        std::memcpy(pState, dataPtr, 2 * sizeof(double));
-    return sim_propertyret_ok;
-}
-
 int CCustomProperties::setVector3Property(const char* pName, const C3Vector& pState, bool& valueChange)
 {
     int propType, propInfo;

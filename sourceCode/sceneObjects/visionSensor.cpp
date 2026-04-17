@@ -3686,28 +3686,6 @@ int CVisionSensor::getIntArray2Property(const char* ppName, int* pState) const
     return retVal;
 }
 
-int CVisionSensor::setVector2Property(const char* ppName, const double* pState)
-{
-    const std::string _pName = ppName;
-    int retVal = CViewableBase::setVector2Property(ppName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-    }
-
-    return retVal;
-}
-
-int CVisionSensor::getVector2Property(const char* ppName, double* pState) const
-{
-    const std::string _pName = ppName;
-    int retVal = CViewableBase::getVector2Property(ppName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-    }
-
-    return retVal;
-}
-
 int CVisionSensor::setBufferProperty(const char* ppName, const char* buffer, int bufferL)
 {
     const std::string _pName = ppName;

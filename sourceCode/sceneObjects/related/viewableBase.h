@@ -49,8 +49,6 @@ class CViewableBase : public CSceneObject
     virtual int getFloatProperty(const char* pName, double& pState) const override;
     virtual int setIntArray2Property(const char* pName, const int* pState) override;
     virtual int getIntArray2Property(const char* pName, int* pState) const override;
-    virtual int setVector2Property(const char* pName, const double* pState) override;
-    virtual int getVector2Property(const char* pName, double* pState) const override;
     virtual int setVector3Property(const char* pName, const C3Vector& pState) override;
     virtual int getVector3Property(const char* pName, C3Vector& pState) const override;
     virtual int setFloatArrayProperty(const char* pName, const double* v, int vL) override;

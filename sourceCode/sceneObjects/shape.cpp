@@ -1543,7 +1543,6 @@ void CShape::addObjectEventData(CCbor* ev)
     _dynMaterial->setBoolProperty(nullptr, false, ev);
     _dynMaterial->setIntProperty(nullptr, 0, ev);
     _dynMaterial->setFloatProperty(nullptr, 0.0, ev);
-    _dynMaterial->setVector2Property(nullptr, nullptr, ev);
     _dynMaterial->setVector3Property(nullptr, nullptr, ev);
     _dynMaterial->setFloatArrayProperty(nullptr, nullptr, 0, ev);
     _dynMaterial->sendEngineString(ev);
@@ -2015,36 +2014,6 @@ int CShape::getStringProperty(const char* ppName, std::string& pState) const
     int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
         retVal = _dynMaterial->getStringProperty(ppName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-    }
-
-    return retVal;
-}
-
-int CShape::setVector2Property(const char* ppName, const double* pState)
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::setVector2Property(ppName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-        retVal = _dynMaterial->setVector2Property(ppName, pState);
-    //    if (retVal == sim_propertyret_unknownproperty)
-    //        retVal = _mesh->setVector2Property_wrapper(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-    }
-
-    return retVal;
-}
-
-int CShape::getVector2Property(const char* ppName, double* pState) const
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getVector2Property(ppName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-        retVal = _dynMaterial->getVector2Property(ppName, pState);
-    //    if (retVal == sim_propertyret_unknownproperty)
-    //        retVal = _mesh->getVector2Property_wrapper(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
     }

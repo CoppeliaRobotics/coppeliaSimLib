@@ -26,7 +26,6 @@ static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_string, proptypetag_string},
     {sim_propertytype_intarray2, proptypetag_intarray2},
     {sim_propertytype_long, proptypetag_long},
-    {sim_propertytype_vector2, proptypetag_vector2},
     {sim_propertytype_vector3, proptypetag_vector3},
     {sim_propertytype_quaternion, proptypetag_quaternion},
     {sim_propertytype_pose, proptypetag_pose},
@@ -52,7 +51,6 @@ static std::map<int, std::string> propertyStrings = {
     {sim_propertytype_string, proptypetag_string},
     {sim_propertytype_intarray2, proptypetag_intarray2},
     {sim_propertytype_long, proptypetag_long},
-    {sim_propertytype_vector2, proptypetag_vector2},
     {sim_propertytype_vector3, proptypetag_vector3},
     {sim_propertytype_quaternion, proptypetag_quaternion},
     {sim_propertytype_pose, proptypetag_pose},
@@ -100,8 +98,6 @@ class Obj
     virtual int getBufferProperty(const char* pName, std::string& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setIntArray2Property(const char* pName, const int* pState) { return sim_propertyret_unknownproperty; }
     virtual int getIntArray2Property(const char* pName, int* pState) const { return sim_propertyret_unknownproperty; }
-    virtual int setVector2Property(const char* pName, const double* pState) { return sim_propertyret_unknownproperty; }
-    virtual int getVector2Property(const char* pName, double* pState) const { return sim_propertyret_unknownproperty; }
     virtual int setVector3Property(const char* pName, const C3Vector& pState) { return sim_propertyret_unknownproperty; }
     virtual int getVector3Property(const char* pName, C3Vector& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setMatrixProperty(const char* pName, const CMatrix& pState) { return sim_propertyret_unknownproperty; }

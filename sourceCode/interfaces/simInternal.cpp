@@ -1627,123 +1627,6 @@ int simGetIntArray2Property_internal(long long int target, const char* ppName, i
     return -1;
 }
 
-int simSetVector2Property_internal(long long int target, const char* ppName, const double* pState)
-{
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        int retVal = sim_propertyret_invalidname;
-        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
-        {
-            std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_vector2))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_vector2))))
-                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 2 * sizeof(double));
-            else
-            {
-                retVal = App::setVector2Property(target, pName.c_str(), pState);
-                if (retVal != sim_propertyret_ok)
-                {
-                    if (retVal == sim_propertyret_unknowntarget)
-                        CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
-                    else
-                    {
-                        std::string err("'");
-                        err += pName + "' ";
-                        int info;
-                        std::string infoTxt;
-                        int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
-                        if (p < sim_propertytype_start)
-                        {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                            retVal = sim_propertyret_unknownproperty;
-                        }
-                        else if (p == sim_propertytype_vector2)
-                        {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN).c_str());
-                            retVal = sim_propertyret_notwritable;
-                        }
-                        else
-                        {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                            retVal = sim_propertyret_typemismatch;
-                        }
-                    }
-                }
-            }
-        }
-        return retVal;
-    }
-    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return -1;
-}
-
-int simGetVector2Property_internal(long long int target, const char* ppName, double* pState)
-{
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int retVal = sim_propertyret_unavailable;
-        std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_vector2))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_vector2))))
-        {
-            int l;
-            char* data;
-            retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
-            if (retVal > 0)
-            {
-                if (l == 2 * sizeof(double))
-                {
-                    for (size_t i = 0; i < 2; i++)
-                        pState[i] = ((double*)data)[i];
-                }
-                else
-                {
-                    CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
-                    retVal = sim_propertyret_corrupt;
-                }
-                delete[] data;
-            }
-        }
-        else
-        {
-            retVal = App::getVector2Property(target, pName.c_str(), pState);
-            if (retVal != sim_propertyret_ok)
-            {
-                if (retVal == sim_propertyret_unknowntarget)
-                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
-                else
-                {
-                    std::string err("'");
-                    err += pName + "' ";
-                    int info;
-                    std::string infoTxt;
-                    int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
-                    if (p < sim_propertytype_start)
-                    {
-                        CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                        retVal = sim_propertyret_unknownproperty;
-                    }
-                    else if (p == sim_propertytype_vector2)
-                    {
-                        CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_CANNOT_BE_READ).c_str());
-                        retVal = sim_propertyret_notreadable;
-                    }
-                    else
-                    {
-                        CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                        retVal = sim_propertyret_typemismatch;
-                    }
-                }
-            }
-        }
-        return retVal;
-    }
-    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return -1;
-}
-
 int simSetVector3Property_internal(long long int target, const char* ppName, const double* pState)
 {
     C_API_START;
@@ -3152,48 +3035,47 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
         CInterfaceStack* outStack = App::scenes->interfaceStackContainer->getStack(outputStack);
         CDetachedScript* currentScript = App::scenes->getDetachedScriptFromHandle(detachedScript);
         int retVal = 0; // -1: error in method, 0: method not found, 1: ok
+
         // Check if such a method is supported in here, or if we have to call Lua:
-        // ...
-        //
-        if (true)
+        // -----------------------------------------------------------------------
+        CInterfaceStack* _inStack = inStack;
+        if (inStack == nullptr)
+            _inStack = App::scenes->interfaceStackContainer->createStack();
+        CInterfaceStack* _outStack = outStack;
+        if (outStack == nullptr)
+            _outStack = App::scenes->interfaceStackContainer->createStack();
+        _outStack->clear();
+
+        std::string err(callMethod(target, name, currentScript, _inStack, _outStack));
+
+        if (inStack == nullptr)
+            App::scenes->interfaceStackContainer->destroyStack(_inStack);
+        if (outStack == nullptr)
+            App::scenes->interfaceStackContainer->destroyStack(_outStack);
+
+        if (err.size() == 0)
+            retVal = 1; // success
+        else if (err == "__notFound__")
         {
-            retVal = 0;
-            CInterfaceStack* _inStack = inStack;
-            if (inStack == nullptr)
-                _inStack = App::scenes->interfaceStackContainer->createStack();
-            CInterfaceStack* _outStack = outStack;
-            if (outStack == nullptr)
-                _outStack = App::scenes->interfaceStackContainer->createStack();
-            _outStack->clear();
-
-            std::string err(callMethod(target, name, currentScript, _inStack, _outStack));
-
-            if (inStack == nullptr)
-                App::scenes->interfaceStackContainer->destroyStack(_inStack);
-            if (outStack == nullptr)
-                App::scenes->interfaceStackContainer->destroyStack(_outStack);
-
-            if (err.size() == 0)
-                retVal = 1; // success
-            else if (err == "__notFound__")
+            if (luaCalling)
             {
-                if (luaCalling)
-                {
-                    std::string errStr("failed calling method '");
-                    errStr += name;
-                    errStr += "'.";
-                    CApiErrors::setLastError(__func__, errStr.c_str());
-                    retVal = -1;
-                }
-                else
-                    retVal = 0;
-            }
-            else
-            {
-                CApiErrors::setLastError(__func__, err.c_str());
+                std::string errStr("failed calling method '");
+                errStr += name;
+                errStr += "'.";
+                CApiErrors::setLastError(__func__, errStr.c_str());
                 retVal = -1;
             }
+            else
+                retVal = 0;
         }
+        else
+        {
+            CApiErrors::setLastError(__func__, err.c_str());
+            retVal = -1;
+        }
+        // -----------------------------------------------------------------------
+
+        // -----------------------------------------------------------------------
         if ((retVal == 0) && (!luaCalling))
         { // method was not found here. Let's try the method as a pure Lua method:
             if (currentScript == nullptr)
@@ -3242,6 +3124,7 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
                 }
             }
         }
+        // -----------------------------------------------------------------------
         return retVal;
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);

@@ -1930,19 +1930,8 @@ void CEngineProperties::_getGlobalFloatParams(const char* item, double* w, std::
 {
     std::vector<double> p;
     std::vector<double> p0;
-    double vec[2];
     if (App::scene->dynamicsContainer->getFloatArrayProperty(item, p, false) == 1)
         App::scene->dynamicsContainer->getFloatArrayProperty(item, p0, true);
-    else if (App::scene->dynamicsContainer->getVector2Property(item, vec, false) == 1)
-    {
-        double vec0[2];
-        App::scene->dynamicsContainer->getVector2Property(item, vec0, true);
-        for (size_t i = 0; i < 2; i++)
-        {
-            p.push_back(vec[i]);
-            p0.push_back(vec0[i]);
-        }
-    }
     else
     {
 
