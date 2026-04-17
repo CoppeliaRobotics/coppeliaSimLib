@@ -3140,14 +3140,17 @@ int simSetPropertyInfo_internal(long long int target, const char* ppName, const 
     return -1;
 }
 
-int simCallMethod_internal(long long int target, const char* name, int inputStack, int outputStack, void* currentScript)
+int simCallMethod_internal(long long int target, const char* name, int inputStack, int outputStack, int detachedScript)
 {
     C_API_START;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
+        bool luaCalling = (inputStack < 0);
+        inputStack = abs(inputStack);
         CInterfaceStack* inStack = App::scenes->interfaceStackContainer->getStack(inputStack);
         CInterfaceStack* outStack = App::scenes->interfaceStackContainer->getStack(outputStack);
+        CDetachedScript* currentScript = App::scenes->getDetachedScriptFromHandle(detachedScript);
         int retVal = 0; // -1: error in method, 0: method not found, 1: ok
         // Check if such a method is supported in here, or if we have to call Lua:
         // ...
@@ -3163,8 +3166,7 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
                 _outStack = App::scenes->interfaceStackContainer->createStack();
             _outStack->clear();
 
-            std::string err(callMethod(target, name, (CDetachedScript*)currentScript, _inStack, _outStack));
-
+            std::string err(callMethod(target, name, currentScript, _inStack, _outStack));
 
             if (inStack == nullptr)
                 App::scenes->interfaceStackContainer->destroyStack(_inStack);
@@ -3175,7 +3177,7 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
                 retVal = 1; // success
             else if (err == "__notFound__")
             {
-                if (currentScript != nullptr)
+                if (luaCalling)
                 {
                     std::string errStr("failed calling method '");
                     errStr += name;
@@ -3192,9 +3194,11 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
                 retVal = -1;
             }
         }
-        if ((retVal == 0) && (currentScript == nullptr))
+        if ((retVal == 0) && (!luaCalling))
         { // method was not found here. Let's try the method as a pure Lua method:
-            if (App::scenes->sandboxScript != nullptr)
+            if (currentScript == nullptr)
+                currentScript = App::scenes->sandboxScript;
+            if (currentScript != nullptr)
             {
                 retVal = -1; // error
 
@@ -3211,7 +3215,7 @@ int simCallMethod_internal(long long int target, const char* name, int inputStac
                     inStackT->insertItem(0, new CInterfaceStackString(methodName.c_str()));
                     inStackT->insertItem(0, new CInterfaceStackHandle(target));
                     std::string errorMsg;
-                    retVal = App::scenes->sandboxScript->callCustomScriptFunction("@sim.callMethod", inStackT, outStackT, &errorMsg); // @ here to indicate we do not want to call sysCall_ext
+                    retVal = currentScript->callCustomScriptFunction("@sim.callMethod", inStackT, outStackT, &errorMsg); // @ here to indicate we do not want to call sysCall_ext
                     App::scenes->interfaceStackContainer->destroyStack(inStackT);
                 }
                 if (retVal <= 0)

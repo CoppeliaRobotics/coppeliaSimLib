@@ -3,9 +3,9 @@
 #include <app.h>
 
 #ifdef SIM_UNIFIED_HANDLES
-SIM_DLLEXPORT int simCallMethod_L(long long int target, const char* name, UID inputStack, UID outputStack)
+SIM_DLLEXPORT int simCallMethod_L(long long int target, const char* name, UID inputStack, UID outputStack, UID detachedScript)
 {
-    return (simCallMethod_internal(target, name, inputStack, outputStack, nullptr));
+    return (simCallMethod_internal(target, name, inputStack, outputStack, detachedScript));
 }
 
 SIM_DLLEXPORT UID simGetObject_L(const char* objectPath, int index, UID proxy, int options)
@@ -1349,9 +1349,9 @@ SIM_DLLEXPORT int simSetPropertyInfo(long long int target, const char* pName, co
     return simSetPropertyInfo_internal(target, pName, infos);
 }
 
-SIM_DLLEXPORT int simCallMethod(long long int target, const char* name, int inputStack, int outputStack)
+SIM_DLLEXPORT int simCallMethod(long long int target, const char* name, int inputStack, int outputStack, int detachedScript)
 { // backw. compatibility version
-    return simCallMethod_internal(target, name, App::getNewHandleFromOldHandle(inputStack), App::getNewHandleFromOldHandle(outputStack), nullptr);
+    return simCallMethod_internal(target, name, App::getNewHandleFromOldHandle(inputStack), App::getNewHandleFromOldHandle(outputStack), App::getNewHandleFromOldHandle(detachedScript));
 }
 
 SIM_DLLEXPORT void simRegCallback(int index, void* callback)
