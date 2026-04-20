@@ -3511,12 +3511,10 @@ int CCamera::getVector3Property(const char* ppName, C3Vector& pState) const
     return retVal;
 }
 
-int CCamera::setFloatArrayProperty(const char* ppName, const double* v, int vL)
+int CCamera::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState)
 {
     std::string _pName(ppName);
-    if (v == nullptr)
-        vL = 0;
-    int retVal = CViewableBase::setFloatArrayProperty(ppName, v, vL);
+    int retVal = CViewableBase::setFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
     }
@@ -3536,12 +3534,10 @@ int CCamera::getFloatArrayProperty(const char* ppName, std::vector<double>& pSta
     return retVal;
 }
 
-int CCamera::setIntArrayProperty(const char* ppName, const int* v, int vL)
+int CCamera::setIntArrayProperty(const char* ppName, const std::vector<int>& pState)
 {
     std::string _pName(ppName);
-    if (v == nullptr)
-        vL = 0;
-    int retVal = CViewableBase::setIntArrayProperty(ppName, v, vL);
+    int retVal = CViewableBase::setIntArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
     }

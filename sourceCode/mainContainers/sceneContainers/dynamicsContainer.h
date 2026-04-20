@@ -279,15 +279,15 @@ class CDynamicsContainer
     int getIntProperty(const char* pName, int& pState, bool getDefaultValue = false) const;
     int setFloatProperty(const char* pName, double pState, CCbor* eev = nullptr);
     int getFloatProperty(const char* pName, double& pState, bool getDefaultValue = false) const;
-    int setStringProperty(const char* pName, const char* pState);
+    int setStringProperty(const char* pName, const std::string& pState);
     int getStringProperty(const char* pName, std::string& pState) const;
     int setIntArray2Property(const char* pName, const int* pState, CCbor* eev = nullptr);
     int getIntArray2Property(const char* pName, int* pState, bool getDefaultValue = false) const;
     int setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev = nullptr);
     int getVector3Property(const char* pName, C3Vector& pState, bool getDefaultValue = false) const;
-    int setFloatArrayProperty(const char* pName, const double* v, int vL, CCbor* eev = nullptr);
+    int setFloatArrayProperty(const char* pName, const std::vector<double>& pState, CCbor* eev = nullptr);
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState, bool getDefaultValue = false) const;
-    int setIntArrayProperty(const char* pName, const int* v, int vL);
+    int setIntArrayProperty(const char* pName, const std::vector<int>& pState);
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName, int excludeFlags) const;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;

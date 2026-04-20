@@ -2097,7 +2097,7 @@ int App::getFloatProperty(long long int target, const char* ppName, double& pSta
     return retVal;
 }
 
-int App::setStringProperty(long long int target, const char* ppName, const char* pState)
+int App::setStringProperty(long long int target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2111,7 +2111,7 @@ int App::setStringProperty(long long int target, const char* ppName, const char*
         {
             if (pN.size() > 0)
             {
-                setAppNamedParam(pN.c_str(), pState);
+                setAppNamedParam(pN.c_str(), pState.c_str());
                 retVal = sim_propertyret_ok;
             }
         }
@@ -2120,94 +2120,94 @@ int App::setStringProperty(long long int target, const char* ppName, const char*
             if (strcmp(pName, propApp_sceneDir.name) == 0)
             {
                 if (folders != nullptr)
-                    folders->setScenesPath(pState);
+                    folders->setScenesPath(pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_modelDir.name) == 0)
             {
                 if (folders != nullptr)
-                    folders->setModelsPath(pState);
+                    folders->setModelsPath(pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_importExportDir.name) == 0)
             {
                 if (folders != nullptr)
-                    folders->setImportExportPath(pState);
+                    folders->setImportExportPath(pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_consoleVerbosityStr.name) == 0)
             {
-                setStringVerbosity(0, pState);
+                setStringVerbosity(0, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_statusbarVerbosityStr.name) == 0)
             {
-                setStringVerbosity(1, pState);
+                setStringVerbosity(1, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_dialogVerbosityStr.name) == 0)
             {
-                setStringVerbosity(2, pState);
+                setStringVerbosity(2, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_auxAddOn1.name) == 0)
             {
-                setAdditionalAddOnScript1(pState);
+                setAdditionalAddOnScript1(pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_auxAddOn2.name) == 0)
             {
-                setAdditionalAddOnScript2(pState);
+                setAdditionalAddOnScript2(pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_startupCode.name) == 0)
             {
-                setStartupScriptString(pState);
+                setStartupScriptString(pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_appArg1.name) == 0)
             {
-                setApplicationArgument(0, pState);
+                setApplicationArgument(0, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_appArg2.name) == 0)
             {
-                setApplicationArgument(1, pState);
+                setApplicationArgument(1, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_appArg3.name) == 0)
             {
-                setApplicationArgument(2, pState);
+                setApplicationArgument(2, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_appArg4.name) == 0)
             {
-                setApplicationArgument(3, pState);
+                setApplicationArgument(3, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_appArg5.name) == 0)
             {
-                setApplicationArgument(4, pState);
+                setApplicationArgument(4, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_appArg6.name) == 0)
             {
-                setApplicationArgument(5, pState);
+                setApplicationArgument(5, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_appArg7.name) == 0)
             {
-                setApplicationArgument(6, pState);
+                setApplicationArgument(6, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_appArg8.name) == 0)
             {
-                setApplicationArgument(7, pState);
+                setApplicationArgument(7, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
             else if (strcmp(pName, propApp_appArg9.name) == 0)
             {
-                setApplicationArgument(8, pState);
+                setApplicationArgument(8, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
         }
@@ -2543,14 +2543,12 @@ int App::getStringProperty(long long int target, const char* ppName, std::string
     return retVal;
 }
 
-int App::setBufferProperty(long long int target, const char* ppName, const char* buffer, int bufferL)
+int App::setBufferProperty(long long int target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
         retVal = sim_propertyret_unknowntarget;
 
-    if (buffer == nullptr)
-        bufferL = 0;
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
@@ -2561,7 +2559,7 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
             {
                 pN += "&customData"; // we add a suffix to separate user and system data
                 // CPersistentDataContainer cont("appStorage.dat");
-                if (_appStorage->writeData(pN.c_str(), std::string(buffer, buffer + bufferL), true, true))
+                if (_appStorage->writeData(pN.c_str(), pState, true, true))
                 {
                     if ((scenes != nullptr) && scenes->getEventsEnabled())
                     {
@@ -2579,7 +2577,7 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
             {
                 if (scenes != nullptr)
                 {
-                    bool diff = scenes->customAppData_volatile.setData(pN.c_str(), buffer, bufferL, true);
+                    bool diff = scenes->customAppData_volatile.setData(pN.c_str(), pState.data(), pState.size(), true);
                     if (diff && scenes->getEventsEnabled())
                     {
                         CCbor* ev = scenes->createObjectChangedEvent(sim_handle_app, nullptr, false);
@@ -2605,11 +2603,11 @@ int App::setBufferProperty(long long int target, const char* ppName, const char*
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-        retVal = scenes->interfaceStackContainer->setBufferProperty(target, ppName, buffer, bufferL);
+        retVal = scenes->interfaceStackContainer->setBufferProperty(target, ppName, pState);
     else if ((target >= sim_object_customappstart) && (target < sim_object_customappend) && (scenes != nullptr))
-        retVal = scenes->customObjects->setBufferProperty(target, ppName, buffer, bufferL);
+        retVal = scenes->customObjects->setBufferProperty(target, ppName, pState);
     else if (scene != nullptr)
-        retVal = scene->setBufferProperty(target, pName, buffer, bufferL);
+        retVal = scene->setBufferProperty(target, pName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3057,7 +3055,7 @@ int App::getColorProperty(long long int target, const char* ppName, float* pStat
     return retVal;
 }
 
-int App::setFloatArrayProperty(long long int target, const char* ppName, const double* v, int vL)
+int App::setFloatArrayProperty(long long int target, const char* ppName, const std::vector<double>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3079,11 +3077,11 @@ int App::setFloatArrayProperty(long long int target, const char* ppName, const d
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-        retVal = scenes->interfaceStackContainer->setFloatArrayProperty(target, ppName, v, vL);
+        retVal = scenes->interfaceStackContainer->setFloatArrayProperty(target, ppName, pState);
     else if ((target >= sim_object_customappstart) && (target < sim_object_customappend) && (scenes != nullptr))
-        retVal = scenes->customObjects->setFloatArrayProperty(target, ppName, v, vL);
+        retVal = scenes->customObjects->setFloatArrayProperty(target, ppName, pState);
     else if (scene != nullptr)
-        retVal = scene->setFloatArrayProperty(target, pName, v, vL);
+        retVal = scene->setFloatArrayProperty(target, pName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3122,7 +3120,7 @@ int App::getFloatArrayProperty(long long int target, const char* ppName, std::ve
     return retVal;
 }
 
-int App::setIntArrayProperty(long long int target, const char* ppName, const int* v, int vL)
+int App::setIntArrayProperty(long long int target, const char* ppName, const std::vector<int>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3144,11 +3142,11 @@ int App::setIntArrayProperty(long long int target, const char* ppName, const int
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-        retVal = scenes->interfaceStackContainer->setIntArrayProperty(target, ppName, v, vL);
+        retVal = scenes->interfaceStackContainer->setIntArrayProperty(target, ppName, pState);
     else if ((target >= sim_object_customappstart) && (target < sim_object_customappend) && (scenes != nullptr))
-        retVal = scenes->customObjects->setIntArrayProperty(target, ppName, v, vL);
+        retVal = scenes->customObjects->setIntArrayProperty(target, ppName, pState);
     else if (scene != nullptr)
-        retVal = scene->setIntArrayProperty(target, pName, v, vL);
+        retVal = scene->setIntArrayProperty(target, pName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3187,7 +3185,7 @@ int App::getIntArrayProperty(long long int target, const char* ppName, std::vect
     return retVal;
 }
 
-int App::setHandleArrayProperty(long long int target, const char* ppName, const long long int* v, int vL)
+int App::setHandleArrayProperty(long long int target, const char* ppName, const std::vector<long long int>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3209,11 +3207,11 @@ int App::setHandleArrayProperty(long long int target, const char* ppName, const 
             retVal = sim_propertyret_unknowntarget;
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
-        retVal = scenes->interfaceStackContainer->setHandleArrayProperty(target, ppName, v, vL);
+        retVal = scenes->interfaceStackContainer->setHandleArrayProperty(target, ppName, pState);
     else if ((target >= sim_object_customappstart) && (target < sim_object_customappend) && (scenes != nullptr))
-        retVal = scenes->customObjects->setHandleArrayProperty(target, ppName, v, vL);
+        retVal = scenes->customObjects->setHandleArrayProperty(target, ppName, pState);
     else if (scene != nullptr)
-        retVal = scene->setHandleArrayProperty(target, pName, v, vL);
+        retVal = scene->setHandleArrayProperty(target, pName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;

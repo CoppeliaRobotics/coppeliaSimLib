@@ -1396,17 +1396,17 @@ int CMeshWrapper::getQuaternionProperty_wrapper(const char* pName, C4Vector& pSt
     return retVal;
 }
 
-int CMeshWrapper::setFloatArrayProperty_wrapper(const char* pName, const double* v, int vL)
+int CMeshWrapper::setFloatArrayProperty_wrapper(const char* pName, const std::vector<double>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(propMeshWrapper_inertia.name, pName) == 0)
     {
-        if (vL >= 9)
+        if (pState.size() >= 9)
         {
             retVal = sim_propertyret_ok;
             C3X3Matrix m;
-            m.setData(v);
+            m.setData(pState.data());
             setInertiaAndComputePMI(m);
         }
         else

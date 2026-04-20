@@ -6277,24 +6277,24 @@ int CSceneObject::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
-int CSceneObject::setStringProperty(const char* ppName, const char* pState)
+int CSceneObject::setStringProperty(const char* ppName, const std::string& pState)
 {
     std::string _pName(ppName);
     int retVal = sim_propertyret_unknownproperty;
 
     if ((_pName == propSceneObject_alias.name) || (_pName == propSceneObject_name.name))
     {
-        App::scene->sceneObjects->setObjectAlias(this, pState, false);
+        App::scene->sceneObjects->setObjectAlias(this, pState.c_str(), false);
         retVal = sim_propertyret_ok;
     }
     else if (_pName == propSceneObject_deprecatedName.name)
     {
-        setObjectName_direct_old(pState);
+        setObjectName_direct_old(pState.c_str());
         retVal = sim_propertyret_ok;
     }
     else if (_pName == propSceneObject_modelAcknowledgment.name)
     {
-        setModelAcknowledgement(pState);
+        setModelAcknowledgement(pState.c_str());
         retVal = sim_propertyret_ok;
     }
 
@@ -6340,12 +6340,10 @@ int CSceneObject::getStringProperty(const char* ppName, std::string& pState) con
     return retVal;
 }
 
-int CSceneObject::setBufferProperty(const char* ppName, const char* buffer, int bufferL)
+int CSceneObject::setBufferProperty(const char* ppName, const std::string& pState)
 {
     std::string _pName(ppName);
     int retVal = sim_propertyret_unknownproperty;
-    if (buffer == nullptr)
-        bufferL = 0;
     std::string pN(ppName);
     CCustomData* customDataPtr = nullptr;
     if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
@@ -6356,7 +6354,7 @@ int CSceneObject::setBufferProperty(const char* ppName, const char* buffer, int 
     {
         if (pN.size() > 0)
         {
-            bool diff = customDataPtr->setData(pN.c_str(), buffer, bufferL, true);
+            bool diff = customDataPtr->setData(pN.c_str(), pState.data(), pState.size(), true);
             if (diff && _isInScene && App::scenes->getEventsEnabled())
             {
                 CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, true, nullptr, false);
@@ -6649,20 +6647,18 @@ int CSceneObject::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CSceneObject::setFloatArrayProperty(const char* ppName, const double* v, int vL)
+int CSceneObject::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState)
 {
     std::string _pName(ppName);
     int retVal = sim_propertyret_unknownproperty;
-    if (v == nullptr)
-        vL = 0;
 
     if ((strcmp(ppName, propSceneObject_movementStepSize.name) == 0) || (strcmp(ppName, propSceneObject_movementStepSizeDEPRECATED.name) == 0))
     {
-        if (vL >= 2)
+        if (pState.size() >= 2)
         {
             retVal = sim_propertyret_ok;
-            setObjectMovementStepSize(0, v[0]);
-            setObjectMovementStepSize(1, v[1]);
+            setObjectMovementStepSize(0, pState[0]);
+            setObjectMovementStepSize(1, pState[1]);
         }
         else
             retVal = 0;
@@ -6687,20 +6683,18 @@ int CSceneObject::getFloatArrayProperty(const char* ppName, std::vector<double>&
     return retVal;
 }
 
-int CSceneObject::setIntArrayProperty(const char* ppName, const int* v, int vL)
+int CSceneObject::setIntArrayProperty(const char* ppName, const std::vector<int>& pState)
 {
     std::string _pName(ppName);
     int retVal = sim_propertyret_unknownproperty;
-    if (v == nullptr)
-        vL = 0;
 
     if ((strcmp(ppName, propSceneObject_movementRelativity.name) == 0) || (strcmp(ppName, propSceneObject_movementRelativityDEPRECATED.name) == 0))
     {
-        if (vL >= 2)
+        if (pState.size() >= 2)
         {
             retVal = sim_propertyret_ok;
-            setObjectMovementRelativity(0, v[0]);
-            setObjectMovementRelativity(1, v[1]);
+            setObjectMovementRelativity(0, pState[0]);
+            setObjectMovementRelativity(1, pState[1]);
         }
         else
             retVal = 0;
@@ -6725,27 +6719,25 @@ int CSceneObject::getIntArrayProperty(const char* ppName, std::vector<int>& pSta
     return retVal;
 }
 
-int CSceneObject::setHandleArrayProperty(const char* ppName, const long long int* v, int vL)
+int CSceneObject::setHandleArrayProperty(const char* ppName, const std::vector<long long int>& pState)
 {
     std::string _pName(ppName);
     int retVal = sim_propertyret_unknownproperty;
-    if (v == nullptr)
-        vL = 0;
 
     std::string pN(ppName);
     if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
     {
         std::vector<int> v2;
-        for (int i = 0; i < vL; i++)
-            v2.push_back(int(v[i]));
+        for (int i = 0; i < pState.size(); i++)
+            v2.push_back(int(pState[i]));
         setReferencedHandles(v2.size(), v2.data(), pN.c_str());
         retVal = sim_propertyret_ok;
     }
     else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
     {
         std::vector<int> v2;
-        for (int i = 0; i < vL; i++)
-            v2.push_back(int(v[i]));
+        for (int i = 0; i < pState.size(); i++)
+            v2.push_back(int(pState[i]));
         setReferencedOriginalHandles(int(v2.size()), v2.data(), pN.c_str());
         retVal = sim_propertyret_ok;
     }

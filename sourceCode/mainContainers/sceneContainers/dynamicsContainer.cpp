@@ -518,7 +518,7 @@ bool CDynamicsContainer::setEngineFloatParam_old(int what, double v)
             if (getFloatArrayProperty(prop.c_str(), w) > 0)
             {
                 w[indexWithArrays] = v;
-                if (setFloatArrayProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
+                if (setFloatArrayProperty(prop.c_str(), w) > 0)
                     retVal = true;
             }
         }
@@ -2312,7 +2312,8 @@ void CDynamicsContainer::appendGenesisData(CCbor* ev)
     setFloatProperty(nullptr, 0.0, ev);
     setIntArray2Property(nullptr, nullptr, ev);
     setVector3Property(nullptr, nullptr, ev);
-    setFloatArrayProperty(nullptr, nullptr, 0, ev);
+    std::vector<double> dummy;
+    setFloatArrayProperty(nullptr, dummy, ev);
     _sendEngineString(ev);
 }
 
@@ -3090,7 +3091,7 @@ int CDynamicsContainer::getFloatProperty(const char* pName, double& pState, bool
     return retVal;
 }
 
-int CDynamicsContainer::setStringProperty(const char* pName, const char* pState)
+int CDynamicsContainer::setStringProperty(const char* pName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (strcmp(pName, propDynCont_engineProperties.name) == 0)
@@ -3098,7 +3099,7 @@ int CDynamicsContainer::setStringProperty(const char* pName, const char* pState)
         retVal = 0;
         CEngineProperties prop;
         std::string current(prop.getObjectProperties(-1));
-        if (prop.setObjectProperties(-1, pState))
+        if (prop.setObjectProperties(-1, pState.c_str()))
         {
             retVal = sim_propertyret_ok;
             std::string current2(prop.getObjectProperties(-1));
@@ -3272,7 +3273,7 @@ int CDynamicsContainer::getVector3Property(const char* pName, C3Vector& pState, 
     return retVal;
 }
 
-int CDynamicsContainer::setFloatArrayProperty(const char* pName, const double* v, int vL, CCbor* eev /* = nullptr*/)
+int CDynamicsContainer::setFloatArrayProperty(const char* pName, const std::vector<double>& pState, CCbor* eev /* = nullptr*/)
 {
     int retVal = sim_propertyret_unknownproperty;
     CCbor* ev = nullptr;
@@ -3293,15 +3294,15 @@ int CDynamicsContainer::setFloatArrayProperty(const char* pName, const double* v
                 retVal = sim_propertyret_ok;
                 bool pa = false;
                 for (size_t i = 0; i < n; i++)
-                    pa = pa || ((vL > i) && (arr[simiIndex1 + i] != v[i]));
+                    pa = pa || ((pState.size() > i) && (arr[simiIndex1 + i] != pState[i]));
                 if ((pName == nullptr) || pa)
                 {
                     if (pName != nullptr)
                     {
                         for (size_t i = 0; i < n; i++)
                         {
-                            if (vL > i)
-                                arr[simiIndex1 + i] = v[i];
+                            if (pState.size() > i)
+                                arr[simiIndex1 + i] = pState[i];
                         }
                     }
                     if (App::scenes->getEventsEnabled())
@@ -3392,15 +3393,15 @@ int CDynamicsContainer::getFloatArrayProperty(const char* pName, std::vector<dou
     return retVal;
 }
 
-int CDynamicsContainer::setIntArrayProperty(const char* pName, const int* v, int vL)
+int CDynamicsContainer::setIntArrayProperty(const char* pName, const std::vector<int>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propDynCont_dynamicsEngine.name) == 0)
     {
-        if (vL >= 2)
+        if (pState.size() >= 2)
         {
-            setDynamicEngineType(v[0], v[1]);
+            setDynamicEngineType(pState[0], pState[1]);
             retVal = sim_propertyret_ok;
         }
         else

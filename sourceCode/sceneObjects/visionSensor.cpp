@@ -3686,18 +3686,18 @@ int CVisionSensor::getIntArray2Property(const char* ppName, int* pState) const
     return retVal;
 }
 
-int CVisionSensor::setBufferProperty(const char* ppName, const char* buffer, int bufferL)
+int CVisionSensor::setBufferProperty(const char* ppName, const std::string& pState)
 {
     const std::string _pName = ppName;
-    int retVal = CViewableBase::setBufferProperty(ppName, buffer, bufferL);
+    int retVal = CViewableBase::setBufferProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propVisionSensor_imageBuffer.name)
         {
-            if (bufferL == 3 * _resolution[0] * _resolution[1])
+            if (pState.size() == 3 * _resolution[0] * _resolution[1])
             {
                 // ?? writeImage((float*)buffer, 0);
-                writePortionOfCharImage((unsigned char*)buffer, 0, 0, _resolution[0], _resolution[1], 0);
+                writePortionOfCharImage((unsigned char*)pState.c_str(), 0, 0, _resolution[0], _resolution[1], 0);
                 retVal = sim_propertyret_ok;
             }
             else
@@ -3788,12 +3788,10 @@ int CVisionSensor::getVector3Property(const char* ppName, C3Vector& pState) cons
     return retVal;
 }
 
-int CVisionSensor::setFloatArrayProperty(const char* ppName, const double* v, int vL)
+int CVisionSensor::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState)
 {
     const std::string _pName = ppName;
-    if (v == nullptr)
-        vL = 0;
-    int retVal = CViewableBase::setFloatArrayProperty(ppName, v, vL);
+    int retVal = CViewableBase::setFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
     }
@@ -3831,12 +3829,10 @@ int CVisionSensor::getFloatArrayProperty(const char* ppName, std::vector<double>
     return retVal;
 }
 
-int CVisionSensor::setIntArrayProperty(const char* ppName, const int* v, int vL)
+int CVisionSensor::setIntArrayProperty(const char* ppName, const std::vector<int>& pState)
 {
     const std::string _pName = ppName;
-    if (v == nullptr)
-        vL = 0;
-    int retVal = CViewableBase::setIntArrayProperty(ppName, v, vL);
+    int retVal = CViewableBase::setIntArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
     }

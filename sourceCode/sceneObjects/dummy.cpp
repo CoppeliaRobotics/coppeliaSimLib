@@ -169,7 +169,7 @@ bool CDummy::setEngineFloatParam_old(int what, double v)
         if (getFloatArrayProperty(prop.c_str(), w) > 0)
         {
             w[indexWithArrays] = v;
-            if (setFloatArrayProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
+            if (setFloatArrayProperty(prop.c_str(), w) > 0)
                 return true;
         }
     }
@@ -288,7 +288,8 @@ void CDummy::addObjectEventData(CCbor* ev)
     setBoolProperty(nullptr, false, ev);
     setIntProperty(nullptr, 0, ev);
     setFloatProperty(nullptr, 0.0, ev);
-    setFloatArrayProperty(nullptr, nullptr, 0, ev);
+    std::vector<double> dummy;
+    setFloatArrayProperty(nullptr, dummy, ev);
     _sendEngineString(ev);
 
     if (App::getEventProtocolVersion() == 2)
@@ -1557,7 +1558,7 @@ int CDummy::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
-int CDummy::setStringProperty(const char* ppName, const char* pState)
+int CDummy::setStringProperty(const char* ppName, const std::string& pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setStringProperty(ppName, pState);
@@ -1566,7 +1567,7 @@ int CDummy::setStringProperty(const char* ppName, const char* pState)
         if (_pName == propDummy_assemblyTag.name)
         {
             retVal = sim_propertyret_ok;
-            setAssemblyTag(pState);
+            setAssemblyTag(pState.c_str());
         }
     }
     if (retVal == sim_propertyret_unknownproperty)
@@ -1576,7 +1577,7 @@ int CDummy::setStringProperty(const char* ppName, const char* pState)
             retVal = 0;
             CEngineProperties prop;
             std::string current(prop.getObjectProperties(_objectHandle));
-            if (prop.setObjectProperties(_objectHandle, pState))
+            if (prop.setObjectProperties(_objectHandle, pState.c_str()))
             {
                 retVal = sim_propertyret_ok;
                 std::string current2(prop.getObjectProperties(_objectHandle));
@@ -1637,7 +1638,7 @@ int CDummy::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CDummy::setFloatArrayProperty(const char* ppName, const double* v, int vL, CCbor* eev /* = nullptr*/)
+int CDummy::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState, CCbor* eev /* = nullptr*/)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -1654,7 +1655,7 @@ int CDummy::setFloatArrayProperty(const char* ppName, const double* v, int vL, C
 
     if ((eev == nullptr) && (pName != nullptr))
     { // regular properties (i.e. non-engine properties)
-        retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
+        retVal = CSceneObject::setFloatArrayProperty(pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
         }
@@ -1670,15 +1671,15 @@ int CDummy::setFloatArrayProperty(const char* ppName, const double* v, int vL, C
                 retVal = sim_propertyret_ok;
                 bool pa = false;
                 for (size_t i = 0; i < n; i++)
-                    pa = pa || ((vL > i) && (arr[simiIndex1 + i] != v[i]));
+                    pa = pa || ((pState.size() > i) && (arr[simiIndex1 + i] != pState[i]));
                 if ((pName == nullptr) || pa)
                 {
                     if (pName != nullptr)
                     {
                         for (size_t i = 0; i < n; i++)
                         {
-                            if (vL > i)
-                                arr[simiIndex1 + i] = v[i];
+                            if (pState.size() > i)
+                                arr[simiIndex1 + i] = pState[i];
                         }
                     }
                     if (_isInScene && App::scenes->getEventsEnabled())

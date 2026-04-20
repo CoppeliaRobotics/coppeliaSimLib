@@ -123,9 +123,9 @@ class CSceneObject : public Obj
     virtual int getHandleProperty(const char* pName, long long int& pState) const  override;
     virtual int setFloatProperty(const char* pName, double pState) override;
     virtual int getFloatProperty(const char* pName, double& pState) const  override;
-    virtual int setStringProperty(const char* pName, const char* pState) override;
+    virtual int setStringProperty(const char* pName, const std::string& pState) override;
     virtual int getStringProperty(const char* pName, std::string& pState) const override;
-    virtual int setBufferProperty(const char* pName, const char* buffer, int bufferL) override;
+    virtual int setBufferProperty(const char* pName, const std::string& pState) override;
     virtual int getBufferProperty(const char* pName, std::string& pState) const  override;
     virtual int setIntArray2Property(const char* pName, const int* pState) override;
     virtual int getIntArray2Property(const char* pName, int* pState) const  override;
@@ -139,11 +139,11 @@ class CSceneObject : public Obj
     virtual int getPoseProperty(const char* pName, C7Vector& pState) const  override;
     virtual int setColorProperty(const char* pName, const float* pState) override;
     virtual int getColorProperty(const char* pName, float* pState) const  override;
-    virtual int setFloatArrayProperty(const char* pName, const double* v, int vL) override;
+    virtual int setFloatArrayProperty(const char* pName, const std::vector<double>& pState) override;
     virtual int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const  override;
-    virtual int setIntArrayProperty(const char* pName, const int* v, int vL) override;
+    virtual int setIntArrayProperty(const char* pName, const std::vector<int>& pState) override;
     virtual int getIntArrayProperty(const char* pName, std::vector<int>& pState) const  override;
-    virtual int setHandleArrayProperty(const char* pName, const long long int* v, int vL) override;
+    virtual int setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState) override;
     virtual int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const  override;
     virtual int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState) override;
     virtual int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const  override;

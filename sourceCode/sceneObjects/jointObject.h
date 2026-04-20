@@ -208,14 +208,14 @@ class CJoint : public CSceneObject
     int getIntArray2Property(const char* pName, int* pState) const override;
     int setVector3Property(const char* pName, const C3Vector& pState, CCbor* eev = nullptr);
     int getVector3Property(const char* pName, C3Vector& pState) const override;
-    int setStringProperty(const char* pName, const char* pState) override;
+    int setStringProperty(const char* pName, const std::string& pState) override;
     int getStringProperty(const char* pName, std::string& pState) const override;
     int setQuaternionProperty(const char* pName, const C4Vector& pState) override;
     int getQuaternionProperty(const char* pName, C4Vector& pState) const override;
     int getPoseProperty(const char* pName, C7Vector& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;
     int getColorProperty(const char* pName, float* pState) const override;
-    int setFloatArrayProperty(const char* pName, const double* v, int vL, CCbor* eev = nullptr);
+    int setFloatArrayProperty(const char* pName, const std::vector<double>& pState, CCbor* eev = nullptr);
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;

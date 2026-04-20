@@ -1146,7 +1146,7 @@ int CMarker::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
-int CMarker::setStringProperty(const char* ppName, const char* pState)
+int CMarker::setStringProperty(const char* ppName, const std::string& pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setStringProperty(ppName, pState);

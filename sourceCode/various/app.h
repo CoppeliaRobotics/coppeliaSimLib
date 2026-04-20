@@ -124,9 +124,9 @@ class App
     static int getFloatProperty(long long int target, const char* pName, double& pState);
     static int setHandleProperty(long long int target, const char* pName, long long int pState);
     static int getHandleProperty(long long int target, const char* pName, long long int& pState);
-    static int setStringProperty(long long int target, const char* pName, const char* pState);
+    static int setStringProperty(long long int target, const char* pName, const std::string& pState);
     static int getStringProperty(long long int target, const char* pName, std::string& pState);
-    static int setBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL);
+    static int setBufferProperty(long long int target, const char* pName, const std::string& pState);
     static int getBufferProperty(long long int target, const char* pName, std::string& pState);
     static int setIntArray2Property(long long int target, const char* pName, const int* pState);
     static int getIntArray2Property(long long int target, const char* pName, int* pState);
@@ -140,11 +140,11 @@ class App
     static int getPoseProperty(long long int target, const char* pName, C7Vector& pState);
     static int setColorProperty(long long int target, const char* pName, const float* pState);
     static int getColorProperty(long long int target, const char* pName, float* pState);
-    static int setFloatArrayProperty(long long int target, const char* pName, const double* v, int vL);
+    static int setFloatArrayProperty(long long int target, const char* pName, const std::vector<double>& pState);
     static int getFloatArrayProperty(long long int target, const char* pName, std::vector<double>& pState);
-    static int setIntArrayProperty(long long int target, const char* pName, const int* v, int vL);
+    static int setIntArrayProperty(long long int target, const char* pName, const std::vector<int>& pState);
     static int getIntArrayProperty(long long int target, const char* pName, std::vector<int>& pState);
-    static int setHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL); // ALL handle items have to be of the same type
+    static int setHandleArrayProperty(long long int target, const char* pName, const std::vector<long long int>& pState); // ALL handle items have to be of the same type
     static int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState); // ALL handle items have to be of the same type
     static int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
     static int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState);

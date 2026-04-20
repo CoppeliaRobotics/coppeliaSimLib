@@ -474,7 +474,10 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson& annJso
             if (annJson.getValue(bullet, "stopCfm", QJsonValue::Double, val, allErrors))
                 joint->setFloatProperty(propJoint_bulletStopCfm.name, val.toDouble());
             if (annJson.getValue(bullet, "posPid", w, 3, allErrors))
-                joint->setFloatArrayProperty(propJoint_bulletPosPid.name, w, 3);
+            {
+                std::vector<double> ww(w, w + 3);
+                joint->setFloatArrayProperty(propJoint_bulletPosPid.name, ww);
+            }
         }
     }
 
@@ -495,7 +498,10 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson& annJso
             if (annJson.getValue(ode, "fudge", QJsonValue::Double, val, allErrors))
                 joint->setFloatProperty(propJoint_odeFudgeFactor.name, val.toDouble());
             if (annJson.getValue(ode, "posPid", w, 3, allErrors))
-                joint->setFloatArrayProperty(propJoint_odePosPid.name, w, 3);
+            {
+                std::vector<double> ww(w, w + 3);
+                joint->setFloatArrayProperty(propJoint_odePosPid.name, ww);
+            }
         }
     }
 
@@ -506,7 +512,10 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson& annJso
             QJsonObject newton(val.toObject());
             double w[3];
             if (annJson.getValue(newton, "posPid", w, 3, allErrors))
-                joint->setFloatArrayProperty(propJoint_newtonPosPid.name, w, 3);
+            {
+                std::vector<double> ww(w, w + 3);
+                joint->setFloatArrayProperty(propJoint_newtonPosPid.name, ww);
+            }
         }
     }
 
@@ -524,9 +533,15 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson& annJso
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "solref", w, 2, allErrors))
-                    joint->setFloatArrayProperty(propJoint_mujocoLimitsSolRef.name, w, 2);
+                {
+                    std::vector<double> ww(w, w + 2);
+                    joint->setFloatArrayProperty(propJoint_mujocoLimitsSolRef.name, ww);
+                }
                 if (annJson.getValue(sub, "solimp", w, 5, allErrors))
-                    joint->setFloatArrayProperty(propJoint_mujocoLimitsSolImp.name, w, 5);
+                {
+                    std::vector<double> ww(w, w + 5);
+                    joint->setFloatArrayProperty(propJoint_mujocoLimitsSolImp.name, ww);
+                }
             }
             if (annJson.getValue(mujoco, "friction", QJsonValue::Object, val, allErrors))
             {
@@ -534,9 +549,15 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson& annJso
                 if (annJson.getValue(sub, "loss", QJsonValue::Double, val, allErrors))
                     joint->setFloatProperty(propJoint_mujocoFrictionLoss.name, val.toDouble());
                 if (annJson.getValue(sub, "solref", w, 2, allErrors))
-                    joint->setFloatArrayProperty(propJoint_mujocoFrictionSolRef.name, w, 2);
+                {
+                    std::vector<double> ww(w, w + 2);
+                    joint->setFloatArrayProperty(propJoint_mujocoFrictionSolRef.name, ww);
+                }
                 if (annJson.getValue(sub, "solimp", w, 5, allErrors))
-                    joint->setFloatArrayProperty(propJoint_mujocoFrictionSolImp.name, w, 5);
+                {
+                    std::vector<double> ww(w, w + 5);
+                    joint->setFloatArrayProperty(propJoint_mujocoFrictionSolImp.name, ww);
+                }
             }
             if (annJson.getValue(mujoco, "spring", QJsonValue::Object, val, allErrors))
             {
@@ -548,16 +569,25 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson& annJso
                 if (annJson.getValue(sub, "ref", QJsonValue::Double, val, allErrors))
                     joint->setFloatProperty(propJoint_mujocoSpringRef.name, val.toDouble());
                 if (annJson.getValue(sub, "springDamper", w, 2, allErrors))
-                    joint->setFloatArrayProperty(propJoint_mujocoSpringDamper.name, w, 2);
+                {
+                    std::vector<double> ww(w, w + 2);
+                    joint->setFloatArrayProperty(propJoint_mujocoSpringDamper.name, ww);
+                }
             }
             if (annJson.getValue(mujoco, "dependency", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "polyCoeff", w, 5, allErrors))
-                    joint->setFloatArrayProperty(propJoint_mujocoDependencyPolyCoef.name, w, 5);
+                {
+                    std::vector<double> ww(w, w + 5);
+                    joint->setFloatArrayProperty(propJoint_mujocoDependencyPolyCoef.name, ww);
+                }
             }
             if (annJson.getValue(mujoco, "posPid", w, 3, allErrors))
-                joint->setFloatArrayProperty(propJoint_mujocoPosPid.name, w, 3);
+            {
+                std::vector<double> ww(w, w + 3);
+                joint->setFloatArrayProperty(propJoint_mujocoPosPid.name, ww);
+            }
         }
     }
 
@@ -891,7 +921,10 @@ void CEngineProperties::_readJoint(int engine, int jointHandle, CAnnJson& annJso
             }
             double w[3];
             if (annJson.getValue(vortex, "posPid", w, 3, allErrors))
-                joint->setFloatArrayProperty(propJoint_vortexPosPid.name, w, 3);
+            {
+                std::vector<double> ww(w, w + 3);
+                joint->setFloatArrayProperty(propJoint_vortexPosPid.name, ww);
+            }
         }
     }
 }
@@ -1190,11 +1223,20 @@ void CEngineProperties::_readShape(int engine, int shapeHandle, CAnnJson& annJso
             QJsonObject mujoco(val.toObject());
             double v[5];
             if (annJson.getValue(mujoco, "friction", v, 3, allErrors))
-                mat->setFloatArrayProperty(propMaterial_mujocoFriction.name, v, 3);
+            {
+                std::vector<double> vv(v, v + 3);
+                mat->setFloatArrayProperty(propMaterial_mujocoFriction.name, vv);
+            }
             if (annJson.getValue(mujoco, "solref", v, 2, allErrors))
-                mat->setFloatArrayProperty(propMaterial_mujocoSolref.name, v, 2);
+            {
+                std::vector<double> vv(v, v + 2);
+                mat->setFloatArrayProperty(propMaterial_mujocoSolref.name, vv);
+            }
             if (annJson.getValue(mujoco, "solimp", v, 5, allErrors))
-                mat->setFloatArrayProperty(propMaterial_mujocoSolimp.name, v, 5);
+            {
+                std::vector<double> vv(v, v + 5);
+                mat->setFloatArrayProperty(propMaterial_mujocoSolimp.name, vv);
+            }
             if (annJson.getValue(mujoco, "condim", QJsonValue::Double, val, allErrors))
                 mat->setIntProperty(propMaterial_mujocoCondim.name, val.toInt());
             if (annJson.getValue(mujoco, "solmix", QJsonValue::Double, val, allErrors))
@@ -1214,9 +1256,15 @@ void CEngineProperties::_readShape(int engine, int shapeHandle, CAnnJson& annJso
             if (annJson.getValue(mujoco, "adhesionctrl", QJsonValue::Double, val, allErrors))
                 mat->setFloatProperty(propMaterial_mujocoAdhesionCtrl.name, val.toDouble());
             if (annJson.getValue(mujoco, "adhesionctrlrange", v, 2, allErrors))
-                mat->setFloatArrayProperty(propMaterial_mujocoAdhesionCtrlrange.name, v, 2);
+            {
+                std::vector<double> vv(v, v + 2);
+                mat->setFloatArrayProperty(propMaterial_mujocoAdhesionCtrlrange.name, vv);
+            }
             if (annJson.getValue(mujoco, "adhesionforcerange", v, 2, allErrors))
-                mat->setFloatArrayProperty(propMaterial_mujocoAdhesionForcerange.name, v, 2);
+            {
+                std::vector<double> vv(v, v + 2);
+                mat->setFloatArrayProperty(propMaterial_mujocoAdhesionForcerange.name, vv);
+            }
             if (annJson.getValue(mujoco, "adhesionforcelimited", QJsonValue::Double, val, allErrors))
                 mat->setIntProperty(propMaterial_mujocoAdhesionForcelimited.name, val.toInt());
         }
@@ -1745,9 +1793,15 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson& annJson, std::string* 
                 if (annJson.getValue(sub, "margin", QJsonValue::Double, val, allErrors))
                     App::scene->dynamicsContainer->setFloatProperty(propDynCont_mujocoContactParamsMargin.name, val.toDouble());
                 if (annJson.getValue(sub, "solref", w, 2, allErrors))
-                    App::scene->dynamicsContainer->setFloatArrayProperty(propDynCont_mujocoContactParamsSolref.name, w, 2);
+                {
+                    std::vector<double> ww(w, w + 2);
+                    App::scene->dynamicsContainer->setFloatArrayProperty(propDynCont_mujocoContactParamsSolref.name, ww);
+                }
                 if (annJson.getValue(sub, "solimp", w, 5, allErrors))
-                    App::scene->dynamicsContainer->setFloatArrayProperty(propDynCont_mujocoContactParamsSolimp.name, w, 5);
+                {
+                    std::vector<double> ww(w, w + 5);
+                    App::scene->dynamicsContainer->setFloatArrayProperty(propDynCont_mujocoContactParamsSolimp.name, ww);
+                }
             }
             if (annJson.getValue(mujoco, "kinematicWeld", QJsonValue::Object, val, allErrors))
             {
@@ -1755,9 +1809,15 @@ void CEngineProperties::_readGlobal(int engine, CAnnJson& annJson, std::string* 
                 if (annJson.getValue(sub, "torquescale", QJsonValue::Double, val, allErrors))
                     App::scene->dynamicsContainer->setFloatProperty(propDynCont_mujocoKinematicWeldTorqueScale.name, val.toDouble());
                 if (annJson.getValue(sub, "solref", w, 2, allErrors))
-                    App::scene->dynamicsContainer->setFloatArrayProperty(propDynCont_mujocoKinematicWeldSolref.name, w, 2);
+                {
+                    std::vector<double> ww(w, w + 2);
+                    App::scene->dynamicsContainer->setFloatArrayProperty(propDynCont_mujocoKinematicWeldSolref.name, ww);
+                }
                 if (annJson.getValue(sub, "solimp", w, 5, allErrors))
-                    App::scene->dynamicsContainer->setFloatArrayProperty(propDynCont_mujocoKinematicWeldSolimp.name, w, 5);
+                {
+                    std::vector<double> ww(w, w + 5);
+                    App::scene->dynamicsContainer->setFloatArrayProperty(propDynCont_mujocoKinematicWeldSolimp.name, ww);
+                }
             }
             if (annJson.getValue(mujoco, "impratio", QJsonValue::Double, val, allErrors))
                 App::scene->dynamicsContainer->setFloatProperty(propDynCont_mujocoImpRatio.name, val.toDouble());
@@ -2095,19 +2155,34 @@ void CEngineProperties::_readDummy(int engine, int dummyHandle, CAnnJson& annJso
                 if (annJson.getValue(sub, "enabled", QJsonValue::Bool, val, allErrors))
                     dummy->setBoolProperty(propDummy_mujocoLimitsEnabled.name, val.toBool());
                 if (annJson.getValue(sub, "range", w, 2, allErrors))
-                    dummy->setFloatArrayProperty(propDummy_mujocoLimitsRange.name, w, 2);
+                {
+                    std::vector<double> ww(w, w + 2);
+                    dummy->setFloatArrayProperty(propDummy_mujocoLimitsRange.name, ww);
+                }
                 if (annJson.getValue(sub, "solref", w, 2, allErrors))
-                    dummy->setFloatArrayProperty(propDummy_mujocoLimitsSolref.name, w, 2);
+                {
+                    std::vector<double> ww(w, w + 2);
+                    dummy->setFloatArrayProperty(propDummy_mujocoLimitsSolref.name, ww);
+                }
                 if (annJson.getValue(sub, "solimp", w, 5, allErrors))
-                    dummy->setFloatArrayProperty(propDummy_mujocoLimitsSolimp.name, w, 5);
+                {
+                    std::vector<double> ww(w, w + 5);
+                    dummy->setFloatArrayProperty(propDummy_mujocoLimitsSolimp.name, ww);
+                }
             }
             if (annJson.getValue(mujoco, "overlapConstraint", QJsonValue::Object, val, allErrors))
             {
                 QJsonObject sub(val.toObject());
                 if (annJson.getValue(sub, "solref", w, 2, allErrors))
-                    dummy->setFloatArrayProperty(propDummy_mujocoOverlapConstrSolref.name, w, 2);
+                {
+                    std::vector<double> ww(w, w + 2);
+                    dummy->setFloatArrayProperty(propDummy_mujocoOverlapConstrSolref.name, ww);
+                }
                 if (annJson.getValue(sub, "solimp", w, 5, allErrors))
-                    dummy->setFloatArrayProperty(propDummy_mujocoOverlapConstrSolimp.name, w, 5);
+                {
+                    std::vector<double> ww(w, w + 5);
+                    dummy->setFloatArrayProperty(propDummy_mujocoOverlapConstrSolimp.name, ww);
+                }
                 if (annJson.getValue(sub, "torquescale", QJsonValue::Double, val, allErrors))
                     dummy->setFloatProperty(propDummy_mujocoOverlapConstrTorqueScale.name, val.toDouble());
             }

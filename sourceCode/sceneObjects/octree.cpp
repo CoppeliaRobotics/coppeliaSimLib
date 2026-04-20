@@ -1473,10 +1473,10 @@ int COcTree::getStringProperty(const char* ppName, std::string& pState) const
     return retVal;
 }
 
-int COcTree::setBufferProperty(const char* ppName, const char* buffer, int bufferL)
+int COcTree::setBufferProperty(const char* ppName, const std::string& pState)
 {
     std::string _pName(ppName);
-    int retVal = CSceneObject::setBufferProperty(ppName, buffer, bufferL);
+    int retVal = CSceneObject::setBufferProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
     }
@@ -1519,12 +1519,10 @@ int COcTree::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int COcTree::setFloatArrayProperty(const char* ppName, const double* v, int vL)
+int COcTree::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState)
 {
     std::string _pName(ppName);
-    if (v == nullptr)
-        vL = 0;
-    int retVal = CSceneObject::setFloatArrayProperty(ppName, v, vL);
+    int retVal = CSceneObject::setFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
     }

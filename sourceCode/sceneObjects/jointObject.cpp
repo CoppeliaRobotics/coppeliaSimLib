@@ -385,7 +385,7 @@ bool CJoint::setEngineFloatParam_old(int what, double v)
         if (getFloatArrayProperty(prop.c_str(), w) > 0)
         {
             w[indexWithArrays] = v;
-            if (setFloatArrayProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
+            if (setFloatArrayProperty(prop.c_str(), w) > 0)
                 return true;
         }
     }
@@ -2086,7 +2086,8 @@ void CJoint::addObjectEventData(CCbor* ev)
     setIntArray2Property(nullptr, nullptr, ev);
     C3Vector dummy;
     setVector3Property(nullptr, dummy, ev);
-    setFloatArrayProperty(nullptr, nullptr, 0, ev);
+    std::vector<double> dummy2;
+    setFloatArrayProperty(nullptr, dummy2, ev);
     _sendEngineString(ev);
 
     if (App::getEventProtocolVersion() == 2)
@@ -5650,7 +5651,7 @@ int CJoint::getVector3Property(const char* ppName, C3Vector& pState) const
     return retVal;
 }
 
-int CJoint::setStringProperty(const char* ppName, const char* pState)
+int CJoint::setStringProperty(const char* ppName, const std::string& pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setStringProperty(ppName, pState);
@@ -5661,7 +5662,7 @@ int CJoint::setStringProperty(const char* ppName, const char* pState)
             retVal = 0;
             CEngineProperties prop;
             std::string current(prop.getObjectProperties(_objectHandle));
-            if (prop.setObjectProperties(_objectHandle, pState))
+            if (prop.setObjectProperties(_objectHandle, pState.c_str()))
             {
                 retVal = sim_propertyret_ok;
                 std::string current2(prop.getObjectProperties(_objectHandle));
@@ -5760,7 +5761,7 @@ int CJoint::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CJoint::setFloatArrayProperty(const char* ppName, const double* v, int vL, CCbor* eev /* = nullptr*/)
+int CJoint::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState, CCbor* eev /* = nullptr*/)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -5777,14 +5778,14 @@ int CJoint::setFloatArrayProperty(const char* ppName, const double* v, int vL, C
 
     if ((eev == nullptr) && (pName != nullptr))
     { // regular properties (i.e. non-engine properties)
-        retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
+        retVal = CSceneObject::setFloatArrayProperty(pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
             if (_pName == propJoint_maxVelAccelJerk.name)
             {
-                if (vL >= 2)
+                if (pState.size() >= 2)
                 {
-                    setMaxVelAccelJerk(v);
+                    setMaxVelAccelJerk(pState.data());
                     retVal = sim_propertyret_ok;
                 }
                 else
@@ -5792,9 +5793,9 @@ int CJoint::setFloatArrayProperty(const char* ppName, const double* v, int vL, C
             }
             else if (_pName == propJoint_interval.name)
             {
-                if (vL >= 2)
+                if (pState.size() >= 2)
                 {
-                    setInterval(v[0], v[1]);
+                    setInterval(pState[0], pState[1]);
                     retVal = sim_propertyret_ok;
                 }
                 else
@@ -5802,9 +5803,9 @@ int CJoint::setFloatArrayProperty(const char* ppName, const double* v, int vL, C
             }
             else if (_pName == propJoint_dependencyParams.name)
             {
-                if (vL >= 2)
+                if (pState.size() >= 2)
                 {
-                    setDependencyParams(v[0], v[1]);
+                    setDependencyParams(pState[0], pState[1]);
                     retVal = sim_propertyret_ok;
                 }
                 else
@@ -5812,9 +5813,9 @@ int CJoint::setFloatArrayProperty(const char* ppName, const double* v, int vL, C
             }
             else if (_pName == propJoint_springDamperParams.name)
             {
-                if (vL >= 2)
+                if (pState.size() >= 2)
                 {
-                    setKc(v[0], v[1]);
+                    setKc(pState[0], pState[1]);
                     retVal = sim_propertyret_ok;
                 }
                 else
@@ -5833,15 +5834,15 @@ int CJoint::setFloatArrayProperty(const char* ppName, const double* v, int vL, C
                 retVal = sim_propertyret_ok;
                 bool pa = false;
                 for (size_t i = 0; i < n; i++)
-                    pa = pa || ((vL > i) && (arr[simiIndex1 + i] != v[i]));
+                    pa = pa || ((pState.size() > i) && (arr[simiIndex1 + i] != pState[i]));
                 if ((pName == nullptr) || pa)
                 {
                     if (pName != nullptr)
                     {
                         for (size_t i = 0; i < n; i++)
                         {
-                            if (vL > i)
-                                arr[simiIndex1 + i] = v[i];
+                            if (pState.size() > i)
+                                arr[simiIndex1 + i] = pState[i];
                         }
                     }
                     if (_isInScene && App::scenes->getEventsEnabled())

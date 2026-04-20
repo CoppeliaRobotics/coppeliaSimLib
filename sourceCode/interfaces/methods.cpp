@@ -2746,6 +2746,7 @@ std::string _method_callFunction(int targetObj, const char* method, CDetachedScr
             if (p == std::string::npos)
             {
                 int rr = target->callCustomScriptFunction(funcName.c_str(), inStack2, outStack);
+                printf("rr: %i\n", rr);
                 if (rr != 1)
                 {
                     if (rr == -1)
@@ -2775,10 +2776,13 @@ std::string _method_callFunction(int targetObj, const char* method, CDetachedScr
                         CInterfaceStackString* res = (CInterfaceStackString*)outStack->detachStackObjectFromIndex(0); // first ret val is always an error string
                         size_t l;
                         std::string err(res->getValue(&l));
+                        delete res;
                         if (err.size() > 0)
                             errMsg = err;
                     }
                 }
+                else
+                    errMsg = SIM_ERROR_FAILED_CALLING_METHOD;
             }
         }
         else

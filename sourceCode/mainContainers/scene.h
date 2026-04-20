@@ -94,9 +94,9 @@ class CScene : public Obj
     int getFloatProperty(long long int target, const char* pName, double& pState) const;
     int setHandleProperty(long long int target, const char* pName, long long int pState);
     int getHandleProperty(long long int target, const char* pName, long long int& pState) const;
-    int setStringProperty(long long int target, const char* pName, const char* pState);
+    int setStringProperty(long long int target, const char* pName, const std::string& pState);
     int getStringProperty(long long int target, const char* pName, std::string& pState) const;
-    int setBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL);
+    int setBufferProperty(long long int target, const char* pName, const std::string& pState);
     int getBufferProperty(long long int target, const char* pName, std::string& pState) const;
     int setIntArray2Property(long long int target, const char* pName, const int* pState);
     int getIntArray2Property(long long int target, const char* pName, int* pState) const;
@@ -110,11 +110,11 @@ class CScene : public Obj
     int getPoseProperty(long long int target, const char* pName, C7Vector& pState) const;
     int setColorProperty(long long int target, const char* pName, const float* pState);
     int getColorProperty(long long int target, const char* pName, float* pState) const;
-    int setFloatArrayProperty(long long int target, const char* pName, const double* v, int vL);
+    int setFloatArrayProperty(long long int target, const char* pName, const std::vector<double>& pState);
     int getFloatArrayProperty(long long int target, const char* pName, std::vector<double>& pState) const;
-    int setIntArrayProperty(long long int target, const char* pName, const int* v, int vL);
+    int setIntArrayProperty(long long int target, const char* pName, const std::vector<int>& pState);
     int getIntArrayProperty(long long int target, const char* pName, std::vector<int>& pState) const;
-    int setHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL); // ALL handle items have to be of the same type
+    int setHandleArrayProperty(long long int target, const char* pName, const std::vector<long long int>& pState); // ALL handle items have to be of the same type
     int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const; // ALL handle items have to be of the same type
     int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
     int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState) const;

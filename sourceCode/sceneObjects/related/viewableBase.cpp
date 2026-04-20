@@ -779,19 +779,17 @@ int CViewableBase::getVector3Property(const char* pName, C3Vector& pState) const
     return retVal;
 }
 
-int CViewableBase::setFloatArrayProperty(const char* pName, const double* v, int vL)
+int CViewableBase::setFloatArrayProperty(const char* pName, const std::vector<double>& pState)
 {
-    if (v == nullptr)
-        vL = 0;
-    int retVal = CSceneObject::setFloatArrayProperty(pName, v, vL);
+    int retVal = CSceneObject::setFloatArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(propViewableBase_clippingPlanes.name, pName) == 0)
         {
-            if (vL >= 2)
+            if (pState.size() >= 2)
             {
                 retVal = sim_propertyret_ok;
-                setClippingPlanes(v[0], v[1]);
+                setClippingPlanes(pState[0], pState[1]);
             }
             else
                 retVal = 0;
@@ -818,11 +816,9 @@ int CViewableBase::getFloatArrayProperty(const char* pName, std::vector<double>&
     return retVal;
 }
 
-int CViewableBase::setIntArrayProperty(const char* pName, const int* v, int vL)
+int CViewableBase::setIntArrayProperty(const char* pName, const std::vector<int>& pState)
 {
-    if (v == nullptr)
-        vL = 0;
-    int retVal = CSceneObject::setIntArrayProperty(pName, v, vL);
+    int retVal = CSceneObject::setIntArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
     }

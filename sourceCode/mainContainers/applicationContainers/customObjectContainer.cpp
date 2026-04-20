@@ -512,7 +512,7 @@ int CustomObjectContainer::getFloatProperty(long long int target, const char* pp
     return retVal;
 }
 
-int CustomObjectContainer::setStringProperty(long long int target, const char* ppName, const char* pState)
+int CustomObjectContainer::setStringProperty(long long int target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -530,12 +530,12 @@ int CustomObjectContainer::getStringProperty(long long int target, const char* p
     return retVal;
 }
 
-int CustomObjectContainer::setBufferProperty(long long int target, const char* ppName, const char* buffer, int bufferL)
+int CustomObjectContainer::setBufferProperty(long long int target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
     if (obj != nullptr)
-        retVal = obj->setBufferProperty(ppName, buffer, bufferL);
+        retVal = obj->setBufferProperty(ppName, pState);
     return retVal;
 }
 
@@ -656,12 +656,12 @@ int CustomObjectContainer::getColorProperty(long long int target, const char* pp
     return retVal;
 }
 
-int CustomObjectContainer::setFloatArrayProperty(long long int target, const char* ppName, const double* v, int vL)
+int CustomObjectContainer::setFloatArrayProperty(long long int target, const char* ppName, const std::vector<double>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
     if (obj != nullptr)
-        retVal = obj->setFloatArrayProperty(ppName, v, vL);
+        retVal = obj->setFloatArrayProperty(ppName, pState);
     return retVal;
 }
 
@@ -674,12 +674,12 @@ int CustomObjectContainer::getFloatArrayProperty(long long int target, const cha
     return retVal;
 }
 
-int CustomObjectContainer::setIntArrayProperty(long long int target, const char* ppName, const int* v, int vL)
+int CustomObjectContainer::setIntArrayProperty(long long int target, const char* ppName, const std::vector<int>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
     if (obj != nullptr)
-        retVal = obj->setIntArrayProperty(ppName, v, vL);
+        retVal = obj->setIntArrayProperty(ppName, pState);
     return retVal;
 }
 
@@ -692,12 +692,12 @@ int CustomObjectContainer::getIntArrayProperty(long long int target, const char*
     return retVal;
 }
 
-int CustomObjectContainer::setHandleArrayProperty(long long int target, const char* ppName, const long long int* v, int vL)
+int CustomObjectContainer::setHandleArrayProperty(long long int target, const char* ppName, const std::vector<long long int>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
     if (obj != nullptr)
-        retVal = obj->setHandleArrayProperty(ppName, v, vL);
+        retVal = obj->setHandleArrayProperty(ppName, pState);
     return retVal;
 }
 

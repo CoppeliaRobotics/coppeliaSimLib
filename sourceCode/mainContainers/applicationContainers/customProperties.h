@@ -2,6 +2,9 @@
 
 #include <obj.h>
 
+#define SET_SUFFIX "_set_"
+#define GET_SUFFIX "_get_"
+
 class CCustomProperties
 {
   public:
@@ -18,9 +21,9 @@ class CCustomProperties
     int getFloatProperty(const char* pName, double& pState) const;
     int setHandleProperty(const char* pName, long long int pState, bool& valueChange);
     int getHandleProperty(const char* pName, long long int& pState) const;
-    int setStringProperty(const char* pName, const char* pState, bool& valueChange);
+    int setStringProperty(const char* pName, const std::string& pState, bool& valueChange);
     int getStringProperty(const char* pName, std::string& pState) const;
-    int setBufferProperty(const char* pName, const char* buffer, int bufferL, bool& valueChange);
+    int setBufferProperty(const char* pName, const std::string& pState, bool& valueChange);
     int getBufferProperty(const char* pName, std::string& pState) const;
     int setIntArray2Property(const char* pName, const int* pState, bool& valueChange);
     int getIntArray2Property(const char* pName, int* pState) const;
@@ -34,11 +37,11 @@ class CCustomProperties
     int getPoseProperty(const char* pName, C7Vector& pState) const;
     int setColorProperty(const char* pName, const float* pState, bool& valueChange);
     int getColorProperty(const char* pName, float* pState) const;
-    int setFloatArrayProperty(const char* pName, const double* v, int vL, bool& valueChange);
+    int setFloatArrayProperty(const char* pName, const std::vector<double>& pState, bool& valueChange);
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
-    int setIntArrayProperty(const char* pName, const int* v, int vL, bool& valueChange);
+    int setIntArrayProperty(const char* pName, const std::vector<int>& pState, bool& valueChange);
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
-    int setHandleArrayProperty(const char* pName, const long long int* v, int vL, bool& valueChange);
+    int setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState, bool& valueChange);
     int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const;
     int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState, bool& valueChange);
     int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const;

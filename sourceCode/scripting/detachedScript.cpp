@@ -2153,11 +2153,11 @@ int CDetachedScript::_callScriptFunction(int sysCallType, const char* functionNa
     {
         if (_functionHooks_before[2 * i + 0].compare(functionName) == 0)
         {
+            err.clear();
             std::string func(_functionHooks_before[2 * i + 1]);
             size_t p = func.find(':');
-            int r;
             if (p == std::string::npos)
-                r = _callScriptFunc(func.c_str(), inStack, nullptr, &err);
+                _callScriptFunc(func.c_str(), inStack, nullptr, &err);
             else
             {
                 int h;
@@ -2167,21 +2167,26 @@ int CDetachedScript::_callScriptFunction(int sysCallType, const char* functionNa
                     int inStackH = -1;
                     if (inStack != nullptr)
                         inStackH = inStack->getObjectHandle();
-                    simCallMethod_internal(h, func.c_str(), inStackH, -1, getObjectHandle());
+                    int r = simCallMethod_internal(h, func.c_str(), inStackH, -1, getObjectHandle());
+                    if (r < 0)
+                    {
+                        char* lm = simGetLastError_internal();
+                        err = lm;
+                        delete[] lm;
+                    }
                 }
-                r = 1; // for now
+                else
+                    err = "invalid target.";
             }
-            if (r < 0)
+            if (err.size() > 0)
             {
-                retVal = r;
-                if (errorMsg != nullptr)
-                {
-                    errorMsg[0] += err;
-                    errorMsg[0] += "\n\n";
-                }
+                retVal = -1;
+                if (errorMsg)
+                    errorMsg[0] += std::string("in function hook ") + functionName + ": " + err + "\n\n";
             }
         }
     }
+    err.clear();
     int r = _callScriptFunc(functionName, inStack, outStack, &err);
     if (r <= retVal)
     {
@@ -2199,11 +2204,11 @@ int CDetachedScript::_callScriptFunction(int sysCallType, const char* functionNa
     {
         if (_functionHooks_after[2 * i + 0].compare(functionName) == 0)
         {
+            err.clear();
             std::string func(_functionHooks_after[2 * i + 1]);
             size_t p = func.find(':');
-            int r;
             if (p == std::string::npos)
-                r = _callScriptFunc(func.c_str(), inStack, nullptr, &err);
+                _callScriptFunc(func.c_str(), inStack, nullptr, &err);
             else
             {
                 int h;
@@ -2213,18 +2218,22 @@ int CDetachedScript::_callScriptFunction(int sysCallType, const char* functionNa
                     int inStackH = -1;
                     if (inStack != nullptr)
                         inStackH = inStack->getObjectHandle();
-                    simCallMethod_internal(h, func.c_str(), inStackH, -1, getObjectHandle());
+                    int r = simCallMethod_internal(h, func.c_str(), inStackH, -1, getObjectHandle());
+                    if (r < 0)
+                    {
+                        char* lm = simGetLastError_internal();
+                        err = lm;
+                        delete[] lm;
+                    }
                 }
-                r = 1; // for now
+                else
+                    err = "invalid target.";
             }
-            if (r < 0)
+            if (err.size() > 0)
             {
-                retVal = r;
-                if (errorMsg != nullptr)
-                {
-                    errorMsg[0] += err;
-                    errorMsg[0] += "\n\n";
-                }
+                retVal = -1;
+                if (errorMsg)
+                    errorMsg[0] += std::string("in function hook ") + functionName + ": " + err + "\n\n";
             }
         }
     }
@@ -4575,14 +4584,14 @@ int CDetachedScript::getHandleProperty(const char* pName, long long int& pState)
     return retVal;
 }
 
-int CDetachedScript::setStringProperty(const char* pName, const char* pState)
+int CDetachedScript::setStringProperty(const char* pName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(propDetachedScript_code.name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
-        setScriptText(pState);
+        setScriptText(pState.c_str());
     }
 
     return retVal;

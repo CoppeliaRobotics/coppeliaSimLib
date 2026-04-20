@@ -711,6 +711,25 @@ bool CInterfaceStack::getStackHandleArray(long long int* array, int count) const
     return retVal;
 }
 
+bool CInterfaceStack::getStackTextArray(std::vector<std::string>& array) const
+{
+    bool retVal = false;
+    if (_stackObjects.size() > 0)
+    {
+        CInterfaceStackObject* obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable* table = (CInterfaceStackTable*)obj;
+            if (table->isTableArray())
+            {
+                retVal = true;
+                table->getTextArray(array);
+            }
+        }
+    }
+    return retVal;
+}
+
 bool CInterfaceStack::getStackFloatArray(float* array, int count) const
 {
     bool retVal = false;
@@ -905,6 +924,51 @@ bool CInterfaceStack::getStackColor(float array[3]) const
             array[0] = f[0];
             array[1] = f[1];
             array[2] = f[2];
+            retVal = true;
+        }
+    }
+    return retVal;
+}
+
+bool CInterfaceStack::getStackMatrix(CMatrix& m) const
+{
+    bool retVal = false;
+    if (_stackObjects.size() > 0)
+    {
+        CInterfaceStackObject* obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_matrix)
+        {
+            m = ((CInterfaceStackMatrix*)obj)->getValue()[0];
+            retVal = true;
+        }
+    }
+    return retVal;
+}
+
+bool CInterfaceStack::getStackQuaternion(C4Vector& q) const
+{
+    bool retVal = false;
+    if (_stackObjects.size() > 0)
+    {
+        CInterfaceStackObject* obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_quaternion)
+        {
+            q = ((CInterfaceStackQuaternion*)obj)->getValue()[0];
+            retVal = true;
+        }
+    }
+    return retVal;
+}
+
+bool CInterfaceStack::getStackPose(C7Vector& p) const
+{
+    bool retVal = false;
+    if (_stackObjects.size() > 0)
+    {
+        CInterfaceStackObject* obj = _stackObjects[_stackObjects.size() - 1];
+        if (obj->getObjectType() == sim_stackitem_pose)
+        {
+            p = ((CInterfaceStackPose*)obj)->getValue()[0];
             retVal = true;
         }
     }
@@ -1405,6 +1469,23 @@ void CInterfaceStack::pushTextArrayOntoStack(const std::string* arr, size_t l, b
         _stackObjects.insert(_stackObjects.begin(), table);
     else
         _stackObjects.push_back(table);
+}
+
+void CInterfaceStack::pushMatrixOntoStack(const CMatrix& matrix, bool toFront /*= false*/)
+{
+    pushMatrixOntoStack(matrix.data.data(), matrix.rows, matrix.cols, toFront);
+}
+
+void CInterfaceStack::pushQuaternionOntoStack(const C4Vector& quaternion, bool toFront /*= false*/)
+{
+    pushQuaternionOntoStack(quaternion.data, toFront);
+}
+
+void CInterfaceStack::pushPoseOntoStack(const C7Vector& pose, bool toFront /*= false*/)
+{
+    double p[7];
+    pose.getData(p);
+    pushPoseOntoStack(p, toFront);
 }
 
 void CInterfaceStack::pushMatrixOntoStack(const double* matrix, size_t rows, size_t cols, bool toFront /*= false*/)
@@ -2083,7 +2164,7 @@ int CInterfaceStack::getFloatProperty(const char*ppName, double& pState) const
     return retVal;
 }
 
-int CInterfaceStack::setStringProperty(const char*ppName, const char* pState)
+int CInterfaceStack::setStringProperty(const char*ppName, const std::string& pState)
 {
     std::string key;
     int stackIndex;
@@ -2093,7 +2174,7 @@ int CInterfaceStack::setStringProperty(const char*ppName, const char* pState)
         retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
-            replaceStackObjectFromIndex(stackIndex, new CInterfaceStackString(pState));
+            replaceStackObjectFromIndex(stackIndex, new CInterfaceStackString(pState.c_str()));
             retVal = sim_propertyret_ok;
         }
         else
@@ -2106,7 +2187,7 @@ int CInterfaceStack::setStringProperty(const char*ppName, const char* pState)
                 {
                     if (tbl->isTableArray())
                     {
-                        tbl->appendArrayObject_text(pState);
+                        tbl->appendArrayObject_text(pState.c_str());
                         retVal = sim_propertyret_ok;
                     }
                 }
@@ -2114,7 +2195,7 @@ int CInterfaceStack::setStringProperty(const char*ppName, const char* pState)
                 {
                     if (tbl->isTableMap())
                     {
-                        tbl->appendMapObject_text(key.c_str(), pState);
+                        tbl->appendMapObject_text(key.c_str(), pState.c_str());
                         retVal = sim_propertyret_ok;
                     }
                 }
@@ -2176,7 +2257,7 @@ int CInterfaceStack::getStringProperty(const char* ppName, std::string& pState) 
     return retVal;
 }
 
-int CInterfaceStack::setBufferProperty(const char*ppName, const char* buffer, int bufferL)
+int CInterfaceStack::setBufferProperty(const char*ppName, const std::string& pState)
 {
     std::string key;
     int stackIndex;
@@ -2186,7 +2267,7 @@ int CInterfaceStack::setBufferProperty(const char*ppName, const char* buffer, in
         retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
-            replaceStackObjectFromIndex(stackIndex, new CInterfaceStackString(buffer, bufferL, true));
+            replaceStackObjectFromIndex(stackIndex, new CInterfaceStackString(pState.data(), pState.size(), true));
             retVal = sim_propertyret_ok;
         }
         else
@@ -2199,7 +2280,7 @@ int CInterfaceStack::setBufferProperty(const char*ppName, const char* buffer, in
                 {
                     if (tbl->isTableArray())
                     {
-                        tbl->appendArrayObject_buffer(buffer, bufferL);
+                        tbl->appendArrayObject_buffer(pState.data(), pState.size());
                         retVal = sim_propertyret_ok;
                     }
                 }
@@ -2207,7 +2288,7 @@ int CInterfaceStack::setBufferProperty(const char*ppName, const char* buffer, in
                 {
                     if (tbl->isTableMap())
                     {
-                        tbl->appendMapObject_buffer(key.c_str(), buffer, bufferL);
+                        tbl->appendMapObject_buffer(key.c_str(), pState.data(), pState.size());
                         retVal = sim_propertyret_ok;
                     }
                 }
@@ -2939,7 +3020,7 @@ int CInterfaceStack::getColorProperty(const char*ppName, float* pState) const
     return retVal;
 }
 
-int CInterfaceStack::setFloatArrayProperty(const char*ppName, const double* v, int vL)
+int CInterfaceStack::setFloatArrayProperty(const char*ppName, const std::vector<double>& pState)
 {
     std::string key;
     int stackIndex;
@@ -2950,7 +3031,7 @@ int CInterfaceStack::setFloatArrayProperty(const char*ppName, const double* v, i
         if (key.size() == 0)
         {
             CInterfaceStackTable* tbl = new CInterfaceStackTable();
-            tbl->setDoubleArray(v, vL);
+            tbl->setDoubleArray(pState.data(), pState.size());
             replaceStackObjectFromIndex(stackIndex, tbl);
             retVal = sim_propertyret_ok;
         }
@@ -2965,7 +3046,7 @@ int CInterfaceStack::setFloatArrayProperty(const char*ppName, const double* v, i
                     if (tbl->isTableArray())
                     {
                         CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                        tbl2->setDoubleArray(v, vL);
+                        tbl2->setDoubleArray(pState.data(), pState.size());
                         tbl->appendArrayObject(tbl2);
                         retVal = sim_propertyret_ok;
                     }
@@ -2975,7 +3056,7 @@ int CInterfaceStack::setFloatArrayProperty(const char*ppName, const double* v, i
                     if (tbl->isTableMap())
                     {
                         CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                        tbl2->setDoubleArray(v, vL);
+                        tbl2->setDoubleArray(pState.data(), pState.size());
                         tbl->appendMapObject_object(key.c_str(), tbl2);
                         retVal = sim_propertyret_ok;
                     }
@@ -3038,7 +3119,7 @@ int CInterfaceStack::getFloatArrayProperty(const char*ppName, std::vector<double
     return retVal;
 }
 
-int CInterfaceStack::setIntArrayProperty(const char*ppName, const int* v, int vL)
+int CInterfaceStack::setIntArrayProperty(const char*ppName, const std::vector<int>& pState)
 {
     std::string key;
     int stackIndex;
@@ -3049,7 +3130,7 @@ int CInterfaceStack::setIntArrayProperty(const char*ppName, const int* v, int vL
         if (key.size() == 0)
         {
             CInterfaceStackTable* tbl = new CInterfaceStackTable();
-            tbl->setInt32Array(v, vL);
+            tbl->setInt32Array(pState.data(), pState.size());
             replaceStackObjectFromIndex(stackIndex, tbl);
             retVal = sim_propertyret_ok;
         }
@@ -3064,7 +3145,7 @@ int CInterfaceStack::setIntArrayProperty(const char*ppName, const int* v, int vL
                     if (tbl->isTableArray())
                     {
                         CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                        tbl2->setInt32Array(v, vL);
+                        tbl2->setInt32Array(pState.data(), pState.size());
                         tbl->appendArrayObject(tbl2);
                         retVal = sim_propertyret_ok;
                     }
@@ -3074,7 +3155,7 @@ int CInterfaceStack::setIntArrayProperty(const char*ppName, const int* v, int vL
                     if (tbl->isTableMap())
                     {
                         CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                        tbl2->setInt32Array(v, vL);
+                        tbl2->setInt32Array(pState.data(), pState.size());
                         tbl->appendMapObject_object(key.c_str(), tbl2);
                         retVal = sim_propertyret_ok;
                     }
@@ -3137,7 +3218,7 @@ int CInterfaceStack::getIntArrayProperty(const char*ppName, std::vector<int>& pS
     return retVal;
 }
 
-int CInterfaceStack::setHandleArrayProperty(const char*ppName, const long long int* v, int vL)
+int CInterfaceStack::setHandleArrayProperty(const char*ppName, const std::vector<long long int>& pState)
 {
     std::string key;
     int stackIndex;
@@ -3147,7 +3228,7 @@ int CInterfaceStack::setHandleArrayProperty(const char*ppName, const long long i
         retVal = sim_propertyret_unknownproperty;
         if (key.size() == 0)
         {
-            CInterfaceStackHandleArray* arr = new CInterfaceStackHandleArray(v, vL);
+            CInterfaceStackHandleArray* arr = new CInterfaceStackHandleArray(pState.data(), pState.size());
             replaceStackObjectFromIndex(stackIndex, arr);
             retVal = sim_propertyret_ok;
         }
@@ -3161,7 +3242,7 @@ int CInterfaceStack::setHandleArrayProperty(const char*ppName, const long long i
                 {
                     if (tbl->isTableArray())
                     {
-                        CInterfaceStackHandleArray* arr = new CInterfaceStackHandleArray(v, vL);
+                        CInterfaceStackHandleArray* arr = new CInterfaceStackHandleArray(pState.data(), pState.size());
                         tbl->appendArrayObject(arr);
                         retVal = sim_propertyret_ok;
                     }
@@ -3170,7 +3251,7 @@ int CInterfaceStack::setHandleArrayProperty(const char*ppName, const long long i
                 {
                     if (tbl->isTableMap())
                     {
-                        CInterfaceStackHandleArray* arr = new CInterfaceStackHandleArray(v, vL);
+                        CInterfaceStackHandleArray* arr = new CInterfaceStackHandleArray(pState.data(), pState.size());
                         tbl->appendMapObject_object(key.c_str(), arr);
                         retVal = sim_propertyret_ok;
                     }

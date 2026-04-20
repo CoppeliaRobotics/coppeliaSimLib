@@ -5073,7 +5073,7 @@ int CSceneObjectContainer::getFloatProperty(long long int target, const char* pN
     return retVal;
 }
 
-int CSceneObjectContainer::setStringProperty(long long int target, const char* pName, const char* pState)
+int CSceneObjectContainer::setStringProperty(long long int target, const char* pName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5187,7 +5187,7 @@ int CSceneObjectContainer::getStringProperty(long long int target, const char* p
     return retVal;
 }
 
-int CSceneObjectContainer::setBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL)
+int CSceneObjectContainer::setBufferProperty(long long int target, const char* pName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5200,44 +5200,44 @@ int CSceneObjectContainer::setBufferProperty(long long int target, const char* p
         {
             int objType = it->getObjectType();
             if (objType == sim_sceneobject_shape)
-                return ((CShape*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((CShape*)it)->setBufferProperty(pName, pState);
             if (objType == sim_sceneobject_joint)
-                return ((CJoint*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((CJoint*)it)->setBufferProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
-                return ((CDummy*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((CDummy*)it)->setBufferProperty(pName, pState);
             if (objType == sim_sceneobject_marker)
-                return ((CMarker*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((CMarker*)it)->setBufferProperty(pName, pState);
             if (objType == sim_sceneobject_script)
-                return ((CScript*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((CScript*)it)->setBufferProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
-                return ((CProxSensor*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((CProxSensor*)it)->setBufferProperty(pName, pState);
             if (objType == sim_sceneobject_visionsensor)
-                return ((CVisionSensor*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((CVisionSensor*)it)->setBufferProperty(pName, pState);
             if (objType == sim_sceneobject_forcesensor)
-                return ((CForceSensor*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((CForceSensor*)it)->setBufferProperty(pName, pState);
             if (objType == sim_sceneobject_light)
-                return ((CLight*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((CLight*)it)->setBufferProperty(pName, pState);
             if (objType == sim_sceneobject_camera)
-                return ((CCamera*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((CCamera*)it)->setBufferProperty(pName, pState);
             if (objType == sim_sceneobject_graph)
-                return ((CGraph*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((CGraph*)it)->setBufferProperty(pName, pState);
             if (objType == sim_sceneobject_pointcloud)
-                return ((CPointCloud*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((CPointCloud*)it)->setBufferProperty(pName, pState);
             if (objType == sim_sceneobject_octree)
-                return ((COcTree*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((COcTree*)it)->setBufferProperty(pName, pState);
             if (objType == sim_sceneobject_path)
-                return ((CPath_old*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((CPath_old*)it)->setBufferProperty(pName, pState);
             if (objType == sim_sceneobject_mill)
-                return ((CMill*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((CMill*)it)->setBufferProperty(pName, pState);
             if (objType == sim_sceneobject_mirror)
-                return ((CMirror*)it)->setBufferProperty(pName, buffer, bufferL);
+                return ((CMirror*)it)->setBufferProperty(pName, pState);
         }
         else
         {
             C7Vector shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
-                return mesh->setBufferProperty(pName, buffer, bufferL, shapeRelTr);
+                return mesh->setBufferProperty(pName, pState, shapeRelTr);
         }
         retVal = sim_propertyret_unknowntarget;
     }
@@ -5985,7 +5985,7 @@ int CSceneObjectContainer::getColorProperty(long long int target, const char* pN
     return retVal;
 }
 
-int CSceneObjectContainer::setFloatArrayProperty(long long int target, const char* pName, const double* v, int vL)
+int CSceneObjectContainer::setFloatArrayProperty(long long int target, const char* pName, const std::vector<double>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5998,44 +5998,44 @@ int CSceneObjectContainer::setFloatArrayProperty(long long int target, const cha
         {
             int objType = it->getObjectType();
             if (objType == sim_sceneobject_shape)
-                return ((CShape*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((CShape*)it)->setFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_joint)
-                return ((CJoint*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((CJoint*)it)->setFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
-                return ((CDummy*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((CDummy*)it)->setFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_marker)
-                return ((CMarker*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((CMarker*)it)->setFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_script)
-                return ((CScript*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((CScript*)it)->setFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
-                return ((CProxSensor*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((CProxSensor*)it)->setFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_visionsensor)
-                return ((CVisionSensor*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((CVisionSensor*)it)->setFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_forcesensor)
-                return ((CForceSensor*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((CForceSensor*)it)->setFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_light)
-                return ((CLight*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((CLight*)it)->setFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_camera)
-                return ((CCamera*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((CCamera*)it)->setFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_graph)
-                return ((CGraph*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((CGraph*)it)->setFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_pointcloud)
-                return ((CPointCloud*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((CPointCloud*)it)->setFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_octree)
-                return ((COcTree*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((COcTree*)it)->setFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_path)
-                return ((CPath_old*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((CPath_old*)it)->setFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_mill)
-                return ((CMill*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((CMill*)it)->setFloatArrayProperty(pName, pState);
             if (objType == sim_sceneobject_mirror)
-                return ((CMirror*)it)->setFloatArrayProperty(pName, v, vL);
+                return ((CMirror*)it)->setFloatArrayProperty(pName, pState);
         }
         else
         {
             C7Vector shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
-                return mesh->setFloatArrayProperty(pName, v, vL, shapeRelTr);
+                return mesh->setFloatArrayProperty(pName, pState, shapeRelTr);
         }
         retVal = sim_propertyret_unknowntarget;
     }
@@ -6100,7 +6100,7 @@ int CSceneObjectContainer::getFloatArrayProperty(long long int target, const cha
     return retVal;
 }
 
-int CSceneObjectContainer::setIntArrayProperty(long long int target, const char* pName, const int* v, int vL)
+int CSceneObjectContainer::setIntArrayProperty(long long int target, const char* pName, const std::vector<int>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -6108,7 +6108,7 @@ int CSceneObjectContainer::setIntArrayProperty(long long int target, const char*
         // --- For backward compatibility ---
         if (strcmp(pName, propSceneObjectCont_selectionHandles.name) == 0)
         {
-            setSelectedObjectHandles(v, vL);
+            setSelectedObjectHandles(pState.data(), pState.size());
             retVal = sim_propertyret_ok;
         }
         // -----------------------------------
@@ -6120,44 +6120,44 @@ int CSceneObjectContainer::setIntArrayProperty(long long int target, const char*
         {
             int objType = it->getObjectType();
             if (objType == sim_sceneobject_shape)
-                return ((CShape*)it)->setIntArrayProperty(pName, v, vL);
+                return ((CShape*)it)->setIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_joint)
-                return ((CJoint*)it)->setIntArrayProperty(pName, v, vL);
+                return ((CJoint*)it)->setIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
-                return ((CDummy*)it)->setIntArrayProperty(pName, v, vL);
+                return ((CDummy*)it)->setIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_marker)
-                return ((CMarker*)it)->setIntArrayProperty(pName, v, vL);
+                return ((CMarker*)it)->setIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_script)
-                return ((CScript*)it)->setIntArrayProperty(pName, v, vL);
+                return ((CScript*)it)->setIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
-                return ((CProxSensor*)it)->setIntArrayProperty(pName, v, vL);
+                return ((CProxSensor*)it)->setIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_visionsensor)
-                return ((CVisionSensor*)it)->setIntArrayProperty(pName, v, vL);
+                return ((CVisionSensor*)it)->setIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_forcesensor)
-                return ((CForceSensor*)it)->setIntArrayProperty(pName, v, vL);
+                return ((CForceSensor*)it)->setIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_light)
-                return ((CLight*)it)->setIntArrayProperty(pName, v, vL);
+                return ((CLight*)it)->setIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_camera)
-                return ((CCamera*)it)->setIntArrayProperty(pName, v, vL);
+                return ((CCamera*)it)->setIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_graph)
-                return ((CGraph*)it)->setIntArrayProperty(pName, v, vL);
+                return ((CGraph*)it)->setIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_pointcloud)
-                return ((CPointCloud*)it)->setIntArrayProperty(pName, v, vL);
+                return ((CPointCloud*)it)->setIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_octree)
-                return ((COcTree*)it)->setIntArrayProperty(pName, v, vL);
+                return ((COcTree*)it)->setIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_path)
-                return ((CPath_old*)it)->setIntArrayProperty(pName, v, vL);
+                return ((CPath_old*)it)->setIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_mill)
-                return ((CMill*)it)->setIntArrayProperty(pName, v, vL);
+                return ((CMill*)it)->setIntArrayProperty(pName, pState);
             if (objType == sim_sceneobject_mirror)
-                return ((CMirror*)it)->setIntArrayProperty(pName, v, vL);
+                return ((CMirror*)it)->setIntArrayProperty(pName, pState);
         }
         else
         {
             C7Vector shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
-                return mesh->setIntArrayProperty(pName, v, vL, shapeRelTr);
+                return mesh->setIntArrayProperty(pName, pState, shapeRelTr);
         }
         retVal = sim_propertyret_unknowntarget;
     }
@@ -6241,7 +6241,7 @@ int CSceneObjectContainer::getIntArrayProperty(long long int target, const char*
     return retVal;
 }
 
-int CSceneObjectContainer::setHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL)
+int CSceneObjectContainer::setHandleArrayProperty(long long int target, const char* pName, const std::vector<long long int>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -6249,9 +6249,9 @@ int CSceneObjectContainer::setHandleArrayProperty(long long int target, const ch
         if (strcmp(pName, propSceneObjectCont_selection.name) == 0)
         {
             std::vector<int> hh;
-            for (int i = 0; i < vL; i++)
-                hh.push_back((int)v[i]);
-            setSelectedObjectHandles(hh.data(), vL);
+            for (int i = 0; i < pState.size(); i++)
+                hh.push_back((int)pState[i]);
+            setSelectedObjectHandles(hh.data(), pState.size());
             retVal = sim_propertyret_ok;
         }
     }
@@ -6262,44 +6262,44 @@ int CSceneObjectContainer::setHandleArrayProperty(long long int target, const ch
         {
             int objType = it->getObjectType();
             if (objType == sim_sceneobject_shape)
-                return ((CShape*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((CShape*)it)->setHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_joint)
-                return ((CJoint*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((CJoint*)it)->setHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_dummy)
-                return ((CDummy*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((CDummy*)it)->setHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_marker)
-                return ((CMarker*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((CMarker*)it)->setHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_script)
-                return ((CScript*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((CScript*)it)->setHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_proximitysensor)
-                return ((CProxSensor*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((CProxSensor*)it)->setHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_visionsensor)
-                return ((CVisionSensor*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((CVisionSensor*)it)->setHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_forcesensor)
-                return ((CForceSensor*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((CForceSensor*)it)->setHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_light)
-                return ((CLight*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((CLight*)it)->setHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_camera)
-                return ((CCamera*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((CCamera*)it)->setHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_graph)
-                return ((CGraph*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((CGraph*)it)->setHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_pointcloud)
-                return ((CPointCloud*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((CPointCloud*)it)->setHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_octree)
-                return ((COcTree*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((COcTree*)it)->setHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_path)
-                return ((CPath_old*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((CPath_old*)it)->setHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_mill)
-                return ((CMill*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((CMill*)it)->setHandleArrayProperty(pName, pState);
             if (objType == sim_sceneobject_mirror)
-                return ((CMirror*)it)->setHandleArrayProperty(pName, v, vL);
+                return ((CMirror*)it)->setHandleArrayProperty(pName, pState);
         }
         else
         {
             C7Vector shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             //if (mesh != nullptr)
-            //    return mesh->setHandleArrayProperty(pName, v, vL, shapeRelTr);
+            //    return mesh->setHandleArrayProperty(pName, pState, shapeRelTr);
         }
         retVal = sim_propertyret_unknowntarget;
     }

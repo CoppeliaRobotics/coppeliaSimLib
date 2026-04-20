@@ -52,7 +52,7 @@ class CMarker : public CSceneObject
     int getHandleProperty(const char* pName, long long int& pState) const override;
     int setFloatProperty(const char* pName, double pState) override;
     int getFloatProperty(const char* pName, double& pState) const override;
-    int setStringProperty(const char* pName, const char* pState) override;
+    int setStringProperty(const char* pName, const std::string& pState) override;
     int getStringProperty(const char* pName, std::string& pState) const override;
     int getBufferProperty(const char* pName, std::string& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;

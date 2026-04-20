@@ -3126,7 +3126,7 @@ int CMesh::getFloatProperty(const char* ppName, double& pState, const C7Vector& 
     return retVal;
 }
 
-int CMesh::setStringProperty(const char* ppName, const char* pState, const C7Vector& shapeRelTr)
+int CMesh::setStringProperty(const char* ppName, const std::string& pState, const C7Vector& shapeRelTr)
 {
     const char* pName = ppName;
     int retVal = sim_propertyret_unknownproperty;
@@ -3134,7 +3134,7 @@ int CMesh::setStringProperty(const char* ppName, const char* pState, const C7Vec
     if (strcmp(pName, propMesh_colorName.name) == 0)
     {
         retVal = sim_propertyret_ok;
-        color.setColorName(pState);
+        color.setColorName(pState.c_str());
     }
 
     return retVal;
@@ -3157,11 +3157,9 @@ int CMesh::getStringProperty(const char* ppName, std::string& pState, const C7Ve
     return retVal;
 }
 
-int CMesh::setBufferProperty(const char* ppName, const char* buffer, int bufferL, const C7Vector& shapeRelTr)
+int CMesh::setBufferProperty(const char* ppName, const std::string& pState, const C7Vector& shapeRelTr)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (buffer == nullptr)
-        bufferL = 0;
 
     return retVal;
 }
@@ -3271,11 +3269,9 @@ int CMesh::getColorProperty(const char* ppName, float* pState, const C7Vector& s
     return retVal;
 }
 
-int CMesh::setFloatArrayProperty(const char* ppName, const double* v, int vL, const C7Vector& shapeRelTr)
+int CMesh::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState, const C7Vector& shapeRelTr)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (v == nullptr)
-        vL = 0;
 
     return retVal;
 }
@@ -3326,11 +3322,9 @@ int CMesh::getFloatArrayProperty(const char* ppName, std::vector<double>& pState
     return retVal;
 }
 
-int CMesh::setIntArrayProperty(const char* ppName, const int* v, int vL, const C7Vector& shapeRelTr)
+int CMesh::setIntArrayProperty(const char* ppName, const std::vector<int>& pState, const C7Vector& shapeRelTr)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (v == nullptr)
-        vL = 0;
 
     return retVal;
 }

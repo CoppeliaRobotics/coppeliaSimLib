@@ -1185,18 +1185,18 @@ int CEnvironment::getHandleProperty(const char* pName, long long int& pState) co
     return retVal;
 }
 
-int CEnvironment::setStringProperty(const char* pName, const char* pState)
+int CEnvironment::setStringProperty(const char* pName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(pName, propScene_scenePath.name) == 0)
     {
-        setScenePathAndName(pState);
+        setScenePathAndName(pState.c_str());
         retVal = sim_propertyret_ok;
     }
     else if (strcmp(pName, propScene_acknowledgment.name) == 0)
     {
-        setAcknowledgement(pState);
+        setAcknowledgement(pState.c_str());
         retVal = sim_propertyret_ok;
     }
 

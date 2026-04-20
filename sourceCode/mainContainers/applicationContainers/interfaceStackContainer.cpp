@@ -161,7 +161,7 @@ int CInterfaceStackContainer::getFloatProperty(long long int target, const char*
     return retVal;
 }
 
-int CInterfaceStackContainer::setStringProperty(long long int target, const char* ppName, const char* pState)
+int CInterfaceStackContainer::setStringProperty(long long int target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -179,12 +179,12 @@ int CInterfaceStackContainer::getStringProperty(long long int target, const char
     return retVal;
 }
 
-int CInterfaceStackContainer::setBufferProperty(long long int target, const char* ppName, const char* buffer, int bufferL)
+int CInterfaceStackContainer::setBufferProperty(long long int target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
     if (stack != nullptr)
-        retVal = stack->setBufferProperty(ppName, buffer, bufferL);
+        retVal = stack->setBufferProperty(ppName, pState);
     return retVal;
 }
 
@@ -305,12 +305,12 @@ int CInterfaceStackContainer::getColorProperty(long long int target, const char*
     return retVal;
 }
 
-int CInterfaceStackContainer::setFloatArrayProperty(long long int target, const char* ppName, const double* v, int vL)
+int CInterfaceStackContainer::setFloatArrayProperty(long long int target, const char* ppName, const std::vector<double>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
     if (stack != nullptr)
-        retVal = stack->setFloatArrayProperty(ppName, v, vL);
+        retVal = stack->setFloatArrayProperty(ppName, pState);
     return retVal;
 }
 
@@ -323,12 +323,12 @@ int CInterfaceStackContainer::getFloatArrayProperty(long long int target, const 
     return retVal;
 }
 
-int CInterfaceStackContainer::setIntArrayProperty(long long int target, const char* ppName, const int* v, int vL)
+int CInterfaceStackContainer::setIntArrayProperty(long long int target, const char* ppName, const std::vector<int>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
     if (stack != nullptr)
-        retVal = stack->setIntArrayProperty(ppName, v, vL);
+        retVal = stack->setIntArrayProperty(ppName, pState);
     return retVal;
 }
 
@@ -341,12 +341,12 @@ int CInterfaceStackContainer::getIntArrayProperty(long long int target, const ch
     return retVal;
 }
 
-int CInterfaceStackContainer::setHandleArrayProperty(long long int target, const char* ppName, const long long int* v, int vL)
+int CInterfaceStackContainer::setHandleArrayProperty(long long int target, const char* ppName, const std::vector<long long int>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
     if (stack != nullptr)
-        retVal = stack->setHandleArrayProperty(ppName, v, vL);
+        retVal = stack->setHandleArrayProperty(ppName, pState);
     return retVal;
 }
 

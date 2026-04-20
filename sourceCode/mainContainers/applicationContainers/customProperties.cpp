@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cstring>
 #include <algorithm>
+#include <boost/algorithm/string.hpp>
 #include <utils.h>
 
 CCustomProperties::CCustomProperties()
@@ -395,9 +396,9 @@ int CCustomProperties::getHandleProperty(const char* pName, long long int& pStat
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setStringProperty(const char* pName, const char* pState, bool& valueChange)
+int CCustomProperties::setStringProperty(const char* pName, const std::string& pState, bool& valueChange)
 {
-    size_t sLen = (pState != nullptr) ? std::strlen(pState) : 0;
+    size_t sLen = pState.size();
 
     int propType, propInfo;
     std::string infoTxt;
@@ -417,7 +418,7 @@ int CCustomProperties::setStringProperty(const char* pName, const char* pState, 
         int32_t len32 = (int32_t)sLen;
         std::memcpy(&packed[0], &len32, 4);
         if (sLen > 0)
-            std::memcpy(&packed[4], pState, sLen);
+            std::memcpy(&packed[4], pState.c_str(), sLen);
         valueChange = _updatePropertyData(pName, packed.data(), packed.size());
     }
     else
@@ -426,7 +427,7 @@ int CCustomProperties::setStringProperty(const char* pName, const char* pState, 
         int32_t len32 = (int32_t)sLen;
         std::memcpy(&packed[0], &len32, 4);
         if (sLen > 0)
-            std::memcpy(&packed[4], pState, sLen);
+            std::memcpy(&packed[4], pState.c_str(), sLen);
         _setPropertyRaw(pName, sim_propertytype_string, sim_propertyinfo_removable, "", packed.data(), packed.size());
         valueChange = true;
     }
@@ -458,11 +459,8 @@ int CCustomProperties::getStringProperty(const char* pName, std::string& pState)
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setBufferProperty(const char* pName, const char* buffer, int bufferL, bool& valueChange)
+int CCustomProperties::setBufferProperty(const char* pName, const std::string& pState, bool& valueChange)
 {
-    if (buffer == nullptr)
-        bufferL = 0;
-
     int propType, propInfo;
     std::string infoTxt;
     const char* dataPtr;
@@ -470,11 +468,11 @@ int CCustomProperties::setBufferProperty(const char* pName, const char* buffer, 
     valueChange = false;
 
     // Store as: length(4 bytes) + buffer data
-    std::string packed(4 + (size_t)bufferL, '\0');
-    int32_t len32 = (int32_t)bufferL;
+    std::string packed(4 + pState.size(), '\0');
+    int32_t len32 = (int32_t)pState.size();
     std::memcpy(&packed[0], &len32, 4);
-    if (bufferL > 0)
-        std::memcpy(&packed[4], buffer, (size_t)bufferL);
+    if (pState.size() > 0)
+        std::memcpy(&packed[4], pState.data(), pState.size());
 
     bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
     if (alreadyPresent)
@@ -809,16 +807,13 @@ int CCustomProperties::getColorProperty(const char* pName, float* pState) const
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setFloatArrayProperty(const char* pName, const double* v, int vL, bool& valueChange)
+int CCustomProperties::setFloatArrayProperty(const char* pName, const std::vector<double>& pState, bool& valueChange)
 {
-    if (v == nullptr)
-        vL = 0;
-
-    std::string packed(4 + (size_t)vL * sizeof(double), '\0');
-    int32_t count = (int32_t)vL;
+    std::string packed(4 + (size_t)pState.size() * sizeof(double), '\0');
+    int32_t count = (int32_t)pState.size();
     std::memcpy(&packed[0], &count, 4);
-    if (vL > 0)
-        std::memcpy(&packed[4], v, (size_t)vL * sizeof(double));
+    if (pState.size() > 0)
+        std::memcpy(&packed[4], pState.data(), (size_t)pState.size() * sizeof(double));
 
     int propType, propInfo;
     std::string infoTxt;
@@ -871,16 +866,13 @@ int CCustomProperties::getFloatArrayProperty(const char* pName, std::vector<doub
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setIntArrayProperty(const char* pName, const int* v, int vL, bool& valueChange)
+int CCustomProperties::setIntArrayProperty(const char* pName, const std::vector<int>& pState, bool& valueChange)
 {
-    if (v == nullptr)
-        vL = 0;
-
-    std::string packed(4 + (size_t)vL * sizeof(int), '\0');
-    int32_t count = (int32_t)vL;
+    std::string packed(4 + (size_t)pState.size() * sizeof(int), '\0');
+    int32_t count = (int32_t)pState.size();
     std::memcpy(&packed[0], &count, 4);
-    if (vL > 0)
-        std::memcpy(&packed[4], v, (size_t)vL * sizeof(int));
+    if (pState.size() > 0)
+        std::memcpy(&packed[4], pState.data(), (size_t)pState.size() * sizeof(int));
 
     int propType, propInfo;
     std::string infoTxt;
@@ -934,16 +926,13 @@ int CCustomProperties::getIntArrayProperty(const char* pName, std::vector<int>& 
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setHandleArrayProperty(const char* pName, const long long int* v, int vL, bool& valueChange)
+int CCustomProperties::setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState, bool& valueChange)
 {
-    if (v == nullptr)
-        vL = 0;
-
-    std::string packed(4 + (size_t)vL * sizeof(long long int), '\0');
-    int32_t count = (int32_t)vL;
+    std::string packed(4 + (size_t)pState.size() * sizeof(long long int), '\0');
+    int32_t count = (int32_t)pState.size();
     std::memcpy(&packed[0], &count, 4);
-    if (vL > 0)
-        std::memcpy(&packed[4], v, (size_t)vL * sizeof(long long int));
+    if (pState.size() > 0)
+        std::memcpy(&packed[4], pState.data(), pState.size() * sizeof(long long int));
 
     int propType, propInfo;
     std::string infoTxt;
@@ -1217,7 +1206,7 @@ int CCustomProperties::getPropertyName(int& index, std::string& pName, std::stri
         {
             if ((propInfo & excludeFlags) == 0)
             {
-                if ((!methodsOnly) || (propType == sim_propertytype_method))
+                if ((!methodsOnly) || ((propType == sim_propertytype_method) && (!boost::algorithm::ends_with(propName, SET_SUFFIX)) && (!boost::algorithm::ends_with(propName, GET_SUFFIX))))
                 {
                     index--;
                     if (index == -1)

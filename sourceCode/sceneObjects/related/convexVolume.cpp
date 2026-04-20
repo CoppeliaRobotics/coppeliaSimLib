@@ -2139,19 +2139,17 @@ int CConvexVolume::getVector2Property(const char* pName, double* pState) const
     return retVal;
 }
 
-int CConvexVolume::setFloatArrayProperty(const char* pName, const double* v, int vL)
+int CConvexVolume::setFloatArrayProperty(const char* pName, const std::vector<double>& pState)
 {
-    if (v == nullptr)
-        vL = 0;
     int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(propConvexVolume_xSize.name, pName) == 0)
     {
-        if (vL >= 2)
+        if (pState.size() >= 2)
         {
             retVal = sim_propertyret_ok;
-            setXSize(v[0], false);
-            setXSizeFar(v[1], false);
+            setXSize(pState[0], false);
+            setXSizeFar(pState[1], false);
             computeVolumes();
         }
         else
@@ -2159,11 +2157,11 @@ int CConvexVolume::setFloatArrayProperty(const char* pName, const double* v, int
     }
     else if (strcmp(propConvexVolume_ySize.name, pName) == 0)
     {
-        if (vL >= 2)
+        if (pState.size() >= 2)
         {
             retVal = sim_propertyret_ok;
-            setYSize(v[0], false);
-            setYSizeFar(v[1], false);
+            setYSize(pState[0], false);
+            setYSizeFar(pState[1], false);
             computeVolumes();
         }
         else
@@ -2171,11 +2169,11 @@ int CConvexVolume::setFloatArrayProperty(const char* pName, const double* v, int
     }
     else if (strcmp(propConvexVolume_radius.name, pName) == 0)
     {
-        if (vL >= 2)
+        if (pState.size() >= 2)
         {
             retVal = sim_propertyret_ok;
-            setRadius(v[0], false);
-            setRadiusFar(v[1], false);
+            setRadius(pState[0], false);
+            setRadiusFar(pState[1], false);
             computeVolumes();
         }
         else
@@ -2183,11 +2181,11 @@ int CConvexVolume::setFloatArrayProperty(const char* pName, const double* v, int
     }
     else if (strcmp(propConvexVolume_angle.name, pName) == 0)
     {
-        if (vL >= 2)
+        if (pState.size() >= 2)
         {
             retVal = sim_propertyret_ok;
-            setAngle(v[0], false);
-            setInsideAngleThing(v[1], false);
+            setAngle(pState[0], false);
+            setInsideAngleThing(pState[1], false);
             computeVolumes();
         }
         else
@@ -2240,19 +2238,17 @@ int CConvexVolume::getFloatArrayProperty(const char* pName, std::vector<double>&
     return retVal;
 }
 
-int CConvexVolume::setIntArrayProperty(const char* pName, const int* v, int vL)
+int CConvexVolume::setIntArrayProperty(const char* pName, const std::vector<int>& pState)
 {
-    if (v == nullptr)
-        vL = 0;
     int retVal = sim_propertyret_unknownproperty;
 
     if (strcmp(propConvexVolume_faces.name, pName) == 0)
     {
-        if (vL >= 2)
+        if (pState.size() >= 2)
         {
             retVal = sim_propertyret_ok;
-            setFaceNumber(v[0], false);
-            setFaceNumberFar(v[1], false);
+            setFaceNumber(pState[0], false);
+            setFaceNumberFar(pState[1], false);
             computeVolumes();
         }
         else
@@ -2260,11 +2256,11 @@ int CConvexVolume::setIntArrayProperty(const char* pName, const int* v, int vL)
     }
     else if (strcmp(propConvexVolume_subdivisions.name, pName) == 0)
     {
-        if (vL >= 2)
+        if (pState.size() >= 2)
         {
             retVal = sim_propertyret_ok;
-            setSubdivisions(v[0], false);
-            setSubdivisionsFar(v[1], false);
+            setSubdivisions(pState[0], false);
+            setSubdivisionsFar(pState[1], false);
             computeVolumes();
         }
         else

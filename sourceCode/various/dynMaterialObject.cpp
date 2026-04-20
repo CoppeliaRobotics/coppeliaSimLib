@@ -289,7 +289,7 @@ bool CDynMaterialObject::setEngineFloatParam_old(int what, double v)
         if (getFloatArrayProperty(prop.c_str(), w) > 0)
         {
             w[indexWithArrays] = v;
-            if (setFloatArrayProperty(prop.c_str(), w.data(), indexWithArrays + 1) > 0)
+            if (setFloatArrayProperty(prop.c_str(), w) > 0)
                 return true;
         }
     }
@@ -2202,7 +2202,7 @@ void CDynMaterialObject::sendEngineString(CCbor* eev /*= nullptr*/)
     }
 }
 
-int CDynMaterialObject::setStringProperty(const char* pName, const char* pState)
+int CDynMaterialObject::setStringProperty(const char* pName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (strcmp(pName, propMaterial_engineProperties.name) == 0)
@@ -2210,7 +2210,7 @@ int CDynMaterialObject::setStringProperty(const char* pName, const char* pState)
         retVal = 0;
         CEngineProperties prop;
         std::string current(prop.getObjectProperties(_shapeHandleForEvents));
-        if (prop.setObjectProperties(_shapeHandleForEvents, pState))
+        if (prop.setObjectProperties(_shapeHandleForEvents, pState.c_str()))
         {
             retVal = sim_propertyret_ok;
             std::string current2(prop.getObjectProperties(_shapeHandleForEvents));
@@ -2339,7 +2339,7 @@ int CDynMaterialObject::getVector3Property(const char* pName, C3Vector* pState) 
     return retVal;
 }
 
-int CDynMaterialObject::setFloatArrayProperty(const char* pName, const double* v, int vL, CCbor* eev /* = nullptr*/)
+int CDynMaterialObject::setFloatArrayProperty(const char* pName, const std::vector<double>& pState, CCbor* eev /* = nullptr*/)
 {
     int retVal = sim_propertyret_unknownproperty;
     CCbor* ev = nullptr;
@@ -2352,15 +2352,15 @@ int CDynMaterialObject::setFloatArrayProperty(const char* pName, const double* v
             retVal = sim_propertyret_ok;
             bool pa = false;
             for (size_t i = 0; i < n; i++)
-                pa = pa || ((vL > i) && (arr[simiIndex1 + i] != v[i]));
+                pa = pa || ((pState.size() > i) && (arr[simiIndex1 + i] != pState[i]));
             if ((pName == nullptr) || pa)
             {
                 if (pName != nullptr)
                 {
                     for (size_t i = 0; i < n; i++)
                     {
-                        if (vL > i)
-                            arr[simiIndex1 + i] = v[i];
+                        if (pState.size() > i)
+                            arr[simiIndex1 + i] = pState[i];
                     }
                 }
                 if ((_shapeHandleForEvents != -1) && App::scenes->getEventsEnabled())

@@ -76,7 +76,7 @@ class CEnvironment
     int getIntProperty(const char* pName, int& pState) const;
     int getLongProperty(const char* pName, long long int& pState) const;
     int getHandleProperty(const char* pName, long long int& pState) const;
-    int setStringProperty(const char* pName, const char* pState);
+    int setStringProperty(const char* pName, const std::string& pState);
     int getStringProperty(const char* pName, std::string& pState) const;
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;

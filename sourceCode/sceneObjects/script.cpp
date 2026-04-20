@@ -684,7 +684,7 @@ int CScript::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
-int CScript::setStringProperty(const char* ppName, const char* pState)
+int CScript::setStringProperty(const char* ppName, const std::string& pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setStringProperty(ppName, pState);
@@ -698,7 +698,7 @@ int CScript::setStringProperty(const char* ppName, const char* pState)
         if (strcmp(propScript_code.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            detachedScript->setScriptText(pState);
+            detachedScript->setScriptText(pState.c_str());
         }
     }
 

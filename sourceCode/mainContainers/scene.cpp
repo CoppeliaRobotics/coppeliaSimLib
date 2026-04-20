@@ -3041,7 +3041,7 @@ int CScene::getFloatProperty(long long int target, const char* ppName, double& p
     return retVal;
 }
 
-int CScene::setStringProperty(long long int target, const char* ppName, const char* pState)
+int CScene::setStringProperty(long long int target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
@@ -3119,12 +3119,10 @@ int CScene::getStringProperty(long long int target, const char* ppName, std::str
     return retVal;
 }
 
-int CScene::setBufferProperty(long long int target, const char* ppName, const char* buffer, int bufferL)
+int CScene::setBufferProperty(long long int target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (buffer == nullptr)
-        bufferL = 0;
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
@@ -3138,7 +3136,7 @@ int CScene::setBufferProperty(long long int target, const char* ppName, const ch
         {
             if (pN.size() > 0)
             {
-                bool diff = customDataPtr->setData(pN.c_str(), buffer, bufferL, true);
+                bool diff = customDataPtr->setData(pN.c_str(), pState.data(), pState.size(), true);
                 if (diff && App::scenes->getEventsEnabled())
                 {
                     CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, false);
@@ -3152,7 +3150,7 @@ int CScene::setBufferProperty(long long int target, const char* ppName, const ch
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
-        retVal = sceneObjects->setBufferProperty(target, pName, buffer, bufferL);
+        retVal = sceneObjects->setBufferProperty(target, pName, pState);
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3161,7 +3159,7 @@ int CScene::setBufferProperty(long long int target, const char* ppName, const ch
     {
     }
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
-        retVal = customObjects->setBufferProperty(target, ppName, buffer, bufferL);
+        retVal = customObjects->setBufferProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3573,7 +3571,7 @@ int CScene::getColorProperty(long long int target, const char* ppName, float* pS
     return retVal;
 }
 
-int CScene::setFloatArrayProperty(long long int target, const char* ppName, const double* v, int vL)
+int CScene::setFloatArrayProperty(long long int target, const char* ppName, const std::vector<double>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
@@ -3581,9 +3579,9 @@ int CScene::setFloatArrayProperty(long long int target, const char* ppName, cons
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->setFloatArrayProperty(pName, v, vL);
+            retVal = dynamicsContainer->setFloatArrayProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
-            retVal = sceneObjects->setFloatArrayProperty(-1, pName, v, vL);
+            retVal = sceneObjects->setFloatArrayProperty(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
         }
@@ -3591,7 +3589,7 @@ int CScene::setFloatArrayProperty(long long int target, const char* ppName, cons
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
-        retVal = sceneObjects->setFloatArrayProperty(target, pName, v, vL);
+        retVal = sceneObjects->setFloatArrayProperty(target, pName, pState);
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3600,7 +3598,7 @@ int CScene::setFloatArrayProperty(long long int target, const char* ppName, cons
     {
     }
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
-        retVal = customObjects->setFloatArrayProperty(target, ppName, v, vL);
+        retVal = customObjects->setFloatArrayProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3640,7 +3638,7 @@ int CScene::getFloatArrayProperty(long long int target, const char* ppName, std:
     return retVal;
 }
 
-int CScene::setIntArrayProperty(long long int target, const char* ppName, const int* v, int vL)
+int CScene::setIntArrayProperty(long long int target, const char* ppName, const std::vector<int>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
@@ -3648,9 +3646,9 @@ int CScene::setIntArrayProperty(long long int target, const char* ppName, const 
     {
         const char* pName = ppName;
         if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->setIntArrayProperty(pName, v, vL);
+            retVal = dynamicsContainer->setIntArrayProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
-            retVal = sceneObjects->setIntArrayProperty(-1, pName, v, vL);
+            retVal = sceneObjects->setIntArrayProperty(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
         }
@@ -3658,7 +3656,7 @@ int CScene::setIntArrayProperty(long long int target, const char* ppName, const 
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
-        retVal = sceneObjects->setIntArrayProperty(target, pName, v, vL);
+        retVal = sceneObjects->setIntArrayProperty(target, pName, pState);
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3667,7 +3665,7 @@ int CScene::setIntArrayProperty(long long int target, const char* ppName, const 
     {
     }
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
-        retVal = customObjects->setIntArrayProperty(target, ppName, v, vL);
+        retVal = customObjects->setIntArrayProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -3707,7 +3705,7 @@ int CScene::getIntArrayProperty(long long int target, const char* ppName, std::v
     return retVal;
 }
 
-int CScene::setHandleArrayProperty(long long int target, const char* ppName, const long long int* v, int vL)
+int CScene::setHandleArrayProperty(long long int target, const char* ppName, const std::vector<long long int>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
@@ -3715,7 +3713,7 @@ int CScene::setHandleArrayProperty(long long int target, const char* ppName, con
     {
         const char* pName = ppName;
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
-            retVal = sceneObjects->setHandleArrayProperty(-1, pName, v, vL);
+            retVal = sceneObjects->setHandleArrayProperty(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
         }
@@ -3723,7 +3721,7 @@ int CScene::setHandleArrayProperty(long long int target, const char* ppName, con
     else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
-        retVal = sceneObjects->setHandleArrayProperty(target, pName, v, vL);
+        retVal = sceneObjects->setHandleArrayProperty(target, pName, pState);
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3732,7 +3730,7 @@ int CScene::setHandleArrayProperty(long long int target, const char* ppName, con
     {
     }
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
-        retVal = customObjects->setHandleArrayProperty(target, ppName, v, vL);
+        retVal = customObjects->setHandleArrayProperty(target, ppName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;

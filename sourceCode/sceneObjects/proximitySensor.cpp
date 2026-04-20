@@ -1488,14 +1488,12 @@ int CProxSensor::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CProxSensor::setFloatArrayProperty(const char* ppName, const double* v, int vL)
+int CProxSensor::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState)
 {
     std::string _pName(ppName);
-    if (v == nullptr)
-        vL = 0;
-    int retVal = CSceneObject::setFloatArrayProperty(ppName, v, vL);
+    int retVal = CSceneObject::setFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = convexVolume->setFloatArrayProperty(ppName, v, vL);
+        retVal = convexVolume->setFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
     }
@@ -1517,14 +1515,12 @@ int CProxSensor::getFloatArrayProperty(const char* ppName, std::vector<double>& 
     return retVal;
 }
 
-int CProxSensor::setIntArrayProperty(const char* ppName, const int* v, int vL)
+int CProxSensor::setIntArrayProperty(const char* ppName, const std::vector<int>& pState)
 {
     std::string _pName(ppName);
-    if (v == nullptr)
-        vL = 0;
-    int retVal = CSceneObject::setIntArrayProperty(ppName, v, vL);
+    int retVal = CSceneObject::setIntArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = convexVolume->setIntArrayProperty(ppName, v, vL);
+        retVal = convexVolume->setIntArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
     }

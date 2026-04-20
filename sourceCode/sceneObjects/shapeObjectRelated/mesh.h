@@ -122,9 +122,9 @@ class CMesh : public CMeshWrapper
     int getHandleProperty(const char* pName, long long int& pState, const C7Vector& shapeRelTr) const;
     int setFloatProperty(const char* pName, double pState, const C7Vector& shapeRelTr);
     int getFloatProperty(const char* pName, double& pState, const C7Vector& shapeRelTr) const;
-    int setStringProperty(const char* pName, const char* pState, const C7Vector& shapeRelTr);
+    int setStringProperty(const char* pName, const std::string& pState, const C7Vector& shapeRelTr);
     int getStringProperty(const char* pName, std::string& pState, const C7Vector& shapeRelTr) const;
-    int setBufferProperty(const char* pName, const char* buffer, int bufferL, const C7Vector& shapeRelTr);
+    int setBufferProperty(const char* pName, const std::string& pState, const C7Vector& shapeRelTr);
     int getBufferProperty(const char* pName, std::string& pState, const C7Vector& shapeRelTr) const;
     int setIntArray2Property(const char* pName, const int* pState, const C7Vector& shapeRelTr);
     int getIntArray2Property(const char* pName, int* pState, const C7Vector& shapeRelTr) const;
@@ -136,9 +136,9 @@ class CMesh : public CMeshWrapper
     int getPoseProperty(const char* pName, C7Vector& pState, const C7Vector& shapeRelTr) const;
     int setColorProperty(const char* pName, const float* pState, const C7Vector& shapeRelTr);
     int getColorProperty(const char* pName, float* pState, const C7Vector& shapeRelTr) const;
-    int setFloatArrayProperty(const char* pName, const double* v, int vL, const C7Vector& shapeRelTr);
+    int setFloatArrayProperty(const char* pName, const std::vector<double>& pState, const C7Vector& shapeRelTr);
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState, const C7Vector& shapeRelTr) const;
-    int setIntArrayProperty(const char* pName, const int* v, int vL, const C7Vector& shapeRelTr);
+    int setIntArrayProperty(const char* pName, const std::vector<int>& pState, const C7Vector& shapeRelTr);
     int getIntArrayProperty(const char* pName, std::vector<int>& pState, const C7Vector& shapeRelTr) const;
     int removeProperty(const char* pName);
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;

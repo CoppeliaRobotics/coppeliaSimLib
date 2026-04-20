@@ -70,15 +70,15 @@ class CVisionSensor : public CViewableBase
     int getStringProperty(const char* pName, std::string& pState) const override;
     int setIntArray2Property(const char* pName, const int* pState) override;
     int getIntArray2Property(const char* pName, int* pState) const override;
-    int setBufferProperty(const char* pName, const char* buffer, int bufferL) override;
+    int setBufferProperty(const char* pName, const std::string& pState) override;
     int getBufferProperty(const char* pName, std::string& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;
     int getColorProperty(const char* pName, float* pState) const override;
     int setVector3Property(const char* pName, const C3Vector& pState) override;
     int getVector3Property(const char* pName, C3Vector& pState) const override;
-    int setFloatArrayProperty(const char* pName, const double* v, int vL) override;
+    int setFloatArrayProperty(const char* pName, const std::vector<double>& pState) override;
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
-    int setIntArrayProperty(const char* pName, const int* v, int vL) override;
+    int setIntArrayProperty(const char* pName, const std::vector<int>& pState) override;
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;

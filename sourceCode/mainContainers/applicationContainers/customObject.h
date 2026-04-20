@@ -2,6 +2,7 @@
 
 #include <obj.h>
 #include <ser.h>
+#include <interfaceStack.h>
 #include <customProperties.h>
 
 class CustomObject: public Obj
@@ -16,39 +17,39 @@ class CustomObject: public Obj
     void serialize(CSer& ar);
 
     int setBoolProperty(const char* pName, bool pState) override;
-    int getBoolProperty(const char* pName, bool& pState) const override;
+    int getBoolProperty(const char* pName, bool& pState, bool direct = false) const;
     int setIntProperty(const char* pName, int pState) override;
-    int getIntProperty(const char* pName, int& pState) const override;
+    int getIntProperty(const char* pName, int& pState, bool direct = false) const;
     int setLongProperty(const char* pName, long long int pState) override;
-    int getLongProperty(const char* pName, long long int& pState) const override;
+    int getLongProperty(const char* pName, long long int& pState, bool direct = false) const;
     int setFloatProperty(const char* pName, double pState) override;
-    int getFloatProperty(const char* pName, double& pState) const override;
+    int getFloatProperty(const char* pName, double& pState, bool direct = false) const;
     int setHandleProperty(const char* pName, long long int pState) override;
-    int getHandleProperty(const char* pName, long long int& pState) const override;
-    int setStringProperty(const char* pName, const char* pState) override;
-    int getStringProperty(const char* pName, std::string& pState) const override;
-    int setBufferProperty(const char* pName, const char* buffer, int bufferL) override;
-    int getBufferProperty(const char* pName, std::string& pState) const override;
+    int getHandleProperty(const char* pName, long long int& pState, bool direct = false) const;
+    int setStringProperty(const char* pName, const std::string& pState) override;
+    int getStringProperty(const char* pName, std::string& pState, bool direct = false) const;
+    int setBufferProperty(const char* pName, const std::string& pState) override;
+    int getBufferProperty(const char* pName, std::string& pState, bool direct = false) const;
     int setIntArray2Property(const char* pName, const int* pState) override;
-    int getIntArray2Property(const char* pName, int* pState) const override;
+    int getIntArray2Property(const char* pName, int* pState, bool direct = false) const;
     int setVector3Property(const char* pName, const C3Vector& pState) override;
-    int getVector3Property(const char* pName, C3Vector& pState) const override;
+    int getVector3Property(const char* pName, C3Vector& pState, bool direct = false) const;
     int setMatrixProperty(const char* pName, const CMatrix& pState) override;
-    int getMatrixProperty(const char* pName, CMatrix& pState) const override;
+    int getMatrixProperty(const char* pName, CMatrix& pState, bool direct = false) const;
     int setQuaternionProperty(const char* pName, const C4Vector& pState) override;
-    int getQuaternionProperty(const char* pName, C4Vector& pState) const override;
+    int getQuaternionProperty(const char* pName, C4Vector& pState, bool direct = false) const;
     int setPoseProperty(const char* pName, const C7Vector& pState) override;
-    int getPoseProperty(const char* pName, C7Vector& pState) const override;
+    int getPoseProperty(const char* pName, C7Vector& pState, bool direct = false) const;
     int setColorProperty(const char* pName, const float* pState) override;
-    int getColorProperty(const char* pName, float* pState) const override;
-    int setFloatArrayProperty(const char* pName, const double* v, int vL) override;
-    int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
-    int setIntArrayProperty(const char* pName, const int* v, int vL) override;
-    int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
-    int setHandleArrayProperty(const char* pName, const long long int* v, int vL) override;
-    int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const override;
+    int getColorProperty(const char* pName, float* pState, bool direct = false) const;
+    int setFloatArrayProperty(const char* pName, const std::vector<double>& pState) override;
+    int getFloatArrayProperty(const char* pName, std::vector<double>& pState, bool direct = false) const;
+    int setIntArrayProperty(const char* pName, const std::vector<int>& pState) override;
+    int getIntArrayProperty(const char* pName, std::vector<int>& pState, bool direct = false) const;
+    int setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState) override;
+    int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState, bool direct = false) const;
     int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState) override;
-    int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const override;
+    int getStringArrayProperty(const char* pName, std::vector<std::string>& pState, bool direct = false) const;
     int setMethodProperty(const char* pName, const void* pState) override;
     int getMethodProperty(const char* pName, void*& pState) const override;
     int setMethodProperty(const char* pName, const std::string& pState) override;
@@ -66,6 +67,8 @@ class CustomObject: public Obj
     void setVolatile(bool v);
 
   protected:
+    template <typename T, typename PushF, typename GetF>
+    void _callPropertySetterGetter(const char* pName, const char* suffix, T& pState, PushF pushFunc, GetF getFunc) const;
     void _triggerEvent(const char* pName, CCbor* evv = nullptr) const;
 
     bool _isClass;

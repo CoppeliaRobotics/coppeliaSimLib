@@ -1861,10 +1861,10 @@ int CPointCloud::getStringProperty(const char* ppName, std::string& pState) cons
     return retVal;
 }
 
-int CPointCloud::setBufferProperty(const char* ppName, const char* buffer, int bufferL)
+int CPointCloud::setBufferProperty(const char* ppName, const std::string& pState)
 {
     std::string _pName(ppName);
-    int retVal = CSceneObject::setBufferProperty(ppName, buffer, bufferL);
+    int retVal = CSceneObject::setBufferProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
     }
@@ -1907,12 +1907,10 @@ int CPointCloud::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CPointCloud::setFloatArrayProperty(const char* ppName, const double* v, int vL)
+int CPointCloud::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState)
 {
     std::string _pName(ppName);
-    if (v == nullptr)
-        vL = 0;
-    int retVal = CSceneObject::setFloatArrayProperty(ppName, v, vL);
+    int retVal = CSceneObject::setFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
     }

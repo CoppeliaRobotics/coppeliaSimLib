@@ -1544,7 +1544,8 @@ void CShape::addObjectEventData(CCbor* ev)
     _dynMaterial->setIntProperty(nullptr, 0, ev);
     _dynMaterial->setFloatProperty(nullptr, 0.0, ev);
     _dynMaterial->setVector3Property(nullptr, nullptr, ev);
-    _dynMaterial->setFloatArrayProperty(nullptr, nullptr, 0, ev);
+    std::vector<double> dummy;
+    _dynMaterial->setFloatArrayProperty(nullptr, dummy, ev);
     _dynMaterial->sendEngineString(ev);
     if (App::getEventProtocolVersion() == 2)
     {
@@ -1998,7 +1999,7 @@ int CShape::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
-int CShape::setStringProperty(const char* ppName, const char* pState)
+int CShape::setStringProperty(const char* ppName, const std::string& pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setStringProperty(ppName, pState);
@@ -2155,28 +2156,26 @@ int CShape::setColorProperty(const char* ppName, const float* pState)
     return retVal;
 }
 
-int CShape::setFloatArrayProperty(const char* ppName, const double* v, int vL)
+int CShape::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState)
 {
-    if (v == nullptr)
-        vL = 0;
-    int retVal = CSceneObject::setFloatArrayProperty(ppName, v, vL);
+    int retVal = CSceneObject::setFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _dynMaterial->setFloatArrayProperty(ppName, v, vL);
+        retVal = _dynMaterial->setFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
-        retVal = _mesh->setFloatArrayProperty_wrapper(ppName, v, vL);
+        retVal = _mesh->setFloatArrayProperty_wrapper(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if ((strcmp(propShape_compoundColorDiffuse.name, ppName) == 0) || (strcmp(propShape_compoundColorSpecular.name, ppName) == 0) || (strcmp(propShape_compoundColorEmission.name, ppName) == 0))
         {
             int res = getComponentCount() * 3;
-            if (res == vL)
+            if (res == pState.size())
             {
                 int c = sim_materialcomponent_diffuse;
                 if (strcmp(propShape_compoundColorSpecular.name, ppName) == 0)
                     c = sim_materialcomponent_specular;
                 else if (strcmp(propShape_compoundColorEmission.name, ppName) == 0)
                     c = sim_materialcomponent_emission;
-                std::vector<float> vec(v, v + vL);
+                std::vector<float> vec(pState.data(), pState.data() + pState.size());
                 setColor("@compound", c, vec.data());
             }
             retVal = sim_propertyret_ok;
@@ -2184,9 +2183,9 @@ int CShape::setFloatArrayProperty(const char* ppName, const double* v, int vL)
         else if (strcmp(propShape_compoundColorTransparency.name, ppName) == 0)
         {
             int res = getComponentCount();
-            if (res == vL)
+            if (res == pState.size())
             {
-                std::vector<float> vec(v, v + vL);
+                std::vector<float> vec(pState.data(), pState.data() + pState.size());
                 setColor("@compound", sim_colorcomponent_transparency, vec.data());
             }
             retVal = sim_propertyret_ok;
@@ -2195,10 +2194,10 @@ int CShape::setFloatArrayProperty(const char* ppName, const double* v, int vL)
         {
             std::vector<CMesh*> meshes;
             getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, meshes);
-            if (meshes.size() == vL)
+            if (meshes.size() == pState.size())
             {
                 for (size_t i = 0; i < meshes.size(); i++)
-                    meshes[i]->setShadingAngle(v[i]);
+                    meshes[i]->setShadingAngle(pState[i]);
             }
             retVal = sim_propertyret_ok;
         }
@@ -2257,12 +2256,10 @@ int CShape::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
     return retVal;
 }
 
-int CShape::setIntArrayProperty(const char* ppName, const int* v, int vL)
+int CShape::setIntArrayProperty(const char* ppName, const std::vector<int>& pState)
 {
     std::string _pName(ppName);
-    if (v == nullptr)
-        vL = 0;
-    int retVal = CSceneObject::setIntArrayProperty(ppName, v, vL);
+    int retVal = CSceneObject::setIntArrayProperty(ppName, pState);
 
     if (retVal == sim_propertyret_unknownproperty)
     {
@@ -2270,16 +2267,16 @@ int CShape::setIntArrayProperty(const char* ppName, const int* v, int vL)
         {
             std::vector<CMesh*> meshes;
             getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, meshes);
-            if (meshes.size() == vL)
+            if (meshes.size() == pState.size())
             {
                 for (size_t i = 0; i < meshes.size(); i++)
                 {
                     if (strcmp(propShape_compoundEdges.name, ppName) == 0)
-                        meshes[i]->setVisibleEdges(v[i] != 0);
+                        meshes[i]->setVisibleEdges(pState[i] != 0);
                     else if (strcmp(propShape_compoundWireframe.name, ppName) == 0)
-                        meshes[i]->setWireframe(v[i] != 0);
+                        meshes[i]->setWireframe(pState[i] != 0);
                     else if (strcmp(propShape_compoundCullings.name, ppName) == 0)
-                        meshes[i]->setCulling(v[i] != 0);
+                        meshes[i]->setCulling(pState[i] != 0);
                 }
             }
             retVal = sim_propertyret_ok;

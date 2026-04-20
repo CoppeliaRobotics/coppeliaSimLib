@@ -996,19 +996,17 @@ int CLight::getVector3Property(const char* ppName, C3Vector& pState) const
     return retVal;
 }
 
-int CLight::setFloatArrayProperty(const char* ppName, const double* v, int vL)
+int CLight::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState)
 {
     std::string _pName(ppName);
-    if (v == nullptr)
-        vL = 0;
-    int retVal = CSceneObject::setFloatArrayProperty(ppName, v, vL);
+    int retVal = CSceneObject::setFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (_pName == propLight_attenuationFactors.name)
         {
-            if (vL >= 3)
+            if (pState.size() >= 3)
             {
-                setAttenuationFactors(v);
+                setAttenuationFactors(pState.data());
                 retVal = sim_propertyret_ok;
             }
             else

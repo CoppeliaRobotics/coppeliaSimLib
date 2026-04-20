@@ -1261,7 +1261,7 @@ int simSetStringProperty_internal(long long int target, const char* ppName, cons
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), pState, int(strlen(pState)));
             else
             {
-                retVal = App::setStringProperty(target, pName.c_str(), pState);
+                retVal = App::setStringProperty(target, pName.c_str(), std::string(pState));
                 if (retVal != sim_propertyret_ok)
                 {
                     if (retVal == sim_propertyret_unknowntarget)
@@ -1418,7 +1418,8 @@ int simSetBufferProperty_internal(long long int target, const char* ppName, cons
         int retVal = sim_propertyret_invalidname;
         if ((std::string(ppName).find("&.") != std::string::npos) || isPropertyNameValid(__func__, ppName))
         {
-            retVal = App::setBufferProperty(target, ppName, buffer, bufferL);
+            std::string pp(buffer, buffer + bufferL);
+            retVal = App::setBufferProperty(target, ppName, pp);
             if (retVal != sim_propertyret_ok)
             {
                 if (retVal == sim_propertyret_unknowntarget)
@@ -2258,7 +2259,8 @@ int simSetFloatArrayProperty_internal(long long int target, const char* ppName, 
                     retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(double));
                 else
                 {
-                    retVal = App::setFloatArrayProperty(target, pName.c_str(), v, vL);
+                    std::vector<double> pState(v, v + vL);
+                    retVal = App::setFloatArrayProperty(target, pName.c_str(), pState);
                     if (retVal != sim_propertyret_ok)
                     {
                         if (retVal == sim_propertyret_unknowntarget)
@@ -2376,7 +2378,8 @@ int simSetIntArrayProperty_internal(long long int target, const char* ppName, co
                     retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(int));
                 else
                 {
-                    retVal = App::setIntArrayProperty(target, pName.c_str(), v, vL);
+                    std::vector<int> pState(v, v + vL);
+                    retVal = App::setIntArrayProperty(target, pName.c_str(), pState);
                     if (retVal != sim_propertyret_ok)
                     {
                         if (retVal == sim_propertyret_unknowntarget)
@@ -2506,7 +2509,8 @@ int simSetHandleArrayProperty_internal(long long int target, const char* ppName,
                         retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(long long int));
                     else
                     {
-                        retVal = App::setHandleArrayProperty(target, pName.c_str(), v, vL);
+                        std::vector<long long int> pState;
+                        retVal = App::setHandleArrayProperty(target, pName.c_str(), pState);
                         if (retVal != sim_propertyret_ok)
                         {
                             if (retVal == sim_propertyret_unknowntarget)

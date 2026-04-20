@@ -71,7 +71,7 @@ class CShape : public CSceneObject
     int getIntProperty(const char* pName, int& pState) const override;
     int setFloatProperty(const char* pName, double pState) override;
     int getFloatProperty(const char* pName, double& pState) const override;
-    int setStringProperty(const char* pName, const char* pState) override;
+    int setStringProperty(const char* pName, const std::string& pState) override;
     int getStringProperty(const char* pName, std::string& pState) const override;
     int setVector3Property(const char* pName, const C3Vector& pState) override;
     int getVector3Property(const char* pName, C3Vector& pState) const override;
@@ -80,9 +80,9 @@ class CShape : public CSceneObject
     int setQuaternionProperty(const char* pName, const C4Vector& pState) override;
     int getQuaternionProperty(const char* pName, C4Vector& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;
-    int setFloatArrayProperty(const char* pName, const double* v, int vL) override;
+    int setFloatArrayProperty(const char* pName, const std::vector<double>& pState) override;
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
-    int setIntArrayProperty(const char* pName, const int* v, int vL) override;
+    int setIntArrayProperty(const char* pName, const std::vector<int>& pState) override;
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
     int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;

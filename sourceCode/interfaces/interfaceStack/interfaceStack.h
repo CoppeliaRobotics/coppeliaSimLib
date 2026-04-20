@@ -49,6 +49,9 @@ class CInterfaceStack : public Obj
     void pushFloatArrayOntoStack(const float* arr, size_t l, bool toFront = false);
     void pushDoubleArrayOntoStack(const double* arr, size_t l, bool toFront = false);
     void pushTextArrayOntoStack(const std::string* arr, size_t l, bool toFront = false);
+    void pushMatrixOntoStack(const CMatrix& matrix, bool toFront = false);
+    void pushQuaternionOntoStack(const C4Vector& quaternion, bool toFront = false);
+    void pushPoseOntoStack(const C7Vector& pose, bool toFront = false);
     void pushMatrixOntoStack(const double* matrix, size_t rows, size_t cols, bool toFront = false);
     void pushQuaternionOntoStack(const double* q, bool toFront = false, bool xyzwLayout = false);
     void pushPoseOntoStack(const double* q, bool toFront = false, bool xyzqxqyqzqwLayout = false);
@@ -106,7 +109,11 @@ class CInterfaceStack : public Obj
     bool getStackHandleArray(long long int* array, int count) const;
     bool getStackFloatArray(float* array, int count) const;
     bool getStackDoubleArray(double* array, int count) const;
+    bool getStackTextArray(std::vector<std::string>& array) const;
     bool getStackColor(float array[3]) const;
+    bool getStackMatrix(CMatrix& m) const;
+    bool getStackQuaternion(C4Vector& q) const;
+    bool getStackPose(C7Vector& p) const;
     const CMatrix* getStackMatrix() const;
     const C4Vector* getStackQuaternion() const;
     const C7Vector* getStackPose() const;
@@ -144,9 +151,9 @@ class CInterfaceStack : public Obj
     int getFloatProperty(const char* pName, double& pState) const;
     int setHandleProperty(const char* pName, long long int pState);
     int getHandleProperty(const char* pName, long long int& pState) const;
-    int setStringProperty(const char* pName, const char* pState);
+    int setStringProperty(const char* pName, const std::string& pState);
     int getStringProperty(const char* pName, std::string& pState) const override;
-    int setBufferProperty(const char* pName, const char* buffer, int bufferL);
+    int setBufferProperty(const char* pName, const std::string& pState);
     int getBufferProperty(const char* pName, std::string& pState) const;
     int setIntArray2Property(const char* pName, const int* pState);
     int getIntArray2Property(const char* pName, int* pState) const;
@@ -162,11 +169,11 @@ class CInterfaceStack : public Obj
     int getPoseProperty(const char* pName, C7Vector& pState) const;
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;
-    int setFloatArrayProperty(const char* pName, const double* v, int vL);
+    int setFloatArrayProperty(const char* pName, const std::vector<double>& pState);
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
-    int setIntArrayProperty(const char* pName, const int* v, int vL);
+    int setIntArrayProperty(const char* pName, const std::vector<int>& pState);
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
-    int setHandleArrayProperty(const char* pName, const long long int* v, int vL); // ALL handle items have to be of the same type
+    int setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState); // ALL handle items have to be of the same type
     int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const; // ALL handle items have to be of the same type
     int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState);
     int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const;
