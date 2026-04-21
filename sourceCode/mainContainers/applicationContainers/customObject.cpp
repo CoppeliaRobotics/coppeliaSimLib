@@ -350,6 +350,7 @@ void CustomObject::_callPropertySetterGetter(const char* pName, const char* suff
     {
         CInterfaceStack* inStack = App::scenes->interfaceStackContainer->createStack();
         CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();
+        inStack->pushTextOntoStack(pName);
         pushFunc(inStack, pState);
         int ret = simCallMethod_internal(_objectHandle, (std::string(pName) + suffix).c_str(), inStack->getObjectHandle(), outStack->getObjectHandle(), -1);
         std::string err;

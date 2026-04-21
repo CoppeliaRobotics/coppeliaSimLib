@@ -28,7 +28,7 @@ class CustomObjectContainer
     CustomObject* getObject(long long int objectHandle) const;
     bool removeObject(long long int objectHandle);
     void getAllObjectHandles(std::vector<long long int>& objects) const;
-    void getAllClassNames(std::vector<std::string>& classes) const;
+    void getAllClassHandles(std::vector<long long int>& classes) const;
 
     int setBoolProperty(long long int target, const char* pName, bool pState);
     int getBoolProperty(long long int target, const char* pName, bool& pState) const;
@@ -74,7 +74,6 @@ class CustomObjectContainer
     int setPropertyInfo(long long int target, const char* pName, int info, const char* infoTxt);
 
   protected:
-    void _storeClasses() const;
     void _notifyObjectListChanged() const;
     void _notifyClassListChanged() const;
 

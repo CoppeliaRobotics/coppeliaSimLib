@@ -299,11 +299,11 @@ void CustomObjectContainer::getAllObjectHandles(std::vector<long long int>& obje
         objects.push_back(it->first);
 }
 
-void CustomObjectContainer::getAllClassNames(std::vector<std::string>& classes) const
+void CustomObjectContainer::getAllClassHandles(std::vector<long long int>& classes) const
 {
     classes.clear();
     for (auto it = _customClasses.begin(); it != _customClasses.end(); ++it)
-        classes.push_back(it->second->getObjectTypeStr());
+        classes.push_back(it->second->getObjectHandle());
 }
 
 void CustomObjectContainer::_notifyObjectListChanged() const
@@ -325,13 +325,13 @@ void CustomObjectContainer::_notifyClassListChanged() const
 {
     if ((App::scenes != nullptr) && App::scenes->getEventsEnabled())
     {
-        std::vector<std::string> customClassList;
-        getAllClassNames(customClassList);
+        std::vector<long long int> customClassList;
+        getAllClassHandles(customClassList);
         CCbor* ev = App::scenes->createObjectChangedEvent(_target, nullptr, true);
         if (_target == sim_handle_app)
-            ev->appendKeyTextArray(propApp_customClasses.name, customClassList);
+            ev->appendKeyHandleArray(propApp_customClasses.name, customClassList.data(), customClassList.size());
         if (_target == sim_handle_scene)
-            ev->appendKeyTextArray(propScene_customClasses.name, customClassList);
+            ev->appendKeyHandleArray(propScene_customClasses.name, customClassList.data(), customClassList.size());
         App::scenes->pushEvent();
     }
 }
@@ -386,48 +386,12 @@ void CustomObjectContainer::clear()
         _notifyObjectListChanged();
 }
 
-void CustomObjectContainer::_storeClasses() const
-{
-    /*
-    CSer serObj("", filetype_csim_bin_generic_file);
-
-    filetype_unspecified_file
-    serObj = new CSer(_pathAndFilename.c_str(), CSer::getFileTypeFromName(_pathAndFilename.c_str()));
-    retVal = serObj->writeOpenBinary(App::userSettings->compressFiles);
-
-
-    for (size_t i = 0; i < _customClasses.size(); i++)
-    {
-        CustomObject* cl = _customClasses[i];
-        if (cl->getObjectHandle() == -1)
-        { // Only classes that have finished their definition process
-
-        }
-    }
-
-    App::scene->saveScene(serObj[0], !autoSaveMechanism);
-    serObj->writeClose();
-}
-delete serObj;
-    */
-}
-
 int CustomObjectContainer::setBoolProperty(long long int target, const char* ppName, bool pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
     if (obj != nullptr)
-    {
-        if (strcmp(ppName, "_configDone_") == 0)
-        {
-            CustomObject* classObj = getClass(target);
-            retVal = sim_propertyret_ok;
-            classObj->setLongProperty("handle", -1);
-            _storeClasses();
-        }
-        else
-            retVal = obj->setBoolProperty(ppName, pState);
-    }
+        retVal = obj->setBoolProperty(ppName, pState);
     return retVal;
 }
 
