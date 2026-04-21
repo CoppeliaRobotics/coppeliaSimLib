@@ -414,6 +414,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
         scenes->dispatchEvents();
         scenes->callScripts(sim_syscb_nonsimulation, nullptr, nullptr);
     }
+    App::scenes->customObjects->saveToAppFolderIfNeeded();
     App::scene->sceneObjects->handleDataCallbacks();
     if (scene->sceneObjects->hasSelectionChanged())
     {

@@ -87,8 +87,7 @@ bool CSer::writeOpenBinary(bool compress)
     bool retVal = false;
     _storing = true;
     _compress = compress;
-    if ((_filetype == filetype_csim_bin_scene_file) || (_filetype == filetype_csim_bin_model_file) ||
-        (_filetype == filetype_csim_bin_thumbnails_file) || (_filetype == filetype_csim_bin_ui_file))
+    if ((_filetype == filetype_csim_bin_scene_file) || (_filetype == filetype_csim_bin_model_file) || (_filetype == filetype_csim_bin_thumbnails_file) || (_filetype == filetype_csim_bin_ui_file) || (_filetype == filetype_csim_bin_generic_file))
     {
         theFile = new VFile(_filename.c_str(), VFile::CREATE_WRITE | VFile::SHARE_EXCLUSIVE, true);
         if (theFile->getFile() != nullptr)
@@ -1628,6 +1627,14 @@ void CSer::xmlAddNode_uint(const char* name, unsigned int val)
     xmlNode* node = _xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
     tinyxml2::XMLText* txt = _xmlDocument.NewText(boost::str(boost::format("%u") % val).c_str());
+    node->InsertEndChild(txt);
+}
+
+void CSer::xmlAddNode_longlong(const char* name, long long val)
+{
+    xmlNode* node = _xmlDocument.NewElement(name);
+    _xmlCurrentNode->InsertEndChild(node);
+    tinyxml2::XMLText* txt = _xmlDocument.NewText(boost::str(boost::format("%i") % val).c_str());
     node->InsertEndChild(txt);
 }
 

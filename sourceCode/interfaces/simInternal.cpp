@@ -696,8 +696,12 @@ int simSetBoolProperty_internal(long long int target, const char* ppName, int pS
                         int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                         if (p < sim_propertytype_start)
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                            retVal = sim_propertyret_unknownproperty;
+                            retVal = App::setBoolProperty(target, ("@" + pName).c_str(), pState != 0); // try again specifically with custom objects
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                retVal = sim_propertyret_unknownproperty;
+                            }
                         }
                         else if (p == sim_propertytype_bool)
                         {
@@ -810,8 +814,12 @@ int simSetIntProperty_internal(long long int target, const char* ppName, int pSt
                         int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                         if (p < sim_propertytype_start)
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                            retVal = sim_propertyret_unknownproperty;
+                            retVal = App::setIntProperty(target, ("@" + pName).c_str(), pState); // try again specifically with custom objects
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                retVal = sim_propertyret_unknownproperty;
+                            }
                         }
                         else if (p == sim_propertytype_int)
                         {
@@ -927,8 +935,12 @@ int simSetHandleProperty_internal(long long int target, const char* ppName, long
                             int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                             if (p < sim_propertytype_start)
                             {
-                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                                retVal = sim_propertyret_unknownproperty;
+                                retVal = App::setHandleProperty(target, ("@" + pName).c_str(), pState); // try again specifically with custom objects
+                                if (retVal != sim_propertyret_ok)
+                                {
+                                    CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                    retVal = sim_propertyret_unknownproperty;
+                                }
                             }
                             else if (p == sim_propertytype_handle)
                             {
@@ -1047,8 +1059,12 @@ int simSetLongProperty_internal(long long int target, const char* ppName, long l
                         int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                         if (p < sim_propertytype_start)
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                            retVal = sim_propertyret_unknownproperty;
+                            retVal = App::setLongProperty(target, ("@" + pName).c_str(), pState); // try again specifically with custom objects
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                retVal = sim_propertyret_unknownproperty;
+                            }
                         }
                         else if (p == sim_propertytype_long)
                         {
@@ -1161,8 +1177,12 @@ int simSetFloatProperty_internal(long long int target, const char* ppName, doubl
                         int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                         if (p < sim_propertytype_start)
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                            retVal = sim_propertyret_unknownproperty;
+                            retVal = App::setFloatProperty(target, ("@" + pName).c_str(), pState); // try again specifically with custom objects
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                retVal = sim_propertyret_unknownproperty;
+                            }
                         }
                         else if (p == sim_propertytype_float)
                         {
@@ -1275,8 +1295,12 @@ int simSetStringProperty_internal(long long int target, const char* ppName, cons
                         int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                         if (p < sim_propertytype_start)
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                            retVal = sim_propertyret_unknownproperty;
+                            retVal = App::setStringProperty(target, ("@" + pName).c_str(), std::string(pState)); // try again specifically with custom objects
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                retVal = sim_propertyret_unknownproperty;
+                            }
                         }
                         else if ((p & 0xff) == sim_propertytype_string)
                         {
@@ -1437,8 +1461,12 @@ int simSetBufferProperty_internal(long long int target, const char* ppName, cons
                     int p = App::getPropertyInfo(target, pN.c_str(), info, infoTxt);
                     if (p < sim_propertytype_start)
                     {
-                        CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                        retVal = sim_propertyret_unknownproperty;
+                        retVal = App::setBufferProperty(target, (std::string("@") + ppName).c_str(), pp); // try again specifically with custom objects
+                        if (retVal != sim_propertyret_ok)
+                        {
+                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                            retVal = sim_propertyret_unknownproperty;
+                        }
                     }
                     else if ((p & 0xff) == sim_propertytype_buffer)
                     {
@@ -1539,8 +1567,12 @@ int simSetIntArray2Property_internal(long long int target, const char* ppName, c
                         int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                         if (p < sim_propertytype_start)
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                            retVal = sim_propertyret_unknownproperty;
+                            retVal = App::setIntArray2Property(target, ("@" + pName).c_str(), pState); // try again specifically with custom objects
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                retVal = sim_propertyret_unknownproperty;
+                            }
                         }
                         else if (p == sim_propertytype_intarray2)
                         {
@@ -1657,8 +1689,12 @@ int simSetVector3Property_internal(long long int target, const char* ppName, con
                         int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                         if (p < sim_propertytype_start)
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                            retVal = sim_propertyret_unknownproperty;
+                            retVal = App::setVector3Property(target, ("@" + pName).c_str(), v); // try again specifically with custom objects
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                retVal = sim_propertyret_unknownproperty;
+                            }
                         }
                         else if (p == sim_propertytype_vector3)
                         {
@@ -1783,8 +1819,12 @@ int simSetMatrixProperty_internal(long long int target, const char* ppName, cons
                         int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                         if (p < sim_propertytype_start)
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                            retVal = sim_propertyret_unknownproperty;
+                            retVal = App::setMatrixProperty(target, ("@" + pName).c_str(), m); // try again specifically with custom objects
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                retVal = sim_propertyret_unknownproperty;
+                            }
                         }
                         else if (p == sim_propertytype_matrix)
                         {
@@ -1918,8 +1958,12 @@ int simSetQuaternionProperty_internal(long long int target, const char* ppName, 
                         int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                         if (p < sim_propertytype_start)
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                            retVal = sim_propertyret_unknownproperty;
+                            retVal = App::setQuaternionProperty(target, ("@" + pName).c_str(), q); // try again specifically with custom objects
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                retVal = sim_propertyret_unknownproperty;
+                            }
                         }
                         else if (p == sim_propertytype_quaternion)
                         {
@@ -2021,9 +2065,9 @@ int simSetPoseProperty_internal(long long int target, const char* ppName, const 
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 7 * sizeof(double));
             else
             {
-                C7Vector p;
-                p.setData(pState, true);
-                retVal = App::setPoseProperty(target, pName.c_str(), p);
+                C7Vector pose;
+                pose.setData(pState, true);
+                retVal = App::setPoseProperty(target, pName.c_str(), pose);
                 if (retVal != sim_propertyret_ok)
                 {
                     if (retVal == sim_propertyret_unknowntarget)
@@ -2037,8 +2081,12 @@ int simSetPoseProperty_internal(long long int target, const char* ppName, const 
                         int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                         if (p < sim_propertytype_start)
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                            retVal = sim_propertyret_unknownproperty;
+                            retVal = App::setPoseProperty(target, ("@" + pName).c_str(), pose); // try again specifically with custom objects
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                retVal = sim_propertyret_unknownproperty;
+                            }
                         }
                         else if (p == sim_propertytype_pose)
                         {
@@ -2154,8 +2202,12 @@ int simSetColorProperty_internal(long long int target, const char* ppName, const
                         int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                         if (p < sim_propertytype_start)
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                            retVal = sim_propertyret_unknownproperty;
+                            retVal = App::setColorProperty(target, ("@" + pName).c_str(), pState); // try again specifically with custom objects
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                retVal = sim_propertyret_unknownproperty;
+                            }
                         }
                         else if (p == sim_propertytype_color)
                         {
@@ -2274,8 +2326,12 @@ int simSetFloatArrayProperty_internal(long long int target, const char* ppName, 
                             int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                             if (p < sim_propertytype_start)
                             {
-                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                                retVal = sim_propertyret_unknownproperty;
+                                retVal = App::setFloatArrayProperty(target, ("@" + pName).c_str(), pState); // try again specifically with custom objects
+                                if (retVal != sim_propertyret_ok)
+                                {
+                                    CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                    retVal = sim_propertyret_unknownproperty;
+                                }
                             }
                             else if ((p & 0xff) == sim_propertytype_floatarray)
                             {
@@ -2393,8 +2449,12 @@ int simSetIntArrayProperty_internal(long long int target, const char* ppName, co
                             int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                             if (p < sim_propertytype_start)
                             {
-                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                                retVal = sim_propertyret_unknownproperty;
+                                retVal = App::setIntArrayProperty(target, ("@" + pName).c_str(), pState); // try again specifically with custom objects
+                                if (retVal != sim_propertyret_ok)
+                                {
+                                    CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                    retVal = sim_propertyret_unknownproperty;
+                                }
                             }
                             else if ((p & 0xff) == sim_propertytype_intarray)
                             {
@@ -2524,8 +2584,12 @@ int simSetHandleArrayProperty_internal(long long int target, const char* ppName,
                                 int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                                 if (p < sim_propertytype_start)
                                 {
-                                    CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                                    retVal = sim_propertyret_unknownproperty;
+                                    retVal = App::setHandleArrayProperty(target, ("@" + pName).c_str(), pState); // try again specifically with custom objects
+                                    if (retVal != sim_propertyret_ok)
+                                    {
+                                        CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                        retVal = sim_propertyret_unknownproperty;
+                                    }
                                 }
                                 else if ((p & 0xff) == sim_propertytype_handlearray)
                                 {
@@ -2658,8 +2722,12 @@ int simSetStringArrayProperty_internal(long long int target, const char* ppName,
                             int p = App::getPropertyInfo(target, pName.c_str(), info, infoTxt);
                             if (p < sim_propertytype_start)
                             {
-                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                                retVal = sim_propertyret_unknownproperty;
+                                retVal = App::setStringArrayProperty(target, ("@" + pName).c_str(), vv); // try again specifically with custom objects
+                                if (retVal != sim_propertyret_ok)
+                                {
+                                    CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                    retVal = sim_propertyret_unknownproperty;
+                                }
                             }
                             else if ((p & 0xff) == sim_propertytype_stringarray)
                             {

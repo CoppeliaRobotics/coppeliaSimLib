@@ -13,7 +13,7 @@ class CustomObject: public Obj
 
     CustomObject* createObject(long long int handle, int originScriptHandle) const;
 
-    void pushObjectCreationEvent() const;
+    void pushObjectCreationEvent();
     void serialize(CSer& ar);
 
     int setBoolProperty(const char* pName, bool pState) override;
@@ -65,15 +65,17 @@ class CustomObject: public Obj
     int getScriptHandle() const;
     bool getVolatile() const;
     void setVolatile(bool v);
+    bool getResetChanged();
 
   protected:
     template <typename T, typename PushF, typename GetF>
     void _callPropertySetterGetter(const char* pName, const char* suffix, T& pState, PushF pushFunc, GetF getFunc) const;
-    void _triggerEvent(const char* pName, CCbor* evv = nullptr) const;
+    void _triggerEvent(const char* pName, CCbor* evv = nullptr);
 
     bool _isClass;
     int _scriptHandle;
     int _target;
     bool _volatile;
+    bool _changed;
     CCustomProperties _customProperties;
 };

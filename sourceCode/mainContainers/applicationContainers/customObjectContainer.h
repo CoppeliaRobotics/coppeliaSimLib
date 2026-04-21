@@ -11,8 +11,9 @@ class CustomObjectContainer
 
     void pushGenesisEvents() const;
     void serialize(CSer& ar);
+    void saveToAppFolderIfNeeded();
 
-    long long int getFreshHandle() const;
+    long long int getFreshHandle(bool forObject) const;
     CustomObject* getItem(long long int objectHandle) const;
     bool removeItem(long long int objectHandle);
     void announceScriptStateWillBeErased(int scriptHandle);
@@ -74,6 +75,7 @@ class CustomObjectContainer
     int setPropertyInfo(long long int target, const char* pName, int info, const char* infoTxt);
 
   protected:
+    void _loadFromAppFolder();
     void _notifyObjectListChanged() const;
     void _notifyClassListChanged() const;
 

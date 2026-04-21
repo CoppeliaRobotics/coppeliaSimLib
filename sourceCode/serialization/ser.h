@@ -151,6 +151,7 @@ class CSer
     void xmlAddNode_ints(const char* name, const int* vals, size_t cnt);
     void xmlAddNode_ints(const char* name, const std::vector<int>& vals);
     void xmlAddNode_uint(const char* name, unsigned int val);
+    void xmlAddNode_longlong(const char* name, long long val);
     void xmlAddNode_ulonglong(const char* name, unsigned long long val);
     void xmlAddNode_uchars(const char* name, const std::vector<unsigned char>& vals);
     void xmlAddNode_float(const char* name, double val);

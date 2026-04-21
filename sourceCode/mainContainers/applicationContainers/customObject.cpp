@@ -11,6 +11,7 @@ CustomObject::CustomObject(long long int handle, const char* objectTypeStr, cons
     _target = target;
     _volatile = true;
     _isClass = (strlen(objectMetaInfo) > 0);
+    _changed = false;
 }
 
 CustomObject::~CustomObject()
@@ -48,8 +49,16 @@ void CustomObject::setVolatile(bool v)
     _volatile = v;
 }
 
-void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/) const
+bool CustomObject::getResetChanged()
 {
+    bool retVal = _changed;
+    _changed = false;
+    return retVal;
+}
+
+void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/)
+{
+    _changed = true;
     if ((!_isClass) && (App::scenes != nullptr) && App::scenes->getEventsEnabled())
     {
         int flags;
@@ -180,7 +189,7 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/) co
     }
 }
 
-void CustomObject::pushObjectCreationEvent() const
+void CustomObject::pushObjectCreationEvent()
 {
     if ((App::scenes != nullptr) && App::scenes->getEventsEnabled())
     {
@@ -209,15 +218,21 @@ void CustomObject::serialize(CSer& ar)
             std::vector<std::string> names;
             std::vector<std::string> data;
             _customProperties.getAllPropertyData(names, data);
+
             ar.storeDataName("obj");
+            ar << _objectHandle;
             ar << _objectTypeStr;
+            ar << _objectMetaInfo;
             ar << int(names.size());
+            ar.flush();
+
             for (size_t i = 0; i < names.size(); i++)
             {
+                ar.storeDataName("pro");
                 ar << names[i];
                 ar << data[i];
+                ar.flush();
             }
-            ar.flush();
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -225,6 +240,8 @@ void CustomObject::serialize(CSer& ar)
         { // Loading
             int byteQuantity;
             std::string theName = "";
+            std::vector<std::string> names;
+            std::vector<std::string> data;
             while (theName.compare(SER_END_OF_OBJECT) != 0)
             {
                 theName = ar.readDataName();
@@ -235,109 +252,74 @@ void CustomObject::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
+                        ar >> _objectHandle;
                         ar >> _objectTypeStr;
+                        ar >> _objectMetaInfo;
                         int cnt;
                         ar >> cnt;
-                        std::vector<std::string> names;
-                        std::vector<std::string> data;
+                    }
+
+                    if (theName.compare("pro") == 0)
+                    {
+                        noHit = false;
+                        ar >> byteQuantity;
                         std::string s;
-                        for (int i = 0; i < cnt; i++)
-                        {
-                            ar >> s;
-                            names.push_back(s);
-                            ar >> s;
-                            data.push_back(s);
-                        }
-                        _customProperties.setAllPropertyData(names, data);
+                        ar >> s;
+                        names.push_back(s);
+                        ar >> s;
+                        data.push_back(s);
                     }
                     if (noHit)
                         ar.loadUnknownData();
                 }
             }
+            _customProperties.setAllPropertyData(names, data);
         }
     }
     else
     {
-        /*
         if (ar.isStoring())
         {
-            size_t totSize = 0;
-            for (size_t i = 0; i < _data.size(); i++)
-                totSize += _data[i].data.size();
-            if (ar.xmlSaveDataInline(totSize))
+            std::vector<std::string> names;
+            std::vector<std::string> data;
+            _customProperties.getAllPropertyData(names, data);
+
+            ar.xmlAddNode_longlong("handle", _objectHandle);
+            ar.xmlAddNode_string("type", _objectTypeStr.c_str());
+            ar.xmlAddNode_string("metaInfo", _objectMetaInfo.c_str());
+
+            for (size_t i = 0; i < names.size(); i++)
             {
-                for (size_t i = 0; i < _data.size(); i++)
-                {
-                    ar.xmlPushNewNode("data");
-                    ar.xmlAddNode_string("tag", _data[i].tag.c_str());
-                    std::string str(base64_encode((unsigned char*)_data[i].data.c_str(), _data[i].data.size()));
-                    ar.xmlAddNode_string("data_base64Coded", str.c_str());
-                    ar.xmlPopNode();
-                }
-            }
-            else
-            {
-                CSer* serObj = nullptr;
-                if (objectName != nullptr)
-                    serObj = ar.xmlAddNode_binFile("file", (std::string("objectCustomData_") + objectName).c_str());
-                else
-                    serObj = ar.xmlAddNode_binFile("file", "sceneCustomData");
-                serObj[0] << int(_data.size());
-                for (size_t i = 0; i < _data.size(); i++)
-                {
-                    serObj[0] << _data[i].tag;
-                    serObj[0] << int(_data[i].data.size());
-                    for (size_t j = 0; j < _data[i].data.size(); j++)
-                        serObj[0] << _data[i].data[j];
-                }
-                serObj->flush();
-                serObj->writeClose();
-                delete serObj;
+                ar.xmlPushNewNode("property");
+                ar.xmlAddNode_string("name", names[i].c_str());
+                ar.xmlAddNode_string("data", utils::encode64(data[i]).c_str());
+                ar.xmlPopNode();
             }
         }
         else
         {
-            CSer* serObj = ar.xmlGetNode_binFile("file", false);
-            if (serObj == nullptr)
+            ar.xmlGetNode_longlong("handle", _objectHandle);
+            ar.xmlGetNode_string("type", _objectTypeStr);
+            ar.xmlGetNode_string("metaInfo", _objectMetaInfo);
+
+            if (ar.xmlPushChildNode("property", false))
             {
-                if (ar.xmlPushChildNode("data", false))
+                std::vector<std::string> names;
+                std::vector<std::string> data;
+                while (true)
                 {
-                    while (true)
-                    {
-                        SCustomData dat;
-                        ar.xmlGetNode_string("tag", dat.tag);
-                        std::string data;
-                        ar.xmlGetNode_string("data_base64Coded", data);
-                        data = base64_decode(data);
-                        dat.data = data;
-                        _data.push_back(dat);
-                        if (!ar.xmlPushSiblingNode("data", false))
-                            break;
-                    }
-                    ar.xmlPopNode();
+                    std::string d;
+                    ar.xmlGetNode_string("name", d);
+                    names.push_back(d);
+                    ar.xmlGetNode_string("data", d);
+                    data.push_back(utils::decode64(d));
+                    if (!ar.xmlPushSiblingNode("property", false))
+                        break;
                 }
-            }
-            else
-            {
-                int s;
-                serObj[0] >> s;
-                for (size_t i = 0; i < size_t(s); i++)
-                {
-                    SCustomData dat;
-                    serObj[0] >> dat.tag;
-                    int l;
-                    serObj[0] >> l;
-                    ar >> l;
-                    dat.data.resize(size_t(l));
-                    for (size_t j = 0; j < size_t(l); j++)
-                        ar >> dat.data[j];
-                    _data.push_back(dat);
-                }
-                serObj->readClose();
-                delete serObj;
+                ar.xmlPopNode();
+                _customProperties.setAllPropertyData(names, data);
             }
         }
-*/
     }
 }
 
@@ -381,11 +363,17 @@ int CustomObject::setBoolProperty(const char* pName, bool pState)
     int retVal = Obj::setBoolProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const bool& v) { s->pushBoolOntoStack(v); }, [](CInterfaceStack* s, bool& v) { return s->getStackBoolValue(v); });
-        bool changed = false;
-        retVal = _customProperties.setBoolProperty(pName, pState, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_bool))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pState, [](CInterfaceStack* s, const bool& v) { s->pushBoolOntoStack(v); }, [](CInterfaceStack* s, bool& v) { return s->getStackBoolValue(v); });
+            bool changed = false;
+            retVal = _customProperties.setBoolProperty(ppName.c_str(), pState, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -407,11 +395,17 @@ int CustomObject::setIntProperty(const char* pName, int pState)
     int retVal = Obj::setIntProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const int& v) { s->pushInt32OntoStack(v); }, [](CInterfaceStack* s, int& v) { return s->getStackInt32Value(v); });
-        bool changed = false;
-        retVal = _customProperties.setIntProperty(pName, pState, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_int))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pState, [](CInterfaceStack* s, const int& v) { s->pushInt32OntoStack(v); }, [](CInterfaceStack* s, int& v) { return s->getStackInt32Value(v); });
+            bool changed = false;
+            retVal = _customProperties.setIntProperty(ppName.c_str(), pState, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -433,11 +427,17 @@ int CustomObject::setLongProperty(const char* pName, long long int pState)
     int retVal = Obj::setLongProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushInt64OntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackInt64Value(v); });
-        bool changed = false;
-        retVal = _customProperties.setLongProperty(pName, pState, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_long))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushInt64OntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackInt64Value(v); });
+            bool changed = false;
+            retVal = _customProperties.setLongProperty(ppName.c_str(), pState, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -459,11 +459,17 @@ int CustomObject::setFloatProperty(const char* pName, double pState)
     int retVal = Obj::setFloatProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const double& v) { s->pushDoubleOntoStack(v); }, [](CInterfaceStack* s, double& v) { return s->getStackDoubleValue(v); });
-        bool changed = false;
-        retVal = _customProperties.setFloatProperty(pName, pState, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_float))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pState, [](CInterfaceStack* s, const double& v) { s->pushDoubleOntoStack(v); }, [](CInterfaceStack* s, double& v) { return s->getStackDoubleValue(v); });
+            bool changed = false;
+            retVal = _customProperties.setFloatProperty(ppName.c_str(), pState, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -485,11 +491,17 @@ int CustomObject::setHandleProperty(const char* pName, long long int pState)
     int retVal = Obj::setHandleProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushHandleOntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackHandleValue(v); });
-        bool changed = false;
-        retVal = _customProperties.setHandleProperty(pName, pState, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_handle))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushHandleOntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackHandleValue(v); });
+            bool changed = false;
+            retVal = _customProperties.setHandleProperty(ppName.c_str(), pState, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -511,12 +523,18 @@ int CustomObject::setStringProperty(const char* pName, const std::string& pState
     int retVal = Obj::setStringProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        std::string pp(pState);
-        _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushTextOntoStack(v.c_str()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
-        bool changed = false;
-        retVal = _customProperties.setStringProperty(pName, pp, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_string))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            std::string pp(pState);
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushTextOntoStack(v.c_str()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+            bool changed = false;
+            retVal = _customProperties.setStringProperty(ppName.c_str(), pp, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -538,12 +556,18 @@ int CustomObject::setBufferProperty(const char* pName, const std::string& pState
     int retVal = Obj::setBufferProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        std::string pp(pState);
-        _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
-        bool changed = false;
-        retVal = _customProperties.setBufferProperty(pName, pp, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_buffer))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            std::string pp(pState);
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+            bool changed = false;
+            retVal = _customProperties.setBufferProperty(ppName.c_str(), pp, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -565,12 +589,18 @@ int CustomObject::setIntArray2Property(const char* pName, const int* pState)
     int retVal = Obj::setIntArray2Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        int pp[2] = {pState[0], pState[1]};
-        _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const int (&v)[2]) { s->pushInt32ArrayOntoStack(v, 2); }, [](CInterfaceStack* s, int (&v)[2]) { return s->getStackInt32Array(v, 2); });
-        bool changed = false;
-        retVal = _customProperties.setIntArray2Property(pName, pp, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_intarray2))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            int pp[2] = {pState[0], pState[1]};
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const int (&v)[2]) { s->pushInt32ArrayOntoStack(v, 2); }, [](CInterfaceStack* s, int (&v)[2]) { return s->getStackInt32Array(v, 2); });
+            bool changed = false;
+            retVal = _customProperties.setIntArray2Property(ppName.c_str(), pp, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -597,14 +627,20 @@ int CustomObject::setVector3Property(const char* pName, const C3Vector& pState)
     int retVal = Obj::setVector3Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        CMatrix m(3, 1);
-        m.data.assign(pState.data, pState.data + 3);
-        _callPropertySetterGetter(pName, SET_SUFFIX, m, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
-        C3Vector p(m.data.data());
-        bool changed = false;
-        retVal = _customProperties.setVector3Property(pName, p, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_vector3))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            CMatrix m(3, 1);
+            m.data.assign(pState.data, pState.data + 3);
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, m, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
+            C3Vector p(m.data.data());
+            bool changed = false;
+            retVal = _customProperties.setVector3Property(ppName.c_str(), p, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -631,12 +667,18 @@ int CustomObject::setMatrixProperty(const char* pName, const CMatrix& pState)
     int retVal = Obj::setMatrixProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        CMatrix pp(pState);
-        _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
-        bool changed = false;
-        retVal = _customProperties.setMatrixProperty(pName, pp, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_matrix))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            CMatrix pp(pState);
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
+            bool changed = false;
+            retVal = _customProperties.setMatrixProperty(ppName.c_str(), pp, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -658,12 +700,18 @@ int CustomObject::setQuaternionProperty(const char* pName, const C4Vector& pStat
     int retVal = Obj::setQuaternionProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        C4Vector pp(pState);
-        _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const C4Vector& v) { s->pushQuaternionOntoStack(v); }, [](CInterfaceStack* s, C4Vector& v) { return s->getStackQuaternion(v); });
-        bool changed = false;
-        retVal = _customProperties.setQuaternionProperty(pName, pp, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_quaternion))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            C4Vector pp(pState);
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const C4Vector& v) { s->pushQuaternionOntoStack(v); }, [](CInterfaceStack* s, C4Vector& v) { return s->getStackQuaternion(v); });
+            bool changed = false;
+            retVal = _customProperties.setQuaternionProperty(ppName.c_str(), pp, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -685,12 +733,18 @@ int CustomObject::setPoseProperty(const char* pName, const C7Vector& pState)
     int retVal = Obj::setPoseProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        C7Vector pp(pState);
-        _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const C7Vector& v) { s->pushPoseOntoStack(v); }, [](CInterfaceStack* s, C7Vector& v) { return s->getStackPose(v); });
-        bool changed = false;
-        retVal = _customProperties.setPoseProperty(pName, pp, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_pose))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            C7Vector pp(pState);
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const C7Vector& v) { s->pushPoseOntoStack(v); }, [](CInterfaceStack* s, C7Vector& v) { return s->getStackPose(v); });
+            bool changed = false;
+            retVal = _customProperties.setPoseProperty(ppName.c_str(), pp, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -712,12 +766,18 @@ int CustomObject::setColorProperty(const char* pName, const float* pState)
     int retVal = Obj::setColorProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        float pp[3] = {pState[0], pState[1], pState[2]};
-        _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const float (&v)[3]) { s->pushColorOntoStack(v); }, [](CInterfaceStack* s, float (&v)[3]) { return s->getStackColor(v); });
-        bool changed = false;
-        retVal = _customProperties.setColorProperty(pName, pp, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_color))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            float pp[3] = {pState[0], pState[1], pState[2]};
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const float (&v)[3]) { s->pushColorOntoStack(v); }, [](CInterfaceStack* s, float (&v)[3]) { return s->getStackColor(v); });
+            bool changed = false;
+            retVal = _customProperties.setColorProperty(ppName.c_str(), pp, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -745,12 +805,18 @@ int CustomObject::setFloatArrayProperty(const char* pName, const std::vector<dou
     int retVal = Obj::setFloatArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        std::vector<double> pp(pState);
-        _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<double>& w) { s->pushDoubleArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<double>& w) { return s->getStackDoubleArray(w.data(), w.size()); });
-        bool changed = false;
-        retVal = _customProperties.setFloatArrayProperty(pName, pp, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_floatarray))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            std::vector<double> pp(pState);
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<double>& w) { s->pushDoubleArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<double>& w) { return s->getStackDoubleArray(w.data(), w.size()); });
+            bool changed = false;
+            retVal = _customProperties.setFloatArrayProperty(ppName.c_str(), pp, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -773,12 +839,18 @@ int CustomObject::setIntArrayProperty(const char* pName, const std::vector<int>&
     int retVal = Obj::setIntArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        std::vector<int> pp(pState);
-        _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<int>& w) { s->pushInt32ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<int>& w) { return s->getStackInt32Array(w.data(), w.size()); });
-        bool changed = false;
-        retVal = _customProperties.setIntArrayProperty(pName, pp, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_intarray))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            std::vector<int> pp(pState);
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<int>& w) { s->pushInt32ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<int>& w) { return s->getStackInt32Array(w.data(), w.size()); });
+            bool changed = false;
+            retVal = _customProperties.setIntArrayProperty(ppName.c_str(), pp, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -801,12 +873,18 @@ int CustomObject::setHandleArrayProperty(const char* pName, const std::vector<lo
     int retVal = Obj::setHandleArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        std::vector<long long int> pp(pState);
-        _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<long long int>& w) { s->pushInt64ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<long long int>& w) { return s->getStackInt64Array(w.data(), w.size()); });
-        bool changed = false;
-        retVal = _customProperties.setHandleArrayProperty(pName, pp, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_handlearray))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            std::vector<long long int> pp(pState);
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<long long int>& w) { s->pushInt64ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<long long int>& w) { return s->getStackInt64Array(w.data(), w.size()); });
+            bool changed = false;
+            retVal = _customProperties.setHandleArrayProperty(ppName.c_str(), pp, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }
@@ -829,12 +907,18 @@ int CustomObject::setStringArrayProperty(const char* pName, const std::vector<st
     int retVal = Obj::setStringArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        std::vector<std::string> pp(pState);
-        _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<std::string>& w) { s->pushTextArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<std::string>& w) { w.clear(); return s->getStackTextArray(w); });
-        bool changed = false;
-        retVal = _customProperties.setStringArrayProperty(pName, pp, changed);
-        if (changed)
-            _triggerEvent(pName);
+        if ((pName[0] == '@') || _customProperties.hasTypedProperty(pName, sim_propertytype_stringarray))
+        { // property already exists (with correct type), or we want to force setting it)
+            std::string ppName(pName);
+            if (ppName[0] == '@')
+                ppName.erase(0, 1);
+            std::vector<std::string> pp(pState);
+            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<std::string>& w) { s->pushTextArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<std::string>& w) { w.clear(); return s->getStackTextArray(w); });
+            bool changed = false;
+            retVal = _customProperties.setStringArrayProperty(ppName.c_str(), pp, changed);
+            if (changed)
+                _triggerEvent(ppName.c_str());
+        }
     }
     return retVal;
 }

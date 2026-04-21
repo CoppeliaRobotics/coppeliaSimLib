@@ -2615,55 +2615,26 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar, CShape* shape)
     addObjectToScene(copy, false, false);
     if (copy->isCompound())
     {
-        int h = copy->getObjectHandle();
-        std::vector<int> finalSel;
-        std::vector<int> previousSel;
         std::vector<int> sel;
-        previousSel.push_back(h);
-        sel.push_back(h);
-        while (sel.size() != 0)
-        {
-            CSceneObjectOperations::ungroupSelection(&sel);
-            for (size_t i = 0; i < previousSel.size(); i++)
-            {
-                int previousID = previousSel[i];
-                bool present = false;
-                for (size_t j = 0; j < sel.size(); j++)
-                {
-                    if (sel[j] == previousID)
-                    {
-                        present = true;
-                        break;
-                    }
-                }
-                if ((!present) &&
-                    (h !=
-                     previousID))                   // the original shape will be added at the very end for correct ordering (see below)
-                    finalSel.push_back(previousID); // this is a simple shape (not a group)
-            }
-            previousSel.assign(sel.begin(), sel.end());
-        }
-        finalSel.push_back(h);
-        for (size_t i = 0; i < finalSel.size(); i++)
-            allComponents.push_back(getShapeFromHandle(finalSel[i]));
+        sel.push_back(copy->getObjectHandle());
+        CSceneObjectOperations::ungroupSelection(&sel, true);
+        for (size_t i = 0; i < sel.size(); i++)
+            allComponents.push_back(getShapeFromHandle(sel[i]));
     }
     else
         allComponents.push_back(copy);
 
     ar.xmlAddNode_comment(" one of following tags is required: 'compound', 'primitive', 'heightfield' or 'mesh'. "
-                          "'compound' itself requires at least two of those tags as children ",
-                          false);
+                          "'compound' itself requires at least two of those tags as children ", false);
     if (allComponents.size() > 1)
     {
         ar.xmlPushNewNode("compound");
         for (size_t i = 0; i < allComponents.size(); i++)
-            _writeSimpleXmlSimpleShape(ar, shape->getObjectAliasAndHandle().c_str(), allComponents[i],
-                                       shape->getFullCumulativeTransformation());
+            _writeSimpleXmlSimpleShape(ar, shape->getObjectAliasAndHandle().c_str(), allComponents[i], shape->getFullCumulativeTransformation());
         ar.xmlPopNode();
     }
     else
-        _writeSimpleXmlSimpleShape(ar, shape->getObjectAliasAndHandle().c_str(), allComponents[0],
-                                   shape->getFullCumulativeTransformation());
+        _writeSimpleXmlSimpleShape(ar, shape->getObjectAliasAndHandle().c_str(), allComponents[0], shape->getFullCumulativeTransformation());
 
     for (size_t i = 0; i < allComponents.size(); i++)
         eraseObject(allComponents[i], false);
@@ -2714,8 +2685,7 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar, CShape* shape)
     ar.xmlPopNode();
 }
 
-void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar, const char* originalShapeName, CShape* shape,
-                                                       const C7Vector& frame)
+void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar, const char* originalShapeName, CShape* shape, const C7Vector& frame)
 {
     CMesh* geom = shape->getSingleMesh();
     if (geom->getPurePrimitiveType() == sim_primitiveshape_none)

@@ -6605,7 +6605,7 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
                     errMsg = SIM_ERROR_CLASS_INEXISTANT;
             }
             else
-            {
+            { // always script persistent and volatile!
                 long long int retVal = -1;
                 if (targetObj == sim_handle_app)
                     retVal = App::scenes->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), -1);

@@ -67,6 +67,7 @@ class CCustomProperties
     size_t getPropertyCount() const;
     void getAllPropertyData(std::vector<std::string>& names, std::vector<std::string>& data) const;
     void setAllPropertyData(const std::vector<std::string>& names, const std::vector<std::string>& data);
+    bool hasTypedProperty(const char* pName, int propType) const;
 
   protected:
     // Layout of value buffer:

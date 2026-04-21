@@ -119,6 +119,14 @@ std::string CCustomProperties::_packProperty(int propType, int propInfo, const s
     return result;
 }
 
+bool CCustomProperties::hasTypedProperty(const char* pName, int propType) const
+{
+    auto it = _properties.find(pName);
+    if (it == _properties.end())
+        return false;
+    return (_readInt32(it->second, 0) == propType);
+}
+
 bool CCustomProperties::_findProperty(const char* pName, int& propType, int& propInfo, std::string& infoTxt, const char*& dataPtr, size_t& dataLen) const
 {
     auto it = _properties.find(pName);

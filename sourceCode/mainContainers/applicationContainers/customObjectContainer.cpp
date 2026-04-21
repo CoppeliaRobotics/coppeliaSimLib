@@ -4,6 +4,8 @@
 CustomObjectContainer::CustomObjectContainer(int target)
 {
     _target = target;
+    if (_target == sim_handle_app)
+        _loadFromAppFolder();
 }
 
 CustomObjectContainer::~CustomObjectContainer()
@@ -21,7 +23,6 @@ void CustomObjectContainer::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
-        /*
         if (ar.isStoring())
         { // Storing
             for (auto it = _customObjects.begin(); it != _customObjects.end(); ++it)
@@ -30,7 +31,6 @@ void CustomObjectContainer::serialize(CSer& ar)
                 if (!obj->getVolatile())
                 {
                     ar.storeDataName("Obj");
-                    ar << it->first;
                     ar.setCountingMode();
                     it->second->serialize(ar);
                     if (ar.setWritingMode())
@@ -43,6 +43,7 @@ void CustomObjectContainer::serialize(CSer& ar)
         { // Loading
             int byteQuantity;
             std::string theName = "";
+            _customObjects.clear();
             while (theName.compare(SER_END_OF_OBJECT) != 0)
             {
                 theName = ar.readDataName();
@@ -53,114 +54,108 @@ void CustomObjectContainer::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        long long int h;
-                        ar >> h;
-                        CustomObject* obj = new CustomObject(h, "", "", -1, _target);
+                        CustomObject* obj = new CustomObject(-1, "", "", -1, _target);
                         obj->serialize(ar);
                         obj->setVolatile(false);
-                        _customObjects.insert({h, obj});
+                        _customObjects.insert({obj->getObjectHandle(), obj});
                     }
                     if (noHit)
                         ar.loadUnknownData();
                 }
             }
         }
-*/
     }
     else
     {
-        /*
         if (ar.isStoring())
         {
-            size_t totSize = 0;
-            for (size_t i = 0; i < _data.size(); i++)
-                totSize += _data[i].data.size();
-            if (ar.xmlSaveDataInline(totSize))
+            for (auto it = _customObjects.begin(); it != _customObjects.end(); ++it)
             {
-                for (size_t i = 0; i < _data.size(); i++)
+                CustomObject* obj = it->second;
+                if (!obj->getVolatile())
                 {
-                    ar.xmlPushNewNode("data");
-                    ar.xmlAddNode_string("tag", _data[i].tag.c_str());
-                    std::string str(base64_encode((unsigned char*)_data[i].data.c_str(), _data[i].data.size()));
-                    ar.xmlAddNode_string("data_base64Coded", str.c_str());
+                    ar.xmlPushNewNode("customObject");
+                    obj->serialize(ar);
                     ar.xmlPopNode();
                 }
-            }
-            else
-            {
-                CSer* serObj = nullptr;
-                if (objectName != nullptr)
-                    serObj = ar.xmlAddNode_binFile("file", (std::string("objectCustomData_") + objectName).c_str());
-                else
-                    serObj = ar.xmlAddNode_binFile("file", "sceneCustomData");
-                serObj[0] << int(_data.size());
-                for (size_t i = 0; i < _data.size(); i++)
-                {
-                    serObj[0] << _data[i].tag;
-                    serObj[0] << int(_data[i].data.size());
-                    for (size_t j = 0; j < _data[i].data.size(); j++)
-                        serObj[0] << _data[i].data[j];
-                }
-                serObj->flush();
-                serObj->writeClose();
-                delete serObj;
             }
         }
         else
         {
-            CSer* serObj = ar.xmlGetNode_binFile("file", false);
-            if (serObj == nullptr)
+            _customObjects.clear();
+            if (ar.xmlPushChildNode("customObject", false))
             {
-                if (ar.xmlPushChildNode("data", false))
+                while (true)
                 {
-                    while (true)
-                    {
-                        SCustomData dat;
-                        ar.xmlGetNode_string("tag", dat.tag);
-                        std::string data;
-                        ar.xmlGetNode_string("data_base64Coded", data);
-                        data = base64_decode(data);
-                        dat.data = data;
-                        _data.push_back(dat);
-                        if (!ar.xmlPushSiblingNode("data", false))
-                            break;
-                    }
-                    ar.xmlPopNode();
+                    CustomObject* obj = new CustomObject(-1, "", "", -1, _target);
+                    obj->serialize(ar);
+                    obj->setVolatile(false);
+                    _customObjects.insert({obj->getObjectHandle(), obj});
+                    if (!ar.xmlPushSiblingNode("customObject", false))
+                        break;
                 }
-            }
-            else
-            {
-                int s;
-                serObj[0] >> s;
-                for (size_t i = 0; i < size_t(s); i++)
-                {
-                    SCustomData dat;
-                    serObj[0] >> dat.tag;
-                    int l;
-                    serObj[0] >> l;
-                    ar >> l;
-                    dat.data.resize(size_t(l));
-                    for (size_t j = 0; j < size_t(l); j++)
-                        ar >> dat.data[j];
-                    _data.push_back(dat);
-                }
-                serObj->readClose();
-                delete serObj;
+                ar.xmlPopNode();
             }
         }
-*/
     }
 }
 
-long long int CustomObjectContainer::getFreshHandle() const
+void CustomObjectContainer::saveToAppFolderIfNeeded()
+{
+    bool doIt = false;
+    for (auto it = _customObjects.begin(); it != _customObjects.end(); ++it)
+    {
+        CustomObject* obj = it->second;
+        if (obj->getResetChanged() && (!obj->getVolatile()))
+            doIt = true;
+    }
+    if (doIt)
+    {
+        printf("Saving\n");
+        CSer ar((App::folders->getUserSettingsPath() + "/customObjects.ttg").c_str(), CSer::filetype_csim_bin_generic_file);
+        ar.writeOpenBinary(false);
+        serialize(ar);
+        ar.writeClose();
+    }
+}
+
+void CustomObjectContainer::_loadFromAppFolder()
+{
+    std::string file(App::folders->getUserSettingsPath() + "/customObjects.ttg");
+    if (VFile::doesFileExist(file.c_str()))
+    {
+        try
+        {
+            CSer ar(file.c_str(), CSer::filetype_csim_bin_generic_file);
+            ar.readOpenBinary(CSer::filetype_csim_bin_generic_file, false);
+            serialize(ar);
+            ar.readClose();
+        }
+        catch (VFILE_EXCEPTION_TYPE e)
+        {
+            VFile::reportAndHandleFileExceptionError(e);
+        }
+    }
+}
+
+long long int CustomObjectContainer::getFreshHandle(bool forObject) const
 {
     long long int retVal;
     if (_target == sim_handle_app)
         retVal = sim_object_customappstart;
     if (_target == sim_handle_scene)
         retVal = sim_object_customscenestart;
-    while ((getObject(retVal) != nullptr) || (getClass(retVal) != nullptr))
-        retVal++;
+    if (forObject)
+    {
+        retVal += 10000;
+        while (getObject(retVal) != nullptr)
+            retVal++;
+    }
+    else
+    {
+        while (getClass(retVal) != nullptr)
+            retVal++;
+    }
     return retVal;
 }
 
@@ -185,7 +180,7 @@ long long int CustomObjectContainer::addClass(const char* objectTypeStr, const c
     long long int retVal = -1;
     if (getClass(objectTypeStr) == nullptr)
     {
-        retVal = getFreshHandle();
+        retVal = getFreshHandle(false);
         CustomObject* obj = new CustomObject(retVal, objectTypeStr, objectMetaInfo, originScriptHandle, _target);
         _customClasses.insert({objectTypeStr, obj});
         obj->setIntProperty("target", _target);
@@ -257,7 +252,7 @@ long long int CustomObjectContainer::addObject(const char* objectTypeStr, bool i
     CustomObject* classObj = getClass(objectTypeStr);
     if (classObj != nullptr)
     {
-        retVal = getFreshHandle();
+        retVal = getFreshHandle(true);
         CustomObject* obj = classObj->createObject(retVal, originScriptHandle);
         obj->setVolatile(isVolatile);
         _customObjects.insert({retVal, obj});
