@@ -3245,6 +3245,11 @@ int App::getHandleArrayProperty(long long int target, const char* ppName, std::v
             scenes->customObjects->getAllClassHandles(pState);
             retVal = sim_propertyret_ok;
         }
+        else if (strcmp(pName, propApp_customSceneObjectClasses.name) == 0)
+        {
+            scenes->customSceneObjectClasses->getAllClassHandles(pState);
+            retVal = sim_propertyret_ok;
+        }
     }
     else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
     { // sandbox, main, add-ons, or old associated scripts:
@@ -4006,12 +4011,15 @@ void App::pushGenesisEvents()
         else
             ev->appendKeyHandleArray(propApp_addOns.name, addOnList.data(), addOnList.size());
 
-        std::vector<long long int> customObjectList;
-        scenes->customObjects->getAllObjectHandles(customObjectList);
-        ev->appendKeyHandleArray(propApp_customObjects.name, customObjectList.data(), customObjectList.size());
+        std::vector<long long int> l;
+        scenes->customObjects->getAllObjectHandles(l);
+        ev->appendKeyHandleArray(propApp_customObjects.name, l.data(), l.size());
         std::vector<long long int> customClassList;
-        scenes->customObjects->getAllClassHandles(customClassList);
-        ev->appendKeyHandleArray(propApp_customClasses.name, customClassList.data(), customClassList.size());
+        scenes->customObjects->getAllClassHandles(l);
+        ev->appendKeyHandleArray(propApp_customClasses.name, l.data(), l.size());
+        l.clear();
+        scenes->customSceneObjectClasses->getAllClassHandles(l);
+        ev->appendKeyHandleArray(propApp_customSceneObjectClasses.name, l.data(), l.size());
 
         for (const auto& pair : _applicationNamedParams)
         {

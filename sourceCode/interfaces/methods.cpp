@@ -207,6 +207,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["snapshotTrace"] = _method_snapshotTrace;
         funcTable["removeTrace"] = _method_removeTrace;
         funcTable["step"] = _method_step;
+        funcTable["makeClass"] = _method_makeClass;
     }
 
     std::string retVal("__notFound__");
@@ -6917,3 +6918,25 @@ std::string _method_step(int targetObj, const char* method, CDetachedScript* cur
     }
     return errMsg;
 }
+
+std::string _method_makeClass(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    {
+        std::string className = fetchText(inStack, 0);
+        if (!className.empty())
+        {
+            int retVal = App::scenes->customSceneObjectClasses->addClass(className.c_str(), target);
+            if (retVal >= 0)
+                pushHandle(outStack, retVal);
+            else
+                errMsg = "class exists already.";
+        }
+        else
+            errMsg = "invalid class name.";
+    }
+    return errMsg;
+}
+

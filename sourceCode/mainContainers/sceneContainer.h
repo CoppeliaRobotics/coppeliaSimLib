@@ -13,6 +13,7 @@
 #include <scene.h>
 #include <customData.h>
 #include <customObjectContainer.h>
+#include <customSceneObjectClassContainer.h>
 #include <tuple>
 
 #ifdef SIM_WITH_GUI
@@ -85,6 +86,7 @@ class CSceneContainer
     void simulationEnded(bool removeNewObjects);
 
     CustomObjectContainer* customObjects;
+    CustomSceneObjectClassContainer* customSceneObjectClasses;
     CCopyBuffer* copyBuffer;
     CSimulatorMessageQueue* simulatorMessageQueue;
     CCalculationInfo* calcInfo;

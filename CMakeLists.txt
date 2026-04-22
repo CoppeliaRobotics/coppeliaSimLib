@@ -581,6 +581,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/mainContainers/applicationContainers/codeEditorVariables.cpp
     sourceCode/mainContainers/applicationContainers/serialPortContainer.cpp
     sourceCode/mainContainers/applicationContainers/customObjectContainer.cpp
+    sourceCode/mainContainers/applicationContainers/customSceneObjectClassContainer.cpp
     sourceCode/mainContainers/applicationContainers/customObject.cpp
     sourceCode/mainContainers/applicationContainers/customProperties.cpp
 

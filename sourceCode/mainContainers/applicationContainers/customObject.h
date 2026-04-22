@@ -72,7 +72,6 @@ class CustomObject: public Obj
     void _callPropertySetterGetter(const char* pName, const char* suffix, T& pState, PushF pushFunc, GetF getFunc) const;
     void _triggerEvent(const char* pName, CCbor* evv = nullptr);
 
-    bool _isClass;
     int _scriptHandle;
     int _target;
     bool _volatile;

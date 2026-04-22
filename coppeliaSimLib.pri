@@ -458,6 +458,7 @@ HEADERS += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorFunctions.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorVariables.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/serialPortContainer.h \
+    $$PWD/sourceCode/mainContainers/applicationContainers/customSceneObjectClassContainer.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/customObjectContainer.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/customObject.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/customProperties.h \
@@ -857,6 +858,7 @@ SOURCES += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.cpp 
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorFunctions.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/codeEditorVariables.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/serialPortContainer.cpp \
+    $$PWD/sourceCode/mainContainers/applicationContainers/customSceneObjectClassContainer.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/customObjectContainer.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/customObject.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/customProperties.cpp \

@@ -81,6 +81,8 @@ class Obj
     long long int getObjectHandle() const;
     std::string getObjectTypeStr() const;
     std::string getObjectMetaInfo() const;
+    std::string getClass() const;
+    void setClass(const char* className);
 
     virtual int setBoolProperty(const char* pName, bool pState) { return sim_propertyret_unknownproperty; }
     virtual int getBoolProperty(const char* pName, bool& pState) const { return sim_propertyret_unknownproperty; }
@@ -130,4 +132,5 @@ class Obj
     long long int _objectHandle;
     std::string _objectTypeStr;
     std::string _objectMetaInfo;
+    std::string _className; // empty --> not a class
 };

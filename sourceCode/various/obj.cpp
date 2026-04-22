@@ -48,6 +48,16 @@ std::string Obj::getObjectMetaInfo() const
     return _objectMetaInfo;
 }
 
+std::string Obj::getClass() const
+{
+    return _className;
+}
+
+void Obj::setClass(const char* className)
+{
+    _className = className;
+}
+
 int Obj::setLongProperty(const char* ppName, long long int pState)
 {
     int retVal = sim_propertyret_unknownproperty;

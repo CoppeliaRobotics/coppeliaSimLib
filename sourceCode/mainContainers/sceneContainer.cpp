@@ -22,6 +22,7 @@ CSceneContainer::CSceneContainer()
     pluginContainer = nullptr;
     codeEditorInfos = nullptr;
     customObjects = nullptr;
+    customSceneObjectClasses = nullptr;
     copyBuffer = nullptr;
     sandboxScript = nullptr;
     addOnScriptContainer = nullptr;
@@ -251,6 +252,7 @@ void CSceneContainer::initialize()
 
     simulatorMessageQueue = new CSimulatorMessageQueue();
     customObjects = new CustomObjectContainer(sim_handle_app);
+    customSceneObjectClasses = new CustomSceneObjectClassContainer();
     copyBuffer = new CCopyBuffer();
     moduleMenuItemContainer = new CModuleMenuItemContainer();
 #ifdef SIM_WITH_GUI
@@ -296,6 +298,7 @@ void CSceneContainer::deinitialize()
 #endif
     delete moduleMenuItemContainer;
     delete copyBuffer;
+    delete customSceneObjectClasses;
     delete customObjects;
     delete simulatorMessageQueue;
     delete calcInfo;
