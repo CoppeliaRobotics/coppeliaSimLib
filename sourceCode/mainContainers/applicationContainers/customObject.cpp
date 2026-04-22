@@ -12,6 +12,7 @@ CustomObject::CustomObject(long long int handle, const char* objectTypeStr, cons
     _volatile = true;
     _isClass = (strlen(objectMetaInfo) > 0);
     _changed = false;
+    _ignoreSetterGetter = false;
 }
 
 CustomObject::~CustomObject()
@@ -59,6 +60,7 @@ bool CustomObject::getResetChanged()
 void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/)
 {
     _changed = true;
+    _ignoreSetterGetter = true;
     if ((!_isClass) && (App::scenes != nullptr) && App::scenes->getEventsEnabled())
     {
         int flags;
@@ -74,103 +76,103 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/)
                 if (t == sim_propertytype_bool)
                 {
                     bool v;
-                    if (getBoolProperty(pName, v, true) == sim_propertyret_ok)
+                    if (getBoolProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyBool(pName, v);
                 }
                 else if (t == sim_propertytype_int)
                 {
                     int v;
-                    if (getIntProperty(pName, v, true) == sim_propertyret_ok)
+                    if (getIntProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyInt64(pName, v);
                 }
                 else if (t == sim_propertytype_long)
                 {
                     long long int v;
-                    if (getLongProperty(pName, v, true) == sim_propertyret_ok)
+                    if (getLongProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyInt64(pName, v);
                 }
                 else if (t == sim_propertytype_float)
                 {
                     double v;
-                    if (getFloatProperty(pName, v, true) == sim_propertyret_ok)
+                    if (getFloatProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyDouble(pName, v);
                 }
                 else if (t == sim_propertytype_handle)
                 {
                     long long int v;
-                    if (getHandleProperty(pName, v, true) == sim_propertyret_ok)
+                    if (getHandleProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyHandle(pName, v);
                 }
                 else if (t == sim_propertytype_string)
                 {
                     std::string v;
-                    if (getStringProperty(pName, v, true) == sim_propertyret_ok)
+                    if (getStringProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyText(pName, v.c_str());
                 }
                 else if (t == sim_propertytype_buffer)
                 {
                     std::string v;
-                    if (getBufferProperty(pName, v, true) == sim_propertyret_ok)
+                    if (getBufferProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyBuff(pName, (unsigned char*)v.data(), v.size());
                 }
                 else if (t == sim_propertytype_intarray2)
                 {
                     int v[2];
-                    if (getIntArray2Property(pName, v, true) == sim_propertyret_ok)
+                    if (getIntArray2Property(pName, v) == sim_propertyret_ok)
                         ev->appendKeyInt32Array(pName, v, 2);
                 }
                 else if (t == sim_propertytype_vector3)
                 {
                     C3Vector v;
-                    if (getVector3Property(pName, v, true) == sim_propertyret_ok)
+                    if (getVector3Property(pName, v) == sim_propertyret_ok)
                         ev->appendKeyVector3(pName, v);
                 }
                 else if (t == sim_propertytype_quaternion)
                 {
                     C4Vector v;
-                    if (getQuaternionProperty(pName, v, true) == sim_propertyret_ok)
+                    if (getQuaternionProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyQuaternion(pName, v);
                 }
                 else if (t == sim_propertytype_pose)
                 {
                     C7Vector v;
-                    if (getPoseProperty(pName, v, true) == sim_propertyret_ok)
+                    if (getPoseProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyPose(pName, v);
                 }
                 else if (t == sim_propertytype_matrix)
                 {
                     CMatrix v;
-                    if (getMatrixProperty(pName, v, true) == sim_propertyret_ok)
+                    if (getMatrixProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyMatrix(pName, v.data.data(), v.rows, v.cols);
                 }
                 else if (t == sim_propertytype_color)
                 {
                     float v[3];
-                    if (getColorProperty(pName, v, true) == sim_propertyret_ok)
+                    if (getColorProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyFloatArray(pName, v, 3);
                 }
                 else if (t == sim_propertytype_floatarray)
                 {
                     std::vector<double> v;
-                    if (getFloatArrayProperty(pName, v, true) == sim_propertyret_ok)
+                    if (getFloatArrayProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyDoubleArray(pName, v.data(), v.size());
                 }
                 else if (t == sim_propertytype_intarray)
                 {
                     std::vector<int> v;
-                    if (getIntArrayProperty(pName, v, true) == sim_propertyret_ok)
+                    if (getIntArrayProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyInt32Array(pName, v.data(), v.size());
                 }
                 else if (t == sim_propertytype_handlearray)
                 {
                     std::vector<long long int> v;
-                    if (getHandleArrayProperty(pName, v, true) == sim_propertyret_ok)
+                    if (getHandleArrayProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyHandleArray(pName, v.data(), v.size());
                 }
                 else if (t == sim_propertytype_stringarray)
                 {
                     std::vector<std::string> v;
-                    if (getStringArrayProperty(pName, v, true) == sim_propertyret_ok)
+                    if (getStringArrayProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyTextArray(pName, v);
                 }
                 if (evv == nullptr)
@@ -187,6 +189,7 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/)
                 App::scenes->pushEvent();
         }
     }
+    _ignoreSetterGetter = false;
 }
 
 void CustomObject::pushObjectCreationEvent()
@@ -368,7 +371,8 @@ int CustomObject::setBoolProperty(const char* pName, bool pState)
             std::string ppName(pName);
             if (ppName[0] == '@')
                 ppName.erase(0, 1);
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pState, [](CInterfaceStack* s, const bool& v) { s->pushBoolOntoStack(v); }, [](CInterfaceStack* s, bool& v) { return s->getStackBoolValue(v); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pState, [](CInterfaceStack* s, const bool& v) { s->pushBoolOntoStack(v); }, [](CInterfaceStack* s, bool& v) { return s->getStackBoolValue(v); });
             bool changed = false;
             retVal = _customProperties.setBoolProperty(ppName.c_str(), pState, changed);
             if (changed)
@@ -378,13 +382,13 @@ int CustomObject::setBoolProperty(const char* pName, bool pState)
     return retVal;
 }
 
-int CustomObject::getBoolProperty(const char* pName, bool& pState, bool direct /*= false*/) const
+int CustomObject::getBoolProperty(const char* pName, bool& pState) const
 {
     int retVal = Obj::getBoolProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getBoolProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
             _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const bool& v) { s->pushBoolOntoStack(v); }, [](CInterfaceStack* s, bool& v) { return s->getStackBoolValue(v); });
     }
     return retVal;
@@ -410,13 +414,13 @@ int CustomObject::setIntProperty(const char* pName, int pState)
     return retVal;
 }
 
-int CustomObject::getIntProperty(const char* pName, int& pState, bool direct /*= false*/) const
+int CustomObject::getIntProperty(const char* pName, int& pState) const
 {
     int retVal = Obj::getIntProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getIntProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
             _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const int& v) { s->pushInt32OntoStack(v); }, [](CInterfaceStack* s, int& v) { return s->getStackInt32Value(v); });
     }
     return retVal;
@@ -432,7 +436,8 @@ int CustomObject::setLongProperty(const char* pName, long long int pState)
             std::string ppName(pName);
             if (ppName[0] == '@')
                 ppName.erase(0, 1);
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushInt64OntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackInt64Value(v); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushInt64OntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackInt64Value(v); });
             bool changed = false;
             retVal = _customProperties.setLongProperty(ppName.c_str(), pState, changed);
             if (changed)
@@ -442,13 +447,13 @@ int CustomObject::setLongProperty(const char* pName, long long int pState)
     return retVal;
 }
 
-int CustomObject::getLongProperty(const char* pName, long long int& pState, bool direct /*= false*/) const
+int CustomObject::getLongProperty(const char* pName, long long int& pState) const
 {
     int retVal = Obj::getLongProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getLongProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
             _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const long long& v) { s->pushInt64OntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackInt64Value(v); });
     }
     return retVal;
@@ -464,7 +469,8 @@ int CustomObject::setFloatProperty(const char* pName, double pState)
             std::string ppName(pName);
             if (ppName[0] == '@')
                 ppName.erase(0, 1);
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pState, [](CInterfaceStack* s, const double& v) { s->pushDoubleOntoStack(v); }, [](CInterfaceStack* s, double& v) { return s->getStackDoubleValue(v); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pState, [](CInterfaceStack* s, const double& v) { s->pushDoubleOntoStack(v); }, [](CInterfaceStack* s, double& v) { return s->getStackDoubleValue(v); });
             bool changed = false;
             retVal = _customProperties.setFloatProperty(ppName.c_str(), pState, changed);
             if (changed)
@@ -474,13 +480,13 @@ int CustomObject::setFloatProperty(const char* pName, double pState)
     return retVal;
 }
 
-int CustomObject::getFloatProperty(const char* pName, double& pState, bool direct /*= false*/) const
+int CustomObject::getFloatProperty(const char* pName, double& pState) const
 {
     int retVal = Obj::getFloatProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getFloatProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
             _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const double& v) { s->pushDoubleOntoStack(v); }, [](CInterfaceStack* s, double& v) { return s->getStackDoubleValue(v); });
     }
     return retVal;
@@ -496,7 +502,8 @@ int CustomObject::setHandleProperty(const char* pName, long long int pState)
             std::string ppName(pName);
             if (ppName[0] == '@')
                 ppName.erase(0, 1);
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushHandleOntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackHandleValue(v); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushHandleOntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackHandleValue(v); });
             bool changed = false;
             retVal = _customProperties.setHandleProperty(ppName.c_str(), pState, changed);
             if (changed)
@@ -506,13 +513,13 @@ int CustomObject::setHandleProperty(const char* pName, long long int pState)
     return retVal;
 }
 
-int CustomObject::getHandleProperty(const char* pName, long long int& pState, bool direct /*= false*/) const
+int CustomObject::getHandleProperty(const char* pName, long long int& pState) const
 {
     int retVal = Obj::getHandleProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getHandleProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
             _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushHandleOntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackHandleValue(v); });
     }
     return retVal;
@@ -529,7 +536,8 @@ int CustomObject::setStringProperty(const char* pName, const std::string& pState
             if (ppName[0] == '@')
                 ppName.erase(0, 1);
             std::string pp(pState);
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushTextOntoStack(v.c_str()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushTextOntoStack(v.c_str()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
             bool changed = false;
             retVal = _customProperties.setStringProperty(ppName.c_str(), pp, changed);
             if (changed)
@@ -539,13 +547,13 @@ int CustomObject::setStringProperty(const char* pName, const std::string& pState
     return retVal;
 }
 
-int CustomObject::getStringProperty(const char* pName, std::string& pState, bool direct /*= false*/) const
+int CustomObject::getStringProperty(const char* pName, std::string& pState) const
 {
     int retVal = Obj::getStringProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getStringProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
             _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::string& v) { s->pushTextOntoStack(v.c_str()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
     }
     return retVal;
@@ -562,7 +570,8 @@ int CustomObject::setBufferProperty(const char* pName, const std::string& pState
             if (ppName[0] == '@')
                 ppName.erase(0, 1);
             std::string pp(pState);
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
             bool changed = false;
             retVal = _customProperties.setBufferProperty(ppName.c_str(), pp, changed);
             if (changed)
@@ -572,13 +581,13 @@ int CustomObject::setBufferProperty(const char* pName, const std::string& pState
     return retVal;
 }
 
-int CustomObject::getBufferProperty(const char* pName, std::string& pState, bool direct /*= false*/) const
+int CustomObject::getBufferProperty(const char* pName, std::string& pState) const
 {
     int retVal = Obj::getBufferProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getBufferProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
             _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
     }
     return retVal;
@@ -595,7 +604,8 @@ int CustomObject::setIntArray2Property(const char* pName, const int* pState)
             if (ppName[0] == '@')
                 ppName.erase(0, 1);
             int pp[2] = {pState[0], pState[1]};
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const int (&v)[2]) { s->pushInt32ArrayOntoStack(v, 2); }, [](CInterfaceStack* s, int (&v)[2]) { return s->getStackInt32Array(v, 2); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const int (&v)[2]) { s->pushInt32ArrayOntoStack(v, 2); }, [](CInterfaceStack* s, int (&v)[2]) { return s->getStackInt32Array(v, 2); });
             bool changed = false;
             retVal = _customProperties.setIntArray2Property(ppName.c_str(), pp, changed);
             if (changed)
@@ -605,13 +615,13 @@ int CustomObject::setIntArray2Property(const char* pName, const int* pState)
     return retVal;
 }
 
-int CustomObject::getIntArray2Property(const char* pName, int* pState, bool direct /*= false*/) const
+int CustomObject::getIntArray2Property(const char* pName, int* pState) const
 {
     int retVal = Obj::getIntArray2Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getIntArray2Property(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
         {
             int pp[2] = {pState[0], pState[1]};
             _callPropertySetterGetter(pName, GET_SUFFIX, pp, [](CInterfaceStack* s, const int (&v)[2]) { s->pushInt32ArrayOntoStack(v, 2); }, [](CInterfaceStack* s, int (&v)[2]) { return s->getStackInt32Array(v, 2); });
@@ -634,7 +644,8 @@ int CustomObject::setVector3Property(const char* pName, const C3Vector& pState)
                 ppName.erase(0, 1);
             CMatrix m(3, 1);
             m.data.assign(pState.data, pState.data + 3);
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, m, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, m, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
             C3Vector p(m.data.data());
             bool changed = false;
             retVal = _customProperties.setVector3Property(ppName.c_str(), p, changed);
@@ -645,13 +656,13 @@ int CustomObject::setVector3Property(const char* pName, const C3Vector& pState)
     return retVal;
 }
 
-int CustomObject::getVector3Property(const char* pName, C3Vector& pState, bool direct /*= false*/) const
+int CustomObject::getVector3Property(const char* pName, C3Vector& pState) const
 {
     int retVal = Obj::getVector3Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getVector3Property(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
         {
             CMatrix m(3, 1);
             m.data.assign(pState.data, pState.data + 3);
@@ -673,7 +684,8 @@ int CustomObject::setMatrixProperty(const char* pName, const CMatrix& pState)
             if (ppName[0] == '@')
                 ppName.erase(0, 1);
             CMatrix pp(pState);
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
             bool changed = false;
             retVal = _customProperties.setMatrixProperty(ppName.c_str(), pp, changed);
             if (changed)
@@ -683,13 +695,13 @@ int CustomObject::setMatrixProperty(const char* pName, const CMatrix& pState)
     return retVal;
 }
 
-int CustomObject::getMatrixProperty(const char* pName, CMatrix& pState, bool direct /*= false*/) const
+int CustomObject::getMatrixProperty(const char* pName, CMatrix& pState) const
 {
     int retVal = Obj::getMatrixProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getMatrixProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
             _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
     }
     return retVal;
@@ -706,7 +718,8 @@ int CustomObject::setQuaternionProperty(const char* pName, const C4Vector& pStat
             if (ppName[0] == '@')
                 ppName.erase(0, 1);
             C4Vector pp(pState);
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const C4Vector& v) { s->pushQuaternionOntoStack(v); }, [](CInterfaceStack* s, C4Vector& v) { return s->getStackQuaternion(v); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const C4Vector& v) { s->pushQuaternionOntoStack(v); }, [](CInterfaceStack* s, C4Vector& v) { return s->getStackQuaternion(v); });
             bool changed = false;
             retVal = _customProperties.setQuaternionProperty(ppName.c_str(), pp, changed);
             if (changed)
@@ -716,13 +729,13 @@ int CustomObject::setQuaternionProperty(const char* pName, const C4Vector& pStat
     return retVal;
 }
 
-int CustomObject::getQuaternionProperty(const char* pName, C4Vector& pState, bool direct /*= false*/) const
+int CustomObject::getQuaternionProperty(const char* pName, C4Vector& pState) const
 {
     int retVal = Obj::getQuaternionProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getQuaternionProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
             _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const C4Vector& v) { s->pushQuaternionOntoStack(v); }, [](CInterfaceStack* s, C4Vector& v) { return s->getStackQuaternion(v); });
     }
     return retVal;
@@ -739,7 +752,8 @@ int CustomObject::setPoseProperty(const char* pName, const C7Vector& pState)
             if (ppName[0] == '@')
                 ppName.erase(0, 1);
             C7Vector pp(pState);
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const C7Vector& v) { s->pushPoseOntoStack(v); }, [](CInterfaceStack* s, C7Vector& v) { return s->getStackPose(v); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const C7Vector& v) { s->pushPoseOntoStack(v); }, [](CInterfaceStack* s, C7Vector& v) { return s->getStackPose(v); });
             bool changed = false;
             retVal = _customProperties.setPoseProperty(ppName.c_str(), pp, changed);
             if (changed)
@@ -749,13 +763,13 @@ int CustomObject::setPoseProperty(const char* pName, const C7Vector& pState)
     return retVal;
 }
 
-int CustomObject::getPoseProperty(const char* pName, C7Vector& pState, bool direct /*= false*/) const
+int CustomObject::getPoseProperty(const char* pName, C7Vector& pState) const
 {
     int retVal = Obj::getPoseProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getPoseProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
             _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const C7Vector& v) { s->pushPoseOntoStack(v); }, [](CInterfaceStack* s, C7Vector& v) { return s->getStackPose(v); });
     }
     return retVal;
@@ -772,7 +786,8 @@ int CustomObject::setColorProperty(const char* pName, const float* pState)
             if (ppName[0] == '@')
                 ppName.erase(0, 1);
             float pp[3] = {pState[0], pState[1], pState[2]};
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const float (&v)[3]) { s->pushColorOntoStack(v); }, [](CInterfaceStack* s, float (&v)[3]) { return s->getStackColor(v); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const float (&v)[3]) { s->pushColorOntoStack(v); }, [](CInterfaceStack* s, float (&v)[3]) { return s->getStackColor(v); });
             bool changed = false;
             retVal = _customProperties.setColorProperty(ppName.c_str(), pp, changed);
             if (changed)
@@ -782,13 +797,13 @@ int CustomObject::setColorProperty(const char* pName, const float* pState)
     return retVal;
 }
 
-int CustomObject::getColorProperty(const char* pName, float* pState, bool direct /*= false*/) const
+int CustomObject::getColorProperty(const char* pName, float* pState) const
 {
     int retVal = Obj::getColorProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getColorProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
         {
             float pp[3] = {pState[0], pState[1], pState[2]};
             _callPropertySetterGetter(pName, GET_SUFFIX, pp, [](CInterfaceStack* s, const float (&v)[3]) { s->pushColorOntoStack(v); }, [](CInterfaceStack* s, float (&v)[3]) { return s->getStackColor(v); });
@@ -811,7 +826,8 @@ int CustomObject::setFloatArrayProperty(const char* pName, const std::vector<dou
             if (ppName[0] == '@')
                 ppName.erase(0, 1);
             std::vector<double> pp(pState);
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<double>& w) { s->pushDoubleArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<double>& w) { return s->getStackDoubleArray(w.data(), w.size()); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<double>& w) { s->pushDoubleArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<double>& w) { return s->getStackDoubleArray(w.data(), w.size()); });
             bool changed = false;
             retVal = _customProperties.setFloatArrayProperty(ppName.c_str(), pp, changed);
             if (changed)
@@ -821,14 +837,14 @@ int CustomObject::setFloatArrayProperty(const char* pName, const std::vector<dou
     return retVal;
 }
 
-int CustomObject::getFloatArrayProperty(const char* pName, std::vector<double>& pState, bool direct /*= false*/) const
+int CustomObject::getFloatArrayProperty(const char* pName, std::vector<double>& pState) const
 {
     pState.clear();
     int retVal = Obj::getFloatArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getFloatArrayProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
             _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::vector<double>& w) { s->pushDoubleArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<double>& w) { return s->getStackDoubleArray(w.data(), w.size()); });
     }
     return retVal;
@@ -845,7 +861,8 @@ int CustomObject::setIntArrayProperty(const char* pName, const std::vector<int>&
             if (ppName[0] == '@')
                 ppName.erase(0, 1);
             std::vector<int> pp(pState);
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<int>& w) { s->pushInt32ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<int>& w) { return s->getStackInt32Array(w.data(), w.size()); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<int>& w) { s->pushInt32ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<int>& w) { return s->getStackInt32Array(w.data(), w.size()); });
             bool changed = false;
             retVal = _customProperties.setIntArrayProperty(ppName.c_str(), pp, changed);
             if (changed)
@@ -855,14 +872,14 @@ int CustomObject::setIntArrayProperty(const char* pName, const std::vector<int>&
     return retVal;
 }
 
-int CustomObject::getIntArrayProperty(const char* pName, std::vector<int>& pState, bool direct /*= false*/) const
+int CustomObject::getIntArrayProperty(const char* pName, std::vector<int>& pState) const
 {
     pState.clear();
     int retVal = Obj::getIntArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getIntArrayProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
             _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::vector<int>& w) { s->pushInt32ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<int>& w) { return s->getStackInt32Array(w.data(), w.size()); });
     }
     return retVal;
@@ -879,7 +896,8 @@ int CustomObject::setHandleArrayProperty(const char* pName, const std::vector<lo
             if (ppName[0] == '@')
                 ppName.erase(0, 1);
             std::vector<long long int> pp(pState);
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<long long int>& w) { s->pushInt64ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<long long int>& w) { return s->getStackInt64Array(w.data(), w.size()); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<long long int>& w) { s->pushInt64ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<long long int>& w) { return s->getStackInt64Array(w.data(), w.size()); });
             bool changed = false;
             retVal = _customProperties.setHandleArrayProperty(ppName.c_str(), pp, changed);
             if (changed)
@@ -889,14 +907,14 @@ int CustomObject::setHandleArrayProperty(const char* pName, const std::vector<lo
     return retVal;
 }
 
-int CustomObject::getHandleArrayProperty(const char* pName, std::vector<long long int>& pState, bool direct /*= false*/) const
+int CustomObject::getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const
 {
     pState.clear();
     int retVal = Obj::getHandleArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getHandleArrayProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
             _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::vector<long long int>& w) { s->pushInt64ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<long long int>& w) { return s->getStackInt64Array(w.data(), w.size()); });
     }
     return retVal;
@@ -913,7 +931,8 @@ int CustomObject::setStringArrayProperty(const char* pName, const std::vector<st
             if (ppName[0] == '@')
                 ppName.erase(0, 1);
             std::vector<std::string> pp(pState);
-            _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<std::string>& w) { s->pushTextArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<std::string>& w) { w.clear(); return s->getStackTextArray(w); });
+            if (!_ignoreSetterGetter)
+                _callPropertySetterGetter(ppName.c_str(), SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<std::string>& w) { s->pushTextArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<std::string>& w) { w.clear(); return s->getStackTextArray(w); });
             bool changed = false;
             retVal = _customProperties.setStringArrayProperty(ppName.c_str(), pp, changed);
             if (changed)
@@ -923,14 +942,14 @@ int CustomObject::setStringArrayProperty(const char* pName, const std::vector<st
     return retVal;
 }
 
-int CustomObject::getStringArrayProperty(const char* pName, std::vector<std::string>& pState, bool direct /*= false*/) const
+int CustomObject::getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const
 {
     pState.clear();
     int retVal = Obj::getStringArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getStringArrayProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!direct))
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter))
             _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::vector<std::string>& w) { s->pushTextArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<std::string>& w) { w.clear(); return s->getStackTextArray(w); });
     }
     return retVal;
@@ -1012,14 +1031,14 @@ int CustomObject::removeProperty(const char* pName)
     return retVal;
 }
 
-int CustomObject::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags, bool methodsOnly /*= false*/) const
+int CustomObject::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (!methodsOnly)
+    if ((excludeFlags & sim_propertyinfo_retmethodsonly) == 0)
         retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        retVal = _customProperties.getPropertyName(index, pName, appartenance, excludeFlags, methodsOnly);
+        retVal = _customProperties.getPropertyName(index, pName, appartenance, excludeFlags);
         if ((!_isClass) && (retVal == sim_propertyret_unknownproperty))
         {
             CustomObject* cl = nullptr;
@@ -1028,7 +1047,7 @@ int CustomObject::getPropertyName(int& index, std::string& pName, std::string& a
             else if (_target == sim_handle_scene)
                 cl = App::scene->customObjects->getClass(getObjectTypeStr().c_str());
             if (cl != nullptr)
-                retVal = cl->getPropertyName(index, pName, appartenance, excludeFlags, true);
+                retVal = cl->getPropertyName(index, pName, appartenance, excludeFlags | sim_propertyinfo_retmethodsonly);
         }
         if (retVal == sim_propertyret_ok)
             appartenance = getObjectTypeStr();

@@ -740,6 +740,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.sceneobject_pointcloud", sim_sceneobject_pointcloud},
     {"sim.sceneobject_script", sim_sceneobject_script},
     {"sim.sceneobject_marker", sim_sceneobject_marker},
+    {"sim.sceneobject_customsceneobject", sim_sceneobject_customsceneobject},
     // 3D object sub-types:
     {"sim.light_omnidirectional", sim_light_omnidirectional},
     {"sim.light_spot", sim_light_spot},

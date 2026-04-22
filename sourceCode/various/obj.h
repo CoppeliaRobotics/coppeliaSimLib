@@ -121,10 +121,10 @@ class Obj
     virtual int setMethodProperty(const char* pName, const std::string& pState)  { return sim_propertyret_unknownproperty; }
     virtual int getMethodProperty(const char* pName, std::string& pState) const  { return sim_propertyret_unknownproperty; }
 
-
     virtual int removeProperty(const char* pName) { return sim_propertyret_unknownproperty; }
     virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
     virtual int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
+    virtual int setPropertyInfo(const char* pName, int info, const char* infoTxt) { return sim_propertyret_unavailable; };
 
   protected:
     long long int _objectHandle;

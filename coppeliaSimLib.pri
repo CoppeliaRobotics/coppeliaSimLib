@@ -263,6 +263,7 @@ WITH_GUI {
     $$PWD/ui/qdlgdummies.ui \
     $$PWD/ui/qdlgscripts.ui \
     $$PWD/ui/qdlgmarkers.ui \
+    $$PWD/ui/qdlgcustomsceneobjects.ui \
     $$PWD/ui/qdlgoctrees.ui \
     $$PWD/ui/qdlgpointclouds.ui \
     $$PWD/ui/qdlguserparameters.ui \
@@ -400,6 +401,7 @@ HEADERS += $$PWD/sourceCode/sceneObjects/related/sceneObject.h \
 HEADERS += $$PWD/sourceCode/sceneObjects/jointObject.h \
     $$PWD/sourceCode/sceneObjects/camera.h \
     $$PWD/sourceCode/sceneObjects/dummy.h \
+    $$PWD/sourceCode/sceneObjects/customSceneObject.h \
     $$PWD/sourceCode/sceneObjects/script.h \
     $$PWD/sourceCode/sceneObjects/octree.h \
     $$PWD/sourceCode/sceneObjects/pointCloud.h \
@@ -619,6 +621,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgdummies.h \
         $$PWD/sourceCode/gui/dialogs/qdlgscripts.h \
         $$PWD/sourceCode/gui/dialogs/qdlgmarkers.h \
+        $$PWD/sourceCode/gui/dialogs/qdlgcustomsceneobjects.h \
         $$PWD/sourceCode/gui/dialogs/qdlgoctrees.h \
         $$PWD/sourceCode/gui/dialogs/qdlgpointclouds.h \
         $$PWD/sourceCode/gui/dialogs/qdlguserparameters.h \
@@ -796,6 +799,7 @@ SOURCES += $$PWD/sourceCode/sceneObjects/related/sceneObject.cpp \
 SOURCES += $$PWD/sourceCode/sceneObjects/jointObject.cpp \
     $$PWD/sourceCode/sceneObjects/camera.cpp \
     $$PWD/sourceCode/sceneObjects/dummy.cpp \
+    $$PWD/sourceCode/sceneObjects/customSceneObject.cpp \
     $$PWD/sourceCode/sceneObjects/script.cpp \
     $$PWD/sourceCode/sceneObjects/octree.cpp \
     $$PWD/sourceCode/sceneObjects/pointCloud.cpp \
@@ -1016,6 +1020,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgdummies.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgscripts.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgmarkers.cpp \
+        $$PWD/sourceCode/gui/dialogs/qdlgcustomsceneobjects.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgoctrees.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgpointclouds.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlguserparameters.cpp \

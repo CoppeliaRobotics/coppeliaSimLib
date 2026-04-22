@@ -154,6 +154,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["createCamera"] = _method_createCamera;
         funcTable["createLight"] = _method_createLight;
         funcTable["createGraph"] = _method_createGraph;
+        funcTable["createCustomSceneObject"] = _method_createCustomSceneObject;
         funcTable["getBoolProperty"] = _method_getBoolProperty;
         funcTable["getBufferProperty"] = _method_getBufferProperty;
         funcTable["getColorProperty"] = _method_getColorProperty;
@@ -5039,6 +5040,35 @@ std::string _method_createGraph(int targetObj, const char* method, CDetachedScri
             it->setModelBase(true);
             pushHandle(outStack, it->getObjectHandle());
         }
+    }
+    return errMsg;
+}
+
+std::string _method_createCustomSceneObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_map}))
+    {
+        /*
+        float backgroundColor[3] = {0.1f, 0.1f, 0.1f};
+        float foregroundColor[3] = {0.8f, 0.8f, 0.8f};
+        CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+        map->fetchFloatArrayFromKey("backgroundColor", backgroundColor, 3, &errMsg);
+        map->fetchFloatArrayFromKey("foregroundColor", foregroundColor, 3, &errMsg);
+        if (errMsg.size() == 0)
+        {
+        */
+            CCustomSceneObject* it = new CCustomSceneObject();
+            /*
+            for (size_t i = 0; i < 3; i++)
+            {
+                it->backgroundColor[i] = backgroundColor[i];
+                it->foregroundColor[i] = foregroundColor[i];
+            }
+            */
+            App::scene->sceneObjects->addObjectToScene(it, false, true);
+            pushHandle(outStack, it->getObjectHandle());
+        //}
     }
     return errMsg;
 }

@@ -15,6 +15,7 @@
 #define MARKER_LAYER 0x0020
 #define OCTREE_LAYER 0x0040
 #define POINTCLOUD_LAYER 0x0040
+#define CUSTOMSCENEOBJECT_LAYER 0x0040
 #define ENVIRONMENT_LAYER 0x0080
 
 // General serialization tags. Never change an entry!! (values are serialized!)
@@ -25,6 +26,7 @@
 #define SER_MIRROR "MIR"
 #define SER_DUMMY "DMY"
 #define SER_MARKER "MKR"
+#define SER_CUSTOMSCENEOBJECT "CSO"
 #define SER_SCRIPT "SCT"
 #define SER_GRAPH "GRH"
 #define SER_PROXIMITYSENSOR "SNR"
@@ -77,6 +79,7 @@
 #define SERX_DUMMY "dummy"
 #define SERX_SCRIPT "script"
 #define SERX_MARKER "marker"
+#define SERX_CUSTOMSCENEOBJECT "customSceneObject"
 #define SERX_PROXIMITYSENSOR "proximitySensor"
 #define SERX_VISIONSENSOR "visionSensor"
 #define SERX_PATH_OLD "path"
@@ -459,6 +462,7 @@ enum
     GRAPH_TREE_PICTURE,
     DUMMY_TREE_PICTURE,
     MARKER_TREE_PICTURE,
+    CUSTOMSCENEOBJECT_TREE_PICTURE,
     OCTREE_TREE_PICTURE,
     POINTCLOUD_TREE_PICTURE,
     MODEL_TREE_PICTURE,

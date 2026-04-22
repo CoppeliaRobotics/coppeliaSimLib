@@ -17,6 +17,7 @@
 #include <jointObject.h>
 #include <sceneObject.h>
 #include <marker.h>
+#include <customSceneObject.h>
 #include <embeddedScriptContainer.h>
 
 // ----------------------------------------------------------------------------------------------
@@ -63,6 +64,7 @@ class CSceneObjectContainer
     CDummy* getDummyFromIndex(size_t index) const;
     CScript* getScriptFromIndex(size_t index) const;
     CMarker* getMarkerFromIndex(size_t index) const;
+    CCustomSceneObject* getCustomSceneObjectFromIndex(size_t index) const;
     CMirror* getMirrorFromIndex(size_t index) const;
     CGraph* getGraphFromIndex(size_t index) const;
     CLight* getLightFromIndex(size_t index) const;
@@ -82,6 +84,7 @@ class CSceneObjectContainer
     CDummy* getDummyFromHandle(int objectHandle) const;
     CScript* getScriptFromHandle(int objectHandle) const;
     CMarker* getMarkerFromHandle(int objectHandle) const;
+    CCustomSceneObject* getCustomSceneObjectFromHandle(int objectHandle) const;
     CJoint* getJointFromHandle(int objectHandle) const;
     CMirror* getMirrorFromHandle(int objectHandle) const;
     COcTree* getOctreeFromHandle(int objectHandle) const;
@@ -125,6 +128,7 @@ class CSceneObjectContainer
     CDummy* getLastSelectionDummy() const;
     CScript* getLastSelectionScript() const;
     CMarker* getLastSelectionMarker() const;
+    CCustomSceneObject* getLastSelectionCustomSceneObject() const;
     CProxSensor* getLastSelectionProxSensor() const;
     CVisionSensor* getLastSelectionVisionSensor() const;
     CPath_old* getLastSelectionPath() const;
@@ -217,9 +221,15 @@ class CSceneObjectContainer
     int getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const; // ALL handle items have to be of the same type
     int setStringArrayProperty(long long int target, const char* pName, const std::vector<std::string>& pState);
     int getStringArrayProperty(long long int target, const char* pName, std::vector<std::string>& pState) const;
+    int setMethodProperty(long long int target, const char* pName, const void* pState);
+    int getMethodProperty(long long int target, const char* pName, void*& pState) const;
+    int setMethodProperty(long long int target, const char* pName, const std::string& pState);
+    int getMethodProperty(long long int target, const char* pName, std::string& pState) const;
+
     int removeProperty(long long int target, const char* pName);
     int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags);
     int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt);
+    int setPropertyInfo(long long int target, const char* pName, int info, const char* infoTxt);
 
     std::string getModelState(int modelHandle, int debugPos = -1) const;
 
@@ -312,6 +322,7 @@ class CSceneObjectContainer
     std::vector<CDummy*> _dummyList;
     std::vector<CScript*> _scriptList;
     std::vector<CMarker*> _markerList;
+    std::vector<CCustomSceneObject*> _customSceneObjectList;
     std::vector<CGraph*> _graphList;
     std::vector<CLight*> _lightList;
     std::vector<CCamera*> _cameraList;

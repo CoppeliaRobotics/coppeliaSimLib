@@ -345,6 +345,7 @@ if(WITH_GUI)
         sourceCode/gui/dialogs/qdlgdummies.cpp
         sourceCode/gui/dialogs/qdlgscripts.cpp
         sourceCode/gui/dialogs/qdlgmarkers.cpp
+        sourceCode/gui/dialogs/qdlgcustomsceneobjects.cpp
         sourceCode/gui/dialogs/qdlgoctrees.cpp
         sourceCode/gui/dialogs/qdlgpointclouds.cpp
         sourceCode/gui/dialogs/qdlguserparameters.cpp
@@ -522,6 +523,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/sceneObjects/jointObject.cpp
     sourceCode/sceneObjects/camera.cpp
     sourceCode/sceneObjects/dummy.cpp
+    sourceCode/sceneObjects/customSceneObject.cpp
     sourceCode/sceneObjects/script.cpp
     sourceCode/sceneObjects/octree.cpp
     sourceCode/sceneObjects/pointCloud.cpp

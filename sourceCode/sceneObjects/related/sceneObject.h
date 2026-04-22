@@ -147,9 +147,15 @@ class CSceneObject : public Obj
     virtual int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const  override;
     virtual int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState) override;
     virtual int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const  override;
+    virtual int setMethodProperty(const char* pName, const void* pState) override;
+    virtual int getMethodProperty(const char* pName, void*& pState) const override;
+    virtual int setMethodProperty(const char* pName, const std::string& pState) override;
+    virtual int getMethodProperty(const char* pName, std::string& pState) const override;
+
     virtual int removeProperty(const char* pName) override;
     virtual int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
     virtual int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
+    virtual int setPropertyInfo(const char* pName, int info, const char* infoTxt) override;
 
     void setRestoreToDefaultLights(bool s);
     bool getRestoreToDefaultLights() const;

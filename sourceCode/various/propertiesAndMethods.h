@@ -1082,3 +1082,6 @@ struct SJointProperty
     FUNCX(propMarker_METHOD_addItems, "addItems", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propMarker_METHOD_clearItems, "clearItems", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propMarker_METHOD_removeItems, "removeItems", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
+
+#define CUSTOMSCENEOBJECT_PROPERTIES \
+    FUNCX(propCustomSceneObject_size, "customSceneObjectSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Custom scene object size"}}), "")

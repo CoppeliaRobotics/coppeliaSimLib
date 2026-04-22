@@ -69,6 +69,7 @@ class CustomObjectContainer
     int getMethodProperty(long long int target, const char* pName, void*& pState) const;
     int setMethodProperty(long long int target, const char* pName, const std::string& pState);
     int getMethodProperty(long long int target, const char* pName, std::string& pState) const;
+
     int removeProperty(long long int target, const char* pName);
     int getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
     int getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const;

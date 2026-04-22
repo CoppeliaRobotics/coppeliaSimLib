@@ -55,6 +55,7 @@
         <file>targaFiles/world.tga</file>
         <file>targaFiles/camera.tga</file>
         <file>targaFiles/marker.tga</file>
+        <file>targaFiles/customsceneobject.tga</file>
         <file>targaFiles/mirror.tga</file>
         <file>targaFiles/clipplane.tga</file>
         <file>targaFiles/evalWatermark.tga</file>

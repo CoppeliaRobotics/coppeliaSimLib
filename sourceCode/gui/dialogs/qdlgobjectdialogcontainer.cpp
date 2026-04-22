@@ -8,6 +8,7 @@
 #include <qdlgdummies.h>
 #include <qdlgscripts.h>
 #include <qdlgmarkers.h>
+#include <qdlgcustomsceneobjects.h>
 #include <qdlgoctrees.h>
 #include <qdlgpointclouds.h>
 #include <qdlgforcesensors.h>
@@ -121,6 +122,8 @@ void CQDlgObjectDialogContainer::refresh()
             title = IDSN_SCRIPT;
         if (t == sim_sceneobject_marker)
             title = IDSN_MARKER;
+        if (t == sim_sceneobject_customsceneobject)
+            title = IDSN_CUSTOMSCENEOBJECT;
         if (t == sim_sceneobject_proximitysensor)
             title = IDSN_PROXIMITY_SENSOR;
         if (t == sim_sceneobject_path)
@@ -178,6 +181,8 @@ void CQDlgObjectDialogContainer::refresh()
                 pageDlgs[currentPage] = new CQDlgScripts();
             if (objTypeDlg == sim_sceneobject_marker)
                 pageDlgs[currentPage] = new CQDlgMarkers();
+            if (objTypeDlg == sim_sceneobject_customsceneobject)
+                pageDlgs[currentPage] = new CQDlgCustomSceneObjects();
             if (objTypeDlg == sim_sceneobject_proximitysensor)
                 pageDlgs[currentPage] = new CQDlgProximitySensors();
             if (objTypeDlg == sim_sceneobject_graph)

@@ -1688,6 +1688,8 @@ CSceneObject* CSceneObject::copyYourself()
         theNewObject = new CScript();
     if (getObjectType() == sim_sceneobject_marker)
         theNewObject = new CMarker();
+    if (getObjectType() == sim_sceneobject_customsceneobject)
+        theNewObject = new CCustomSceneObject();
     if (getObjectType() == sim_sceneobject_proximitysensor)
         theNewObject = new CProxSensor();
     if (getObjectType() == sim_sceneobject_camera)
@@ -6809,6 +6811,34 @@ int CSceneObject::getStringArrayProperty(const char* ppName, std::vector<std::st
     return retVal;
 }
 
+int CSceneObject::setMethodProperty(const char* pName, const void* pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    return retVal;
+}
+
+int CSceneObject::getMethodProperty(const char* pName, void*& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    return retVal;
+}
+
+int CSceneObject::setMethodProperty(const char* pName, const std::string& pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    return retVal;
+}
+
+int CSceneObject::getMethodProperty(const char* pName, std::string& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    return retVal;
+}
+
 int CSceneObject::removeProperty(const char* ppName)
 {
     std::string _pName(ppName);
@@ -7041,5 +7071,17 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& in
             }
         }
     }
+    return retVal;
+}
+
+int CSceneObject::setPropertyInfo(const char* pName, int info, const char* infoTxt)
+{
+    int dInfo;
+    std::string dInfoTxt;
+    int retVal = Obj::getPropertyInfo(pName, dInfo, dInfoTxt);
+//    if (retVal == sim_propertyret_unknownproperty)
+//        retVal = _customProperties.setPropertyInfo(pName, info, infoTxt);
+//    else
+        retVal = sim_propertyret_unavailable;
     return retVal;
 }

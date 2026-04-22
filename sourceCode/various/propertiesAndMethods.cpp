@@ -233,7 +233,16 @@ static std::string jsonStr(const QJsonObject& obj)
     MARKER_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,
-        extern const std::vector<SProperty> allProps_marker = {MARKER_PROPERTIES};
+    extern const std::vector<SProperty> allProps_marker = {MARKER_PROPERTIES};
+#undef FUNCX
+// ----------------------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------------------
+#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name = {str, v1, v2, t1, t2};
+    CUSTOMSCENEOBJECT_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2, t1, t2) name,
+    extern const std::vector<SProperty> allProps_customSceneObject = {CUSTOMSCENEOBJECT_PROPERTIES};
 #undef FUNCX
 // ----------------------------------------------------------------------------------------------
 
