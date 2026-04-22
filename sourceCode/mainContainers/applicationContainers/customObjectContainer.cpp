@@ -140,19 +140,17 @@ void CustomObjectContainer::_loadFromAppFolder()
 
 long long int CustomObjectContainer::getFreshHandle(bool forObject) const
 {
-    long long int retVal;
-    if (_target == sim_handle_app)
-        retVal = sim_object_customappstart;
-    if (_target == sim_handle_scene)
-        retVal = sim_object_customscenestart;
+    long long int retVal = sim_object_customappstart;
     if (forObject)
     {
-        retVal += 10000;
+        if (_target == sim_handle_scene)
+            retVal = sim_object_customscenestart;
         while (getObject(retVal) != nullptr)
             retVal++;
     }
     else
     {
+        retVal = sim_object_customclassstart;
         while (getClass(retVal) != nullptr)
             retVal++;
     }
@@ -249,7 +247,7 @@ CustomObject* CustomObjectContainer::getClass(long long int objectHandle) const
 long long int CustomObjectContainer::addObject(const char* objectTypeStr, bool isVolatile, int originScriptHandle)
 {
     long long int retVal = -1;
-    CustomObject* classObj = getClass(objectTypeStr);
+    CustomObject* classObj = App::scenes->customObjects->getClass(objectTypeStr);
     if (classObj != nullptr)
     {
         retVal = getFreshHandle(true);
@@ -318,15 +316,12 @@ void CustomObjectContainer::_notifyObjectListChanged() const
 
 void CustomObjectContainer::_notifyClassListChanged() const
 {
-    if ((App::scenes != nullptr) && App::scenes->getEventsEnabled())
+    if ((App::scenes != nullptr) && App::scenes->getEventsEnabled() && (_target == sim_handle_app))
     {
         std::vector<long long int> customClassList;
         getAllClassHandles(customClassList);
         CCbor* ev = App::scenes->createObjectChangedEvent(_target, nullptr, true);
-        if (_target == sim_handle_app)
-            ev->appendKeyHandleArray(propApp_customClasses.name, customClassList.data(), customClassList.size());
-        if (_target == sim_handle_scene)
-            ev->appendKeyHandleArray(propScene_customClasses.name, customClassList.data(), customClassList.size());
+        ev->appendKeyHandleArray(propApp_customClasses.name, customClassList.data(), customClassList.size());
         App::scenes->pushEvent();
     }
 }

@@ -2613,7 +2613,7 @@ int simSendData_internal(int targetID, int dataHeader, const char* dataName, con
             CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(targetID);
             if (it == nullptr)
             {
-                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_TARGET_HANDLE);
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_TARGET);
                 return (-1);
             }
         }

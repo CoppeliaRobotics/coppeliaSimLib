@@ -1262,9 +1262,6 @@ void CScene::pushGenesisEvents()
     std::vector<long long int> customObjectList;
     customObjects->getAllObjectHandles(customObjectList);
     ev->appendKeyHandleArray(propScene_customObjects.name, customObjectList.data(), customObjectList.size());
-    std::vector<long long int> customClassList;
-    customObjects->getAllClassHandles(customClassList);
-    ev->appendKeyHandleArray(propScene_customClasses.name, customClassList.data(), customClassList.size());
 
     sceneObjects->appendNonObjectGenesisData(ev);
     App::scenes->pushEvent();
@@ -3755,11 +3752,6 @@ int CScene::getHandleArrayProperty(long long int target, const char* ppName, std
             if (strcmp(ppName, propScene_customObjects.name) == 0)
             {
                 customObjects->getAllObjectHandles(pState);
-                retVal = sim_propertyret_ok;
-            }
-            else if (strcmp(ppName, propScene_customClasses.name) == 0)
-            {
-                customObjects->getAllClassHandles(pState);
                 retVal = sim_propertyret_ok;
             }
         }

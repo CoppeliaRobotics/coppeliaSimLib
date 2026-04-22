@@ -3416,7 +3416,7 @@ int _simSendData(luaWrap_lua_State* L)
             int targetID = luaToInt(L, 1);
             if ((targetID <= 0) && (targetID != sim_handle_all) && (targetID != sim_handle_tree) &&
                 (targetID != sim_handle_chain))
-                errorString = SIM_ERROR_INVALID_TARGET_HANDLE;
+                errorString = SIM_ERROR_INVALID_TARGET;
             else
             {
                 int dataHeader = luaToInt(L, 2);

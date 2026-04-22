@@ -6620,7 +6620,7 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
         if (errMsg.size() == 0)
         {
             if (metaInfoStr.size() == 0)
-            {
+            { // object
                 int h = -1;
                 if ((currentScript != nullptr) && (!scriptPersistent) && isVolatile)
                     h = currentScript->getScriptHandle();
@@ -6635,16 +6635,18 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
                     errMsg = SIM_ERROR_CLASS_INEXISTANT;
             }
             else
-            { // always script persistent and volatile!
+            { // class: always script persistent and volatile!
                 long long int retVal = -1;
                 if (targetObj == sim_handle_app)
+                {
                     retVal = App::scenes->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), -1);
-                else if (targetObj == sim_handle_scene)
-                    retVal = App::scene->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), -1);
-                if (retVal >= 0)
-                    pushLong(outStack, retVal);
+                    if (retVal >= 0)
+                        pushLong(outStack, retVal);
+                    else
+                        errMsg = SIM_ERROR_CLASS_ALREADYDEFINED;
+                }
                 else
-                    errMsg = SIM_ERROR_CLASS_ALREADYDEFINED;
+                    errMsg = "invalid target when creating a class.";
             }
         }
     }
@@ -6657,28 +6659,28 @@ std::string _method_removeCustomObject(int targetObj, const char* method, CDetac
     if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_map}))
     {
         long long int h = fetchHandle(inStack, 0);
-        std::string typeStr;
+        std::string theClass;
         bool noError = false;
         if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
-            map->fetchStringFromKey("class", typeStr, &errMsg);
+            map->fetchStringFromKey("class", theClass, &errMsg);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
         {
             bool success = false;
-            if (typeStr.size() > 0)
+            if (theClass.size() > 0)
             {
                 if (targetObj == sim_handle_app)
-                    success = App::scenes->customObjects->removeClass(typeStr.c_str());
-                else if (targetObj == sim_handle_scene)
-                    success = App::scene->customObjects->removeClass(typeStr.c_str());
+                    success = App::scenes->customObjects->removeClass(theClass.c_str());
+                else
+                    errMsg = "invalid target when removing a class.";
             }
             else
             {
                 if (targetObj == sim_handle_app)
-                   success = App::scenes->customObjects->removeItem(h);
+                    success = App::scenes->customObjects->removeItem(h);
                 else if (targetObj == sim_handle_scene)
                     success = App::scene->customObjects->removeItem(h);
             }

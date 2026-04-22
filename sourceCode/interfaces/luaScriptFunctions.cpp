@@ -861,6 +861,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.object_drawingstart", sim_object_drawingstart},
     {"sim.object_drawingend", sim_object_drawingend},
     {"sim.object_customstart", sim_object_customstart},
+    {"sim.object_customclassstart", sim_object_customclassstart},
     {"sim.object_customappstart", sim_object_customappstart},
     {"sim.object_customappend", sim_object_customappend},
     {"sim.object_customscenestart", sim_object_customscenestart},

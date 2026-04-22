@@ -83,7 +83,7 @@
 #define SIM_ERROR_INVALID_ITEM_HANDLE "invalid item handle."
 #define SIM_ERROR_INVALID_HANDLE "invalid object/handle."
 #define SIM_ERROR_INVALID_HANDLES "invalid objects/handles."
-#define SIM_ERROR_INVALID_TARGET_HANDLE "invalid target handle."
+#define SIM_ERROR_INVALID_TARGET "invalid target."
 #define SIM_ERROR_INVALID_DATA_HEADER "invalid data header."
 #define SIM_ERROR_INVALID_DATA_NAME "invalid data name."
 #define SIM_ERROR_INVALID_DATA "invalid data."
