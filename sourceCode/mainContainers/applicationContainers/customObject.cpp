@@ -943,6 +943,12 @@ int CustomObject::getMethodProperty(const char* pName, void*& pState) const
         CustomObject* cl = App::scenes->customObjects->getClass(getObjectTypeStr().c_str());
         if (cl != nullptr)
             retVal = cl->getMethodProperty(ppN.c_str(), pState);
+// if related class not found, then methods won't be listed anyways
+//        else
+//        {
+//            std::string err = std::string("error in getMethodProperty for object ") + std::to_string(_objectHandle) + ": associated class was not found.";
+//            App::logScriptMsg(nullptr, sim_verbosity_scripterrors, err.c_str());
+//        }
     }
     return retVal;
 }
@@ -973,6 +979,12 @@ int CustomObject::getMethodProperty(const char* pName, std::string& pState) cons
         CustomObject* cl = App::scenes->customObjects->getClass(getObjectTypeStr().c_str());
         if (cl != nullptr)
             retVal = cl->getMethodProperty(pName, pState);
+// if related class not found, then methods won't be listed anyways
+//        else
+//        {
+//            std::string err = std::string("error in getMethodProperty for object ") + std::to_string(_objectHandle) + ": associated class was not found.";
+//            App::logScriptMsg(nullptr, sim_verbosity_scripterrors, err.c_str());
+//        }
     }
     return retVal;
 }
@@ -1007,7 +1019,21 @@ int CustomObject::getPropertyName(int& index, std::string& pName, std::string& a
                 retVal = cl->getPropertyName(index, pName, appartenance, excludeFlags | sim_propertyinfo_retmethodsonly);
         }
         if (retVal == sim_propertyret_ok)
-            appartenance = getObjectTypeStr();
+        {
+            if (isClass())
+            {
+                if ((pName == "customClass") || (pName == "name") || (pName == "target"))
+                    appartenance = getObjectTypeStr();
+                else
+                {
+                    std::string theName;
+                    getStringProperty("name", theName);
+                    appartenance = theName;
+                }
+            }
+            else
+                appartenance = getObjectTypeStr();
+        }
     }
     return retVal;
 }

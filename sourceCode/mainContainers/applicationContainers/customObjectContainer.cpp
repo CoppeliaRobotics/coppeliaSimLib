@@ -98,6 +98,24 @@ void CustomObjectContainer::serialize(CSer& ar)
             }
         }
     }
+    if (!ar.isStoring())
+    { // associate all objects with their classes:
+        for (auto it = _customObjects.begin(); it != _customObjects.end(); ++it)
+        {
+            CustomObject* obj = it->second;
+            CustomObject* classObj = App::scenes->customObjects->getClass(obj->getObjectTypeStr().c_str());
+            int classHandle = -1;
+            if (classObj != nullptr)
+                classHandle = classObj->getObjectHandle();
+            obj->setIgnoreSetterGetter(true);
+            obj->setObjectCanAddRemoveProperty(true);
+            obj->setPropertyInfo("class", 0, ""); // make it writable temporarily
+            obj->setHandleProperty("class", classHandle);
+            obj->setPropertyInfo("class", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"("{"handleType":"class"})");
+            obj->setIgnoreSetterGetter(false);
+            obj->setObjectCanAddRemoveProperty(false);
+        }
+    }
 }
 
 void CustomObjectContainer::saveToAppFolderIfNeeded()
