@@ -66,6 +66,9 @@ class CustomObject: public Obj
     bool getVolatile() const;
     void setVolatile(bool v);
     bool getResetChanged();
+    void setIgnoreSetterGetter(bool f);
+    void setObjectCanAddRemoveProperty(bool f);
+
 
   protected:
     template <typename T, typename PushF, typename GetF>
@@ -77,5 +80,6 @@ class CustomObject: public Obj
     bool _volatile;
     bool _changed;
     bool _ignoreSetterGetter;
+    bool _objectCanAddRemoveProperty;
     CCustomProperties _customProperties;
 };

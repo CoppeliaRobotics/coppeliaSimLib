@@ -13,12 +13,16 @@ CustomSceneObjectClassContainer::~CustomSceneObjectClassContainer()
 int CustomSceneObjectClassContainer::addClass(const char* className, CSceneObject* obj)
 {
     CSceneObject* copy = obj->copyYourself();
-    copy->setClass(className);
+    copy->setObjectTypeStr("class");
     int h = sim_object_sceneobjectclassstart;
     while (getClass(h) != nullptr)
         h++;
     copy->setObjectHandle(h);
     _customClasses.insert({className, copy});
+    copy->setStringProperty("name", className);
+    copy->setPropertyInfo("name", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
+    copy->setBoolProperty("customClass", true);
+    copy->setPropertyInfo("customClass", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
     _notifyClassListChanged();
     return h;
 }

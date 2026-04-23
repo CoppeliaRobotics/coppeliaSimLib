@@ -38,6 +38,11 @@ long long int Obj::getObjectHandle() const
     return _objectHandle;
 }
 
+void Obj::setObjectTypeStr(const char* objectTypeStr)
+{
+    _objectTypeStr = objectTypeStr;
+}
+
 std::string Obj::getObjectTypeStr() const
 {
     return _objectTypeStr;
@@ -48,14 +53,9 @@ std::string Obj::getObjectMetaInfo() const
     return _objectMetaInfo;
 }
 
-std::string Obj::getClass() const
+bool Obj::isClass() const
 {
-    return _className;
-}
-
-void Obj::setClass(const char* className)
-{
-    _className = className;
+    return (_objectTypeStr == "class");
 }
 
 int Obj::setLongProperty(const char* ppName, long long int pState)

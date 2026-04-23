@@ -3,6 +3,15 @@
 #include <customObject.h>
 #include <ser.h>
 
+// Class:
+//         objectType = "class"
+//         customClass = true
+//         name = "Console"
+//
+// Object:
+//         objectType = "Console"
+//         class = <handle of corresponding class>
+
 class CustomObjectContainer
 {
   public:
@@ -19,13 +28,13 @@ class CustomObjectContainer
     void announceScriptStateWillBeErased(int scriptHandle);
     void clear();
 
-    long long int addClass(const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle);
-    bool removeClass(const char* objectTypeStr);
+    long long int addClass(const char* className, const char* objectMetaInfo, int originScriptHandle);
+    bool removeClass(const char* className);
     bool removeClass(long long int objectHandle);
     CustomObject* getClass(long long int objectHandle) const;
-    CustomObject* getClass(const char* objectTypeStr) const;
+    CustomObject* getClass(const char* className) const;
 
-    long long int addObject(const char* objectTypeStr, bool isVolatile, int originScriptHandle);
+    long long int addObject(const char* className, bool isVolatile, int originScriptHandle);
     CustomObject* getObject(long long int objectHandle) const;
     bool removeObject(long long int objectHandle);
     void getAllObjectHandles(std::vector<long long int>& objects) const;
@@ -81,6 +90,6 @@ class CustomObjectContainer
     void _notifyClassListChanged() const;
 
     int _target;
-    std::map<std::string, CustomObject*> _customClasses;
+    std::map<std::string, CustomObject*> _customClasses; // className - CustomObject ) e.g. "Console" - object
     std::map<long long int, CustomObject*> _customObjects;
 };
