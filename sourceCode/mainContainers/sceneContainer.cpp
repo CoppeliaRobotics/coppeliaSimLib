@@ -271,6 +271,8 @@ void CSceneContainer::initialize()
 
     _events = new CCbor();
 
+    customObjects->init();
+
     createNewScene();
 }
 

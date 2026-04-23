@@ -109,6 +109,7 @@ void CScene::initializeScene()
     bannerCont_old = new CBannerContainer();
     dynamicsContainer = new CDynamicsContainer();
     commTubeContainer_old = new CCommTubeContainer();
+    customObjects->init();
 }
 
 void CScene::clearScene(bool notCalledFromUndoFunction)

@@ -4,13 +4,17 @@
 CustomObjectContainer::CustomObjectContainer(int target)
 {
     _target = target;
-    if (_target == sim_handle_app)
-        _loadFromAppFolder();
 }
 
 CustomObjectContainer::~CustomObjectContainer()
 {
     clear();
+}
+
+void CustomObjectContainer::init()
+{
+    if (_target == sim_handle_app)
+        _loadFromAppFolder();
 }
 
 void CustomObjectContainer::pushGenesisEvents() const
@@ -107,6 +111,11 @@ void CustomObjectContainer::serialize(CSer& ar)
             int classHandle = -1;
             if (classObj != nullptr)
                 classHandle = classObj->getObjectHandle();
+            else
+            { // too early, doesn't print yet
+                std::string err = std::string("custom object ") + std::to_string(it->first) + " could not find its associated class.";
+                App::logScriptMsg(nullptr, sim_verbosity_scriptwarnings, err.c_str());
+            }
             obj->setIgnoreSetterGetter(true);
             obj->setObjectCanAddRemoveProperty(true);
             obj->setPropertyInfo("class", 0, ""); // make it writable temporarily
@@ -129,7 +138,6 @@ void CustomObjectContainer::saveToAppFolderIfNeeded()
     }
     if (doIt)
     {
-        printf("Saving\n");
         CSer ar((App::folders->getUserSettingsPath() + "/customObjects.ttg").c_str(), CSer::filetype_csim_bin_generic_file);
         ar.writeOpenBinary(false);
         serialize(ar);

@@ -56,7 +56,10 @@ void CCustomProperties::copyFromExceptMethods(const CCustomProperties* source)
         pName.clear();
     }
     for (size_t i = 0; i < toRemove.size(); i++)
-        removeProperty(pName.c_str());
+    {
+        setPropertyInfo(toRemove[i].c_str(), sim_propertyinfo_removable, "");
+        removeProperty(toRemove[i].c_str());
+    }
 }
 
 void CCustomProperties::_writeInt32(std::string& buf, size_t offset, int32_t val)

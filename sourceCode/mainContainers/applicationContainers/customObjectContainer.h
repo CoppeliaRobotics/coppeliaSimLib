@@ -17,6 +17,7 @@ class CustomObjectContainer
   public:
     CustomObjectContainer(int target);
     virtual ~CustomObjectContainer();
+    void init();
 
     void pushGenesisEvents() const;
     void serialize(CSer& ar);
