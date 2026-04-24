@@ -11,7 +11,9 @@ class CustomSceneObjectClassContainer
 
     void clear();
 
-    int addClass(const char* className, CSceneObject* obj);
+    int makeObject(int classHandle);
+
+    int makeClass(CSceneObject* obj, const char* className);
     bool removeClass(const char* className);
     bool removeClass(int classHandle);
     CSceneObject* getClass(int classHandle) const;

@@ -2714,7 +2714,7 @@ int CScene::setBoolProperty(long long int target, const char* ppName, bool pStat
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setBoolProperty(target, pName, pState);
@@ -2751,7 +2751,7 @@ int CScene::getBoolProperty(long long int target, const char* ppName, bool& pSta
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getBoolProperty(target, pName, pState);
@@ -2788,7 +2788,7 @@ int CScene::setIntProperty(long long int target, const char* ppName, int pState)
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setIntProperty(target, pName, pState);
@@ -2825,7 +2825,7 @@ int CScene::getIntProperty(long long int target, const char* ppName, int& pState
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getIntProperty(target, pName, pState);
@@ -2868,7 +2868,7 @@ int CScene::setLongProperty(long long int target, const char* ppName, long long 
         }
         */
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setLongProperty(target, pName, pState);
@@ -2896,7 +2896,7 @@ int CScene::getLongProperty(long long int target, const char* ppName, long long 
         if (retVal == sim_propertyret_unknownproperty)
             retVal = environment->getLongProperty(ppName, pState);
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getLongProperty(target, pName, pState);
@@ -2924,7 +2924,7 @@ int CScene::setHandleProperty(long long int target, const char* ppName, long lon
     {
       //const char* pName = ppName;
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setHandleProperty(target, pName, pState);
@@ -2950,7 +2950,7 @@ int CScene::getHandleProperty(long long int target, const char* ppName, long lon
     {
         retVal = environment->getHandleProperty(ppName, pState);
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         retVal = sceneObjects->getHandleProperty(target, ppName, pState);
     }
@@ -2986,7 +2986,7 @@ int CScene::setFloatProperty(long long int target, const char* ppName, double pS
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setFloatProperty(target, pName, pState);
@@ -3021,7 +3021,7 @@ int CScene::getFloatProperty(long long int target, const char* ppName, double& p
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getFloatProperty(target, pName, pState);
@@ -3056,7 +3056,7 @@ int CScene::setStringProperty(long long int target, const char* ppName, const st
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setStringProperty(target, pName, pState);
@@ -3095,7 +3095,7 @@ int CScene::getStringProperty(long long int target, const char* ppName, std::str
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getStringProperty(target, pName, pState);
@@ -3145,7 +3145,7 @@ int CScene::setBufferProperty(long long int target, const char* ppName, const st
             }
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setBufferProperty(target, pName, pState);
@@ -3188,7 +3188,7 @@ int CScene::getBufferProperty(long long int target, const char* ppName, std::str
             }
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getBufferProperty(target, pName, pState);
@@ -3221,7 +3221,7 @@ int CScene::setIntArray2Property(long long int target, const char* ppName, const
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setIntArray2Property(target, pName, pState);
@@ -3254,7 +3254,7 @@ int CScene::getIntArray2Property(long long int target, const char* ppName, int* 
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getIntArray2Property(target, pName, pState);
@@ -3287,7 +3287,7 @@ int CScene::setVector3Property(long long int target, const char* ppName, const C
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->setVector3Property(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3317,7 +3317,7 @@ int CScene::getVector3Property(long long int target, const char* ppName, C3Vecto
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getVector3Property(target, pName, pState);
@@ -3344,7 +3344,7 @@ int CScene::setMatrixProperty(long long int target, const char* ppName, const CM
         if (sceneObjects != nullptr)
             retVal = sceneObjects->setMatrixProperty(-1, ppName, pState);
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->setMatrixProperty(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3368,7 +3368,7 @@ int CScene::getMatrixProperty(long long int target, const char* ppName, CMatrix&
         if (sceneObjects != nullptr)
             retVal = sceneObjects->getMatrixProperty(-1, ppName, pState);
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->getMatrixProperty(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3395,7 +3395,7 @@ int CScene::setQuaternionProperty(long long int target, const char* ppName, cons
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->setQuaternionProperty(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3423,7 +3423,7 @@ int CScene::getQuaternionProperty(long long int target, const char* ppName, C4Ve
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getQuaternionProperty(target, pName, pState);
@@ -3454,7 +3454,7 @@ int CScene::setPoseProperty(long long int target, const char* ppName, const C7Ve
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setPoseProperty(target, pName, pState);
@@ -3485,7 +3485,7 @@ int CScene::getPoseProperty(long long int target, const char* ppName, C7Vector& 
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getPoseProperty(target, pName, pState);
@@ -3518,7 +3518,7 @@ int CScene::setColorProperty(long long int target, const char* ppName, const flo
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setColorProperty(target, pName, pState);
@@ -3551,7 +3551,7 @@ int CScene::getColorProperty(long long int target, const char* ppName, float* pS
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getColorProperty(target, pName, pState);
@@ -3584,7 +3584,7 @@ int CScene::setFloatArrayProperty(long long int target, const char* ppName, cons
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setFloatArrayProperty(target, pName, pState);
@@ -3618,7 +3618,7 @@ int CScene::getFloatArrayProperty(long long int target, const char* ppName, std:
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getFloatArrayProperty(target, pName, pState);
@@ -3651,7 +3651,7 @@ int CScene::setIntArrayProperty(long long int target, const char* ppName, const 
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setIntArrayProperty(target, pName, pState);
@@ -3685,7 +3685,7 @@ int CScene::getIntArrayProperty(long long int target, const char* ppName, std::v
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getIntArrayProperty(target, pName, pState);
@@ -3716,7 +3716,7 @@ int CScene::setHandleArrayProperty(long long int target, const char* ppName, con
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setHandleArrayProperty(target, pName, pState);
@@ -3757,7 +3757,7 @@ int CScene::getHandleArrayProperty(long long int target, const char* ppName, std
             }
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->getHandleArrayProperty(target, pName, pState);
@@ -3792,7 +3792,7 @@ int CScene::setStringArrayProperty(long long int target, const char* ppName, con
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->setStringArrayProperty(target, pName, pState);
@@ -3824,7 +3824,7 @@ int CScene::getStringArrayProperty(long long int target, const char* ppName, std
         {
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->getStringArrayProperty(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3846,7 +3846,7 @@ int CScene::setMethodProperty(long long int target, const char* ppName, const vo
     if (target == sim_handle_scene)
     {
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->setMethodProperty(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3868,7 +3868,7 @@ int CScene::getMethodProperty(long long int target, const char* ppName, void*& p
     if (target == sim_handle_scene)
     {
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->getMethodProperty(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3890,7 +3890,7 @@ int CScene::setMethodProperty(long long int target, const char* ppName, const st
     if (target == sim_handle_scene)
     {
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->setMethodProperty(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3912,7 +3912,7 @@ int CScene::getMethodProperty(long long int target, const char* ppName, std::str
     if (target == sim_handle_scene)
     {
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->getMethodProperty(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
@@ -3972,7 +3972,7 @@ int CScene::removeProperty(long long int target, const char* ppName)
             }
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         const char* pName = ppName;
         retVal = sceneObjects->removeProperty(target, pName);
@@ -4027,7 +4027,7 @@ int CScene::getPropertyName(long long int target, int& index, std::string& pName
                 retVal = drawingCont->getPropertyName(-1, index, pName, appartenance, excludeFlags);
         }
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
     {
         retVal = sceneObjects->getPropertyName(target, index, pName, appartenance, excludeFlags);
     }
@@ -4101,7 +4101,7 @@ int CScene::getPropertyInfo(long long int target, const char* ppName, int& info,
         if (retVal == sim_propertyret_unknownproperty)
             retVal = drawingCont->getPropertyInfo(-1, pName, info, infoTxt);
     }
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->getPropertyInfo(target, ppName, info, infoTxt);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
         retVal = collections->getPropertyInfo(target, ppName, info, infoTxt);
@@ -4120,7 +4120,7 @@ int CScene::setPropertyInfo(long long int target, const char* pName, int info, c
 
     if (target == sim_handle_scene)
         retVal = sim_propertyret_unavailable;
-    else if (((target >= 0) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->setPropertyInfo(target, pName, info, infoTxt);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
         retVal = sim_propertyret_unavailable;

@@ -116,6 +116,7 @@ void CustomObjectContainer::serialize(CSer& ar)
                 std::string err = std::string("custom object ") + std::to_string(it->first) + " could not find its associated class.";
                 App::logScriptMsg(nullptr, sim_verbosity_scriptwarnings, err.c_str());
             }
+            /*
             obj->setIgnoreSetterGetter(true);
             obj->setObjectCanAddRemoveProperty(true);
             obj->setPropertyInfo("class", 0, ""); // make it writable temporarily
@@ -123,6 +124,7 @@ void CustomObjectContainer::serialize(CSer& ar)
             obj->setPropertyInfo("class", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"("{"handleType":"class"})");
             obj->setIgnoreSetterGetter(false);
             obj->setObjectCanAddRemoveProperty(false);
+            */
         }
     }
 }
@@ -199,31 +201,39 @@ bool CustomObjectContainer::removeItem(long long int objectHandle)
     return retVal;
 }
 
-long long int CustomObjectContainer::addClass(const char* className, const char* objectMetaInfo, int originScriptHandle)
+long long int CustomObjectContainer::makeClass(const char* typeString, const char* objectMetaInfo)
 {
     long long int retVal = -1;
-    if (getClass(className) == nullptr)
+    if (getClass(typeString) == nullptr)
     {
         retVal = getFreshHandle(false);
-        CustomObject* obj = new CustomObject(retVal, "class", objectMetaInfo, originScriptHandle, _target);
-        _customClasses.insert({className, obj});
-        obj->setIntProperty("target", _target);
-        obj->setPropertyInfo("target", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
-        obj->setStringProperty("name", className);
-        obj->setPropertyInfo("name", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
-        obj->setBoolProperty("customClass", true);
-        obj->setPropertyInfo("customClass", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
-        //obj->setMethodProperty("remove", nullptr);
-        //obj->setPropertyInfo("remove", sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "");
-        _notifyClassListChanged();
+        QJsonDocument doc = QJsonDocument::fromJson(objectMetaInfo);
+        if ((!doc.isNull()) && doc.isObject())
+        {
+            QJsonObject jsonObj = doc.object();
+            jsonObj["class"] = true;
+            QJsonDocument newDoc(jsonObj);
+            std::string newObjectMetaInfo = QString::fromUtf8(newDoc.toJson(QJsonDocument::Compact)).toStdString();
+            CustomObject* obj = new CustomObject(retVal, typeString, newObjectMetaInfo.c_str(), -1, _target);
+            _customClasses.insert({typeString, obj});
+            //        obj->setIntProperty("target", _target);
+            //        obj->setPropertyInfo("target", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
+            //        obj->setStringProperty("name", typeString);
+            //        obj->setPropertyInfo("name", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
+            //        obj->setBoolProperty("customClass", true);
+            //        obj->setPropertyInfo("customClass", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
+            //obj->setMethodProperty("remove", nullptr);
+            //obj->setPropertyInfo("remove", sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "");
+            _notifyClassListChanged();
+        }
     }
     return retVal;
 }
 
-bool CustomObjectContainer::removeClass(const char* className)
+bool CustomObjectContainer::removeClass(const char* typeString)
 {
     bool retVal = false;
-    auto it = _customClasses.find(className);
+    auto it = _customClasses.find(typeString);
     if (it != _customClasses.end())
     {
         delete it->second;
@@ -251,10 +261,10 @@ bool CustomObjectContainer::removeClass(long long int objectHandle)
     return retVal;
 }
 
-CustomObject* CustomObjectContainer::getClass(const char* className) const
+CustomObject* CustomObjectContainer::getClass(const char* typeString) const
 {
     CustomObject* retVal = nullptr;
-    auto it = _customClasses.find(className);
+    auto it = _customClasses.find(typeString);
     if (it != _customClasses.end())
         retVal = it->second;
     return retVal;
@@ -274,29 +284,26 @@ CustomObject* CustomObjectContainer::getClass(long long int objectHandle) const
     return retVal;
 }
 
-long long int CustomObjectContainer::addObject(const char* className, bool isVolatile, int originScriptHandle)
+long long int CustomObjectContainer::makeObject(const CustomObject* classObject, bool isVolatile, int originScriptHandle)
 {
-    long long int retVal = -1;
-    CustomObject* classObj = App::scenes->customObjects->getClass(className);
-    if (classObj != nullptr)
-    {
-        retVal = getFreshHandle(true);
-        CustomObject* obj = classObj->createObject(retVal, originScriptHandle);
-        obj->setVolatile(isVolatile);
-        _customObjects.insert({retVal, obj});
-        obj->setIgnoreSetterGetter(true);
-        obj->setObjectCanAddRemoveProperty(true);
-        obj->setPropertyInfo("name", sim_propertyinfo_removable, ""); // first make it removable
-        obj->removeProperty("name");
-        obj->setPropertyInfo("customClass", sim_propertyinfo_removable, ""); // first make it removable
-        obj->removeProperty("customClass");
-        obj->setHandleProperty("class", classObj->getObjectHandle());
-        obj->setPropertyInfo("class", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"("{"handleType":"class"})");
-        obj->setIgnoreSetterGetter(false);
-        obj->setObjectCanAddRemoveProperty(false);
-        obj->pushObjectCreationEvent();
-        _notifyObjectListChanged();
-    }
+    long long int retVal = getFreshHandle(true);
+    CustomObject* obj = classObject->createObject(retVal, originScriptHandle);
+    obj->setVolatile(isVolatile);
+    _customObjects.insert({retVal, obj});
+    /*
+    obj->setIgnoreSetterGetter(true);
+    obj->setObjectCanAddRemoveProperty(true);
+    obj->setPropertyInfo("name", sim_propertyinfo_removable, ""); // first make it removable
+    obj->removeProperty("name");
+    obj->setPropertyInfo("customClass", sim_propertyinfo_removable, ""); // first make it removable
+    obj->removeProperty("customClass");
+    obj->setHandleProperty("class", classObject->getObjectHandle());
+    obj->setPropertyInfo("class", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"("{"handleType":"class"})");
+    obj->setIgnoreSetterGetter(false);
+    obj->setObjectCanAddRemoveProperty(false);
+    */
+    obj->pushObjectCreationEvent();
+    _notifyObjectListChanged();
     return retVal;
 }
 

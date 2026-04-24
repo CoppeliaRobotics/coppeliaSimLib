@@ -517,6 +517,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/distances/distanceRoutines.cpp
 
     sourceCode/sceneObjects/related/sceneObject.cpp
+    sourceCode/sceneObjects/related/sceneObjectCustomizationPart.cpp
     sourceCode/sceneObjects/related/convexVolume.cpp
     sourceCode/sceneObjects/related/viewableBase.cpp
 

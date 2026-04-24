@@ -197,7 +197,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["getPropertyName"] = _method_getPropertyName;
         funcTable["getPropertyInfo"] = _method_getPropertyInfo;
         funcTable["setPropertyInfo"] = _method_setPropertyInfo;
-        funcTable["createCustomObject"] = _method_createCustomObject;
+        funcTable["createCustomObjectClass"] = _method_createCustomObjectClass;
         funcTable["removeCustomObject"] = _method_removeCustomObject;
         funcTable["isValid"] = _method_isValid;
         funcTable["addCurve"] = _method_addCurve;
@@ -208,6 +208,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["removeTrace"] = _method_removeTrace;
         funcTable["step"] = _method_step;
         funcTable["makeClass"] = _method_makeClass;
+        funcTable["makeObject"] = _method_makeObject;
     }
 
     std::string retVal("__notFound__");
@@ -6601,7 +6602,7 @@ std::string _method_setPropertyInfo(int targetObj, const char* method, CDetached
     }
     return errMsg;
 }
-
+/*
 std::string _method_createCustomObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
@@ -6627,9 +6628,9 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
                     h = currentScript->getScriptHandle();
                 long long int retVal = -1;
                 if (targetObj == sim_handle_app)
-                    retVal = App::scenes->customObjects->addObject(typeStr.c_str(), isVolatile, h);
+                    retVal = App::scenes->customObjects->makeObject(typeStr.c_str(), isVolatile, h);
                 else if (targetObj == sim_handle_scene)
-                    retVal = App::scene->customObjects->addObject(typeStr.c_str(), isVolatile, h);
+                    retVal = App::scene->customObjects->makeObject(typeStr.c_str(), isVolatile, h);
                 if (retVal != -1)
                     pushLong(outStack, retVal);
                 else
@@ -6640,7 +6641,7 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
                 long long int retVal = -1;
                 if (targetObj == sim_handle_app)
                 {
-                    retVal = App::scenes->customObjects->addClass(typeStr.c_str(), metaInfoStr.c_str(), -1);
+                    retVal = App::scenes->customObjects->makeClass(typeStr.c_str(), metaInfoStr.c_str(), -1);
                     if (retVal >= 0)
                         pushLong(outStack, retVal);
                     else
@@ -6650,6 +6651,22 @@ std::string _method_createCustomObject(int targetObj, const char* method, CDetac
                     errMsg = "invalid target when creating a class.";
             }
         }
+    }
+    return errMsg;
+}
+*/
+std::string _method_createCustomObjectClass(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string}))
+    {
+        std::string typeStr = fetchText(inStack, 0);
+        std::string metaInfoStr = fetchText(inStack, 1);
+        long long int retVal = App::scenes->customObjects->makeClass(typeStr.c_str(), metaInfoStr.c_str());
+        if (retVal >= 0)
+            pushHandle(outStack, retVal);
+        else
+            errMsg = "class already defined, or invalid metaInfo.";
     }
     return errMsg;
 }
@@ -6928,7 +6945,7 @@ std::string _method_makeClass(int targetObj, const char* method, CDetachedScript
         std::string className = fetchText(inStack, 0);
         if (!className.empty())
         {
-            int retVal = App::scenes->customSceneObjectClasses->addClass(className.c_str(), target);
+            int retVal = App::scenes->customSceneObjectClasses->makeClass(target, className.c_str());
             if (retVal >= 0)
                 pushHandle(outStack, retVal);
             else
@@ -6937,6 +6954,55 @@ std::string _method_makeClass(int targetObj, const char* method, CDetachedScript
         else
             errMsg = "invalid class name.";
     }
+    return errMsg;
+}
+
+std::string _method_makeObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CSceneObject* customSceneObjectClass = App::scenes->customSceneObjectClasses->getClass(targetObj);
+    CustomObject* customObjectClass = App::scenes->customObjects->getClass(targetObj);
+    if (customSceneObjectClass != nullptr)
+    {
+        if (checkInputArguments(method, inStack, &errMsg, {}))
+        {
+            int retVal = App::scenes->customSceneObjectClasses->makeObject(targetObj);
+            if (retVal >= 0)
+                pushHandle(outStack, retVal);
+            else
+                errMsg = "class does not exist.";
+        }
+    }
+    else if (customObjectClass != nullptr)
+    {
+        if (checkInputArguments(method, inStack, &errMsg, {arg_optional | arg_map}))
+        {
+            bool appScope = true;
+            bool scriptPersistent = false;
+            bool isVolatile = true;
+            if (hasNonNullArg(inStack, 0))
+            {
+                CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+                map->fetchBoolFromKey("appScope", appScope, &errMsg);
+                map->fetchBoolFromKey("scriptPersistent", scriptPersistent, &errMsg);
+                map->fetchBoolFromKey("volatile", isVolatile, &errMsg);
+            }
+            if (errMsg.size() == 0)
+            {
+                int h = -1;
+                if ((currentScript != nullptr) && (!scriptPersistent) && isVolatile)
+                    h = currentScript->getScriptHandle();
+                long long int retVal = -1;
+                if (appScope)
+                    retVal = App::scenes->customObjects->makeObject(customObjectClass, isVolatile, h);
+                else
+                    retVal = App::scene->customObjects->makeObject(customObjectClass, isVolatile, h);
+                pushLong(outStack, retVal);
+            }
+        }
+    }
+    else
+        errMsg = SIM_ERROR_INVALID_TARGET;
     return errMsg;
 }
 

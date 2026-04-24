@@ -1,93 +1,48 @@
-#include <customObject.h>
+#include <sceneObjectCustomizationPart.h>
 #include <utils.h>
+#include <sceneObject.h>
 #include <app.h>
 
-static std::string OBJECT_META_INFO = R"(
+CSceneObjectCustomizationPart::CSceneObjectCustomizationPart(CSceneObject* sceneObj)
 {
-    "superclass": "object",
-    "namespaces": {
-    }
-}
-)";
-
-CustomObject::CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle, int target)
-{
-    _objectHandle = handle;
-    _objectTypeStr = objectTypeStr;
-    _objectMetaInfo = objectMetaInfo;
-    _scriptHandle = originScriptHandle;
-    _target = target;
-    _volatile = true;
+    _sceneObject = sceneObj;
     _changed = false;
     _ignoreSetterGetter = false;
     _objectCanAddRemoveProperty = false;
 }
 
-CustomObject::~CustomObject()
+CSceneObjectCustomizationPart::~CSceneObjectCustomizationPart()
 {
-    if (!isClass())
-    {
-        if ((App::scenes != nullptr) && App::scenes->getEventsEnabled())
-        {
-            App::scenes->createEvent(EVENTTYPE_OBJECTREMOVED, _objectHandle, _objectHandle, nullptr, false);
-            App::scenes->pushEvent();
-        }
-    }
 }
 
-CustomObject* CustomObject::createObject(long long int handle, int originScriptHandle) const
-{
-    CustomObject* retVal = nullptr;
-    QJsonDocument doc = QJsonDocument::fromJson(_objectMetaInfo.c_str());
-    if ((!doc.isNull()) && doc.isObject())
-    {
-        QJsonObject jsonObj = doc.object();
-        jsonObj["class"] = false;
-        QJsonDocument newDoc(jsonObj);
-        std::string newObjectMetaInfo = QString::fromUtf8(newDoc.toJson(QJsonDocument::Compact)).toStdString();
-        retVal = new CustomObject(handle, _objectTypeStr.c_str(), newObjectMetaInfo.c_str(), originScriptHandle, _target);
-        retVal->_customProperties.copyFromExceptMethods(&_customProperties);
-    }
-    return retVal;
-}
-
-int CustomObject::getScriptHandle() const
-{
-    return _scriptHandle;
-}
-
-bool CustomObject::getVolatile() const
-{
-    return _volatile;
-}
-
-void CustomObject::setVolatile(bool v)
-{
-    _volatile = v;
-}
-
-bool CustomObject::getResetChanged()
+bool CSceneObjectCustomizationPart::getResetChanged()
 {
     bool retVal = _changed;
     _changed = false;
     return retVal;
 }
 
-void CustomObject::setIgnoreSetterGetter(bool f)
+bool CSceneObjectCustomizationPart::isClass() const
+{
+
+    return (_sceneObject->getObjectHandle() >= sim_object_sceneobjectclassstart);
+}
+
+void CSceneObjectCustomizationPart::setIgnoreSetterGetter(bool f)
 {
     _ignoreSetterGetter = f;
 }
 
-void CustomObject::setObjectCanAddRemoveProperty(bool f)
+void CSceneObjectCustomizationPart::setObjectCanAddRemoveProperty(bool f)
 {
     _objectCanAddRemoveProperty = f;
 }
 
-void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/)
+void CSceneObjectCustomizationPart::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/)
 {
     _changed = true;
     _ignoreSetterGetter = true;
-    if ((!isClass()) && (App::scenes != nullptr) && App::scenes->getEventsEnabled())
+    if ((_sceneObject != nullptr) && (App::scenes != nullptr) && App::scenes->getEventsEnabled())
     {
         int flags;
         std::string infoTxt;
@@ -98,7 +53,7 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/)
             {
                 CCbor* ev = evv;
                 if (evv == nullptr)
-                    ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
+                    ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _sceneObject->getObjectHandle(), _sceneObject->getObjectHandle(), nullptr, false);
                 if (t == sim_propertytype_bool)
                 {
                     bool v;
@@ -209,7 +164,7 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/)
         { // property removed
             CCbor* ev = evv;
             if (evv == nullptr)
-                ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
+                ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _sceneObject->getObjectHandle(), _sceneObject->getObjectHandle(), nullptr, false);
             ev->appendKeyNull(pName);
             if (evv == nullptr)
                 App::scenes->pushEvent();
@@ -218,27 +173,14 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/)
     _ignoreSetterGetter = false;
 }
 
-void CustomObject::pushObjectCreationEvent()
+CSceneObjectCustomizationPart* CSceneObjectCustomizationPart::copyYourself(CSceneObject* appartenance) const
 {
-    if ((App::scenes != nullptr) && App::scenes->getEventsEnabled())
-    {
-        CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
-        ev->appendKeyText(propObject_objectType.name, getObjectTypeStr().c_str());
-        int indexI = 0;
-        int index = indexI;
-        std::string pName, appartenance;
-        while (sim_propertyret_ok == getPropertyName(index, pName, appartenance, 0))
-        {
-           if (appartenance == getObjectTypeStr())
-                _triggerEvent(pName.c_str(), ev);
-            index = ++indexI;
-            pName.clear();
-        }
-        App::scenes->pushEvent();
-    }
+    CSceneObjectCustomizationPart* retVal = new CSceneObjectCustomizationPart(appartenance);
+    retVal->_customProperties = _customProperties;
+    return retVal;
 }
 
-void CustomObject::serialize(CSer& ar)
+void CSceneObjectCustomizationPart::serialize(CSer& ar)
 {
     if (ar.isBinary())
     {
@@ -247,13 +189,6 @@ void CustomObject::serialize(CSer& ar)
             std::vector<std::string> names;
             std::vector<std::string> data;
             _customProperties.getAllPropertyData(names, data);
-
-            ar.storeDataName("obj");
-            ar << _objectHandle;
-            ar << _objectTypeStr;
-            ar << _objectMetaInfo;
-            ar << int(names.size());
-            ar.flush();
 
             for (size_t i = 0; i < names.size(); i++)
             {
@@ -277,17 +212,6 @@ void CustomObject::serialize(CSer& ar)
                 if (theName.compare(SER_END_OF_OBJECT) != 0)
                 {
                     bool noHit = true;
-                    if (theName.compare("obj") == 0)
-                    {
-                        noHit = false;
-                        ar >> byteQuantity;
-                        ar >> _objectHandle;
-                        ar >> _objectTypeStr;
-                        ar >> _objectMetaInfo;
-                        int cnt;
-                        ar >> cnt;
-                    }
-
                     if (theName.compare("pro") == 0)
                     {
                         noHit = false;
@@ -313,10 +237,6 @@ void CustomObject::serialize(CSer& ar)
             std::vector<std::string> data;
             _customProperties.getAllPropertyData(names, data);
 
-            ar.xmlAddNode_longlong("handle", _objectHandle);
-            ar.xmlAddNode_string("type", _objectTypeStr.c_str());
-            ar.xmlAddNode_string("metaInfo", _objectMetaInfo.c_str());
-
             for (size_t i = 0; i < names.size(); i++)
             {
                 ar.xmlPushNewNode("property");
@@ -327,10 +247,6 @@ void CustomObject::serialize(CSer& ar)
         }
         else
         {
-            ar.xmlGetNode_longlong("handle", _objectHandle);
-            ar.xmlGetNode_string("type", _objectTypeStr);
-            ar.xmlGetNode_string("metaInfo", _objectMetaInfo);
-
             if (ar.xmlPushChildNode("property", false))
             {
                 std::vector<std::string> names;
@@ -353,7 +269,7 @@ void CustomObject::serialize(CSer& ar)
 }
 
 template <typename T, typename PushF, typename GetF>
-void CustomObject::_callPropertySetterGetter(const char* pName, const char* suffix, T& pState, PushF pushFunc, GetF getFunc) const
+void CSceneObjectCustomizationPart::_callPropertySetterGetter(const char* pName, const char* suffix, T& pState, PushF pushFunc, GetF getFunc) const
 {
     int info;
     std::string infoTxt;
@@ -363,7 +279,7 @@ void CustomObject::_callPropertySetterGetter(const char* pName, const char* suff
         CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();
         inStack->pushTextOntoStack(pName);
         pushFunc(inStack, pState);
-        int ret = simCallMethod_internal(_objectHandle, (std::string(pName) + suffix).c_str(), inStack->getObjectHandle(), outStack->getObjectHandle(), -1);
+        int ret = simCallMethod_internal(_sceneObject->getObjectHandle(), (std::string(pName) + suffix).c_str(), inStack->getObjectHandle(), outStack->getObjectHandle(), -1);
         std::string err;
         if (ret == 1)
         {
@@ -380,16 +296,18 @@ void CustomObject::_callPropertySetterGetter(const char* pName, const char* suff
         App::scenes->interfaceStackContainer->destroyStack(inStack);
         if (!err.empty())
         {
-            err = std::string("error in property setter/getter for object ") + std::to_string(_objectHandle) + ": " + err;
+            err = std::string("error in property setter/getter for object ") + std::to_string(_sceneObject->getObjectHandle()) + ": " + err;
             App::logScriptMsg(nullptr, sim_verbosity_scripterrors, err.c_str());
         }
     }
 }
 
 
-int CustomObject::setBoolProperty(const char* pName, bool pState)
+int CSceneObjectCustomizationPart::setBoolProperty(const char* pName, bool pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setBoolProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setBoolProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_bool))
@@ -405,9 +323,11 @@ int CustomObject::setBoolProperty(const char* pName, bool pState)
     return retVal;
 }
 
-int CustomObject::getBoolProperty(const char* pName, bool& pState) const
+int CSceneObjectCustomizationPart::getBoolProperty(const char* pName, bool& pState, bool viaClass /*= false*/) const
 {
-    int retVal = Obj::getBoolProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getBoolProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getBoolProperty(pName, pState);
@@ -417,9 +337,11 @@ int CustomObject::getBoolProperty(const char* pName, bool& pState) const
     return retVal;
 }
 
-int CustomObject::setIntProperty(const char* pName, int pState)
+int CSceneObjectCustomizationPart::setIntProperty(const char* pName, int pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setIntProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setIntProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_int))
@@ -434,9 +356,11 @@ int CustomObject::setIntProperty(const char* pName, int pState)
     return retVal;
 }
 
-int CustomObject::getIntProperty(const char* pName, int& pState) const
+int CSceneObjectCustomizationPart::getIntProperty(const char* pName, int& pState, bool viaClass /*= false*/) const
 {
-    int retVal = Obj::getIntProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getIntProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getIntProperty(pName, pState);
@@ -446,9 +370,11 @@ int CustomObject::getIntProperty(const char* pName, int& pState) const
     return retVal;
 }
 
-int CustomObject::setLongProperty(const char* pName, long long int pState)
+int CSceneObjectCustomizationPart::setLongProperty(const char* pName, long long int pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setLongProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setLongProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_long))
@@ -464,9 +390,11 @@ int CustomObject::setLongProperty(const char* pName, long long int pState)
     return retVal;
 }
 
-int CustomObject::getLongProperty(const char* pName, long long int& pState) const
+int CSceneObjectCustomizationPart::getLongProperty(const char* pName, long long int& pState, bool viaClass /*= false*/) const
 {
-    int retVal = Obj::getLongProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getLongProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getLongProperty(pName, pState);
@@ -476,9 +404,11 @@ int CustomObject::getLongProperty(const char* pName, long long int& pState) cons
     return retVal;
 }
 
-int CustomObject::setFloatProperty(const char* pName, double pState)
+int CSceneObjectCustomizationPart::setFloatProperty(const char* pName, double pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setFloatProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setFloatProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_float))
@@ -494,9 +424,11 @@ int CustomObject::setFloatProperty(const char* pName, double pState)
     return retVal;
 }
 
-int CustomObject::getFloatProperty(const char* pName, double& pState) const
+int CSceneObjectCustomizationPart::getFloatProperty(const char* pName, double& pState, bool viaClass /*= false*/) const
 {
-    int retVal = Obj::getFloatProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getFloatProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getFloatProperty(pName, pState);
@@ -506,9 +438,11 @@ int CustomObject::getFloatProperty(const char* pName, double& pState) const
     return retVal;
 }
 
-int CustomObject::setHandleProperty(const char* pName, long long int pState)
+int CSceneObjectCustomizationPart::setHandleProperty(const char* pName, long long int pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setHandleProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setHandleProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_handle))
@@ -524,9 +458,11 @@ int CustomObject::setHandleProperty(const char* pName, long long int pState)
     return retVal;
 }
 
-int CustomObject::getHandleProperty(const char* pName, long long int& pState) const
+int CSceneObjectCustomizationPart::getHandleProperty(const char* pName, long long int& pState, bool viaClass /*= false*/) const
 {
-    int retVal = Obj::getHandleProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getHandleProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getHandleProperty(pName, pState);
@@ -536,9 +472,11 @@ int CustomObject::getHandleProperty(const char* pName, long long int& pState) co
     return retVal;
 }
 
-int CustomObject::setStringProperty(const char* pName, const std::string& pState)
+int CSceneObjectCustomizationPart::setStringProperty(const char* pName, const std::string& pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setStringProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setStringProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_string))
@@ -555,9 +493,11 @@ int CustomObject::setStringProperty(const char* pName, const std::string& pState
     return retVal;
 }
 
-int CustomObject::getStringProperty(const char* pName, std::string& pState) const
+int CSceneObjectCustomizationPart::getStringProperty(const char* pName, std::string& pState, bool viaClass /*= false*/) const
 {
-    int retVal = Obj::getStringProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getStringProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getStringProperty(pName, pState);
@@ -567,9 +507,11 @@ int CustomObject::getStringProperty(const char* pName, std::string& pState) cons
     return retVal;
 }
 
-int CustomObject::setBufferProperty(const char* pName, const std::string& pState)
+int CSceneObjectCustomizationPart::setBufferProperty(const char* pName, const std::string& pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setBufferProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setBufferProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_buffer))
@@ -586,9 +528,11 @@ int CustomObject::setBufferProperty(const char* pName, const std::string& pState
     return retVal;
 }
 
-int CustomObject::getBufferProperty(const char* pName, std::string& pState) const
+int CSceneObjectCustomizationPart::getBufferProperty(const char* pName, std::string& pState, bool viaClass /*= false*/) const
 {
-    int retVal = Obj::getBufferProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getBufferProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getBufferProperty(pName, pState);
@@ -598,9 +542,11 @@ int CustomObject::getBufferProperty(const char* pName, std::string& pState) cons
     return retVal;
 }
 
-int CustomObject::setIntArray2Property(const char* pName, const int* pState)
+int CSceneObjectCustomizationPart::setIntArray2Property(const char* pName, const int* pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setIntArray2Property(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setIntArray2Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_intarray2))
@@ -617,9 +563,11 @@ int CustomObject::setIntArray2Property(const char* pName, const int* pState)
     return retVal;
 }
 
-int CustomObject::getIntArray2Property(const char* pName, int* pState) const
+int CSceneObjectCustomizationPart::getIntArray2Property(const char* pName, int* pState, bool viaClass /*= false*/) const
 {
-    int retVal = Obj::getIntArray2Property(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getIntArray2Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getIntArray2Property(pName, pState);
@@ -634,9 +582,11 @@ int CustomObject::getIntArray2Property(const char* pName, int* pState) const
     return retVal;
 }
 
-int CustomObject::setVector3Property(const char* pName, const C3Vector& pState)
+int CSceneObjectCustomizationPart::setVector3Property(const char* pName, const C3Vector& pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setVector3Property(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setVector3Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_vector3))
@@ -655,9 +605,11 @@ int CustomObject::setVector3Property(const char* pName, const C3Vector& pState)
     return retVal;
 }
 
-int CustomObject::getVector3Property(const char* pName, C3Vector& pState) const
+int CSceneObjectCustomizationPart::getVector3Property(const char* pName, C3Vector& pState, bool viaClass /*= false*/) const
 {
-    int retVal = Obj::getVector3Property(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getVector3Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getVector3Property(pName, pState);
@@ -672,9 +624,11 @@ int CustomObject::getVector3Property(const char* pName, C3Vector& pState) const
     return retVal;
 }
 
-int CustomObject::setMatrixProperty(const char* pName, const CMatrix& pState)
+int CSceneObjectCustomizationPart::setMatrixProperty(const char* pName, const CMatrix& pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setMatrixProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setMatrixProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_matrix))
@@ -691,9 +645,11 @@ int CustomObject::setMatrixProperty(const char* pName, const CMatrix& pState)
     return retVal;
 }
 
-int CustomObject::getMatrixProperty(const char* pName, CMatrix& pState) const
+int CSceneObjectCustomizationPart::getMatrixProperty(const char* pName, CMatrix& pState, bool viaClass /*= false*/) const
 {
-    int retVal = Obj::getMatrixProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getMatrixProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getMatrixProperty(pName, pState);
@@ -703,9 +659,11 @@ int CustomObject::getMatrixProperty(const char* pName, CMatrix& pState) const
     return retVal;
 }
 
-int CustomObject::setQuaternionProperty(const char* pName, const C4Vector& pState)
+int CSceneObjectCustomizationPart::setQuaternionProperty(const char* pName, const C4Vector& pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setQuaternionProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setQuaternionProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_quaternion))
@@ -722,9 +680,11 @@ int CustomObject::setQuaternionProperty(const char* pName, const C4Vector& pStat
     return retVal;
 }
 
-int CustomObject::getQuaternionProperty(const char* pName, C4Vector& pState) const
+int CSceneObjectCustomizationPart::getQuaternionProperty(const char* pName, C4Vector& pState, bool viaClass /*= false*/) const
 {
-    int retVal = Obj::getQuaternionProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getQuaternionProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getQuaternionProperty(pName, pState);
@@ -734,9 +694,11 @@ int CustomObject::getQuaternionProperty(const char* pName, C4Vector& pState) con
     return retVal;
 }
 
-int CustomObject::setPoseProperty(const char* pName, const C7Vector& pState)
+int CSceneObjectCustomizationPart::setPoseProperty(const char* pName, const C7Vector& pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setPoseProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setPoseProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_pose))
@@ -753,9 +715,11 @@ int CustomObject::setPoseProperty(const char* pName, const C7Vector& pState)
     return retVal;
 }
 
-int CustomObject::getPoseProperty(const char* pName, C7Vector& pState) const
+int CSceneObjectCustomizationPart::getPoseProperty(const char* pName, C7Vector& pState, bool viaClass /*= false*/) const
 {
-    int retVal = Obj::getPoseProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getPoseProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getPoseProperty(pName, pState);
@@ -765,9 +729,11 @@ int CustomObject::getPoseProperty(const char* pName, C7Vector& pState) const
     return retVal;
 }
 
-int CustomObject::setColorProperty(const char* pName, const float* pState)
+int CSceneObjectCustomizationPart::setColorProperty(const char* pName, const float* pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setColorProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setColorProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_color))
@@ -784,9 +750,11 @@ int CustomObject::setColorProperty(const char* pName, const float* pState)
     return retVal;
 }
 
-int CustomObject::getColorProperty(const char* pName, float* pState) const
+int CSceneObjectCustomizationPart::getColorProperty(const char* pName, float* pState, bool viaClass /*= false*/) const
 {
-    int retVal = Obj::getColorProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getColorProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getColorProperty(pName, pState);
@@ -802,9 +770,11 @@ int CustomObject::getColorProperty(const char* pName, float* pState) const
     return retVal;
 }
 
-int CustomObject::setFloatArrayProperty(const char* pName, const std::vector<double>& pState)
+int CSceneObjectCustomizationPart::setFloatArrayProperty(const char* pName, const std::vector<double>& pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setFloatArrayProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setFloatArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_floatarray))
@@ -821,10 +791,12 @@ int CustomObject::setFloatArrayProperty(const char* pName, const std::vector<dou
     return retVal;
 }
 
-int CustomObject::getFloatArrayProperty(const char* pName, std::vector<double>& pState) const
+int CSceneObjectCustomizationPart::getFloatArrayProperty(const char* pName, std::vector<double>& pState, bool viaClass /*= false*/) const
 {
     pState.clear();
-    int retVal = Obj::getFloatArrayProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getFloatArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getFloatArrayProperty(pName, pState);
@@ -834,9 +806,11 @@ int CustomObject::getFloatArrayProperty(const char* pName, std::vector<double>& 
     return retVal;
 }
 
-int CustomObject::setIntArrayProperty(const char* pName, const std::vector<int>& pState)
+int CSceneObjectCustomizationPart::setIntArrayProperty(const char* pName, const std::vector<int>& pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setIntArrayProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setIntArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_intarray))
@@ -853,10 +827,12 @@ int CustomObject::setIntArrayProperty(const char* pName, const std::vector<int>&
     return retVal;
 }
 
-int CustomObject::getIntArrayProperty(const char* pName, std::vector<int>& pState) const
+int CSceneObjectCustomizationPart::getIntArrayProperty(const char* pName, std::vector<int>& pState, bool viaClass /*= false*/) const
 {
     pState.clear();
-    int retVal = Obj::getIntArrayProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getIntArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getIntArrayProperty(pName, pState);
@@ -866,9 +842,11 @@ int CustomObject::getIntArrayProperty(const char* pName, std::vector<int>& pStat
     return retVal;
 }
 
-int CustomObject::setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState)
+int CSceneObjectCustomizationPart::setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setHandleArrayProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setHandleArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_handlearray))
@@ -885,10 +863,12 @@ int CustomObject::setHandleArrayProperty(const char* pName, const std::vector<lo
     return retVal;
 }
 
-int CustomObject::getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const
+int CSceneObjectCustomizationPart::getHandleArrayProperty(const char* pName, std::vector<long long int>& pState, bool viaClass /*= false*/) const
 {
     pState.clear();
-    int retVal = Obj::getHandleArrayProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getHandleArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getHandleArrayProperty(pName, pState);
@@ -898,9 +878,11 @@ int CustomObject::getHandleArrayProperty(const char* pName, std::vector<long lon
     return retVal;
 }
 
-int CustomObject::setStringArrayProperty(const char* pName, const std::vector<std::string>& pState)
+int CSceneObjectCustomizationPart::setStringArrayProperty(const char* pName, const std::vector<std::string>& pState, bool viaClass /*= false*/)
 {
-    int retVal = Obj::setStringArrayProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setStringArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_stringarray))
@@ -917,10 +899,12 @@ int CustomObject::setStringArrayProperty(const char* pName, const std::vector<st
     return retVal;
 }
 
-int CustomObject::getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const
+int CSceneObjectCustomizationPart::getStringArrayProperty(const char* pName, std::vector<std::string>& pState, bool viaClass /*= false*/) const
 {
     pState.clear();
-    int retVal = Obj::getStringArrayProperty(pName, pState);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getStringArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getStringArrayProperty(pName, pState);
@@ -930,32 +914,27 @@ int CustomObject::getStringArrayProperty(const char* pName, std::vector<std::str
     return retVal;
 }
 
-int CustomObject::setMethodProperty(const char* pName, const void* pState)
+int CSceneObjectCustomizationPart::setMethodProperty(const char* pName, const void* pState, bool viaClass /*= false*/)
 {
     std::string ppN(pName);
     ppN += "@cfunc";
     int retVal = sim_propertyret_unknownproperty;
-    if (retVal == sim_propertyret_unknownproperty)
+    if (isClass())
     {
-        if (isClass())
-        {
-            bool changed = false;
-            retVal = _customProperties.setMethodProperty(ppN.c_str(), pState, changed);
-        }
+        bool changed = false;
+        retVal = _customProperties.setMethodProperty(ppN.c_str(), pState, changed);
     }
     return retVal;
 }
 
-int CustomObject::getMethodProperty(const char* pName, void*& pState) const
+int CSceneObjectCustomizationPart::getMethodProperty(const char* pName, void*& pState, bool viaClass /*= false*/) const
 {
     std::string ppN(pName);
     ppN += "@cfunc";
-    int retVal = sim_propertyret_unknownproperty;
-    if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.getMethodProperty(ppN.c_str(), pState);
+    int retVal = _customProperties.getMethodProperty(ppN.c_str(), pState);
     if ((!isClass()) && (retVal == sim_propertyret_unknownproperty))
     {
-        CustomObject* cl = App::scenes->customObjects->getClass(getObjectTypeStr().c_str());
+        CSceneObject* cl = App::scenes->customSceneObjectClasses->getClass(_sceneObject->getObjectTypeStr().c_str());
         if (cl != nullptr)
             retVal = cl->getMethodProperty(ppN.c_str(), pState);
 // if related class not found, then methods won't be listed anyways
@@ -968,30 +947,25 @@ int CustomObject::getMethodProperty(const char* pName, void*& pState) const
     return retVal;
 }
 
-int CustomObject::setMethodProperty(const char* pName, const std::string& pState)
+int CSceneObjectCustomizationPart::setMethodProperty(const char* pName, const std::string& pState, bool viaClass /*= false*/)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (retVal == sim_propertyret_unknownproperty)
+    if (isClass())
     {
-        if (isClass())
-        {
-            bool changed = false;
-            retVal = _customProperties.setMethodProperty(pName, pState, changed);
-            //if (changed)
-            //    _triggerEvent(pName);
-        }
+        bool changed = false;
+        retVal = _customProperties.setMethodProperty(pName, pState, changed);
+        //if (changed)
+        //    _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CustomObject::getMethodProperty(const char* pName, std::string& pState) const
+int CSceneObjectCustomizationPart::getMethodProperty(const char* pName, std::string& pState, bool viaClass /*= false*/) const
 {
-    int retVal = sim_propertyret_unknownproperty;
-    if (retVal == sim_propertyret_unknownproperty)
-        retVal = _customProperties.getMethodProperty(pName, pState);
+    int retVal = _customProperties.getMethodProperty(pName, pState);
     if ((!isClass()) && (retVal == sim_propertyret_unknownproperty))
     {
-        CustomObject* cl = App::scenes->customObjects->getClass(getObjectTypeStr().c_str());
+        CSceneObject* cl = App::scenes->customSceneObjectClasses->getClass(_sceneObject->getObjectTypeStr().c_str());
         if (cl != nullptr)
             retVal = cl->getMethodProperty(pName, pState);
 // if related class not found, then methods won't be listed anyways
@@ -1004,9 +978,11 @@ int CustomObject::getMethodProperty(const char* pName, std::string& pState) cons
     return retVal;
 }
 
-int CustomObject::removeProperty(const char* pName)
+int CSceneObjectCustomizationPart::removeProperty(const char* pName, bool viaClass /*= false*/)
 {
-    int retVal = Obj::removeProperty(pName);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::removeProperty(pName);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty)
@@ -1019,17 +995,17 @@ int CustomObject::removeProperty(const char* pName)
     return retVal;
 }
 
-int CustomObject::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+int CSceneObjectCustomizationPart::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags, bool viaClass /*= false*/) const
 {
     int retVal = sim_propertyret_unknownproperty;
-    if ((excludeFlags & sim_propertyinfo_retmethodsonly) == 0)
-        retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
+    if (viaClass)
+        retVal = _sceneObject->Obj::getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getPropertyName(index, pName, appartenance, excludeFlags);
         if ((!isClass()) && (retVal == sim_propertyret_unknownproperty))
         {
-            CustomObject* cl = App::scenes->customObjects->getClass(getObjectTypeStr().c_str());
+            CSceneObject* cl = App::scenes->customSceneObjectClasses->getClass(_sceneObject->getObjectTypeStr().c_str());
             if (cl != nullptr)
                 retVal = cl->getPropertyName(index, pName, appartenance, excludeFlags | sim_propertyinfo_retmethodsonly);
         }
@@ -1038,7 +1014,7 @@ int CustomObject::getPropertyName(int& index, std::string& pName, std::string& a
             if (isClass())
             {
                 if ((pName == "customClass") || (pName == "name") || (pName == "target"))
-                    appartenance = getObjectTypeStr();
+                    appartenance = "TODO_CLASS_NAME";
                 else
                 {
                     std::string theName;
@@ -1047,93 +1023,42 @@ int CustomObject::getPropertyName(int& index, std::string& pName, std::string& a
                 }
             }
             else
-                appartenance = getObjectTypeStr();
-        }
-    }
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        const std::vector<SProperty>* prop;
-        if (isClass())
-            prop = &allProps_customObjectClass;
-        else
-            prop = &allProps_customObject;
-        for (size_t i = 0; i < prop->size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(prop->at(i).name, pName.c_str()))
-            {
-                if ((prop->at(i).flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        if (isClass())
-                            appartenance = "TODO_CUSTOMOBJECTCLASS_APPARTENANCE";
-                        else
-                            appartenance = "TODO_CUSTOMOBJECT_APPARTENANCE";
-                        pName = prop->at(i).name;
-                        retVal = sim_propertyret_ok;
-                        break;
-                    }
-                }
-            }
+                appartenance = _sceneObject->getObjectTypeStr();
         }
     }
     return retVal;
 }
 
-int CustomObject::getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const
+int CSceneObjectCustomizationPart::getPropertyInfo(const char* pName, int& info, std::string& infoTxt, bool viaClass /*= false*/) const
 {
-    int retVal = Obj::getPropertyInfo(pName, info, infoTxt);
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getPropertyInfo(pName, info, infoTxt);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getPropertyInfo(pName, info, infoTxt);
         if ((!isClass()) && (retVal == sim_propertyret_unknownproperty))
         {
-            CustomObject* cl = App::scenes->customObjects->getClass(getObjectTypeStr().c_str());
+            CSceneObject* cl = App::scenes->customSceneObjectClasses->getClass(_sceneObject->getObjectTypeStr().c_str());
             if (cl != nullptr)
                 retVal = cl->getPropertyInfo(pName, info, infoTxt);
-        }
-    }
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        const std::vector<SProperty>* prop;
-        if (isClass())
-            prop = &allProps_customObjectClass;
-        else
-            prop = &allProps_customObject;
-        for (size_t i = 0; i < prop->size(); i++)
-        {
-            if (strcmp(prop->at(i).name, pName) == 0)
-            {
-                retVal = prop->at(i).type;
-                info = prop->at(i).flags;
-                if (infoTxt == "j")
-                    infoTxt = prop->at(i).shortInfoTxt;
-                else
-                {
-                    auto w = QJsonDocument::fromJson(prop->at(i).shortInfoTxt.c_str()).object();
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
-            }
         }
     }
     return retVal;
 }
 
-int CustomObject::setPropertyInfo(const char* pName, int info, const char* infoTxt)
+int CSceneObjectCustomizationPart::setPropertyInfo(const char* pName, int info, const char* infoTxt, bool viaClass /*= false*/)
 {
-    int dInfo;
-    std::string dInfoTxt;
-    int retVal = Obj::getPropertyInfo(pName, dInfo, dInfoTxt);
-    if ((retVal == sim_propertyret_unknownproperty) && (isClass() || _objectCanAddRemoveProperty))
-        retVal = _customProperties.setPropertyInfo(pName, info, infoTxt);
-    else
-        retVal = sim_propertyret_unavailable;
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setPropertyInfo(pName, info, infoTxt);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        retVal = sim_propertyret_unknownproperty;
+        if ((isClass() || _objectCanAddRemoveProperty))
+            retVal = _customProperties.setPropertyInfo(pName, info, infoTxt);
+        else
+            retVal = sim_propertyret_unavailable;
+    }
     return retVal;
 }

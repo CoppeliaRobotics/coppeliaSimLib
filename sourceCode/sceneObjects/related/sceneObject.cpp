@@ -29,6 +29,7 @@
 
 CSceneObject::CSceneObject()
 {
+    _sceneObjectCustomizationPart = nullptr;
     customObjectData_volatile.setItemsAreVolatile();
     _selected = false;
     _isInScene = false;
@@ -106,6 +107,7 @@ CSceneObject::CSceneObject()
 
 CSceneObject::~CSceneObject()
 {
+    delete _sceneObjectCustomizationPart;
     delete _customObjectData_old;
     delete _userScriptParameters;
 }
@@ -279,6 +281,17 @@ void CSceneObject::setDynamicFlag(int flag)
 CSceneObject* CSceneObject::getParent() const
 {
     return (_parentObject);
+}
+
+void CSceneObject::enableCustomizationPart()
+{
+    if (_sceneObjectCustomizationPart == nullptr)
+        _sceneObjectCustomizationPart = new CSceneObjectCustomizationPart(this);
+}
+
+CSceneObjectCustomizationPart* CSceneObject::getCustomizationPart() const
+{
+    return _sceneObjectCustomizationPart;
 }
 
 int CSceneObject::getObjectType() const
@@ -1707,6 +1720,8 @@ CSceneObject* CSceneObject::copyYourself()
     if (getObjectType() == sim_sceneobject_forcesensor)
         theNewObject = new CForceSensor();
 
+    theNewObject->_objectMetaInfo = _objectMetaInfo;
+    theNewObject->_objectTypeStr = _objectTypeStr;
     theNewObject->_objectHandle = _objectHandle; // important for copy operations connections
     theNewObject->_authorizedViewableObjects = _authorizedViewableObjects;
     theNewObject->_initialVisibilityLayer = _initialVisibilityLayer; // for cases object copied during simulation
@@ -1775,6 +1790,9 @@ CSceneObject* CSceneObject::copyYourself()
         _parentObjectHandle_forSerializationOnly; // and not -1!!! (objects can also be copied in the Copy buffer)
     if (_parentObject != nullptr)
         theNewObject->_parentObjectHandle_forSerializationOnly = _parentObject->getObjectHandle();
+
+    if (_sceneObjectCustomizationPart != nullptr)
+        theNewObject->_sceneObjectCustomizationPart = _sceneObjectCustomizationPart->copyYourself(theNewObject);
 
     return (theNewObject);
 }
@@ -2574,10 +2592,18 @@ void CSceneObject::serialize(CSer& ar)
     if (ar.isBinary())
     {
         if (ar.isStoring())
-        {                            // Storing
+        {
             ar.storeDataName("3do"); // Scene object identifier. Needed for forward compatibility when
                                      // trying to load an object type that doesn't yet exist!
             ar << ((unsigned char)57) << ((unsigned char)58) << ((unsigned char)59);
+            ar.flush();
+
+            ar.storeDataName("Ots");
+            ar << _objectTypeStr;
+            ar.flush();
+
+            ar.storeDataName("Omi");
+            ar << _objectMetaInfo;
             ar.flush();
 
             C7Vector tr = getLocalTransformation();
@@ -2850,6 +2876,21 @@ void CSceneObject::serialize(CSer& ar)
                         unsigned char dummy;
                         ar >> dummy >> dummy >> dummy;
                     }
+
+                    if (theName.compare("Ots") == 0)
+                    {
+                        noHit = false;
+                        ar >> byteQuantity;
+                        ar >> _objectTypeStr;
+                    }
+
+                    if (theName.compare("Omi") == 0)
+                    {
+                        noHit = false;
+                        ar >> byteQuantity;
+                        ar >> _objectMetaInfo;
+                    }
+
                     if (theName.compare("Cfq") == 0)
                     { // for backward comp. (flt->dbl)
                         noHit = false;
@@ -3399,6 +3440,9 @@ void CSceneObject::serialize(CSer& ar)
             ar.xmlAddNode_string("name", _objectName_old.c_str());
             ar.xmlAddNode_string("altName", _objectAltName_old.c_str());
 
+            ar.xmlAddNode_string("objectType", _objectTypeStr.c_str());
+            ar.xmlAddNode_string("objectMetaInfo", _objectMetaInfo.c_str());
+
             if (exhaustiveXml)
             {
                 ar.xmlAddNode_int("handle", _objectHandle);
@@ -3710,6 +3754,9 @@ void CSceneObject::serialize(CSer& ar)
                     _objectTempAltName_old = _objectAltName_old;
                     _objectAltName_old = "XYZ___" + _objectAltName_old + "___XYZ";
                 }
+
+                ar.xmlGetNode_string("objectType", _objectTypeStr, false);
+                ar.xmlGetNode_string("objectMetaInfo", _objectMetaInfo, false);
 
                 if (exhaustiveXml)
                 {
@@ -5704,506 +5751,523 @@ bool CSceneObject::setChildSequence(CSceneObject* child, int order)
 
 int CSceneObject::setBoolProperty(const char* ppName, bool pState)
 {
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (strcmp(ppName, propSceneObject_modelBase.name) == 0)
+    int retVal = Obj::setBoolProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setBoolProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
     {
-        retVal = sim_propertyret_ok;
-        setModelBase(pState);
+        std::string _pName(ppName);
+        if (strcmp(ppName, propSceneObject_modelBase.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            setModelBase(pState);
+        }
+        else if (strcmp(ppName, propSceneObject_ignoreViewFitting.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            setObjectProperty((_objectProperty | sim_objectproperty_ignoreviewfitting) - (1 - pState) * sim_objectproperty_ignoreviewfitting);
+        }
+        else if (strcmp(ppName, propSceneObject_collapsed.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            setObjectProperty((_objectProperty | sim_objectproperty_collapsed) - (1 - pState) * sim_objectproperty_collapsed);
+        }
+        else if (strcmp(ppName, propSceneObject_selectable.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            setObjectProperty((_objectProperty | sim_objectproperty_selectable) - (1 - pState) * sim_objectproperty_selectable);
+        }
+        else if (strcmp(ppName, propSceneObject_selectModel.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            setObjectProperty((_objectProperty | sim_objectproperty_selectmodelbaseinstead) - (1 - pState) * sim_objectproperty_selectmodelbaseinstead);
+        }
+        else if (strcmp(ppName, propSceneObject_hideFromModelBB.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            setObjectProperty((_objectProperty | sim_objectproperty_dontshowasinsidemodel) - (1 - pState) * sim_objectproperty_dontshowasinsidemodel);
+        }
+        else if (strcmp(ppName, propSceneObject_selectInvisible.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            setObjectProperty((_objectProperty | sim_objectproperty_selectinvisible) - (1 - pState) * sim_objectproperty_selectinvisible);
+        }
+        else if (strcmp(ppName, propSceneObject_depthInvisible.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            setObjectProperty((_objectProperty | sim_objectproperty_depthinvisible) - (1 - pState) * sim_objectproperty_depthinvisible);
+        }
+        else if (strcmp(ppName, propSceneObject_cannotDelete.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            setObjectProperty((_objectProperty | sim_objectproperty_cannotdeleteduringsim) - (1 - pState) * sim_objectproperty_cannotdeleteduringsim);
+        }
+        else if (strcmp(ppName, propSceneObject_cannotDeleteSim.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            setObjectProperty((_objectProperty | sim_objectproperty_cannotdeleteduringsim) - (1 - pState) * sim_objectproperty_cannotdeleteduringsim);
+        }
+        else if ((strcmp(ppName, propSceneObject_modelNotCollidable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotCollidableDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setModelProperty((_modelProperty | sim_modelproperty_not_collidable) - (1 - pState) * sim_modelproperty_not_collidable);
+        }
+        else if ((strcmp(ppName, propSceneObject_modelNotMeasurable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotMeasurableDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setModelProperty((_modelProperty | sim_modelproperty_not_measurable) - (1 - pState) * sim_modelproperty_not_measurable);
+        }
+        else if ((strcmp(ppName, propSceneObject_modelNotDetectable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotDetectableDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setModelProperty((_modelProperty | sim_modelproperty_not_detectable) - (1 - pState) * sim_modelproperty_not_detectable);
+        }
+        else if ((strcmp(ppName, propSceneObject_modelNotDynamic.name) == 0) || (strcmp(ppName, propSceneObject_modelNotDynamicDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setModelProperty((_modelProperty | sim_modelproperty_not_dynamic) - (1 - pState) * sim_modelproperty_not_dynamic);
+        }
+        else if ((strcmp(ppName, propSceneObject_modelNotRespondable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotRespondableDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setModelProperty((_modelProperty | sim_modelproperty_not_respondable) - (1 - pState) * sim_modelproperty_not_respondable);
+        }
+        else if ((strcmp(ppName, propSceneObject_modelNotVisible.name) == 0) || (strcmp(ppName, propSceneObject_modelNotVisibleDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setModelProperty((_modelProperty | sim_modelproperty_not_visible) - (1 - pState) * sim_modelproperty_not_visible);
+        }
+        else if ((strcmp(ppName, propSceneObject_modelScriptsNotActive.name) == 0) || (strcmp(ppName, propSceneObject_modelScriptsNotActiveDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setModelProperty((_modelProperty | sim_modelproperty_scripts_inactive) - (1 - pState) * sim_modelproperty_scripts_inactive);
+        }
+        else if ((strcmp(ppName, propSceneObject_modelNotInParentBB.name) == 0) || (strcmp(ppName, propSceneObject_modelNotInParentBBDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setModelProperty((_modelProperty | sim_modelproperty_not_showasinsidemodel) - (1 - pState) * sim_modelproperty_not_showasinsidemodel);
+        }
+        else if ((strcmp(ppName, propSceneObject_movTranslNoSim.name) == 0) || (strcmp(ppName, propSceneObject_movTranslNoSimDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setObjectMovementOptions((_objectMovementOptions | 1) - pState * 1);
+        }
+        else if ((strcmp(ppName, propSceneObject_movTranslInSim.name) == 0) || (strcmp(ppName, propSceneObject_movTranslInSimDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setObjectMovementOptions((_objectMovementOptions | 2) - pState * 2);
+        }
+        else if ((strcmp(ppName, propSceneObject_movRotNoSim.name) == 0) || (strcmp(ppName, propSceneObject_movRotNoSimDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setObjectMovementOptions((_objectMovementOptions | 4) - pState * 4);
+        }
+        else if ((strcmp(ppName, propSceneObject_movRotInSim.name) == 0) || (strcmp(ppName, propSceneObject_movRotInSimDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setObjectMovementOptions((_objectMovementOptions | 8) - pState * 8);
+        }
+        else if ((strcmp(ppName, propSceneObject_movAltTransl.name) == 0) || (strcmp(ppName, propSceneObject_movAltTranslDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setObjectMovementOptions((_objectMovementOptions | 16) - pState * 16);
+        }
+        else if ((strcmp(ppName, propSceneObject_movAltRot.name) == 0) || (strcmp(ppName, propSceneObject_movAltRotDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setObjectMovementOptions((_objectMovementOptions | 32) - pState * 32);
+        }
+        else if ((strcmp(ppName, propSceneObject_movPrefTranslX.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslXDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 1) - (1 - pState) * 1);
+        }
+        else if ((strcmp(ppName, propSceneObject_movPrefTranslY.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslYDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 2) - (1 - pState) * 2);
+        }
+        else if ((strcmp(ppName, propSceneObject_movPrefTranslZ.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslZDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 4) - (1 - pState) * 4);
+        }
+        else if ((strcmp(ppName, propSceneObject_movPrefRotX.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotXDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 8) - (1 - pState) * 8);
+        }
+        else if ((strcmp(ppName, propSceneObject_movPrefRotY.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotYDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 16) - (1 - pState) * 16);
+        }
+        else if ((strcmp(ppName, propSceneObject_movPrefRotZ.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotZDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 32) - (1 - pState) * 32);
+        }
+        else if (_pName == propSceneObject_selected.name)
+        {
+            retVal = sim_propertyret_ok;
+            if (pState)
+                App::scene->sceneObjects->addObjectToSelection(_objectHandle);
+            else
+                App::scene->sceneObjects->removeObjectFromSelection(_objectHandle);
+        }
+        else if (_pName == propSceneObject_collidable.name)
+        {
+            retVal = sim_propertyret_ok;
+            setLocalObjectSpecialProperty((_localObjectSpecialProperty | sim_objectspecialproperty_collidable) - (1 - pState) * sim_objectspecialproperty_collidable);
+        }
+        else if (_pName == propSceneObject_measurable.name)
+        {
+            retVal = sim_propertyret_ok;
+            setLocalObjectSpecialProperty((_localObjectSpecialProperty | sim_objectspecialproperty_measurable) - (1 - pState) * sim_objectspecialproperty_measurable);
+        }
+        else if (_pName == propSceneObject_detectable.name)
+        {
+            retVal = sim_propertyret_ok;
+            setLocalObjectSpecialProperty((_localObjectSpecialProperty | sim_objectspecialproperty_detectable) - (1 - pState) * sim_objectspecialproperty_detectable);
+        }
     }
-    else if (strcmp(ppName, propSceneObject_ignoreViewFitting.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        setObjectProperty((_objectProperty | sim_objectproperty_ignoreviewfitting) - (1 - pState) * sim_objectproperty_ignoreviewfitting);
-    }
-    else if (strcmp(ppName, propSceneObject_collapsed.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        setObjectProperty((_objectProperty | sim_objectproperty_collapsed) - (1 - pState) * sim_objectproperty_collapsed);
-    }
-    else if (strcmp(ppName, propSceneObject_selectable.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        setObjectProperty((_objectProperty | sim_objectproperty_selectable) - (1 - pState) * sim_objectproperty_selectable);
-    }
-    else if (strcmp(ppName, propSceneObject_selectModel.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        setObjectProperty((_objectProperty | sim_objectproperty_selectmodelbaseinstead) - (1 - pState) * sim_objectproperty_selectmodelbaseinstead);
-    }
-    else if (strcmp(ppName, propSceneObject_hideFromModelBB.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        setObjectProperty((_objectProperty | sim_objectproperty_dontshowasinsidemodel) - (1 - pState) * sim_objectproperty_dontshowasinsidemodel);
-    }
-    else if (strcmp(ppName, propSceneObject_selectInvisible.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        setObjectProperty((_objectProperty | sim_objectproperty_selectinvisible) - (1 - pState) * sim_objectproperty_selectinvisible);
-    }
-    else if (strcmp(ppName, propSceneObject_depthInvisible.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        setObjectProperty((_objectProperty | sim_objectproperty_depthinvisible) - (1 - pState) * sim_objectproperty_depthinvisible);
-    }
-    else if (strcmp(ppName, propSceneObject_cannotDelete.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        setObjectProperty((_objectProperty | sim_objectproperty_cannotdeleteduringsim) - (1 - pState) * sim_objectproperty_cannotdeleteduringsim);
-    }
-    else if (strcmp(ppName, propSceneObject_cannotDeleteSim.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        setObjectProperty((_objectProperty | sim_objectproperty_cannotdeleteduringsim) - (1 - pState) * sim_objectproperty_cannotdeleteduringsim);
-    }
-    else if ((strcmp(ppName, propSceneObject_modelNotCollidable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotCollidableDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setModelProperty((_modelProperty | sim_modelproperty_not_collidable) - (1 - pState) * sim_modelproperty_not_collidable);
-    }
-    else if ((strcmp(ppName, propSceneObject_modelNotMeasurable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotMeasurableDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setModelProperty((_modelProperty | sim_modelproperty_not_measurable) - (1 - pState) * sim_modelproperty_not_measurable);
-    }
-    else if ((strcmp(ppName, propSceneObject_modelNotDetectable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotDetectableDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setModelProperty((_modelProperty | sim_modelproperty_not_detectable) - (1 - pState) * sim_modelproperty_not_detectable);
-    }
-    else if ((strcmp(ppName, propSceneObject_modelNotDynamic.name) == 0) || (strcmp(ppName, propSceneObject_modelNotDynamicDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setModelProperty((_modelProperty | sim_modelproperty_not_dynamic) - (1 - pState) * sim_modelproperty_not_dynamic);
-    }
-    else if ((strcmp(ppName, propSceneObject_modelNotRespondable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotRespondableDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setModelProperty((_modelProperty | sim_modelproperty_not_respondable) - (1 - pState) * sim_modelproperty_not_respondable);
-    }
-    else if ((strcmp(ppName, propSceneObject_modelNotVisible.name) == 0) || (strcmp(ppName, propSceneObject_modelNotVisibleDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setModelProperty((_modelProperty | sim_modelproperty_not_visible) - (1 - pState) * sim_modelproperty_not_visible);
-    }
-    else if ((strcmp(ppName, propSceneObject_modelScriptsNotActive.name) == 0) || (strcmp(ppName, propSceneObject_modelScriptsNotActiveDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setModelProperty((_modelProperty | sim_modelproperty_scripts_inactive) - (1 - pState) * sim_modelproperty_scripts_inactive);
-    }
-    else if ((strcmp(ppName, propSceneObject_modelNotInParentBB.name) == 0) || (strcmp(ppName, propSceneObject_modelNotInParentBBDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setModelProperty((_modelProperty | sim_modelproperty_not_showasinsidemodel) - (1 - pState) * sim_modelproperty_not_showasinsidemodel);
-    }
-    else if ((strcmp(ppName, propSceneObject_movTranslNoSim.name) == 0) || (strcmp(ppName, propSceneObject_movTranslNoSimDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setObjectMovementOptions((_objectMovementOptions | 1) - pState * 1);
-    }
-    else if ((strcmp(ppName, propSceneObject_movTranslInSim.name) == 0) || (strcmp(ppName, propSceneObject_movTranslInSimDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setObjectMovementOptions((_objectMovementOptions | 2) - pState * 2);
-    }
-    else if ((strcmp(ppName, propSceneObject_movRotNoSim.name) == 0) || (strcmp(ppName, propSceneObject_movRotNoSimDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setObjectMovementOptions((_objectMovementOptions | 4) - pState * 4);
-    }
-    else if ((strcmp(ppName, propSceneObject_movRotInSim.name) == 0) || (strcmp(ppName, propSceneObject_movRotInSimDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setObjectMovementOptions((_objectMovementOptions | 8) - pState * 8);
-    }
-    else if ((strcmp(ppName, propSceneObject_movAltTransl.name) == 0) || (strcmp(ppName, propSceneObject_movAltTranslDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setObjectMovementOptions((_objectMovementOptions | 16) - pState * 16);
-    }
-    else if ((strcmp(ppName, propSceneObject_movAltRot.name) == 0) || (strcmp(ppName, propSceneObject_movAltRotDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setObjectMovementOptions((_objectMovementOptions | 32) - pState * 32);
-    }
-    else if ((strcmp(ppName, propSceneObject_movPrefTranslX.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslXDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 1) - (1 - pState) * 1);
-    }
-    else if ((strcmp(ppName, propSceneObject_movPrefTranslY.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslYDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 2) - (1 - pState) * 2);
-    }
-    else if ((strcmp(ppName, propSceneObject_movPrefTranslZ.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslZDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 4) - (1 - pState) * 4);
-    }
-    else if ((strcmp(ppName, propSceneObject_movPrefRotX.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotXDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 8) - (1 - pState) * 8);
-    }
-    else if ((strcmp(ppName, propSceneObject_movPrefRotY.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotYDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 16) - (1 - pState) * 16);
-    }
-    else if ((strcmp(ppName, propSceneObject_movPrefRotZ.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotZDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 32) - (1 - pState) * 32);
-    }
-    else if (_pName == propSceneObject_selected.name)
-    {
-        retVal = sim_propertyret_ok;
-        if (pState)
-            App::scene->sceneObjects->addObjectToSelection(_objectHandle);
-        else
-            App::scene->sceneObjects->removeObjectFromSelection(_objectHandle);
-    }
-    else if (_pName == propSceneObject_collidable.name)
-    {
-        retVal = sim_propertyret_ok;
-        setLocalObjectSpecialProperty((_localObjectSpecialProperty | sim_objectspecialproperty_collidable) - (1 - pState) * sim_objectspecialproperty_collidable);
-    }
-    else if (_pName == propSceneObject_measurable.name)
-    {
-        retVal = sim_propertyret_ok;
-        setLocalObjectSpecialProperty((_localObjectSpecialProperty | sim_objectspecialproperty_measurable) - (1 - pState) * sim_objectspecialproperty_measurable);
-    }
-    else if (_pName == propSceneObject_detectable.name)
-    {
-        retVal = sim_propertyret_ok;
-        setLocalObjectSpecialProperty((_localObjectSpecialProperty | sim_objectspecialproperty_detectable) - (1 - pState) * sim_objectspecialproperty_detectable);
-    }
-
     return retVal;
 }
 
 int CSceneObject::getBoolProperty(const char* ppName, bool& pState) const
 {
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (strcmp(ppName, propSceneObject_modelInvisible.name) == 0)
+    int retVal = Obj::getBoolProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getBoolProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
     {
-        retVal = sim_propertyret_ok;
-        pState = _modelInvisible;
+        std::string _pName(ppName);
+        if (strcmp(ppName, propSceneObject_modelInvisible.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _modelInvisible;
+        }
+        else if (strcmp(ppName, propSceneObject_modelBase.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _modelBase;
+        }
+        else if (strcmp(ppName, propSceneObject_ignoreViewFitting.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectProperty & sim_objectproperty_ignoreviewfitting) != 0;
+        }
+        else if (strcmp(ppName, propSceneObject_collapsed.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectProperty & sim_objectproperty_collapsed) != 0;
+        }
+        else if (strcmp(ppName, propSceneObject_selectable.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectProperty & sim_objectproperty_selectable) != 0;
+        }
+        else if (strcmp(ppName, propSceneObject_selectModel.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectProperty & sim_objectproperty_selectmodelbaseinstead) != 0;
+        }
+        else if (strcmp(ppName, propSceneObject_hideFromModelBB.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectProperty & sim_objectproperty_dontshowasinsidemodel) != 0;
+        }
+        else if (strcmp(ppName, propSceneObject_selectInvisible.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectProperty & sim_objectproperty_selectinvisible) != 0;
+        }
+        else if (strcmp(ppName, propSceneObject_depthInvisible.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectProperty & sim_objectproperty_depthinvisible) != 0;
+        }
+        else if (strcmp(ppName, propSceneObject_cannotDelete.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectProperty & sim_objectproperty_cannotdelete) != 0;
+        }
+        else if (strcmp(ppName, propSceneObject_cannotDeleteSim.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectProperty & sim_objectproperty_cannotdeleteduringsim) != 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_modelNotCollidable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotCollidableDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_modelProperty & sim_modelproperty_not_collidable) != 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_modelNotMeasurable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotMeasurableDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_modelProperty & sim_modelproperty_not_measurable) != 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_modelNotDetectable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotDetectableDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_modelProperty & sim_modelproperty_not_detectable) != 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_modelNotDynamic.name) == 0) || (strcmp(ppName, propSceneObject_modelNotDynamicDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_modelProperty & sim_modelproperty_not_dynamic) != 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_modelNotRespondable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotRespondableDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_modelProperty & sim_modelproperty_not_respondable) != 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_modelNotVisible.name) == 0) || (strcmp(ppName, propSceneObject_modelNotVisibleDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_modelProperty & sim_modelproperty_not_visible) != 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_modelScriptsNotActive.name) == 0) || (strcmp(ppName, propSceneObject_modelScriptsNotActiveDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_modelProperty & sim_modelproperty_scripts_inactive) != 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_modelNotInParentBB.name) == 0) || (strcmp(ppName, propSceneObject_modelNotInParentBBDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_modelProperty & sim_modelproperty_not_showasinsidemodel) != 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_movTranslNoSim.name) == 0) || (strcmp(ppName, propSceneObject_movTranslNoSimDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectMovementOptions & 1) == 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_movTranslInSim.name) == 0) || (strcmp(ppName, propSceneObject_movTranslInSimDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectMovementOptions & 2) == 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_movRotNoSim.name) == 0) || (strcmp(ppName, propSceneObject_movRotNoSimDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectMovementOptions & 4) == 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_movRotInSim.name) == 0) || (strcmp(ppName, propSceneObject_movRotInSimDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectMovementOptions & 8) == 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_movAltTransl.name) == 0) || (strcmp(ppName, propSceneObject_movAltTranslDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectMovementOptions & 16) == 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_movAltRot.name) == 0) || (strcmp(ppName, propSceneObject_movAltRotDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectMovementOptions & 32) == 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_movPrefTranslX.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslXDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectMovementPreferredAxes & 1) != 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_movPrefTranslY.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslYDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectMovementPreferredAxes & 2) != 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_movPrefTranslZ.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslZDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectMovementPreferredAxes & 4) != 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_movPrefRotX.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotXDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectMovementPreferredAxes & 8) != 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_movPrefRotY.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotYDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectMovementPreferredAxes & 16) != 0;
+        }
+        else if ((strcmp(ppName, propSceneObject_movPrefRotZ.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotZDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_objectMovementPreferredAxes & 32) != 0;
+        }
+        else if (_pName == propSceneObject_selected.name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _selected;
+        }
+        else if (_pName == propSceneObject_collidable.name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_localObjectSpecialProperty & sim_objectspecialproperty_collidable) != 0;
+        }
+        else if (_pName == propSceneObject_measurable.name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_localObjectSpecialProperty & sim_objectspecialproperty_measurable) != 0;
+        }
+        else if (_pName == propSceneObject_detectable.name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = (_localObjectSpecialProperty & sim_objectspecialproperty_detectable) != 0;
+        }
+        else if (_pName == propSceneObject_visible.name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = isObjectVisible();
+        }
     }
-    else if (strcmp(ppName, propSceneObject_modelBase.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _modelBase;
-    }
-    else if (strcmp(ppName, propSceneObject_ignoreViewFitting.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectProperty & sim_objectproperty_ignoreviewfitting) != 0;
-    }
-    else if (strcmp(ppName, propSceneObject_collapsed.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectProperty & sim_objectproperty_collapsed) != 0;
-    }
-    else if (strcmp(ppName, propSceneObject_selectable.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectProperty & sim_objectproperty_selectable) != 0;
-    }
-    else if (strcmp(ppName, propSceneObject_selectModel.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectProperty & sim_objectproperty_selectmodelbaseinstead) != 0;
-    }
-    else if (strcmp(ppName, propSceneObject_hideFromModelBB.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectProperty & sim_objectproperty_dontshowasinsidemodel) != 0;
-    }
-    else if (strcmp(ppName, propSceneObject_selectInvisible.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectProperty & sim_objectproperty_selectinvisible) != 0;
-    }
-    else if (strcmp(ppName, propSceneObject_depthInvisible.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectProperty & sim_objectproperty_depthinvisible) != 0;
-    }
-    else if (strcmp(ppName, propSceneObject_cannotDelete.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectProperty & sim_objectproperty_cannotdelete) != 0;
-    }
-    else if (strcmp(ppName, propSceneObject_cannotDeleteSim.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectProperty & sim_objectproperty_cannotdeleteduringsim) != 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_modelNotCollidable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotCollidableDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_modelProperty & sim_modelproperty_not_collidable) != 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_modelNotMeasurable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotMeasurableDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_modelProperty & sim_modelproperty_not_measurable) != 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_modelNotDetectable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotDetectableDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_modelProperty & sim_modelproperty_not_detectable) != 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_modelNotDynamic.name) == 0) || (strcmp(ppName, propSceneObject_modelNotDynamicDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_modelProperty & sim_modelproperty_not_dynamic) != 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_modelNotRespondable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotRespondableDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_modelProperty & sim_modelproperty_not_respondable) != 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_modelNotVisible.name) == 0) || (strcmp(ppName, propSceneObject_modelNotVisibleDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_modelProperty & sim_modelproperty_not_visible) != 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_modelScriptsNotActive.name) == 0) || (strcmp(ppName, propSceneObject_modelScriptsNotActiveDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_modelProperty & sim_modelproperty_scripts_inactive) != 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_modelNotInParentBB.name) == 0) || (strcmp(ppName, propSceneObject_modelNotInParentBBDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_modelProperty & sim_modelproperty_not_showasinsidemodel) != 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_movTranslNoSim.name) == 0) || (strcmp(ppName, propSceneObject_movTranslNoSimDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectMovementOptions & 1) == 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_movTranslInSim.name) == 0) || (strcmp(ppName, propSceneObject_movTranslInSimDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectMovementOptions & 2) == 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_movRotNoSim.name) == 0) || (strcmp(ppName, propSceneObject_movRotNoSimDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectMovementOptions & 4) == 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_movRotInSim.name) == 0) || (strcmp(ppName, propSceneObject_movRotInSimDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectMovementOptions & 8) == 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_movAltTransl.name) == 0) || (strcmp(ppName, propSceneObject_movAltTranslDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectMovementOptions & 16) == 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_movAltRot.name) == 0) || (strcmp(ppName, propSceneObject_movAltRotDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectMovementOptions & 32) == 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_movPrefTranslX.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslXDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectMovementPreferredAxes & 1) != 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_movPrefTranslY.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslYDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectMovementPreferredAxes & 2) != 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_movPrefTranslZ.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslZDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectMovementPreferredAxes & 4) != 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_movPrefRotX.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotXDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectMovementPreferredAxes & 8) != 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_movPrefRotY.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotYDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectMovementPreferredAxes & 16) != 0;
-    }
-    else if ((strcmp(ppName, propSceneObject_movPrefRotZ.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotZDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_objectMovementPreferredAxes & 32) != 0;
-    }
-    else if (_pName == propSceneObject_selected.name)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _selected;
-    }
-    else if (_pName == propSceneObject_collidable.name)
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_localObjectSpecialProperty & sim_objectspecialproperty_collidable) != 0;
-    }
-    else if (_pName == propSceneObject_measurable.name)
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_localObjectSpecialProperty & sim_objectspecialproperty_measurable) != 0;
-    }
-    else if (_pName == propSceneObject_detectable.name)
-    {
-        retVal = sim_propertyret_ok;
-        pState = (_localObjectSpecialProperty & sim_objectspecialproperty_detectable) != 0;
-    }
-    else if (_pName == propSceneObject_visible.name)
-    {
-        retVal = sim_propertyret_ok;
-        pState = isObjectVisible();
-    }
-
     return retVal;
 }
 
 int CSceneObject::setIntProperty(const char* ppName, int pState)
 {
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (strcmp(ppName, propSceneObject_layer.name) == 0)
+    int retVal = Obj::setIntProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setIntProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
     {
-        retVal = sim_propertyret_ok;
-        setVisibilityLayer(pState);
-    }
-    else if (strcmp(ppName, propSceneObject_parentHandle.name) == 0)
-    {
-        retVal = 0;
-        CSceneObject* newParent = App::scene->sceneObjects->getObjectFromHandle(pState);
-        if ( (newParent != nullptr) || (pState == -1) )
+        std::string _pName(ppName);
+        if (strcmp(ppName, propSceneObject_layer.name) == 0)
         {
-            if (App::scene->sceneObjects->setObjectParent(this, newParent, false))
-                retVal = sim_propertyret_ok;
+            retVal = sim_propertyret_ok;
+            setVisibilityLayer(pState);
+        }
+        else if (strcmp(ppName, propSceneObject_parentHandle.name) == 0)
+        {
+            retVal = 0;
+            CSceneObject* newParent = App::scene->sceneObjects->getObjectFromHandle(pState);
+            if ( (newParent != nullptr) || (pState == -1) )
+            {
+                if (App::scene->sceneObjects->setObjectParent(this, newParent, false))
+                    retVal = sim_propertyret_ok;
+            }
+        }
+        else if (strcmp(ppName, propSceneObject_objectProperty.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            setObjectProperty(pState);
+        }
+        else if ( (strcmp(ppName, propSceneObject_modelProperty.name) == 0) || (strcmp(ppName, propSceneObject_modelPropertyDEPRECATED.name) == 0) )
+        {
+            retVal = sim_propertyret_ok;
+            setModelProperty(pState);
+        }
+        else if ((strcmp(ppName, propSceneObject_movementOptions.name) == 0) || (strcmp(ppName, propSceneObject_movementOptionsDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setObjectMovementOptions(pState);
+        }
+        else if ((strcmp(ppName, propSceneObject_movementPreferredAxes.name) == 0) || (strcmp(ppName, propSceneObject_movementPreferredAxesDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            setObjectMovementPreferredAxes(pState);
+        }
+        else if (_pName == propSceneObject_hierarchyColor.name)
+        {
+            retVal = sim_propertyret_ok;
+            setHierarchyColorIndex(pState);
+        }
+        else if (_pName == propSceneObject_collectionSelfCollInd.name)
+        {
+            retVal = sim_propertyret_ok;
+            setCollectionSelfCollisionIndicator(pState);
         }
     }
-    else if (strcmp(ppName, propSceneObject_objectProperty.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        setObjectProperty(pState);
-    }
-    else if ( (strcmp(ppName, propSceneObject_modelProperty.name) == 0) || (strcmp(ppName, propSceneObject_modelPropertyDEPRECATED.name) == 0) )
-    {
-        retVal = sim_propertyret_ok;
-        setModelProperty(pState);
-    }
-    else if ((strcmp(ppName, propSceneObject_movementOptions.name) == 0) || (strcmp(ppName, propSceneObject_movementOptionsDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setObjectMovementOptions(pState);
-    }
-    else if ((strcmp(ppName, propSceneObject_movementPreferredAxes.name) == 0) || (strcmp(ppName, propSceneObject_movementPreferredAxesDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        setObjectMovementPreferredAxes(pState);
-    }
-    else if (_pName == propSceneObject_hierarchyColor.name)
-    {
-        retVal = sim_propertyret_ok;
-        setHierarchyColorIndex(pState);
-    }
-    else if (_pName == propSceneObject_collectionSelfCollInd.name)
-    {
-        retVal = sim_propertyret_ok;
-        setCollectionSelfCollisionIndicator(pState);
-    }
-
     return retVal;
 }
 
 int CSceneObject::getIntProperty(const char* ppName, int& pState) const
 {
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (strcmp(ppName, propSceneObject_layer.name) == 0)
+    int retVal = Obj::getIntProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getIntProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
     {
-        retVal = sim_propertyret_ok;
-        pState = _visibilityLayer;
+        std::string _pName(ppName);
+        if (strcmp(ppName, propSceneObject_layer.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _visibilityLayer;
+        }
+        else if (strcmp(ppName, propSceneObject_childOrder.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _childOrder;
+        }
+        else if (strcmp(ppName, propSceneObject_parentHandle.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = -1;
+            if (_parentObject != nullptr)
+                pState = _parentObject->getObjectHandle();
+        }
+        else if (strcmp(ppName, propSceneObject_objectProperty.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _objectProperty;
+        }
+        else if ((strcmp(ppName, propSceneObject_modelProperty.name) == 0) || (strcmp(ppName, propSceneObject_modelPropertyDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = _modelProperty;
+        }
+        else if ((strcmp(ppName, propSceneObject_movementOptions.name) == 0) || (strcmp(ppName, propSceneObject_movementOptionsDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = _objectMovementOptions;
+        }
+        else if ((strcmp(ppName, propSceneObject_movementPreferredAxes.name) == 0) || (strcmp(ppName, propSceneObject_movementPreferredAxesDEPRECATED.name) == 0))
+        {
+            retVal = sim_propertyret_ok;
+            pState = _objectMovementPreferredAxes;
+        }
+        else if (_pName == propSceneObject_hierarchyColor.name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _hierarchyColorIndex;
+        }
+        else if (_pName == propSceneObject_collectionSelfCollInd.name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _collectionSelfCollisionIndicator;
+        }
+        else if (_pName == propSceneObject_dynamicIcon.name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _dynamicSimulationIconCode;
+        }
+        else if (_pName == propSceneObject_dynamicFlag.name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _dynamicFlag;
+        }
     }
-    else if (strcmp(ppName, propSceneObject_childOrder.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _childOrder;
-    }
-    else if (strcmp(ppName, propSceneObject_parentHandle.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = -1;
-        if (_parentObject != nullptr)
-            pState = _parentObject->getObjectHandle();
-    }
-    else if (strcmp(ppName, propSceneObject_objectProperty.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _objectProperty;
-    }
-    else if ((strcmp(ppName, propSceneObject_modelProperty.name) == 0) || (strcmp(ppName, propSceneObject_modelPropertyDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = _modelProperty;
-    }
-    else if ((strcmp(ppName, propSceneObject_movementOptions.name) == 0) || (strcmp(ppName, propSceneObject_movementOptionsDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = _objectMovementOptions;
-    }
-    else if ((strcmp(ppName, propSceneObject_movementPreferredAxes.name) == 0) || (strcmp(ppName, propSceneObject_movementPreferredAxesDEPRECATED.name) == 0))
-    {
-        retVal = sim_propertyret_ok;
-        pState = _objectMovementPreferredAxes;
-    }
-    else if (_pName == propSceneObject_hierarchyColor.name)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _hierarchyColorIndex;
-    }
-    else if (_pName == propSceneObject_collectionSelfCollInd.name)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _collectionSelfCollisionIndicator;
-    }
-    else if (_pName == propSceneObject_dynamicIcon.name)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _dynamicSimulationIconCode;
-    }
-    else if (_pName == propSceneObject_dynamicFlag.name)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _dynamicFlag;
-    }
-
     return retVal;
 }
 
 int CSceneObject::setLongProperty(const char* ppName, long long int pState)
 {
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
+    int retVal = Obj::setLongProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setLongProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
     return retVal;
 }
 
 int CSceneObject::getLongProperty(const char* ppName, long long int& pState) const
 {
     int retVal = Obj::getLongProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getLongProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(ppName, propSceneObject_parentUid.name) == 0)
@@ -6224,88 +6288,105 @@ int CSceneObject::getLongProperty(const char* ppName, long long int& pState) con
 
 int CSceneObject::setHandleProperty(const char* ppName, long long int pState)
 {
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (strcmp(ppName, propSceneObject_parent.name) == 0)
+    int retVal = Obj::setHandleProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setHandleProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
     {
-        retVal = 0;
-        CSceneObject* newParent = App::scene->sceneObjects->getObjectFromHandle(pState);
-        if ( (newParent != nullptr) || (pState == -1) )
+        std::string _pName(ppName);
+        if (strcmp(ppName, propSceneObject_parent.name) == 0)
         {
-            if (App::scene->sceneObjects->setObjectParent(this, newParent, false))
-                retVal = sim_propertyret_ok;
+            retVal = 0;
+            CSceneObject* newParent = App::scene->sceneObjects->getObjectFromHandle(pState);
+            if ( (newParent != nullptr) || (pState == -1) )
+            {
+                if (App::scene->sceneObjects->setObjectParent(this, newParent, false))
+                    retVal = sim_propertyret_ok;
+            }
         }
     }
-
     return retVal;
 }
 
 int CSceneObject::getHandleProperty(const char* ppName, long long int& pState) const
 {
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (strcmp(ppName, propSceneObject_parent.name) == 0)
+    int retVal = Obj::getHandleProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getHandleProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
     {
-        retVal = sim_propertyret_ok;
-        pState = -1;
-        if (_parentObject != nullptr)
-            pState = _parentObject->getObjectHandle();
+        std::string _pName(ppName);
+        if (strcmp(ppName, propSceneObject_parent.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = -1;
+            if (_parentObject != nullptr)
+                pState = _parentObject->getObjectHandle();
+        }
     }
-
     return retVal;
 }
 
 int CSceneObject::setFloatProperty(const char* ppName, double pState)
 {
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
+    int retVal = Obj::setFloatProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setFloatProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
     return retVal;
 }
 
 int CSceneObject::getFloatProperty(const char* ppName, double& pState) const
 {
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (_pName == propSceneObject_calcRotationVelocity.name)
+    int retVal = Obj::getFloatProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getFloatProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
     {
-        pState = _measuredAngularVelocity_velocityMeasurement;
-        retVal = sim_propertyret_ok;
+        std::string _pName(ppName);
+        if (_pName == propSceneObject_calcRotationVelocity.name)
+        {
+            pState = _measuredAngularVelocity_velocityMeasurement;
+            retVal = sim_propertyret_ok;
+        }
     }
-
     return retVal;
 }
 
 int CSceneObject::setStringProperty(const char* ppName, const std::string& pState)
 {
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if ((_pName == propSceneObject_alias.name) || (_pName == propSceneObject_name.name))
+    int retVal = Obj::setStringProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setStringProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
     {
-        App::scene->sceneObjects->setObjectAlias(this, pState.c_str(), false);
-        retVal = sim_propertyret_ok;
+        std::string _pName(ppName);
+        if ((_pName == propSceneObject_alias.name) || (_pName == propSceneObject_name.name))
+        {
+            App::scene->sceneObjects->setObjectAlias(this, pState.c_str(), false);
+            retVal = sim_propertyret_ok;
+        }
+        else if (_pName == propSceneObject_deprecatedName.name)
+        {
+            setObjectName_direct_old(pState.c_str());
+            retVal = sim_propertyret_ok;
+        }
+        else if (_pName == propSceneObject_modelAcknowledgment.name)
+        {
+            setModelAcknowledgement(pState.c_str());
+            retVal = sim_propertyret_ok;
+        }
     }
-    else if (_pName == propSceneObject_deprecatedName.name)
-    {
-        setObjectName_direct_old(pState.c_str());
-        retVal = sim_propertyret_ok;
-    }
-    else if (_pName == propSceneObject_modelAcknowledgment.name)
-    {
-        setModelAcknowledgement(pState.c_str());
-        retVal = sim_propertyret_ok;
-    }
-
     return retVal;
 }
 
 int CSceneObject::getStringProperty(const char* ppName, std::string& pState) const
 {
     int retVal = Obj::getStringProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getStringProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         std::string _pName(ppName);
@@ -6344,556 +6425,647 @@ int CSceneObject::getStringProperty(const char* ppName, std::string& pState) con
 
 int CSceneObject::setBufferProperty(const char* ppName, const std::string& pState)
 {
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-    std::string pN(ppName);
-    CCustomData* customDataPtr = nullptr;
-    if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
-        customDataPtr = &customObjectData;
-    else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
-        customDataPtr = &customObjectData_volatile;
-    if (customDataPtr != nullptr)
-    {
-        if (pN.size() > 0)
-        {
-            bool diff = customDataPtr->setData(pN.c_str(), pState.data(), pState.size(), true);
-            if (diff && _isInScene && App::scenes->getEventsEnabled())
-            {
-                CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, true, nullptr, false);
-                customDataPtr->appendEventData(pN.c_str(), ev);
-                // ev->appendKeyBuffer(cmd.c_str(), buffer, bufferL);
-                App::scenes->pushEvent();
-            }
-            retVal = sim_propertyret_ok;
-        }
-    }
-
-    return retVal;
-}
-
-int CSceneObject::getBufferProperty(const char* ppName, std::string& pState) const
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-    std::string pN(ppName);
-    const CCustomData* customDataPtr = nullptr;
-    if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
-        customDataPtr = &customObjectData;
-    else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
-        customDataPtr = &customObjectData_volatile;
-    if (customDataPtr != nullptr)
-    {
-        if (pN.size() > 0)
-        {
-            if (customDataPtr->hasData(pN.c_str(), false) >= 0)
-            {
-                pState = customDataPtr->getData(pN.c_str());
-                retVal = sim_propertyret_ok;
-            }
-        }
-    }
-
+    int retVal = Obj::setBufferProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setBufferProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propSceneObject_dna.name)
-        {
-            retVal = sim_propertyret_ok;
-            pState = _dnaString;
-        }
-    }
-
-    return retVal;
-}
-
-int CSceneObject::setIntArray2Property(const char* ppName, const int* pState)
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
-int CSceneObject::getIntArray2Property(const char* ppName, int* pState) const
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
-int CSceneObject::setVector3Property(const char* ppName, const C3Vector& pState)
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (strcmp(ppName, propSceneObject_position.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        C7Vector tr(_localTransformation);
-        tr.X = pState;
-        setLocalTransformation(tr);
-    }
-    else if (strcmp(ppName, propSceneObject_eulerAngles.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        C7Vector tr(_localTransformation);
-        tr.Q = C4Vector(pState);
-        setLocalTransformation(tr);
-    }
-    else if (strcmp(ppName, propSceneObject_absPosition.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        C7Vector tr(getCumulativeTransformation());
-        tr.X = pState;
-        setAbsoluteTransformation(tr);
-    }
-    else if (strcmp(ppName, propSceneObject_absEulerAngles.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        C7Vector tr(getCumulativeTransformation());
-        tr.Q = C4Vector(pState);
-        setAbsoluteTransformation(tr);
-    }
-    else if (strcmp(ppName, propSceneObject_size.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        C3Vector s(_bbHalfSize * 2.0);
-        for (size_t i = 0; i < 3; i++)
-        {
-            if (s(i) != 0.0)
-                s(i) = pState(i) / s(i);
-        }
-        scaleObjectNonIsometrically(s(0), s(1), s(2));
-    }
-
-    return retVal;
-}
-
-int CSceneObject::getVector3Property(const char* ppName, C3Vector& pState) const
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (_pName == propSceneObject_calcLinearVelocity.name)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _measuredLinearVelocity_velocityMeasurement;
-    }
-    else if (_pName == propSceneObject_calcRotationAxis.name)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _measuredAngularVelocityAxis_velocityMeasurement;
-    }
-    else if (_pName == propSceneObject_size.name)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _bbHalfSize * 2.0;
-    }
-    else if (_pName == propSceneObject_bbHsize.name)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _bbHalfSize;
-    }
-    else if ( (_pName == propSceneObject_modelBBSize.name) || (_pName == propSceneObject_modelBBPos.name) )
-    {
-        retVal = sim_propertyret_ok;
-        C3Vector minV(C3Vector::inf);
-        C3Vector maxV(C3Vector::ninf);
-        if (!getModelBB((getCumulativeTransformation() * getBB(nullptr)).getInverse(), minV, maxV, true))
-            pState.clear();
-        else
-        {
-            retVal = sim_propertyret_ok;
-            if (_pName == propSceneObject_modelBBSize.name)
-                pState = maxV - minV;
-            else
-                pState = (maxV + minV) * 0.5;
-        }
-    }
-    else if (strcmp(ppName, propSceneObject_position.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _localTransformation.X;
-    }
-    else if (strcmp(ppName, propSceneObject_eulerAngles.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _localTransformation.Q.getEulerAngles();
-    }
-    else if (strcmp(ppName, propSceneObject_absPosition.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = getCumulativeTransformation().X;
-    }
-    else if (strcmp(ppName, propSceneObject_absEulerAngles.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = getCumulativeTransformation().Q.getEulerAngles();
-    }
-
-    return retVal;
-}
-
-int CSceneObject::setMatrixProperty(const char* ppName, const CMatrix& pState)
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
-int CSceneObject::getMatrixProperty(const char* ppName, CMatrix& pState) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
-int CSceneObject::setQuaternionProperty(const char* ppName, const C4Vector& pState)
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (strcmp(ppName, propSceneObject_quaternion.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        C7Vector tr(_localTransformation);
-        tr.Q = pState;
-        setLocalTransformation(tr);
-    }
-    else if (strcmp(ppName, propSceneObject_absQuaternion.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        C7Vector tr(getCumulativeTransformation());
-        tr.Q = pState;
-        setAbsoluteTransformation(tr);
-    }
-
-    return retVal;
-}
-
-int CSceneObject::getQuaternionProperty(const char* ppName, C4Vector& pState) const
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (strcmp(ppName, propSceneObject_quaternion.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _localTransformation.Q;
-    }
-    else if (strcmp(ppName, propSceneObject_absQuaternion.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = getCumulativeTransformation().Q;
-    }
-
-    return retVal;
-}
-
-int CSceneObject::setPoseProperty(const char* ppName, const C7Vector& pState)
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (strcmp(ppName, propSceneObject_pose.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        setLocalTransformation(pState);
-    }
-    else if (strcmp(ppName, propSceneObject_absPose.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        setAbsoluteTransformation(pState);
-    }
-
-    return retVal;
-}
-
-int CSceneObject::getPoseProperty(const char* ppName, C7Vector& pState) const
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (strcmp(ppName, propSceneObject_pose.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _localTransformation;
-    }
-    else if (strcmp(ppName, propSceneObject_absPose.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = getCumulativeTransformation();
-    }
-    else if (strcmp(ppName, propSceneObject_bbPose.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState = _bbFrame;
-    }
-
-    return retVal;
-}
-
-int CSceneObject::setColorProperty(const char* ppName, const float* pState)
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
-int CSceneObject::getColorProperty(const char* ppName, float* pState) const
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
-int CSceneObject::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState)
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if ((strcmp(ppName, propSceneObject_movementStepSize.name) == 0) || (strcmp(ppName, propSceneObject_movementStepSizeDEPRECATED.name) == 0))
-    {
-        if (pState.size() >= 2)
-        {
-            retVal = sim_propertyret_ok;
-            setObjectMovementStepSize(0, pState[0]);
-            setObjectMovementStepSize(1, pState[1]);
-        }
-        else
-            retVal = 0;
-    }
-
-    return retVal;
-}
-
-int CSceneObject::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-    pState.clear();
-
-    if ((strcmp(ppName, propSceneObject_movementStepSize.name) == 0) || (strcmp(ppName, propSceneObject_movementStepSizeDEPRECATED.name) == 0))
-    {
-        pState.push_back(_objectMovementStepSize[0]);
-        pState.push_back(_objectMovementStepSize[1]);
-        retVal = sim_propertyret_ok;
-    }
-
-    return retVal;
-}
-
-int CSceneObject::setIntArrayProperty(const char* ppName, const std::vector<int>& pState)
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    if ((strcmp(ppName, propSceneObject_movementRelativity.name) == 0) || (strcmp(ppName, propSceneObject_movementRelativityDEPRECATED.name) == 0))
-    {
-        if (pState.size() >= 2)
-        {
-            retVal = sim_propertyret_ok;
-            setObjectMovementRelativity(0, pState[0]);
-            setObjectMovementRelativity(1, pState[1]);
-        }
-        else
-            retVal = 0;
-    }
-
-    return retVal;
-}
-
-int CSceneObject::getIntArrayProperty(const char* ppName, std::vector<int>& pState) const
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-    pState.clear();
-
-    if ((strcmp(ppName, propSceneObject_movementRelativity.name) == 0) || (strcmp(ppName, propSceneObject_movementRelativityDEPRECATED.name) == 0))
-    {
-        pState.push_back(_objectMovementRelativity[0]);
-        pState.push_back(_objectMovementRelativity[1]);
-        retVal = sim_propertyret_ok;
-    }
-
-    return retVal;
-}
-
-int CSceneObject::setHandleArrayProperty(const char* ppName, const std::vector<long long int>& pState)
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    std::string pN(ppName);
-    if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
-    {
-        std::vector<int> v2;
-        for (int i = 0; i < pState.size(); i++)
-            v2.push_back(int(pState[i]));
-        setReferencedHandles(v2.size(), v2.data(), pN.c_str());
-        retVal = sim_propertyret_ok;
-    }
-    else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
-    {
-        std::vector<int> v2;
-        for (int i = 0; i < pState.size(); i++)
-            v2.push_back(int(pState[i]));
-        setReferencedOriginalHandles(int(v2.size()), v2.data(), pN.c_str());
-        retVal = sim_propertyret_ok;
-    }
-
-    return retVal;
-}
-
-int CSceneObject::getHandleArrayProperty(const char* ppName, std::vector<long long int>& pState) const
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-    pState.clear();
-
-    if (strcmp(ppName, propSceneObject_children.name) == 0)
-    {
-        for (size_t i = 0; i < _childList.size(); i++)
-            pState.push_back(_childList[i]->getObjectHandle());
-        retVal = sim_propertyret_ok;
-    }
-
-    if (retVal == sim_propertyret_unknownproperty)
-    {
+        std::string _pName(ppName);
         std::string pN(ppName);
-        if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
+        CCustomData* customDataPtr = nullptr;
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+            customDataPtr = &customObjectData;
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+            customDataPtr = &customObjectData_volatile;
+        if (customDataPtr != nullptr)
         {
-            size_t cnt = getReferencedHandlesCount(pN.c_str());
-            std::vector<int> v2;
-            if (cnt > 0)
+            if (pN.size() > 0)
             {
-                v2.resize(cnt);
-                getReferencedHandles(v2.data(), pN.c_str());
-            }
-            for (size_t i = 0; i < v2.size(); i++)
-                pState.push_back(v2[i]);
-            retVal = sim_propertyret_ok;
-        }
-        else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
-        {
-            size_t cnt = getReferencedOriginalHandlesCount(pN.c_str());
-            std::vector<int> v2;
-            if (cnt > 0)
-            {
-                v2.resize(cnt);
-                getReferencedOriginalHandles(v2.data(), pN.c_str());
-            }
-            for (size_t i = 0; i < v2.size(); i++)
-                pState.push_back(v2[i]);
-            retVal = sim_propertyret_ok;
-        }
-    }
-
-    return retVal;
-}
-
-int CSceneObject::setStringArrayProperty(const char* ppName, const std::vector<std::string>& pState)
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
-int CSceneObject::getStringArrayProperty(const char* ppName, std::vector<std::string>& pState) const
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-    pState.clear();
-
-    return retVal;
-}
-
-int CSceneObject::setMethodProperty(const char* pName, const void* pState)
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
-int CSceneObject::getMethodProperty(const char* pName, void*& pState) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
-int CSceneObject::setMethodProperty(const char* pName, const std::string& pState)
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
-int CSceneObject::getMethodProperty(const char* pName, std::string& pState) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
-int CSceneObject::removeProperty(const char* ppName)
-{
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
-
-    std::string pN(ppName);
-    CCustomData* customDataPtr = nullptr;
-    if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
-        customDataPtr = &customObjectData;
-    else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
-        customDataPtr = &customObjectData_volatile;
-    if (customDataPtr != nullptr)
-    {
-        if (pN.size() > 0)
-        {
-            int tp = customDataPtr->hasData(pN.c_str(), true);
-            if (tp >= 0)
-            {
-                bool diff = customDataPtr->clearData((propertyStrings[tp] + pN).c_str());
+                bool diff = customDataPtr->setData(pN.c_str(), pState.data(), pState.size(), true);
                 if (diff && _isInScene && App::scenes->getEventsEnabled())
                 {
                     CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, true, nullptr, false);
-                    customDataPtr->appendEventData(pN.c_str(), ev, true);
+                    customDataPtr->appendEventData(pN.c_str(), ev);
+                    // ev->appendKeyBuffer(cmd.c_str(), buffer, bufferL);
                     App::scenes->pushEvent();
                 }
                 retVal = sim_propertyret_ok;
             }
         }
     }
-    else
+    return retVal;
+}
+
+int CSceneObject::getBufferProperty(const char* ppName, std::string& pState) const
+{
+    int retVal = Obj::getBufferProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getBufferProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
     {
+        std::string _pName(ppName);
+        std::string pN(ppName);
+        const CCustomData* customDataPtr = nullptr;
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+            customDataPtr = &customObjectData;
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+            customDataPtr = &customObjectData_volatile;
+        if (customDataPtr != nullptr)
+        {
+            if (pN.size() > 0)
+            {
+                if (customDataPtr->hasData(pN.c_str(), false) >= 0)
+                {
+                    pState = customDataPtr->getData(pN.c_str());
+                    retVal = sim_propertyret_ok;
+                }
+            }
+        }
+
+        if (retVal == sim_propertyret_unknownproperty)
+        {
+            if (_pName == propSceneObject_dna.name)
+            {
+                retVal = sim_propertyret_ok;
+                pState = _dnaString;
+            }
+        }
+    }
+    return retVal;
+}
+
+int CSceneObject::setIntArray2Property(const char* ppName, const int* pState)
+{
+    int retVal = Obj::setIntArray2Property(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setIntArray2Property(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
+    return retVal;
+}
+
+int CSceneObject::getIntArray2Property(const char* ppName, int* pState) const
+{
+    int retVal = Obj::getIntArray2Property(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getIntArray2Property(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
+    return retVal;
+}
+
+int CSceneObject::setVector3Property(const char* ppName, const C3Vector& pState)
+{
+    int retVal = Obj::setVector3Property(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setVector3Property(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        std::string _pName(ppName);
+        if (strcmp(ppName, propSceneObject_position.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            C7Vector tr(_localTransformation);
+            tr.X = pState;
+            setLocalTransformation(tr);
+        }
+        else if (strcmp(ppName, propSceneObject_eulerAngles.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            C7Vector tr(_localTransformation);
+            tr.Q = C4Vector(pState);
+            setLocalTransformation(tr);
+        }
+        else if (strcmp(ppName, propSceneObject_absPosition.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            C7Vector tr(getCumulativeTransformation());
+            tr.X = pState;
+            setAbsoluteTransformation(tr);
+        }
+        else if (strcmp(ppName, propSceneObject_absEulerAngles.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            C7Vector tr(getCumulativeTransformation());
+            tr.Q = C4Vector(pState);
+            setAbsoluteTransformation(tr);
+        }
+        else if (strcmp(ppName, propSceneObject_size.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            C3Vector s(_bbHalfSize * 2.0);
+            for (size_t i = 0; i < 3; i++)
+            {
+                if (s(i) != 0.0)
+                    s(i) = pState(i) / s(i);
+            }
+            scaleObjectNonIsometrically(s(0), s(1), s(2));
+        }
+    }
+    return retVal;
+}
+
+int CSceneObject::getVector3Property(const char* ppName, C3Vector& pState) const
+{
+    int retVal = Obj::getVector3Property(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getVector3Property(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        std::string _pName(ppName);
+        if (_pName == propSceneObject_calcLinearVelocity.name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _measuredLinearVelocity_velocityMeasurement;
+        }
+        else if (_pName == propSceneObject_calcRotationAxis.name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _measuredAngularVelocityAxis_velocityMeasurement;
+        }
+        else if (_pName == propSceneObject_size.name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _bbHalfSize * 2.0;
+        }
+        else if (_pName == propSceneObject_bbHsize.name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _bbHalfSize;
+        }
+        else if ( (_pName == propSceneObject_modelBBSize.name) || (_pName == propSceneObject_modelBBPos.name) )
+        {
+            retVal = sim_propertyret_ok;
+            C3Vector minV(C3Vector::inf);
+            C3Vector maxV(C3Vector::ninf);
+            if (!getModelBB((getCumulativeTransformation() * getBB(nullptr)).getInverse(), minV, maxV, true))
+                pState.clear();
+            else
+            {
+                retVal = sim_propertyret_ok;
+                if (_pName == propSceneObject_modelBBSize.name)
+                    pState = maxV - minV;
+                else
+                    pState = (maxV + minV) * 0.5;
+            }
+        }
+        else if (strcmp(ppName, propSceneObject_position.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _localTransformation.X;
+        }
+        else if (strcmp(ppName, propSceneObject_eulerAngles.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _localTransformation.Q.getEulerAngles();
+        }
+        else if (strcmp(ppName, propSceneObject_absPosition.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = getCumulativeTransformation().X;
+        }
+        else if (strcmp(ppName, propSceneObject_absEulerAngles.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = getCumulativeTransformation().Q.getEulerAngles();
+        }
+    }
+    return retVal;
+}
+
+int CSceneObject::setMatrixProperty(const char* ppName, const CMatrix& pState)
+{
+    int retVal = Obj::setMatrixProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setMatrixProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
+    return retVal;
+}
+
+int CSceneObject::getMatrixProperty(const char* ppName, CMatrix& pState) const
+{
+    int retVal = Obj::getMatrixProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getMatrixProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
+    return retVal;
+}
+
+int CSceneObject::setQuaternionProperty(const char* ppName, const C4Vector& pState)
+{
+    int retVal = Obj::setQuaternionProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setQuaternionProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        std::string _pName(ppName);
+        if (strcmp(ppName, propSceneObject_quaternion.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            C7Vector tr(_localTransformation);
+            tr.Q = pState;
+            setLocalTransformation(tr);
+        }
+        else if (strcmp(ppName, propSceneObject_absQuaternion.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            C7Vector tr(getCumulativeTransformation());
+            tr.Q = pState;
+            setAbsoluteTransformation(tr);
+        }
+    }
+    return retVal;
+}
+
+int CSceneObject::getQuaternionProperty(const char* ppName, C4Vector& pState) const
+{
+    int retVal = Obj::getQuaternionProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getQuaternionProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        std::string _pName(ppName);
+        if (strcmp(ppName, propSceneObject_quaternion.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _localTransformation.Q;
+        }
+        else if (strcmp(ppName, propSceneObject_absQuaternion.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = getCumulativeTransformation().Q;
+        }
+    }
+    return retVal;
+}
+
+int CSceneObject::setPoseProperty(const char* ppName, const C7Vector& pState)
+{
+    int retVal = Obj::setPoseProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setPoseProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        std::string _pName(ppName);
+        if (strcmp(ppName, propSceneObject_pose.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            setLocalTransformation(pState);
+        }
+        else if (strcmp(ppName, propSceneObject_absPose.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            setAbsoluteTransformation(pState);
+        }
+    }
+    return retVal;
+}
+
+int CSceneObject::getPoseProperty(const char* ppName, C7Vector& pState) const
+{
+    int retVal = Obj::getPoseProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getPoseProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        std::string _pName(ppName);
+        if (strcmp(ppName, propSceneObject_pose.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _localTransformation;
+        }
+        else if (strcmp(ppName, propSceneObject_absPose.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = getCumulativeTransformation();
+        }
+        else if (strcmp(ppName, propSceneObject_bbPose.name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _bbFrame;
+        }
+    }
+    return retVal;
+}
+
+int CSceneObject::setColorProperty(const char* ppName, const float* pState)
+{
+    int retVal = Obj::setColorProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setColorProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
+    return retVal;
+}
+
+int CSceneObject::getColorProperty(const char* ppName, float* pState) const
+{
+    int retVal = Obj::getColorProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getColorProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
+    return retVal;
+}
+
+int CSceneObject::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState)
+{
+    int retVal = Obj::setFloatArrayProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setFloatArrayProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        std::string _pName(ppName);
+        if ((strcmp(ppName, propSceneObject_movementStepSize.name) == 0) || (strcmp(ppName, propSceneObject_movementStepSizeDEPRECATED.name) == 0))
+        {
+            if (pState.size() >= 2)
+            {
+                retVal = sim_propertyret_ok;
+                setObjectMovementStepSize(0, pState[0]);
+                setObjectMovementStepSize(1, pState[1]);
+            }
+            else
+                retVal = 0;
+        }
+    }
+    return retVal;
+}
+
+int CSceneObject::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
+{
+    pState.clear();
+    int retVal = Obj::getFloatArrayProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getFloatArrayProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        std::string _pName(ppName);
+        if ((strcmp(ppName, propSceneObject_movementStepSize.name) == 0) || (strcmp(ppName, propSceneObject_movementStepSizeDEPRECATED.name) == 0))
+        {
+            pState.push_back(_objectMovementStepSize[0]);
+            pState.push_back(_objectMovementStepSize[1]);
+            retVal = sim_propertyret_ok;
+        }
+    }
+    return retVal;
+}
+
+int CSceneObject::setIntArrayProperty(const char* ppName, const std::vector<int>& pState)
+{
+    int retVal = Obj::setIntArrayProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setIntArrayProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        std::string _pName(ppName);
+        if ((strcmp(ppName, propSceneObject_movementRelativity.name) == 0) || (strcmp(ppName, propSceneObject_movementRelativityDEPRECATED.name) == 0))
+        {
+            if (pState.size() >= 2)
+            {
+                retVal = sim_propertyret_ok;
+                setObjectMovementRelativity(0, pState[0]);
+                setObjectMovementRelativity(1, pState[1]);
+            }
+            else
+                retVal = 0;
+        }
+    }
+    return retVal;
+}
+
+int CSceneObject::getIntArrayProperty(const char* ppName, std::vector<int>& pState) const
+{
+    pState.clear();
+    int retVal = Obj::getIntArrayProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getIntArrayProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        std::string _pName(ppName);
+        if ((strcmp(ppName, propSceneObject_movementRelativity.name) == 0) || (strcmp(ppName, propSceneObject_movementRelativityDEPRECATED.name) == 0))
+        {
+            pState.push_back(_objectMovementRelativity[0]);
+            pState.push_back(_objectMovementRelativity[1]);
+            retVal = sim_propertyret_ok;
+        }
+    }
+    return retVal;
+}
+
+int CSceneObject::setHandleArrayProperty(const char* ppName, const std::vector<long long int>& pState)
+{
+    int retVal = Obj::setHandleArrayProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setHandleArrayProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        std::string _pName(ppName);
+        std::string pN(ppName);
         if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
         {
-            if (getReferencedHandlesCount(pN.c_str()) > 0)
-            {
-                setReferencedHandles(0, nullptr, pN.c_str());
-                retVal = sim_propertyret_ok;
-            }
+            std::vector<int> v2;
+            for (int i = 0; i < pState.size(); i++)
+                v2.push_back(int(pState[i]));
+            setReferencedHandles(v2.size(), v2.data(), pN.c_str());
+            retVal = sim_propertyret_ok;
         }
         else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
         {
-            if (getReferencedOriginalHandlesCount(pN.c_str()) > 0)
+            std::vector<int> v2;
+            for (int i = 0; i < pState.size(); i++)
+                v2.push_back(int(pState[i]));
+            setReferencedOriginalHandles(int(v2.size()), v2.data(), pN.c_str());
+            retVal = sim_propertyret_ok;
+        }
+    }
+    return retVal;
+}
+
+int CSceneObject::getHandleArrayProperty(const char* ppName, std::vector<long long int>& pState) const
+{
+    pState.clear();
+    int retVal = Obj::getHandleArrayProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getHandleArrayProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        std::string _pName(ppName);
+        if (strcmp(ppName, propSceneObject_children.name) == 0)
+        {
+            for (size_t i = 0; i < _childList.size(); i++)
+                pState.push_back(_childList[i]->getObjectHandle());
+            retVal = sim_propertyret_ok;
+        }
+
+        if (retVal == sim_propertyret_unknownproperty)
+        {
+            std::string pN(ppName);
+            if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
             {
-                setReferencedOriginalHandles(0, nullptr, pN.c_str());
+                size_t cnt = getReferencedHandlesCount(pN.c_str());
+                std::vector<int> v2;
+                if (cnt > 0)
+                {
+                    v2.resize(cnt);
+                    getReferencedHandles(v2.data(), pN.c_str());
+                }
+                for (size_t i = 0; i < v2.size(); i++)
+                    pState.push_back(v2[i]);
+                retVal = sim_propertyret_ok;
+            }
+            else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
+            {
+                size_t cnt = getReferencedOriginalHandlesCount(pN.c_str());
+                std::vector<int> v2;
+                if (cnt > 0)
+                {
+                    v2.resize(cnt);
+                    getReferencedOriginalHandles(v2.data(), pN.c_str());
+                }
+                for (size_t i = 0; i < v2.size(); i++)
+                    pState.push_back(v2[i]);
                 retVal = sim_propertyret_ok;
             }
         }
     }
+    return retVal;
+}
 
+int CSceneObject::setStringArrayProperty(const char* ppName, const std::vector<std::string>& pState)
+{
+    int retVal = Obj::setStringArrayProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setStringArrayProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
+    return retVal;
+}
+
+int CSceneObject::getStringArrayProperty(const char* ppName, std::vector<std::string>& pState) const
+{
+    pState.clear();
+    int retVal = Obj::getStringArrayProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getStringArrayProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
+    return retVal;
+}
+
+int CSceneObject::setMethodProperty(const char* ppName, const void* pState)
+{
+    int retVal = Obj::setMethodProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setMethodProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
+    return retVal;
+}
+
+int CSceneObject::getMethodProperty(const char* ppName, void*& pState) const
+{
+    int retVal = Obj::getMethodProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getMethodProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
+    return retVal;
+}
+
+int CSceneObject::setMethodProperty(const char* ppName, const std::string& pState)
+{
+    int retVal = Obj::setMethodProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setMethodProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
+    return retVal;
+}
+
+int CSceneObject::getMethodProperty(const char* ppName, std::string& pState) const
+{
+    int retVal = Obj::getMethodProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getMethodProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
+    return retVal;
+}
+
+int CSceneObject::removeProperty(const char* ppName)
+{
+    int retVal = Obj::removeProperty(ppName);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->removeProperty(ppName);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        std::string _pName(ppName);
+        std::string pN(ppName);
+        CCustomData* customDataPtr = nullptr;
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+            customDataPtr = &customObjectData;
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+            customDataPtr = &customObjectData_volatile;
+        if (customDataPtr != nullptr)
+        {
+            if (pN.size() > 0)
+            {
+                int tp = customDataPtr->hasData(pN.c_str(), true);
+                if (tp >= 0)
+                {
+                    bool diff = customDataPtr->clearData((propertyStrings[tp] + pN).c_str());
+                    if (diff && _isInScene && App::scenes->getEventsEnabled())
+                    {
+                        CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, true, nullptr, false);
+                        customDataPtr->appendEventData(pN.c_str(), ev, true);
+                        App::scenes->pushEvent();
+                    }
+                    retVal = sim_propertyret_ok;
+                }
+            }
+        }
+        else
+        {
+            if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
+            {
+                if (getReferencedHandlesCount(pN.c_str()) > 0)
+                {
+                    setReferencedHandles(0, nullptr, pN.c_str());
+                    retVal = sim_propertyret_ok;
+                }
+            }
+            else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
+            {
+                if (getReferencedOriginalHandlesCount(pN.c_str()) > 0)
+                {
+                    setReferencedOriginalHandles(0, nullptr, pN.c_str());
+                    retVal = sim_propertyret_ok;
+                }
+            }
+        }
+    }
     return retVal;
 }
 
 int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getPropertyName(index, pName, appartenance, excludeFlags);
     if (retVal == sim_propertyret_unknownproperty)
     {
         for (size_t i = 0; i < allProps_sceneObject.size(); i++)
@@ -6989,6 +7161,8 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
 int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getPropertyInfo(ppName, info, infoTxt);
     if (retVal == sim_propertyret_unknownproperty)
     {
         for (size_t i = 0; i < allProps_sceneObject.size(); i++)
@@ -7076,12 +7250,8 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& in
 
 int CSceneObject::setPropertyInfo(const char* pName, int info, const char* infoTxt)
 {
-    int dInfo;
-    std::string dInfoTxt;
-    int retVal = Obj::getPropertyInfo(pName, dInfo, dInfoTxt);
-//    if (retVal == sim_propertyret_unknownproperty)
-//        retVal = _customProperties.setPropertyInfo(pName, info, infoTxt);
-//    else
-        retVal = sim_propertyret_unavailable;
+    int retVal = Obj::setPropertyInfo(pName, info, infoTxt);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setPropertyInfo(pName, info, infoTxt);
     return retVal;
 }

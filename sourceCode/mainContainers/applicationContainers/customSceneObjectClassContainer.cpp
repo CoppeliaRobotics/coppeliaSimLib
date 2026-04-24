@@ -10,10 +10,32 @@ CustomSceneObjectClassContainer::~CustomSceneObjectClassContainer()
     clear();
 }
 
-int CustomSceneObjectClassContainer::addClass(const char* className, CSceneObject* obj)
+int CustomSceneObjectClassContainer::makeObject(int classHandle)
+{
+    CSceneObject* classObj = getClass(classHandle);
+    CSceneObject* obj = classObj->copyYourself();
+    int retVal = App::scene->sceneObjects->addObjectToScene(obj, false, true);
+    obj->getCustomizationPart()->setIgnoreSetterGetter(true);
+    obj->getCustomizationPart()->setObjectCanAddRemoveProperty(true);
+    obj->setPropertyInfo("name", sim_propertyinfo_removable, ""); // first make it removable
+    obj->removeProperty("name");
+    obj->setPropertyInfo("customClass", sim_propertyinfo_removable, ""); // first make it removable
+    obj->removeProperty("customClass");
+    obj->setHandleProperty("class", classHandle);
+    obj->setPropertyInfo("class", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"("{"handleType":"class"})");
+    std::string objType;
+    classObj->getStringProperty("name", objType);
+    obj->setObjectTypeStr(objType.c_str());
+    obj->getCustomizationPart()->setIgnoreSetterGetter(false);
+    obj->getCustomizationPart()->setObjectCanAddRemoveProperty(false);
+    return retVal;
+}
+
+int CustomSceneObjectClassContainer::makeClass(CSceneObject* obj, const char* className)
 {
     CSceneObject* copy = obj->copyYourself();
     copy->setObjectTypeStr("class");
+    copy->enableCustomizationPart();
     int h = sim_object_sceneobjectclassstart;
     while (getClass(h) != nullptr)
         h++;
@@ -112,7 +134,7 @@ int CustomSceneObjectClassContainer::setBoolProperty(long long int target, const
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setBoolProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setBoolProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -121,7 +143,7 @@ int CustomSceneObjectClassContainer::getBoolProperty(long long int target, const
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getBoolProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getBoolProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -130,7 +152,7 @@ int CustomSceneObjectClassContainer::setIntProperty(long long int target, const 
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setIntProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setIntProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -139,7 +161,7 @@ int CustomSceneObjectClassContainer::getIntProperty(long long int target, const 
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getIntProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getIntProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -148,7 +170,7 @@ int CustomSceneObjectClassContainer::setLongProperty(long long int target, const
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setLongProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setLongProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -157,7 +179,7 @@ int CustomSceneObjectClassContainer::getLongProperty(long long int target, const
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getLongProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getLongProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -166,7 +188,7 @@ int CustomSceneObjectClassContainer::setHandleProperty(long long int target, con
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setHandleProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setHandleProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -175,7 +197,7 @@ int CustomSceneObjectClassContainer::getHandleProperty(long long int target, con
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getHandleProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getHandleProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -184,7 +206,7 @@ int CustomSceneObjectClassContainer::setFloatProperty(long long int target, cons
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setFloatProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setFloatProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -193,7 +215,7 @@ int CustomSceneObjectClassContainer::getFloatProperty(long long int target, cons
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getFloatProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getFloatProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -202,7 +224,7 @@ int CustomSceneObjectClassContainer::setStringProperty(long long int target, con
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setStringProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setStringProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -211,7 +233,7 @@ int CustomSceneObjectClassContainer::getStringProperty(long long int target, con
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getStringProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getStringProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -220,7 +242,7 @@ int CustomSceneObjectClassContainer::setBufferProperty(long long int target, con
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setBufferProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setBufferProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -229,7 +251,7 @@ int CustomSceneObjectClassContainer::getBufferProperty(long long int target, con
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getBufferProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getBufferProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -238,7 +260,7 @@ int CustomSceneObjectClassContainer::setIntArray2Property(long long int target, 
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setIntArray2Property(ppName, pState);
+        retVal = obj->getCustomizationPart()->setIntArray2Property(ppName, pState, true);
     return retVal;
 }
 
@@ -247,7 +269,7 @@ int CustomSceneObjectClassContainer::getIntArray2Property(long long int target, 
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getIntArray2Property(ppName, pState);
+        retVal = obj->getCustomizationPart()->getIntArray2Property(ppName, pState, true);
     return retVal;
 }
 
@@ -256,7 +278,7 @@ int CustomSceneObjectClassContainer::setVector3Property(long long int target, co
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setVector3Property(ppName, pState);
+        retVal = obj->getCustomizationPart()->setVector3Property(ppName, pState, true);
     return retVal;
 }
 
@@ -265,7 +287,7 @@ int CustomSceneObjectClassContainer::getVector3Property(long long int target, co
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getVector3Property(ppName, pState);
+        retVal = obj->getCustomizationPart()->getVector3Property(ppName, pState, true);
     return retVal;
 }
 
@@ -274,7 +296,7 @@ int CustomSceneObjectClassContainer::setMatrixProperty(long long int target, con
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setMatrixProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setMatrixProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -283,7 +305,7 @@ int CustomSceneObjectClassContainer::getMatrixProperty(long long int target, con
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getMatrixProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getMatrixProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -292,7 +314,7 @@ int CustomSceneObjectClassContainer::setQuaternionProperty(long long int target,
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setQuaternionProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setQuaternionProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -301,7 +323,7 @@ int CustomSceneObjectClassContainer::getQuaternionProperty(long long int target,
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getQuaternionProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getQuaternionProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -310,7 +332,7 @@ int CustomSceneObjectClassContainer::setPoseProperty(long long int target, const
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setPoseProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setPoseProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -319,7 +341,7 @@ int CustomSceneObjectClassContainer::getPoseProperty(long long int target, const
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getPoseProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getPoseProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -328,7 +350,7 @@ int CustomSceneObjectClassContainer::setColorProperty(long long int target, cons
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setColorProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setColorProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -337,7 +359,7 @@ int CustomSceneObjectClassContainer::getColorProperty(long long int target, cons
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getColorProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getColorProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -346,7 +368,7 @@ int CustomSceneObjectClassContainer::setFloatArrayProperty(long long int target,
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setFloatArrayProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setFloatArrayProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -355,7 +377,7 @@ int CustomSceneObjectClassContainer::getFloatArrayProperty(long long int target,
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getFloatArrayProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getFloatArrayProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -364,7 +386,7 @@ int CustomSceneObjectClassContainer::setIntArrayProperty(long long int target, c
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setIntArrayProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setIntArrayProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -373,7 +395,7 @@ int CustomSceneObjectClassContainer::getIntArrayProperty(long long int target, c
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getIntArrayProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getIntArrayProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -382,7 +404,7 @@ int CustomSceneObjectClassContainer::setHandleArrayProperty(long long int target
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setHandleArrayProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setHandleArrayProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -391,7 +413,7 @@ int CustomSceneObjectClassContainer::getHandleArrayProperty(long long int target
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getHandleArrayProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getHandleArrayProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -400,7 +422,7 @@ int CustomSceneObjectClassContainer::setStringArrayProperty(long long int target
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setStringArrayProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setStringArrayProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -409,7 +431,7 @@ int CustomSceneObjectClassContainer::getStringArrayProperty(long long int target
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getStringArrayProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getStringArrayProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -418,7 +440,7 @@ int CustomSceneObjectClassContainer::setMethodProperty(long long int target, con
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setMethodProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setMethodProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -427,7 +449,7 @@ int CustomSceneObjectClassContainer::getMethodProperty(long long int target, con
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getMethodProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getMethodProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -436,7 +458,7 @@ int CustomSceneObjectClassContainer::setMethodProperty(long long int target, con
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setMethodProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->setMethodProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -445,7 +467,7 @@ int CustomSceneObjectClassContainer::getMethodProperty(long long int target, con
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getMethodProperty(ppName, pState);
+        retVal = obj->getCustomizationPart()->getMethodProperty(ppName, pState, true);
     return retVal;
 }
 
@@ -454,7 +476,7 @@ int CustomSceneObjectClassContainer::removeProperty(long long int target, const 
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->removeProperty(ppName);
+        retVal = obj->getCustomizationPart()->removeProperty(ppName, true);
     return retVal;
 }
 
@@ -463,7 +485,7 @@ int CustomSceneObjectClassContainer::getPropertyName(long long int target, int& 
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getPropertyName(index, pName, appartenance, excludeFlags);
+        retVal = obj->getCustomizationPart()->getPropertyName(index, pName, appartenance, excludeFlags, true);
     return retVal;
 }
 
@@ -472,7 +494,7 @@ int CustomSceneObjectClassContainer::getPropertyInfo(long long int target, const
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->getPropertyInfo(ppName, info, infoTxt);
+        retVal = obj->getCustomizationPart()->getPropertyInfo(ppName, info, infoTxt, true);
     return retVal;
 }
 
@@ -481,6 +503,6 @@ int CustomSceneObjectClassContainer::setPropertyInfo(long long int target, const
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
     if (obj != nullptr)
-        retVal = obj->setPropertyInfo(ppName, info, infoTxt);
+        retVal = obj->getCustomizationPart()->setPropertyInfo(ppName, info, infoTxt, true);
     return retVal;
 }

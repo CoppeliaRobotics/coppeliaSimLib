@@ -29,13 +29,13 @@ class CustomObjectContainer
     void announceScriptStateWillBeErased(int scriptHandle);
     void clear();
 
-    long long int addClass(const char* className, const char* objectMetaInfo, int originScriptHandle);
-    bool removeClass(const char* className);
+    long long int makeClass(const char* typeString, const char* objectMetaInfo);
+    bool removeClass(const char* typeString);
     bool removeClass(long long int objectHandle);
     CustomObject* getClass(long long int objectHandle) const;
-    CustomObject* getClass(const char* className) const;
+    CustomObject* getClass(const char* typeString) const;
 
-    long long int addObject(const char* className, bool isVolatile, int originScriptHandle);
+    long long int makeObject(const CustomObject* classObject, bool isVolatile, int originScriptHandle);
     CustomObject* getObject(long long int objectHandle) const;
     bool removeObject(long long int objectHandle);
     void getAllObjectHandles(std::vector<long long int>& objects) const;

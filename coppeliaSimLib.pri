@@ -395,6 +395,7 @@ HEADERS += $$PWD/sourceCode/collisions/collisionRoutines.h \
 HEADERS += $$PWD/sourceCode/distances/distanceRoutines.h \
 
 HEADERS += $$PWD/sourceCode/sceneObjects/related/sceneObject.h \
+    $$PWD/sourceCode/sceneObjects/related/sceneObjectCustomizationPart.h \
     $$PWD/sourceCode/sceneObjects/related/convexVolume.h \
     $$PWD/sourceCode/sceneObjects/related/viewableBase.h \
 
@@ -794,6 +795,7 @@ SOURCES += $$PWD/sourceCode/collisions/collisionRoutines.cpp \
 SOURCES += $$PWD/sourceCode/distances/distanceRoutines.cpp \
 
 SOURCES += $$PWD/sourceCode/sceneObjects/related/sceneObject.cpp \
+    $$PWD/sourceCode/sceneObjects/related/sceneObjectCustomizationPart.cpp \
     $$PWD/sourceCode/sceneObjects/related/convexVolume.cpp \
     $$PWD/sourceCode/sceneObjects/related/viewableBase.cpp \
 

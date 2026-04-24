@@ -11,6 +11,7 @@
 #include <simLib/simConst.h>
 #include <propertiesAndMethods.h>
 #include <obj.h>
+#include <sceneObjectCustomizationPart.h>
 
 // ----------------------------------------------------------------------------------------------
 #define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
@@ -160,6 +161,8 @@ class CSceneObject : public Obj
     void setRestoreToDefaultLights(bool s);
     bool getRestoreToDefaultLights() const;
 
+    void enableCustomizationPart();
+    CSceneObjectCustomizationPart* getCustomizationPart() const;
     int getObjectType() const;
     CSceneObject* getParent() const;
     long long int getObjectUid() const;
@@ -409,6 +412,7 @@ class CSceneObject : public Obj
     int _calculatedModelProperty;
     int _calculatedObjectProperty;
     std::string _modelAcknowledgement;
+    CSceneObjectCustomizationPart* _sceneObjectCustomizationPart;
 
     // Old:
     std::string _objectName_old;

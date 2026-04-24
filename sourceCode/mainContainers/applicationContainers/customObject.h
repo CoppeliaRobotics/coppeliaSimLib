@@ -5,6 +5,20 @@
 #include <interfaceStack.h>
 #include <customProperties.h>
 
+// ----------------------------------------------------------------------------------------------
+#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
+CUSTOMOBJECTCLASS_PROPERTIES
+#undef FUNCX
+extern const std::vector<SProperty> allProps_customObjectClass;
+// ----------------------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------------------
+#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
+CUSTOMOBJECT_PROPERTIES
+#undef FUNCX
+extern const std::vector<SProperty> allProps_customObject;
+// ----------------------------------------------------------------------------------------------
+
 class CustomObject: public Obj
 {
   public:
