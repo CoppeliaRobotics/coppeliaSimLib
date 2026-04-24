@@ -215,6 +215,7 @@ long long int CustomObjectContainer::makeClass(const char* typeString, const cha
             QJsonDocument newDoc(jsonObj);
             std::string newObjectMetaInfo = QString::fromUtf8(newDoc.toJson(QJsonDocument::Compact)).toStdString();
             CustomObject* obj = new CustomObject(retVal, typeString, newObjectMetaInfo.c_str(), -1, _target);
+            obj->setIsClass();
             _customClasses.insert({typeString, obj});
             //        obj->setIntProperty("target", _target);
             //        obj->setPropertyInfo("target", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");

@@ -82,6 +82,7 @@ class Obj
     void setObjectTypeStr(const char* objectTypeStr);
     std::string getObjectTypeStr() const;
     std::string getObjectMetaInfo() const;
+    void setIsClass();
     bool isClass() const;
 
     virtual int setBoolProperty(const char* pName, bool pState) { return sim_propertyret_unknownproperty; }
@@ -132,4 +133,5 @@ class Obj
     long long int _objectHandle;
     std::string _objectTypeStr;
     std::string _objectMetaInfo;
+    bool _isClass;
 };

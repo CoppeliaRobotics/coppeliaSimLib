@@ -15,6 +15,7 @@ std::string OBJECT_META_INFO = R"(
 
 Obj::Obj()
 {
+    _isClass = false;
 }
 
 Obj::Obj(long long int objectHandle, const char* objectTypeStr, const char* objectMetaInfo)
@@ -22,6 +23,7 @@ Obj::Obj(long long int objectHandle, const char* objectTypeStr, const char* obje
     _objectHandle = objectHandle;
     _objectTypeStr = objectTypeStr;
     _objectMetaInfo =objectMetaInfo;
+    _isClass = false;
 }
 
 Obj::~Obj()
@@ -53,9 +55,14 @@ std::string Obj::getObjectMetaInfo() const
     return _objectMetaInfo;
 }
 
+void Obj::setIsClass()
+{
+    _isClass = true;
+}
+
 bool Obj::isClass() const
 {
-    return (_objectTypeStr == "class");
+    return _isClass;
 }
 
 int Obj::setLongProperty(const char* ppName, long long int pState)
