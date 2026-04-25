@@ -262,7 +262,7 @@ void CCollectionContainer::addCollectionToSelection(long long int collectionHand
     }
 }
 
-int CCollectionContainer::getLongProperty(long long int target, const char* pName, long long int& pState) const
+int CCollectionContainer::getLongProperty_t(long long int target, const char* pName, long long int& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -278,7 +278,7 @@ int CCollectionContainer::getLongProperty(long long int target, const char* pNam
     return retVal;
 }
 
-int CCollectionContainer::getHandleProperty(long long int target, const char* pName, long long int& pState) const
+int CCollectionContainer::getHandleProperty_t(long long int target, const char* pName, long long int& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -294,7 +294,7 @@ int CCollectionContainer::getHandleProperty(long long int target, const char* pN
     return retVal;
 }
 
-int CCollectionContainer::getStringProperty(long long int target, const char* pName, std::string& pState) const
+int CCollectionContainer::getStringProperty_t(long long int target, const char* pName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -310,7 +310,7 @@ int CCollectionContainer::getStringProperty(long long int target, const char* pN
     return retVal;
 }
 
-int CCollectionContainer::getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const
+int CCollectionContainer::getHandleArrayProperty_t(long long int target, const char* pName, std::vector<long long int>& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     pState.clear();
@@ -333,7 +333,7 @@ int CCollectionContainer::getHandleArrayProperty(long long int target, const cha
     return retVal;
 }
 
-int CCollectionContainer::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+int CCollectionContainer::getPropertyName_t(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -368,7 +368,7 @@ int CCollectionContainer::getPropertyName(long long int target, int& index, std:
     return retVal;
 }
 
-int CCollectionContainer::getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const
+int CCollectionContainer::getPropertyInfo_t(long long int target, const char* pName, int& info, std::string& infoTxt) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)

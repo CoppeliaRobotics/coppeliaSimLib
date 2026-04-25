@@ -6,6 +6,13 @@
 #include <simMath/mXnMatrix.h>
 #include <customProperties.h>
 
+// ----------------------------------------------------------------------------------------------
+#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
+CUSTOMSCENEOBJECTCLASS_PROPERTIES
+#undef FUNCX
+extern const std::vector<SProperty> allProps_customSceneObjectClass;
+// ----------------------------------------------------------------------------------------------
+
 class CSceneObject;
 
 class CSceneObjectCustomizationPart
@@ -29,6 +36,8 @@ class CSceneObjectCustomizationPart
     int getHandleProperty(const char* pName, long long int& pState, bool viaClass = false) const;
     int setStringProperty(const char* pName, const std::string& pState, bool viaClass = false);
     int getStringProperty(const char* pName, std::string& pState, bool viaClass = false) const;
+    int setTableProperty(const char* pName, const std::string& pState, bool viaClass = false);
+    int getTableProperty(const char* pName, std::string& pState, bool viaClass = false) const;
     int setBufferProperty(const char* pName, const std::string& pState, bool viaClass = false);
     int getBufferProperty(const char* pName, std::string& pState, bool viaClass = false) const;
     int setIntArray2Property(const char* pName, const int* pState, bool viaClass = false);

@@ -81,6 +81,7 @@ class Obj
     long long int getObjectHandle() const;
     void setObjectTypeStr(const char* objectTypeStr);
     std::string getObjectTypeStr() const;
+    void setObjectMetaInfo(const char* objectMetaInfo);
     std::string getObjectMetaInfo() const;
     void setIsClass();
     bool isClass() const;
@@ -97,6 +98,8 @@ class Obj
     virtual int getHandleProperty(const char* pName, long long int& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setStringProperty(const char* pName, const std::string& pState) { return sim_propertyret_unknownproperty; }
     virtual int getStringProperty(const char* pName, std::string& pState) const;
+    virtual int setTableProperty(const char* pName, const std::string& pState) { return sim_propertyret_unknownproperty; }
+    virtual int getTableProperty(const char* pName, std::string& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setBufferProperty(const char* pName, const std::string& pState) { return sim_propertyret_unknownproperty; }
     virtual int getBufferProperty(const char* pName, std::string& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setIntArray2Property(const char* pName, const int* pState) { return sim_propertyret_unknownproperty; }

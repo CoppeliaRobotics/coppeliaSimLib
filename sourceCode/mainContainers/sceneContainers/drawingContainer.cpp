@@ -160,7 +160,7 @@ void CDrawingContainer::pushAppendNewPointEvents()
         _allObjects[i]->pushAppendNewPointEvent();
 }
 
-int CDrawingContainer::getLongProperty(long long int target, const char* pName, long long int& pState) const
+int CDrawingContainer::getLongProperty_t(long long int target, const char* pName, long long int& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -176,7 +176,7 @@ int CDrawingContainer::getLongProperty(long long int target, const char* pName, 
     return retVal;
 }
 
-int CDrawingContainer::getHandleProperty(long long int target, const char* pName, long long int& pState) const
+int CDrawingContainer::getHandleProperty_t(long long int target, const char* pName, long long int& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -192,7 +192,7 @@ int CDrawingContainer::getHandleProperty(long long int target, const char* pName
     return retVal;
 }
 
-int CDrawingContainer::getStringProperty(long long int target, const char* pName, std::string& pState) const
+int CDrawingContainer::getStringProperty_t(long long int target, const char* pName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -208,7 +208,7 @@ int CDrawingContainer::getStringProperty(long long int target, const char* pName
     return retVal;
 }
 
-int CDrawingContainer::getHandleArrayProperty(long long int target, const char* pName, std::vector<long long int>& pState) const
+int CDrawingContainer::getHandleArrayProperty_t(long long int target, const char* pName, std::vector<long long int>& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     pState.clear();
@@ -224,7 +224,7 @@ int CDrawingContainer::getHandleArrayProperty(long long int target, const char* 
     return retVal;
 }
 
-int CDrawingContainer::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+int CDrawingContainer::getPropertyName_t(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -259,7 +259,7 @@ int CDrawingContainer::getPropertyName(long long int target, int& index, std::st
     return retVal;
 }
 
-int CDrawingContainer::getPropertyInfo(long long int target, const char* pName, int& info, std::string& infoTxt) const
+int CDrawingContainer::getPropertyInfo_t(long long int target, const char* pName, int& info, std::string& infoTxt) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)

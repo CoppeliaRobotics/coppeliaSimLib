@@ -470,7 +470,7 @@ int CCustomProperties::getStringProperty(const char* pName, std::string& pState)
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setBufferProperty(const char* pName, const std::string& pState, bool& valueChange)
+int CCustomProperties::setTableProperty(const char* pName, const std::string& pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
@@ -479,6 +479,63 @@ int CCustomProperties::setBufferProperty(const char* pName, const std::string& p
     valueChange = false;
 
     // Store as: length(4 bytes) + buffer data
+    std::string packed(4 + pState.size(), '\0');
+    int32_t len32 = (int32_t)pState.size();
+    std::memcpy(&packed[0], &len32, 4);
+    if (pState.size() > 0)
+        std::memcpy(&packed[4], pState.data(), pState.size());
+
+    bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
+    if (alreadyPresent)
+    {
+        if (propInfo & sim_propertyinfo_notwritable)
+            return sim_propertyret_unavailable;
+        if (propType != sim_propertytype_table)
+            return sim_propertyret_unavailable;
+        valueChange = _updatePropertyData(pName, packed.data(), packed.size());
+    }
+    else
+    {
+        _setPropertyRaw(pName, sim_propertytype_table, sim_propertyinfo_removable, "", packed.data(), packed.size());
+        valueChange = true;
+    }
+    return sim_propertyret_ok;
+}
+
+int CCustomProperties::getTableProperty(const char* pName, std::string& pState) const
+{
+    pState.clear();
+    int propType, propInfo;
+    std::string infoTxt;
+    const char* dataPtr;
+    size_t dataLen;
+
+    if (!_findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen))
+        return sim_propertyret_unknownproperty;
+
+    if (propInfo & sim_propertyinfo_notreadable)
+        return sim_propertyret_unavailable;
+    if (propType != sim_propertytype_table)
+        return sim_propertyret_unavailable;
+    if (dataLen >= 4)
+    {
+        int32_t bLen;
+        std::memcpy(&bLen, dataPtr, 4);
+        if (bLen > 0 && dataLen >= (size_t)(4 + bLen))
+            pState.assign(dataPtr + 4, (size_t)bLen);
+    }
+    return sim_propertyret_ok;
+}
+
+int CCustomProperties::setBufferProperty(const char* pName, const std::string& pState, bool& valueChange)
+{
+    int propType, propInfo;
+    std::string infoTxt;
+    const char* dataPtr;
+    size_t dataLen;
+    valueChange = false;
+
+           // Store as: length(4 bytes) + buffer data
     std::string packed(4 + pState.size(), '\0');
     int32_t len32 = (int32_t)pState.size();
     std::memcpy(&packed[0], &len32, 4);

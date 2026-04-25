@@ -50,6 +50,11 @@ std::string Obj::getObjectTypeStr() const
     return _objectTypeStr;
 }
 
+void Obj::setObjectMetaInfo(const char* objectMetaInfo)
+{
+    _objectMetaInfo = objectMetaInfo;
+}
+
 std::string Obj::getObjectMetaInfo() const
 {
     return _objectMetaInfo;

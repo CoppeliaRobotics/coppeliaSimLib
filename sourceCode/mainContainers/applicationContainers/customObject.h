@@ -42,6 +42,8 @@ class CustomObject: public Obj
     int getHandleProperty(const char* pName, long long int& pState) const override;
     int setStringProperty(const char* pName, const std::string& pState) override;
     int getStringProperty(const char* pName, std::string& pState) const override;
+    int setTableProperty(const char* pName, const std::string& pState) override;
+    int getTableProperty(const char* pName, std::string& pState) const override;
     int setBufferProperty(const char* pName, const std::string& pState) override;
     int getBufferProperty(const char* pName, std::string& pState) const override;
     int setIntArray2Property(const char* pName, const int* pState) override;

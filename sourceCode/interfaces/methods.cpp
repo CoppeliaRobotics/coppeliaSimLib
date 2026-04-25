@@ -217,7 +217,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
     else
     {
         void* func;
-        if (App::getMethodProperty(targetObj, method, func) == sim_propertyret_ok)
+        if (App::getMethodProperty_t(targetObj, method, func) == sim_propertyret_ok)
         { // method provided via property
             typedef char* (*MethodFunc)(long long int, const char*, long long int,  long long int,  long long int);
             MethodFunc methodFunc = reinterpret_cast<MethodFunc>(func);
@@ -6328,7 +6328,7 @@ std::string _method_getMethodProperty(int targetObj, const char* method, CDetach
         if (errMsg.size() == 0)
         {
             std::string byteCode;
-            int res = App::getMethodProperty(targetObj, pName.c_str(), byteCode);
+            int res = App::getMethodProperty_t(targetObj, pName.c_str(), byteCode);
             if (res == sim_propertyret_ok)
                 pushBuffer(outStack, byteCode.data(), byteCode.size());
             else
@@ -6343,7 +6343,7 @@ std::string _method_getMethodProperty(int targetObj, const char* method, CDetach
                         err += pName + "' ";
                         int info;
                         std::string infoTxt;
-                        int p = App::getPropertyInfo(targetObj, pName.c_str(), info, infoTxt);
+                        int p = App::getPropertyInfo_t(targetObj, pName.c_str(), info, infoTxt);
                         if (p < sim_propertytype_start)
                             errMsg = err + SIM_ERROR_UNKNOWN_PROPERTY;
                         else if ((p & 0xff) == sim_propertytype_method)
@@ -6373,7 +6373,7 @@ std::string _method_setMethodProperty(int targetObj, const char* method, CDetach
         }
         if (errMsg.size() == 0)
         {
-            int res = App::setMethodProperty(targetObj, pName.c_str(), pValue);
+            int res = App::setMethodProperty_t(targetObj, pName.c_str(), pValue);
             if ((res != sim_propertyret_ok) && (!noError))
             {
                 if (res == sim_propertyret_unknowntarget)
@@ -6384,7 +6384,7 @@ std::string _method_setMethodProperty(int targetObj, const char* method, CDetach
                     err += pName + "' ";
                     int info;
                     std::string infoTxt;
-                    int p = App::getPropertyInfo(targetObj, pName.c_str(), info, infoTxt);
+                    int p = App::getPropertyInfo_t(targetObj, pName.c_str(), info, infoTxt);
                     if (p < sim_propertytype_start)
                         errMsg = err + SIM_ERROR_UNKNOWN_PROPERTY;
                     else if ((p & 0xff) == sim_propertytype_method)
@@ -6535,7 +6535,7 @@ std::string _method_getPropertyName(int targetObj, const char* method, CDetached
             }
             else
             {
-                if (App::isTargetValid(targetObj))
+                if (App::isTargetValid_t(targetObj))
                 {
                     pushNull(outStack);
                     pushNull(outStack);
@@ -6712,7 +6712,7 @@ std::string _method_removeCustomObject(int targetObj, const char* method, CDetac
 std::string _method_isValid(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    pushBool(outStack, App::isTargetValid(targetObj));
+    pushBool(outStack, App::isTargetValid_t(targetObj));
     return errMsg;
 }
 

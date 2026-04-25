@@ -23,6 +23,8 @@ class CCustomProperties
     int getHandleProperty(const char* pName, long long int& pState) const;
     int setStringProperty(const char* pName, const std::string& pState, bool& valueChange);
     int getStringProperty(const char* pName, std::string& pState) const;
+    int setTableProperty(const char* pName, const std::string& pState, bool& valueChange);
+    int getTableProperty(const char* pName, std::string& pState) const;
     int setBufferProperty(const char* pName, const std::string& pState, bool& valueChange);
     int getBufferProperty(const char* pName, std::string& pState) const;
     int setIntArray2Property(const char* pName, const int* pState, bool& valueChange);

@@ -302,6 +302,15 @@ static std::string jsonStr(const QJsonObject& obj)
 
 // ----------------------------------------------------------------------------------------------
 #define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name = {str, v1, v2, t1, t2};
+    CUSTOMSCENEOBJECTCLASS_PROPERTIES
+#undef FUNCX
+#define FUNCX(name, str, v1, v2, t1, t2) name,
+    extern const std::vector<SProperty> allProps_customSceneObjectClass = {CUSTOMSCENEOBJECTCLASS_PROPERTIES};
+#undef FUNCX
+// ----------------------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------------------
+#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name = {str, v1, v2, t1, t2};
     DETACHEDSCRIPT_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, t1, t2) name,

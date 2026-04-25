@@ -507,6 +507,41 @@ int CSceneObjectCustomizationPart::getStringProperty(const char* pName, std::str
     return retVal;
 }
 
+int CSceneObjectCustomizationPart::setTableProperty(const char* pName, const std::string& pState, bool viaClass /*= false*/)
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::setTableProperty(pName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_table))
+        { // property already exists (with correct type), or we want to set it to a class
+            std::string pp(pState);
+            if ((!_ignoreSetterGetter) && (!isClass()))
+                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+            bool changed = false;
+            retVal = _customProperties.setTableProperty(pName, pp, changed);
+            if (changed)
+                _triggerEvent(pName);
+        }
+    }
+    return retVal;
+}
+
+int CSceneObjectCustomizationPart::getTableProperty(const char* pName, std::string& pState, bool viaClass /*= false*/) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (viaClass)
+        retVal = _sceneObject->Obj::getTableProperty(pName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        retVal = _customProperties.getTableProperty(pName, pState);
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+    }
+    return retVal;
+}
+
 int CSceneObjectCustomizationPart::setBufferProperty(const char* pName, const std::string& pState, bool viaClass /*= false*/)
 {
     int retVal = sim_propertyret_unknownproperty;
@@ -1026,6 +1061,30 @@ int CSceneObjectCustomizationPart::getPropertyName(int& index, std::string& pNam
                 appartenance = _sceneObject->getObjectTypeStr();
         }
     }
+    if ((retVal == sim_propertyret_unknownproperty) && isClass())
+    {
+        const std::vector<SProperty>* prop = &allProps_customSceneObjectClass;
+        for (size_t i = 0; i < prop->size(); i++)
+        {
+            if ((pName.size() == 0) || utils::startsWith(prop->at(i).name, pName.c_str()))
+            {
+                if ((prop->at(i).flags & excludeFlags) == 0)
+                {
+                    index--;
+                    if (index == -1)
+                    {
+                        if (isClass())
+                            appartenance = "TODO_CUSTOMSCENEOBJECTCLASS_APPARTENANCE";
+                        else
+                            appartenance = "TODO_CUSTOMSCENEOBJECT_APPARTENANCE";
+                        pName = prop->at(i).name;
+                        retVal = sim_propertyret_ok;
+                        break;
+                    }
+                }
+            }
+        }
+    }
     return retVal;
 }
 
@@ -1042,6 +1101,31 @@ int CSceneObjectCustomizationPart::getPropertyInfo(const char* pName, int& info,
             CSceneObject* cl = App::scenes->customSceneObjectClasses->getClass(_sceneObject->getObjectTypeStr().c_str());
             if (cl != nullptr)
                 retVal = cl->getPropertyInfo(pName, info, infoTxt);
+        }
+    }
+    if ((retVal == sim_propertyret_unknownproperty) && isClass())
+    {
+        const std::vector<SProperty>* prop = &allProps_customObjectClass;
+        for (size_t i = 0; i < prop->size(); i++)
+        {
+            if (strcmp(prop->at(i).name, pName) == 0)
+            {
+                retVal = prop->at(i).type;
+                info = prop->at(i).flags;
+                if (infoTxt == "j")
+                    infoTxt = prop->at(i).shortInfoTxt;
+                else
+                {
+                    auto w = QJsonDocument::fromJson(prop->at(i).shortInfoTxt.c_str()).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
+                break;
+            }
         }
     }
     return retVal;

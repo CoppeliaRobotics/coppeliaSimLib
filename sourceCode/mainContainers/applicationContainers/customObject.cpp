@@ -135,6 +135,12 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/)
                     if (getStringProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyText(pName, v.c_str());
                 }
+                else if (t == sim_propertytype_table)
+                {
+                    std::string v;
+                    if (getTableProperty(pName, v) == sim_propertyret_ok)
+                        ev->appendKeyBuff(pName, (unsigned char*)v.data(), v.size());
+                }
                 else if (t == sim_propertytype_buffer)
                 {
                     std::string v;
@@ -563,6 +569,37 @@ int CustomObject::getStringProperty(const char* pName, std::string& pState) cons
         retVal = _customProperties.getStringProperty(pName, pState);
         if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
             _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::string& v) { s->pushTextOntoStack(v.c_str()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+    }
+    return retVal;
+}
+
+int CustomObject::setTableProperty(const char* pName, const std::string& pState)
+{
+    int retVal = Obj::setStringProperty(pName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_table))
+        { // property already exists (with correct type), or we want to set it to a class
+            std::string pp(pState);
+            if ((!_ignoreSetterGetter) && (!isClass()))
+                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+            bool changed = false;
+            retVal = _customProperties.setTableProperty(pName, pp, changed);
+            if (changed)
+                _triggerEvent(pName);
+        }
+    }
+    return retVal;
+}
+
+int CustomObject::getTableProperty(const char* pName, std::string& pState) const
+{
+    int retVal = Obj::getStringProperty(pName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        retVal = _customProperties.getTableProperty(pName, pState);
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
     }
     return retVal;
 }

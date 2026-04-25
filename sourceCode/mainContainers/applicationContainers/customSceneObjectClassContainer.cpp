@@ -12,9 +12,18 @@ CustomSceneObjectClassContainer::~CustomSceneObjectClassContainer()
 
 int CustomSceneObjectClassContainer::makeObject(int classHandle)
 {
+    int retVal = -1;
     CSceneObject* classObj = getClass(classHandle);
-    CSceneObject* obj = classObj->copyYourself();
-    int retVal = App::scene->sceneObjects->addObjectToScene(obj, false, true);
+    QJsonDocument doc = QJsonDocument::fromJson(classObj->getObjectMetaInfo().c_str());
+    if ((!doc.isNull()) && doc.isObject())
+    {
+        QJsonObject jsonObj = doc.object();
+        jsonObj["class"] = false;
+        QJsonDocument newDoc(jsonObj);
+        std::string newObjectMetaInfo = QString::fromUtf8(newDoc.toJson(QJsonDocument::Compact)).toStdString();
+        CSceneObject* obj = classObj->copyYourself();
+        retVal = App::scene->sceneObjects->addObjectToScene(obj, false, true);
+/*
     obj->getCustomizationPart()->setIgnoreSetterGetter(true);
     obj->getCustomizationPart()->setObjectCanAddRemoveProperty(true);
     obj->setPropertyInfo("name", sim_propertyinfo_removable, ""); // first make it removable
@@ -28,31 +37,45 @@ int CustomSceneObjectClassContainer::makeObject(int classHandle)
     obj->setObjectTypeStr(objType.c_str());
     obj->getCustomizationPart()->setIgnoreSetterGetter(false);
     obj->getCustomizationPart()->setObjectCanAddRemoveProperty(false);
+    */
+    }
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::makeClass(CSceneObject* obj, const char* className)
+int CustomSceneObjectClassContainer::makeClass(CSceneObject* obj, const char* typeString)
 {
-    CSceneObject* copy = obj->copyYourself();
-    copy->setObjectTypeStr("class");
-    copy->enableCustomizationPart();
-    int h = sim_object_sceneobjectclassstart;
-    while (getClass(h) != nullptr)
-        h++;
-    copy->setObjectHandle(h);
-    _customClasses.insert({className, copy});
-    copy->setStringProperty("name", className);
-    copy->setPropertyInfo("name", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
-    copy->setBoolProperty("customClass", true);
-    copy->setPropertyInfo("customClass", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
-    _notifyClassListChanged();
-    return h;
+    int retVal = -1;
+    QJsonDocument doc = QJsonDocument::fromJson(obj->getObjectMetaInfo().c_str());
+    if ((!doc.isNull()) && doc.isObject())
+    {
+        QJsonObject jsonObj = doc.object();
+        jsonObj["class"] = true;
+        QJsonDocument newDoc(jsonObj);
+        std::string newObjectMetaInfo = QString::fromUtf8(newDoc.toJson(QJsonDocument::Compact)).toStdString();
+        CSceneObject* copy = obj->copyYourself();
+        copy->setObjectMetaInfo(newObjectMetaInfo.c_str());
+        copy->setObjectTypeStr(typeString);
+        copy->enableCustomizationPart();
+        retVal = sim_object_sceneobjectclassstart;
+        while (getClass(retVal) != nullptr)
+            retVal++;
+        copy->setObjectHandle(retVal);
+        _customClasses.insert({typeString, copy});
+        /*
+        copy->setStringProperty("name", className);
+        copy->setPropertyInfo("name", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
+        copy->setBoolProperty("customClass", true);
+        copy->setPropertyInfo("customClass", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, "");
+        */
+        _notifyClassListChanged();
+    }
+    return retVal;
 }
 
-bool CustomSceneObjectClassContainer::removeClass(const char* className)
+bool CustomSceneObjectClassContainer::removeClass(const char* typeString)
 {
     bool retVal = false;
-    auto it = _customClasses.find(className);
+    auto it = _customClasses.find(typeString);
     if (it != _customClasses.end())
     {
         delete it->second;
@@ -101,10 +124,10 @@ CSceneObject* CustomSceneObjectClassContainer::getClass(int classHandle) const
     return retVal;
 }
 
-CSceneObject* CustomSceneObjectClassContainer::getClass(const char* className) const
+CSceneObject* CustomSceneObjectClassContainer::getClass(const char* typeString) const
 {
     CSceneObject* retVal = nullptr;
-    auto it = _customClasses.find(className);
+    auto it = _customClasses.find(typeString);
     if (it != _customClasses.end())
         retVal = it->second;
     return retVal;
@@ -129,7 +152,7 @@ void CustomSceneObjectClassContainer::_notifyClassListChanged() const
     }
 }
 
-int CustomSceneObjectClassContainer::setBoolProperty(long long int target, const char* ppName, bool pState)
+int CustomSceneObjectClassContainer::setBoolProperty_t(long long int target, const char* ppName, bool pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -138,7 +161,7 @@ int CustomSceneObjectClassContainer::setBoolProperty(long long int target, const
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getBoolProperty(long long int target, const char* ppName, bool& pState) const
+int CustomSceneObjectClassContainer::getBoolProperty_t(long long int target, const char* ppName, bool& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -147,7 +170,7 @@ int CustomSceneObjectClassContainer::getBoolProperty(long long int target, const
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setIntProperty(long long int target, const char* ppName, int pState)
+int CustomSceneObjectClassContainer::setIntProperty_t(long long int target, const char* ppName, int pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -156,7 +179,7 @@ int CustomSceneObjectClassContainer::setIntProperty(long long int target, const 
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getIntProperty(long long int target, const char* ppName, int& pState) const
+int CustomSceneObjectClassContainer::getIntProperty_t(long long int target, const char* ppName, int& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -165,7 +188,7 @@ int CustomSceneObjectClassContainer::getIntProperty(long long int target, const 
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setLongProperty(long long int target, const char* ppName, long long int pState)
+int CustomSceneObjectClassContainer::setLongProperty_t(long long int target, const char* ppName, long long int pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -174,7 +197,7 @@ int CustomSceneObjectClassContainer::setLongProperty(long long int target, const
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getLongProperty(long long int target, const char* ppName, long long int& pState) const
+int CustomSceneObjectClassContainer::getLongProperty_t(long long int target, const char* ppName, long long int& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -183,7 +206,7 @@ int CustomSceneObjectClassContainer::getLongProperty(long long int target, const
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setHandleProperty(long long int target, const char* ppName, long long int pState)
+int CustomSceneObjectClassContainer::setHandleProperty_t(long long int target, const char* ppName, long long int pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -192,7 +215,7 @@ int CustomSceneObjectClassContainer::setHandleProperty(long long int target, con
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getHandleProperty(long long int target, const char* ppName, long long int& pState) const
+int CustomSceneObjectClassContainer::getHandleProperty_t(long long int target, const char* ppName, long long int& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -201,7 +224,7 @@ int CustomSceneObjectClassContainer::getHandleProperty(long long int target, con
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setFloatProperty(long long int target, const char* ppName, double pState)
+int CustomSceneObjectClassContainer::setFloatProperty_t(long long int target, const char* ppName, double pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -210,7 +233,7 @@ int CustomSceneObjectClassContainer::setFloatProperty(long long int target, cons
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getFloatProperty(long long int target, const char* ppName, double& pState) const
+int CustomSceneObjectClassContainer::getFloatProperty_t(long long int target, const char* ppName, double& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -219,7 +242,7 @@ int CustomSceneObjectClassContainer::getFloatProperty(long long int target, cons
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setStringProperty(long long int target, const char* ppName, const std::string& pState)
+int CustomSceneObjectClassContainer::setStringProperty_t(long long int target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -228,7 +251,7 @@ int CustomSceneObjectClassContainer::setStringProperty(long long int target, con
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getStringProperty(long long int target, const char* ppName, std::string& pState) const
+int CustomSceneObjectClassContainer::getStringProperty_t(long long int target, const char* ppName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -237,7 +260,25 @@ int CustomSceneObjectClassContainer::getStringProperty(long long int target, con
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setBufferProperty(long long int target, const char* ppName, const std::string& pState)
+int CustomSceneObjectClassContainer::setTableProperty_t(long long int target, const char* ppName, const std::string& pState)
+{
+    int retVal = sim_propertyret_unknowntarget;
+    CSceneObject* obj = getClass(target);
+    if (obj != nullptr)
+        retVal = obj->getCustomizationPart()->setTableProperty(ppName, pState, true);
+    return retVal;
+}
+
+int CustomSceneObjectClassContainer::getTableProperty_t(long long int target, const char* ppName, std::string& pState) const
+{
+    int retVal = sim_propertyret_unknowntarget;
+    CSceneObject* obj = getClass(target);
+    if (obj != nullptr)
+        retVal = obj->getCustomizationPart()->getTableProperty(ppName, pState, true);
+    return retVal;
+}
+
+int CustomSceneObjectClassContainer::setBufferProperty_t(long long int target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -246,7 +287,7 @@ int CustomSceneObjectClassContainer::setBufferProperty(long long int target, con
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getBufferProperty(long long int target, const char* ppName, std::string& pState) const
+int CustomSceneObjectClassContainer::getBufferProperty_t(long long int target, const char* ppName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -255,7 +296,7 @@ int CustomSceneObjectClassContainer::getBufferProperty(long long int target, con
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setIntArray2Property(long long int target, const char* ppName, const int* pState)
+int CustomSceneObjectClassContainer::setIntArray2Property_t(long long int target, const char* ppName, const int* pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -264,7 +305,7 @@ int CustomSceneObjectClassContainer::setIntArray2Property(long long int target, 
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getIntArray2Property(long long int target, const char* ppName, int* pState) const
+int CustomSceneObjectClassContainer::getIntArray2Property_t(long long int target, const char* ppName, int* pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -273,7 +314,7 @@ int CustomSceneObjectClassContainer::getIntArray2Property(long long int target, 
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setVector3Property(long long int target, const char* ppName, const C3Vector& pState)
+int CustomSceneObjectClassContainer::setVector3Property_t(long long int target, const char* ppName, const C3Vector& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -282,7 +323,7 @@ int CustomSceneObjectClassContainer::setVector3Property(long long int target, co
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getVector3Property(long long int target, const char* ppName, C3Vector& pState) const
+int CustomSceneObjectClassContainer::getVector3Property_t(long long int target, const char* ppName, C3Vector& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -291,7 +332,7 @@ int CustomSceneObjectClassContainer::getVector3Property(long long int target, co
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setMatrixProperty(long long int target, const char* ppName, const CMatrix& pState)
+int CustomSceneObjectClassContainer::setMatrixProperty_t(long long int target, const char* ppName, const CMatrix& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -300,7 +341,7 @@ int CustomSceneObjectClassContainer::setMatrixProperty(long long int target, con
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getMatrixProperty(long long int target, const char* ppName, CMatrix& pState) const
+int CustomSceneObjectClassContainer::getMatrixProperty_t(long long int target, const char* ppName, CMatrix& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -309,7 +350,7 @@ int CustomSceneObjectClassContainer::getMatrixProperty(long long int target, con
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setQuaternionProperty(long long int target, const char* ppName, const C4Vector& pState)
+int CustomSceneObjectClassContainer::setQuaternionProperty_t(long long int target, const char* ppName, const C4Vector& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -318,7 +359,7 @@ int CustomSceneObjectClassContainer::setQuaternionProperty(long long int target,
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getQuaternionProperty(long long int target, const char* ppName, C4Vector& pState) const
+int CustomSceneObjectClassContainer::getQuaternionProperty_t(long long int target, const char* ppName, C4Vector& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -327,7 +368,7 @@ int CustomSceneObjectClassContainer::getQuaternionProperty(long long int target,
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setPoseProperty(long long int target, const char* ppName, const C7Vector& pState)
+int CustomSceneObjectClassContainer::setPoseProperty_t(long long int target, const char* ppName, const C7Vector& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -336,7 +377,7 @@ int CustomSceneObjectClassContainer::setPoseProperty(long long int target, const
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getPoseProperty(long long int target, const char* ppName, C7Vector& pState) const
+int CustomSceneObjectClassContainer::getPoseProperty_t(long long int target, const char* ppName, C7Vector& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -345,7 +386,7 @@ int CustomSceneObjectClassContainer::getPoseProperty(long long int target, const
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setColorProperty(long long int target, const char* ppName, const float* pState)
+int CustomSceneObjectClassContainer::setColorProperty_t(long long int target, const char* ppName, const float* pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -354,7 +395,7 @@ int CustomSceneObjectClassContainer::setColorProperty(long long int target, cons
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getColorProperty(long long int target, const char* ppName, float* pState) const
+int CustomSceneObjectClassContainer::getColorProperty_t(long long int target, const char* ppName, float* pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -363,7 +404,7 @@ int CustomSceneObjectClassContainer::getColorProperty(long long int target, cons
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setFloatArrayProperty(long long int target, const char* ppName, const std::vector<double>& pState)
+int CustomSceneObjectClassContainer::setFloatArrayProperty_t(long long int target, const char* ppName, const std::vector<double>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -372,7 +413,7 @@ int CustomSceneObjectClassContainer::setFloatArrayProperty(long long int target,
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getFloatArrayProperty(long long int target, const char* ppName, std::vector<double>& pState) const
+int CustomSceneObjectClassContainer::getFloatArrayProperty_t(long long int target, const char* ppName, std::vector<double>& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -381,7 +422,7 @@ int CustomSceneObjectClassContainer::getFloatArrayProperty(long long int target,
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setIntArrayProperty(long long int target, const char* ppName, const std::vector<int>& pState)
+int CustomSceneObjectClassContainer::setIntArrayProperty_t(long long int target, const char* ppName, const std::vector<int>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -390,7 +431,7 @@ int CustomSceneObjectClassContainer::setIntArrayProperty(long long int target, c
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getIntArrayProperty(long long int target, const char* ppName, std::vector<int>& pState) const
+int CustomSceneObjectClassContainer::getIntArrayProperty_t(long long int target, const char* ppName, std::vector<int>& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -399,7 +440,7 @@ int CustomSceneObjectClassContainer::getIntArrayProperty(long long int target, c
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setHandleArrayProperty(long long int target, const char* ppName, const std::vector<long long int>& pState)
+int CustomSceneObjectClassContainer::setHandleArrayProperty_t(long long int target, const char* ppName, const std::vector<long long int>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -408,7 +449,7 @@ int CustomSceneObjectClassContainer::setHandleArrayProperty(long long int target
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getHandleArrayProperty(long long int target, const char* ppName, std::vector<long long int>& pState) const
+int CustomSceneObjectClassContainer::getHandleArrayProperty_t(long long int target, const char* ppName, std::vector<long long int>& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -417,7 +458,7 @@ int CustomSceneObjectClassContainer::getHandleArrayProperty(long long int target
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setStringArrayProperty(long long int target, const char* ppName, const std::vector<std::string>& pState)
+int CustomSceneObjectClassContainer::setStringArrayProperty_t(long long int target, const char* ppName, const std::vector<std::string>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -426,7 +467,7 @@ int CustomSceneObjectClassContainer::setStringArrayProperty(long long int target
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getStringArrayProperty(long long int target, const char* ppName, std::vector<std::string>& pState) const
+int CustomSceneObjectClassContainer::getStringArrayProperty_t(long long int target, const char* ppName, std::vector<std::string>& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -435,7 +476,7 @@ int CustomSceneObjectClassContainer::getStringArrayProperty(long long int target
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setMethodProperty(long long int target, const char* ppName, const void* pState)
+int CustomSceneObjectClassContainer::setMethodProperty_t(long long int target, const char* ppName, const void* pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -444,7 +485,7 @@ int CustomSceneObjectClassContainer::setMethodProperty(long long int target, con
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getMethodProperty(long long int target, const char* ppName, void*& pState) const
+int CustomSceneObjectClassContainer::getMethodProperty_t(long long int target, const char* ppName, void*& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -453,7 +494,7 @@ int CustomSceneObjectClassContainer::getMethodProperty(long long int target, con
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setMethodProperty(long long int target, const char* ppName, const std::string& pState)
+int CustomSceneObjectClassContainer::setMethodProperty_t(long long int target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -462,7 +503,7 @@ int CustomSceneObjectClassContainer::setMethodProperty(long long int target, con
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getMethodProperty(long long int target, const char* ppName, std::string& pState) const
+int CustomSceneObjectClassContainer::getMethodProperty_t(long long int target, const char* ppName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -471,7 +512,7 @@ int CustomSceneObjectClassContainer::getMethodProperty(long long int target, con
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::removeProperty(long long int target, const char* ppName)
+int CustomSceneObjectClassContainer::removeProperty_t(long long int target, const char* ppName)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -480,7 +521,7 @@ int CustomSceneObjectClassContainer::removeProperty(long long int target, const 
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getPropertyName(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+int CustomSceneObjectClassContainer::getPropertyName_t(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -489,7 +530,7 @@ int CustomSceneObjectClassContainer::getPropertyName(long long int target, int& 
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getPropertyInfo(long long int target, const char* ppName, int& info, std::string& infoTxt) const
+int CustomSceneObjectClassContainer::getPropertyInfo_t(long long int target, const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -498,7 +539,7 @@ int CustomSceneObjectClassContainer::getPropertyInfo(long long int target, const
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setPropertyInfo(long long int target, const char* ppName, int info, const char* infoTxt)
+int CustomSceneObjectClassContainer::setPropertyInfo_t(long long int target, const char* ppName, int info, const char* infoTxt)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);

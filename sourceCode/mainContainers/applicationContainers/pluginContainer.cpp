@@ -580,7 +580,7 @@ std::string CPluginContainer::dyn_generateMjcfFile()
         if (mujocoEngine->mujocoPlugin_generateMjcfFile() > 0)
         {
             std::string p;
-            App::getStringProperty(sim_handle_app, "mujocoPath", p);
+            App::getStringProperty_t(sim_handle_app, "mujocoPath", p);
             if (VFile::doesFileExist((p + "/coppeliaSim.xml").c_str()))
             {
                 retVal = p + "/coppeliaSim.xml";
