@@ -126,6 +126,8 @@ class CSceneObject : public Obj
     virtual int getFloatProperty(const char* pName, double& pState) const  override;
     virtual int setStringProperty(const char* pName, const std::string& pState) override;
     virtual int getStringProperty(const char* pName, std::string& pState) const override;
+    virtual int setTableProperty(const char* pName, const std::string& pState) override;
+    virtual int getTableProperty(const char* pName, std::string& pState) const  override;
     virtual int setBufferProperty(const char* pName, const std::string& pState) override;
     virtual int getBufferProperty(const char* pName, std::string& pState) const  override;
     virtual int setIntArray2Property(const char* pName, const int* pState) override;

@@ -3117,6 +3117,50 @@ int CScene::getStringProperty_t(long long int target, const char* ppName, std::s
     return retVal;
 }
 
+int CScene::setTableProperty_t(long long int target, const char* ppName, const std::string& pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (target == sim_handle_scene)
+    {
+    }
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+        retVal = sceneObjects->setTableProperty_t(target, ppName, pState);
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
+    {
+    }
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
+    {
+    }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setTableProperty_t(target, ppName, pState);
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
+int CScene::getTableProperty_t(long long int target, const char* ppName, std::string& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (target == sim_handle_scene)
+    {
+    }
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+        retVal = sceneObjects->getTableProperty_t(target, ppName, pState);
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
+    {
+    }
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
+    {
+    }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getTableProperty_t(target, ppName, pState);
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
 int CScene::setBufferProperty_t(long long int target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;

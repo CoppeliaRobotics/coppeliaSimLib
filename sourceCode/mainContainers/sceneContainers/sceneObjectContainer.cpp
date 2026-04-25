@@ -4828,12 +4828,10 @@ int CSceneObjectContainer::setLongProperty_t(long long int target, const char* p
         }
         else
         {
-            /*
             C7Vector shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
-                return mesh->setLongProperty_mesh(pName, pState, shapeRelTr);
-                */
+                return sim_propertyret_unknownproperty;
         }
         retVal = sim_propertyret_unknowntarget;
     }
@@ -4948,12 +4946,10 @@ int CSceneObjectContainer::setHandleProperty_t(long long int target, const char*
         }
         else
         {
-            /*
             C7Vector shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
-                return mesh->setHandleProperty_mesh(pName, pState, shapeRelTr);
-                */
+                return sim_propertyret_unknownproperty;
         }
         retVal = sim_propertyret_unknowntarget;
     }
@@ -5249,6 +5245,124 @@ int CSceneObjectContainer::getStringProperty_t(long long int target, const char*
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getStringProperty_mesh(pName, pState, shapeRelTr);
+        }
+        retVal = sim_propertyret_unknowntarget;
+    }
+    return retVal;
+}
+
+int CSceneObjectContainer::setTableProperty_t(long long int target, const char* pName, const std::string& pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CSceneObject* it = getObjectOrClassFromHandle(int(target));
+        if (it != nullptr)
+        {
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_customsceneobject)
+                return ((CCustomSceneObject*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->setTableProperty(pName, pState);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->setTableProperty(pName, pState);
+        }
+        else
+        {
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return sim_propertyret_unknownproperty;
+        }
+        retVal = sim_propertyret_unknowntarget;
+    }
+    return retVal;
+}
+
+int CSceneObjectContainer::getTableProperty_t(long long int target, const char* pName, std::string& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CSceneObject* it = getObjectOrClassFromHandle(int(target));
+        if (it != nullptr)
+        {
+            int objType = it->getObjectType();
+            if (objType == sim_sceneobject_shape)
+                return ((CShape*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_joint)
+                return ((CJoint*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_dummy)
+                return ((CDummy*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_marker)
+                return ((CMarker*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_customsceneobject)
+                return ((CCustomSceneObject*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_script)
+                return ((CScript*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_proximitysensor)
+                return ((CProxSensor*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_visionsensor)
+                return ((CVisionSensor*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_forcesensor)
+                return ((CForceSensor*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_light)
+                return ((CLight*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_camera)
+                return ((CCamera*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_graph)
+                return ((CGraph*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_pointcloud)
+                return ((CPointCloud*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_octree)
+                return ((COcTree*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_path)
+                return ((CPath_old*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_mill)
+                return ((CMill*)it)->getTableProperty(pName, pState);
+            if (objType == sim_sceneobject_mirror)
+                return ((CMirror*)it)->getTableProperty(pName, pState);
+        }
+        else
+        {
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return sim_propertyret_unknownproperty;
         }
         retVal = sim_propertyret_unknowntarget;
     }
@@ -6402,10 +6516,10 @@ int CSceneObjectContainer::setHandleArrayProperty_t(long long int target, const 
         }
         else
         {
-            //C7Vector shapeRelTr;
-            //CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
-            //if (mesh != nullptr)
-            //    return mesh->setHandleArrayProperty_mesh(pName, pState, shapeRelTr);
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return sim_propertyret_unknownproperty;
         }
         retVal = sim_propertyret_unknowntarget;
     }
@@ -6480,10 +6594,10 @@ int CSceneObjectContainer::getHandleArrayProperty_t(long long int target, const 
         }
         else
         {
-            //C7Vector shapeRelTr;
-            //CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
-            //if (mesh != nullptr)
-            //    return mesh->getHandleArrayProperty_mesh(pName, pState, shapeRelTr);
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return sim_propertyret_unknownproperty;
         }
         retVal = sim_propertyret_unknowntarget;
     }
@@ -6543,10 +6657,10 @@ int CSceneObjectContainer::setStringArrayProperty_t(long long int target, const 
         }
         else
         {
-            //C7Vector shapeRelTr;
-            //CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
-            //if (mesh != nullptr)
-            //    return mesh->setStringArrayProperty_mesh(pName, pState, shapeRelTr);
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return sim_propertyret_unknownproperty;
         }
         retVal = sim_propertyret_unknowntarget;
     }
@@ -6607,10 +6721,10 @@ int CSceneObjectContainer::getStringArrayProperty_t(long long int target, const 
         }
         else
         {
-            //C7Vector shapeRelTr;
-            //CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
-            //if (mesh != nullptr)
-            //    return mesh->getStringArrayProperty_mesh(pName, pState, shapeRelTr);
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return sim_propertyret_unknownproperty;
         }
         retVal = sim_propertyret_unknowntarget;
     }
@@ -6666,10 +6780,10 @@ int CSceneObjectContainer::setMethodProperty_t(long long int target, const char*
         }
         else
         {
-            //C7Vector shapeRelTr;
-            //CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
-            //if (mesh != nullptr)
-            //    return mesh->setMethodProperty_mesh(pName, pState, shapeRelTr);
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return sim_propertyret_unknownproperty;
         }
         retVal = sim_propertyret_unknowntarget;
     }
@@ -6729,10 +6843,10 @@ int CSceneObjectContainer::getMethodProperty_t(long long int target, const char*
         }
         else
         {
-            //C7Vector shapeRelTr;
-            //CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
-            //if (mesh != nullptr)
-            //    return mesh->getMethodProperty_mesh(pName, pState, shapeRelTr);
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return sim_propertyret_unknownproperty;
         }
         retVal = sim_propertyret_unknowntarget;
     }
@@ -6788,10 +6902,10 @@ int CSceneObjectContainer::setMethodProperty_t(long long int target, const char*
         }
         else
         {
-            //C7Vector shapeRelTr;
-            //CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
-            //if (mesh != nullptr)
-            //    return mesh->setMethodProperty_mesh(pName, pState, shapeRelTr);
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return sim_propertyret_unknownproperty;
         }
         retVal = sim_propertyret_unknowntarget;
     }
@@ -6851,10 +6965,10 @@ int CSceneObjectContainer::getMethodProperty_t(long long int target, const char*
         }
         else
         {
-            //C7Vector shapeRelTr;
-            //CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
-            //if (mesh != nullptr)
-            //    return mesh->getMethodProperty_mesh(pName, pState, shapeRelTr);
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return sim_propertyret_unknownproperty;
         }
         retVal = sim_propertyret_unknowntarget;
     }
@@ -7123,9 +7237,10 @@ int CSceneObjectContainer::setPropertyInfo_t(long long int target, const char* p
         }
         else
         {
-//            CMesh* mesh = getMeshFromUid(target);
-//            if (mesh != nullptr)
-//                return mesh->setPropertyInfo_mesh(pName, info, infoTxt);
+            C7Vector shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return sim_propertyret_unknownproperty;
         }
         retVal = sim_propertyret_unknowntarget;
     }
@@ -7212,6 +7327,12 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                         dnaString += state;
                         break;
                     }
+                    case sim_propertytype_table: {
+                        std::string state;
+                        result = obj->getTableProperty(name.c_str(), state);
+                        dnaString += state;
+                        break;
+                    }
                     case sim_propertytype_buffer: {
                         std::string state;
                         result = obj->getBufferProperty(name.c_str(), state);
@@ -7277,6 +7398,18 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                         CMatrix state;
                         result = obj->getMatrixProperty(name.c_str(), state);
                         dnaString.append(reinterpret_cast<const char*>(state.data.data()), state.data.size() * sizeof(double));
+                        break;
+                    }
+                    case sim_propertytype_method: {
+                        std::string state;
+                        result = obj->getMethodProperty(name.c_str(), state);
+                        if (result == sim_propertyret_ok)
+                            dnaString += state;
+                        else
+                        {
+                            void* pState;
+                            result = obj->getMethodProperty(name.c_str(), pState);
+                        }
                         break;
                     }
                     default:

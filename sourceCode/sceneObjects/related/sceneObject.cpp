@@ -6423,6 +6423,28 @@ int CSceneObject::getStringProperty(const char* ppName, std::string& pState) con
     return retVal;
 }
 
+int CSceneObject::setTableProperty(const char* ppName, const std::string& pState)
+{
+    int retVal = Obj::setTableProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->setTableProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
+    return retVal;
+}
+
+int CSceneObject::getTableProperty(const char* ppName, std::string& pState) const
+{
+    int retVal = Obj::getTableProperty(ppName, pState);
+    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
+        retVal = _sceneObjectCustomizationPart->getTableProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
+    return retVal;
+}
+
 int CSceneObject::setBufferProperty(const char* ppName, const std::string& pState)
 {
     int retVal = Obj::setBufferProperty(ppName, pState);

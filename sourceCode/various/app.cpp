@@ -2595,8 +2595,7 @@ int App::setTableProperty_t(long long int target, const char* ppName, const std:
     else if ((target >= sim_object_sceneobjectclassstart) && (target < sim_object_sceneobjectclassend) && (scenes != nullptr))
         retVal = scenes->customSceneObjectClasses->setTableProperty_t(target, ppName, pState);
     else if (scene != nullptr)
-    {
-    }
+        retVal = scene->setTableProperty_t(target, pName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;
@@ -2629,8 +2628,7 @@ int App::getTableProperty_t(long long int target, const char* ppName, std::strin
     else if ((target >= sim_object_sceneobjectclassstart) && (target < sim_object_sceneobjectclassend) && (scenes != nullptr))
         retVal = scenes->customSceneObjectClasses->getTableProperty_t(target, ppName, pState);
     else if (scene != nullptr)
-    {
-    }
+        retVal = scene->getTableProperty_t(target, pName, pState);
     else
         retVal = sim_propertyret_unknowntarget;
     return retVal;

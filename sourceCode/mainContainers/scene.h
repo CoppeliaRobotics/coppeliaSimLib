@@ -96,6 +96,8 @@ class CScene : public Obj
     int getHandleProperty_t(long long int target, const char* pName, long long int& pState) const;
     int setStringProperty_t(long long int target, const char* pName, const std::string& pState);
     int getStringProperty_t(long long int target, const char* pName, std::string& pState) const;
+    int setTableProperty_t(long long int target, const char* pName, const std::string& pState);
+    int getTableProperty_t(long long int target, const char* pName, std::string& pState) const;
     int setBufferProperty_t(long long int target, const char* pName, const std::string& pState);
     int getBufferProperty_t(long long int target, const char* pName, std::string& pState) const;
     int setIntArray2Property_t(long long int target, const char* pName, const int* pState);
