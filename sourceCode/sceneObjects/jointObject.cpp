@@ -4660,7 +4660,12 @@ void CJoint::display(CViewableBase* renderingObject, int displayAttrib)
 }
 #endif
 
-int CJoint::setBoolProperty(const char* ppName, bool pState, CCbor* eev /* = nullptr*/)
+int CJoint::setBoolProperty(const char* ppName, bool pState)
+{
+    return setBoolProperty(ppName, pState, nullptr);
+}
+
+int CJoint::setBoolProperty(const char* ppName, bool pState, CCbor* eev)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -4764,7 +4769,12 @@ int CJoint::getBoolProperty(const char* ppName, bool& pState) const
     return retVal;
 }
 
-int CJoint::setIntProperty(const char* ppName, int pState, CCbor* eev /* = nullptr*/)
+int CJoint::setIntProperty(const char* ppName, int pState)
+{
+    return setIntProperty(ppName, pState, nullptr);
+}
+
+int CJoint::setIntProperty(const char* ppName, int pState, CCbor* eev)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -4909,7 +4919,12 @@ int CJoint::getIntProperty(const char* ppName, int& pState) const
     return retVal;
 }
 
-int CJoint::setHandleProperty(const char* ppName, long long int pState, CCbor* eev /* = nullptr*/)
+int CJoint::setHandleProperty(const char* ppName, long long int pState)
+{
+    return setHandleProperty(ppName, pState, nullptr);
+}
+
+int CJoint::setHandleProperty(const char* ppName, long long int pState, CCbor* eev)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -4953,7 +4968,12 @@ int CJoint::getHandleProperty(const char* ppName, long long int& pState) const
     return retVal;
 }
 
-int CJoint::setFloatProperty(const char* ppName, double pState, CCbor* eev /* = nullptr*/)
+int CJoint::setFloatProperty(const char* ppName, double pState)
+{
+    return setFloatProperty(ppName, pState, nullptr);
+}
+
+int CJoint::setFloatProperty(const char* ppName, double pState, CCbor* eev)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -5481,7 +5501,12 @@ int CJoint::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
-int CJoint::setIntArray2Property(const char* ppName, const int* pState, CCbor* eev /* = nullptr*/)
+int CJoint::setIntArray2Property(const char* ppName, const int* pState)
+{
+    return setIntArray2Property(ppName, pState, nullptr);
+}
+
+int CJoint::setIntArray2Property(const char* ppName, const int* pState, CCbor* eev)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -5570,7 +5595,12 @@ int CJoint::getIntArray2Property(const char* ppName, int* pState) const
     return retVal;
 }
 
-int CJoint::setVector3Property(const char* ppName, const C3Vector& pState, CCbor* eev /* = nullptr*/)
+int CJoint::setVector3Property(const char* ppName, const C3Vector& pState)
+{
+    return setVector3Property(ppName, pState, nullptr);
+}
+
+int CJoint::setVector3Property(const char* ppName, const C3Vector& pState, CCbor* eev)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -5761,7 +5791,12 @@ int CJoint::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CJoint::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState, CCbor* eev /* = nullptr*/)
+int CJoint::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState)
+{
+    return setFloatArrayProperty(ppName, pState, nullptr);
+}
+
+int CJoint::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState, CCbor* eev)
 {
     const char* pName = nullptr;
     std::string _pName;

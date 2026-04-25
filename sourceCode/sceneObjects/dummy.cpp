@@ -1165,7 +1165,12 @@ void CDummy::display(CViewableBase* renderingObject, int displayAttrib)
 }
 #endif
 
-int CDummy::setBoolProperty(const char* ppName, bool pState, CCbor* eev /* = nullptr*/)
+int CDummy::setBoolProperty(const char* pName, bool pState)
+{
+    return setBoolProperty(pName, pState, nullptr);
+}
+
+int CDummy::setBoolProperty(const char* ppName, bool pState, CCbor* eev)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -1250,7 +1255,12 @@ int CDummy::getBoolProperty(const char* ppName, bool& pState) const
     return retVal;
 }
 
-int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev /* = nullptr*/)
+int CDummy::setIntProperty(const char* ppName, int pState)
+{
+    return setIntProperty(ppName, pState, nullptr);
+}
+
+int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -1350,7 +1360,12 @@ int CDummy::getIntProperty(const char* ppName, int& pState) const
     return retVal;
 }
 
-int CDummy::setHandleProperty(const char* ppName, long long int pState, CCbor* eev /* = nullptr*/)
+int CDummy::setHandleProperty(const char* ppName, long long int pState)
+{
+    return setHandleProperty(ppName, pState, nullptr);
+}
+
+int CDummy::setHandleProperty(const char* ppName, long long int pState, CCbor* eev)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -1444,7 +1459,12 @@ int CDummy::getHandleProperty(const char* ppName, long long int& pState) const
     return retVal;
 }
 
-int CDummy::setFloatProperty(const char* ppName, double pState, CCbor* eev /* = nullptr*/)
+int CDummy::setFloatProperty(const char* ppName, double pState)
+{
+    return setFloatProperty(ppName, pState, nullptr);
+}
+
+int CDummy::setFloatProperty(const char* ppName, double pState, CCbor* eev)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -1638,7 +1658,12 @@ int CDummy::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CDummy::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState, CCbor* eev /* = nullptr*/)
+int CDummy::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState)
+{
+    return setFloatArrayProperty(ppName, pState, nullptr);
+}
+
+int CDummy::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState, CCbor* eev)
 {
     const char* pName = nullptr;
     std::string _pName;
