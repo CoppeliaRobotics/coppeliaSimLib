@@ -830,11 +830,16 @@ int CSceneObjectCustomizationPart::removeProperty(const char* pName)
 int CSceneObjectCustomizationPart::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = _customProperties.getPropertyName(index, pName, appartenance, excludeFlags);
+    bool setAppartenance = true;
     if ((!isClass()) && (retVal == sim_propertyret_unknownproperty))
     {
         CSceneObject* cl = App::scenes->customSceneObjectClasses->getClass(_sceneObject->getObjectTypeStr().c_str());
         if (cl != nullptr)
+        {
             retVal = cl->getPropertyName(index, pName, appartenance, excludeFlags | sim_propertyinfo_retmethodsonly);
+            if (retVal == sim_propertyret_ok)
+                setAppartenance = false;
+        }
     }
     if ((retVal == sim_propertyret_unknownproperty) && isClass())
     {
@@ -856,7 +861,7 @@ int CSceneObjectCustomizationPart::getPropertyName(int& index, std::string& pNam
             }
         }
     }
-    if (retVal == sim_propertyret_ok)
+    if ((retVal == sim_propertyret_ok) && setAppartenance)
         appartenance = "customization";
     return retVal;
 }
