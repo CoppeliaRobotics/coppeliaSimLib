@@ -198,7 +198,6 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["getPropertyInfo"] = _method_getPropertyInfo;
         funcTable["setPropertyInfo"] = _method_setPropertyInfo;
         funcTable["createCustomObjectClass"] = _method_createCustomObjectClass;
-        funcTable["removeCustomObject"] = _method_removeCustomObject;
         funcTable["isValid"] = _method_isValid;
         funcTable["addCurve"] = _method_addCurve;
         funcTable["addSignal"] = _method_addSignal;
@@ -2126,30 +2125,55 @@ std::string _method_removeModel(int targetObj, const char* method, CDetachedScri
 std::string _method_remove(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_bool | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
     {
-        bool delayed = fetchBool(inStack, 0, false);
-        CSceneObject* sceneObj = getSceneObject(targetObj, method);
-        CCollection* coll = getCollection(targetObj, method);
-        CDrawingObject* draw = getDrawingObject(targetObj, method);
-        CDetachedScript* script = getDetachedScript(targetObj, method);
-        if (sceneObj != nullptr)
+        bool delayed = false;
+        bool noError = false;
+        if (hasNonNullArg(inStack, 0))
         {
-            std::vector<int> sel;
-            sel.push_back(targetObj);
-            App::scene->sceneObjects->eraseObjects(&sel, true, delayed);
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+            map->fetchBoolFromKey("delayed", delayed, &errMsg);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
         }
-        else if (coll != nullptr)
-            App::scene->collections->removeCollection(targetObj);
-        else if (draw != nullptr)
-            App::scene->drawingCont->removeObject(targetObj);
-        else if (script != nullptr)
+        if (errMsg.size() == 0)
         {
-            if (!App::scenes->addOnScriptContainer->removeAddOn(targetObj))
-                errMsg = SIM_ERROR_INVALID_SCRIPT_TYPE_OR_DOES_NOT_EXIST;
+            CSceneObject* sceneObj = getSceneObject(targetObj, method);
+            CCollection* coll = getCollection(targetObj, method);
+            CDrawingObject* draw = getDrawingObject(targetObj, method);
+            CDetachedScript* script = getDetachedScript(targetObj, method);
+            if (sceneObj != nullptr)
+            {
+                std::vector<int> sel;
+                sel.push_back(targetObj);
+                App::scene->sceneObjects->eraseObjects(&sel, true, delayed);
+            }
+            else if (coll != nullptr)
+                App::scene->collections->removeCollection(targetObj);
+            else if (draw != nullptr)
+                App::scene->drawingCont->removeObject(targetObj);
+            else if (script != nullptr)
+            {
+                if (!App::scenes->addOnScriptContainer->removeAddOn(targetObj))
+                    errMsg = SIM_ERROR_INVALID_SCRIPT_TYPE_OR_DOES_NOT_EXIST;
+            }
+            else
+            {
+                CustomObject* customObj = App::scenes->customObjects->getObject(targetObj);
+                CustomObject* customClass = App::scenes->customObjects->getClass(targetObj);
+                if (customObj != nullptr)
+                    App::scenes->customObjects->removeObject(targetObj);
+                else if (customClass != nullptr)
+                    App::scenes->customObjects->removeClass(targetObj);
+                else
+                {
+                    customObj = App::scene->customObjects->getObject(targetObj);
+                    if (customObj != nullptr)
+                        App::scene->customObjects->removeObject(targetObj);
+                    else if (!noError)
+                        errMsg = "object does not exist or cannot be removed.";
+                }
+            }
         }
-        else
-            errMsg = "object does not exist or cannot be removed.";
     }
     return errMsg;
 }
@@ -2157,39 +2181,52 @@ std::string _method_remove(int targetObj, const char* method, CDetachedScript* c
 std::string _method_removeObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray, arg_bool | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
     {
         std::vector<long long int> objectHandles;
         fetchHandleArray(inStack, 0, objectHandles);
-        bool delayed = fetchBool(inStack, 1, false);
-        std::vector<int> sceneObjectHandles;
-        for (size_t i = 0; i < objectHandles.size(); i ++)
+        bool delayed = false;
+        bool noError = false;
+        if (hasNonNullArg(inStack, 1))
         {
-            int objectHandle = int(objectHandles[i]);
-            CSceneObject* sceneObj = getSceneObject(objectHandle, method);
-            CCollection* coll = getCollection(objectHandle, method);
-            CDrawingObject* draw = getDrawingObject(objectHandle, method);
-            CDetachedScript* script = getDetachedScript(objectHandle, method);
-            if (sceneObj != nullptr)
-                sceneObjectHandles.push_back(objectHandle);
-            else if (coll != nullptr)
-                App::scene->collections->removeCollection(objectHandle);
-            else if (draw != nullptr)
-                App::scene->drawingCont->removeObject(objectHandle);
-            else if (script != nullptr)
-            {
-                if (!App::scenes->addOnScriptContainer->removeAddOn(objectHandle))
-                    errMsg = SIM_ERROR_INVALID_SCRIPT_TYPE_OR_DOES_NOT_EXIST;
-            }
-            else
-                errMsg = SIM_ERROR_FOUND_INVALID_HANDLES;
-            if (errMsg != "")
-                break;
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchBoolFromKey("delayed", delayed, &errMsg);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
         }
-        if ((errMsg == "") && (sceneObjectHandles.size() > 0))
+        if (errMsg.size() == 0)
         {
-            if (!App::scene->sceneObjects->eraseObjects(&sceneObjectHandles, true, delayed))
-                errMsg = SIM_ERROR_FOUND_INVALID_HANDLES;
+            std::vector<int> sceneObjectHandles;
+            for (size_t i = 0; i < objectHandles.size(); i ++)
+            {
+                int objectHandle = int(objectHandles[i]);
+                CSceneObject* sceneObj = getSceneObject(objectHandle, method);
+                CCollection* coll = getCollection(objectHandle, method);
+                CDrawingObject* draw = getDrawingObject(objectHandle, method);
+                CDetachedScript* script = getDetachedScript(objectHandle, method);
+                if (sceneObj != nullptr)
+                    sceneObjectHandles.push_back(objectHandle);
+                else if (coll != nullptr)
+                    App::scene->collections->removeCollection(objectHandle);
+                else if (draw != nullptr)
+                    App::scene->drawingCont->removeObject(objectHandle);
+                else if (script != nullptr)
+                {
+                    if ((!App::scenes->addOnScriptContainer->removeAddOn(objectHandle)) && (!noError))
+                        errMsg = SIM_ERROR_INVALID_SCRIPT_TYPE_OR_DOES_NOT_EXIST;
+                }
+                else
+                {
+                    if (!noError)
+                        errMsg = SIM_ERROR_FOUND_INVALID_HANDLES;
+                }
+                if (errMsg != "")
+                    break;
+            }
+            if ((errMsg == "") && (sceneObjectHandles.size() > 0))
+            {
+                if ((!App::scene->sceneObjects->eraseObjects(&sceneObjectHandles, true, delayed)) && (!noError))
+                    errMsg = SIM_ERROR_FOUND_INVALID_HANDLES;
+            }
         }
     }
     return errMsg;
@@ -6725,44 +6762,6 @@ std::string _method_createCustomObjectClass(int targetObj, const char* method, C
             pushHandle(outStack, retVal);
         else
             errMsg = "class already defined, or invalid metaInfo.";
-    }
-    return errMsg;
-}
-
-std::string _method_removeCustomObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_map}))
-    {
-        long long int h = fetchHandle(inStack, 0);
-        std::string theClass;
-        bool noError = false;
-        if (hasNonNullArg(inStack, 1))
-        {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
-            map->fetchStringFromKey("class", theClass, &errMsg);
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
-        if (errMsg.size() == 0)
-        {
-            bool success = false;
-            if (theClass.size() > 0)
-            {
-                if (targetObj == sim_handle_app)
-                    success = App::scenes->customObjects->removeClass(theClass.c_str());
-                else
-                    errMsg = "invalid target when removing a class.";
-            }
-            else
-            {
-                if (targetObj == sim_handle_app)
-                    success = App::scenes->customObjects->removeItem(h);
-                else if (targetObj == sim_handle_scene)
-                    success = App::scene->customObjects->removeItem(h);
-            }
-            if ((!success) && (!noError))
-                errMsg = SIM_ERROR_OBJECTCLASS_INEXISTANT;
-        }
     }
     return errMsg;
 }
