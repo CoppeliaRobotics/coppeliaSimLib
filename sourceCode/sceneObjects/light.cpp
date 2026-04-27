@@ -1039,7 +1039,7 @@ int CLight::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
 int CLight::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == sim_propertyret_unknownproperty)
+    if (_isInScene && (retVal == sim_propertyret_unknownproperty))
     {
         appartenance = _objectTypeStr;
         retVal = objectColor.getPropertyName(index, pName, excludeFlags);

@@ -64,12 +64,12 @@ void pushDoubleArray(CInterfaceStack* outStack, const double* v, size_t length);
 void pushTextArray(CInterfaceStack* outStack, const std::string* v, size_t length);
 void pushObject(CInterfaceStack* outStack, CInterfaceStackObject* obj);
 
-CSceneObject* getSceneObject(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
-CSceneObject* getSpecificSceneObjectType(int identifier, int type, std::string* errMsg = nullptr, size_t argPos = -1);
-CCollection* getCollection(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
-CDrawingObject* getDrawingObject(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
-CDetachedScript* getDetachedScript(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
-bool doesEntityExist(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
+CSceneObject* getSceneObject(int identifier, const char* method, std::string* errMsg = nullptr, size_t argPos = -1);
+CSceneObject* getSpecificSceneObjectType(int identifier, const char* method, int type, std::string* errMsg = nullptr, size_t argPos = -1);
+CCollection* getCollection(int identifier, const char* method, std::string* errMsg = nullptr, size_t argPos = -1);
+CDrawingObject* getDrawingObject(int identifier, const char* method, std::string* errMsg = nullptr, size_t argPos = -1);
+CDetachedScript* getDetachedScript(int identifier, const char* method, std::string* errMsg = nullptr, size_t argPos = -1);
+bool doesEntityExist(int identifier, const char* method, std::string* errMsg = nullptr, size_t argPos = -1);
 std::string getInvalidArgString(size_t argPos);
 
 extern std::string _method_test(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

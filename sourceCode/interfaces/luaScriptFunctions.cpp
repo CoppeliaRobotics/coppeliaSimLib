@@ -6414,6 +6414,10 @@ int _callMethod(luaWrap_lua_State* L)
     {
         long long int target = fetchHandleArg(L, 1);
         std::string methodName = fetchTextArg(L, 2);
+//        std::string m;
+//        m = m + "Target: " + std::to_string(target);
+//        m+= " Method: " + methodName;
+//        App::logScriptMsg(nullptr, 0, m.c_str());
         methodName = "@" + methodName;
         CInterfaceStack* inStack = App::scenes->interfaceStackContainer->createStack();
         CDetachedScript::buildFromInterpreterStack_lua(L, inStack, 3, 0); // skip the two first args

@@ -5986,7 +5986,7 @@ int CJoint::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
 int CJoint::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == sim_propertyret_unknownproperty)
+    if (_isInScene && (retVal == sim_propertyret_unknownproperty))
     {
         appartenance = _objectTypeStr;
         retVal = _color.getPropertyName(index, pName, excludeFlags);

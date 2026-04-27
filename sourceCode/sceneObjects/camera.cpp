@@ -3561,7 +3561,7 @@ int CCamera::getPropertyName(int& index, std::string& pName, std::string& appart
 {
     appartenance = _objectTypeStr; // important here too, since viewableBase items are part of camera
     int retVal = CViewableBase::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == sim_propertyret_unknownproperty)
+    if (_isInScene && (retVal == sim_propertyret_unknownproperty))
     {
         appartenance = _objectTypeStr;
         retVal = _color.getPropertyName(index, pName, excludeFlags);

@@ -3856,7 +3856,7 @@ int CVisionSensor::getPropertyName(int& index, std::string& pName, std::string& 
 {
     appartenance = _objectTypeStr; // important here too, since viewableBase items are part of visionSensor
     int retVal = CViewableBase::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == sim_propertyret_unknownproperty)
+    if (_isInScene && (retVal == sim_propertyret_unknownproperty))
     {
         appartenance = _objectTypeStr;
         retVal = color.getPropertyName(index, pName, excludeFlags);

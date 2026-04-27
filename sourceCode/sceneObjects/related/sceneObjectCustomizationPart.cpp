@@ -303,653 +303,455 @@ void CSceneObjectCustomizationPart::_callPropertySetterGetter(const char* pName,
 }
 
 
-int CSceneObjectCustomizationPart::setBoolProperty(const char* pName, bool pState, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::setBoolProperty(const char* pName, bool pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setBoolProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_bool))
-        { // property already exists (with correct type), or we want to set it to a class
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const bool& v) { s->pushBoolOntoStack(v); }, [](CInterfaceStack* s, bool& v) { return s->getStackBoolValue(v); });
-            bool changed = false;
-            retVal = _customProperties.setBoolProperty(pName, pState, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_bool))
+    { // property already exists (with correct type), or we want to set it to a class
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const bool& v) { s->pushBoolOntoStack(v); }, [](CInterfaceStack* s, bool& v) { return s->getStackBoolValue(v); });
+        bool changed = false;
+        retVal = _customProperties.setBoolProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getBoolProperty(const char* pName, bool& pState, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getBoolProperty(const char* pName, bool& pState) const
+{
+    int retVal = _customProperties.getBoolProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+        _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const bool& v) { s->pushBoolOntoStack(v); }, [](CInterfaceStack* s, bool& v) { return s->getStackBoolValue(v); });
+    return retVal;
+}
+
+int CSceneObjectCustomizationPart::setIntProperty(const char* pName, int pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getBoolProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getBoolProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const bool& v) { s->pushBoolOntoStack(v); }, [](CInterfaceStack* s, bool& v) { return s->getStackBoolValue(v); });
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_int))
+    { // property already exists (with correct type), or we want to set it to a class
+        _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const int& v) { s->pushInt32OntoStack(v); }, [](CInterfaceStack* s, int& v) { return s->getStackInt32Value(v); });
+        bool changed = false;
+        retVal = _customProperties.setIntProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::setIntProperty(const char* pName, int pState, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::getIntProperty(const char* pName, int& pState) const
+{
+    int retVal = _customProperties.getIntProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+        _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const int& v) { s->pushInt32OntoStack(v); }, [](CInterfaceStack* s, int& v) { return s->getStackInt32Value(v); });
+    return retVal;
+}
+
+int CSceneObjectCustomizationPart::setLongProperty(const char* pName, long long int pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setIntProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_int))
-        { // property already exists (with correct type), or we want to set it to a class
-            _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const int& v) { s->pushInt32OntoStack(v); }, [](CInterfaceStack* s, int& v) { return s->getStackInt32Value(v); });
-            bool changed = false;
-            retVal = _customProperties.setIntProperty(pName, pState, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_long))
+    { // property already exists (with correct type), or we want to set it to a class
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushInt64OntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackInt64Value(v); });
+        bool changed = false;
+        retVal = _customProperties.setLongProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getIntProperty(const char* pName, int& pState, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getLongProperty(const char* pName, long long int& pState) const
+{
+    int retVal = _customProperties.getLongProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+        _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const long long& v) { s->pushInt64OntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackInt64Value(v); });
+    return retVal;
+}
+
+int CSceneObjectCustomizationPart::setFloatProperty(const char* pName, double pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getIntProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getIntProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const int& v) { s->pushInt32OntoStack(v); }, [](CInterfaceStack* s, int& v) { return s->getStackInt32Value(v); });
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_float))
+    { // property already exists (with correct type), or we want to set it to a class
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const double& v) { s->pushDoubleOntoStack(v); }, [](CInterfaceStack* s, double& v) { return s->getStackDoubleValue(v); });
+        bool changed = false;
+        retVal = _customProperties.setFloatProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::setLongProperty(const char* pName, long long int pState, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::getFloatProperty(const char* pName, double& pState) const
+{
+    int retVal = _customProperties.getFloatProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+        _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const double& v) { s->pushDoubleOntoStack(v); }, [](CInterfaceStack* s, double& v) { return s->getStackDoubleValue(v); });
+    return retVal;
+}
+
+int CSceneObjectCustomizationPart::setHandleProperty(const char* pName, long long int pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setLongProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_long))
-        { // property already exists (with correct type), or we want to set it to a class
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushInt64OntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackInt64Value(v); });
-            bool changed = false;
-            retVal = _customProperties.setLongProperty(pName, pState, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_handle))
+    { // property already exists (with correct type), or we want to set it to a class
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushHandleOntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackHandleValue(v); });
+        bool changed = false;
+        retVal = _customProperties.setHandleProperty(pName, pState, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getLongProperty(const char* pName, long long int& pState, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getHandleProperty(const char* pName, long long int& pState) const
+{
+    int retVal = _customProperties.getHandleProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+        _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushHandleOntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackHandleValue(v); });
+    return retVal;
+}
+
+int CSceneObjectCustomizationPart::setStringProperty(const char* pName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getLongProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getLongProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const long long& v) { s->pushInt64OntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackInt64Value(v); });
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_string))
+    { // property already exists (with correct type), or we want to set it to a class
+        std::string pp(pState);
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushTextOntoStack(v.c_str()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+        bool changed = false;
+        retVal = _customProperties.setStringProperty(pName, pp, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::setFloatProperty(const char* pName, double pState, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::getStringProperty(const char* pName, std::string& pState) const
+{
+    int retVal = _customProperties.getStringProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+        _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::string& v) { s->pushTextOntoStack(v.c_str()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+    return retVal;
+}
+
+int CSceneObjectCustomizationPart::setTableProperty(const char* pName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setFloatProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_float))
-        { // property already exists (with correct type), or we want to set it to a class
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const double& v) { s->pushDoubleOntoStack(v); }, [](CInterfaceStack* s, double& v) { return s->getStackDoubleValue(v); });
-            bool changed = false;
-            retVal = _customProperties.setFloatProperty(pName, pState, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_table))
+    { // property already exists (with correct type), or we want to set it to a class
+        std::string pp(pState);
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+        bool changed = false;
+        retVal = _customProperties.setTableProperty(pName, pp, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getFloatProperty(const char* pName, double& pState, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getTableProperty(const char* pName, std::string& pState) const
+{
+    int retVal = _customProperties.getTableProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+        _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+    return retVal;
+}
+
+int CSceneObjectCustomizationPart::setBufferProperty(const char* pName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getFloatProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getFloatProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const double& v) { s->pushDoubleOntoStack(v); }, [](CInterfaceStack* s, double& v) { return s->getStackDoubleValue(v); });
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_buffer))
+    { // property already exists (with correct type), or we want to set it to a class
+        std::string pp(pState);
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+        bool changed = false;
+        retVal = _customProperties.setBufferProperty(pName, pp, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::setHandleProperty(const char* pName, long long int pState, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::getBufferProperty(const char* pName, std::string& pState) const
+{
+    int retVal = _customProperties.getBufferProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+        _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+    return retVal;
+}
+
+int CSceneObjectCustomizationPart::setIntArray2Property(const char* pName, const int* pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setHandleProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_handle))
-        { // property already exists (with correct type), or we want to set it to a class
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushHandleOntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackHandleValue(v); });
-            bool changed = false;
-            retVal = _customProperties.setHandleProperty(pName, pState, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_intarray2))
+    { // property already exists (with correct type), or we want to set it to a class
+        int pp[2] = {pState[0], pState[1]};
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const int (&v)[2]) { s->pushInt32ArrayOntoStack(v, 2); }, [](CInterfaceStack* s, int (&v)[2]) { return s->getStackInt32Array(v, 2); });
+        bool changed = false;
+        retVal = _customProperties.setIntArray2Property(pName, pp, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getHandleProperty(const char* pName, long long int& pState, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getIntArray2Property(const char* pName, int* pState) const
 {
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getHandleProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
+    int retVal = _customProperties.getIntArray2Property(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
     {
-        retVal = _customProperties.getHandleProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushHandleOntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackHandleValue(v); });
+        int pp[2] = {pState[0], pState[1]};
+        _callPropertySetterGetter(pName, GET_SUFFIX, pp, [](CInterfaceStack* s, const int (&v)[2]) { s->pushInt32ArrayOntoStack(v, 2); }, [](CInterfaceStack* s, int (&v)[2]) { return s->getStackInt32Array(v, 2); });
+        pState[0] = pp[0];
+        pState[1] = pp[1];
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::setStringProperty(const char* pName, const std::string& pState, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::setVector3Property(const char* pName, const C3Vector& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setStringProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_string))
-        { // property already exists (with correct type), or we want to set it to a class
-            std::string pp(pState);
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushTextOntoStack(v.c_str()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
-            bool changed = false;
-            retVal = _customProperties.setStringProperty(pName, pp, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_vector3))
+    { // property already exists (with correct type), or we want to set it to a class
+        CMatrix m(3, 1);
+        m.data.assign(pState.data, pState.data + 3);
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, m, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
+        C3Vector p(m.data.data());
+        bool changed = false;
+        retVal = _customProperties.setVector3Property(pName, p, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getStringProperty(const char* pName, std::string& pState, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getVector3Property(const char* pName, C3Vector& pState) const
 {
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getStringProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
+    int retVal = _customProperties.getVector3Property(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
     {
-        retVal = _customProperties.getStringProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::string& v) { s->pushTextOntoStack(v.c_str()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+        CMatrix m(3, 1);
+        m.data.assign(pState.data, pState.data + 3);
+        _callPropertySetterGetter(pName, GET_SUFFIX, m, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
+        pState.setData(m.data.data());
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::setTableProperty(const char* pName, const std::string& pState, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::setMatrixProperty(const char* pName, const CMatrix& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setTableProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_table))
-        { // property already exists (with correct type), or we want to set it to a class
-            std::string pp(pState);
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
-            bool changed = false;
-            retVal = _customProperties.setTableProperty(pName, pp, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_matrix))
+    { // property already exists (with correct type), or we want to set it to a class
+        CMatrix pp(pState);
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
+        bool changed = false;
+        retVal = _customProperties.setMatrixProperty(pName, pp, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getTableProperty(const char* pName, std::string& pState, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getMatrixProperty(const char* pName, CMatrix& pState) const
+{
+    int retVal = _customProperties.getMatrixProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+        _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
+    return retVal;
+}
+
+int CSceneObjectCustomizationPart::setQuaternionProperty(const char* pName, const C4Vector& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getTableProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getTableProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_quaternion))
+    { // property already exists (with correct type), or we want to set it to a class
+        C4Vector pp(pState);
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const C4Vector& v) { s->pushQuaternionOntoStack(v); }, [](CInterfaceStack* s, C4Vector& v) { return s->getStackQuaternion(v); });
+        bool changed = false;
+        retVal = _customProperties.setQuaternionProperty(pName, pp, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::setBufferProperty(const char* pName, const std::string& pState, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::getQuaternionProperty(const char* pName, C4Vector& pState) const
+{
+    int retVal = _customProperties.getQuaternionProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+        _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const C4Vector& v) { s->pushQuaternionOntoStack(v); }, [](CInterfaceStack* s, C4Vector& v) { return s->getStackQuaternion(v); });
+    return retVal;
+}
+
+int CSceneObjectCustomizationPart::setPoseProperty(const char* pName, const C7Vector& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setBufferProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_buffer))
-        { // property already exists (with correct type), or we want to set it to a class
-            std::string pp(pState);
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
-            bool changed = false;
-            retVal = _customProperties.setBufferProperty(pName, pp, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_pose))
+    { // property already exists (with correct type), or we want to set it to a class
+        C7Vector pp(pState);
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const C7Vector& v) { s->pushPoseOntoStack(v); }, [](CInterfaceStack* s, C7Vector& v) { return s->getStackPose(v); });
+        bool changed = false;
+        retVal = _customProperties.setPoseProperty(pName, pp, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getBufferProperty(const char* pName, std::string& pState, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getPoseProperty(const char* pName, C7Vector& pState) const
+{
+    int retVal = _customProperties.getPoseProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+        _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const C7Vector& v) { s->pushPoseOntoStack(v); }, [](CInterfaceStack* s, C7Vector& v) { return s->getStackPose(v); });
+    return retVal;
+}
+
+int CSceneObjectCustomizationPart::setColorProperty(const char* pName, const float* pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getBufferProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getBufferProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_color))
+    { // property already exists (with correct type), or we want to set it to a class
+        float pp[3] = {pState[0], pState[1], pState[2]};
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const float (&v)[3]) { s->pushColorOntoStack(v); }, [](CInterfaceStack* s, float (&v)[3]) { return s->getStackColor(v); });
+        bool changed = false;
+        retVal = _customProperties.setColorProperty(pName, pp, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::setIntArray2Property(const char* pName, const int* pState, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::getColorProperty(const char* pName, float* pState) const
 {
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setIntArray2Property(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
+    int retVal = _customProperties.getColorProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
     {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_intarray2))
-        { // property already exists (with correct type), or we want to set it to a class
-            int pp[2] = {pState[0], pState[1]};
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const int (&v)[2]) { s->pushInt32ArrayOntoStack(v, 2); }, [](CInterfaceStack* s, int (&v)[2]) { return s->getStackInt32Array(v, 2); });
-            bool changed = false;
-            retVal = _customProperties.setIntArray2Property(pName, pp, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
+        float pp[3] = {pState[0], pState[1], pState[2]};
+        _callPropertySetterGetter(pName, GET_SUFFIX, pp, [](CInterfaceStack* s, const float (&v)[3]) { s->pushColorOntoStack(v); }, [](CInterfaceStack* s, float (&v)[3]) { return s->getStackColor(v); });
+        pState[0] = pp[0];
+        pState[1] = pp[1];
+        pState[2] = pp[2];
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getIntArray2Property(const char* pName, int* pState, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::setFloatArrayProperty(const char* pName, const std::vector<double>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getIntArray2Property(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getIntArray2Property(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-        {
-            int pp[2] = {pState[0], pState[1]};
-            _callPropertySetterGetter(pName, GET_SUFFIX, pp, [](CInterfaceStack* s, const int (&v)[2]) { s->pushInt32ArrayOntoStack(v, 2); }, [](CInterfaceStack* s, int (&v)[2]) { return s->getStackInt32Array(v, 2); });
-            pState[0] = pp[0];
-            pState[1] = pp[1];
-        }
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_floatarray))
+    { // property already exists (with correct type), or we want to set it to a class
+        std::vector<double> pp(pState);
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<double>& w) { s->pushDoubleArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<double>& w) { return s->getStackDoubleArray(w.data(), w.size()); });
+        bool changed = false;
+        retVal = _customProperties.setFloatArrayProperty(pName, pp, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::setVector3Property(const char* pName, const C3Vector& pState, bool viaClass /*= false*/)
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setVector3Property(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_vector3))
-        { // property already exists (with correct type), or we want to set it to a class
-            CMatrix m(3, 1);
-            m.data.assign(pState.data, pState.data + 3);
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, m, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
-            C3Vector p(m.data.data());
-            bool changed = false;
-            retVal = _customProperties.setVector3Property(pName, p, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
-    }
-    return retVal;
-}
-
-int CSceneObjectCustomizationPart::getVector3Property(const char* pName, C3Vector& pState, bool viaClass /*= false*/) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getVector3Property(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getVector3Property(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-        {
-            CMatrix m(3, 1);
-            m.data.assign(pState.data, pState.data + 3);
-            _callPropertySetterGetter(pName, GET_SUFFIX, m, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
-            pState.setData(m.data.data());
-        }
-    }
-    return retVal;
-}
-
-int CSceneObjectCustomizationPart::setMatrixProperty(const char* pName, const CMatrix& pState, bool viaClass /*= false*/)
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setMatrixProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_matrix))
-        { // property already exists (with correct type), or we want to set it to a class
-            CMatrix pp(pState);
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
-            bool changed = false;
-            retVal = _customProperties.setMatrixProperty(pName, pp, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
-    }
-    return retVal;
-}
-
-int CSceneObjectCustomizationPart::getMatrixProperty(const char* pName, CMatrix& pState, bool viaClass /*= false*/) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getMatrixProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getMatrixProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const CMatrix& v) { s->pushMatrixOntoStack(v); }, [](CInterfaceStack* s, CMatrix& v) { return s->getStackMatrix(v); });
-    }
-    return retVal;
-}
-
-int CSceneObjectCustomizationPart::setQuaternionProperty(const char* pName, const C4Vector& pState, bool viaClass /*= false*/)
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setQuaternionProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_quaternion))
-        { // property already exists (with correct type), or we want to set it to a class
-            C4Vector pp(pState);
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const C4Vector& v) { s->pushQuaternionOntoStack(v); }, [](CInterfaceStack* s, C4Vector& v) { return s->getStackQuaternion(v); });
-            bool changed = false;
-            retVal = _customProperties.setQuaternionProperty(pName, pp, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
-    }
-    return retVal;
-}
-
-int CSceneObjectCustomizationPart::getQuaternionProperty(const char* pName, C4Vector& pState, bool viaClass /*= false*/) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getQuaternionProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getQuaternionProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const C4Vector& v) { s->pushQuaternionOntoStack(v); }, [](CInterfaceStack* s, C4Vector& v) { return s->getStackQuaternion(v); });
-    }
-    return retVal;
-}
-
-int CSceneObjectCustomizationPart::setPoseProperty(const char* pName, const C7Vector& pState, bool viaClass /*= false*/)
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setPoseProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_pose))
-        { // property already exists (with correct type), or we want to set it to a class
-            C7Vector pp(pState);
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const C7Vector& v) { s->pushPoseOntoStack(v); }, [](CInterfaceStack* s, C7Vector& v) { return s->getStackPose(v); });
-            bool changed = false;
-            retVal = _customProperties.setPoseProperty(pName, pp, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
-    }
-    return retVal;
-}
-
-int CSceneObjectCustomizationPart::getPoseProperty(const char* pName, C7Vector& pState, bool viaClass /*= false*/) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getPoseProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getPoseProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const C7Vector& v) { s->pushPoseOntoStack(v); }, [](CInterfaceStack* s, C7Vector& v) { return s->getStackPose(v); });
-    }
-    return retVal;
-}
-
-int CSceneObjectCustomizationPart::setColorProperty(const char* pName, const float* pState, bool viaClass /*= false*/)
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setColorProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_color))
-        { // property already exists (with correct type), or we want to set it to a class
-            float pp[3] = {pState[0], pState[1], pState[2]};
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const float (&v)[3]) { s->pushColorOntoStack(v); }, [](CInterfaceStack* s, float (&v)[3]) { return s->getStackColor(v); });
-            bool changed = false;
-            retVal = _customProperties.setColorProperty(pName, pp, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
-    }
-    return retVal;
-}
-
-int CSceneObjectCustomizationPart::getColorProperty(const char* pName, float* pState, bool viaClass /*= false*/) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getColorProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getColorProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-        {
-            float pp[3] = {pState[0], pState[1], pState[2]};
-            _callPropertySetterGetter(pName, GET_SUFFIX, pp, [](CInterfaceStack* s, const float (&v)[3]) { s->pushColorOntoStack(v); }, [](CInterfaceStack* s, float (&v)[3]) { return s->getStackColor(v); });
-            pState[0] = pp[0];
-            pState[1] = pp[1];
-            pState[2] = pp[2];
-        }
-    }
-    return retVal;
-}
-
-int CSceneObjectCustomizationPart::setFloatArrayProperty(const char* pName, const std::vector<double>& pState, bool viaClass /*= false*/)
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setFloatArrayProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_floatarray))
-        { // property already exists (with correct type), or we want to set it to a class
-            std::vector<double> pp(pState);
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<double>& w) { s->pushDoubleArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<double>& w) { return s->getStackDoubleArray(w.data(), w.size()); });
-            bool changed = false;
-            retVal = _customProperties.setFloatArrayProperty(pName, pp, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
-    }
-    return retVal;
-}
-
-int CSceneObjectCustomizationPart::getFloatArrayProperty(const char* pName, std::vector<double>& pState, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getFloatArrayProperty(const char* pName, std::vector<double>& pState) const
 {
     pState.clear();
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getFloatArrayProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getFloatArrayProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::vector<double>& w) { s->pushDoubleArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<double>& w) { return s->getStackDoubleArray(w.data(), w.size()); });
-    }
+    int retVal = _customProperties.getFloatArrayProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+        _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::vector<double>& w) { s->pushDoubleArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<double>& w) { return s->getStackDoubleArray(w.data(), w.size()); });
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::setIntArrayProperty(const char* pName, const std::vector<int>& pState, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::setIntArrayProperty(const char* pName, const std::vector<int>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setIntArrayProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_intarray))
-        { // property already exists (with correct type), or we want to set it to a class
-            std::vector<int> pp(pState);
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<int>& w) { s->pushInt32ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<int>& w) { return s->getStackInt32Array(w.data(), w.size()); });
-            bool changed = false;
-            retVal = _customProperties.setIntArrayProperty(pName, pp, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_intarray))
+    { // property already exists (with correct type), or we want to set it to a class
+        std::vector<int> pp(pState);
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<int>& w) { s->pushInt32ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<int>& w) { return s->getStackInt32Array(w.data(), w.size()); });
+        bool changed = false;
+        retVal = _customProperties.setIntArrayProperty(pName, pp, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getIntArrayProperty(const char* pName, std::vector<int>& pState, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getIntArrayProperty(const char* pName, std::vector<int>& pState) const
 {
     pState.clear();
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getIntArrayProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getIntArrayProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::vector<int>& w) { s->pushInt32ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<int>& w) { return s->getStackInt32Array(w.data(), w.size()); });
-    }
+    int retVal = _customProperties.getIntArrayProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+        _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::vector<int>& w) { s->pushInt32ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<int>& w) { return s->getStackInt32Array(w.data(), w.size()); });
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setHandleArrayProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_handlearray))
-        { // property already exists (with correct type), or we want to set it to a class
-            std::vector<long long int> pp(pState);
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<long long int>& w) { s->pushInt64ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<long long int>& w) { return s->getStackInt64Array(w.data(), w.size()); });
-            bool changed = false;
-            retVal = _customProperties.setHandleArrayProperty(pName, pp, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_handlearray))
+    { // property already exists (with correct type), or we want to set it to a class
+        std::vector<long long int> pp(pState);
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<long long int>& w) { s->pushInt64ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<long long int>& w) { return s->getStackInt64Array(w.data(), w.size()); });
+        bool changed = false;
+        retVal = _customProperties.setHandleArrayProperty(pName, pp, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getHandleArrayProperty(const char* pName, std::vector<long long int>& pState, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const
 {
     pState.clear();
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getHandleArrayProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getHandleArrayProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::vector<long long int>& w) { s->pushInt64ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<long long int>& w) { return s->getStackInt64Array(w.data(), w.size()); });
-    }
+    int retVal = _customProperties.getHandleArrayProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+        _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::vector<long long int>& w) { s->pushInt64ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<long long int>& w) { return s->getStackInt64Array(w.data(), w.size()); });
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::setStringArrayProperty(const char* pName, const std::vector<std::string>& pState, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::setStringArrayProperty(const char* pName, const std::vector<std::string>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setStringArrayProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_stringarray))
-        { // property already exists (with correct type), or we want to set it to a class
-            std::vector<std::string> pp(pState);
-            if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<std::string>& w) { s->pushTextArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<std::string>& w) { w.clear(); return s->getStackTextArray(w); });
-            bool changed = false;
-            retVal = _customProperties.setStringArrayProperty(pName, pp, changed);
-            if (changed)
-                _triggerEvent(pName);
-        }
+    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_stringarray))
+    { // property already exists (with correct type), or we want to set it to a class
+        std::vector<std::string> pp(pState);
+        if ((!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<std::string>& w) { s->pushTextArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<std::string>& w) { w.clear(); return s->getStackTextArray(w); });
+        bool changed = false;
+        retVal = _customProperties.setStringArrayProperty(pName, pp, changed);
+        if (changed)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getStringArrayProperty(const char* pName, std::vector<std::string>& pState, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const
 {
     pState.clear();
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getStringArrayProperty(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = _customProperties.getStringArrayProperty(pName, pState);
-        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::vector<std::string>& w) { s->pushTextArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<std::string>& w) { w.clear(); return s->getStackTextArray(w); });
-    }
+    int retVal = _customProperties.getStringArrayProperty(pName, pState);
+    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+        _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::vector<std::string>& w) { s->pushTextArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<std::string>& w) { w.clear(); return s->getStackTextArray(w); });
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::setMethodProperty(const char* pName, const void* pState, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::setMethodProperty(const char* pName, const void* pState)
 {
     std::string ppN(pName);
     ppN += "@cfunc";
@@ -962,7 +764,7 @@ int CSceneObjectCustomizationPart::setMethodProperty(const char* pName, const vo
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getMethodProperty(const char* pName, void*& pState, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getMethodProperty(const char* pName, void*& pState) const
 {
     std::string ppN(pName);
     ppN += "@cfunc";
@@ -982,7 +784,7 @@ int CSceneObjectCustomizationPart::getMethodProperty(const char* pName, void*& p
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::setMethodProperty(const char* pName, const std::string& pState, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::setMethodProperty(const char* pName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (isClass())
@@ -995,7 +797,7 @@ int CSceneObjectCustomizationPart::setMethodProperty(const char* pName, const st
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getMethodProperty(const char* pName, std::string& pState, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getMethodProperty(const char* pName, std::string& pState) const
 {
     int retVal = _customProperties.getMethodProperty(pName, pState);
     if ((!isClass()) && (retVal == sim_propertyret_unknownproperty))
@@ -1013,53 +815,26 @@ int CSceneObjectCustomizationPart::getMethodProperty(const char* pName, std::str
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::removeProperty(const char* pName, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::removeProperty(const char* pName)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::removeProperty(pName);
-    if (retVal == sim_propertyret_unknownproperty)
+    if (isClass() || _objectCanAddRemoveProperty)
     {
-        if (isClass() || _objectCanAddRemoveProperty)
-        {
-            retVal = _customProperties.removeProperty(pName);
-            if (retVal == sim_propertyret_ok)
-                _triggerEvent(pName);
-        }
+        retVal = _customProperties.removeProperty(pName);
+        if (retVal == sim_propertyret_ok)
+            _triggerEvent(pName);
     }
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == sim_propertyret_unknownproperty)
+    int retVal = _customProperties.getPropertyName(index, pName, appartenance, excludeFlags);
+    if ((!isClass()) && (retVal == sim_propertyret_unknownproperty))
     {
-        retVal = _customProperties.getPropertyName(index, pName, appartenance, excludeFlags);
-        if ((!isClass()) && (retVal == sim_propertyret_unknownproperty))
-        {
-            CSceneObject* cl = App::scenes->customSceneObjectClasses->getClass(_sceneObject->getObjectTypeStr().c_str());
-            if (cl != nullptr)
-                retVal = cl->getPropertyName(index, pName, appartenance, excludeFlags | sim_propertyinfo_retmethodsonly);
-        }
-        if (retVal == sim_propertyret_ok)
-        {
-            if (isClass())
-            {
-                if ((pName == "customClass") || (pName == "name") || (pName == "target"))
-                    appartenance = "TODO_CLASS_NAME";
-                else
-                {
-                    std::string theName;
-                    getStringProperty("name", theName);
-                    appartenance = theName;
-                }
-            }
-            else
-                appartenance = _sceneObject->getObjectTypeStr();
-        }
+        CSceneObject* cl = App::scenes->customSceneObjectClasses->getClass(_sceneObject->getObjectTypeStr().c_str());
+        if (cl != nullptr)
+            retVal = cl->getPropertyName(index, pName, appartenance, excludeFlags | sim_propertyinfo_retmethodsonly);
     }
     if ((retVal == sim_propertyret_unknownproperty) && isClass())
     {
@@ -1073,10 +848,6 @@ int CSceneObjectCustomizationPart::getPropertyName(int& index, std::string& pNam
                     index--;
                     if (index == -1)
                     {
-                        if (isClass())
-                            appartenance = "TODO_CUSTOMSCENEOBJECTCLASS_APPARTENANCE";
-                        else
-                            appartenance = "TODO_CUSTOMSCENEOBJECT_APPARTENANCE";
                         pName = prop->at(i).name;
                         retVal = sim_propertyret_ok;
                         break;
@@ -1085,23 +856,19 @@ int CSceneObjectCustomizationPart::getPropertyName(int& index, std::string& pNam
             }
         }
     }
+    if (retVal == sim_propertyret_ok)
+        appartenance = "customization";
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::getPropertyInfo(const char* pName, int& info, std::string& infoTxt, bool viaClass /*= false*/) const
+int CSceneObjectCustomizationPart::getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const
 {
-    int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::getPropertyInfo(pName, info, infoTxt);
-    if (retVal == sim_propertyret_unknownproperty)
+    int retVal = _customProperties.getPropertyInfo(pName, info, infoTxt);
+    if ((!isClass()) && (retVal == sim_propertyret_unknownproperty))
     {
-        retVal = _customProperties.getPropertyInfo(pName, info, infoTxt);
-        if ((!isClass()) && (retVal == sim_propertyret_unknownproperty))
-        {
-            CSceneObject* cl = App::scenes->customSceneObjectClasses->getClass(_sceneObject->getObjectTypeStr().c_str());
-            if (cl != nullptr)
-                retVal = cl->getPropertyInfo(pName, info, infoTxt);
-        }
+        CSceneObject* cl = App::scenes->customSceneObjectClasses->getClass(_sceneObject->getObjectTypeStr().c_str());
+        if (cl != nullptr)
+            retVal = cl->getPropertyInfo(pName, info, infoTxt);
     }
     if ((retVal == sim_propertyret_unknownproperty) && isClass())
     {
@@ -1131,18 +898,12 @@ int CSceneObjectCustomizationPart::getPropertyInfo(const char* pName, int& info,
     return retVal;
 }
 
-int CSceneObjectCustomizationPart::setPropertyInfo(const char* pName, int info, const char* infoTxt, bool viaClass /*= false*/)
+int CSceneObjectCustomizationPart::setPropertyInfo(const char* pName, int info, const char* infoTxt)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (viaClass)
-        retVal = _sceneObject->Obj::setPropertyInfo(pName, info, infoTxt);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        retVal = sim_propertyret_unknownproperty;
-        if ((isClass() || _objectCanAddRemoveProperty))
-            retVal = _customProperties.setPropertyInfo(pName, info, infoTxt);
-        else
-            retVal = sim_propertyret_unavailable;
-    }
+    if ((isClass() || _objectCanAddRemoveProperty))
+        retVal = _customProperties.setPropertyInfo(pName, info, infoTxt);
+    else
+        retVal = sim_propertyret_unavailable;
     return retVal;
 }

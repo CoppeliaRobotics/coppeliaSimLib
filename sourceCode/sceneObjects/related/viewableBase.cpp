@@ -840,7 +840,7 @@ int CViewableBase::getIntArrayProperty(const char* pName, std::vector<int>& pSta
 int CViewableBase::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == sim_propertyret_unknownproperty)
+    if (_isInScene && (retVal == sim_propertyret_unknownproperty))
     {
         for (size_t i = 0; i < allProps_viewable.size(); i++)
         {

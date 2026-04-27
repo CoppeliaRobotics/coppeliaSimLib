@@ -6413,11 +6413,16 @@ int CSceneObject::getStringProperty(const char* ppName, std::string& pState) con
         else if (_pName == propSceneObject_modelHash.name)
         {
             retVal = sim_propertyret_ok;
-            pState = App::scene->sceneObjects->getModelState(_objectHandle);
-            size_t hv = std::hash<std::string>{}(pState);
-            std::stringstream ss;
-            ss << std::hex << hv;
-            pState = ss.str();
+            if (_isInScene)
+            {
+                pState = App::scene->sceneObjects->getModelState(_objectHandle);
+                size_t hv = std::hash<std::string>{}(pState);
+                std::stringstream ss;
+                ss << std::hex << hv;
+                pState = ss.str();
+            }
+            else
+                pState.clear();
         }
     }
     return retVal;
@@ -7088,78 +7093,54 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
     int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
     if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
         retVal = _sceneObjectCustomizationPart->getPropertyName(index, pName, appartenance, excludeFlags);
-    if (retVal == sim_propertyret_unknownproperty)
+    if (_isInScene)
     {
-        for (size_t i = 0; i < allProps_sceneObject.size(); i++)
+        if (retVal == sim_propertyret_unknownproperty)
         {
-            if ((pName.size() == 0) || utils::startsWith(allProps_sceneObject[i].name, pName.c_str()))
+            for (size_t i = 0; i < allProps_sceneObject.size(); i++)
             {
-                if ((allProps_sceneObject[i].flags & excludeFlags) == 0)
+                if ((pName.size() == 0) || utils::startsWith(allProps_sceneObject[i].name, pName.c_str()))
                 {
-                    index--;
-                    if (index == -1)
-                    {
-                        appartenance = "sceneObject";
-                        pName = allProps_sceneObject[i].name;
-                        retVal = sim_propertyret_ok;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (customObjectData.getPropertyName(index, pName, excludeFlags))
-        {
-            appartenance = "sceneObject";
-            pName = CUSTOMDATAPREFIX + pName;
-            retVal = sim_propertyret_ok;
-        }
-        else if (customObjectData_volatile.getPropertyName(index, pName, excludeFlags))
-        {
-            appartenance = "sceneObject";
-            pName = SIGNALPREFIX + pName;
-            retVal = sim_propertyret_ok;
-        }
-        else
-        {
-            std::vector<std::string> tags;
-            getReferencedHandlesTags(tags);
-            for (size_t i = 0; i < tags.size(); i++)
-            {
-                std::string tag(tags[i]);
-                std::string decoratedTag(REFSPREFIX + tag);
-                if ( (tag.size() > 0) && ((pName.size() == 0) || utils::startsWith(decoratedTag.c_str(), pName.c_str())) )
-                {
-                    int flags = REFSFLAGS;
-                    if (getReferencedHandlesCount(tag.c_str()) > LARGE_PROPERTY_SIZE)
-                        flags |= sim_propertyinfo_largedata;
-                    if ((flags & excludeFlags) == 0)
+                    if ((allProps_sceneObject[i].flags & excludeFlags) == 0)
                     {
                         index--;
                         if (index == -1)
                         {
                             appartenance = "sceneObject";
-                            pName = decoratedTag;
+                            pName = allProps_sceneObject[i].name;
                             retVal = sim_propertyret_ok;
                             break;
                         }
                     }
                 }
             }
-            if (retVal == sim_propertyret_unknownproperty)
+        }
+        if (retVal == sim_propertyret_unknownproperty)
+        {
+            if (customObjectData.getPropertyName(index, pName, excludeFlags))
             {
-                tags.clear();
-                getReferencedOriginalHandlesTags(tags);
+                appartenance = "sceneObject";
+                pName = CUSTOMDATAPREFIX + pName;
+                retVal = sim_propertyret_ok;
+            }
+            else if (customObjectData_volatile.getPropertyName(index, pName, excludeFlags))
+            {
+                appartenance = "sceneObject";
+                pName = SIGNALPREFIX + pName;
+                retVal = sim_propertyret_ok;
+            }
+            else
+            {
+                std::vector<std::string> tags;
+                getReferencedHandlesTags(tags);
                 for (size_t i = 0; i < tags.size(); i++)
                 {
                     std::string tag(tags[i]);
-                    std::string decoratedTag(ORIGREFSPREFIX + tag);
+                    std::string decoratedTag(REFSPREFIX + tag);
                     if ( (tag.size() > 0) && ((pName.size() == 0) || utils::startsWith(decoratedTag.c_str(), pName.c_str())) )
                     {
-                        int flags = ORIGREFSFLAGS;
-                        if (getReferencedOriginalHandlesCount(tag.c_str()) > LARGE_PROPERTY_SIZE)
+                        int flags = REFSFLAGS;
+                        if (getReferencedHandlesCount(tag.c_str()) > LARGE_PROPERTY_SIZE)
                             flags |= sim_propertyinfo_largedata;
                         if ((flags & excludeFlags) == 0)
                         {
@@ -7170,6 +7151,33 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
                                 pName = decoratedTag;
                                 retVal = sim_propertyret_ok;
                                 break;
+                            }
+                        }
+                    }
+                }
+                if (retVal == sim_propertyret_unknownproperty)
+                {
+                    tags.clear();
+                    getReferencedOriginalHandlesTags(tags);
+                    for (size_t i = 0; i < tags.size(); i++)
+                    {
+                        std::string tag(tags[i]);
+                        std::string decoratedTag(ORIGREFSPREFIX + tag);
+                        if ( (tag.size() > 0) && ((pName.size() == 0) || utils::startsWith(decoratedTag.c_str(), pName.c_str())) )
+                        {
+                            int flags = ORIGREFSFLAGS;
+                            if (getReferencedOriginalHandlesCount(tag.c_str()) > LARGE_PROPERTY_SIZE)
+                                flags |= sim_propertyinfo_largedata;
+                            if ((flags & excludeFlags) == 0)
+                            {
+                                index--;
+                                if (index == -1)
+                                {
+                                    appartenance = "sceneObject";
+                                    pName = decoratedTag;
+                                    retVal = sim_propertyret_ok;
+                                    break;
+                                }
                             }
                         }
                     }
