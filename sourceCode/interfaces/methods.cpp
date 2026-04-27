@@ -7040,7 +7040,7 @@ std::string _method_makeObject(int targetObj, const char* method, CDetachedScrip
             bool isVolatile = true;
             if (hasNonNullArg(inStack, 0))
             {
-                CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+                CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
                 map->fetchBoolFromKey("appScope", appScope, &errMsg);
                 map->fetchBoolFromKey("scriptPersistent", scriptPersistent, &errMsg);
                 map->fetchBoolFromKey("volatile", isVolatile, &errMsg);
