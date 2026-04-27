@@ -18,7 +18,7 @@ class CSceneObject;
 class CSceneObjectCustomizationPart
 {
   public:
-    CSceneObjectCustomizationPart(CSceneObject* sceneObj);
+    CSceneObjectCustomizationPart(CSceneObject* sceneObj, const char* objectTypeStr);
     virtual ~CSceneObjectCustomizationPart();
 
     void serialize(CSer& ar);
@@ -80,6 +80,7 @@ class CSceneObjectCustomizationPart
     void _triggerEvent(const char* pName, CCbor* evv = nullptr);
 
     CSceneObject* _sceneObject;
+    std::string _objectTypeStr;
     bool _changed;
     bool _ignoreSetterGetter;
     bool _objectCanAddRemoveProperty;

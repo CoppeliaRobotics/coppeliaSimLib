@@ -435,7 +435,7 @@ int CCustomSceneObject::getPropertyName(int& index, std::string& pName, std::str
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (_isInScene && (retVal == sim_propertyret_unknownproperty))
     {
-        appartenance = _objectTypeStr;
+        appartenance = _originalObjectTypeStr;
         retVal = _objectColor.getPropertyName(index, pName, excludeFlags);
         if (retVal == sim_propertyret_unknownproperty)
         {

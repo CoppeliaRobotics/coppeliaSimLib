@@ -2345,7 +2345,7 @@ int CShape::getPropertyName(int& index, std::string& pName, std::string& apparte
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (_isInScene && (retVal == sim_propertyret_unknownproperty))
     {
-        appartenance = _objectTypeStr;
+        appartenance = _originalObjectTypeStr;
         retVal = _dynMaterial->getPropertyName(index, pName, excludeFlags);
         if (retVal == sim_propertyret_unknownproperty)
             retVal = _mesh->getPropertyName_wrapper(index, pName, appartenance, excludeFlags);

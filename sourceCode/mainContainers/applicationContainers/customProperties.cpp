@@ -41,6 +41,7 @@ void CCustomProperties::setAllPropertyData(const std::vector<std::string>& names
 
 void CCustomProperties::copyFromExceptMethods(const CCustomProperties* source)
 {
+    printf("a\n");
     _properties = source->_properties;
     std::string pName, appart;
     int index = 0;
@@ -57,9 +58,11 @@ void CCustomProperties::copyFromExceptMethods(const CCustomProperties* source)
     }
     for (size_t i = 0; i < toRemove.size(); i++)
     {
+        printf("c: %i, %s\n", i, toRemove[i].c_str());
         setPropertyInfo(toRemove[i].c_str(), sim_propertyinfo_removable, "");
         removeProperty(toRemove[i].c_str());
     }
+    printf("d\n");
 }
 
 void CCustomProperties::_writeInt32(std::string& buf, size_t offset, int32_t val)

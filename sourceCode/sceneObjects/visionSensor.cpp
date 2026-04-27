@@ -3854,11 +3854,11 @@ int CVisionSensor::getIntArrayProperty(const char* ppName, std::vector<int>& pSt
 
 int CVisionSensor::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
-    appartenance = _objectTypeStr; // important here too, since viewableBase items are part of visionSensor
+    appartenance = _originalObjectTypeStr; // important here too, since viewableBase items are part of visionSensor
     int retVal = CViewableBase::getPropertyName(index, pName, appartenance, excludeFlags);
     if (_isInScene && (retVal == sim_propertyret_unknownproperty))
     {
-        appartenance = _objectTypeStr;
+        appartenance = _originalObjectTypeStr;
         retVal = color.getPropertyName(index, pName, excludeFlags);
         if (retVal == sim_propertyret_unknownproperty)
         {

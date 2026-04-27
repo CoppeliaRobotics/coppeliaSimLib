@@ -79,6 +79,8 @@ class Obj
     virtual void addObjectEventData(CCbor* ev);
 
     long long int getObjectHandle() const;
+    void setOriginalObjectTypeStr(const char* originalObjectTypeStr);
+    std::string getOriginalObjectTypeStr() const;
     void setObjectTypeStr(const char* objectTypeStr);
     std::string getObjectTypeStr() const;
     void setObjectMetaInfo(const char* objectMetaInfo);
@@ -136,5 +138,6 @@ class Obj
     long long int _objectHandle;
     std::string _objectTypeStr;
     std::string _objectMetaInfo;
+    std::string _originalObjectTypeStr;
     bool _isClass;
 };

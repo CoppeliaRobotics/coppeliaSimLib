@@ -1266,7 +1266,7 @@ int CMarker::getPropertyName(int& index, std::string& pName, std::string& appart
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (_isInScene && (retVal == sim_propertyret_unknownproperty))
     {
-        appartenance = _objectTypeStr;
+        appartenance = _originalObjectTypeStr;
         for (size_t i = 0; i < allProps_marker.size(); i++)
         {
             if ((pName.size() == 0) || utils::startsWith(allProps_marker[i].name, pName.c_str()))

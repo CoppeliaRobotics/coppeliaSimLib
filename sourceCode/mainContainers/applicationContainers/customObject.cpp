@@ -1071,21 +1071,7 @@ int CustomObject::getPropertyName(int& index, std::string& pName, std::string& a
                 retVal = cl->getPropertyName(index, pName, appartenance, excludeFlags | sim_propertyinfo_retmethodsonly);
         }
         if (retVal == sim_propertyret_ok)
-        {
-            if (isClass())
-            {
-                if ((pName == "customClass") || (pName == "name") || (pName == "target"))
-                    appartenance = getObjectTypeStr();
-                else
-                {
-                    std::string theName;
-                    getStringProperty("name", theName);
-                    appartenance = theName;
-                }
-            }
-            else
-                appartenance = getObjectTypeStr();
-        }
+            appartenance = getObjectTypeStr();
     }
     if (retVal == sim_propertyret_unknownproperty)
     {
@@ -1103,10 +1089,7 @@ int CustomObject::getPropertyName(int& index, std::string& pName, std::string& a
                     index--;
                     if (index == -1)
                     {
-                        if (isClass())
-                            appartenance = "TODO_CUSTOMOBJECTCLASS_APPARTENANCE";
-                        else
-                            appartenance = "TODO_CUSTOMOBJECT_APPARTENANCE";
+                        appartenance = getObjectTypeStr();
                         pName = prop->at(i).name;
                         retVal = sim_propertyret_ok;
                         break;

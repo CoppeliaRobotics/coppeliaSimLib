@@ -286,7 +286,7 @@ CSceneObject* CSceneObject::getParent() const
 void CSceneObject::enableCustomizationPart()
 {
     if (_sceneObjectCustomizationPart == nullptr)
-        _sceneObjectCustomizationPart = new CSceneObjectCustomizationPart(this);
+        _sceneObjectCustomizationPart = new CSceneObjectCustomizationPart(this, _objectTypeStr.c_str());
 }
 
 CSceneObjectCustomizationPart* CSceneObject::getCustomizationPart() const
@@ -1722,6 +1722,7 @@ CSceneObject* CSceneObject::copyYourself()
 
     theNewObject->_objectMetaInfo = _objectMetaInfo;
     theNewObject->_objectTypeStr = _objectTypeStr;
+    theNewObject->_originalObjectTypeStr = _originalObjectTypeStr;
     theNewObject->_objectHandle = _objectHandle; // important for copy operations connections
     theNewObject->_authorizedViewableObjects = _authorizedViewableObjects;
     theNewObject->_initialVisibilityLayer = _initialVisibilityLayer; // for cases object copied during simulation
@@ -2602,6 +2603,10 @@ void CSceneObject::serialize(CSer& ar)
             ar << _objectTypeStr;
             ar.flush();
 
+            ar.storeDataName("Oot"); // has to come after Ots
+            ar << _originalObjectTypeStr;
+            ar.flush();
+
             ar.storeDataName("Omi");
             ar << _objectMetaInfo;
             ar.flush();
@@ -2853,6 +2858,15 @@ void CSceneObject::serialize(CSer& ar)
             ar << _extensionString;
             ar.flush();
 
+            if (_sceneObjectCustomizationPart != nullptr)
+            {
+                ar.storeDataName("Scp");
+                ar.setCountingMode();
+                _sceneObjectCustomizationPart->serialize(ar);
+                if (ar.setWritingMode())
+                    _sceneObjectCustomizationPart->serialize(ar);
+            }
+
             ar.storeDataName(SER_NEXT_STEP);
         }
         else
@@ -2861,6 +2875,7 @@ void CSceneObject::serialize(CSer& ar)
             std::string theName = "";
             bool hasAltName = false;
             bool hasAlias = false;
+            bool originalObjectTypeStrSet = false;
             bool _assemblingLocalTransformationIsUsed_compatibility = false;
             while (theName.compare(SER_NEXT_STEP) != 0)
             {
@@ -2882,6 +2897,15 @@ void CSceneObject::serialize(CSer& ar)
                         noHit = false;
                         ar >> byteQuantity;
                         ar >> _objectTypeStr;
+                        _originalObjectTypeStr = _objectTypeStr;
+                    }
+
+                    if (theName.compare("Oot") == 0)
+                    {
+                        noHit = false;
+                        ar >> byteQuantity;
+                        ar >> _originalObjectTypeStr;
+                        originalObjectTypeStrSet = true;
                     }
 
                     if (theName.compare("Omi") == 0)
@@ -3384,11 +3408,21 @@ void CSceneObject::serialize(CSer& ar)
                         ar >> byteQuantity;
                         ar >> _extensionString;
                     }
-
+                    if (theName.compare("Scp") == 0)
+                    {
+                        noHit = false;
+                        ar >> byteQuantity;
+                        _sceneObjectCustomizationPart = new CSceneObjectCustomizationPart(this, _objectTypeStr.c_str());
+                        _sceneObjectCustomizationPart->serialize(ar);
+                    }
                     if (noHit)
                         ar.loadUnknownData();
                 }
             }
+
+            if (!originalObjectTypeStrSet)
+                _originalObjectTypeStr = _objectTypeStr;
+
             //*************************************************************
             // For backward compatibility 13/09/2011
             if ((_objectProperty & sim_objectproperty_reserved5) == 0)
@@ -3441,6 +3475,8 @@ void CSceneObject::serialize(CSer& ar)
             ar.xmlAddNode_string("altName", _objectAltName_old.c_str());
 
             ar.xmlAddNode_string("objectType", _objectTypeStr.c_str());
+            _originalObjectTypeStr = _objectTypeStr;
+            ar.xmlAddNode_string("originalObjectType", _originalObjectTypeStr.c_str());
             ar.xmlAddNode_string("objectMetaInfo", _objectMetaInfo.c_str());
 
             if (exhaustiveXml)
@@ -3513,8 +3549,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.xmlAddNode_bool("selectInvisible", _objectProperty & sim_objectproperty_selectinvisible);
             ar.xmlAddNode_bool("depthInvisible", _objectProperty & sim_objectproperty_depthinvisible);
             ar.xmlAddNode_bool("cannotDelete", _objectProperty & sim_objectproperty_cannotdelete);
-            ar.xmlAddNode_bool("cannotDeleteDuringSimulation",
-                               _objectProperty & sim_objectproperty_cannotdeleteduringsim);
+            ar.xmlAddNode_bool("cannotDeleteDuringSimulation", _objectProperty & sim_objectproperty_cannotdeleteduringsim);
             ar.xmlAddNode_bool("ignoreViewFitting", _objectProperty & sim_objectproperty_ignoreviewfitting);
             ar.xmlAddNode_bool("hiddenForSimulation", _objectProperty & sim_objectproperty_hiddenforsimulation);
             ar.xmlPopNode();
@@ -3522,8 +3557,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.xmlPushNewNode("localObjectSpecialProperty");
             ar.xmlAddNode_bool("collidable", _localObjectSpecialProperty & sim_objectspecialproperty_collidable);
             ar.xmlAddNode_bool("measurable", _localObjectSpecialProperty & sim_objectspecialproperty_measurable);
-            if ((_localObjectSpecialProperty & sim_objectspecialproperty_detectable) ==
-                sim_objectspecialproperty_detectable)
+            if ((_localObjectSpecialProperty & sim_objectspecialproperty_detectable) == sim_objectspecialproperty_detectable)
                 ar.xmlAddNode_bool("detectable", true);
             if ((_localObjectSpecialProperty & sim_objectspecialproperty_detectable) == 0)
                 ar.xmlAddNode_bool("detectable", false);
@@ -3601,8 +3635,7 @@ void CSceneObject::serialize(CSer& ar)
                 std::string str(base64_encode((unsigned char*)_dnaString.c_str(), _dnaString.size()));
                 ar.xmlAddNode_string("dnaString_base64Coded", str.c_str());
 
-                str =
-                    base64_encode((unsigned char*)_uniquePersistentIdString.c_str(), _uniquePersistentIdString.size());
+                str = base64_encode((unsigned char*)_uniquePersistentIdString.c_str(), _uniquePersistentIdString.size());
                 ar.xmlAddNode_string("uniquePersistentString_base64Coded", str.c_str());
 
                 ar.xmlAddNode_float("transparentObjectDistanceOffset", _transparentObjectDistanceOffset);
@@ -3726,12 +3759,20 @@ void CSceneObject::serialize(CSer& ar)
                 }
             }
 
+            if (_sceneObjectCustomizationPart != nullptr)
+            {
+                ar.xmlPushNewNode("customizationPart");
+                _sceneObjectCustomizationPart->serialize(ar);
+                ar.xmlPopNode();
+            }
+
             ar.xmlPopNode();
         }
         else
         {
             bool aliasFound = false;
             bool _ignoredByViewFitting_backCompat = false;
+            bool originalObjectTypeStrSet = false;
             if (ar.xmlPushChildNode("common", exhaustiveXml))
             {
                 aliasFound = ar.xmlGetNode_string(
@@ -3756,6 +3797,7 @@ void CSceneObject::serialize(CSer& ar)
                 }
 
                 ar.xmlGetNode_string("objectType", _objectTypeStr, false);
+                originalObjectTypeStrSet = ar.xmlGetNode_string("originalObjectType", _originalObjectTypeStr, false); // has to come after objectType
                 ar.xmlGetNode_string("objectMetaInfo", _objectMetaInfo, false);
 
                 if (exhaustiveXml)
@@ -4112,8 +4154,18 @@ void CSceneObject::serialize(CSer& ar)
                     }
                     ar.xmlPopNode();
                 }
+
+                if (ar.xmlPushChildNode("customizationPart", false))
+                {
+                    _sceneObjectCustomizationPart = new CSceneObjectCustomizationPart(this, _objectTypeStr.c_str());
+                    _sceneObjectCustomizationPart->serialize(ar);
+                    ar.xmlPopNode();
+                }
+
                 ar.xmlPopNode();
             }
+            if (!originalObjectTypeStrSet)
+                _originalObjectTypeStr = _objectTypeStr;
             if (_ignoredByViewFitting_backCompat)
                 _objectProperty |= sim_objectproperty_ignoreviewfitting; // for backward compatibility
             if (!aliasFound)

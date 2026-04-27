@@ -23,6 +23,7 @@ Obj::Obj(long long int objectHandle, const char* objectTypeStr, const char* obje
     _objectHandle = objectHandle;
     _objectTypeStr = objectTypeStr;
     _objectMetaInfo =objectMetaInfo;
+    _originalObjectTypeStr = objectTypeStr;
     _isClass = false;
 }
 
@@ -40,9 +41,20 @@ long long int Obj::getObjectHandle() const
     return _objectHandle;
 }
 
+void Obj::setOriginalObjectTypeStr(const char* originalObjectTypeStr)
+{
+    _originalObjectTypeStr = originalObjectTypeStr;
+}
+
+std::string Obj::getOriginalObjectTypeStr() const
+{
+    return _originalObjectTypeStr;
+}
+
 void Obj::setObjectTypeStr(const char* objectTypeStr)
 {
     _objectTypeStr = objectTypeStr;
+    _originalObjectTypeStr = _objectTypeStr;
 }
 
 std::string Obj::getObjectTypeStr() const

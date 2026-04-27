@@ -24,21 +24,6 @@ int CustomSceneObjectClassContainer::makeObject(int classHandle)
         CSceneObject* obj = classObj->copyYourself();
         obj->setObjectMetaInfo(newObjectMetaInfo.c_str());
         retVal = App::scene->sceneObjects->addObjectToScene(obj, false, true);
-/*
-    obj->getCustomizationPart()->setIgnoreSetterGetter(true);
-    obj->getCustomizationPart()->setObjectCanAddRemoveProperty(true);
-    obj->setPropertyInfo("name", sim_propertyinfo_removable, ""); // first make it removable
-    obj->removeProperty("name");
-    obj->setPropertyInfo("customClass", sim_propertyinfo_removable, ""); // first make it removable
-    obj->removeProperty("customClass");
-    obj->setHandleProperty("class", classHandle);
-    obj->setPropertyInfo("class", sim_propertyinfo_notwritable | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude, R"("{"handleType":"class"})");
-    std::string objType;
-    classObj->getStringProperty("name", objType);
-    obj->setObjectTypeStr(objType.c_str());
-    obj->getCustomizationPart()->setIgnoreSetterGetter(false);
-    obj->getCustomizationPart()->setObjectCanAddRemoveProperty(false);
-    */
     }
     return retVal;
 }
@@ -54,8 +39,11 @@ int CustomSceneObjectClassContainer::makeClass(CSceneObject* obj, const char* ty
         QJsonDocument newDoc(jsonObj);
         std::string newObjectMetaInfo = QString::fromUtf8(newDoc.toJson(QJsonDocument::Compact)).toStdString();
         CSceneObject* copy = obj->copyYourself();
+        copy->setIsClass();
         copy->setObjectMetaInfo(newObjectMetaInfo.c_str());
+        std::string orig = obj->getOriginalObjectTypeStr();
         copy->setObjectTypeStr(typeString);
+        copy->setOriginalObjectTypeStr(orig.c_str());
         copy->enableCustomizationPart();
         retVal = sim_object_sceneobjectclassstart;
         while (getClass(retVal) != nullptr)

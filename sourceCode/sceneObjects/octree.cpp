@@ -1552,7 +1552,7 @@ int COcTree::getPropertyName(int& index, std::string& pName, std::string& appart
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (_isInScene && (retVal == sim_propertyret_unknownproperty))
     {
-        appartenance = _objectTypeStr;
+        appartenance = _originalObjectTypeStr;
         retVal = color.getPropertyName(index, pName, excludeFlags);
         if (retVal == sim_propertyret_unknownproperty)
         {

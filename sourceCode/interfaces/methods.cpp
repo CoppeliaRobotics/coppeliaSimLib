@@ -2105,19 +2105,29 @@ std::string _method_removeModel(int targetObj, const char* method, CDetachedScri
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_bool | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
     {
-        bool delayed = fetchBool(inStack, 0, false);
-        if (target->getModelBase())
+        bool delayed = false;
+        bool noError = false;
+        if (hasNonNullArg(inStack, 0))
         {
-            // Erase the objects:
-            std::vector<int> sel;
-            sel.push_back(targetObj);
-            App::scene->sceneObjects->addModelObjects(sel);
-            App::scene->sceneObjects->eraseObjects(&sel, true, delayed);
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+            map->fetchBoolFromKey("delayed", delayed, &errMsg);
+            map->fetchBoolFromKey("noError", noError, &errMsg);
         }
-        else
-            errMsg = SIM_ERROR_OBJECT_NOT_MODEL_BASE;
+        if (errMsg.size() == 0)
+        {
+            if (target->getModelBase())
+            {
+                // Erase the objects:
+                std::vector<int> sel;
+                sel.push_back(targetObj);
+                App::scene->sceneObjects->addModelObjects(sel);
+                App::scene->sceneObjects->eraseObjects(&sel, true, delayed);
+            }
+            else
+                errMsg = SIM_ERROR_OBJECT_NOT_MODEL_BASE;
+        }
     }
     return errMsg;
 }
@@ -2169,8 +2179,14 @@ std::string _method_remove(int targetObj, const char* method, CDetachedScript* c
                     customObj = App::scene->customObjects->getObject(targetObj);
                     if (customObj != nullptr)
                         App::scene->customObjects->removeObject(targetObj);
-                    else if (!noError)
-                        errMsg = "object does not exist or cannot be removed.";
+                    else
+                    {
+                        CSceneObject* customSceneObjectClass = App::scenes->customSceneObjectClasses->getClass(targetObj);
+                        if (customSceneObjectClass != nullptr)
+                            App::scenes->customSceneObjectClasses->removeClass(targetObj);
+                        else if (!noError)
+                            errMsg = "object does not exist or cannot be removed.";
+                    }
                 }
             }
         }

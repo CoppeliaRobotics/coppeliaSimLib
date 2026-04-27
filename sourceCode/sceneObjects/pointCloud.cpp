@@ -1940,7 +1940,7 @@ int CPointCloud::getPropertyName(int& index, std::string& pName, std::string& ap
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (_isInScene && (retVal == sim_propertyret_unknownproperty))
     {
-        appartenance = _objectTypeStr;
+        appartenance = _originalObjectTypeStr;
         retVal = color.getPropertyName(index, pName, excludeFlags);
         if (retVal == sim_propertyret_unknownproperty)
         {

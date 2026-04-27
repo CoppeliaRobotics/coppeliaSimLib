@@ -3,9 +3,10 @@
 #include <sceneObject.h>
 #include <app.h>
 
-CSceneObjectCustomizationPart::CSceneObjectCustomizationPart(CSceneObject* sceneObj)
+CSceneObjectCustomizationPart::CSceneObjectCustomizationPart(CSceneObject* sceneObj, const char* objectTypeStr)
 {
     _sceneObject = sceneObj;
+    _objectTypeStr = objectTypeStr;
     _changed = false;
     _ignoreSetterGetter = false;
     _objectCanAddRemoveProperty = false;
@@ -175,8 +176,8 @@ void CSceneObjectCustomizationPart::_triggerEvent(const char* pName, CCbor* evv 
 
 CSceneObjectCustomizationPart* CSceneObjectCustomizationPart::copyYourself(CSceneObject* appartenance) const
 {
-    CSceneObjectCustomizationPart* retVal = new CSceneObjectCustomizationPart(appartenance);
-    retVal->_customProperties = _customProperties;
+    CSceneObjectCustomizationPart* retVal = new CSceneObjectCustomizationPart(appartenance, _objectTypeStr.c_str());
+    retVal->_customProperties.copyFromExceptMethods(&_customProperties);
     return retVal;
 }
 
@@ -862,7 +863,7 @@ int CSceneObjectCustomizationPart::getPropertyName(int& index, std::string& pNam
         }
     }
     if ((retVal == sim_propertyret_ok) && setAppartenance)
-        appartenance = "customization";
+        appartenance = _objectTypeStr;
     return retVal;
 }
 
