@@ -23,6 +23,11 @@ class CQDlgCustomSceneObjects : public CDlgEx
     bool inMainRefreshRoutine;
 
   private slots:
+    void on_qqSize_editingFinished();
+
+    void on_qqColor_clicked();
+
+    void on_qqApplyMainProperties_clicked();
 
   private:
     Ui::CQDlgCustomSceneObjects* ui;

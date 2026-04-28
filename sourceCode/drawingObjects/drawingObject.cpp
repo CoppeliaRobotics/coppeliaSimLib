@@ -49,6 +49,7 @@ std::vector<double>* CDrawingObject::getDataPtr()
 CDrawingObject::CDrawingObject(int theObjectType, double size, double duplicateTolerance, int sceneObjId, int maxItemCount, int creatorHandle)
 {
     _objectTypeStr = "drawingObject";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _rebuildRemoteItems = true;
     _creatorHandle = creatorHandle;

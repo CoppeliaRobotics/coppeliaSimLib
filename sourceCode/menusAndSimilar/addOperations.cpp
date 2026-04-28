@@ -454,6 +454,10 @@ void CAddOperations::addMenu(VMenu* menu, CSView* subView, bool onlyCamera, int 
 
             menu->appendMenuItem(true, false, ADD_COMMANDS_ADD_GRAPH_ACCMD, IDS_GRAPH_MENU_ITEM);
 
+            menu->appendMenuItem(true, false, ADD_COMMANDS_ADD_MARKER_ACCMD, IDS_MARKER_MENU_ITEM);
+            menu->appendMenuItem(true, false, ADD_COMMANDS_ADD_CUSTOMSCENEOBJECT_ACCMD, IDS_CUSTOMSCENEOBJECT_MENU_ITEM);
+            menu->appendMenuItem(true, false, ADD_COMMANDS_ADD_FORCE_SENSOR_ACCMD, IDSN_FORCE_SENSOR);
+
             VMenu* sens = new VMenu();
             sens->appendMenuItem(true, false, ADD_COMMANDS_ADD_RAY_PROXSENSOR_ACCMD, IDS_RAY_TYPE_MENU_ITEM);
             sens->appendMenuItem(true, false, ADD_COMMANDS_ADD_RANDOMIZED_RAY_PROXSENSOR_ACCMD,
@@ -470,12 +474,11 @@ void CAddOperations::addMenu(VMenu* menu, CSView* subView, bool onlyCamera, int 
             camera->appendMenuItem(true, false, ADD_COMMANDS_ADD_VISION_SENSOR_ORTHOGONAL_ACCMD, "Orthogonal type");
             menu->appendMenuAndDetach(camera, true, "Vision sensor");
 
-            menu->appendMenuItem(true, false, ADD_COMMANDS_ADD_FORCE_SENSOR_ACCMD, IDSN_FORCE_SENSOR);
-
             VMenu* pathM = new VMenu();
             pathM->appendMenuItem(true, false, ADD_COMMANDS_ADD_PATH_SEGMENT_ACCMD, IDS_SEGMENT_TYPE_MENU_ITEM);
             pathM->appendMenuItem(true, false, ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD, IDS_CIRCLE_TYPE_MENU_ITEM);
             menu->appendMenuAndDetach(pathM, true, IDSN_PATH);
+
 
             VMenu* script = new VMenu();
 
@@ -768,6 +771,56 @@ bool CAddOperations::processCommand(int commandID, CSView* subView)
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_DUMMY);
             CSceneObject* sel = App::scene->sceneObjects->getObjectFromHandle(pointedObject);
             CDummy* newObject = new CDummy();
+            App::scene->sceneObjects->addObjectToScene(newObject, false, true);
+            if (sel != nullptr)
+            {
+                App::scene->sceneObjects->setObjectParent(newObject, sel, true);
+                sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+            }
+            App::scene->sceneObjects->selectObject(newObject->getObjectHandle());
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs, "done.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId = commandID;
+            App::appendSimulationThreadCommand(cmd);
+        }
+        return (true);
+    }
+    if (commandID == ADD_COMMANDS_ADD_MARKER_ACCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_MARKER);
+            CSceneObject* sel = App::scene->sceneObjects->getObjectFromHandle(pointedObject);
+            CMarker* newObject = new CMarker();
+            App::scene->sceneObjects->addObjectToScene(newObject, false, true);
+            if (sel != nullptr)
+            {
+                App::scene->sceneObjects->setObjectParent(newObject, sel, true);
+                sel->setObjectProperty((sel->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
+            }
+            App::scene->sceneObjects->selectObject(newObject->getObjectHandle());
+            App::undoRedo_sceneChanged("");
+            App::logMsg(sim_verbosity_msgs, "done.");
+        }
+        else
+        { // We are in the UI thread. Execute the command via the main thread:
+            SSimulationThreadCommand cmd;
+            cmd.cmdId = commandID;
+            App::appendSimulationThreadCommand(cmd);
+        }
+        return (true);
+    }
+    if (commandID == ADD_COMMANDS_ADD_CUSTOMSCENEOBJECT_ACCMD)
+    {
+        if (!VThread::isUiThread())
+        { // we are NOT in the UI thread. We execute the command now:
+            App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_CUSTOMSCENEOBJECT);
+            CSceneObject* sel = App::scene->sceneObjects->getObjectFromHandle(pointedObject);
+            CCustomSceneObject* newObject = new CCustomSceneObject();
             App::scene->sceneObjects->addObjectToScene(newObject, false, true);
             if (sel != nullptr)
             {

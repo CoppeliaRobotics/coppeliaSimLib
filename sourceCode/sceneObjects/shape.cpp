@@ -344,6 +344,7 @@ void CShape::commonInit()
 {
     _objectTypeStr = "shape";
     _objectMetaInfo = OBJECT_META_INFO;
+    _originalObjectTypeStr = _objectTypeStr;
     _objectType = sim_sceneobject_shape;
     _containsTransparentComponents = false;
     _startInDynamicSleeping = false;

@@ -28,6 +28,7 @@ static std::string OBJECT_META_INFO = R"(
 CGraph::CGraph()
 {
     _objectTypeStr = "graph";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_graph;
     justDrawCurves = false;

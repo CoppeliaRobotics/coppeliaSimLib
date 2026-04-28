@@ -665,6 +665,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
 void CCamera::commonInit()
 {
     _objectTypeStr = "camera";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _showVolume = false;
     _objectType = sim_sceneobject_camera;

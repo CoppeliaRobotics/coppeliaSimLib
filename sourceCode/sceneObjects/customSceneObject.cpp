@@ -25,11 +25,12 @@ static std::string OBJECT_META_INFO = R"(
 CCustomSceneObject::CCustomSceneObject()
 {
     _objectTypeStr = "customSceneObject";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_customsceneobject;
     _localObjectSpecialProperty = 0;
 
-    _objectSize = 0.05;
+    _objectSize = 0.04;
 
     _visibilityLayer = CUSTOMSCENEOBJECT_LAYER;
     _objectAlias = _objectTypeStr;
@@ -37,7 +38,7 @@ CCustomSceneObject::CCustomSceneObject()
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _objectColor.setDefaultValues();
-    _objectColor.setColor(0.8f, 0.5f, 0.0f, sim_materialcomponent_diffuse);
+    _objectColor.setColor(0.4f, 0.4f, 0.4f, sim_materialcomponent_diffuse);
     computeBoundingBox();
 }
 
@@ -67,7 +68,7 @@ bool CCustomSceneObject::isPotentiallyDetectable() const
 
 void CCustomSceneObject::computeBoundingBox()
 {
-    _setBB(C7Vector::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _objectSize * 0.5);
+    _setBB(C7Vector::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _objectSize * 0.25);
 }
 
 void CCustomSceneObject::setIsInScene(bool s)
@@ -336,7 +337,7 @@ void CCustomSceneObject::setObjectSize(double s)
 #ifdef SIM_WITH_GUI
 void CCustomSceneObject::display(CViewableBase* renderingObject, int displayAttrib)
 {
-    //displayCustomSceneObject(this, renderingObject, displayAttrib);
+    displayCustomSceneObject(this, renderingObject, displayAttrib);
 }
 #endif
 

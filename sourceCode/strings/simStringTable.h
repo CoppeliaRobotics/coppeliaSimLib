@@ -55,6 +55,8 @@
 #define IDSNS_ADDING_A_CAMERA "Adding a camera..."
 #define IDSNS_ADDING_A_LIGHT "Adding a light..."
 #define IDSNS_ADDING_A_DUMMY "Adding a dummy..."
+#define IDSNS_ADDING_A_MARKER "Adding a marker..."
+#define IDSNS_ADDING_A_CUSTOMSCENEOBJECT "Adding a custom scene object..."
 #define IDSNS_ADDING_AN_OCTREE "Adding an OC tree..."
 #define IDSNS_ADDING_A_POINTCLOUD "Adding a point cloud..."
 #define IDSNS_ADDING_A_MIRROR "Adding a mirror..."
@@ -411,6 +413,8 @@
 #define IDS_DIRECTIONAL_MENU_ITEM "Directional"
 
 #define IDS_DUMMY_MENU_ITEM "Dummy"
+#define IDS_MARKER_MENU_ITEM "Marker"
+#define IDS_CUSTOMSCENEOBJECT_MENU_ITEM "Custom scene object"
 #define IDS_OCTREE_MENU_ITEM "OC tree"
 #define IDS_POINTCLOUD_MENU_ITEM "Point cloud"
 

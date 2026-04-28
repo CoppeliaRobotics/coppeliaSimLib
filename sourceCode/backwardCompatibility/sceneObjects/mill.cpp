@@ -68,6 +68,7 @@ bool CMill::isPotentiallyRenderable() const
 void CMill::commonInit()
 {
     _objectTypeStr = "mill";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     convexVolume = new CConvexVolume();
     _explicitHandling = false;

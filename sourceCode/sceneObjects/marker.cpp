@@ -25,6 +25,7 @@ static std::string OBJECT_META_INFO = R"(
 CMarker::CMarker(int type /*= sim_markertype_points*/, unsigned char col[3] /*= nullptr*/, double size[3] /*= nullptr*/, int maxCnt /*= 0*/, int options /*= 0*/, float duplicateTol /*= 0.0f*/, const std::vector<float>* vertices /*= nullptr*/, const std::vector<int>* indices /*= nullptr*/, const std::vector<float>* normals /*= nullptr*/)
 {
     _objectTypeStr = "marker";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_marker;
     _localObjectSpecialProperty = 0;

@@ -110,6 +110,7 @@ CMesh::~CMesh()
 void CMesh::_commonInit()
 {
     _objectTypeStr = "mesh";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _objectHandle = App::getFreshUniqueId(-1);
     _isInSceneShapeUid = -1;

@@ -22,3 +22,4 @@ See the GNU General Public License for more details.
 #include <rendering.h>
 
 void displayDummy(CDummy* dummy, CViewableBase* renderingObject, int displayAttrib);
+void displayCustomSceneObject(CCustomSceneObject* obj, CViewableBase* renderingObject, int displayAttrib);

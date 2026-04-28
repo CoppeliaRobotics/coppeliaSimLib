@@ -26,6 +26,7 @@ static std::string OBJECT_META_INFO = R"(
 CDummy::CDummy()
 {
     _objectTypeStr = "dummy";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_dummy;
     _localObjectSpecialProperty = 0;

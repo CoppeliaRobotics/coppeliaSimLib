@@ -85,3 +85,43 @@ void displayDummy(CDummy* dummy, CViewableBase* renderingObject, int displayAttr
     // At the end of every scene object display routine:
     _commonFinish(dummy, renderingObject);
 }
+
+void displayCustomSceneObject(CCustomSceneObject* obj, CViewableBase* renderingObject, int displayAttrib)
+{
+    // At the beginning of every scene object display routine:
+    _commonStart(obj, renderingObject);
+
+    C3Vector normalVectorForLinesAndPoints(obj->getFullCumulativeTransformation().Q.getInverse() * C3Vector::unitZVector);
+
+           // Object display:
+    if (obj->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(), displayAttrib))
+    {
+        if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
+        {
+            if (obj->getObjectProperty() & sim_objectproperty_selectmodelbaseinstead)
+                glLoadName(obj->getModelSelectionHandle());
+            else
+                glLoadName(obj->getObjectHandle());
+        }
+        else
+            glLoadName(-1);
+
+        if ((displayAttrib & sim_displayattribute_forcewireframe) && (displayAttrib & sim_displayattribute_renderpass))
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        if ((displayAttrib & sim_displayattribute_forcewireframe) == 0)
+            glEnable(GL_CULL_FACE);
+
+        _enableAuxClippingPlanes(obj->getObjectHandle());
+        ogl::drawReference(obj->getObjectSize()/2.0);
+        if (displayAttrib & sim_displayattribute_dynamiccontentonly)
+            ogl::setMaterialColor(0.0f, 0.6f, 0.6f, 0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f);
+        else
+            obj->getObjectColor()->makeCurrentColor((displayAttrib & sim_displayattribute_useauxcomponent) != 0);
+        ogl::drawCylinder(obj->getObjectSize() / 2.0, obj->getObjectSize() / 4.0, 24, false, true);
+        //ogl::drawSphere(obj->getObjectSize() / 2.0, 12, 6, false);
+        glDisable(GL_CULL_FACE);
+        _disableAuxClippingPlanes();
+    }
+
+    _commonFinish(obj, renderingObject);
+}

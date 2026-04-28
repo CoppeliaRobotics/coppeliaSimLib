@@ -165,6 +165,7 @@ bool CProxSensor::isPotentiallyRenderable() const
 void CProxSensor::commonInit()
 {
     _objectTypeStr = "proximitySensor";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     convexVolume = new CConvexVolume();
     _explicitHandling = false;

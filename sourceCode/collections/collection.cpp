@@ -20,6 +20,7 @@ CCollection::CCollection(int creatorHandle)
 {
     _objectHandle = -1;
     _objectTypeStr = "collection";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _creatorHandle = creatorHandle;
     _overridesObjectMainProperties = false;

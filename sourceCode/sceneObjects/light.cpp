@@ -63,6 +63,7 @@ bool CLight::isPotentiallyRenderable() const
 void CLight::_commonInit()
 {
     _objectTypeStr = "light";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_light;
     _lightSize = 0.10;

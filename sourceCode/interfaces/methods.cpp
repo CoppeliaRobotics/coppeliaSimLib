@@ -492,7 +492,12 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
             if (!optional)
             {
                 if (errStr != nullptr)
-                    errStr->assign(SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS);
+                {
+                    std::string msg("in method '");
+                    msg += method;
+                    msg += "': the function requires more arguments.";
+                    errStr[0] = msg;
+                }
                 retVal = false;
                 break;
             }
@@ -5160,28 +5165,11 @@ std::string _method_createGraph(int targetObj, const char* method, CDetachedScri
 std::string _method_createCustomSceneObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_map}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_optional | arg_map}))
     {
-        /*
-        float backgroundColor[3] = {0.1f, 0.1f, 0.1f};
-        float foregroundColor[3] = {0.8f, 0.8f, 0.8f};
-        CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
-        map->fetchFloatArrayFromKey("backgroundColor", backgroundColor, 3, &errMsg);
-        map->fetchFloatArrayFromKey("foregroundColor", foregroundColor, 3, &errMsg);
-        if (errMsg.size() == 0)
-        {
-        */
-            CCustomSceneObject* it = new CCustomSceneObject();
-            /*
-            for (size_t i = 0; i < 3; i++)
-            {
-                it->backgroundColor[i] = backgroundColor[i];
-                it->foregroundColor[i] = foregroundColor[i];
-            }
-            */
-            App::scene->sceneObjects->addObjectToScene(it, false, true);
-            pushHandle(outStack, it->getObjectHandle());
-        //}
+        CCustomSceneObject* it = new CCustomSceneObject();
+        App::scene->sceneObjects->addObjectToScene(it, false, true);
+        pushHandle(outStack, it->getObjectHandle());
     }
     return errMsg;
 }
@@ -6713,71 +6701,27 @@ std::string _method_setPropertyInfo(int targetObj, const char* method, CDetached
     }
     return errMsg;
 }
-/*
-std::string _method_createCustomObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+
+std::string _method_createCustomObjectClass(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string typeStr = fetchText(inStack, 0);
-        std::string metaInfoStr;
-        bool scriptPersistent = false;
-        bool isVolatile = true;
+        std::string metaInfoStr = R"({"superclass": "object"})";
         if (hasNonNullArg(inStack, 1))
         {
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
-            map->fetchStringFromKey("classMetaInfo", metaInfoStr, &errMsg);
-            map->fetchBoolFromKey("scriptPersistent", scriptPersistent, &errMsg);
-            map->fetchBoolFromKey("volatile", isVolatile, &errMsg);
+            map->fetchStringFromKey("metaInfo", metaInfoStr, &errMsg);
         }
         if (errMsg.size() == 0)
         {
-            if (metaInfoStr.size() == 0)
-            { // object
-                int h = -1;
-                if ((currentScript != nullptr) && (!scriptPersistent) && isVolatile)
-                    h = currentScript->getScriptHandle();
-                long long int retVal = -1;
-                if (targetObj == sim_handle_app)
-                    retVal = App::scenes->customObjects->makeObject(typeStr.c_str(), isVolatile, h);
-                else if (targetObj == sim_handle_scene)
-                    retVal = App::scene->customObjects->makeObject(typeStr.c_str(), isVolatile, h);
-                if (retVal != -1)
-                    pushLong(outStack, retVal);
-                else
-                    errMsg = SIM_ERROR_CLASS_INEXISTANT;
-            }
+            long long int retVal = App::scenes->customObjects->makeClass(typeStr.c_str(), metaInfoStr.c_str());
+            if (retVal >= 0)
+                pushHandle(outStack, retVal);
             else
-            { // class: always script persistent and volatile!
-                long long int retVal = -1;
-                if (targetObj == sim_handle_app)
-                {
-                    retVal = App::scenes->customObjects->makeClass(typeStr.c_str(), metaInfoStr.c_str(), -1);
-                    if (retVal >= 0)
-                        pushLong(outStack, retVal);
-                    else
-                        errMsg = SIM_ERROR_CLASS_ALREADYDEFINED;
-                }
-                else
-                    errMsg = "invalid target when creating a class.";
-            }
+                errMsg = "class already defined, or invalid metaInfo.";
         }
-    }
-    return errMsg;
-}
-*/
-std::string _method_createCustomObjectClass(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string}))
-    {
-        std::string typeStr = fetchText(inStack, 0);
-        std::string metaInfoStr = fetchText(inStack, 1);
-        long long int retVal = App::scenes->customObjects->makeClass(typeStr.c_str(), metaInfoStr.c_str());
-        if (retVal >= 0)
-            pushHandle(outStack, retVal);
-        else
-            errMsg = "class already defined, or invalid metaInfo.";
     }
     return errMsg;
 }

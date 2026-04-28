@@ -6643,6 +6643,21 @@ int simSetObjectColor_internal(int objectHandle, int index, int colorComponent, 
                 retVal = 1;
             }
         }
+        if (it->getObjectType() == sim_sceneobject_customsceneobject)
+        {
+            CCustomSceneObject* obj = (CCustomSceneObject*)it;
+            if ((index == 0) && (colorComponent <= sim_materialcomponent_emission))
+            {
+                obj->getObjectColor()->setColor(rgbData, colorComponent);
+                if (App::getEventProtocolVersion() == 2)
+                {
+                    float cols[9];
+                    obj->getObjectColor()->getNewColors(cols);
+                    CColorObject::pushColorChangeEvent(objectHandle, cols);
+                }
+                retVal = 1;
+            }
+        }
         if (it->getObjectType() == sim_sceneobject_camera)
         {
             CCamera* camera = (CCamera*)it;
@@ -6769,6 +6784,15 @@ int simGetObjectColor_internal(int objectHandle, int index, int colorComponent, 
             if ((index == 0) && (colorComponent <= sim_materialcomponent_emission))
             {
                 dummy->getDummyColor()->getColor(rgbData, colorComponent);
+                retVal = 1;
+            }
+        }
+        if (it->getObjectType() == sim_sceneobject_customsceneobject)
+        {
+            CCustomSceneObject* obj = (CCustomSceneObject*)it;
+            if ((index == 0) && (colorComponent <= sim_materialcomponent_emission))
+            {
+                obj->getObjectColor()->getColor(rgbData, colorComponent);
                 retVal = 1;
             }
         }

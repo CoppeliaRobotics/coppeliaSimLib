@@ -992,6 +992,14 @@ CColorObject* GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
         if (it != nullptr)
             return ((CColorObject*)it->getDummyColor());
     }
+    if (objType == COLOR_ID_CUSTOM_SCENE_OBJECT)
+    {
+        _auxDlgTitle->assign("Custom scene object");
+        _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64;
+        CCustomSceneObject* it = App::scene->sceneObjects->getCustomSceneObjectFromHandle(objID1);
+        if (it != nullptr)
+            return ((CColorObject*)it->getObjectColor());
+    }
     if (objType == COLOR_ID_SCRIPT)
     {
         _auxDlgTitle->assign("Script");

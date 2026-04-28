@@ -27,6 +27,7 @@ CPointCloud::CPointCloud()
 {
     TRACE_INTERNAL;
     _objectTypeStr = "pointCloud";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_pointcloud;
 

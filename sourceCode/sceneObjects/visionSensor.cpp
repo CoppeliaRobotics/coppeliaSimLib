@@ -359,6 +359,7 @@ void CVisionSensor::setIsInScene(bool s)
 void CVisionSensor::commonInit()
 {
     _objectTypeStr = "visionSensor";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_visionsensor;
     _nearClippingPlane = 0.01;

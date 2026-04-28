@@ -29,6 +29,7 @@ CInterfaceStack::CInterfaceStack(int a, int b, const char* c)
 { // args just to avoid direct object creation
     _objectHandle = -1;
     _objectTypeStr = "stack";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
 }
 

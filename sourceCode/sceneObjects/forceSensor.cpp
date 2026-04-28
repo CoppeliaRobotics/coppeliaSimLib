@@ -29,6 +29,7 @@ CForceSensor::CForceSensor()
 void CForceSensor::commonInit()
 {
     _objectTypeStr = "forceSensor";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_forcesensor;
     _forceThreshold = 100.0;

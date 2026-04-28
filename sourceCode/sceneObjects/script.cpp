@@ -43,6 +43,7 @@ CScript::CScript(CDetachedScript* scrObj)
 void CScript::_commonInit(int scriptType, const char* text, int options, const char* lang)
 {
     _objectTypeStr = "script";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     detachedScript = new CDetachedScript(scriptType);
     detachedScript->_scriptText = text;

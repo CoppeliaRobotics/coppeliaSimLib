@@ -1855,6 +1855,28 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             }
         }
     }
+    if (cmd.cmdId == SET_SIZE_CUSTOMSCENEOBJECTGUITRIGGEREDCMD)
+    {
+        CCustomSceneObject* it = App::scene->sceneObjects->getCustomSceneObjectFromHandle(cmd.intParams[0]);
+        if (it != nullptr)
+            it->setObjectSize(cmd.doubleParams[0]);
+    }
+    if (cmd.cmdId == APPLY_VISUALPROP_CUSTOMSCENEOBJECTGUITRIGGEREDCMD)
+    {
+        CCustomSceneObject* it = App::scene->sceneObjects->getCustomSceneObjectFromHandle(cmd.intParams[0]);
+        if (it != nullptr)
+        {
+            for (size_t i = 1; i < cmd.intParams.size(); i++)
+            {
+                CCustomSceneObject* it2 = App::scene->sceneObjects->getCustomSceneObjectFromHandle(cmd.intParams[i]);
+                if (it2 != nullptr)
+                {
+                    it->getObjectColor()->copyYourselfInto(it2->getObjectColor());
+                    it2->setObjectSize(it->getObjectSize());
+                }
+            }
+        }
+    }
     if (cmd.cmdId == SET_LINKEDDUMMY_DUMMYGUITRIGGEREDCMD)
     {
         CDummy* it = App::scene->sceneObjects->getDummyFromHandle(cmd.intParams[0]);

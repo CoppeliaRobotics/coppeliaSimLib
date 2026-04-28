@@ -52,6 +52,7 @@ bool CMirror::isPotentiallyRenderable() const
 void CMirror::_commonInit()
 {
     _objectTypeStr = "mirror";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_mirror;
     _mirrorWidth = 0.5;

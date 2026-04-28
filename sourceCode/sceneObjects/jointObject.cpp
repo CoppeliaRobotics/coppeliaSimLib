@@ -85,6 +85,7 @@ CJoint::CJoint(int jointType)
 void CJoint::_commonInit()
 {
     _objectTypeStr = "joint";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_joint;
     _localObjectSpecialProperty = 0;

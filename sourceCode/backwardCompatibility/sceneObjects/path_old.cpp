@@ -26,6 +26,7 @@ static std::string OBJECT_META_INFO = R"(
 CPath_old::CPath_old()
 {
     _objectTypeStr = "path";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_path;
     pathContainer = nullptr;

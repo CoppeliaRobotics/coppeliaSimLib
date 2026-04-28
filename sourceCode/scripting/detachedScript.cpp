@@ -46,6 +46,7 @@ std::map<std::string, std::pair<int, int>> CDetachedScript::_signalNameToScriptH
 CDetachedScript::CDetachedScript(int scriptType)
 { // scriptType to -1 for serialization
     _objectTypeStr = "detachedScript";
+    _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _scriptUid = App::getFreshUniqueId(-1);
     _tempSuspended = false;
