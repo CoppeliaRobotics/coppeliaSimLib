@@ -1834,12 +1834,12 @@ std::string _method_loadModel(int targetObj, const char* method, CDetachedScript
             std::vector<int> sel = App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0];
             if (CFileOperations::loadModel(path.c_str(), false, false, nullptr, false, false, &infoStr, &errMsg))
             {
+                pushHandle(outStack, App::scene->sceneObjects->getLastSelectionHandle());
                 App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
                 setLastInfo(infoStr.c_str());
 #ifdef SIM_WITH_GUI
                 GuiApp::setRebuildHierarchyFlag();
 #endif
-                pushHandle(outStack, App::scene->sceneObjects->getLastSelectionHandle());
             }
             setLastInfo(infoStr.c_str());
         }
@@ -1862,12 +1862,12 @@ std::string _method_loadModelFromBuffer(int targetObj, const char* method, CDeta
             std::vector<int> sel = App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0];
             if (CFileOperations::loadModel(nullptr, false, false, &buffer, false, false, &infoStr, &errMsg))
             {
+                pushHandle(outStack, App::scene->sceneObjects->getLastSelectionHandle());
                 App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
                 setLastInfo(infoStr.c_str());
 #ifdef SIM_WITH_GUI
                 GuiApp::setRebuildHierarchyFlag();
 #endif
-                pushHandle(outStack, App::scene->sceneObjects->getLastSelectionHandle());
             }
             setLastInfo(infoStr.c_str());
         }
