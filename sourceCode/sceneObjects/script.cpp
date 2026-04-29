@@ -509,12 +509,12 @@ int CScript::setBoolProperty(const char* ppName, bool pState)
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propScript_scriptDisabled.name, ppName) == 0)
+        if (strcmp(propScript_DEPRECATED_scriptDisabled.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             detachedScript->setScriptIsDisabled(pState);
         }
-        else if (strcmp(propScript_restartOnError.name, ppName) == 0)
+        else if (strcmp(propScript_DEPRECATED_restartOnError.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             detachedScript->setAutoRestartOnError(pState);
@@ -540,12 +540,12 @@ int CScript::getBoolProperty(const char* ppName, bool& pState) const
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propScript_scriptDisabled.name, ppName) == 0)
+        if (strcmp(propScript_DEPRECATED_scriptDisabled.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getScriptIsDisabled();
         }
-        else if (strcmp(propScript_restartOnError.name, ppName) == 0)
+        else if (strcmp(propScript_DEPRECATED_restartOnError.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getAutoRestartOnError();
@@ -566,7 +566,7 @@ int CScript::setIntProperty(const char* ppName, int pState)
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propScript_execPriority.name, ppName) == 0)
+        if (strcmp(propScript_DEPRECATED_execPriority.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             detachedScript->setScriptExecPriority(pState);
@@ -587,22 +587,22 @@ int CScript::getIntProperty(const char* ppName, int& pState) const
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propScript_execPriority.name, ppName) == 0)
+        if (strcmp(propScript_DEPRECATED_execPriority.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getScriptExecPriority();
         }
-        else if (strcmp(propScript_scriptType.name, ppName) == 0)
+        else if (strcmp(propScript_DEPRECATED_scriptType.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getScriptType();
         }
-        else if (strcmp(propScript_executionDepth.name, ppName) == 0)
+        else if (strcmp(propScript_DEPRECATED_executionDepth.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getExecutionDepth();
         }
-        else if (strcmp(propScript_scriptState.name, ppName) == 0)
+        else if (strcmp(propScript_DEPRECATED_scriptState.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getScriptState();
@@ -696,7 +696,7 @@ int CScript::setStringProperty(const char* ppName, const std::string& pState)
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propScript_code.name, ppName) == 0)
+        if (strcmp(propScript_DEPRECATED_code.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             detachedScript->setScriptText(pState.c_str());
@@ -714,7 +714,7 @@ int CScript::getStringProperty(const char* ppName, std::string& pState) const
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propScript_code.name, ppName) == 0)
+        if (strcmp(propScript_DEPRECATED_code.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
 #ifdef SIM_WITH_GUI
@@ -723,22 +723,22 @@ int CScript::getStringProperty(const char* ppName, std::string& pState) const
 #endif
             pState = detachedScript->getScriptText();
         }
-        else if (strcmp(propScript_language.name, ppName) == 0)
+        else if (strcmp(propScript_DEPRECATED_language.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getLang();
         }
-        else if (strcmp(propScript_scriptName.name, ppName) == 0)
+        else if (strcmp(propScript_DEPRECATED_scriptName.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getScriptName();
         }
-        else if (strcmp(propScript_addOnPath.name, ppName) == 0)
+        else if (strcmp(propScript_DEPRECATED_addOnPath.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getAddOnPath();
         }
-        else if (strcmp(propScript_addOnMenuPath.name, ppName) == 0)
+        else if (strcmp(propScript_DEPRECATED_addOnMenuPath.name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getAddOnMenuPath();;

@@ -150,24 +150,28 @@ void CEnvironment::setUpDefaultValues()
 void CEnvironment::appendGenesisData(CCbor* ev) const
 {
     ev->appendKeyBool(propScene_finalSaveRequest.name, _requestFinalSave);
-    ev->appendKeyBool(propScene_sceneIsLocked.name, _sceneIsLocked);
     ev->appendKeyBool(propScene_saveCalculationStructs.name, _saveExistingCalculationStructures);
-    ev->appendKeyInt64(propScene_sceneUid.name, _sceneUniqueID);
     int msh = -1;
     CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
     if (it != nullptr)
         msh = it->getScriptHandle();
     ev->appendKeyInt64(propScene_visibilityLayers.name, _activeLayers);
-    ev->appendKeyText(propScene_scenePath.name, _scenePathAndName.c_str());
     ev->appendKeyText(propScene_acknowledgment.name, _acknowledgement.c_str());
-    ev->appendKeyText(propScene_sceneUidString.name, _sceneUniquePersistentIdString.c_str());
     if (App::getEventProtocolVersion() <= 3)
     {
+        ev->appendKeyBool(propScene_DEPRECATED_sceneIsLocked.name, _sceneIsLocked);
+        ev->appendKeyText(propScene_DEPRECATED_scenePath.name, _scenePathAndName.c_str());
+        ev->appendKeyInt64(propScene_DEPRECATED_sceneUid.name, _sceneUniqueID);
+        ev->appendKeyText(propScene_DEPRECATED_sceneUidString.name, _sceneUniquePersistentIdString.c_str());
         ev->appendKeyInt64(propScene_mainScript.name, msh);
         ev->appendKeyFloatArray(propScene_ambientLight.name, ambientLightColor, 3);
     }
     else
     {
+        ev->appendKeyBool(propScene_sceneIsLocked.name, _sceneIsLocked);
+        ev->appendKeyText(propScene_scenePath.name, _scenePathAndName.c_str());
+        ev->appendKeyInt64(propScene_sceneUid.name, _sceneUniqueID);
+        ev->appendKeyText(propScene_sceneUidString.name, _sceneUniquePersistentIdString.c_str());
         ev->appendKeyHandle(propScene_mainScript.name, msh);
         ev->appendKeyColor(propScene_ambientLight.name, ambientLightColor);
     }
@@ -343,7 +347,10 @@ void CEnvironment::setSceneLocked()
         {
             const char* cmd = propScene_sceneIsLocked.name;
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
-            ev->appendKeyBool(cmd, _sceneIsLocked);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyBool(propScene_DEPRECATED_sceneIsLocked.name, _sceneIsLocked);
+            else
+                ev->appendKeyBool(cmd, _sceneIsLocked);
             App::scenes->pushEvent();
         }
     }
@@ -1050,7 +1057,10 @@ void CEnvironment::setScenePathAndName(const char* pathAndName)
         {
             const char* cmd = propScene_scenePath.name;
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
-            ev->appendKeyText(cmd, _scenePathAndName.c_str());
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyText(propScene_DEPRECATED_scenePath.name, _scenePathAndName.c_str());
+            else
+                ev->appendKeyText(cmd, _scenePathAndName.c_str());
             App::scenes->pushEvent();
         }
 #ifdef SIM_WITH_GUI
@@ -1122,7 +1132,7 @@ int CEnvironment::getBoolProperty(const char* pName, bool& pState) const
         retVal = sim_propertyret_ok;
         pState = _saveExistingCalculationStructures;
     }
-    else if (strcmp(pName, propScene_sceneIsLocked.name) == 0)
+    else if ((strcmp(pName, propScene_sceneIsLocked.name) == 0) || (strcmp(pName, propScene_DEPRECATED_sceneIsLocked.name) == 0))
     {
         retVal = sim_propertyret_ok;
         pState = _sceneIsLocked;
@@ -1148,7 +1158,7 @@ int CEnvironment::getIntProperty(const char* pName, int& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propScene_sceneUid.name) == 0)
+    if ((strcmp(pName, propScene_sceneUid.name) == 0) || (strcmp(pName, propScene_DEPRECATED_sceneUid.name) == 0))
     {
         pState = _sceneUniqueID;
         retVal = sim_propertyret_ok;
@@ -1189,7 +1199,7 @@ int CEnvironment::setStringProperty(const char* pName, const std::string& pState
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propScene_scenePath.name) == 0)
+    if ((strcmp(pName, propScene_scenePath.name) == 0) || (strcmp(pName, propScene_DEPRECATED_scenePath.name) == 0))
     {
         setScenePathAndName(pState.c_str());
         retVal = sim_propertyret_ok;
@@ -1207,7 +1217,7 @@ int CEnvironment::getStringProperty(const char* pName, std::string& pState) cons
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propScene_scenePath.name) == 0)
+    if ((strcmp(pName, propScene_scenePath.name) == 0) || (strcmp(pName, propScene_DEPRECATED_scenePath.name) == 0))
     {
         pState = _scenePathAndName;
         retVal = sim_propertyret_ok;
@@ -1217,7 +1227,7 @@ int CEnvironment::getStringProperty(const char* pName, std::string& pState) cons
         pState = _acknowledgement;
         retVal = sim_propertyret_ok;
     }
-    else if (strcmp(pName, propScene_sceneUidString.name) == 0)
+    else if ((strcmp(pName, propScene_sceneUidString.name) == 0) || (strcmp(pName, propScene_DEPRECATED_sceneUidString.name) == 0))
     {
         pState = _sceneUniquePersistentIdString;
         retVal = sim_propertyret_ok;

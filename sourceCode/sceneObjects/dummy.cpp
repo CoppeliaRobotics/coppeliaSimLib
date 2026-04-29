@@ -281,7 +281,7 @@ void CDummy::addObjectEventData(CCbor* ev)
         ev->appendKeyInt64(propDummy_linkedDummy.name, _linkedDummyHandle);
     else
         ev->appendKeyHandle(propDummy_linkedDummy.name, _linkedDummyHandle);
-    ev->appendKeyInt64(propDummy_linkedDummyHandle.name, _linkedDummyHandle); // for backw. compatibility
+    ev->appendKeyInt64(propDummy_DEPRECATED_linkedDummyHandle.name, _linkedDummyHandle); // for backw. compatibility
     ev->appendKeyInt64(propDummy_dummyType.name, _linkType);
     ev->appendKeyText(propDummy_assemblyTag.name, _assemblyTag.c_str());
 
@@ -935,7 +935,7 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
                 ev->appendKeyHandle(cmd, _linkedDummyHandle);
             App::scenes->pushEvent();
             // --- for backw. compatibility ---
-            cmd = propDummy_linkedDummyHandle.name;
+            cmd = propDummy_DEPRECATED_linkedDummyHandle.name;
             ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _linkedDummyHandle);
             App::scenes->pushEvent();
@@ -1281,7 +1281,7 @@ int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev)
         retVal = CSceneObject::setIntProperty(pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
-            if (_pName == propDummy_linkedDummyHandle.name)
+            if (_pName == propDummy_DEPRECATED_linkedDummyHandle.name)
             {
                 setLinkedDummyHandle(pState, true);
                 retVal = sim_propertyret_ok;
@@ -1335,7 +1335,7 @@ int CDummy::getIntProperty(const char* ppName, int& pState) const
     if (retVal == sim_propertyret_unknownproperty)
     {
         // First non-engine properties:
-        if (_pName == propDummy_linkedDummyHandle.name)
+        if (_pName == propDummy_DEPRECATED_linkedDummyHandle.name)
         {
             pState = _linkedDummyHandle;
             retVal = sim_propertyret_ok;

@@ -589,7 +589,7 @@ void CJoint::setDependencyMasterJointHandle(int depJointID)
         {
             if (App::getEventProtocolVersion() == 3)
             {
-                const char* cmd = propJoint_dependencyMasterOLD.name;
+                const char* cmd = propJoint_DEPRECATED_dependencyMaster.name;
                 CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
                 ev->appendKeyInt64(cmd, _dependencyMasterJointHandle);
             }
@@ -2035,7 +2035,7 @@ void CJoint::addObjectEventData(CCbor* ev)
     ev->appendKeyInt64(propJoint_dynCtrlMode.name, _dynCtrlMode);
     ev->appendKeyInt64(propJoint_dynVelMode.name, _dynVelocityCtrlType);
     ev->appendKeyInt64(propJoint_dynPosMode.name, _dynPositionCtrlType);
-    ev->appendKeyInt64(propJoint_dependencyMasterOLD.name, _dependencyMasterJointHandle);
+    ev->appendKeyInt64(propJoint_DEPRECATED_dependencyMaster.name, _dependencyMasterJointHandle);
     double arr[2] = {_dependencyJointOffset, _dependencyJointMult};
     ev->appendKeyDoubleArray(propJoint_dependencyParams.name, arr, 2);
     ev->appendKeyBool(propJoint_cyclic.name, _isCyclic);
@@ -4805,7 +4805,7 @@ int CJoint::setIntProperty(const char* ppName, int pState, CCbor* eev)
                 setDynCtrlMode(pState);
                 retVal = sim_propertyret_ok;
             }
-            else if (_pName == propJoint_dependencyMasterOLD.name)
+            else if (_pName == propJoint_DEPRECATED_dependencyMaster.name)
             {
                 setDependencyMasterJointHandle(pState);
                 retVal = sim_propertyret_ok;
@@ -4881,7 +4881,7 @@ int CJoint::getIntProperty(const char* ppName, int& pState) const
             retVal = sim_propertyret_ok;
             pState = _dynCtrlMode;
         }
-        else if (_pName == propJoint_dependencyMasterOLD.name)
+        else if (_pName == propJoint_DEPRECATED_dependencyMaster.name)
         {
             retVal = sim_propertyret_ok;
             pState = _dependencyMasterJointHandle;

@@ -1481,7 +1481,7 @@ void CSceneObject::addObjectEventData(CCbor* ev)
         ev->appendKeyQuaternion(propSceneObject_quaternion.name, _localTransformation.Q);
     }
     if (App::getEventProtocolVersion() <= 3)
-        ev->appendKeyText(propSceneObject_alias.name, _objectAlias.c_str());
+        ev->appendKeyText(propSceneObject_DEPRECATED_alias.name, _objectAlias.c_str());
     else
         ev->appendKeyText(propSceneObject_name.name, _objectAlias.c_str());
     ev->appendKeyBool(propSceneObject_modelInvisible.name, _modelInvisible);
@@ -1524,7 +1524,7 @@ void CSceneObject::addObjectEventData(CCbor* ev)
         pH = _parentObject->getObjectHandle();
     }
     ev->appendKeyInt64(propSceneObject_parentUid.name, pUid);
-    ev->appendKeyInt64(propSceneObject_parentHandle.name, pH); // for backw. compatibility
+    ev->appendKeyInt64(propSceneObject_DEPRECATED_parentHandle.name, pH); // for backw. compatibility
     if (App::getEventProtocolVersion() <= 3)
         ev->appendKeyInt64(propSceneObject_parent.name, pH);
     else
@@ -1567,7 +1567,7 @@ void CSceneObject::addObjectEventData(CCbor* ev)
         double p[7];
         _bbFrame.getData(p, true);
         ev->appendKeyDoubleArray(propSceneObject_bbPose.name, p, 7);
-        ev->appendKeyDoubleArray(propSceneObject_bbHsize.name, _bbHalfSize.data, 3);
+        ev->appendKeyDoubleArray(propSceneObject_DEPRECATED_bbHsize.name, _bbHalfSize.data, 3);
     }
     else
     {
@@ -2165,7 +2165,7 @@ void CSceneObject::_setBB(const C7Vector& bbFrame, const C3Vector& bbHalfSize)
                 double p[7] = {_bbFrame.X(0), _bbFrame.X(1), _bbFrame.X(2), _bbFrame.Q(1),
                                _bbFrame.Q(2), _bbFrame.Q(3), _bbFrame.Q(0)};
                 ev->appendKeyDoubleArray(propSceneObject_bbPose.name, p, 7);
-                ev->appendKeyDoubleArray(propSceneObject_bbHsize.name, _bbHalfSize.data, 3);
+                ev->appendKeyDoubleArray(propSceneObject_DEPRECATED_bbHsize.name, _bbHalfSize.data, 3);
             }
             else
             {
@@ -2580,7 +2580,7 @@ bool CSceneObject::setParent(CSceneObject* parent)
                 ev->appendKeyInt64(propSceneObject_parent.name, pH);
             else
                 ev->appendKeyHandle(propSceneObject_parent.name, pH);
-            ev->appendKeyInt64(propSceneObject_parentHandle.name, pH); // for backward compatibility
+            ev->appendKeyInt64(propSceneObject_DEPRECATED_parentHandle.name, pH); // for backward compatibility
             App::scenes->pushEvent();
         }
         _setParent_send(pH);
@@ -3467,9 +3467,9 @@ void CSceneObject::serialize(CSer& ar)
             ar.xmlPushNewNode("common");
 
             if (exhaustiveXml)
-                ar.xmlAddNode_string(propSceneObject_alias.name, _objectAlias.c_str());
+                ar.xmlAddNode_string(propSceneObject_DEPRECATED_alias.name, _objectAlias.c_str());
             else
-                ar.xmlAddNode_string(propSceneObject_alias.name, (_objectAlias + "*" + std::to_string(_objectHandle)).c_str());
+                ar.xmlAddNode_string(propSceneObject_DEPRECATED_alias.name, (_objectAlias + "*" + std::to_string(_objectHandle)).c_str());
             ar.xmlAddNode_comment(" 'name' and 'altName' tags only used for backward compatibility:", exhaustiveXml);
             ar.xmlAddNode_string("name", _objectName_old.c_str());
             ar.xmlAddNode_string("altName", _objectAltName_old.c_str());
@@ -3776,7 +3776,7 @@ void CSceneObject::serialize(CSer& ar)
             if (ar.xmlPushChildNode("common", exhaustiveXml))
             {
                 aliasFound = ar.xmlGetNode_string(
-                    propSceneObject_alias.name, _objectAlias, false); // keep false for compatibility with older versions! exhaustiveXml);
+                    propSceneObject_DEPRECATED_alias.name, _objectAlias, false); // keep false for compatibility with older versions! exhaustiveXml);
                 if (aliasFound)
                 {
                     _objectTempAlias = _objectAlias;
@@ -5531,7 +5531,7 @@ void CSceneObject::setObjectAlias_direct(const char* newName)
         {
             std::string cmd = propSceneObject_name.name;
             if (App::getEventProtocolVersion() <= 3)
-                cmd = propSceneObject_alias.name;
+                cmd = propSceneObject_DEPRECATED_alias.name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, true, cmd.c_str(), true);
             ev->appendKeyText(cmd.c_str(), newName);
             App::scenes->pushEvent();
@@ -5859,102 +5859,102 @@ int CSceneObject::setBoolProperty(const char* ppName, bool pState)
             retVal = sim_propertyret_ok;
             setObjectProperty((_objectProperty | sim_objectproperty_cannotdeleteduringsim) - (1 - pState) * sim_objectproperty_cannotdeleteduringsim);
         }
-        else if ((strcmp(ppName, propSceneObject_modelNotCollidable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotCollidableDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelNotCollidable.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelNotCollidable.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setModelProperty((_modelProperty | sim_modelproperty_not_collidable) - (1 - pState) * sim_modelproperty_not_collidable);
         }
-        else if ((strcmp(ppName, propSceneObject_modelNotMeasurable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotMeasurableDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelNotMeasurable.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelNotMeasurable.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setModelProperty((_modelProperty | sim_modelproperty_not_measurable) - (1 - pState) * sim_modelproperty_not_measurable);
         }
-        else if ((strcmp(ppName, propSceneObject_modelNotDetectable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotDetectableDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelNotDetectable.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelNotDetectable.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setModelProperty((_modelProperty | sim_modelproperty_not_detectable) - (1 - pState) * sim_modelproperty_not_detectable);
         }
-        else if ((strcmp(ppName, propSceneObject_modelNotDynamic.name) == 0) || (strcmp(ppName, propSceneObject_modelNotDynamicDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelNotDynamic.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelNotDynamic.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setModelProperty((_modelProperty | sim_modelproperty_not_dynamic) - (1 - pState) * sim_modelproperty_not_dynamic);
         }
-        else if ((strcmp(ppName, propSceneObject_modelNotRespondable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotRespondableDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelNotRespondable.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelNotRespondable.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setModelProperty((_modelProperty | sim_modelproperty_not_respondable) - (1 - pState) * sim_modelproperty_not_respondable);
         }
-        else if ((strcmp(ppName, propSceneObject_modelNotVisible.name) == 0) || (strcmp(ppName, propSceneObject_modelNotVisibleDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelNotVisible.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelNotVisible.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setModelProperty((_modelProperty | sim_modelproperty_not_visible) - (1 - pState) * sim_modelproperty_not_visible);
         }
-        else if ((strcmp(ppName, propSceneObject_modelScriptsNotActive.name) == 0) || (strcmp(ppName, propSceneObject_modelScriptsNotActiveDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelScriptsNotActive.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelScriptsNotActive.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setModelProperty((_modelProperty | sim_modelproperty_scripts_inactive) - (1 - pState) * sim_modelproperty_scripts_inactive);
         }
-        else if ((strcmp(ppName, propSceneObject_modelNotInParentBB.name) == 0) || (strcmp(ppName, propSceneObject_modelNotInParentBBDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelNotInParentBB.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelNotInParentBB.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setModelProperty((_modelProperty | sim_modelproperty_not_showasinsidemodel) - (1 - pState) * sim_modelproperty_not_showasinsidemodel);
         }
-        else if ((strcmp(ppName, propSceneObject_movTranslNoSim.name) == 0) || (strcmp(ppName, propSceneObject_movTranslNoSimDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movTranslNoSim.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movTranslNoSim.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setObjectMovementOptions((_objectMovementOptions | 1) - pState * 1);
         }
-        else if ((strcmp(ppName, propSceneObject_movTranslInSim.name) == 0) || (strcmp(ppName, propSceneObject_movTranslInSimDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movTranslInSim.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movTranslInSim.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setObjectMovementOptions((_objectMovementOptions | 2) - pState * 2);
         }
-        else if ((strcmp(ppName, propSceneObject_movRotNoSim.name) == 0) || (strcmp(ppName, propSceneObject_movRotNoSimDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movRotNoSim.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movRotNoSim.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setObjectMovementOptions((_objectMovementOptions | 4) - pState * 4);
         }
-        else if ((strcmp(ppName, propSceneObject_movRotInSim.name) == 0) || (strcmp(ppName, propSceneObject_movRotInSimDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movRotInSim.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movRotInSim.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setObjectMovementOptions((_objectMovementOptions | 8) - pState * 8);
         }
-        else if ((strcmp(ppName, propSceneObject_movAltTransl.name) == 0) || (strcmp(ppName, propSceneObject_movAltTranslDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movAltTransl.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movAltTransl.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setObjectMovementOptions((_objectMovementOptions | 16) - pState * 16);
         }
-        else if ((strcmp(ppName, propSceneObject_movAltRot.name) == 0) || (strcmp(ppName, propSceneObject_movAltRotDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movAltRot.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movAltRot.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setObjectMovementOptions((_objectMovementOptions | 32) - pState * 32);
         }
-        else if ((strcmp(ppName, propSceneObject_movPrefTranslX.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslXDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movPrefTranslX.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movPrefTranslX.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 1) - (1 - pState) * 1);
         }
-        else if ((strcmp(ppName, propSceneObject_movPrefTranslY.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslYDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movPrefTranslY.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movPrefTranslY.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 2) - (1 - pState) * 2);
         }
-        else if ((strcmp(ppName, propSceneObject_movPrefTranslZ.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslZDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movPrefTranslZ.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movPrefTranslZ.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 4) - (1 - pState) * 4);
         }
-        else if ((strcmp(ppName, propSceneObject_movPrefRotX.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotXDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movPrefRotX.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movPrefRotX.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 8) - (1 - pState) * 8);
         }
-        else if ((strcmp(ppName, propSceneObject_movPrefRotY.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotYDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movPrefRotY.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movPrefRotY.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 16) - (1 - pState) * 16);
         }
-        else if ((strcmp(ppName, propSceneObject_movPrefRotZ.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotZDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movPrefRotZ.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movPrefRotZ.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setObjectMovementPreferredAxes((_objectMovementPreferredAxes | 32) - (1 - pState) * 32);
@@ -6049,102 +6049,102 @@ int CSceneObject::getBoolProperty(const char* ppName, bool& pState) const
             retVal = sim_propertyret_ok;
             pState = (_objectProperty & sim_objectproperty_cannotdeleteduringsim) != 0;
         }
-        else if ((strcmp(ppName, propSceneObject_modelNotCollidable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotCollidableDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelNotCollidable.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelNotCollidable.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_modelProperty & sim_modelproperty_not_collidable) != 0;
         }
-        else if ((strcmp(ppName, propSceneObject_modelNotMeasurable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotMeasurableDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelNotMeasurable.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelNotMeasurable.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_modelProperty & sim_modelproperty_not_measurable) != 0;
         }
-        else if ((strcmp(ppName, propSceneObject_modelNotDetectable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotDetectableDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelNotDetectable.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelNotDetectable.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_modelProperty & sim_modelproperty_not_detectable) != 0;
         }
-        else if ((strcmp(ppName, propSceneObject_modelNotDynamic.name) == 0) || (strcmp(ppName, propSceneObject_modelNotDynamicDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelNotDynamic.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelNotDynamic.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_modelProperty & sim_modelproperty_not_dynamic) != 0;
         }
-        else if ((strcmp(ppName, propSceneObject_modelNotRespondable.name) == 0) || (strcmp(ppName, propSceneObject_modelNotRespondableDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelNotRespondable.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelNotRespondable.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_modelProperty & sim_modelproperty_not_respondable) != 0;
         }
-        else if ((strcmp(ppName, propSceneObject_modelNotVisible.name) == 0) || (strcmp(ppName, propSceneObject_modelNotVisibleDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelNotVisible.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelNotVisible.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_modelProperty & sim_modelproperty_not_visible) != 0;
         }
-        else if ((strcmp(ppName, propSceneObject_modelScriptsNotActive.name) == 0) || (strcmp(ppName, propSceneObject_modelScriptsNotActiveDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelScriptsNotActive.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelScriptsNotActive.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_modelProperty & sim_modelproperty_scripts_inactive) != 0;
         }
-        else if ((strcmp(ppName, propSceneObject_modelNotInParentBB.name) == 0) || (strcmp(ppName, propSceneObject_modelNotInParentBBDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelNotInParentBB.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelNotInParentBB.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_modelProperty & sim_modelproperty_not_showasinsidemodel) != 0;
         }
-        else if ((strcmp(ppName, propSceneObject_movTranslNoSim.name) == 0) || (strcmp(ppName, propSceneObject_movTranslNoSimDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movTranslNoSim.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movTranslNoSim.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_objectMovementOptions & 1) == 0;
         }
-        else if ((strcmp(ppName, propSceneObject_movTranslInSim.name) == 0) || (strcmp(ppName, propSceneObject_movTranslInSimDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movTranslInSim.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movTranslInSim.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_objectMovementOptions & 2) == 0;
         }
-        else if ((strcmp(ppName, propSceneObject_movRotNoSim.name) == 0) || (strcmp(ppName, propSceneObject_movRotNoSimDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movRotNoSim.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movRotNoSim.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_objectMovementOptions & 4) == 0;
         }
-        else if ((strcmp(ppName, propSceneObject_movRotInSim.name) == 0) || (strcmp(ppName, propSceneObject_movRotInSimDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movRotInSim.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movRotInSim.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_objectMovementOptions & 8) == 0;
         }
-        else if ((strcmp(ppName, propSceneObject_movAltTransl.name) == 0) || (strcmp(ppName, propSceneObject_movAltTranslDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movAltTransl.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movAltTransl.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_objectMovementOptions & 16) == 0;
         }
-        else if ((strcmp(ppName, propSceneObject_movAltRot.name) == 0) || (strcmp(ppName, propSceneObject_movAltRotDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movAltRot.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movAltRot.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_objectMovementOptions & 32) == 0;
         }
-        else if ((strcmp(ppName, propSceneObject_movPrefTranslX.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslXDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movPrefTranslX.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movPrefTranslX.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_objectMovementPreferredAxes & 1) != 0;
         }
-        else if ((strcmp(ppName, propSceneObject_movPrefTranslY.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslYDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movPrefTranslY.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movPrefTranslY.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_objectMovementPreferredAxes & 2) != 0;
         }
-        else if ((strcmp(ppName, propSceneObject_movPrefTranslZ.name) == 0) || (strcmp(ppName, propSceneObject_movPrefTranslZDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movPrefTranslZ.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movPrefTranslZ.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_objectMovementPreferredAxes & 4) != 0;
         }
-        else if ((strcmp(ppName, propSceneObject_movPrefRotX.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotXDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movPrefRotX.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movPrefRotX.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_objectMovementPreferredAxes & 8) != 0;
         }
-        else if ((strcmp(ppName, propSceneObject_movPrefRotY.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotYDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movPrefRotY.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movPrefRotY.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_objectMovementPreferredAxes & 16) != 0;
         }
-        else if ((strcmp(ppName, propSceneObject_movPrefRotZ.name) == 0) || (strcmp(ppName, propSceneObject_movPrefRotZDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movPrefRotZ.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movPrefRotZ.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = (_objectMovementPreferredAxes & 32) != 0;
@@ -6191,7 +6191,7 @@ int CSceneObject::setIntProperty(const char* ppName, int pState)
             retVal = sim_propertyret_ok;
             setVisibilityLayer(pState);
         }
-        else if (strcmp(ppName, propSceneObject_parentHandle.name) == 0)
+        else if (strcmp(ppName, propSceneObject_DEPRECATED_parentHandle.name) == 0)
         {
             retVal = 0;
             CSceneObject* newParent = App::scene->sceneObjects->getObjectFromHandle(pState);
@@ -6206,17 +6206,17 @@ int CSceneObject::setIntProperty(const char* ppName, int pState)
             retVal = sim_propertyret_ok;
             setObjectProperty(pState);
         }
-        else if ( (strcmp(ppName, propSceneObject_modelProperty.name) == 0) || (strcmp(ppName, propSceneObject_modelPropertyDEPRECATED.name) == 0) )
+        else if ( (strcmp(ppName, propSceneObject_modelProperty.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelProperty.name) == 0) )
         {
             retVal = sim_propertyret_ok;
             setModelProperty(pState);
         }
-        else if ((strcmp(ppName, propSceneObject_movementOptions.name) == 0) || (strcmp(ppName, propSceneObject_movementOptionsDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movementOptions.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movementOptions.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setObjectMovementOptions(pState);
         }
-        else if ((strcmp(ppName, propSceneObject_movementPreferredAxes.name) == 0) || (strcmp(ppName, propSceneObject_movementPreferredAxesDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movementPreferredAxes.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movementPreferredAxes.name) == 0))
         {
             retVal = sim_propertyret_ok;
             setObjectMovementPreferredAxes(pState);
@@ -6253,7 +6253,7 @@ int CSceneObject::getIntProperty(const char* ppName, int& pState) const
             retVal = sim_propertyret_ok;
             pState = _childOrder;
         }
-        else if (strcmp(ppName, propSceneObject_parentHandle.name) == 0)
+        else if (strcmp(ppName, propSceneObject_DEPRECATED_parentHandle.name) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = -1;
@@ -6265,17 +6265,17 @@ int CSceneObject::getIntProperty(const char* ppName, int& pState) const
             retVal = sim_propertyret_ok;
             pState = _objectProperty;
         }
-        else if ((strcmp(ppName, propSceneObject_modelProperty.name) == 0) || (strcmp(ppName, propSceneObject_modelPropertyDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_modelProperty.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_modelProperty.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = _modelProperty;
         }
-        else if ((strcmp(ppName, propSceneObject_movementOptions.name) == 0) || (strcmp(ppName, propSceneObject_movementOptionsDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movementOptions.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movementOptions.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = _objectMovementOptions;
         }
-        else if ((strcmp(ppName, propSceneObject_movementPreferredAxes.name) == 0) || (strcmp(ppName, propSceneObject_movementPreferredAxesDEPRECATED.name) == 0))
+        else if ((strcmp(ppName, propSceneObject_movementPreferredAxes.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movementPreferredAxes.name) == 0))
         {
             retVal = sim_propertyret_ok;
             pState = _objectMovementPreferredAxes;
@@ -6415,12 +6415,12 @@ int CSceneObject::setStringProperty(const char* ppName, const std::string& pStat
     if (retVal == sim_propertyret_unknownproperty)
     {
         std::string _pName(ppName);
-        if ((_pName == propSceneObject_alias.name) || (_pName == propSceneObject_name.name))
+        if ((_pName == propSceneObject_DEPRECATED_alias.name) || (_pName == propSceneObject_name.name))
         {
             App::scene->sceneObjects->setObjectAlias(this, pState.c_str(), false);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propSceneObject_deprecatedName.name)
+        else if (_pName == propSceneObject_DEPRECATED_deprecatedName.name)
         {
             setObjectName_direct_old(pState.c_str());
             retVal = sim_propertyret_ok;
@@ -6442,12 +6442,12 @@ int CSceneObject::getStringProperty(const char* ppName, std::string& pState) con
     if (retVal == sim_propertyret_unknownproperty)
     {
         std::string _pName(ppName);
-        if ((_pName == propSceneObject_alias.name) || (_pName == propSceneObject_name.name))
+        if ((_pName == propSceneObject_DEPRECATED_alias.name) || (_pName == propSceneObject_name.name))
         {
             retVal = sim_propertyret_ok;
             pState = _objectAlias;
         }
-        else if (_pName == propSceneObject_deprecatedName.name)
+        else if (_pName == propSceneObject_DEPRECATED_deprecatedName.name)
         {
             retVal = sim_propertyret_ok;
             pState = getObjectName_old();
@@ -6669,7 +6669,7 @@ int CSceneObject::getVector3Property(const char* ppName, C3Vector& pState) const
             retVal = sim_propertyret_ok;
             pState = _bbHalfSize * 2.0;
         }
-        else if (_pName == propSceneObject_bbHsize.name)
+        else if (_pName == propSceneObject_DEPRECATED_bbHsize.name)
         {
             retVal = sim_propertyret_ok;
             pState = _bbHalfSize;
@@ -6863,7 +6863,7 @@ int CSceneObject::setFloatArrayProperty(const char* ppName, const std::vector<do
     if (retVal == sim_propertyret_unknownproperty)
     {
         std::string _pName(ppName);
-        if ((strcmp(ppName, propSceneObject_movementStepSize.name) == 0) || (strcmp(ppName, propSceneObject_movementStepSizeDEPRECATED.name) == 0))
+        if ((strcmp(ppName, propSceneObject_movementStepSize.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movementStepSize.name) == 0))
         {
             if (pState.size() >= 2)
             {
@@ -6887,7 +6887,7 @@ int CSceneObject::getFloatArrayProperty(const char* ppName, std::vector<double>&
     if (retVal == sim_propertyret_unknownproperty)
     {
         std::string _pName(ppName);
-        if ((strcmp(ppName, propSceneObject_movementStepSize.name) == 0) || (strcmp(ppName, propSceneObject_movementStepSizeDEPRECATED.name) == 0))
+        if ((strcmp(ppName, propSceneObject_movementStepSize.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movementStepSize.name) == 0))
         {
             pState.push_back(_objectMovementStepSize[0]);
             pState.push_back(_objectMovementStepSize[1]);
@@ -6905,7 +6905,7 @@ int CSceneObject::setIntArrayProperty(const char* ppName, const std::vector<int>
     if (retVal == sim_propertyret_unknownproperty)
     {
         std::string _pName(ppName);
-        if ((strcmp(ppName, propSceneObject_movementRelativity.name) == 0) || (strcmp(ppName, propSceneObject_movementRelativityDEPRECATED.name) == 0))
+        if ((strcmp(ppName, propSceneObject_movementRelativity.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movementRelativity.name) == 0))
         {
             if (pState.size() >= 2)
             {
@@ -6929,7 +6929,7 @@ int CSceneObject::getIntArrayProperty(const char* ppName, std::vector<int>& pSta
     if (retVal == sim_propertyret_unknownproperty)
     {
         std::string _pName(ppName);
-        if ((strcmp(ppName, propSceneObject_movementRelativity.name) == 0) || (strcmp(ppName, propSceneObject_movementRelativityDEPRECATED.name) == 0))
+        if ((strcmp(ppName, propSceneObject_movementRelativity.name) == 0) || (strcmp(ppName, propSceneObject_DEPRECATED_movementRelativity.name) == 0))
         {
             pState.push_back(_objectMovementRelativity[0]);
             pState.push_back(_objectMovementRelativity[1]);

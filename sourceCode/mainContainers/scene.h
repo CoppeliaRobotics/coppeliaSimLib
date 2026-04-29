@@ -59,7 +59,7 @@ class CScene : public Obj
     void simulationAboutToEnd();
     void simulationEnded(bool removeNewObjects);
 
-    void addGeneralObjectsToSceneAndPerformMappings(std::vector<CSceneObject*>* loadedObjectList,
+    int addGeneralObjectsToSceneAndPerformMappings(std::vector<CSceneObject*>* loadedObjectList,
                                                     std::vector<CCollection*>* loadedCollectionList,
                                                     std::vector<CCollisionObject_old*>* loadedCollisionList,
                                                     std::vector<CDistanceObject_old*>* loadedDistanceList,

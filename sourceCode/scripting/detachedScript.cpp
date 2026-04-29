@@ -1112,11 +1112,20 @@ void CDetachedScript::pushObjectCreationEvent()
 {
     CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _scriptUid, nullptr, false);
     ev->appendKeyText(propObject_objectType.name, getObjectTypeStr().c_str());
-    ev->appendKeyBool(propDetachedScript_scriptDisabled.name, _scriptIsDisabled);
+    if (App::getEventProtocolVersion() <= 3)
+    {
+        ev->appendKeyBool(propDetachedScript_DEPRECATED_scriptDisabled.name, _scriptIsDisabled);
+        ev->appendKeyInt64(propDetachedScript_DEPRECATED_scriptType.name, _scriptType);
+        ev->appendKeyInt64(propDetachedScript_DEPRECATED_scriptState.name, _scriptState);
+    }
+    else
+    {
+        ev->appendKeyBool(propDetachedScript_scriptDisabled.name, _scriptIsDisabled);
+        ev->appendKeyInt64(propDetachedScript_scriptType.name, _scriptType);
+        ev->appendKeyInt64(propDetachedScript_scriptState.name, _scriptState);
+    }
     ev->appendKeyBool(propDetachedScript_restartOnError.name, _autoRestartOnError);
     ev->appendKeyInt64(propDetachedScript_execPriority.name, getScriptExecPriority());
-    ev->appendKeyInt64(propDetachedScript_scriptType.name, _scriptType);
-    ev->appendKeyInt64(propDetachedScript_scriptState.name, _scriptState);
     ev->appendKeyText(propDetachedScript_language.name, _lang.c_str());
     ev->appendKeyText(propDetachedScript_code.name, _scriptText.c_str());
     ev->appendKeyText(propDetachedScript_scriptName.name, getScriptName().c_str());
@@ -1142,7 +1151,10 @@ void CDetachedScript::setScriptState(int state)
             const char* cmd = propDetachedScript_scriptState.name;
             CCbor* ev;
             ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
-            ev->appendKeyInt64(cmd, _scriptState);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyInt64(propDetachedScript_DEPRECATED_scriptState.name, _scriptState);
+            else
+                ev->appendKeyInt64(cmd, _scriptState);
             App::scenes->pushEvent();
         }
     }
@@ -1247,7 +1259,10 @@ void CDetachedScript::setScriptIsDisabled(bool isDisabled)
             const char* cmd = propDetachedScript_scriptDisabled.name;
             CCbor* ev;
             ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
-            ev->appendKeyBool(cmd, _scriptIsDisabled);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyBool(propDetachedScript_DEPRECATED_scriptDisabled.name, _scriptIsDisabled);
+            else
+                ev->appendKeyBool(cmd, _scriptIsDisabled);
             App::scenes->pushEvent();
         }
     }
@@ -4488,7 +4503,7 @@ int CDetachedScript::setBoolProperty(const char* pName, bool pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(propDetachedScript_scriptDisabled.name, pName) == 0)
+    if ((strcmp(propDetachedScript_scriptDisabled.name, pName) == 0) || (strcmp(propDetachedScript_DEPRECATED_scriptDisabled.name, pName) == 0))
     {
         retVal = sim_propertyret_ok;
         setScriptIsDisabled(pState);
@@ -4506,7 +4521,7 @@ int CDetachedScript::getBoolProperty(const char* pName, bool& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(propDetachedScript_scriptDisabled.name, pName) == 0)
+    if ((strcmp(propDetachedScript_scriptDisabled.name, pName) == 0) || (strcmp(propDetachedScript_DEPRECATED_scriptDisabled.name, pName) == 0))
     {
         retVal = sim_propertyret_ok;
         pState = _scriptIsDisabled;
@@ -4542,7 +4557,7 @@ int CDetachedScript::getIntProperty(const char* pName, int& pState) const
         retVal = sim_propertyret_ok;
         pState = getScriptExecPriority();
     }
-    else if (strcmp(propDetachedScript_scriptType.name, pName) == 0)
+    else if ((strcmp(propDetachedScript_scriptType.name, pName) == 0) || (strcmp(propDetachedScript_DEPRECATED_scriptType.name, pName) == 0))
     {
         retVal = sim_propertyret_ok;
         pState = _scriptType;
@@ -4552,7 +4567,7 @@ int CDetachedScript::getIntProperty(const char* pName, int& pState) const
         retVal = sim_propertyret_ok;
         pState = _executionDepth;
     }
-    else if (strcmp(propDetachedScript_scriptState.name, pName) == 0)
+    else if ((strcmp(propDetachedScript_scriptState.name, pName) == 0) || (strcmp(propDetachedScript_DEPRECATED_scriptState.name, pName) == 0))
     {
         retVal = sim_propertyret_ok;
         pState = _scriptState;

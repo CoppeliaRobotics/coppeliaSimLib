@@ -70,8 +70,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["saveModelToBuffer"] = _method_saveModelToBuffer;
         funcTable["loadScene"] = _method_loadScene;
         funcTable["loadSceneFromBuffer"] = _method_loadSceneFromBuffer;
-        funcTable["saveScene"] = _method_saveScene;
-        funcTable["saveSceneToBuffer"] = _method_saveSceneToBuffer;
+        funcTable["save"] = _method_save;
+        funcTable["saveToBuffer"] = _method_saveToBuffer;
         funcTable["removeModel"] = _method_removeModel;
         funcTable["remove"] = _method_remove;
         funcTable["removeObjects"] = _method_removeObjects;
@@ -1825,100 +1825,128 @@ std::string _method_handleCustomizationScripts(int targetObj, const char* method
 std::string _method_loadModel(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    if (targetObj == sim_handle_scene)
     {
-        std::string path = fetchText(inStack, 0);
-        std::string infoStr;
-        if (CFileOperations::loadModel(path.c_str(), false, false, nullptr, false, false, &infoStr, &errMsg))
+        if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
         {
-            setLastInfo(infoStr.c_str());
+            std::string path = fetchText(inStack, 0);
+            std::string infoStr;
+            std::vector<int> sel = App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0];
+            if (CFileOperations::loadModel(path.c_str(), false, false, nullptr, false, false, &infoStr, &errMsg))
+            {
+                App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
+                setLastInfo(infoStr.c_str());
 #ifdef SIM_WITH_GUI
-            GuiApp::setRebuildHierarchyFlag();
+                GuiApp::setRebuildHierarchyFlag();
 #endif
-            pushHandle(outStack, App::scene->sceneObjects->getLastSelectionHandle());
+                pushHandle(outStack, App::scene->sceneObjects->getLastSelectionHandle());
+            }
+            setLastInfo(infoStr.c_str());
         }
-        setLastInfo(infoStr.c_str());
     }
+    else
+        errMsg = SIM_ERROR_INVALID_TARGET;
     return errMsg;
 }
 
 std::string _method_loadModelFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    if (targetObj == sim_handle_scene)
     {
-        std::string data = fetchBuffer(inStack, 0);
-        std::vector<char> buffer(data.data(), data.data() + data.size());
-        std::string infoStr;
-        if (CFileOperations::loadModel(nullptr, false, false, &buffer, false, false, &infoStr, &errMsg))
+        if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
         {
-            setLastInfo(infoStr.c_str());
+            std::string data = fetchBuffer(inStack, 0);
+            std::vector<char> buffer(data.data(), data.data() + data.size());
+            std::string infoStr;
+            std::vector<int> sel = App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0];
+            if (CFileOperations::loadModel(nullptr, false, false, &buffer, false, false, &infoStr, &errMsg))
+            {
+                App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
+                setLastInfo(infoStr.c_str());
 #ifdef SIM_WITH_GUI
-            GuiApp::setRebuildHierarchyFlag();
+                GuiApp::setRebuildHierarchyFlag();
 #endif
-            pushHandle(outStack, App::scene->sceneObjects->getLastSelectionHandle());
+                pushHandle(outStack, App::scene->sceneObjects->getLastSelectionHandle());
+            }
+            setLastInfo(infoStr.c_str());
         }
-        setLastInfo(infoStr.c_str());
     }
+    else
+        errMsg = SIM_ERROR_INVALID_TARGET;
     return errMsg;
 }
 
 std::string _method_loadModelThumbnail(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    if (targetObj == sim_handle_app)
     {
-        std::string path = fetchText(inStack, 0);
-        std::string infoStr;
-        if (CFileOperations::loadModel(path.c_str(), false, false, nullptr, true, false, &infoStr, &errMsg))
+        if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
         {
-            setLastInfo(infoStr.c_str());
-#ifdef SIM_WITH_GUI
-            GuiApp::setRebuildHierarchyFlag();
-#endif
-            char* buff = new char[128 * 128 * 4];
-            bool opRes = App::scene->environment->modelThumbnail_notSerializedHere.copyUncompressedImageToBuffer(buff);
-            if (opRes)
+            std::string path = fetchText(inStack, 0);
+            std::string infoStr;
+            std::vector<int> sel = App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0];
+            if (CFileOperations::loadModel(path.c_str(), false, false, nullptr, true, false, &infoStr, &errMsg))
             {
-                pushBuffer(outStack, buff, 128 * 128 * 4);
+                App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
+                setLastInfo(infoStr.c_str());
+#ifdef SIM_WITH_GUI
+                GuiApp::setRebuildHierarchyFlag();
+#endif
+                char* buff = new char[128 * 128 * 4];
+                bool opRes = App::scene->environment->modelThumbnail_notSerializedHere.copyUncompressedImageToBuffer(buff);
+                if (opRes)
+                {
+                    pushBuffer(outStack, buff, 128 * 128 * 4);
+                    delete[] buff;
+                    return errMsg;
+                }
                 delete[] buff;
                 return errMsg;
             }
-            delete[] buff;
-            return errMsg;
+            setLastInfo(infoStr.c_str());
         }
-        setLastInfo(infoStr.c_str());
     }
+    else
+        errMsg = SIM_ERROR_INVALID_TARGET;
     return errMsg;
 }
 
 std::string _method_loadModelThumbnailFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    if (targetObj == sim_handle_app)
     {
-        std::string data = fetchBuffer(inStack, 0);
-        std::vector<char> buffer(data.data(), data.data() + data.size());
-        std::string infoStr;
-        if (CFileOperations::loadModel(nullptr, false, false, &buffer, true, false, &infoStr, &errMsg))
+        if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
         {
-            setLastInfo(infoStr.c_str());
-#ifdef SIM_WITH_GUI
-            GuiApp::setRebuildHierarchyFlag();
-#endif
-            char* buff = new char[128 * 128 * 4];
-            bool opRes = App::scene->environment->modelThumbnail_notSerializedHere.copyUncompressedImageToBuffer(buff);
-            if (opRes)
+            std::string data = fetchBuffer(inStack, 0);
+            std::vector<char> buffer(data.data(), data.data() + data.size());
+            std::string infoStr;
+            std::vector<int> sel = App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0];
+            if (CFileOperations::loadModel(nullptr, false, false, &buffer, true, false, &infoStr, &errMsg))
             {
-                pushBuffer(outStack, buff, 128 * 128 * 4);
+                App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
+                setLastInfo(infoStr.c_str());
+#ifdef SIM_WITH_GUI
+                GuiApp::setRebuildHierarchyFlag();
+#endif
+                char* buff = new char[128 * 128 * 4];
+                bool opRes = App::scene->environment->modelThumbnail_notSerializedHere.copyUncompressedImageToBuffer(buff);
+                if (opRes)
+                {
+                    pushBuffer(outStack, buff, 128 * 128 * 4);
+                    delete[] buff;
+                    return errMsg;
+                }
                 delete[] buff;
                 return errMsg;
             }
-            delete[] buff;
-            return errMsg;
+            setLastInfo(infoStr.c_str());
         }
-        setLastInfo(infoStr.c_str());
     }
+    else
+        errMsg = SIM_ERROR_INVALID_TARGET;
     return errMsg;
 }
 
@@ -1978,131 +2006,151 @@ std::string _method_saveModelToBuffer(int targetObj, const char* method, CDetach
 std::string _method_loadScene(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation) && (currentScript->getScriptType() != sim_scripttype_customization)))
+    if (targetObj == sim_handle_app)
     {
-        if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_bool | arg_optional}))
+        if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation) && (currentScript->getScriptType() != sim_scripttype_customization)))
         {
-            std::string path = fetchText(inStack, 0);
-            bool createNewScene = fetchBool(inStack, 1, false);
-            if (App::scene->simulation->isSimulationStopped())
+            if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_bool | arg_optional}))
             {
-                if (path.size() > 0)
+                std::string path = fetchText(inStack, 0);
+                bool createNewScene = fetchBool(inStack, 1, false);
+                if (App::scene->simulation->isSimulationStopped())
                 {
-                    if (createNewScene)
-                        CFileOperations::createNewScene(true);
-                    if (CFileOperations::loadScene(path.c_str(), false, nullptr, nullptr, &errMsg))
+                    if (path.size() > 0)
                     {
+                        if (createNewScene)
+                            CFileOperations::createNewScene(true);
+                        if (CFileOperations::loadScene(path.c_str(), false, nullptr, nullptr, &errMsg))
+                        {
 #ifdef SIM_WITH_GUI
-                        if (GuiApp::mainWindow != nullptr)
-                            GuiApp::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
+                            if (GuiApp::mainWindow != nullptr)
+                                GuiApp::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
 #endif
-                        App::scene->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
+                            App::scene->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
+                        }
                     }
+                    else
+                        CFileOperations::createNewScene(createNewScene);
                 }
                 else
-                    CFileOperations::createNewScene(createNewScene);
+                    errMsg = SIM_ERROR_SIMULATION_NOT_STOPPED;
             }
-            else
-                errMsg = SIM_ERROR_SIMULATION_NOT_STOPPED;
         }
+        else
+            errMsg = "cannot be called from an embedded script.";
     }
     else
-        errMsg = "cannot be called from an embedded script.";
+        errMsg = SIM_ERROR_INVALID_TARGET;
     return errMsg;
 }
 
 std::string _method_loadSceneFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation) && (currentScript->getScriptType() != sim_scripttype_customization)))
+    if (targetObj == sim_handle_app)
     {
-        if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_bool | arg_optional}))
+        if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation) && (currentScript->getScriptType() != sim_scripttype_customization)))
         {
-            std::vector<char> buff;
-            fetchBuffer(inStack, 0, buff);
-            bool createNewScene = fetchBool(inStack, 1, false);
-            if (App::scene->simulation->isSimulationStopped())
+            if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_bool | arg_optional}))
             {
-                if (createNewScene)
-                    CFileOperations::createNewScene(true);
-                CFileOperations::loadScene(nullptr, false, &buff, nullptr, &errMsg);
-            }
-            else
-                errMsg = SIM_ERROR_SIMULATION_NOT_STOPPED;
-        }
-    }
-    else
-        errMsg = "cannot be called from an embedded script.";
-    return errMsg;
-}
-
-std::string _method_saveScene(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    std::string errMsg;
-    if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation)))
-    {
-        if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
-        {
-            std::string path = fetchText(inStack, 0);
-            if (App::scene->simulation->isSimulationStopped())
-            {
-                if (!App::scene->environment->getSceneLocked())
+                std::vector<char> buff;
+                fetchBuffer(inStack, 0, buff);
+                bool createNewScene = fetchBool(inStack, 1, false);
+                if (App::scene->simulation->isSimulationStopped())
                 {
-                    if (App::scene->environment->getRequestFinalSave())
-                        App::scene->environment->setSceneLocked(); // silent locking!
-                    if (CFileOperations::saveScene(path.c_str(), false, false, nullptr, nullptr, &errMsg))
-                    {
-#ifdef SIM_WITH_GUI
-                        GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
-#endif
-                        App::scene->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
-                    }
+                    if (createNewScene)
+                        CFileOperations::createNewScene(true);
+                    CFileOperations::loadScene(nullptr, false, &buff, nullptr, &errMsg);
                 }
                 else
-                    errMsg = SIM_ERROR_SCENE_LOCKED;
+                    errMsg = SIM_ERROR_SIMULATION_NOT_STOPPED;
             }
-            else
-                errMsg = SIM_ERROR_SIMULATION_NOT_STOPPED;
         }
+        else
+            errMsg = "cannot be called from an embedded script.";
     }
     else
-        errMsg = "cannot be called from a simulation script.";
+        errMsg = SIM_ERROR_INVALID_TARGET;
     return errMsg;
 }
 
-std::string _method_saveSceneToBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_save(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation)))
+    if (targetObj == sim_handle_scene)
     {
-        if (checkInputArguments(method, inStack, &errMsg, {}))
+        if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation)))
         {
-            if (App::scene->simulation->isSimulationStopped())
+            if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
             {
-                if (!App::scene->environment->getSceneLocked())
+                std::string path = fetchText(inStack, 0);
+                if (App::scene->simulation->isSimulationStopped())
                 {
-                    std::vector<char> buffer;
-                    std::string infoStr;
-                    if (CFileOperations::saveScene(nullptr, false, false, &buffer, &infoStr, &errMsg))
+                    if (!App::scene->environment->getSceneLocked())
                     {
+                        if (App::scene->environment->getRequestFinalSave())
+                            App::scene->environment->setSceneLocked(); // silent locking!
+                        if (CFileOperations::saveScene(path.c_str(), false, false, nullptr, nullptr, &errMsg))
+                        {
 #ifdef SIM_WITH_GUI
-                        GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
+                            GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
 #endif
-                        setLastInfo(infoStr.c_str());
-                        pushBuffer(outStack, buffer.data(), buffer.size());
+                            App::scene->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
+                        }
                     }
                     else
-                        setLastInfo(infoStr.c_str());
+                        errMsg = SIM_ERROR_SCENE_LOCKED;
                 }
                 else
-                    errMsg = SIM_ERROR_SCENE_LOCKED;
+                    errMsg = SIM_ERROR_SIMULATION_NOT_STOPPED;
             }
-            else
-                errMsg = SIM_ERROR_SIMULATION_NOT_STOPPED;
         }
+        else
+            errMsg = "cannot be called from a simulation script.";
     }
     else
-        errMsg = "cannot be called from a simulation script.";
+        errMsg = SIM_ERROR_INVALID_TARGET;
+    return errMsg;
+}
+
+std::string _method_saveToBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (targetObj == sim_handle_scene)
+    {
+        if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation)))
+        {
+            if (checkInputArguments(method, inStack, &errMsg, {}))
+            {
+                if (App::scene->simulation->isSimulationStopped())
+                {
+                    if (!App::scene->environment->getSceneLocked())
+                    {
+                        std::vector<char> buffer;
+                        std::string infoStr;
+                        if (CFileOperations::saveScene(nullptr, false, false, &buffer, &infoStr, &errMsg))
+                        {
+#ifdef SIM_WITH_GUI
+                            GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
+#endif
+                            setLastInfo(infoStr.c_str());
+                            pushBuffer(outStack, buffer.data(), buffer.size());
+                        }
+                        else
+                            setLastInfo(infoStr.c_str());
+                    }
+                    else
+                        errMsg = SIM_ERROR_SCENE_LOCKED;
+                }
+                else
+                    errMsg = SIM_ERROR_SIMULATION_NOT_STOPPED;
+            }
+        }
+        else
+            errMsg = "cannot be called from a simulation script.";
+    }
+    else
+        errMsg = SIM_ERROR_INVALID_TARGET;
     return errMsg;
 }
 
@@ -2142,55 +2190,70 @@ std::string _method_remove(int targetObj, const char* method, CDetachedScript* c
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
     {
-        bool delayed = false;
-        bool noError = false;
-        if (hasNonNullArg(inStack, 0))
+        if (targetObj == sim_handle_scene)
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
-            map->fetchBoolFromKey("delayed", delayed, &errMsg);
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
-        if (errMsg.size() == 0)
-        {
-            CSceneObject* sceneObj = getSceneObject(targetObj, method);
-            CCollection* coll = getCollection(targetObj, method);
-            CDrawingObject* draw = getDrawingObject(targetObj, method);
-            CDetachedScript* script = getDetachedScript(targetObj, method);
-            if (sceneObj != nullptr)
+            if ((currentScript == nullptr) || (currentScript->getScriptType() == sim_scripttype_addon) || (currentScript->getScriptType() == sim_scripttype_sandbox))
             {
-                std::vector<int> sel;
-                sel.push_back(targetObj);
-                App::scene->sceneObjects->eraseObjects(&sel, true, delayed);
-            }
-            else if (coll != nullptr)
-                App::scene->collections->removeCollection(targetObj);
-            else if (draw != nullptr)
-                App::scene->drawingCont->removeObject(targetObj);
-            else if (script != nullptr)
-            {
-                if (!App::scenes->addOnScriptContainer->removeAddOn(targetObj))
-                    errMsg = SIM_ERROR_INVALID_SCRIPT_TYPE_OR_DOES_NOT_EXIST;
+                if (App::scene->simulation->isSimulationStopped())
+                    CFileOperations::closeScene();
+                else
+                    errMsg = SIM_ERROR_SIMULATION_NOT_STOPPED;
             }
             else
+                errMsg = "cannot be called from the current script type.";
+        }
+        else
+        {
+            bool delayed = false;
+            bool noError = false;
+            if (hasNonNullArg(inStack, 0))
             {
-                CustomObject* customObj = App::scenes->customObjects->getObject(targetObj);
-                CustomObject* customClass = App::scenes->customObjects->getClass(targetObj);
-                if (customObj != nullptr)
-                    App::scenes->customObjects->removeObject(targetObj);
-                else if (customClass != nullptr)
-                    App::scenes->customObjects->removeClass(targetObj);
+                CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+                map->fetchBoolFromKey("delayed", delayed, &errMsg);
+                map->fetchBoolFromKey("noError", noError, &errMsg);
+            }
+            if (errMsg.size() == 0)
+            {
+                CSceneObject* sceneObj = getSceneObject(targetObj, method);
+                CCollection* coll = getCollection(targetObj, method);
+                CDrawingObject* draw = getDrawingObject(targetObj, method);
+                CDetachedScript* script = getDetachedScript(targetObj, method);
+                if (sceneObj != nullptr)
+                {
+                    std::vector<int> sel;
+                    sel.push_back(targetObj);
+                    App::scene->sceneObjects->eraseObjects(&sel, true, delayed);
+                }
+                else if (coll != nullptr)
+                    App::scene->collections->removeCollection(targetObj);
+                else if (draw != nullptr)
+                    App::scene->drawingCont->removeObject(targetObj);
+                else if (script != nullptr)
+                {
+                    if (!App::scenes->addOnScriptContainer->removeAddOn(targetObj))
+                        errMsg = SIM_ERROR_INVALID_SCRIPT_TYPE_OR_DOES_NOT_EXIST;
+                }
                 else
                 {
-                    customObj = App::scene->customObjects->getObject(targetObj);
+                    CustomObject* customObj = App::scenes->customObjects->getObject(targetObj);
+                    CustomObject* customClass = App::scenes->customObjects->getClass(targetObj);
                     if (customObj != nullptr)
-                        App::scene->customObjects->removeObject(targetObj);
+                        App::scenes->customObjects->removeObject(targetObj);
+                    else if (customClass != nullptr)
+                        App::scenes->customObjects->removeClass(targetObj);
                     else
                     {
-                        CSceneObject* customSceneObjectClass = App::scenes->customSceneObjectClasses->getClass(targetObj);
-                        if (customSceneObjectClass != nullptr)
-                            App::scenes->customSceneObjectClasses->removeClass(targetObj);
-                        else if (!noError)
-                            errMsg = "object does not exist or cannot be removed.";
+                        customObj = App::scene->customObjects->getObject(targetObj);
+                        if (customObj != nullptr)
+                            App::scene->customObjects->removeObject(targetObj);
+                        else
+                        {
+                            CSceneObject* customSceneObjectClass = App::scenes->customSceneObjectClasses->getClass(targetObj);
+                            if (customSceneObjectClass != nullptr)
+                                App::scenes->customSceneObjectClasses->removeClass(targetObj);
+                            else if (!noError)
+                                errMsg = "object does not exist or cannot be removed.";
+                        }
                     }
                 }
             }

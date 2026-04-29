@@ -635,15 +635,13 @@ void CScene::saveScene(CSer& ar, bool regularSave /*= true*/)
     App::scenes->interfaceStackContainer->destroyStack(stackForSaveCallback);
 }
 
-bool CScene::loadModel(CSer& ar, bool justLoadThumbnail, bool forceModelAsCopy, C7Vector* optionalModelTr,
-                       C3Vector* optionalModelBoundingBoxSize, double* optionalModelNonDefaultTranslationStepSize)
+bool CScene::loadModel(CSer& ar, bool justLoadThumbnail, bool forceModelAsCopy, C7Vector* optionalModelTr, C3Vector* optionalModelBoundingBoxSize, double* optionalModelNonDefaultTranslationStepSize)
 {
     bool retVal;
     if (ar.getFileType() == CSer::filetype_csim_xml_simplemodel_file)
         retVal = _loadSimpleXmlSceneOrModel(ar);
     else
-        retVal = _loadModelOrScene(ar, true, false, justLoadThumbnail, forceModelAsCopy, optionalModelTr,
-                                   optionalModelBoundingBoxSize, optionalModelNonDefaultTranslationStepSize);
+        retVal = _loadModelOrScene(ar, true, false, justLoadThumbnail, forceModelAsCopy, optionalModelTr, optionalModelBoundingBoxSize, optionalModelNonDefaultTranslationStepSize);
     if (!justLoadThumbnail)
     {
         App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(
@@ -654,7 +652,7 @@ bool CScene::loadModel(CSer& ar, bool justLoadThumbnail, bool forceModelAsCopy, 
         outsideCommandQueue_old->addCommand(sim_message_model_loaded, 0, 0, 0, 0, nullptr, 0); // only for Lua
         App::scenes->setModificationFlag(4);                                           // model loaded
     }
-    return (retVal);
+    return retVal;
 }
 
 void CScene::instancePass()
@@ -846,7 +844,7 @@ void CScene::simulationEnded(bool removeNewObjects)
     }
 }
 
-void CScene::addGeneralObjectsToSceneAndPerformMappings(
+int CScene::addGeneralObjectsToSceneAndPerformMappings(
     std::vector<CSceneObject*>* loadedObjectList, std::vector<CCollection*>* loadedCollectionList,
     std::vector<CCollisionObject_old*>* loadedCollisionList, std::vector<CDistanceObject_old*>* loadedDistanceList,
     std::vector<CIkGroup_old*>* loadedIkGroupList, std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
@@ -856,6 +854,7 @@ void CScene::addGeneralObjectsToSceneAndPerformMappings(
     bool forceModelAsCopy)
 {
     TRACE_INTERNAL;
+    int retVal = -1; // model base is returned, if we have a model load operation
     // We check what suffix offset is needed for this model (in case of a scene, the offset is ignored since we won't
     // introduce the objects as copies!):
     int suffixOffset = _getSuffixOffsetForGeneralObjectToAdd(
@@ -866,8 +865,7 @@ void CScene::addGeneralObjectsToSceneAndPerformMappings(
     // We add objects to the scene as copies only if we also add at least one associated script and we don't have a
     // scene. Otherwise objects are added and no '#' (or no modified suffix) will appear in their names. Following line
     // summarizes this:
-    bool objectIsACopy =
-        (((loadedLuaScriptList->size() != 0) || forceModelAsCopy) && model); // scenes are not treated like copies!
+    bool objectIsACopy = (((loadedLuaScriptList->size() != 0) || forceModelAsCopy) && model); // scenes are not treated like copies!
 
     // Texture data:
     std::map<int, int> textureMapping;
@@ -1104,8 +1102,7 @@ void CScene::addGeneralObjectsToSceneAndPerformMappings(
 
         // Here we call the initializeInitialValues for all pages & views
         for (size_t i = 0; i < loadedObjectList->size(); i++)
-            pageContainer->initializeInitialValues(simulationAlreadyRunning,
-                                                   loadedObjectList->at(i)->getObjectHandle());
+            pageContainer->initializeInitialValues(simulationAlreadyRunning, loadedObjectList->at(i)->getObjectHandle());
     }
     //**************************************************************************************
 
@@ -1164,8 +1161,13 @@ void CScene::addGeneralObjectsToSceneAndPerformMappings(
     if (model)
     {
         for (size_t i = 0; i < loadedObjectList->size(); i++)
+        {
+            if (loadedObjectList->at(i)->getParent() == nullptr)
+                retVal = loadedObjectList->at(i)->getObjectHandle(); // model base
             sceneObjects->addObjectToSelection(loadedObjectList->at(i)->getObjectHandle());
+        }
     }
+    return retVal;
 }
 
 void CScene::cleanupHashNames_allObjects(int suffix)
@@ -1315,9 +1317,7 @@ void CScene::announce2DElementButtonWillBeErased(int elementID, int buttonID)
 }
 // -----------
 
-bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool justLoadThumbnail, bool forceModelAsCopy,
-                               C7Vector* optionalModelTr, C3Vector* optionalModelBoundingBoxSize,
-                               double* optionalModelNonDefaultTranslationStepSize)
+bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool justLoadThumbnail, bool forceModelAsCopy, C7Vector* optionalModelTr, C3Vector* optionalModelBoundingBoxSize, double* optionalModelNonDefaultTranslationStepSize)
 {
     appendLoadOperationIssue(-1, nullptr, -1); // clear
 

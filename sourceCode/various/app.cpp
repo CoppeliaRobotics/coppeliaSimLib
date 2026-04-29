@@ -2186,47 +2186,47 @@ int App::setStringProperty_t(long long int target, const char* ppName, const std
                 setStartupScriptString(pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg1.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg1.name) == 0)
             {
                 setApplicationArgument(0, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg2.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg2.name) == 0)
             {
                 setApplicationArgument(1, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg3.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg3.name) == 0)
             {
                 setApplicationArgument(2, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg4.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg4.name) == 0)
             {
                 setApplicationArgument(3, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg5.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg5.name) == 0)
             {
                 setApplicationArgument(4, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg6.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg6.name) == 0)
             {
                 setApplicationArgument(5, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg7.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg7.name) == 0)
             {
                 setApplicationArgument(6, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg8.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg8.name) == 0)
             {
                 setApplicationArgument(7, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg9.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg9.name) == 0)
             {
                 setApplicationArgument(8, pState.c_str());
                 retVal = sim_propertyret_ok;
@@ -2432,47 +2432,47 @@ int App::getStringProperty_t(long long int target, const char* ppName, std::stri
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg1.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg1.name) == 0)
             {
                 pState = getApplicationArgument(0);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg2.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg2.name) == 0)
             {
                 pState = getApplicationArgument(1);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg3.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg3.name) == 0)
             {
                 pState = getApplicationArgument(2);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg4.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg4.name) == 0)
             {
                 pState = getApplicationArgument(3);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg5.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg5.name) == 0)
             {
                 pState = getApplicationArgument(4);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg6.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg6.name) == 0)
             {
                 pState = getApplicationArgument(5);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg7.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg7.name) == 0)
             {
                 pState = getApplicationArgument(6);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg8.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg8.name) == 0)
             {
                 pState = getApplicationArgument(7);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appArg9.name) == 0)
+            else if (strcmp(pName, propApp_DEPRECATED_appArg9.name) == 0)
             {
                 pState = getApplicationArgument(8);
                 retVal = sim_propertyret_ok;
@@ -4232,15 +4232,15 @@ void App::pushGenesisEvents()
         ev->appendKeyBool(propApp_hierarchyEnabled.name, getHierarchyEnabled());
         ev->appendKeyBool(propApp_displayEnabled.name, getOpenGlDisplayEnabled());
         ev->appendKeyInt64(propApp_headlessMode.name, getHeadlessMode());
-        ev->appendKeyText(propApp_appArg1.name, getApplicationArgument(0).c_str());
-        ev->appendKeyText(propApp_appArg2.name, getApplicationArgument(1).c_str());
-        ev->appendKeyText(propApp_appArg3.name, getApplicationArgument(2).c_str());
-        ev->appendKeyText(propApp_appArg4.name, getApplicationArgument(3).c_str());
-        ev->appendKeyText(propApp_appArg5.name, getApplicationArgument(4).c_str());
-        ev->appendKeyText(propApp_appArg6.name, getApplicationArgument(5).c_str());
-        ev->appendKeyText(propApp_appArg7.name, getApplicationArgument(6).c_str());
-        ev->appendKeyText(propApp_appArg8.name, getApplicationArgument(7).c_str());
-        ev->appendKeyText(propApp_appArg9.name, getApplicationArgument(8).c_str());
+        ev->appendKeyText(propApp_DEPRECATED_appArg1.name, getApplicationArgument(0).c_str());
+        ev->appendKeyText(propApp_DEPRECATED_appArg2.name, getApplicationArgument(1).c_str());
+        ev->appendKeyText(propApp_DEPRECATED_appArg3.name, getApplicationArgument(2).c_str());
+        ev->appendKeyText(propApp_DEPRECATED_appArg4.name, getApplicationArgument(3).c_str());
+        ev->appendKeyText(propApp_DEPRECATED_appArg5.name, getApplicationArgument(4).c_str());
+        ev->appendKeyText(propApp_DEPRECATED_appArg6.name, getApplicationArgument(5).c_str());
+        ev->appendKeyText(propApp_DEPRECATED_appArg7.name, getApplicationArgument(6).c_str());
+        ev->appendKeyText(propApp_DEPRECATED_appArg8.name, getApplicationArgument(7).c_str());
+        ev->appendKeyText(propApp_DEPRECATED_appArg9.name, getApplicationArgument(8).c_str());
         ev->appendKeyInt64(propApp_pid.name, pid);
 
         if (userSettings != nullptr)

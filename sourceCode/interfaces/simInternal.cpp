@@ -2570,7 +2570,7 @@ int simSetHandleArrayProperty_internal(long long int target, const char* ppName,
                         retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(long long int));
                     else
                     {
-                        std::vector<long long int> pState;
+                        std::vector<long long int> pState(v, v + vL);;
                         retVal = App::setHandleArrayProperty_t(target, pName.c_str(), pState);
                         if (retVal != sim_propertyret_ok)
                         {
