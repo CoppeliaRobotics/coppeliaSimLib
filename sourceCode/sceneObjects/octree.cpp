@@ -224,7 +224,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
         {
             if (App::getEventProtocolVersion() == 3)
             {
-                const char* cmd = propOctree_DEPRECATED_voxels.name;
+                const char* cmd = "voxels";
                 if (evv == nullptr)
                     ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
                 ev->appendKeyDoubleArray(cmd, _voxelPositions.data(), _voxelPositions.size());
@@ -1538,7 +1538,7 @@ int COcTree::getFloatArrayProperty(const char* ppName, std::vector<double>& pSta
     int retVal = CSceneObject::getFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if ((_pName == propOctree_DEPRECATED_voxels.name) || (_pName == propOctree_points.name))
+        if (_pName == propOctree_points.name)
         {
             retVal = sim_propertyret_ok;
             pState.assign(_voxelPositions.begin(), _voxelPositions.end());
@@ -1609,7 +1609,7 @@ int COcTree::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
         if (retVal != sim_propertyret_unknownproperty)
         {
             std::string _pName(ppName);
-            if ((_pName == propOctree_DEPRECATED_voxels.name) || (_pName == propOctree_points.name))
+            if (_pName == propOctree_points.name)
             {
                 if (_voxelPositions.size() > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;

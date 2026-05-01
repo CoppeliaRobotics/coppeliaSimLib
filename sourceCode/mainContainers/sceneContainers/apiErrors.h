@@ -199,8 +199,14 @@ class CApiErrors
     virtual ~CApiErrors();
 
     static void setLastError(const char* functionName, const char* errMsg);
+    static void setLastErrorRaw(const char* errMsg);
     static std::string getAndClearLastError();
+
+    static void setLastWarning(const char* functionName, const char* warnMsg);
+    static void setLastWarningRaw(const char* warnMsg);
+    static std::string getAndClearLastWarning();
 
   private:
     static std::string _lastError;
+    static std::string _lastWarning;
 };

@@ -3152,7 +3152,9 @@ void CDetachedScript::_hookFunction_lua(void* LL, void* arr)
 
 void CDetachedScript::buildFromInterpreterStack_lua(void* LL, CInterfaceStack* stack, int fromPos, int cnt)
 { // fromPos: 1-n, cnt==0 --> all
-    // !! LL is not the same for a script when in normal or inside a coroutine !!
+    // reading/writing from/to Lua stack can trigger subtle (recursive) calls, back into Lua/CoppeliaSim API, so cache those 2:
+    std::string err(CApiErrors::getAndClearLastError());
+    std::string warn(CApiErrors::getAndClearLastWarning());
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     stack->clear();
     if (cnt >= 0)
@@ -3169,10 +3171,15 @@ void CDetachedScript::buildFromInterpreterStack_lua(void* LL, CInterfaceStack* s
             stack->pushObjectOntoStack(obj);
         }
     }
+    CApiErrors::setLastErrorRaw(err.c_str());
+    CApiErrors::setLastWarningRaw(warn.c_str());
 }
 
 size_t CDetachedScript::buildOntoInterpreterStack_lua(void* LL, const CInterfaceStack* stack, bool takeOnlyTop, bool interlaceWithTypeInfo /*= false*/)
 { // !! LL is not the same for a script when in normal or inside a coroutine !!
+    // reading/writing from/to Lua stack can trigger subtle (recursive) calls, back into Lua/CoppeliaSim API, so cache those 2:
+    std::string err(CApiErrors::getAndClearLastError());
+    std::string warn(CApiErrors::getAndClearLastWarning());
     size_t retVal = 0;
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     if (takeOnlyTop)
@@ -3207,6 +3214,8 @@ size_t CDetachedScript::buildOntoInterpreterStack_lua(void* LL, const CInterface
     }
     if (interlaceWithTypeInfo)
         retVal *= 2;
+    CApiErrors::setLastErrorRaw(err.c_str());
+    CApiErrors::setLastWarningRaw(warn.c_str());
     return retVal;
 }
 

@@ -47,6 +47,8 @@
 #define LUA_END(p) \
     do \
     { \
+        if (warningString.empty()) \
+            warningString = CApiErrors::getAndClearLastWarning(); \
         _reportWarningsIfNeeded(L, functionName.c_str(), warningString.c_str()); \
         CApiErrors::getAndClearLastError(); \
         return p; \
@@ -57,6 +59,7 @@ typedef int (*_ccallback_t)(int);
 std::string _LUA_START(luaWrap_lua_State* L, const char* funcName, int& argOffset)
 {
     CApiErrors::getAndClearLastError();
+    CApiErrors::getAndClearLastWarning();
     luaWrap_lua_getglobal(L, PROXY_FUNC_NAME_STR);
     std::string functionName(funcName);
     if (luaWrap_lua_isstring(L, -1))
@@ -94,8 +97,7 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L, const char* functionName, con
 {
     if (strlen(warningString) > 0)
     {
-        CDetachedScript* it =
-            App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
         if (it != nullptr)
         {
             int verb = sim_verbosity_scriptwarnings;
@@ -107,7 +109,14 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L, const char* functionName, con
             msg += functionName;
             msg += "' ";
             msg += warningString;
-            App::logScriptMsg(it, verb, msg.c_str());
+            size_t p = msg.find("__once__");
+            if (p != std::string::npos)
+            {
+                msg.erase(p, 8);
+                App::logScriptMsg(it, verb | sim_verbosity_once, msg.c_str());
+            }
+            else
+                App::logScriptMsg(it, verb, msg.c_str());
         }
     }
 }
@@ -759,10 +768,13 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.objecttype_sceneobject", sim_objecttype_sceneobject},
     {"sim.objecttype_collection", sim_objecttype_collection},
     {"sim.objecttype_script", sim_objecttype_script},
+    {"sim.objecttype_detachedscript", sim_objecttype_detachedscript},
     {"sim.objecttype_texture", sim_objecttype_texture},
     {"sim.objecttype_mesh", sim_objecttype_mesh},
     {"sim.objecttype_interfacestack", sim_objecttype_interfacestack},
-
+    {"sim.objecttype_customobject", sim_objecttype_customobject},
+    {"sim.objecttype_app", sim_objecttype_app},
+    {"sim.objecttype_scene", sim_objecttype_scene},
     // Simulation messages:
     {"sim.message_model_loaded", sim_message_model_loaded},
     {"sim.message_scene_loaded", sim_message_scene_loaded},

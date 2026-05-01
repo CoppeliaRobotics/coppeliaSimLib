@@ -1218,16 +1218,6 @@ int CForceSensor::getVector3Property(const char* ppName, C3Vector& pState) const
     int retVal = CSceneObject::getVector3Property(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propForceSensor_DEPRECATED_sensorAverageForce.name)
-        {
-            pState = _filteredDynamicForces;
-            retVal = sim_propertyret_ok;
-        }
-        else if (_pName == propForceSensor_DEPRECATED_sensorAverageTorque.name)
-        {
-            pState = _filteredDynamicTorques;
-            retVal = sim_propertyret_ok;
-        }
         if (_pName == propForceSensor_filteredSensorForce.name)
         {
             pState = _filteredDynamicForces;

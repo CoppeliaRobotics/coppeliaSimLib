@@ -278,10 +278,12 @@ void CDummy::addObjectEventData(CCbor* ev)
         _dummyColor.addGenesisEventData(ev);
     ev->appendKeyDouble(propDummy_size.name, _dummySize);
     if (App::getEventProtocolVersion() <= 3)
+    {
+        ev->appendKeyInt64(propDummy_DEPRECATED_linkedDummyHandle.name, _linkedDummyHandle); // for backw. compatibility
         ev->appendKeyInt64(propDummy_linkedDummy.name, _linkedDummyHandle);
+    }
     else
         ev->appendKeyHandle(propDummy_linkedDummy.name, _linkedDummyHandle);
-    ev->appendKeyInt64(propDummy_DEPRECATED_linkedDummyHandle.name, _linkedDummyHandle); // for backw. compatibility
     ev->appendKeyInt64(propDummy_dummyType.name, _linkType);
     ev->appendKeyText(propDummy_assemblyTag.name, _assemblyTag.c_str());
 
@@ -930,16 +932,13 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
             const char* cmd = propDummy_linkedDummy.name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
+            {
                 ev->appendKeyInt64(cmd, _linkedDummyHandle);
+                ev->appendKeyInt64(propDummy_DEPRECATED_linkedDummyHandle.name, _linkedDummyHandle);
+            }
             else
                 ev->appendKeyHandle(cmd, _linkedDummyHandle);
             App::scenes->pushEvent();
-            // --- for backw. compatibility ---
-            cmd = propDummy_DEPRECATED_linkedDummyHandle.name;
-            ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt64(cmd, _linkedDummyHandle);
-            App::scenes->pushEvent();
-            // -----------------------------
         }
         _reflectPropToLinkedDummy();
         _setLinkedDummyHandle_sendOldIk(_linkedDummyHandle);

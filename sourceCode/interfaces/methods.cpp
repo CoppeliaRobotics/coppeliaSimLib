@@ -95,9 +95,9 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["init"] = _method_init;
         funcTable["scale"] = _method_scale;
         funcTable["scaleTree"] = _method_scaleTree;
-        funcTable["startSimulation"] = _method_startSimulation;
-        funcTable["pauseSimulation"] = _method_pauseSimulation;
-        funcTable["stopSimulation"] = _method_stopSimulation;
+        funcTable["simulation.start"] = _method_startSimulation;
+        funcTable["simulation.pause"] = _method_pauseSimulation;
+        funcTable["simulation.stop"] = _method_stopSimulation;
         funcTable["getName"] = _method_getName;
         funcTable["dynamicReset"] = _method_dynamicReset;
         funcTable["loadImage"] = _method_loadImage;
