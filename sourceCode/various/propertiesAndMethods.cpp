@@ -345,7 +345,12 @@ static std::string jsonStr(const QJsonObject& obj)
 #undef FUNCX
 // ----------------------------------------------------------------------------------------------
 
-const std::map<std::string, SDeprecatedProperty> propDeprecationMapping = {
+struct SDeprecatedPropertyItems {
+    std::string repl;
+    int type;
+};
+
+const std::map<std::string, SDeprecatedPropertyItems> tmpMap = {
     {propApp_DEPRECATED_appArg1.name,                                   {std::string(propApp_appArgs.name) + "__noReplace__", sim_objecttype_app}},
     {propApp_DEPRECATED_appArg2.name,                                   {std::string(propApp_appArgs.name) + "__noReplace__", sim_objecttype_app}},
     {propApp_DEPRECATED_appArg3.name,                                   {std::string(propApp_appArgs.name) + "__noReplace__", sim_objecttype_app}},
@@ -617,3 +622,20 @@ const std::map<std::string, SDeprecatedProperty> propDeprecationMapping = {
     {propConvexVolume_DEPRECATED_edges.name,                            {propConvexVolume_edges.name, sim_sceneobject_proximitysensor}},
     {propConvexVolume_DEPRECATED_closeEdges.name,                       {propConvexVolume_closeEdges.name, sim_sceneobject_proximitysensor}},
 };
+
+const std::map<std::string, SDeprecatedProperty> propDeprecationMapping = []() {
+    std::map<std::string, SDeprecatedProperty> result;
+    for (const auto& [key, item] : tmpMap)
+    {
+        auto it = result.find(key);
+        if (it != result.end())
+        {
+            auto& types = it->second.types;
+            if (std::find(types.begin(), types.end(), item.type) == types.end())
+                types.push_back(item.type);
+        }
+        else
+            result[key] = {item.repl, {item.type}};
+    }
+    return result;
+}();

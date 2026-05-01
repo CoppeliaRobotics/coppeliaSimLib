@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <map>
 
 struct SProperty {
@@ -90,6 +91,8 @@ struct SJointProperty
 #define proptypetag_handle "&han&."
 #define proptypetag_handlearray "&hanvect&."
 #define proptypetag_stringarray "&strvect&."
+
+#define SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE (sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude)
 
 #define OBJECT_PROPERTIES \
     FUNCX(propObject_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, jsonStr({{"label", "Object type"}, {"description", ""}}), "") \
@@ -265,15 +268,15 @@ struct SJointProperty
     FUNCX(propApp_METHOD_createCustomObjectClass, "createCustomObjectClass", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_quit, "quit", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propApp_DEPRECATED_appArg1, "appArg1", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 1"}, {"description", ""}}), "") \
-    FUNCX(propApp_DEPRECATED_appArg2, "appArg2", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 2"}, {"description", ""}}), "") \
-    FUNCX(propApp_DEPRECATED_appArg3, "appArg3", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 3"}, {"description", ""}}), "") \
-    FUNCX(propApp_DEPRECATED_appArg4, "appArg4", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 4"}, {"description", ""}}), "") \
-    FUNCX(propApp_DEPRECATED_appArg5, "appArg5", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 5"}, {"description", ""}}), "") \
-    FUNCX(propApp_DEPRECATED_appArg6, "appArg6", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 6"}, {"description", ""}}), "") \
-    FUNCX(propApp_DEPRECATED_appArg7, "appArg7", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 7"}, {"description", ""}}), "") \
-    FUNCX(propApp_DEPRECATED_appArg8, "appArg8", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 8"}, {"description", ""}}), "") \
-    FUNCX(propApp_DEPRECATED_appArg9, "appArg9", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 9"}, {"description", ""}}), "")
+    FUNCX(propApp_DEPRECATED_appArg1, "appArg1", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 1"}, {"description", ""}}), "") \
+    FUNCX(propApp_DEPRECATED_appArg2, "appArg2", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 2"}, {"description", ""}}), "") \
+    FUNCX(propApp_DEPRECATED_appArg3, "appArg3", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 3"}, {"description", ""}}), "") \
+    FUNCX(propApp_DEPRECATED_appArg4, "appArg4", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 4"}, {"description", ""}}), "") \
+    FUNCX(propApp_DEPRECATED_appArg5, "appArg5", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 5"}, {"description", ""}}), "") \
+    FUNCX(propApp_DEPRECATED_appArg6, "appArg6", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 6"}, {"description", ""}}), "") \
+    FUNCX(propApp_DEPRECATED_appArg7, "appArg7", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 7"}, {"description", ""}}), "") \
+    FUNCX(propApp_DEPRECATED_appArg8, "appArg8", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 8"}, {"description", ""}}), "") \
+    FUNCX(propApp_DEPRECATED_appArg9, "appArg9", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 9"}, {"description", ""}}), "")
 
 #define CUSTOMOBJECTCLASS_PROPERTIES \
     FUNCX(propCustomObjectClass_METHOD_makeOject, "makeObject", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
@@ -312,9 +315,9 @@ struct SJointProperty
     FUNCX(propDetachedScript_METHOD_wait, "wait", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propDetachedScript_METHOD_init, "init", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propDetachedScript_DEPRECATED_scriptType, "scriptType", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  jsonStr({{"", ""}, {"", ""}}), "") \
-    FUNCX(propDetachedScript_DEPRECATED_scriptDisabled, "scriptDisabled", sim_propertytype_bool, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  jsonStr({{"", ""}, {"", ""}}), "") \
-    FUNCX(propDetachedScript_DEPRECATED_scriptState, "scriptState", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"", ""}, {"", ""}}), "")
+    FUNCX(propDetachedScript_DEPRECATED_scriptType, "scriptType", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"", ""}, {"", ""}}), "") \
+    FUNCX(propDetachedScript_DEPRECATED_scriptDisabled, "scriptDisabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE,  jsonStr({{"", ""}, {"", ""}}), "") \
+    FUNCX(propDetachedScript_DEPRECATED_scriptState, "scriptState", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable,  jsonStr({{"", ""}, {"", ""}}), "")
 
 #define STACK_PROPERTIES \
     FUNCX(propStack_content, "content", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Content"}, {"description", ""}}), "")
@@ -358,16 +361,16 @@ struct SJointProperty
     FUNCX(propConvexVolume_edges, "volume.edges", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Volume edges"}, {"description", "List of segments (defined by pairs of end-point coordinates) visualizing the volume"}}), "") \
     FUNCX(propConvexVolume_closeEdges, "volume.closeEdges", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Volume close edges"}, {"description", "List of segments (defined by pairs of end-point coordinates) visualizing the close threshold of the volume"}}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propConvexVolume_DEPRECATED_offset, "volume_offset", sim_propertytype_float, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  "", "") \
-    FUNCX(propConvexVolume_DEPRECATED_range, "volume_range", sim_propertytype_float, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  "", "") \
-    FUNCX(propConvexVolume_DEPRECATED_xSize, "volume_xSize", sim_propertytype_floatarray, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  "", "") \
-    FUNCX(propConvexVolume_DEPRECATED_ySize, "volume_ySize", sim_propertytype_floatarray, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  "", "") \
-    FUNCX(propConvexVolume_DEPRECATED_radius, "volume_radius", sim_propertytype_floatarray, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  "", "") \
-    FUNCX(propConvexVolume_DEPRECATED_angle, "volume_angle", sim_propertytype_floatarray, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  "", "") \
-    FUNCX(propConvexVolume_DEPRECATED_faces, "volume_faces", sim_propertytype_intarray, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  "", "") \
-    FUNCX(propConvexVolume_DEPRECATED_subdivisions, "volume_subdivisions", sim_propertytype_intarray, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  "", "") \
-    FUNCX(propConvexVolume_DEPRECATED_edges, "volume_edges", sim_propertytype_floatarray, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude | sim_propertyinfo_notwritable,  "", "") \
-    FUNCX(propConvexVolume_DEPRECATED_closeEdges, "volume_closeEdges", sim_propertytype_floatarray, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude | sim_propertyinfo_notwritable,  "", "")
+    FUNCX(propConvexVolume_DEPRECATED_offset, "volume_offset", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE,  "", "") \
+    FUNCX(propConvexVolume_DEPRECATED_range, "volume_range", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE,  "", "") \
+    FUNCX(propConvexVolume_DEPRECATED_xSize, "volume_xSize", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE,  "", "") \
+    FUNCX(propConvexVolume_DEPRECATED_ySize, "volume_ySize", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE,  "", "") \
+    FUNCX(propConvexVolume_DEPRECATED_radius, "volume_radius", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE,  "", "") \
+    FUNCX(propConvexVolume_DEPRECATED_angle, "volume_angle", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE,  "", "") \
+    FUNCX(propConvexVolume_DEPRECATED_faces, "volume_faces", sim_propertytype_intarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE,  "", "") \
+    FUNCX(propConvexVolume_DEPRECATED_subdivisions, "volume_subdivisions", sim_propertytype_intarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE,  "", "") \
+    FUNCX(propConvexVolume_DEPRECATED_edges, "volume_edges", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable,  "", "") \
+    FUNCX(propConvexVolume_DEPRECATED_closeEdges, "volume_closeEdges", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable,  "", "")
 
 #define DYNCONT_PROPERTIES \
     FUNCX(propDynCont_dynamicsEnabled, "dynamics.enabled", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dynamics enabled"}, {"description", ""}}), "") \
@@ -461,97 +464,97 @@ struct SJointProperty
     FUNCX(propDynCont_mujocoKinematicWeldSolref, "dynamics.mujoco.kinematicWeldSolref", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propDynCont_mujocoKinematicWeldSolimp, "dynamics.mujoco.kinematicWeldSolimp", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propDynCont_mujocoKinematicWeldTorqueScale, "dynamics.mujoco.kinematicWeldTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_dynamicsEnabled, "dynamicsEnabled", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dynamics enabled"}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_showContactPoints, "showContactPoints", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Show contact points"}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_dynamicsEngine, "dynamicsEngine", sim_propertytype_intarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dynamics engine"}, {"description", "Selected dynamics engine index and version"}}), "") \
-    FUNCX(propDynCont_DEPRECATED_dynamicsStepSize, "dynamicsStepSize", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dynamics dt"}, {"description", "Dynamics step size"}}), "") \
-    FUNCX(propDynCont_DEPRECATED_gravity, "gravity", sim_propertytype_vector3, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Gravity"}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_engineProperties, "engineProperties", sim_propertytype_string, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Engine properties"}, {"description", "Engine properties as JSON text"}}), "") \
-    FUNCX(propDynCont_DEPRECATED_bulletSolver, "bullet.solver", sim_propertytype_int, 0, sim_bullet_global_constraintsolvertype, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_bulletIterations, "bullet.iterations", sim_propertytype_int, 0, sim_bullet_global_constraintsolvingiterations, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_bulletComputeInertias, "bullet.computeInertias", sim_propertytype_bool, 0, sim_bullet_global_computeinertias, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_bulletInternalScalingFull, "bullet.internalScalingFull", sim_propertytype_bool, 0, sim_bullet_global_fullinternalscaling, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_bulletInternalScalingScaling, "bullet.internalScalingValue", sim_propertytype_float, 0, sim_bullet_global_internalscalingfactor, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_bulletCollMarginScaling, "bullet.collisionMarginScaling", sim_propertytype_float, 0, sim_bullet_global_collisionmarginfactor, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_odeQuickStepEnabled, "ode.quickStepEnabled", sim_propertytype_bool, 0, sim_ode_global_quickstep, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_odeQuickStepIterations, "ode.quickStepIterations", sim_propertytype_int, 0, sim_ode_global_constraintsolvingiterations, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_odeComputeInertias, "ode.computeInertias", sim_propertytype_bool, 0, sim_ode_global_computeinertias, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_odeInternalScalingFull, "ode.internalScalingFull", sim_propertytype_bool, 0, sim_ode_global_fullinternalscaling, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_odeInternalScalingScaling, "ode.internalScalingValue", sim_propertytype_float, 0, sim_ode_global_internalscalingfactor, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_odeGlobalErp, "ode.globalErp", sim_propertytype_float, 0, sim_ode_global_erp, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_odeGlobalCfm, "ode.globalCfm", sim_propertytype_float, 0, sim_ode_global_cfm, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_vortexComputeInertias, "vortex.computeInertias", sim_propertytype_bool, 0, sim_vortex_global_computeinertias, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_vortexContactTolerance, "vortex.contactTolerance", sim_propertytype_float, 0, sim_vortex_global_contacttolerance, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_vortexAutoSleep, "vortex.autoSleep", sim_propertytype_bool, 0, sim_vortex_global_autosleep, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_vortexMultithreading, "vortex.multithreading", sim_propertytype_bool, 0, sim_vortex_global_multithreading, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_vortexConstraintsLinearCompliance, "vortex.constraintsLinearCompliance", sim_propertytype_float, 0, sim_vortex_global_constraintlinearcompliance, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_vortexConstraintsLinearDamping, "vortex.constraintsLinearDamping", sim_propertytype_float, 0, sim_vortex_global_constraintlineardamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_vortexConstraintsLinearKineticLoss, "vortex.constraintsLinearKineticLoss", sim_propertytype_float, 0, sim_vortex_global_constraintlinearkineticloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_vortexConstraintsAngularCompliance, "vortex.constraintsAngularCompliance", sim_propertytype_float, 0, sim_vortex_global_constraintangularcompliance, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_vortexConstraintsAngularDamping, "vortex.constraintsAngularDamping", sim_propertytype_float, 0, sim_vortex_global_constraintangulardamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_vortexConstraintsAngularKineticLoss, "vortex.constraintsAngularKineticLoss", sim_propertytype_float, 0, sim_vortex_global_constraintangularkineticloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_newtonIterations, "newton.iterations", sim_propertytype_int, 0, sim_newton_global_constraintsolvingiterations, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_newtonComputeInertias, "newton.computeInertias", sim_propertytype_bool, 0, sim_newton_global_computeinertias, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_newtonMultithreading, "newton.multithreading", sim_propertytype_bool, 0, sim_newton_global_multithreading, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_newtonExactSolver, "newton.exactSolver", sim_propertytype_bool, 0, sim_newton_global_exactsolver, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_newtonHighJointAccuracy, "newton.highJointAccuracy", sim_propertytype_bool, 0, sim_newton_global_highjointaccuracy, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_newtonContactMergeTolerance, "newton.contactMergeTolerance", sim_propertytype_float, 0, sim_newton_global_contactmergetolerance, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoIntegrator, "mujoco.integrator", sim_propertytype_int, 0, sim_mujoco_global_integrator, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoSolver, "mujoco.solver", sim_propertytype_int, 0, sim_mujoco_global_solver, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoIterations, "mujoco.iterations", sim_propertytype_int, 0, sim_mujoco_global_iterations, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoRebuildTrigger, "mujoco.rebuildTrigger", sim_propertytype_int, 0, sim_mujoco_global_rebuildtrigger, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoComputeInertias, "mujoco.computeInertias", sim_propertytype_bool, 0, sim_mujoco_global_computeinertias, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoMbMemory, "mujoco.mbmemory", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoNjMax, "mujoco.njmax", sim_propertytype_int, 0, sim_mujoco_global_njmax, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", "Deprecated. See mujoco.mbmemory instead."}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoNconMax, "mujoco.nconmax", sim_propertytype_int, 0, sim_mujoco_global_nconmax, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", "Deprecated. See mujoco.mbmemory instead."}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoNstack, "mujoco.nstack", sim_propertytype_int, 0, sim_mujoco_global_nstack, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", "Deprecated. See mujoco.mbmemory instead."}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoCone, "mujoco.cone", sim_propertytype_int, 0, sim_mujoco_global_cone, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoKinematicBodiesOverrideFlags, "mujoco.kinematicBodiesOverrideFlags", sim_propertytype_int, 0, sim_mujoco_global_overridekin, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoKinematicBodiesMass, "mujoco.kinematicBodiesMass", sim_propertytype_float, 0, sim_mujoco_global_kinmass, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoKinematicBodiesInertia, "mujoco.kinematicBodiesInertia", sim_propertytype_float, 0, sim_mujoco_global_kininertia, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoBoundMass, "mujoco.boundMass", sim_propertytype_float, 0, sim_mujoco_global_boundmass, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoBoundInertia, "mujoco.boundInertia", sim_propertytype_float, 0, sim_mujoco_global_boundinertia, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoBalanceInertias, "mujoco.balanceInertias", sim_propertytype_bool, 0, sim_mujoco_global_balanceinertias, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoMultithreaded, "mujoco.multithreaded", sim_propertytype_bool, 0, sim_mujoco_global_multithreaded, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoMulticcd, "mujoco.multiccd", sim_propertytype_bool, 0, sim_mujoco_global_multiccd, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoContactParamsOverride, "mujoco.contactParamsOverride", sim_propertytype_bool, 0, sim_mujoco_global_overridecontacts, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoContactParamsMargin, "mujoco.contactParamsMargin", sim_propertytype_float, 0, sim_mujoco_global_overridemargin, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoContactParamsSolref, "mujoco.contactParamsSolref", sim_propertytype_floatarray, 0, sim_mujoco_global_overridesolref1, sim_mujoco_global_overridesolref2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoContactParamsSolimp, "mujoco.contactParamsSolimp", sim_propertytype_floatarray, 0, sim_mujoco_global_overridesolimp1, sim_mujoco_global_overridesolimp2, sim_mujoco_global_overridesolimp3, sim_mujoco_global_overridesolimp4, sim_mujoco_global_overridesolimp5,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoImpRatio, "mujoco.impratio", sim_propertytype_float, 0, sim_mujoco_global_impratio, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoWind, "mujoco.wind", sim_propertytype_vector3, 0, sim_mujoco_global_wind1, sim_mujoco_global_wind2, sim_mujoco_global_wind3, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoDensity, "mujoco.density", sim_propertytype_float, 0, sim_mujoco_global_density, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoViscosity, "mujoco.viscosity", sim_propertytype_float, 0, sim_mujoco_global_viscosity, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoJacobian, "mujoco.jacobian", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoTolerance, "mujoco.tolerance", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoLs_iterations, "mujoco.ls_iterations", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoLs_tolerance, "mujoco.ls_tolerance", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoNoslip_iterations, "mujoco.noslip_iterations", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoNoslip_tolerance, "mujoco.noslip_tolerance", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoCcd_iterations, "mujoco.ccd_iterations", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoCcd_tolerance, "mujoco.ccd_tolerance", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoSdf_iterations, "mujoco.sdf_iterations", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoSdf_initpoints, "mujoco.sdf_initpoints", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoEqualityEnable, "mujoco.equalityEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoFrictionlossEnable, "mujoco.frictionlossEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoLimitEnable, "mujoco.limitEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoContactEnable, "mujoco.contactEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoPassiveEnable, "mujoco.passiveEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoGravityEnable, "mujoco.gravityEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoWarmstartEnable, "mujoco.warmstartEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoActuationEnable, "mujoco.actuationEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoRefsafeEnable, "mujoco.refsafeEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoSensorEnable, "mujoco.sensorEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoMidphaseEnable, "mujoco.midphaseEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoEulerdampEnable, "mujoco.eulerdampEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoAutoresetEnable, "mujoco.autoresetEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoEnergyEnable, "mujoco.energyEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoInvdiscreteEnable, "mujoco.invdiscreteEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoNativeccdEnable, "mujoco.nativeccdEnable", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoAlignfree, "mujoco.alignfree", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoKinematicWeldSolref, "mujoco.kinematicWeldSolref", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoKinematicWeldSolimp, "mujoco.kinematicWeldSolimp", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDynCont_DEPRECATED_mujocoKinematicWeldTorqueScale, "mujoco.kinematicWeldTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "")
+    FUNCX(propDynCont_DEPRECATED_dynamicsEnabled, "dynamicsEnabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dynamics enabled"}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_showContactPoints, "showContactPoints", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", "Show contact points"}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_dynamicsEngine, "dynamicsEngine", sim_propertytype_intarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dynamics engine"}, {"description", "Selected dynamics engine index and version"}}), "") \
+    FUNCX(propDynCont_DEPRECATED_dynamicsStepSize, "dynamicsStepSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dynamics dt"}, {"description", "Dynamics step size"}}), "") \
+    FUNCX(propDynCont_DEPRECATED_gravity, "gravity", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", "Gravity"}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_engineProperties, "engineProperties", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", "Engine properties"}, {"description", "Engine properties as JSON text"}}), "") \
+    FUNCX(propDynCont_DEPRECATED_bulletSolver, "bullet.solver", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_global_constraintsolvertype, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_bulletIterations, "bullet.iterations", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_global_constraintsolvingiterations, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_bulletComputeInertias, "bullet.computeInertias", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_global_computeinertias, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_bulletInternalScalingFull, "bullet.internalScalingFull", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_global_fullinternalscaling, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_bulletInternalScalingScaling, "bullet.internalScalingValue", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_global_internalscalingfactor, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_bulletCollMarginScaling, "bullet.collisionMarginScaling", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_global_collisionmarginfactor, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_odeQuickStepEnabled, "ode.quickStepEnabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_global_quickstep, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_odeQuickStepIterations, "ode.quickStepIterations", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_global_constraintsolvingiterations, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_odeComputeInertias, "ode.computeInertias", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_global_computeinertias, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_odeInternalScalingFull, "ode.internalScalingFull", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_global_fullinternalscaling, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_odeInternalScalingScaling, "ode.internalScalingValue", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_global_internalscalingfactor, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_odeGlobalErp, "ode.globalErp", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_global_erp, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_odeGlobalCfm, "ode.globalCfm", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_global_cfm, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_vortexComputeInertias, "vortex.computeInertias", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_global_computeinertias, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_vortexContactTolerance, "vortex.contactTolerance", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_global_contacttolerance, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_vortexAutoSleep, "vortex.autoSleep", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_global_autosleep, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_vortexMultithreading, "vortex.multithreading", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_global_multithreading, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_vortexConstraintsLinearCompliance, "vortex.constraintsLinearCompliance", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_global_constraintlinearcompliance, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_vortexConstraintsLinearDamping, "vortex.constraintsLinearDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_global_constraintlineardamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_vortexConstraintsLinearKineticLoss, "vortex.constraintsLinearKineticLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_global_constraintlinearkineticloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_vortexConstraintsAngularCompliance, "vortex.constraintsAngularCompliance", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_global_constraintangularcompliance, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_vortexConstraintsAngularDamping, "vortex.constraintsAngularDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_global_constraintangulardamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_vortexConstraintsAngularKineticLoss, "vortex.constraintsAngularKineticLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_global_constraintangularkineticloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_newtonIterations, "newton.iterations", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_newton_global_constraintsolvingiterations, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_newtonComputeInertias, "newton.computeInertias", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_newton_global_computeinertias, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_newtonMultithreading, "newton.multithreading", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_newton_global_multithreading, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_newtonExactSolver, "newton.exactSolver", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_newton_global_exactsolver, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_newtonHighJointAccuracy, "newton.highJointAccuracy", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_newton_global_highjointaccuracy, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_newtonContactMergeTolerance, "newton.contactMergeTolerance", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_newton_global_contactmergetolerance, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoIntegrator, "mujoco.integrator", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_integrator, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoSolver, "mujoco.solver", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_solver, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoIterations, "mujoco.iterations", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_iterations, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoRebuildTrigger, "mujoco.rebuildTrigger", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_rebuildtrigger, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoComputeInertias, "mujoco.computeInertias", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_computeinertias, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoMbMemory, "mujoco.mbmemory", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoNjMax, "mujoco.njmax", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_njmax, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", "Deprecated. See mujoco.mbmemory instead."}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoNconMax, "mujoco.nconmax", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_nconmax, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", "Deprecated. See mujoco.mbmemory instead."}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoNstack, "mujoco.nstack", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_nstack, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", "Deprecated. See mujoco.mbmemory instead."}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoCone, "mujoco.cone", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_cone, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoKinematicBodiesOverrideFlags, "mujoco.kinematicBodiesOverrideFlags", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_overridekin, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoKinematicBodiesMass, "mujoco.kinematicBodiesMass", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_kinmass, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoKinematicBodiesInertia, "mujoco.kinematicBodiesInertia", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_kininertia, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoBoundMass, "mujoco.boundMass", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_boundmass, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoBoundInertia, "mujoco.boundInertia", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_boundinertia, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoBalanceInertias, "mujoco.balanceInertias", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_balanceinertias, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoMultithreaded, "mujoco.multithreaded", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_multithreaded, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoMulticcd, "mujoco.multiccd", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_multiccd, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoContactParamsOverride, "mujoco.contactParamsOverride", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_overridecontacts, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoContactParamsMargin, "mujoco.contactParamsMargin", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_overridemargin, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoContactParamsSolref, "mujoco.contactParamsSolref", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_overridesolref1, sim_mujoco_global_overridesolref2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoContactParamsSolimp, "mujoco.contactParamsSolimp", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_overridesolimp1, sim_mujoco_global_overridesolimp2, sim_mujoco_global_overridesolimp3, sim_mujoco_global_overridesolimp4, sim_mujoco_global_overridesolimp5,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoImpRatio, "mujoco.impratio", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_impratio, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoWind, "mujoco.wind", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_wind1, sim_mujoco_global_wind2, sim_mujoco_global_wind3, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoDensity, "mujoco.density", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_density, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoViscosity, "mujoco.viscosity", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_global_viscosity, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoJacobian, "mujoco.jacobian", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoTolerance, "mujoco.tolerance", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoLs_iterations, "mujoco.ls_iterations", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoLs_tolerance, "mujoco.ls_tolerance", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoNoslip_iterations, "mujoco.noslip_iterations", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoNoslip_tolerance, "mujoco.noslip_tolerance", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoCcd_iterations, "mujoco.ccd_iterations", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoCcd_tolerance, "mujoco.ccd_tolerance", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoSdf_iterations, "mujoco.sdf_iterations", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoSdf_initpoints, "mujoco.sdf_initpoints", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoEqualityEnable, "mujoco.equalityEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoFrictionlossEnable, "mujoco.frictionlossEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoLimitEnable, "mujoco.limitEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoContactEnable, "mujoco.contactEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoPassiveEnable, "mujoco.passiveEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoGravityEnable, "mujoco.gravityEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoWarmstartEnable, "mujoco.warmstartEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoActuationEnable, "mujoco.actuationEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoRefsafeEnable, "mujoco.refsafeEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoSensorEnable, "mujoco.sensorEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoMidphaseEnable, "mujoco.midphaseEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoEulerdampEnable, "mujoco.eulerdampEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoAutoresetEnable, "mujoco.autoresetEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoEnergyEnable, "mujoco.energyEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoInvdiscreteEnable, "mujoco.invdiscreteEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoNativeccdEnable, "mujoco.nativeccdEnable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoAlignfree, "mujoco.alignfree", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoKinematicWeldSolref, "mujoco.kinematicWeldSolref", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoKinematicWeldSolimp, "mujoco.kinematicWeldSolimp", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_DEPRECATED_mujocoKinematicWeldTorqueScale, "mujoco.kinematicWeldTorquescale", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "")
 
 #define SCENE_PROPERTIES \
     FUNCX(propScene_mainScript, "mainScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Main script"}, {"description", "Handle of the main script"}, {"handleType", "detachedScript"}}), "") \
@@ -586,10 +589,10 @@ struct SJointProperty
     FUNCX(propScene_METHOD_groupShapes, "groupShapes", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_mergeShapes, "mergeShapes", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propScene_DEPRECATED_sceneIsLocked, "sceneIsLocked", sim_propertytype_bool, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude | sim_propertyinfo_notwritable,  "", "") \
-    FUNCX(propScene_DEPRECATED_sceneUid, "sceneUid", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  "", "") \
-    FUNCX(propScene_DEPRECATED_sceneUidString, "sceneUidString", sim_propertytype_string,sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude | sim_propertyinfo_constant | sim_propertyinfo_notwritable,  "", "") \
-    FUNCX(propScene_DEPRECATED_scenePath, "scenePath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  "", "")
+    FUNCX(propScene_DEPRECATED_sceneIsLocked, "sceneIsLocked", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable,  "", "") \
+    FUNCX(propScene_DEPRECATED_sceneUid, "sceneUid", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable,  "", "") \
+    FUNCX(propScene_DEPRECATED_sceneUidString, "sceneUidString", sim_propertytype_string,SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable,  "", "") \
+    FUNCX(propScene_DEPRECATED_scenePath, "scenePath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE,  "", "")
 
 #define SIMULATION_PROPERTIES \
     FUNCX(propSimulation_removeNewObjectsAtEnd, "removeNewObjectsAtEnd", sim_propertytype_bool, 0,  jsonStr({{"label", "Remove new objects"}, {"description", "Remove new scene objects at simulation end"}}), "") \
@@ -612,7 +615,7 @@ struct SJointProperty
     FUNCX(propMeshWrapper_pmi, "principalMomentOfInertia", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Principal moment of inertia"}, {"description", "Principal moment of inertia, relative to pmiQuaternion"}}), "") \
     FUNCX(propMeshWrapper_pmiQuaternion, "pmiQuaternion", sim_propertytype_quaternion, sim_propertyinfo_notwritable,  jsonStr({{"label", "Quaternion of the principal moment of inertia"}, {"description", "Quaternion of the principal moment of inertia, relative to the shape's reference frame"}}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propMeshWrapper_DEPRECATED_inertia, "inertia", sim_propertytype_floatarray, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Inertia tensor"}, {"description", "Inertia tensor, relative to the shape's reference frame"}}), "")
+    FUNCX(propMeshWrapper_DEPRECATED_inertia, "inertia", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE,  jsonStr({{"label", "Inertia tensor"}, {"description", "Inertia tensor, relative to the shape's reference frame"}}), "")
 
 #define MESH_PROPERTIES \
     FUNCX(propMesh_textureResolution, "textureResolution", sim_propertytype_intarray2, sim_propertyinfo_notwritable,  jsonStr({{"label", "Texture resolution"}, {"description", ""}}), "") \
@@ -654,9 +657,9 @@ struct SJointProperty
     FUNCX(propSceneObjectCont_objectDestructionCounter, "objectDestructionCounter", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object destruction counter"}, {"description", "Counter of destroyed scene objects"}}), "") \
     FUNCX(propSceneObjectCont_hierarchyChangeCounter, "hierarchyChangeCounter", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable,  jsonStr({{"label", "Hierarchy change counter"}, {"description", "Counter of scene hierarchy changes"}}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propSceneObjectCont_DEPRECATED_objectHandles, "objectHandles", sim_propertytype_intarray, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable, "", "") \
-    FUNCX(propSceneObjectCont_DEPRECATED_orphanHandles, "orphanHandles", sim_propertytype_intarray, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable, "", "") \
-    FUNCX(propSceneObjectCont_DEPRECATED_selectionHandles, "selectionHandles", sim_propertytype_intarray, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, "", "")
+    FUNCX(propSceneObjectCont_DEPRECATED_objectHandles, "objectHandles", sim_propertytype_intarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propSceneObjectCont_DEPRECATED_orphanHandles, "orphanHandles", sim_propertytype_intarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propSceneObjectCont_DEPRECATED_selectionHandles, "selectionHandles", sim_propertytype_intarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "")
 
 #define DYNMATERIAL_PROPERTIES \
     FUNCX(propMaterial_engineProperties, "dynamics.engineProperties", sim_propertytype_string, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Engine properties"}, {"description", "Engine properties as JSON text"}}), "") \
@@ -748,95 +751,95 @@ struct SJointProperty
     FUNCX(propMaterial_mujocoAdhesionForcerange, "dynamics.mujoco.adhesionforcerange", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propMaterial_mujocoAdhesionCtrl, "dynamics.mujoco.adhesionctrl", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propMaterial_mujocoGravcomp, "dynamics.mujoco.gravcomp", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_engineProperties, "engineProperties", sim_propertytype_string, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Engine properties"}, {"description", "Engine properties as JSON text"}}), "") \
-    FUNCX(propMaterial_DEPRECATED_bulletRestitution, "bullet.restitution", sim_propertytype_float, 0, sim_bullet_body_restitution, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_bulletFriction0, "bullet.frictionOld", sim_propertytype_float, 0, sim_bullet_body_oldfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_bulletFriction, "bullet.friction", sim_propertytype_float, 0, sim_bullet_body_friction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_bulletLinearDamping, "bullet.linearDamping", sim_propertytype_float, 0, sim_bullet_body_lineardamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_bulletAngularDamping, "bullet.angularDamping", sim_propertytype_float, 0, sim_bullet_body_angulardamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_bulletNonDefaultCollisionMarginFactor, "bullet.customCollisionMarginValue", sim_propertytype_float, 0, sim_bullet_body_nondefaultcollisionmargingfactor, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_bulletNonDefaultCollisionMarginFactorConvex, "bullet.customCollisionMarginConvexValue", sim_propertytype_float, 0, sim_bullet_body_nondefaultcollisionmargingfactorconvex, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_bulletSticky, "bullet.stickyContact", sim_propertytype_bool, 0, sim_bullet_body_sticky, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_bulletNonDefaultCollisionMargin, "bullet.customCollisionMarginEnabled", sim_propertytype_bool, 0, sim_bullet_body_usenondefaultcollisionmargin, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_bulletNonDefaultCollisionMarginConvex, "bullet.customCollisionMarginConvexEnabled", sim_propertytype_bool, 0, sim_bullet_body_usenondefaultcollisionmarginconvex, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_bulletAutoShrinkConvex, "bullet.autoShrinkConvexMeshes", sim_propertytype_bool, 0, sim_bullet_body_autoshrinkconvex, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_odeFriction, "ode.friction", sim_propertytype_float, 0, sim_ode_body_friction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_odeSoftErp, "ode.softErp", sim_propertytype_float, 0, sim_ode_body_softerp, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_odeSoftCfm, "ode.softCfm", sim_propertytype_float, 0, sim_ode_body_softcfm, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_odeLinearDamping, "ode.linearDamping", sim_propertytype_float, 0, sim_ode_body_lineardamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_odeAngularDamping, "ode.angularDamping", sim_propertytype_float, 0, sim_ode_body_angulardamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_odeMaxContacts, "ode.maxContacts", sim_propertytype_int, 0, sim_ode_body_maxcontacts, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexPrimaryLinearAxisFriction, "vortex.linearPrimaryAxisFrictionValue", sim_propertytype_float, 0, sim_vortex_body_primlinearaxisfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexSecondaryLinearAxisFriction, "vortex.linearSecondaryAxisFrictionValue", sim_propertytype_float, 0, sim_vortex_body_seclinearaxisfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexPrimaryAngularAxisFriction, "vortex.angularPrimaryAxisFrictionValue", sim_propertytype_float, 0, sim_vortex_body_primangularaxisfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexSecondaryAngularAxisFriction, "vortex.angularSecondaryAxisFrictionValue", sim_propertytype_float, 0, sim_vortex_body_secangularaxisfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexNormalAngularAxisFriction, "vortex.angularNormalAxisFrictionValue", sim_propertytype_float, 0, sim_vortex_body_normalangularaxisfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexPrimaryLinearAxisStaticFrictionScale, "vortex.linearPrimaryAxisStaticFrictionScale", sim_propertytype_float, 0, sim_vortex_body_primlinearaxisstaticfrictionscale, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexSecondaryLinearAxisStaticFrictionScale, "vortex.linearSecondaryAxisStaticFrictionScale", sim_propertytype_float, 0, sim_vortex_body_seclinearaxisstaticfrictionscale, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexPrimaryAngularAxisStaticFrictionScale, "vortex.angularPrimaryAxisStaticFrictionScale", sim_propertytype_float, 0, sim_vortex_body_primangularaxisstaticfrictionscale, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexSecondaryAngularAxisStaticFrictionScale, "vortex.angularSecondaryAxisStaticFrictionScale", sim_propertytype_float, 0, sim_vortex_body_secangularaxisstaticfrictionscale, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexNormalAngularAxisStaticFrictionScale, "vortex.angularNormalAxisStaticFrictionScale", sim_propertytype_float, 0, sim_vortex_body_normalangularaxisstaticfrictionscale, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexCompliance, "vortex.compliance", sim_propertytype_float, 0, sim_vortex_body_compliance, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexDamping, "vortex.damping", sim_propertytype_float, 0, sim_vortex_body_damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexRestitution, "vortex.restitution", sim_propertytype_float, 0, sim_vortex_body_restitution, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexRestitutionThreshold, "vortex.restitutionThreshold", sim_propertytype_float, 0, sim_vortex_body_restitutionthreshold, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexAdhesiveForce, "vortex.adhesiveForce", sim_propertytype_float, 0, sim_vortex_body_adhesiveforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexLinearVelocityDamping, "vortex.linearVelDamping", sim_propertytype_float, 0, sim_vortex_body_linearvelocitydamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexAngularVelocityDamping, "vortex.angularVelDamping", sim_propertytype_float, 0, sim_vortex_body_angularvelocitydamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexPrimaryLinearAxisSlide, "vortex.linearPrimaryAxisSlide", sim_propertytype_float, 0, sim_vortex_body_primlinearaxisslide, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexSecondaryLinearAxisSlide, "vortex.linearSecondaryAxisSlide", sim_propertytype_float, 0, sim_vortex_body_seclinearaxisslide, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexPrimaryAngularAxisSlide, "vortex.angularPrimaryAxisSlide", sim_propertytype_float, 0, sim_vortex_body_primangularaxisslide, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexSecondaryAngularAxisSlide, "vortex.angularSecondaryAxisSlide", sim_propertytype_float, 0, sim_vortex_body_secangularaxisslide, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexNormalAngularAxisSlide, "vortex.angularNormalAxisSlide", sim_propertytype_float, 0, sim_vortex_body_normalangularaxisslide, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexPrimaryLinearAxisSlip, "vortex.linearPrimaryAxisSlip", sim_propertytype_float, 0, sim_vortex_body_primlinearaxisslip, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexSecondaryLinearAxisSlip, "vortex.linearSecondaryAxisSlip", sim_propertytype_float, 0, sim_vortex_body_seclinearaxisslip, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexPrimaryAngularAxisSlip, "vortex.angularPrimaryAxisSlip", sim_propertytype_float, 0, sim_vortex_body_primangularaxisslip, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexSecondaryAngularAxisSlip, "vortex.angularSecondaryAxisSlip", sim_propertytype_float, 0, sim_vortex_body_secangularaxisslip, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexNormalAngularAxisSlip, "vortex.angularNormalAxisSlip", sim_propertytype_float, 0, sim_vortex_body_normalangularaxisslip, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexAutoSleepLinearSpeedThreshold, "vortex.autoSleepThresholdLinearSpeed", sim_propertytype_float, 0, sim_vortex_body_autosleeplinearspeedthreshold, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexAutoSleepLinearAccelerationThreshold, "vortex.autoSleepThresholdLinearAccel", sim_propertytype_float, 0, sim_vortex_body_autosleeplinearaccelthreshold, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexAutoSleepAngularSpeedThreshold, "vortex.autoSleepThresholdAngularSpeed", sim_propertytype_float, 0, sim_vortex_body_autosleepangularspeedthreshold, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexAutoSleepAngularAccelerationThreshold, "vortex.autoSleepThresholdAngularAccel", sim_propertytype_float, 0, sim_vortex_body_autosleepangularaccelthreshold, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexSkinThickness, "vortex.skinThickness", sim_propertytype_float, 0, sim_vortex_body_skinthickness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexAutoAngularDampingTensionRatio, "vortex.autoAngularDampingTensionRatio", sim_propertytype_float, 0, sim_vortex_body_autoangulardampingtensionratio, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexPrimaryAxisVector, "vortex.linearPrimaryValue", sim_propertytype_vector3, 0, sim_vortex_body_primaxisvectorx, sim_vortex_body_primaxisvectory, sim_vortex_body_primaxisvectorz, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexPrimaryLinearAxisFrictionModel, "vortex.linearPrimaryAxisFrictionModel", sim_propertytype_int, 0, sim_vortex_body_primlinearaxisfrictionmodel, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexSecondaryLinearAxisFrictionModel, "vortex.linearSecondaryAxisFrictionModel", sim_propertytype_int, 0, sim_vortex_body_seclinearaxisfrictionmodel, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexPrimaryAngularAxisFrictionModel, "vortex.angularPrimaryAxisFrictionModel", sim_propertytype_int, 0, sim_vortex_body_primangulararaxisfrictionmodel, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexSecondaryAngularAxisFrictionModel, "vortex.angularSecondaryAxisFrictionModel", sim_propertytype_int, 0, sim_vortex_body_secangularaxisfrictionmodel, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexNormalAngularAxisFrictionModel, "vortex.angularNormalAxisFrictionModel", sim_propertytype_int, 0, sim_vortex_body_normalangularaxisfrictionmodel, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexAutoSleepStepLiveThreshold, "vortex.autoSleepThresholdSteps", sim_propertytype_int, 0, sim_vortex_body_autosleepsteplivethreshold, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_engineProperties, "engineProperties", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", "Engine properties"}, {"description", "Engine properties as JSON text"}}), "") \
+    FUNCX(propMaterial_DEPRECATED_bulletRestitution, "bullet.restitution", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_body_restitution, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_bulletFriction0, "bullet.frictionOld", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_body_oldfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_bulletFriction, "bullet.friction", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_body_friction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_bulletLinearDamping, "bullet.linearDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_body_lineardamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_bulletAngularDamping, "bullet.angularDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_body_angulardamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_bulletNonDefaultCollisionMarginFactor, "bullet.customCollisionMarginValue", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_body_nondefaultcollisionmargingfactor, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_bulletNonDefaultCollisionMarginFactorConvex, "bullet.customCollisionMarginConvexValue", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_body_nondefaultcollisionmargingfactorconvex, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_bulletSticky, "bullet.stickyContact", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_body_sticky, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_bulletNonDefaultCollisionMargin, "bullet.customCollisionMarginEnabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_body_usenondefaultcollisionmargin, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_bulletNonDefaultCollisionMarginConvex, "bullet.customCollisionMarginConvexEnabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_body_usenondefaultcollisionmarginconvex, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_bulletAutoShrinkConvex, "bullet.autoShrinkConvexMeshes", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_body_autoshrinkconvex, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_odeFriction, "ode.friction", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_body_friction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_odeSoftErp, "ode.softErp", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_body_softerp, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_odeSoftCfm, "ode.softCfm", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_body_softcfm, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_odeLinearDamping, "ode.linearDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_body_lineardamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_odeAngularDamping, "ode.angularDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_body_angulardamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_odeMaxContacts, "ode.maxContacts", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_body_maxcontacts, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexPrimaryLinearAxisFriction, "vortex.linearPrimaryAxisFrictionValue", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_primlinearaxisfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexSecondaryLinearAxisFriction, "vortex.linearSecondaryAxisFrictionValue", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_seclinearaxisfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexPrimaryAngularAxisFriction, "vortex.angularPrimaryAxisFrictionValue", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_primangularaxisfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexSecondaryAngularAxisFriction, "vortex.angularSecondaryAxisFrictionValue", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_secangularaxisfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexNormalAngularAxisFriction, "vortex.angularNormalAxisFrictionValue", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_normalangularaxisfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexPrimaryLinearAxisStaticFrictionScale, "vortex.linearPrimaryAxisStaticFrictionScale", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_primlinearaxisstaticfrictionscale, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexSecondaryLinearAxisStaticFrictionScale, "vortex.linearSecondaryAxisStaticFrictionScale", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_seclinearaxisstaticfrictionscale, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexPrimaryAngularAxisStaticFrictionScale, "vortex.angularPrimaryAxisStaticFrictionScale", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_primangularaxisstaticfrictionscale, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexSecondaryAngularAxisStaticFrictionScale, "vortex.angularSecondaryAxisStaticFrictionScale", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_secangularaxisstaticfrictionscale, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexNormalAngularAxisStaticFrictionScale, "vortex.angularNormalAxisStaticFrictionScale", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_normalangularaxisstaticfrictionscale, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexCompliance, "vortex.compliance", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_compliance, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexDamping, "vortex.damping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexRestitution, "vortex.restitution", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_restitution, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexRestitutionThreshold, "vortex.restitutionThreshold", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_restitutionthreshold, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexAdhesiveForce, "vortex.adhesiveForce", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_adhesiveforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexLinearVelocityDamping, "vortex.linearVelDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_linearvelocitydamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexAngularVelocityDamping, "vortex.angularVelDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_angularvelocitydamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexPrimaryLinearAxisSlide, "vortex.linearPrimaryAxisSlide", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_primlinearaxisslide, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexSecondaryLinearAxisSlide, "vortex.linearSecondaryAxisSlide", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_seclinearaxisslide, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexPrimaryAngularAxisSlide, "vortex.angularPrimaryAxisSlide", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_primangularaxisslide, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexSecondaryAngularAxisSlide, "vortex.angularSecondaryAxisSlide", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_secangularaxisslide, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexNormalAngularAxisSlide, "vortex.angularNormalAxisSlide", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_normalangularaxisslide, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexPrimaryLinearAxisSlip, "vortex.linearPrimaryAxisSlip", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_primlinearaxisslip, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexSecondaryLinearAxisSlip, "vortex.linearSecondaryAxisSlip", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_seclinearaxisslip, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexPrimaryAngularAxisSlip, "vortex.angularPrimaryAxisSlip", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_primangularaxisslip, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexSecondaryAngularAxisSlip, "vortex.angularSecondaryAxisSlip", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_secangularaxisslip, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexNormalAngularAxisSlip, "vortex.angularNormalAxisSlip", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_normalangularaxisslip, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexAutoSleepLinearSpeedThreshold, "vortex.autoSleepThresholdLinearSpeed", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_autosleeplinearspeedthreshold, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexAutoSleepLinearAccelerationThreshold, "vortex.autoSleepThresholdLinearAccel", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_autosleeplinearaccelthreshold, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexAutoSleepAngularSpeedThreshold, "vortex.autoSleepThresholdAngularSpeed", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_autosleepangularspeedthreshold, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexAutoSleepAngularAccelerationThreshold, "vortex.autoSleepThresholdAngularAccel", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_autosleepangularaccelthreshold, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexSkinThickness, "vortex.skinThickness", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_skinthickness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexAutoAngularDampingTensionRatio, "vortex.autoAngularDampingTensionRatio", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_autoangulardampingtensionratio, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexPrimaryAxisVector, "vortex.linearPrimaryValue", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_primaxisvectorx, sim_vortex_body_primaxisvectory, sim_vortex_body_primaxisvectorz, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexPrimaryLinearAxisFrictionModel, "vortex.linearPrimaryAxisFrictionModel", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_primlinearaxisfrictionmodel, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexSecondaryLinearAxisFrictionModel, "vortex.linearSecondaryAxisFrictionModel", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_seclinearaxisfrictionmodel, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexPrimaryAngularAxisFrictionModel, "vortex.angularPrimaryAxisFrictionModel", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_primangulararaxisfrictionmodel, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexSecondaryAngularAxisFrictionModel, "vortex.angularSecondaryAxisFrictionModel", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_secangularaxisfrictionmodel, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexNormalAngularAxisFrictionModel, "vortex.angularNormalAxisFrictionModel", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_normalangularaxisfrictionmodel, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexAutoSleepStepLiveThreshold, "vortex.autoSleepThresholdSteps", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_autosleepsteplivethreshold, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propMaterial_DEPRECATED_vortexMaterialUniqueId, "vortex.materialUniqueId", sim_propertytype_int, sim_propertyinfo_modelhashexclude, sim_vortex_body_materialuniqueid, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexPrimitiveShapesAsConvex, "vortex.primitiveAsConvex", sim_propertytype_bool, 0, sim_vortex_body_pureshapesasconvex, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexConvexShapesAsRandom, "vortex.convexAsRandom", sim_propertytype_bool, 0, sim_vortex_body_convexshapesasrandom, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexRandomShapesAsTerrain, "vortex.randomAsTerrain", sim_propertytype_bool, 0, sim_vortex_body_randomshapesasterrain, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexFastMoving, "vortex.fastMoving", sim_propertytype_bool, 0, sim_vortex_body_fastmoving, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexAutoSlip, "vortex.autoSlip", sim_propertytype_bool, 0, sim_vortex_body_autoslip, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexSecondaryLinearAxisSameAsPrimaryLinearAxis, "vortex.linearSecondaryAxisFollowPrimaryAxis", sim_propertytype_bool, 0, sim_vortex_body_seclinaxissameasprimlinaxis, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexSecondaryAngularAxisSameAsPrimaryAngularAxis, "vortex.angularSecondaryAxisFollowPrimaryAxis", sim_propertytype_bool, 0, sim_vortex_body_secangaxissameasprimangaxis, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexNormalAngularAxisSameAsPrimaryAngularAxis, "vortex.angularNormalAxisFollowPrimaryAxis", sim_propertytype_bool, 0, sim_vortex_body_normangaxissameasprimangaxis, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexAutoAngularDamping, "vortex.autoAngularDampingEnabled", sim_propertytype_bool, 0, sim_vortex_body_autoangulardamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_newtonStaticFriction, "newton.staticFriction", sim_propertytype_float, 0, sim_newton_body_staticfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_newtonKineticFriction, "newton.kineticFriction", sim_propertytype_float, 0, sim_newton_body_kineticfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_newtonRestitution, "newton.restitution", sim_propertytype_float, 0, sim_newton_body_restitution, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_newtonLinearDrag, "newton.linearDrag", sim_propertytype_float, 0, sim_newton_body_lineardrag, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_newtonAngularDrag, "newton.angularDrag", sim_propertytype_float, 0, sim_newton_body_angulardrag, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_newtonFastMoving, "newton.fastMoving", sim_propertytype_bool, 0, sim_newton_body_fastmoving, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_mujocoFriction, "mujoco.friction", sim_propertytype_floatarray, 0, sim_mujoco_body_friction1, sim_mujoco_body_friction2, sim_mujoco_body_friction3, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_mujocoSolref, "mujoco.solref", sim_propertytype_floatarray, 0, sim_mujoco_body_solref1, sim_mujoco_body_solref2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_mujocoSolimp, "mujoco.solimp", sim_propertytype_floatarray, 0, sim_mujoco_body_solimp1, sim_mujoco_body_solimp2, sim_mujoco_body_solimp3, sim_mujoco_body_solimp4, sim_mujoco_body_solimp5,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_mujocoSolmix, "mujoco.solmix", sim_propertytype_float, 0, sim_mujoco_body_solmix, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_mujocoMargin, "mujoco.margin", sim_propertytype_float, 0, sim_mujoco_body_margin, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_mujocoGap, "mujoco.gap", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_mujocoCondim, "mujoco.condim", sim_propertytype_int, 0, sim_mujoco_body_condim, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_mujocoPriority, "mujoco.priority", sim_propertytype_int, 0, sim_mujoco_body_priority, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_mujocoAdhesion, "mujoco.adhesion", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_mujocoAdhesionGain, "mujoco.adhesiongain", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_mujocoAdhesionForcelimited, "mujoco.adhesionforcelimited", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_mujocoAdhesionCtrlrange, "mujoco.adhesionctrlrange", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_mujocoAdhesionForcerange, "mujoco.adhesionforcerange", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_mujocoAdhesionCtrl, "mujoco.adhesionctrl", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_mujocoGravcomp, "mujoco.gravcomp", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "")
+    FUNCX(propMaterial_DEPRECATED_vortexPrimitiveShapesAsConvex, "vortex.primitiveAsConvex", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_pureshapesasconvex, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexConvexShapesAsRandom, "vortex.convexAsRandom", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_convexshapesasrandom, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexRandomShapesAsTerrain, "vortex.randomAsTerrain", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_randomshapesasterrain, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexFastMoving, "vortex.fastMoving", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_fastmoving, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexAutoSlip, "vortex.autoSlip", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_autoslip, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexSecondaryLinearAxisSameAsPrimaryLinearAxis, "vortex.linearSecondaryAxisFollowPrimaryAxis", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_seclinaxissameasprimlinaxis, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexSecondaryAngularAxisSameAsPrimaryAngularAxis, "vortex.angularSecondaryAxisFollowPrimaryAxis", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_secangaxissameasprimangaxis, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexNormalAngularAxisSameAsPrimaryAngularAxis, "vortex.angularNormalAxisFollowPrimaryAxis", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_normangaxissameasprimangaxis, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexAutoAngularDamping, "vortex.autoAngularDampingEnabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_body_autoangulardamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_newtonStaticFriction, "newton.staticFriction", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_newton_body_staticfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_newtonKineticFriction, "newton.kineticFriction", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_newton_body_kineticfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_newtonRestitution, "newton.restitution", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_newton_body_restitution, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_newtonLinearDrag, "newton.linearDrag", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_newton_body_lineardrag, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_newtonAngularDrag, "newton.angularDrag", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_newton_body_angulardrag, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_newtonFastMoving, "newton.fastMoving", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_newton_body_fastmoving, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_mujocoFriction, "mujoco.friction", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_body_friction1, sim_mujoco_body_friction2, sim_mujoco_body_friction3, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_mujocoSolref, "mujoco.solref", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_body_solref1, sim_mujoco_body_solref2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_mujocoSolimp, "mujoco.solimp", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_body_solimp1, sim_mujoco_body_solimp2, sim_mujoco_body_solimp3, sim_mujoco_body_solimp4, sim_mujoco_body_solimp5,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_mujocoSolmix, "mujoco.solmix", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_body_solmix, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_mujocoMargin, "mujoco.margin", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_body_margin, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_mujocoGap, "mujoco.gap", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_mujocoCondim, "mujoco.condim", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_body_condim, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_mujocoPriority, "mujoco.priority", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_body_priority, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_mujocoAdhesion, "mujoco.adhesion", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_mujocoAdhesionGain, "mujoco.adhesiongain", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_mujocoAdhesionForcelimited, "mujoco.adhesionforcelimited", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_mujocoAdhesionCtrlrange, "mujoco.adhesionctrlrange", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_mujocoAdhesionForcerange, "mujoco.adhesionforcerange", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_mujocoAdhesionCtrl, "mujoco.adhesionctrl", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_mujocoGravcomp, "mujoco.gravcomp", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "")
 
 #define CUSTOMSCENEOBJECTCLASS_PROPERTIES \
     FUNCX(propCustomSceneObjectClass_METHOD_makeOject, "makeObject", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
@@ -941,35 +944,35 @@ struct SJointProperty
     FUNCX(propSceneObject_METHOD_makeObject, "makeObject", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propSceneObject_METHOD_getObject, "getObject", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propSceneObject_DEPRECATED_parentHandle, "parentHandle", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_modelProperty, "modelPropertyFlags", /*redund.*/ sim_propertytype_int, sim_propertyinfo_modelhashexclude | sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_modelNotCollidable, "modelNotCollidable", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_modelNotMeasurable, "modelNotMeasurable", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_modelNotDetectable, "modelNotDetectable", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_modelNotDynamic, "modelNotDynamic", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_modelNotRespondable, "modelNotRespondable", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_modelNotVisible, "modelNotVisible", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_modelScriptsNotActive, "modelScriptsNotActive", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_modelNotInParentBB, "modelNotInParentBB", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_alias, "alias", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_deprecatedName, "deprecatedName", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_bbHsize, "bbHSize", sim_propertytype_vector3, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movementOptions, "movementOptionsFlags", sim_propertytype_int, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movementStepSize, "movementStepSize", sim_propertytype_floatarray, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movementRelativity, "movementRelativity", sim_propertytype_intarray, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movementPreferredAxes, "movementPreferredAxesFlags", sim_propertytype_int, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movTranslNoSim, "movTranslNoSim", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movTranslInSim, "movTranslInSim", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movRotNoSim, "movRotNoSim", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movRotInSim, "movRotInSim", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movAltTransl, "movAltTransl", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movAltRot, "movAltRot", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movPrefTranslX, "movPrefTranslX", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movPrefTranslY, "movPrefTranslY", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movPrefTranslZ, "movPrefTranslZ", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movPrefRotX, "movPrefRotX", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movPrefRotY, "movPrefRotY", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "") \
-    FUNCX(propSceneObject_DEPRECATED_movPrefRotZ, "movPrefRotZ", sim_propertytype_bool, sim_propertyinfo_deprecated, "", "")
+    FUNCX(propSceneObject_DEPRECATED_parentHandle, "parentHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_modelProperty, "modelPropertyFlags", /*redund.*/ sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_modelNotCollidable, "modelNotCollidable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_modelNotMeasurable, "modelNotMeasurable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_modelNotDetectable, "modelNotDetectable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_modelNotDynamic, "modelNotDynamic", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_modelNotRespondable, "modelNotRespondable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_modelNotVisible, "modelNotVisible", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_modelScriptsNotActive, "modelScriptsNotActive", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_modelNotInParentBB, "modelNotInParentBB", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_alias, "alias", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_deprecatedName, "deprecatedName", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_bbHsize, "bbHSize", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movementOptions, "movementOptionsFlags", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movementStepSize, "movementStepSize", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movementRelativity, "movementRelativity", sim_propertytype_intarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movementPreferredAxes, "movementPreferredAxesFlags", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movTranslNoSim, "movTranslNoSim", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movTranslInSim, "movTranslInSim", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movRotNoSim, "movRotNoSim", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movRotInSim, "movRotInSim", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movAltTransl, "movAltTransl", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movAltRot, "movAltRot", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movPrefTranslX, "movPrefTranslX", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movPrefTranslY, "movPrefTranslY", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movPrefTranslZ, "movPrefTranslZ", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movPrefRotX, "movPrefRotX", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movPrefRotY, "movPrefRotY", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_movPrefRotZ, "movPrefRotZ", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "")
 
 #define SHAPE_PROPERTIES \
     FUNCX(propShape_meshes, "meshes", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Meshes"}, {"description", "Mesh handles"}, {"handleType", "mesh"}}), "") \
@@ -1040,7 +1043,7 @@ struct SJointProperty
     FUNCX(propDummy_mujocoOverlapConstrSolimp, "mujoco.overlapConstrSolimp", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propDummy_mujocoOverlapConstrTorqueScale, "mujoco.overlapConstrTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propDummy_DEPRECATED_linkedDummyHandle, "linkedDummyHandle", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, "", "")
+    FUNCX(propDummy_DEPRECATED_linkedDummyHandle, "linkedDummyHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "")
 
 #define FORCESENSOR_PROPERTIES \
     FUNCX(propForceSensor_size, "sensorSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Sensor size"}}), "") \
@@ -1057,10 +1060,10 @@ struct SJointProperty
     FUNCX(propForceSensor_filteredSensorTorque, "filteredTorque", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Filtered torque"}, {"description", "Filtered torque vector"}}), "") \
     FUNCX(propForceSensor_intrinsicError, "intrinsicError", sim_propertytype_pose, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Intrinsic error"}, {"description", "Intrinsic error, generated by some physics engines"}}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propForceSensor_DEPRECATED_sensorForce, "sensorForce", sim_propertytype_vector3, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propForceSensor_DEPRECATED_sensorTorque, "sensorTorque", sim_propertytype_vector3, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propForceSensor_DEPRECATED_sensorAverageForce, "filterSensorForce", sim_propertytype_vector3, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propForceSensor_DEPRECATED_sensorAverageTorque, "filterSensorTorque", sim_propertytype_vector3, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "") \
+    FUNCX(propForceSensor_DEPRECATED_sensorForce, "sensorForce", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propForceSensor_DEPRECATED_sensorTorque, "sensorTorque", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propForceSensor_DEPRECATED_sensorAverageForce, "filterSensorForce", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propForceSensor_DEPRECATED_sensorAverageTorque, "filterSensorTorque", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
 
 #define GRAPH_PROPERTIES \
     FUNCX(propGraph_size, "graphSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the 3D graph representation"}}), "") \
@@ -1181,7 +1184,7 @@ struct SJointProperty
     FUNCX(propJoint_mujocoSpringDamper, "mujoco.springSpringDamper", sim_propertytype_floatarray, 0, sim_mujoco_joint_springdamper1, sim_mujoco_joint_springdamper2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propJoint_mujocoDependencyPolyCoef, "mujoco.dependencyPolyCoeff", sim_propertytype_floatarray, 0, sim_mujoco_joint_polycoef1, sim_mujoco_joint_polycoef2, sim_mujoco_joint_polycoef3, sim_mujoco_joint_polycoef4, sim_mujoco_joint_polycoef5,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propJoint_DEPRECATED_dependencyMaster, "dependencyMasterHandle", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1, "", "")
+    FUNCX(propJoint_DEPRECATED_dependencyMaster, "dependencyMasterHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "")
 
 #define LIGHT_PROPERTIES \
     FUNCX(propLight_size, "lightSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Light size"}}), "") \
@@ -1202,7 +1205,7 @@ struct SJointProperty
     FUNCX(propOctree_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Voxels"}, {"description", "Voxel positions"}}), "") \
     FUNCX(propOctree_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Voxel Colors"}, {"description", ""}}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propOctree_DEPRECATED_voxels, "voxels", sim_propertytype_floatarray, sim_propertyinfo_deprecated | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")
+    FUNCX(propOctree_DEPRECATED_voxels, "voxels", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "")
 
 #define POINTCLOUD_PROPERTIES \
     FUNCX(propPointCloud_ocTreeStruct, "ocTreeStruct", sim_propertytype_bool, 0,  jsonStr({{"label", "OC-Tree structure Enabled"}, {"description", "Use an oc-tree structure"}}), "") \
@@ -1265,17 +1268,17 @@ struct SJointProperty
     FUNCX(propScript_resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0,  jsonStr({{"label", "Reset after simulation error"}, {"description", ""}}), "") \
     FUNCX(propScript_detachedScript, "detachedScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Detached script handle"}, {"description", ""}, {"handleType", "detachedScript"}}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propScript_DEPRECATED_scriptDisabled, "scriptDisabled", sim_propertytype_bool, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propScript_DEPRECATED_restartOnError, "restartOnError", sim_propertytype_bool, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propScript_DEPRECATED_execPriority, "execPriority", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propScript_DEPRECATED_scriptType, "scriptType", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude | sim_propertyinfo_notwritable, "", "") \
-    FUNCX(propScript_DEPRECATED_executionDepth, "executionDepth", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propScript_DEPRECATED_scriptState, "scriptState", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propScript_DEPRECATED_language, "language", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propScript_DEPRECATED_code, "code", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propScript_DEPRECATED_scriptName, "scriptName", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propScript_DEPRECATED_addOnPath, "addOnPath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "") \
-    FUNCX(propScript_DEPRECATED_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_deprecated | sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, "", "")
+    FUNCX(propScript_DEPRECATED_scriptDisabled, "scriptDisabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent, "", "") \
+    FUNCX(propScript_DEPRECATED_restartOnError, "restartOnError", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent, "", "") \
+    FUNCX(propScript_DEPRECATED_execPriority, "execPriority", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent, "", "") \
+    FUNCX(propScript_DEPRECATED_scriptType, "scriptType", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propScript_DEPRECATED_executionDepth, "executionDepth", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propScript_DEPRECATED_scriptState, "scriptState", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propScript_DEPRECATED_language, "language", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propScript_DEPRECATED_code, "code", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent, "", "") \
+    FUNCX(propScript_DEPRECATED_scriptName, "scriptName", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propScript_DEPRECATED_addOnPath, "addOnPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propScript_DEPRECATED_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "")
 
 #define MARKER_PROPERTIES \
     FUNCX(propMarker_itemType, "itemType", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Type"}, {"description", "Item type"}}), "") \
@@ -1298,7 +1301,7 @@ struct SJointProperty
 
 struct SDeprecatedProperty {
     std::string repl;
-    int type;
+    std::vector<int> types;
 };
 
 extern const std::map<std::string, SDeprecatedProperty> propDeprecationMapping;

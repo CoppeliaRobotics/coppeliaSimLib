@@ -672,32 +672,41 @@ std::string checkForDeprecation(const char* funcName, const char* pName, int tar
 {
     if (propDeprecationMapping.find(pName) == propDeprecationMapping.end())
         return pName;
+
     std::string nName = propDeprecationMapping.find(pName)->second.repl;
-    int type = propDeprecationMapping.find(pName)->second.type;
-    if (type != -1)
-    { // do we have the intended target?
-        if ((target == sim_handle_scene) && (type != sim_objecttype_scene))
-            return pName;
-        else if ((target == sim_handle_app) && (type != sim_objecttype_app))
-            return pName;
+    const std::vector<int>* types = &propDeprecationMapping.find(pName)->second.types;
+    int okCnt = 0;
+    for (size_t i = 0; i < types->size(); i++)
+    {
+        int type = types->at(i);
+        if ((target == sim_handle_scene) && (type == sim_objecttype_scene))
+            break;
+        else if ((target == sim_handle_app) && (type == sim_objecttype_app))
+            break;
         else if ((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectclassend))
         {
-            if (type != sim_objecttype_sceneobject)
+            if (type == sim_objecttype_sceneobject)
+                break;
+            else
             {
                 CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(target);
-                if ((obj == nullptr) || (obj->getObjectType() != type))
-                    return pName;
+                if ((obj != nullptr) && (obj->getObjectType() == type))
+                    break;
             }
         }
-        else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend) && (type != sim_objecttype_detachedscript))
-            return pName;
-        else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend) && (type != sim_objecttype_interfacestack))
-            return pName;
-        else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend) && (type != sim_objecttype_collection))
-            return pName;
-        else if ((target >= sim_object_customstart) && (target <= sim_object_customend) && (type != sim_objecttype_customobject))
-            return pName;
+        else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend) && (type == sim_objecttype_detachedscript))
+            break;
+        else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend) && (type == sim_objecttype_interfacestack))
+            break;
+        else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend) && (type == sim_objecttype_collection))
+            break;
+        else if ((target >= sim_object_customstart) && (target <= sim_object_customend) && (type == sim_objecttype_customobject))
+            break;
+        else
+            okCnt++;
     }
+    if (okCnt == types->size())
+        return pName;
     std::string str("property '");
     str += pName;
     str += "' is deprecated.";
