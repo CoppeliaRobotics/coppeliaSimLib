@@ -589,9 +589,8 @@ void CJoint::setDependencyMasterJointHandle(int depJointID)
         {
             if (App::getEventProtocolVersion() == 3)
             {
-                const char* cmd = propJoint_DEPRECATED_dependencyMaster.name;
-                CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-                ev->appendKeyInt64(cmd, _dependencyMasterJointHandle);
+                CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, nullptr, true);
+                ev->appendKeyInt64("dependencyMasterHandle", _dependencyMasterJointHandle);
             }
             else
             {
@@ -2035,7 +2034,10 @@ void CJoint::addObjectEventData(CCbor* ev)
     ev->appendKeyInt64(propJoint_dynCtrlMode.name, _dynCtrlMode);
     ev->appendKeyInt64(propJoint_dynVelMode.name, _dynVelocityCtrlType);
     ev->appendKeyInt64(propJoint_dynPosMode.name, _dynPositionCtrlType);
-    ev->appendKeyInt64(propJoint_DEPRECATED_dependencyMaster.name, _dependencyMasterJointHandle);
+    if (App::getEventProtocolVersion() <= 3)
+        ev->appendKeyInt64("dependencyMasterHandle", _dependencyMasterJointHandle);
+    else
+        ev->appendKeyHandle(propJoint_dependencyMaster.name, _dependencyMasterJointHandle);
     double arr[2] = {_dependencyJointOffset, _dependencyJointMult};
     ev->appendKeyDoubleArray(propJoint_dependencyParams.name, arr, 2);
     ev->appendKeyBool(propJoint_cyclic.name, _isCyclic);

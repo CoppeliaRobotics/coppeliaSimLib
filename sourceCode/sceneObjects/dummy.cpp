@@ -279,7 +279,7 @@ void CDummy::addObjectEventData(CCbor* ev)
     ev->appendKeyDouble(propDummy_size.name, _dummySize);
     if (App::getEventProtocolVersion() <= 3)
     {
-        ev->appendKeyInt64(propDummy_DEPRECATED_linkedDummyHandle.name, _linkedDummyHandle); // for backw. compatibility
+        ev->appendKeyInt64("linkedDummyHandle", _linkedDummyHandle); // for backw. compatibility
         ev->appendKeyInt64(propDummy_linkedDummy.name, _linkedDummyHandle);
     }
     else
@@ -934,7 +934,7 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
             if (App::getEventProtocolVersion() <= 3)
             {
                 ev->appendKeyInt64(cmd, _linkedDummyHandle);
-                ev->appendKeyInt64(propDummy_DEPRECATED_linkedDummyHandle.name, _linkedDummyHandle);
+                ev->appendKeyInt64("linkedDummyHandle", _linkedDummyHandle);
             }
             else
                 ev->appendKeyHandle(cmd, _linkedDummyHandle);

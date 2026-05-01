@@ -4157,7 +4157,18 @@ void App::pushGenesisEvents()
         ev->appendKeyTextArray(propApp_pluginNames.name, _pluginNames);
         std::vector<int> addOnList(scenes->addOnScriptContainer->getAddOnHandles());
         if (App::getEventProtocolVersion() <= 3)
+        {
             ev->appendKeyInt32Array(propApp_addOns.name, addOnList.data(), addOnList.size());
+            ev->appendKeyText("appArg1", getApplicationArgument(0).c_str());
+            ev->appendKeyText("appArg2", getApplicationArgument(1).c_str());
+            ev->appendKeyText("appArg3", getApplicationArgument(2).c_str());
+            ev->appendKeyText("appArg4", getApplicationArgument(3).c_str());
+            ev->appendKeyText("appArg5", getApplicationArgument(4).c_str());
+            ev->appendKeyText("appArg6", getApplicationArgument(5).c_str());
+            ev->appendKeyText("appArg7", getApplicationArgument(6).c_str());
+            ev->appendKeyText("appArg8", getApplicationArgument(7).c_str());
+            ev->appendKeyText("appArg9", getApplicationArgument(8).c_str());
+        }
         else
             ev->appendKeyHandleArray(propApp_addOns.name, addOnList.data(), addOnList.size());
 
@@ -4232,15 +4243,6 @@ void App::pushGenesisEvents()
         ev->appendKeyBool(propApp_hierarchyEnabled.name, getHierarchyEnabled());
         ev->appendKeyBool(propApp_displayEnabled.name, getOpenGlDisplayEnabled());
         ev->appendKeyInt64(propApp_headlessMode.name, getHeadlessMode());
-        ev->appendKeyText(propApp_DEPRECATED_appArg1.name, getApplicationArgument(0).c_str());
-        ev->appendKeyText(propApp_DEPRECATED_appArg2.name, getApplicationArgument(1).c_str());
-        ev->appendKeyText(propApp_DEPRECATED_appArg3.name, getApplicationArgument(2).c_str());
-        ev->appendKeyText(propApp_DEPRECATED_appArg4.name, getApplicationArgument(3).c_str());
-        ev->appendKeyText(propApp_DEPRECATED_appArg5.name, getApplicationArgument(4).c_str());
-        ev->appendKeyText(propApp_DEPRECATED_appArg6.name, getApplicationArgument(5).c_str());
-        ev->appendKeyText(propApp_DEPRECATED_appArg7.name, getApplicationArgument(6).c_str());
-        ev->appendKeyText(propApp_DEPRECATED_appArg8.name, getApplicationArgument(7).c_str());
-        ev->appendKeyText(propApp_DEPRECATED_appArg9.name, getApplicationArgument(8).c_str());
         ev->appendKeyInt64(propApp_pid.name, pid);
 
         if (userSettings != nullptr)

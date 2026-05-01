@@ -498,7 +498,7 @@ void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia, bool force
                 double dat[9];
                 _in *= _mass;
                 _in.getData(dat);
-                ev->appendKeyDoubleArray(propMeshWrapper_DEPRECATED_inertia.name, dat, 9);
+                ev->appendKeyDoubleArray("inertia", dat, 9);
                 _pmiRotFrame.getData(dat, true);
                 ev->appendKeyDoubleArray(propMeshWrapper_pmiQuaternion.name, dat, 4);
             }
@@ -1277,7 +1277,7 @@ void CMeshWrapper::addObjectEventData(int parentObjectHandle, CCbor* ev)
             C3X3Matrix inertia(_iMatrix * _mass);
             double dat[9];
             inertia.getData(dat);
-            ev->appendKeyDoubleArray(propMeshWrapper_DEPRECATED_inertia.name, dat, 9);
+            ev->appendKeyDoubleArray("inertia", dat, 9);
             _pmiRotFrame.getData(dat, true);
             ev->appendKeyDoubleArray(propMeshWrapper_pmiQuaternion.name, dat, 4);
         }

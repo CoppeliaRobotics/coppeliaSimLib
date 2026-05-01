@@ -694,9 +694,8 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
         App::scenes->pushEvent();
         if (App::getEventProtocolVersion() < 4)
         { // --- For backward compatibility ---
-            cmd = propSceneObjectCont_DEPRECATED_objectHandles.name;
-            ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
-            ev->appendKeyInt32Array(cmd, f_objectHandles.data(), f_objectHandles.size());
+            ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, true);
+            ev->appendKeyInt32Array("objectHandles", f_objectHandles.data(), f_objectHandles.size());
             App::scenes->pushEvent();
         }
 
@@ -712,9 +711,8 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
             App::scenes->pushEvent();
             if (App::getEventProtocolVersion() < 4)
             { // --- For backward compatibility ---
-                cmd = propSceneObjectCont_DEPRECATED_orphanHandles.name;
-                ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
-                ev->appendKeyInt32Array(cmd, f_orphanHandles.data(), f_orphanHandles.size());
+                ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, true);
+                ev->appendKeyInt32Array("orphanHandles", f_orphanHandles.data(), f_orphanHandles.size());
                 App::scenes->pushEvent();
             }
         }
@@ -733,9 +731,8 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
     App::scenes->pushEvent();
     if (App::getEventProtocolVersion() < 4)
     { // --- For backward compatibility ---
-        cmd = propSceneObjectCont_DEPRECATED_objectHandles.name;
-        ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
-        ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
+        ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, true);
+        ev->appendKeyInt32Array("objectHandles", arr.data(), arr.size());
         App::scenes->pushEvent();
     }
 
@@ -752,9 +749,8 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
     App::scenes->pushEvent();
     if (App::getEventProtocolVersion() < 4)
     { // --- For backward compatibility ---
-        cmd = propSceneObjectCont_DEPRECATED_orphanHandles.name;
-        ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
-        ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
+        ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, true);
+        ev->appendKeyInt32Array("orphanHandles", arr.data(), arr.size());
         App::scenes->pushEvent();
     }
 
@@ -769,9 +765,8 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
     App::scenes->pushEvent();
     if (App::getEventProtocolVersion() < 4)
     { // --- For backward compatibility ---
-        cmd = propSceneObjectCont_DEPRECATED_selectionHandles.name;
-        ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
-        ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
+        ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, true);
+        ev->appendKeyInt32Array("selectionHandles", _selectedObjectHandles.data(), _selectedObjectHandles.size());
         App::scenes->pushEvent();
     }
 
@@ -797,9 +792,9 @@ void CSceneObjectContainer::appendNonObjectGenesisData(CCbor* ev) const
     ev->closeArrayOrMap();
     if (App::getEventProtocolVersion() < 4)
     { // --- For backward compatibility ---
-        ev->appendKeyInt32Array(propSceneObjectCont_DEPRECATED_objectHandles.name, arr.data(), arr.size());
-        ev->appendKeyInt32Array(propSceneObjectCont_DEPRECATED_orphanHandles.name, arr.data(), arr.size());
-        ev->appendText(propSceneObjectCont_DEPRECATED_selectionHandles.name);
+        ev->appendKeyInt32Array("objectHandles", arr.data(), arr.size());
+        ev->appendKeyInt32Array("orphanHandles", arr.data(), arr.size());
+        ev->appendText("selectionHandles");
         ev->openArray();
         ev->closeArrayOrMap();
     }
@@ -1796,9 +1791,8 @@ bool CSceneObjectContainer::setSelectedObjectHandles(const int* v, size_t length
             App::scenes->pushEvent();
             if (App::getEventProtocolVersion() < 4)
             { // --- For backward compatibility ---
-                cmd = propSceneObjectCont_DEPRECATED_selectionHandles.name;
-                ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
-                ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
+                ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, true);
+                ev->appendKeyInt32Array("selectionHandles", _selectedObjectHandles.data(), _selectedObjectHandles.size());
                 App::scenes->pushEvent();
             }
         }
@@ -6007,9 +6001,8 @@ void CSceneObjectContainer::_setAllObjects(const std::vector<CSceneObject*>& new
             App::scenes->pushEvent();
             if (App::getEventProtocolVersion() < 4)
             { // --- For backward compatibility ---
-                cmd = propSceneObjectCont_DEPRECATED_objectHandles.name;
-                ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
-                ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
+                ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, true);
+                ev->appendKeyInt32Array("objectHandles", arr.data(), arr.size());
                 App::scenes->pushEvent();
             }
         }
