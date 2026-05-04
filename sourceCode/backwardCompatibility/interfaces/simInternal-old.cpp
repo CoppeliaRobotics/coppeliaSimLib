@@ -7866,7 +7866,7 @@ int simSetInt32Param_internal(int parameter, int intState)
 #ifdef SIM_WITH_GUI
             App::appendSimulationThreadCommand(SWITCH_TOINSTANCEINDEX_GUITRIGGEREDCMD, intState);
 #else
-            App::scenes->switchToWorld(intState);
+            App::scenes->switchToScene(intState);
 #endif
             return (1);
         }

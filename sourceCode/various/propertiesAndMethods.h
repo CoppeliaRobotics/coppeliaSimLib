@@ -173,21 +173,21 @@ struct SJointProperty
     FUNCX(propApp_hierarchyEnabled, "hierarchyEnabled", sim_propertytype_bool, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Hierarchy enabled"}, {"description", ""}}), "") \
     FUNCX(propApp_browserEnabled, "browserEnabled", sim_propertytype_bool, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Browser enabled"}, {"description", ""}}), "") \
     FUNCX(propApp_displayEnabled, "displayEnabled", sim_propertytype_bool, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Display enabled"}, {"description", ""}}), "") \
-    FUNCX(propApp_appDir, "appPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Application path"}, {"description", ""}}), "") \
     FUNCX(propApp_machineId, "machineId", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Machine ID"}, {"description", ""}}), "") \
     FUNCX(propApp_legacyMachineId, "legacyMachineId", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Legacy machine ID"}, {"description", ""}}), "") \
-    FUNCX(propApp_tempDir, "tempPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Temporary path"}, {"description", ""}}), "") \
-    FUNCX(propApp_sceneTempDir, "sceneTempPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Scene temporary path"}, {"description", ""}}), "") \
-    FUNCX(propApp_settingsDir, "settingsPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Settings path"}, {"description", ""}}), "") \
-    FUNCX(propApp_luaDir, "luaPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Lua path"}, {"description", ""}}), "") \
-    FUNCX(propApp_pythonDir, "pythonPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Python path"}, {"description", ""}}), "") \
-    FUNCX(propApp_mujocoDir, "mujocoPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "MuJoCo path"}, {"description", ""}}), "") \
-    FUNCX(propApp_systemDir, "systemPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "System path"}, {"description", ""}}), "") \
-    FUNCX(propApp_resourceDir, "resourcePath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Resource path"}, {"description", ""}}), "") \
-    FUNCX(propApp_addOnDir, "addOnPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Add-on path"}, {"description", ""}}), "") \
-    FUNCX(propApp_sceneDir, "scenePath", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Scene path"}, {"description", ""}}), "") \
-    FUNCX(propApp_modelDir, "modelPath", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Model path"}, {"description", ""}}), "") \
-    FUNCX(propApp_importExportDir, "importExportPath", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Import/export path"}, {"description", ""}}), "") \
+    FUNCX(propApp_appDir, "paths.app", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Application path"}, {"description", ""}}), "") \
+    FUNCX(propApp_tempDir, "paths.temp", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Temporary path"}, {"description", ""}}), "") \
+    FUNCX(propApp_sceneTempDir, "paths.sceneTemp", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Scene temporary path"}, {"description", ""}}), "") \
+    FUNCX(propApp_settingsDir, "paths.settings", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Settings path"}, {"description", ""}}), "") \
+    FUNCX(propApp_luaDir, "paths.lua", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Lua path"}, {"description", ""}}), "") \
+    FUNCX(propApp_pythonDir, "paths.python", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Python path"}, {"description", ""}}), "") \
+    FUNCX(propApp_mujocoDir, "paths.mujoco", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "MuJoCo path"}, {"description", ""}}), "") \
+    FUNCX(propApp_systemDir, "paths.system", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "System path"}, {"description", ""}}), "") \
+    FUNCX(propApp_resourceDir, "paths.resources", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Resource path"}, {"description", ""}}), "") \
+    FUNCX(propApp_addOnDir, "paths.addOns", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Add-on path"}, {"description", ""}}), "") \
+    FUNCX(propApp_sceneDir, "paths.scenes", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Scene path"}, {"description", ""}}), "") \
+    FUNCX(propApp_modelDir, "paths.models", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Model path"}, {"description", ""}}), "") \
+    FUNCX(propApp_importExportDir, "paths.importExport", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Import/export path"}, {"description", ""}}), "") \
     FUNCX(propApp_defaultPython, "defaultPython", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Default Python"}, {"description", "Default Python interpreter"}}), "") \
     FUNCX(propApp_sandboxLang, "sandboxLang", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Sandbox language"}, {"description", "Default sandbox language"}}), "") \
     FUNCX(propApp_headlessMode, "headlessMode", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Headless mode"}, {"description", "Headless mode (0: not headless, 1: GUI suppressed, 2: headless library)"}}), "") \
@@ -268,6 +268,19 @@ struct SJointProperty
     FUNCX(propApp_METHOD_createCustomObjectClass, "createCustomObjectClass", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_quit, "quit", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
+    FUNCX(propApp_DEPRECATED_appDir, "appPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_DEPRECATED_tempDir, "tempPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_DEPRECATED_sceneTempDir, "sceneTempPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_DEPRECATED_settingsDir, "settingsPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_DEPRECATED_luaDir, "luaPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_DEPRECATED_pythonDir, "pythonPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_DEPRECATED_mujocoDir, "mujocoPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_DEPRECATED_systemDir, "systemPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_DEPRECATED_resourceDir, "resourcePath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_DEPRECATED_addOnDir, "addOnPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propApp_DEPRECATED_sceneDir, "scenePath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent, "", "") \
+    FUNCX(propApp_DEPRECATED_modelDir, "modelPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent, "", "") \
+    FUNCX(propApp_DEPRECATED_importExportDir, "importExportPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent, "", "") \
     FUNCX(propApp_DEPRECATED_appArg1, "appArg1", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 1"}, {"description", ""}}), "") \
     FUNCX(propApp_DEPRECATED_appArg2, "appArg2", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 2"}, {"description", ""}}), "") \
     FUNCX(propApp_DEPRECATED_appArg3, "appArg3", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "App arg. 3"}, {"description", ""}}), "") \
@@ -595,18 +608,31 @@ struct SJointProperty
     FUNCX(propScene_DEPRECATED_scenePath, "scenePath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE,  "", "")
 
 #define SIMULATION_PROPERTIES \
-    FUNCX(propSimulation_removeNewObjectsAtEnd, "removeNewObjectsAtEnd", sim_propertytype_bool, 0,  jsonStr({{"label", "Remove new objects"}, {"description", "Remove new scene objects at simulation end"}}), "") \
-    FUNCX(propSimulation_realtimeSimulation, "realtimeSimulation", sim_propertytype_bool, 0,  jsonStr({{"label", "Real-time simulation"}, {"description", ""}}), "") \
-    FUNCX(propSimulation_pauseSimulationAtTime, "pauseSimulationAtTime", sim_propertytype_bool, 0,  jsonStr({{"label", "Pause simulation at time"}, {"description", "Pause simulation when simulation time exceeds a threshold"}}), "") \
-    FUNCX(propSimulation_pauseSimulationAtError, "pauseSimulationAtError", sim_propertytype_bool, 0,  jsonStr({{"label", "Pause simulation on script error"}, {"description", ""}}), "") \
-    FUNCX(propSimulation_simulationTime, "simulationTime", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Simulation time"}, {"description", ""}}), "") \
-    FUNCX(propSimulation_timeStep, "timeStep", sim_propertytype_float, 0,  jsonStr({{"label", "Simulation dt"}, {"description", "Simulation time step"}}), "") \
-    FUNCX(propSimulation_timeToPause, "timeToPause", sim_propertytype_float, 0,  jsonStr({{"label", "Simulation pause time"}, {"description", "Time at which simulation should pause"}}), "") \
-    FUNCX(propSimulation_realtimeModifier, "realtimeModifier", sim_propertytype_float, 0,  jsonStr({{"label", "Real-time modifier"}, {"description", "Real-time multiplication factor"}}), "") \
-    FUNCX(propSimulation_stepCount, "stepCount", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Simulation steps"}, {"description", "Counter of simulation steps"}}), "") \
-    FUNCX(propSimulation_simulationState, "simulationState", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Simulation state"}, {"description", ""}}), "") \
-    FUNCX(propSimulation_stepsPerRendering, "stepsPerRendering", sim_propertytype_int, 0,  jsonStr({{"label", "Steps per frame"}, {"description", "Simulation steps per frame"}}), "") \
-    FUNCX(propSimulation_speedModifier, "speedModifier", sim_propertytype_int, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Speed modifier"}, {"description", ""}}), "")
+    FUNCX(propSimulation_removeNewObjectsAtEnd, "simulation.removeNewObjects", sim_propertytype_bool, 0,  jsonStr({{"label", "Remove new objects"}, {"description", "Remove new scene objects at simulation end"}}), "") \
+    FUNCX(propSimulation_realtimeSimulation, "simulation.realtime", sim_propertytype_bool, 0,  jsonStr({{"label", "Real-time simulation"}, {"description", ""}}), "") \
+    FUNCX(propSimulation_pauseSimulationAtTime, "simulation.pauseAtTime", sim_propertytype_bool, 0,  jsonStr({{"label", "Pause simulation at time"}, {"description", "Pause simulation when simulation time exceeds a threshold"}}), "") \
+    FUNCX(propSimulation_pauseSimulationAtError, "simulation.pauseAtError", sim_propertytype_bool, 0,  jsonStr({{"label", "Pause simulation on script error"}, {"description", ""}}), "") \
+    FUNCX(propSimulation_simulationTime, "simulation.time", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Simulation time"}, {"description", ""}}), "") \
+    FUNCX(propSimulation_timeStep, "simulation.timeStep", sim_propertytype_float, 0,  jsonStr({{"label", "Simulation dt"}, {"description", "Simulation time step"}}), "") \
+    FUNCX(propSimulation_timeToPause, "simulation.timeToPause", sim_propertytype_float, 0,  jsonStr({{"label", "Simulation pause time"}, {"description", "Time at which simulation should pause"}}), "") \
+    FUNCX(propSimulation_realtimeModifier, "simulation.realtimeModifier", sim_propertytype_float, 0,  jsonStr({{"label", "Real-time modifier"}, {"description", "Real-time multiplication factor"}}), "") \
+    FUNCX(propSimulation_stepCount, "simulation.stepCount", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Simulation steps"}, {"description", "Counter of simulation steps"}}), "") \
+    FUNCX(propSimulation_simulationState, "simulation.state", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Simulation state"}, {"description", ""}}), "") \
+    FUNCX(propSimulation_stepsPerRendering, "simulation.stepsPerRendering", sim_propertytype_int, 0,  jsonStr({{"label", "Steps per frame"}, {"description", "Simulation steps per frame"}}), "") \
+    FUNCX(propSimulation_speedModifier, "simulation.speedModifier", sim_propertytype_int, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Speed modifier"}, {"description", ""}}), "") \
+    FUNCX(propSimulation_DEPRECATED_removeNewObjectsAtEnd, "removeNewObjectsAtEnd", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSimulation_DEPRECATED_realtimeSimulation, "realtimeSimulation", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSimulation_DEPRECATED_pauseSimulationAtTime, "pauseSimulationAtTime", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSimulation_DEPRECATED_pauseSimulationAtError, "pauseSimulationAtError", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSimulation_DEPRECATED_simulationTime, "simulationTime", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propSimulation_DEPRECATED_timeStep, "timeStep", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSimulation_DEPRECATED_timeToPause, "timeToPause", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSimulation_DEPRECATED_realtimeModifier, "realtimeModifier", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSimulation_DEPRECATED_stepCount, "stepCount", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propSimulation_DEPRECATED_simulationState, "simulationState", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propSimulation_DEPRECATED_stepsPerRendering, "stepsPerRendering", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propSimulation_DEPRECATED_speedModifier, "speedModifier", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "")
+
 
 #define MESHWRAPPER_PROPERTIES \
     FUNCX(propMeshWrapper_mass, "mass", sim_propertytype_float, 0,  jsonStr({{"label", "Mass"}, {"description", ""}}), "") \

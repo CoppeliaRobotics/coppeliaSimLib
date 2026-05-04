@@ -4191,19 +4191,38 @@ void App::pushGenesisEvents()
 
         if (folders != nullptr)
         {
-            ev->appendKeyText(propApp_appDir.name, folders->getExecutablePath().c_str());
-            ev->appendKeyText(propApp_tempDir.name, folders->getTempDataPath().c_str());
-            ev->appendKeyText(propApp_sceneTempDir.name, folders->getSceneTempDataPath().c_str());
-            ev->appendKeyText(propApp_settingsDir.name, folders->getUserSettingsPath().c_str());
-            ev->appendKeyText(propApp_luaDir.name, folders->getLuaPath().c_str());
-            ev->appendKeyText(propApp_pythonDir.name, folders->getPythonPath().c_str());
-            ev->appendKeyText(propApp_mujocoDir.name, folders->getMujocoPath().c_str());
-            ev->appendKeyText(propApp_systemDir.name, folders->getSystemPath().c_str());
-            ev->appendKeyText(propApp_resourceDir.name, folders->getResourcesPath().c_str());
-            ev->appendKeyText(propApp_addOnDir.name, folders->getAddOnPath().c_str());
-            ev->appendKeyText(propApp_sceneDir.name, folders->getScenesPath().c_str());
-            ev->appendKeyText(propApp_modelDir.name, folders->getModelsPath().c_str());
-            ev->appendKeyText(propApp_importExportDir.name, folders->getImportExportPath().c_str());
+            if (App::getEventProtocolVersion() <= 3)
+            {
+                ev->appendKeyText("appPath", folders->getExecutablePath().c_str());
+                ev->appendKeyText("tempPath", folders->getTempDataPath().c_str());
+                ev->appendKeyText("sceneTempPath", folders->getSceneTempDataPath().c_str());
+                ev->appendKeyText("settingsPath", folders->getUserSettingsPath().c_str());
+                ev->appendKeyText("luaPath", folders->getLuaPath().c_str());
+                ev->appendKeyText("pythonPath", folders->getPythonPath().c_str());
+                ev->appendKeyText("mujocoPath", folders->getMujocoPath().c_str());
+                ev->appendKeyText("systemPath", folders->getSystemPath().c_str());
+                ev->appendKeyText("resourcePath", folders->getResourcesPath().c_str());
+                ev->appendKeyText("addOnPath", folders->getAddOnPath().c_str());
+                ev->appendKeyText("scenePath", folders->getScenesPath().c_str());
+                ev->appendKeyText("modelPath", folders->getModelsPath().c_str());
+                ev->appendKeyText("importExportPath", folders->getImportExportPath().c_str());
+            }
+            else
+            {
+                ev->appendKeyText(propApp_appDir.name, folders->getExecutablePath().c_str());
+                ev->appendKeyText(propApp_tempDir.name, folders->getTempDataPath().c_str());
+                ev->appendKeyText(propApp_sceneTempDir.name, folders->getSceneTempDataPath().c_str());
+                ev->appendKeyText(propApp_settingsDir.name, folders->getUserSettingsPath().c_str());
+                ev->appendKeyText(propApp_luaDir.name, folders->getLuaPath().c_str());
+                ev->appendKeyText(propApp_pythonDir.name, folders->getPythonPath().c_str());
+                ev->appendKeyText(propApp_mujocoDir.name, folders->getMujocoPath().c_str());
+                ev->appendKeyText(propApp_systemDir.name, folders->getSystemPath().c_str());
+                ev->appendKeyText(propApp_resourceDir.name, folders->getResourcesPath().c_str());
+                ev->appendKeyText(propApp_addOnDir.name, folders->getAddOnPath().c_str());
+                ev->appendKeyText(propApp_sceneDir.name, folders->getScenesPath().c_str());
+                ev->appendKeyText(propApp_modelDir.name, folders->getModelsPath().c_str());
+                ev->appendKeyText(propApp_importExportDir.name, folders->getImportExportPath().c_str());
+            }
         }
 
         scenes->customAppData_volatile.appendEventData(nullptr, ev);

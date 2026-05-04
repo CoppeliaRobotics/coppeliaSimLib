@@ -670,7 +670,7 @@ bool isPropertyNameValid(const char* functionName, const char* pName)
 
 std::string checkForDeprecation(const char* funcName, const char* pName, int target)
 {
-    if (propDeprecationMapping.find(pName) == propDeprecationMapping.end())
+   if (propDeprecationMapping.find(pName) == propDeprecationMapping.end())
         return pName;
 
     std::string nName = propDeprecationMapping.find(pName)->second.repl;
@@ -692,6 +692,8 @@ std::string checkForDeprecation(const char* funcName, const char* pName, int tar
                 CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(target);
                 if ((obj != nullptr) && (obj->getObjectType() == type))
                     break;
+                else
+                    okCnt++;
             }
         }
         else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend) && (type == sim_objecttype_detachedscript))

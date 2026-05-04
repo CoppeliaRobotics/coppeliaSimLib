@@ -105,7 +105,10 @@ void CSimulation::setRemoveNewObjectsAtSimulationEnd(bool r)
         if (App::scenes->getEventsEnabled())
         {
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, propSimulation_removeNewObjectsAtEnd.name, true);
-            ev->appendKeyBool(propSimulation_removeNewObjectsAtEnd.name, _removeNewObjectsAtSimulationEnd);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyBool("removeNewObjectsAtEnd", _removeNewObjectsAtSimulationEnd);
+            else
+                ev->appendKeyBool(propSimulation_removeNewObjectsAtEnd.name, _removeNewObjectsAtSimulationEnd);
             App::scenes->pushEvent();
         }
     }
@@ -376,7 +379,10 @@ void CSimulation::setTimeStep(double dt, bool alsoWhenRunning /*= false*/)
             if (App::scenes->getEventsEnabled())
             {
                 CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, propSimulation_timeStep.name, true);
-                ev->appendKeyDouble(propSimulation_timeStep.name, _simulationTimeStep);
+                if (App::getEventProtocolVersion() <= 3)
+                    ev->appendKeyDouble("timeStep", _simulationTimeStep);
+                else
+                    ev->appendKeyDouble(propSimulation_timeStep.name, _simulationTimeStep);
                 App::scenes->pushEvent();
             }
 #ifdef SIM_WITH_GUI
@@ -415,7 +421,10 @@ void CSimulation::setIsRealTimeSimulation(bool realTime)
             if (App::scenes->getEventsEnabled())
             {
                 CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, propSimulation_realtimeSimulation.name, true);
-                ev->appendKeyBool(propSimulation_realtimeSimulation.name, _realTimeSimulation);
+                if (App::getEventProtocolVersion() <= 3)
+                    ev->appendKeyBool("realtimeSimulation", _realTimeSimulation);
+                else
+                    ev->appendKeyBool(propSimulation_realtimeSimulation.name, _realTimeSimulation);
                 App::scenes->pushEvent();
             }
         }
@@ -452,7 +461,10 @@ void CSimulation::setRealTimeCoeff(double coeff)
         if (App::scenes->getEventsEnabled())
         {
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, propSimulation_realtimeModifier.name, true);
-            ev->appendKeyDouble(propSimulation_realtimeModifier.name, _realTimeCoefficient);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyDouble("realtimeModifier", _realTimeCoefficient);
+            else
+                ev->appendKeyDouble(propSimulation_realtimeModifier.name, _realTimeCoefficient);
             App::scenes->pushEvent();
         }
     }
@@ -470,7 +482,10 @@ void CSimulation::setPassesPerRendering(int n)
             if (App::scenes->getEventsEnabled())
             {
                 CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, propSimulation_stepsPerRendering.name, true);
-                ev->appendKeyInt64(propSimulation_stepsPerRendering.name, _simulationPassesPerRendering);
+                if (App::getEventProtocolVersion() <= 3)
+                    ev->appendKeyInt64("stepsPerRendering", _simulationPassesPerRendering);
+                else
+                    ev->appendKeyInt64(propSimulation_stepsPerRendering.name, _simulationPassesPerRendering);
                 App::scenes->pushEvent();
             }
         }
@@ -486,7 +501,10 @@ void CSimulation::setSimulationStepCount(int cnt)
         if (App::scenes->getEventsEnabled())
         {
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, propSimulation_stepCount.name, true);
-            ev->appendKeyInt64(propSimulation_stepCount.name, _simulationStepCount);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyInt64("stepCount", _simulationStepCount);
+            else
+                ev->appendKeyInt64(propSimulation_stepCount.name, _simulationStepCount);
             App::scenes->pushEvent();
         }
     }
@@ -501,18 +519,36 @@ void CSimulation::appendGenesisData(CCbor* ev) const
     }
     else
     {
-        ev->appendKeyBool(propSimulation_removeNewObjectsAtEnd.name, _removeNewObjectsAtSimulationEnd);
-        ev->appendKeyBool(propSimulation_realtimeSimulation.name, _realTimeSimulation);
-        ev->appendKeyBool(propSimulation_pauseSimulationAtTime.name, _pauseAtSpecificTime);
-        ev->appendKeyBool(propSimulation_pauseSimulationAtError.name, _pauseAtError);
-        ev->appendKeyInt64(propSimulation_simulationState.name, _simulationState);
-        ev->appendKeyInt64(propSimulation_stepCount.name, _simulationStepCount);
-        ev->appendKeyInt64(propSimulation_stepsPerRendering.name, _simulationPassesPerRendering);
-        ev->appendKeyInt64(propSimulation_speedModifier.name, _speedModifierCount);
-        ev->appendKeyDouble(propSimulation_simulationTime.name, _simulationTime);
-        ev->appendKeyDouble(propSimulation_timeStep.name, _simulationTimeStep);
-        ev->appendKeyDouble(propSimulation_timeToPause.name, _simulationTimeToPause);
-        ev->appendKeyDouble(propSimulation_realtimeModifier.name, _realTimeCoefficient);
+        if (App::getEventProtocolVersion() <= 3)
+        {
+            ev->appendKeyBool("removeNewObjectsAtEnd", _removeNewObjectsAtSimulationEnd);
+            ev->appendKeyBool("realtimeSimulation", _realTimeSimulation);
+            ev->appendKeyBool("pauseSimulationAtTime", _pauseAtSpecificTime);
+            ev->appendKeyBool("pauseSimulationAtError", _pauseAtError);
+            ev->appendKeyInt64("simulationState", _simulationState);
+            ev->appendKeyInt64("stepCount", _simulationStepCount);
+            ev->appendKeyInt64("stepsPerRendering", _simulationPassesPerRendering);
+            ev->appendKeyInt64("speedModifier", _speedModifierCount);
+            ev->appendKeyDouble("simulationTime", _simulationTime);
+            ev->appendKeyDouble("timeStep", _simulationTimeStep);
+            ev->appendKeyDouble("timeToPause", _simulationTimeToPause);
+            ev->appendKeyDouble("realtimeModifier", _realTimeCoefficient);
+        }
+        else
+        {
+            ev->appendKeyBool(propSimulation_removeNewObjectsAtEnd.name, _removeNewObjectsAtSimulationEnd);
+            ev->appendKeyBool(propSimulation_realtimeSimulation.name, _realTimeSimulation);
+            ev->appendKeyBool(propSimulation_pauseSimulationAtTime.name, _pauseAtSpecificTime);
+            ev->appendKeyBool(propSimulation_pauseSimulationAtError.name, _pauseAtError);
+            ev->appendKeyInt64(propSimulation_simulationState.name, _simulationState);
+            ev->appendKeyInt64(propSimulation_stepCount.name, _simulationStepCount);
+            ev->appendKeyInt64(propSimulation_stepsPerRendering.name, _simulationPassesPerRendering);
+            ev->appendKeyInt64(propSimulation_speedModifier.name, _speedModifierCount);
+            ev->appendKeyDouble(propSimulation_simulationTime.name, _simulationTime);
+            ev->appendKeyDouble(propSimulation_timeStep.name, _simulationTimeStep);
+            ev->appendKeyDouble(propSimulation_timeToPause.name, _simulationTimeToPause);
+            ev->appendKeyDouble(propSimulation_realtimeModifier.name, _realTimeCoefficient);
+        }
     }
 }
 
@@ -533,7 +569,10 @@ void CSimulation::setSimulationState(int state)
             else
             {
                 CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, propSimulation_simulationState.name, true);
-                ev->appendKeyInt64(propSimulation_simulationState.name, _simulationState);
+                if (App::getEventProtocolVersion() <= 3)
+                    ev->appendKeyInt64("simulationState", _simulationState);
+                else
+                    ev->appendKeyInt64(propSimulation_simulationState.name, _simulationState);
             }
             App::scenes->pushEvent();
         }
@@ -584,7 +623,10 @@ void CSimulation::setPauseAtError(bool br)
         if (App::scenes->getEventsEnabled())
         {
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, propSimulation_pauseSimulationAtError.name, true);
-            ev->appendKeyBool(propSimulation_pauseSimulationAtError.name, _pauseAtError);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyBool("pauseSimulationAtError", _pauseAtError);
+            else
+                ev->appendKeyBool(propSimulation_pauseSimulationAtError.name, _pauseAtError);
             App::scenes->pushEvent();
         }
     }
@@ -617,7 +659,10 @@ void CSimulation::setPauseTime(double time)
         if (App::scenes->getEventsEnabled())
         {
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, propSimulation_timeToPause.name, true);
-            ev->appendKeyDouble(propSimulation_timeToPause.name, _simulationTimeToPause);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyDouble("timeToPause", _simulationTimeToPause);
+            else
+                ev->appendKeyDouble(propSimulation_timeToPause.name, _simulationTimeToPause);
             App::scenes->pushEvent();
         }
     }
@@ -642,7 +687,10 @@ void CSimulation::setPauseAtSpecificTime(bool e)
         if (App::scenes->getEventsEnabled())
         {
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, propSimulation_pauseSimulationAtTime.name, true);
-            ev->appendKeyBool(propSimulation_pauseSimulationAtTime.name, _pauseAtSpecificTime);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyBool("pauseSimulationAtTime", _pauseAtSpecificTime);
+            else
+                ev->appendKeyBool(propSimulation_pauseSimulationAtTime.name, _pauseAtSpecificTime);
             App::scenes->pushEvent();
         }
     }
@@ -670,7 +718,10 @@ void CSimulation::_setSimulationTime(double t)
             else
             {
                 CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, propSimulation_simulationTime.name, true);
-                ev->appendKeyDouble(propSimulation_simulationTime.name, _simulationTime);
+                if (App::getEventProtocolVersion() <= 3)
+                    ev->appendKeyDouble("simulationTime", _simulationTime);
+                else
+                    ev->appendKeyDouble(propSimulation_simulationTime.name, _simulationTime);
             }
             App::scenes->pushEvent();
         }
@@ -754,7 +805,10 @@ void CSimulation::_setSpeedModifierRaw(int sm)
         {
             const char* cmd = propSimulation_speedModifier.name;
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
-            ev->appendKeyInt64(cmd, _speedModifierCount);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyInt64("speedModifier", _speedModifierCount);
+            else
+                ev->appendKeyInt64(cmd, _speedModifierCount);
             App::scenes->pushEvent();
         }
 #ifdef SIM_WITH_GUI
