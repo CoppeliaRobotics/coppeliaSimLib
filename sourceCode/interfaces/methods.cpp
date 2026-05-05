@@ -3233,10 +3233,16 @@ std::string _method_dynamicReset(int targetObj, const char* method, CDetachedScr
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_bool | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
     {
-        bool wholeTree = fetchBool(inStack, 0, false);
-        target->setDynamicsResetFlag(true, wholeTree);
+        bool tree = false;
+        if (hasNonNullArg(inStack, 0))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+            map->fetchBoolFromKey("tree", tree, &errMsg);
+        }
+        if (errMsg.size() == 0)
+            target->setDynamicsResetFlag(true, tree);
     }
     return errMsg;
 }
@@ -7085,4 +7091,3 @@ std::string _method_makeObject(int targetObj, const char* method, CDetachedScrip
         errMsg = SIM_ERROR_INVALID_TARGET;
     return errMsg;
 }
-

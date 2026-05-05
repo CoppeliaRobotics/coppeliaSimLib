@@ -2833,7 +2833,7 @@ int _genericFunctionHandler(luaWrap_lua_State* L, void (*callback)(struct SScrip
     // We prepare the callback structure:
     SScriptCallBack* cb = new SScriptCallBack;
     cb->objectID = linkedObject;
-    cb->scriptID = currentScriptID;
+    cb->scriptID = itObj->getObjectHandle();
     cb->stackID = stack->getObjectHandle();
     cb->waitUntilZero = 0;                             // old
     char raiseErrorMsg[258];                           // old
@@ -2844,7 +2844,7 @@ int _genericFunctionHandler(luaWrap_lua_State* L, void (*callback)(struct SScrip
     cb->line = luaWrap_getCurrentCodeLine(L);
 
     // Now we can call the callback:
-    CDetachedScript::setInExternalCall(currentScriptID);
+    CDetachedScript::setInExternalCall(itObj->getObjectHandle());
     if (callback != nullptr)
         callback(cb);
     else

@@ -236,20 +236,14 @@ extern std::string _method_createCustomObjectClass(int targetObj, const char* me
 /*
 
 
-#define JOINT_META_METHODS R"("getForce": "sim-2.getJointForce",
-     "resetDynamicObject": "sim-2.resetDynamicObject",
-     "getVelocity": "sim-2.getJointVelocity")"
-
-#define OCTREE_META_METHODS R"("checkCollision": "sim-2.checkCollision",
-     "checkDistance": "sim-2.checkDistance",
+#define OCTREE_META_METHODS R"(
      "checkPointOccupancy": "sim-2.checkOctreePointOccupancy",
      "insertObject": "sim-2.insertObjectIntoOctree",
      "insertVoxels": "sim-2.insertVoxelsIntoOctree",
      "removeVoxels": "sim-2.removeVoxelsFromOctree",
      "subtractObject": "sim-2.subtractObjectFromOctree")"
 
-#define POINTCLOUD_META_METHODS R"("checkCollision": "sim-2.checkCollision",
-        "checkDistance": "sim-2.checkDistance",
+#define POINTCLOUD_META_METHODS R"(
         "insertObject": "sim-2.insertObjectIntoPointCloud",
         "insertPoints": "sim-2.insertPointsIntoPointCloud",
         "intersectPoints": "sim-2.intersectPointsWithPointCloud",
