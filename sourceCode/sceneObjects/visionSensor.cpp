@@ -2157,16 +2157,11 @@ void CVisionSensor::addObjectEventData(CCbor* ev)
     }
     else
         color.addGenesisEventData(ev);
+    ev->appendKeyDouble(propVisionSensor_size.name, _visionSensorSize);
     if (App::getEventProtocolVersion() <= 3)
-    {
-        ev->appendKeyDouble("sensorSize", _visionSensorSize);
         ev->appendKeyFloatArray(propVisionSensor_backgroundCol.name, _defaultBufferValues, 3);
-    }
     else
-    {
-        ev->appendKeyDouble(propVisionSensor_size.name, _visionSensorSize);
         ev->appendKeyColor(propVisionSensor_backgroundCol.name, _defaultBufferValues);
-    }
     ev->appendKeyInt64(propVisionSensor_renderMode.name, _renderMode);
     ev->appendKeyBool(propVisionSensor_backgroundSameAsEnv.name, _useSameBackgroundAsEnvironment);
     ev->appendKeyBool(propVisionSensor_explicitHandling.name, _explicitHandling);

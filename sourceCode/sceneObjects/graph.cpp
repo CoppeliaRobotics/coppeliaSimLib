@@ -635,15 +635,14 @@ void CGraph::addObjectEventData(CCbor* ev)
         color.addGenesisEventData(ev);
     ev->appendKeyInt64(propGraph_bufferSize.name, bufferSize);
     ev->appendKeyBool(propGraph_cyclic.name, cyclic);
+    ev->appendKeyDouble(propGraph_size.name, _graphSize);
     if (App::getEventProtocolVersion() <= 3)
     {
-        ev->appendKeyDouble("graphSize", _graphSize);
         ev->appendKeyFloatArray(propGraph_backgroundColor.name, backgroundColor, 3);
         ev->appendKeyFloatArray(propGraph_foregroundColor.name, foregroundColor, 3);
     }
     else
     {
-        ev->appendKeyDouble(propGraph_size.name, _graphSize);
         ev->appendKeyColor(propGraph_backgroundColor.name, backgroundColor);
         ev->appendKeyColor(propGraph_foregroundColor.name, foregroundColor);
     }
@@ -935,10 +934,7 @@ void CGraph::setGraphSize(double theNewSize)
         {
             const char* cmd = propGraph_size.name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            if (App::getEventProtocolVersion() <= 3)
-                ev->appendKeyDouble("graphSize", _graphSize);
-            else
-                ev->appendKeyDouble(cmd, _graphSize);
+            ev->appendKeyDouble(cmd, _graphSize);
             App::scenes->pushEvent();
         }
         computeBoundingBox();

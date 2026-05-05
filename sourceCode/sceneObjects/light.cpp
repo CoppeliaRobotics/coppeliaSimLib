@@ -212,10 +212,7 @@ void CLight::setLightSize(double size)
         {
             const char* cmd = propLight_size.name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            if (App::getEventProtocolVersion() <= 3)
-                ev->appendKeyDouble("lightSize", _lightSize);
-            else
-                ev->appendKeyDouble(cmd, _lightSize);
+            ev->appendKeyDouble(cmd, _lightSize);
             App::scenes->pushEvent();
         }
         computeBoundingBox();
@@ -352,16 +349,11 @@ void CLight::addObjectEventData(CCbor* ev)
         objectColor.addGenesisEventData(ev);
         lightColor.addGenesisEventData(ev);
     }
+    ev->appendKeyDouble(propLight_size.name, _lightSize);
     if (App::getEventProtocolVersion() <= 3)
-    {
-        ev->appendKeyDouble("lightSize", _lightSize);
         ev->appendKeyInt64("lightType", _lightType);
-    }
     else
-    {
-        ev->appendKeyDouble(propLight_size.name, _lightSize);
         ev->appendKeyInt64(propLight_lightType.name, _lightType);
-    }
     ev->appendKeyDouble(propLight_spotCutoffAngle.name, _spotCutoffAngle);
     ev->appendKeyInt64(propLight_spotExponent.name, _spotExponent);
     ev->appendKeyBool(propLight_enabled.name, lightActive);

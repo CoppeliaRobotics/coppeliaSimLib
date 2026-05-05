@@ -1062,19 +1062,18 @@ struct SJointProperty
     FUNCX(propShape_METHOD_divide, "divide", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define CAMERA_PROPERTIES \
-    FUNCX(propCamera_size, "size", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Camera size"}}), "") \
+    FUNCX(propCamera_size, "cameraSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Camera size"}}), "") \
     FUNCX(propCamera_parentAsManipProxy, "parentAsManipulationProxy", sim_propertytype_bool, 0,  jsonStr({{"label", "Parent as proxy"}, {"description", "Use parent as manipulation proxy"}}), "") \
     FUNCX(propCamera_translationEnabled, "translationEnabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Translation enabled"}, {"description", ""}}), "") \
     FUNCX(propCamera_rotationEnabled, "rotationEnabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Rotation enabled"}, {"description", ""}}), "") \
     FUNCX(propCamera_trackedObject, "trackedObject", sim_propertytype_handle, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Tracked object"}, {"description", "Tracked scene object"}, {"handleType", "sceneObject"}}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propCamera_DEPRECATED_size, "cameraSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
     FUNCX(propCamera_DEPRECATED_trackedObject, "trackedObjectHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
 
 #define DUMMY_PROPERTIES \
     FUNCX(propDummy_linkedDummy, "linkedDummy", sim_propertytype_handle, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Linked dummy"}, {"description", "Handle of the linked dummy"}, {"handleType", "dummy"}}), "") \
     FUNCX(propDummy_assemblyTag, "assemblyTag", sim_propertytype_string, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Assembly tag"}, {"description", ""}}), "") \
-    FUNCX(propDummy_size, "size", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Size"}, {"description", "Dummy size"}}), "") \
+    FUNCX(propDummy_size, "dummySize", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Size"}, {"description", "Dummy size"}}), "") \
     FUNCX(propDummy_dummyType, "type", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Type"}, {"description", "Dummy type"}}), "") \
     FUNCX(propDummy_engineProperties, "dynamics.engineProperties", sim_propertytype_string, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Engine properties"}, {"description", "Engine properties as JSON text"}}), "") \
     FUNCX(propDummy_mujocoLimitsEnabled, "dynamics.mujoco.limitsEnabled", sim_propertytype_bool, 0, sim_mujoco_dummy_limited, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
@@ -1090,7 +1089,6 @@ struct SJointProperty
     FUNCX(propDummy_mujocoOverlapConstrSolimp, "dynamics.mujoco.overlapConstrSolimp", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propDummy_mujocoOverlapConstrTorqueScale, "dynamics.mujoco.overlapConstrTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propDummy_DEPRECATED_size, "dummySize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "") \
     FUNCX(propDummy_DEPRECATED_dummyType, "dummyType", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "") \
     FUNCX(propDummy_DEPRECATED_engineProperties, "engineProperties", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "") \
     FUNCX(propDummy_DEPRECATED_mujocoLimitsEnabled, "mujoco.limitsEnabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_dummy_limited, -1, -1, -1, -1, "", "") \
@@ -1108,7 +1106,7 @@ struct SJointProperty
     FUNCX(propDummy_DEPRECATED_linkedDummyHandle, "linkedDummyHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "")
 
 #define FORCESENSOR_PROPERTIES \
-    FUNCX(propForceSensor_size, "size", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Sensor size"}}), "") \
+    FUNCX(propForceSensor_size, "sensorSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Sensor size"}}), "") \
     FUNCX(propForceSensor_forceThresholdEnabled, "forceThresholdEnabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Force threshold enabled"}, {"description", ""}}), "") \
     FUNCX(propForceSensor_torqueThresholdEnabled, "torqueThresholdEnabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Torque threshold enabled"}, {"description", ""}}), "") \
     FUNCX(propForceSensor_filterType, "filterType", sim_propertytype_int, 0,  jsonStr({{"label", "Filter"}, {"description", "Filter type"}}), "") \
@@ -1122,14 +1120,13 @@ struct SJointProperty
     FUNCX(propForceSensor_filteredSensorTorque, "filteredTorque", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Filtered torque"}, {"description", "Filtered torque vector"}}), "") \
     FUNCX(propForceSensor_intrinsicError, "intrinsicError", sim_propertytype_pose, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Intrinsic error"}, {"description", "Intrinsic error, generated by some physics engines"}}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propForceSensor_DEPRECATED_size, "sensorSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
     FUNCX(propForceSensor_DEPRECATED_sensorForce, "sensorForce", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
     FUNCX(propForceSensor_DEPRECATED_sensorTorque, "sensorTorque", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
     FUNCX(propForceSensor_DEPRECATED_sensorAverageForce, "filterSensorForce", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
     FUNCX(propForceSensor_DEPRECATED_sensorAverageTorque, "filterSensorTorque", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
 
 #define GRAPH_PROPERTIES \
-    FUNCX(propGraph_size, "size", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the 3D graph representation"}}), "") \
+    FUNCX(propGraph_size, "graphSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the 3D graph representation"}}), "") \
     FUNCX(propGraph_bufferSize, "bufferSize", sim_propertytype_int, 0,  jsonStr({{"label", "Buffer size"}, {"description", ""}}), "") \
     FUNCX(propGraph_cyclic, "cyclic", sim_propertytype_bool, 0,  jsonStr({{"label", "Cyclic"}, {"description", "Buffer is cyclic"}}), "") \
     FUNCX(propGraph_backgroundColor, "backgroundColor", sim_propertytype_color, 0,  jsonStr({{"label", "Background color"}, {"description", ""}}), "") \
@@ -1140,9 +1137,7 @@ struct SJointProperty
     FUNCX(propGraph_METHOD_removeTrace, "removeTrace", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propGraph_METHOD_snapshotTrace, "snapshotTrace", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propGraph_METHOD_step, "step", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
-    FUNCX(propGraph_METHOD_resetGraph, "resetGraph", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
-    /* Following for backward compatibility: */ \
-    FUNCX(propGraph_DEPRECATED_size, "graphSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "")
+    FUNCX(propGraph_METHOD_resetGraph, "resetGraph", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define JOINT_PROPERTIES \
     FUNCX(propJoint_position, "jointPosition", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Position"}, {"description", "Joint linear/angular displacement"}}), "") \
@@ -1340,7 +1335,7 @@ struct SJointProperty
     FUNCX(propJoint_DEPRECATED_dependencyMaster, "dependencyMasterHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "")
 
 #define LIGHT_PROPERTIES \
-    FUNCX(propLight_size, "size", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Light size"}}), "") \
+    FUNCX(propLight_size, "lightSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Light size"}}), "") \
     FUNCX(propLight_enabled, "enabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Enabled"}, {"description", ""}}), "") \
     FUNCX(propLight_lightType, "type", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Type"}, {"description", "Light type"}}), "") \
     FUNCX(propLight_spotExponent, "spotExponent", sim_propertytype_int, 0,  jsonStr({{"label", "Spot exponent"}, {"description", ""}}), "") \
@@ -1348,7 +1343,6 @@ struct SJointProperty
     FUNCX(propLight_attenuationFactors, "attenuationFactors", sim_propertytype_floatarray, 0,  jsonStr({{"label", "Attenuation factor"}, {"description", ""}}), "") \
     FUNCX(propLight_povCastShadows, "povray.castShadows", sim_propertytype_bool, sim_propertyinfo_silent,  jsonStr({{"label", "POV-Ray: cast shadows"}, {"description", "Light casts shadows (with the POV-Ray renderer plugin)"}}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propLight_DEPRECATED_size, "lightSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
     FUNCX(propLight_DEPRECATED_lightType, "lightType", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "")
 
 #define MIRROR_PROPERTIES \
@@ -1395,7 +1389,7 @@ struct SJointProperty
     FUNCX(propProximitySensor_DEPRECATED_detectedObjectHandle, "detectedObjectHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "")
 
 #define VISIONSENSOR_PROPERTIES \
-    FUNCX(propVisionSensor_size, "size", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Sensor size"}}), "") \
+    FUNCX(propVisionSensor_size, "sensorSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Sensor size"}}), "") \
     FUNCX(propVisionSensor_backgroundCol, "backgroundColor", sim_propertytype_color, 0,  jsonStr({{"label", "Background color"}, {"description", ""}}), "") \
     FUNCX(propVisionSensor_renderMode, "renderMode", sim_propertytype_int, 0,  jsonStr({{"label", "Render mode"}, {"description", ""}}), "") \
     FUNCX(propVisionSensor_backgroundSameAsEnv, "backgroundColorFromEnvironment", sim_propertytype_bool, 0,  jsonStr({{"label", "Background color from environment"}, {"description", ""}}), "") \
@@ -1421,12 +1415,10 @@ struct SJointProperty
     FUNCX(propVisionSensor_METHOD_checkSensor, "checkSensor", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propVisionSensor_METHOD_getDepth, "getDepth", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propVisionSensor_METHOD_getImage, "getImage", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
-    FUNCX(propVisionSensor_METHOD_setImage, "setImage", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
-    /* Following for backward compatibility: */ \
-    FUNCX(propVisionSensor_DEPRECATED_size, "sensorSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "")
+    FUNCX(propVisionSensor_METHOD_setImage, "setImage", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define SCRIPT_PROPERTIES \
-    FUNCX(propScript_size, "size", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the object"}}), "") \
+    FUNCX(propScript_size, "scriptSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the object"}}), "") \
     FUNCX(propScript_resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0,  jsonStr({{"label", "Reset after simulation error"}, {"description", ""}}), "") \
     FUNCX(propScript_detachedScript, "detachedScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Detached script handle"}, {"description", ""}, {"handleType", "detachedScript"}}), "") \
     /* Following for backward compatibility: */ \
@@ -1460,5 +1452,5 @@ struct SJointProperty
     FUNCX(propMarker_METHOD_removeItems, "removeItems", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define CUSTOMSCENEOBJECT_PROPERTIES \
-    FUNCX(propCustomSceneObject_size, "size", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Custom scene object size"}}), "")
+    FUNCX(propCustomSceneObject_size, "objectSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Custom scene object size"}}), "")
 

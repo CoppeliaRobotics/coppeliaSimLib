@@ -535,7 +535,6 @@ const std::map<std::string, SDeprecatedPropertyItems> tmpMap = {
     {propForceSensor_DEPRECATED_sensorAverageTorque.name,               {propForceSensor_filteredSensorTorque.name, sim_sceneobject_forcesensor}},
     {propForceSensor_DEPRECATED_sensorForce.name,                       {propForceSensor_sensorForce.name, sim_sceneobject_forcesensor}},
     {propForceSensor_DEPRECATED_sensorTorque.name,                      {propForceSensor_sensorTorque.name, sim_sceneobject_forcesensor}},
-    {propForceSensor_DEPRECATED_size.name,                              {propForceSensor_size.name, sim_sceneobject_forcesensor}},
 
     {propScript_DEPRECATED_size.name,                                   {propScript_size.name, sim_sceneobject_script}},
     {propScript_DEPRECATED_scriptDisabled.name,                         {"__noReplace__", sim_sceneobject_script}},
@@ -552,14 +551,8 @@ const std::map<std::string, SDeprecatedPropertyItems> tmpMap = {
 
     {propOctree_DEPRECATED_voxels.name,                                 {propOctree_points.name, sim_sceneobject_octree}},
 
-    {propGraph_DEPRECATED_size.name,                                    {propGraph_size.name, sim_sceneobject_graph}},
-
-    {propCamera_DEPRECATED_size.name,                                   {propCamera_size.name, sim_sceneobject_camera}},
     {propCamera_DEPRECATED_trackedObject.name,                          {std::string(propCamera_trackedObject.name) + "__noReplace__", sim_sceneobject_camera}},
 
-    {propVisionSensor_DEPRECATED_size.name,                             {propVisionSensor_size.name, sim_sceneobject_visionsensor}},
-
-    {propLight_DEPRECATED_size.name,                                    {propLight_size.name, sim_sceneobject_light}},
     {propLight_DEPRECATED_lightType.name,                               {propLight_lightType.name, sim_sceneobject_light}},
 
     {propJoint_DEPRECATED_dependencyMaster.name,                        {std::string(propJoint_dependencyMaster.name) + "__noReplace__", sim_sceneobject_joint}},
@@ -653,7 +646,6 @@ const std::map<std::string, SDeprecatedPropertyItems> tmpMap = {
     {propJoint_DEPRECATED_mujocoDependencyPolyCoef.name,                {propJoint_mujocoDependencyPolyCoef.name, sim_sceneobject_joint}},
 
     {propDummy_DEPRECATED_linkedDummyHandle.name,                       {std::string(propDummy_linkedDummy.name) + "__noReplace__", sim_sceneobject_dummy}},
-    {propDummy_DEPRECATED_size.name,                                    {propDummy_size.name, sim_sceneobject_dummy}},
     {propDummy_DEPRECATED_dummyType.name,                               {propDummy_dummyType.name, sim_sceneobject_dummy}},
     {propDummy_DEPRECATED_engineProperties.name,                        {propDummy_engineProperties.name, sim_sceneobject_dummy}},
     {propDummy_DEPRECATED_mujocoLimitsEnabled.name,                     {propDummy_mujocoLimitsEnabled.name, sim_sceneobject_dummy}},

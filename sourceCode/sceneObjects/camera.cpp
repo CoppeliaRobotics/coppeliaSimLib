@@ -886,10 +886,7 @@ void CCamera::setCameraSize(double size)
         {
             const char* cmd = propCamera_size.name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            if (App::getEventProtocolVersion() <= 3)
-                ev->appendKeyDouble("cameraSize", _cameraSize);
-            else
-                ev->appendKeyDouble(cmd, _cameraSize);
+            ev->appendKeyDouble(cmd, _cameraSize);
             App::scenes->pushEvent();
         }
         computeBoundingBox();
@@ -991,16 +988,11 @@ void CCamera::addObjectEventData(CCbor* ev)
     }
     else
         _color.addGenesisEventData(ev);
+    ev->appendKeyDouble(propCamera_size.name, _cameraSize);
     if (App::getEventProtocolVersion() <= 3)
-    {
-        ev->appendKeyDouble("cameraSize", _cameraSize);
         ev->appendKeyInt64("trackedObjectHandle", _trackedObjectHandle);
-    }
     else
-    {
-        ev->appendKeyDouble(propCamera_size.name, _cameraSize);
         ev->appendKeyHandle(propCamera_trackedObject.name, _trackedObjectHandle);
-    }
     ev->appendKeyBool(propCamera_parentAsManipProxy.name, _useParentObjectAsManipulationProxy);
     ev->appendKeyBool(propCamera_translationEnabled.name, _allowTranslation);
     ev->appendKeyBool(propCamera_rotationEnabled.name, _allowRotation);

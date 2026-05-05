@@ -276,16 +276,15 @@ void CDummy::addObjectEventData(CCbor* ev)
     }
     else
         _dummyColor.addGenesisEventData(ev);
+    ev->appendKeyDouble(propDummy_size.name, _dummySize);
     if (App::getEventProtocolVersion() <= 3)
     {
-        ev->appendKeyDouble("dummySize", _dummySize);
         ev->appendKeyInt64("linkedDummyHandle", _linkedDummyHandle); // for backw. compatibility
         ev->appendKeyInt64(propDummy_linkedDummy.name, _linkedDummyHandle);
         ev->appendKeyInt64("dummyType", _linkType);
     }
     else
     {
-        ev->appendKeyDouble(propDummy_size.name, _dummySize);
         ev->appendKeyHandle(propDummy_linkedDummy.name, _linkedDummyHandle);
         ev->appendKeyInt64(propDummy_dummyType.name, _linkType);
     }
@@ -1159,10 +1158,7 @@ void CDummy::setDummySize(double s)
         {
             const char* cmd = propDummy_size.name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            if (App::getEventProtocolVersion() <= 3)
-                ev->appendKeyDouble("dummySize", _dummySize);
-            else
-                ev->appendKeyDouble(cmd, _dummySize);
+            ev->appendKeyDouble(cmd, _dummySize);
             App::scenes->pushEvent();
         }
     }
