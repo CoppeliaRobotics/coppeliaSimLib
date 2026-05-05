@@ -120,7 +120,7 @@ int CAddOnScriptContainer::createAddOn(const char* lang, const char* code)
     //defScript->setAddOnPath();
     int handle = _insertAddOn(defScript);
     //defScript->setDisplayAddOnName(nm.c_str());
-    //defScript->setScriptState(CDetachedScript::scriptState_ended);
+    //defScript->setScriptState(sim_scriptstate_ended);
     return handle;
 }
 
@@ -168,7 +168,7 @@ void CAddOnScriptContainer::_insertAddOns(const char* addOnExt)
                 defScript->setDisplayAddOnName(nm.c_str());
                 if ((at.compare(ADDON_SCRIPT_PREFIX1_NOAUTOSTART) == 0) ||
                     (at.compare(ADDON_SCRIPT_PREFIX2_NOAUTOSTART) == 0))
-                    defScript->setScriptState(CDetachedScript::scriptState_ended);
+                    defScript->setScriptState(sim_scriptstate_ended);
                 App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "add-on '%s' was loaded.",
                             foundItem->name.c_str());
             }
@@ -291,7 +291,7 @@ void CAddOnScriptContainer::getActiveScripts(std::vector<CDetachedScript*>& scri
     for (size_t i = 0; i < _addOns.size(); i++)
     {
         CDetachedScript* it = _addOns[i];
-        if (it->getScriptState() == CDetachedScript::scriptState_initialized)
+        if (it->getScriptState() == sim_scriptstate_initialized)
         {
             if (it->getScriptExecPriority() == sim_scriptexecorder_first)
                 scripts.push_back(it);
@@ -404,15 +404,15 @@ bool CAddOnScriptContainer::processCommand(int commandID)
             {
                 int st = it->getScriptState();
                 int sysCall = -1;
-                if (((st & CDetachedScript::scriptState_error) != 0) ||
-                    ((st & 7) != CDetachedScript::scriptState_initialized))
+                if (((st & sim_scriptstate_error) != 0) ||
+                    ((st & 7) != sim_scriptstate_initialized))
                 {
                     sysCall = sim_syscb_init;
                     it->resetScript();
                 }
-                if (st == (CDetachedScript::scriptState_initialized | CDetachedScript::scriptState_suspended))
+                if (st == (sim_scriptstate_initialized | sim_scriptstate_suspended))
                     sysCall = sim_syscb_aos_resume;
-                if (st == CDetachedScript::scriptState_initialized)
+                if (st == sim_scriptstate_initialized)
                     sysCall = sim_syscb_aos_suspend;
                 if (sysCall != -1)
                     it->systemCallScript(sysCall, nullptr, nullptr, true);

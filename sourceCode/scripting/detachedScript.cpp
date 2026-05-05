@@ -79,7 +79,7 @@ CDetachedScript::CDetachedScript(int scriptType)
 
     _scriptIsDisabled = false;
     _autoRestartOnError = false;
-    _scriptState = scriptState_unloaded;
+    _scriptState = sim_scriptstate_unloaded;
     _flaggedForDestruction = false;
     _executionDepth = 0;
     _autoStartAddOn = -1;
@@ -991,7 +991,7 @@ std::vector<std::string> CDetachedScript::getAllSystemCallbackStrings(int script
 
 bool CDetachedScript::hasSystemFunction(int callType, bool returnTrueIfNotInitialized /*=true*/) const
 { // when the script is not initialized, we need to return true
-    if (returnTrueIfNotInitialized && (_scriptState != scriptState_initialized))
+    if (returnTrueIfNotInitialized && (_scriptState != sim_scriptstate_initialized))
         return (true);
     return (_containedSystemCallbacks[callType]);
 }
@@ -1275,7 +1275,7 @@ bool CDetachedScript::getScriptIsDisabled() const
 
 bool CDetachedScript::getScriptHasError() const
 {
-    return (_scriptState & scriptState_error);
+    return (_scriptState & sim_scriptstate_error);
 }
 
 void CDetachedScript::setParentIsProxy(bool isProxy)
@@ -1333,7 +1333,7 @@ bool CDetachedScript::getScriptDisabledAndNoErrorRaised() const
         if (!App::userSettings->runCustomizationScripts)
             disabled = true;
     }
-    return (disabled && ((_scriptState & scriptState_error) == 0));
+    return (disabled && ((_scriptState & sim_scriptstate_error) == 0));
 }
 
 int CDetachedScript::getScriptType() const
@@ -1620,7 +1620,7 @@ int CDetachedScript::systemCallMainScript(int optionalCallType, const CInterface
         App::scene->sceneObjects->resetScriptFlagCalledInThisSimulationStep();
         int startT = int(VDateTime::getTimeInMs());
 
-        if (_scriptState < scriptState_initialized)
+        if (_scriptState < sim_scriptstate_initialized)
             retVal = systemCallScript(sim_syscb_init, inStack, outStack);
 
         retVal = systemCallScript(sim_syscb_actuation, inStack, outStack);
@@ -1644,7 +1644,7 @@ int CDetachedScript::systemCallScript(int callType, const CInterfaceStack* inSta
     TRACE_INTERNAL;
     if (_tempSuspended)
         return 0;
-    if ((_scriptType == sim_scripttype_addon) && (_scriptState == scriptState_unloaded) &&
+    if ((_scriptType == sim_scripttype_addon) && (_scriptState == sim_scriptstate_unloaded) &&
         (callType != sim_syscb_info))
     {
         _handleInfoCallback();
@@ -1660,9 +1660,9 @@ int CDetachedScript::systemCallScript(int callType, const CInterfaceStack* inSta
     bool scriptDisabled = _scriptIsDisabled;
     if ((_scriptType == sim_scripttype_customization) && (!App::userSettings->runCustomizationScripts))
         scriptDisabled = true;
-    if ((!scriptDisabled) || (((_scriptState & 7) == scriptState_initialized) && (callType == sim_syscb_cleanup)))
+    if ((!scriptDisabled) || (((_scriptState & 7) == sim_scriptstate_initialized) && (callType == sim_syscb_cleanup)))
     { // Only cleanup call allowed when script is not enabled (e.g. when the used disabled it temporarily)
-        if ((_scriptState == scriptState_unloaded) && (callType <= sim_syscb_sensing))
+        if ((_scriptState == sim_scriptstate_unloaded) && (callType <= sim_syscb_sensing))
         { // First execute the script chunk if not yet done
             if (_loadCode())
             {
@@ -1678,7 +1678,7 @@ int CDetachedScript::systemCallScript(int callType, const CInterfaceStack* inSta
             else
                 retVal = -2;
         }
-        if ((_scriptState == scriptState_uninitialized) && (callType != sim_syscb_info) &&
+        if ((_scriptState == sim_scriptstate_uninitialized) && (callType != sim_syscb_info) &&
             (callType <= sim_syscb_sensing))
         { // Second execute the init section if not yet done
             if (callType == sim_syscb_init)
@@ -1686,9 +1686,9 @@ int CDetachedScript::systemCallScript(int callType, const CInterfaceStack* inSta
             else
                 retVal = _callSystemScriptFunction(sim_syscb_init, nullptr, nullptr); // implicit call
         }
-        if (((_scriptState & 7) == scriptState_initialized) && (callType != sim_syscb_info) && (callType != sim_syscb_init))
+        if (((_scriptState & 7) == sim_scriptstate_initialized) && (callType != sim_syscb_info) && (callType != sim_syscb_init))
         { // Execute the script call
-            if (((_scriptState & scriptState_error) == 0) || (callType == sim_syscb_cleanup))
+            if (((_scriptState & sim_scriptstate_error) == 0) || (callType == sim_syscb_cleanup))
             {
                 if ((callType != sim_syscb_event) || hasSystemFunctionOrHook(sim_syscb_event))
                 {
@@ -1716,11 +1716,11 @@ int CDetachedScript::systemCallScript(int callType, const CInterfaceStack* inSta
                 txt.erase(0, p + 4);
             }
 
-            if (_scriptState == CDetachedScript::scriptState_initialized)
+            if (_scriptState == sim_scriptstate_initialized)
                 txt += " (running)";
-            if ((_scriptState & CDetachedScript::scriptState_error) != 0)
+            if ((_scriptState & sim_scriptstate_error) != 0)
                 txt += " (error)";
-            if ((_scriptState & CDetachedScript::scriptState_suspended) != 0)
+            if ((_scriptState & sim_scriptstate_suspended) != 0)
                 txt += " (suspended)";
             m->setLabel(txt.c_str());
         }
@@ -1942,7 +1942,7 @@ int CDetachedScript::___loadCode(const char* code, const char* functionsToFind, 
 
 bool CDetachedScript::_loadCode()
 {
-    if (_scriptState == scriptState_unloaded)
+    if (_scriptState == sim_scriptstate_unloaded)
     {
         fromFileToBuffer();
         _scriptTextExec.assign(_scriptText.begin(), _scriptText.end());
@@ -1959,7 +1959,7 @@ bool CDetachedScript::_loadCode()
             {
                 if (r == 0)
                 { // a runtime error occurred!
-                    setScriptState(_scriptState | scriptState_error);
+                    setScriptState(_scriptState | sim_scriptstate_error);
                     _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
                 }
                 else
@@ -1967,7 +1967,7 @@ bool CDetachedScript::_loadCode()
 #ifdef SIM_WITH_GUI
                     GuiApp::setRefreshHierarchyViewFlag();
 #endif
-                    setScriptState(scriptState_uninitialized);
+                    setScriptState(sim_scriptstate_uninitialized);
                     // Following because below funcs are speed-sensitive:
                     if (hasSystemFunction(sim_syscb_event, false))
                         setFuncAndHookCnt(sim_syscb_event, 0, 1);
@@ -1985,27 +1985,27 @@ bool CDetachedScript::_loadCode()
             }
             else
             { // A compilation/load error occurred!
-                setScriptState(_scriptState | scriptState_error);
+                setScriptState(_scriptState | sim_scriptstate_error);
                 _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), false);
             }
         }
         else
         { // The interpreter state could not be created!
-            setScriptState(_scriptState | scriptState_error);
+            setScriptState(_scriptState | sim_scriptstate_error);
             _announceErrorWasRaisedAndPossiblyPauseSimulation(intStateErr.c_str(), false);
         }
     }
 
-    if ((_scriptState & scriptState_error) != 0)
+    if ((_scriptState & sim_scriptstate_error) != 0)
         _killInterpreterState();
-    return ((_scriptState == scriptState_uninitialized) || (_scriptState == scriptState_initialized));
+    return ((_scriptState == sim_scriptstate_uninitialized) || (_scriptState == sim_scriptstate_initialized));
 }
 
 int CDetachedScript::_callSystemScriptFunction(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 { // retval: -1: runtimeError, 0: function not there or not called, 1: ok
     if (callType == sim_syscb_info)
     {
-        if (_scriptState != scriptState_uninitialized)
+        if (_scriptState != sim_scriptstate_uninitialized)
             return (0);
     }
     else if (callType == sim_syscb_init)
@@ -2013,30 +2013,30 @@ int CDetachedScript::_callSystemScriptFunction(int callType, const CInterfaceSta
 #ifdef SIM_WITH_GUI
         GuiApp::setRefreshHierarchyViewFlag();
 #endif
-        if (_scriptState != scriptState_uninitialized)
+        if (_scriptState != sim_scriptstate_uninitialized)
             return (0);
-        setScriptState(scriptState_initialized);
+        setScriptState(sim_scriptstate_initialized);
     }
     else
     {
-        if ((_scriptState & 7) != scriptState_initialized)
+        if ((_scriptState & 7) != sim_scriptstate_initialized)
             return (0);
         if (callType == sim_syscb_cleanup)
         {
-            int ss = (_scriptState & scriptState_error); // keep the error flag
-            ss |= scriptState_ended;                     // set the ended state
+            int ss = (_scriptState & sim_scriptstate_error); // keep the error flag
+            ss |= sim_scriptstate_ended;                     // set the ended state
             setScriptState(ss);
         }
         else
         {
-            if ((_scriptState & scriptState_error) != 0)
+            if ((_scriptState & sim_scriptstate_error) != 0)
                 return (0);
             if (callType == sim_syscb_aos_resume)
-                setScriptState((_scriptState | scriptState_suspended) - scriptState_suspended);
-            if ((_scriptState & scriptState_suspended) != 0)
+                setScriptState((_scriptState | sim_scriptstate_suspended) - sim_scriptstate_suspended);
+            if ((_scriptState & sim_scriptstate_suspended) != 0)
                 return (0);
             if (callType == sim_syscb_aos_suspend)
-                setScriptState(_scriptState | scriptState_suspended);
+                setScriptState(_scriptState | sim_scriptstate_suspended);
         }
     }
 
@@ -2090,7 +2090,7 @@ int CDetachedScript::_callSystemScriptFunction(int callType, const CInterfaceSta
     {
         if (retVal == -1)
         { // a runtime error occurred!
-            setScriptState(_scriptState | scriptState_error);
+            setScriptState(_scriptState | sim_scriptstate_error);
             _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
             retVal = -1;
         }
@@ -2120,22 +2120,22 @@ int CDetachedScript::_callSystemScriptFunction(int callType, const CInterfaceSta
     if (_executionDepth == 0)
     { // a system script func. could call a custom script function which could call a system script function, etc. Let
         // the calls unwind before doing anything heavy!
-        if ((_scriptState & scriptState_error) != 0)
+        if ((_scriptState & sim_scriptstate_error) != 0)
         { // We got an error
             if (callType == sim_syscb_info)
             {
-                setScriptState(scriptState_ended | scriptState_error);
+                setScriptState(sim_scriptstate_ended | sim_scriptstate_error);
                 _killInterpreterState();
             }
             else
             {
-                if ((_scriptState & 7) != scriptState_ended)
+                if ((_scriptState & 7) != sim_scriptstate_ended)
                     _killInterpreterState();
             }
         }
         else
         {
-            if (((_scriptState & 7) != scriptState_ended) && (callType != sim_syscb_info))
+            if (((_scriptState & 7) != sim_scriptstate_ended) && (callType != sim_syscb_info))
             {
                 std::string cmd;
                 if (outStack->getStackMapStringValue("cmd", cmd))
@@ -2385,7 +2385,7 @@ int CDetachedScript::_callScriptFunc(const char* functionName, const CInterfaceS
 int CDetachedScript::callCustomScriptFunction(const char* functionName, CInterfaceStack* inStack /*= nullptr*/, CInterfaceStack* outStack /*= nullptr*/, std::string* errorMsg /*= nullptr*/)
 { // retval: -1: runtimeError, 0: function not there or not executed, 1: ok
     int retVal = 0;
-    if (_scriptState == scriptState_initialized)
+    if (_scriptState == sim_scriptstate_initialized)
     {
         changeOverallYieldingForbidLevel(1, false); // never yield from such a call
         if (outStack != nullptr)
@@ -2429,7 +2429,7 @@ int CDetachedScript::callCustomScriptFunction(const char* functionName, CInterfa
         {
             if (retVal == -1)
             { // a runtime error occurred!
-                setScriptState(_scriptState | scriptState_error);
+                setScriptState(_scriptState | sim_scriptstate_error);
                 _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
                 retVal = -1;
             }
@@ -2456,7 +2456,7 @@ int CDetachedScript::executeScriptString(const char* scriptString, CInterfaceSta
     // didn't cause an error
     int retVal = -2;
     changeOverallYieldingForbidLevel(1, false);
-    if (_scriptState == scriptState_initialized)
+    if (_scriptState == sim_scriptstate_initialized)
     {
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
@@ -2553,7 +2553,7 @@ bool CDetachedScript::resetScript()
 {
     bool retVal = _killInterpreterState();
     fromFileToBuffer();
-    setScriptState(scriptState_unloaded);
+    setScriptState(sim_scriptstate_unloaded);
     return retVal;
 }
 
@@ -2625,10 +2625,10 @@ bool CDetachedScript::getIsUpToDate()
 
 bool CDetachedScript::_killInterpreterState()
 {
-    bool retVal = (_scriptState != scriptState_unloaded);
+    bool retVal = (_scriptState != sim_scriptstate_unloaded);
     if (_interpreterState != nullptr)
     {
-        if ((_scriptState & 7) == scriptState_initialized)
+        if ((_scriptState & 7) == sim_scriptstate_initialized)
         {
             if (isSimulatonCustomizationOrMainScript() || (_scriptType == sim_scripttype_addon))
                 _callSystemScriptFunction(sim_syscb_cleanup, nullptr, nullptr);
@@ -2640,8 +2640,8 @@ bool CDetachedScript::_killInterpreterState()
         _interpreterState = nullptr;
     }
 
-    int ss = (_scriptState & scriptState_error); // keep the error flag
-    ss |= scriptState_ended;                     // set the ended state
+    int ss = (_scriptState & sim_scriptstate_error); // keep the error flag
+    ss |= sim_scriptstate_ended;                     // set the ended state
     setScriptState(ss);
     _scriptTextExec.clear();
     setExecutionDepth(0);
@@ -2665,10 +2665,10 @@ bool CDetachedScript::_killInterpreterState()
 #ifdef SIM_WITH_GUI
     GuiApp::setRefreshHierarchyViewFlag();
 #endif
-    if ((_scriptState & scriptState_error) && _autoRestartOnError)
+    if ((_scriptState & sim_scriptstate_error) && _autoRestartOnError)
     {
         setAutoRestartOnError(false);
-        setScriptState(scriptState_unloaded);
+        setScriptState(sim_scriptstate_unloaded);
     }
 
     std::vector<std::pair<std::string, int>> toRem;
@@ -2819,11 +2819,22 @@ void CDetachedScript::_announceErrorWasRaisedAndPossiblyPauseSimulation(const ch
 #endif
 }
 
-int CDetachedScript::getScriptHandleFromInterpreterState_lua(void* LL)
+int CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(void* LL)
 {
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     int retVal = -1;
     luaWrap_lua_getglobal(L, SIM_SCRIPT_HANDLE);
+    if (luaWrap_lua_isnumber(L, -1))
+        retVal = luaWrap_lua_tointeger(L, -1);
+    luaWrap_lua_pop(L, 1);
+    return (retVal);
+}
+
+int CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(void* LL)
+{
+    luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
+    int retVal = -1;
+    luaWrap_lua_getglobal(L, SIM_DETACHEDSCRIPT_HANDLE);
     if (luaWrap_lua_isnumber(L, -1))
         retVal = luaWrap_lua_tointeger(L, -1);
     luaWrap_lua_pop(L, 1);
@@ -3106,7 +3117,7 @@ void CDetachedScript::_hookFunction_lua(void* LL, void* arr)
 {
     TRACE_INTERNAL;
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
-    CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(getScriptHandleFromInterpreterState_lua(L));
+    CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
     if (it == nullptr)
         return;
 
@@ -4799,7 +4810,7 @@ int CDetachedScript::callScriptFunction_DEPRECATED(const char* functionName, SLu
 {                    // DEPRECATED
     int retVal = -1; // means error
 
-    if (_scriptState != scriptState_initialized)
+    if (_scriptState != sim_scriptstate_initialized)
         return (retVal);
 
     changeOverallYieldingForbidLevel(1, false);
@@ -4961,7 +4972,7 @@ int CDetachedScript::callScriptFunction_DEPRECATED(const char* functionName, SLu
 int CDetachedScript::setScriptVariable_old(const char* variableName, CInterfaceStack* stack)
 {
     int retVal = -1;
-    if (_scriptState != scriptState_initialized)
+    if (_scriptState != sim_scriptstate_initialized)
         return (retVal);
     luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     int oldTop = luaWrap_lua_gettop(L); // We store lua's stack

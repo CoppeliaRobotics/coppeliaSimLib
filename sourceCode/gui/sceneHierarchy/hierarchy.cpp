@@ -1578,7 +1578,7 @@ void CHierarchy::addMenu(VMenu* menu)
         if (script != nullptr)
         { // new scripts
             bool enabled = (!script->detachedScript->getScriptIsDisabled()) && ((script->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) == 0);
-            enabled = enabled && (script->detachedScript->getScriptState() >= CDetachedScript::scriptState_initialized);
+            enabled = enabled && (script->detachedScript->getScriptState() >= sim_scriptstate_initialized);
             menu->appendMenuSeparator();
             menu->appendMenuItem(enabled, false, RESTART_SCRIPT_CMD, "Restart script");
             menu->appendMenuSeparator();

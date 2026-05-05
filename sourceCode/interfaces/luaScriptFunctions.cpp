@@ -97,7 +97,7 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L, const char* functionName, con
 {
     if (strlen(warningString) > 0)
     {
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
         if (it != nullptr)
         {
             int verb = sim_verbosity_scriptwarnings;
@@ -129,7 +129,7 @@ void _raiseErrorIfNeeded(luaWrap_lua_State* L, const char* functionName, const c
     if (errStr.size() == 0)
         return;
 
-    CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+    CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
     if (it == nullptr)
         return;
     std::string suffix = " (c: simCallMethod)";
@@ -812,6 +812,13 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.scripttype_customization", sim_scripttype_customization},
     {"sim.scripttype_sandbox", sim_scripttype_sandbox},
     {"sim.scripttype_passive", sim_scripttype_passive},
+    // script states:
+    {"sim.scriptstate_unloaded", sim_scriptstate_unloaded},
+    {"sim.scriptstate_uninitialized", sim_scriptstate_uninitialized},
+    {"sim.scriptstate_initialized", sim_scriptstate_initialized},
+    {"sim.scriptstate_ended", sim_scriptstate_ended},
+    {"sim.scriptstate_error", sim_scriptstate_error},
+    {"sim.scriptstate_suspended", sim_scriptstate_suspended},
     // System callbacks
     {"sim.syscb_thread", sim_syscb_thread},
     {"sim.syscb_init", sim_syscb_init},
@@ -2807,7 +2814,7 @@ int _genericFunctionHandler(luaWrap_lua_State* L, void (*callback)(struct SScrip
 {
     TRACE_LUA_API;
 
-    int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+    int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
     CDetachedScript* itObj = App::scenes->getDetachedScriptFromHandle(currentScriptID);
 
     CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
@@ -2833,7 +2840,7 @@ int _genericFunctionHandler(luaWrap_lua_State* L, void (*callback)(struct SScrip
     // We prepare the callback structure:
     SScriptCallBack* cb = new SScriptCallBack;
     cb->objectID = linkedObject;
-    cb->scriptID = itObj->getObjectHandle();
+    cb->scriptID = currentScriptID;
     cb->stackID = stack->getObjectHandle();
     cb->waitUntilZero = 0;                             // old
     char raiseErrorMsg[258];                           // old
@@ -2844,7 +2851,7 @@ int _genericFunctionHandler(luaWrap_lua_State* L, void (*callback)(struct SScrip
     cb->line = luaWrap_getCurrentCodeLine(L);
 
     // Now we can call the callback:
-    CDetachedScript::setInExternalCall(itObj->getObjectHandle());
+    CDetachedScript::setInExternalCall(currentScriptID);
     if (callback != nullptr)
         callback(cb);
     else
@@ -2992,7 +2999,7 @@ int _loadPlugin(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0))
     {
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
         std::string namespaceAndVersion(luaWrap_lua_tostring(L, 1));
         CPlugin* plug = App::scenes->pluginContainer->getPluginFromName(namespaceAndVersion.c_str());
 
@@ -3029,7 +3036,7 @@ int _unloadPlugin(luaWrap_lua_State* L)
         int options = 0;
         if (luaWrap_lua_isinteger(L, 2))
             options = luaWrap_lua_tointeger(L, 2);
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
         int pluginHandle = -1;
         luaWrap_lua_getfield(L, 1, "pluginHandle");
         if (luaWrap_lua_isinteger(L, -1))
@@ -3091,7 +3098,7 @@ int _auxFunc(luaWrap_lua_State* L)
 
         if (cmd.compare("rand") == 0)
         {
-            int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
             CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
             if (it != nullptr)
             {
@@ -3101,7 +3108,7 @@ int _auxFunc(luaWrap_lua_State* L)
         }
         if (cmd.compare("randseed") == 0)
         {
-            int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
             CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
             if (it != nullptr)
             {
@@ -3116,7 +3123,7 @@ int _auxFunc(luaWrap_lua_State* L)
         {
             if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0, lua_arg_string, 0))
             {
-                CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+                CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
                 it->addUsedModule(luaWrap_lua_tostring(L, 2));
             }
         }
@@ -3259,7 +3266,7 @@ int _simHandleSimulationScripts(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0))
     {
         int callType = luaToInt(L, 1);
-        int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+        int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         CDetachedScript* it = App::scene->sceneObjects->getDetachedScriptFromHandle(currentScriptID);
         if (it != nullptr)
         {
@@ -3292,7 +3299,7 @@ int _simHandleEmbeddedScripts(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0))
     {
         int callType = luaToInt(L, 1);
-        int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+        int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         CDetachedScript* it = App::scene->sceneObjects->getDetachedScriptFromHandle(currentScriptID);
         if (it != nullptr)
         {
@@ -3319,7 +3326,7 @@ int _simHandleDynamics(luaWrap_lua_State* L)
     LUA_START("sim.handleDynamics");
 
     int retVal = -1; // means error
-    int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+    int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
     CDetachedScript* itScrObj = App::scenes->getDetachedScriptFromHandle(currentScriptID);
     if ( (itScrObj->getScriptType() == sim_scripttype_main) || (itScrObj->getScriptType() == sim_scripttype_simulation) )
     {
@@ -3781,7 +3788,7 @@ int _simGetObject(luaWrap_lua_State* L)
         int index = fetchIntArg(L, 2, -1);
         int proxyForSearch = fetchIntArg(L, 3, -1);
         int options = fetchIntArg(L, 4, 0);
-        setCurrentScriptInfo_cSide(CDetachedScript::getScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal = CALL_C_API(simGetObject, name.c_str(), index, proxyForSearch, options);
         setCurrentScriptInfo_cSide(-1, -1);
     }
@@ -3833,7 +3840,7 @@ int _simGetScript(luaWrap_lua_State* L)
         int objectHandle = -1;
         int retVal = -1;
         if (scriptType == sim_handle_self)
-            retVal = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            retVal = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         else
         {
             std::string scriptName;
@@ -3852,7 +3859,7 @@ int _simGetScript(luaWrap_lua_State* L)
             if (((scriptName.size() > 0) || (objectHandle >= 0)) ||
                 ((scriptType == sim_scripttype_main) || (scriptType == sim_scripttype_sandbox)))
             {
-                setCurrentScriptInfo_cSide(CDetachedScript::getScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+                setCurrentScriptInfo_cSide(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                 retVal = CALL_C_API(simGetScriptHandleEx, scriptType, objectHandle, scriptName.c_str());
                 setCurrentScriptInfo_cSide(-1, -1);
             }
@@ -4274,7 +4281,7 @@ int _simGetSimulatorMessage(luaWrap_lua_State* L)
     double aux2Vals[8] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     int aux2Cnt = 0;
     CDetachedScript* it =
-        App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+        App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
     int commandID = it->extractCommandFromOutsideCommandQueue(auxVals, aux2Vals, aux2Cnt);
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -4343,7 +4350,7 @@ int _simAddGraphStream(luaWrap_lua_State* L)
                     if ((res == 0) || (res == 2))
                     {
                         setCurrentScriptInfo_cSide(
-                            CDetachedScript::getScriptHandleFromInterpreterState_lua(L),
+                            CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
                             CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
                                 L)); // for transmitting to the master function additional info (e.g.for autom. name
                                      // adjustment, or for autom. object deletion when script ends)
@@ -4428,7 +4435,7 @@ int _simDuplicateGraphCurveToStatic(luaWrap_lua_State* L)
         if ((res == 0) || (res == 2))
         {
             setCurrentScriptInfo_cSide(
-                CDetachedScript::getScriptHandleFromInterpreterState_lua(L),
+                CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
                 CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
                     L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or
                          // for autom. object deletion when script ends)
@@ -4492,7 +4499,7 @@ int _simAddGraphCurve(luaWrap_lua_State* L)
                                 if ((res == 0) || (res == 2))
                                 {
                                     setCurrentScriptInfo_cSide(
-                                        CDetachedScript::getScriptHandleFromInterpreterState_lua(L),
+                                        CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
                                         CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
                                             L)); // for transmitting to the master function additional info (e.g.for
                                                  // autom. name adjustment, or for autom. object deletion when script
@@ -4544,7 +4551,7 @@ int _addLog(luaWrap_lua_State* L)
             {
                 std::string msg(luaWrap_lua_tostring(L, 2));
                 CDetachedScript* it =
-                    App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+                    App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
                 App::logScriptMsg(it, v, msg.c_str());
             }
 #ifdef SIM_WITH_GUI
@@ -4754,7 +4761,7 @@ int _simSetBoolProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValue = luaToBool(L, 3);
         bool noError = false;
@@ -4769,7 +4776,7 @@ int _simSetBoolProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -4796,7 +4803,7 @@ int _simGetBoolProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValue;
         bool noError = false;
@@ -4832,7 +4839,7 @@ int _simSetIntProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValue = luaWrap_lua_tointeger(L, 3);
         bool noError = false;
@@ -4847,7 +4854,7 @@ int _simSetIntProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -4874,7 +4881,7 @@ int _simGetIntProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValue;
         bool noError = false;
@@ -4910,7 +4917,7 @@ int _simSetLongProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         long long int pValue = luaWrap_lua_tointeger(L, 3);
         bool noError = false;
@@ -4925,7 +4932,7 @@ int _simSetLongProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -4952,7 +4959,7 @@ int _simGetLongProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         long long int pValue;
         bool noError = false;
@@ -4988,7 +4995,7 @@ int _simSetHandleProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         long long int pValue = luaWrap_lua_tointeger(L, 3);
         bool noError = false;
@@ -5003,7 +5010,7 @@ int _simSetHandleProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -5030,7 +5037,7 @@ int _simGetHandleProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         long long int pValue;
         bool noError = false;
@@ -5066,7 +5073,7 @@ int _simSetFloatProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         double pValue = luaToDouble(L, 3);
         bool noError = false;
@@ -5081,7 +5088,7 @@ int _simSetFloatProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -5108,7 +5115,7 @@ int _simGetFloatProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         double pValue;
         bool noError = false;
@@ -5144,7 +5151,7 @@ int _simSetStringProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         std::string pValue(luaWrap_lua_tostring(L, 3));
         bool noError = false;
@@ -5159,7 +5166,7 @@ int _simSetStringProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -5186,7 +5193,7 @@ int _simGetStringProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
@@ -5224,7 +5231,7 @@ int _simSetTableProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         size_t pValueL;
         const char* pValue = ((char*)luaWrap_lua_tobuffer(L, 3, &pValueL));
@@ -5240,7 +5247,7 @@ int _simSetTableProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -5267,7 +5274,7 @@ int _simGetTableProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
@@ -5306,7 +5313,7 @@ int _simSetBufferProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         size_t pValueL;
         const char* pValue = ((char*)luaWrap_lua_tobuffer(L, 3, &pValueL));
@@ -5322,7 +5329,7 @@ int _simSetBufferProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -5349,7 +5356,7 @@ int _simGetBufferProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
@@ -5388,7 +5395,7 @@ int _simSetIntArray2Property(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValue[2];
         getIntsFromTable(L, 3, 2, pValue);
@@ -5404,7 +5411,7 @@ int _simSetIntArray2Property(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -5431,7 +5438,7 @@ int _simGetIntArray2Property(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
@@ -5467,7 +5474,7 @@ int _simSetVector3Property(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         double pValue[3];
         getDoublesFromTable(L, 3, 3, pValue);
@@ -5483,7 +5490,7 @@ int _simSetVector3Property(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -5510,7 +5517,7 @@ int _simGetVector3Property(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
@@ -5546,7 +5553,7 @@ int _simSetMatrixProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         CMatrix pValue = fetchMatrixArg(L, 3);
         bool noError = false;
@@ -5561,7 +5568,7 @@ int _simSetMatrixProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -5588,7 +5595,7 @@ int _simGetMatrixProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
@@ -5626,7 +5633,7 @@ int _simSetQuaternionProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         double pValue[4];
         getDoublesFromTable(L, 3, 4, pValue);
@@ -5642,7 +5649,7 @@ int _simSetQuaternionProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -5669,7 +5676,7 @@ int _simGetQuaternionProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
@@ -5705,7 +5712,7 @@ int _simSetPoseProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         double pValue[7];
         getDoublesFromTable(L, 3, 7, pValue);
@@ -5721,7 +5728,7 @@ int _simSetPoseProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -5748,7 +5755,7 @@ int _simGetPoseProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
@@ -5784,7 +5791,7 @@ int _simSetColorProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         float pValue[3];
         getFloatsFromTable(L, 3, 3, pValue);
@@ -5800,7 +5807,7 @@ int _simSetColorProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -5827,7 +5834,7 @@ int _simGetColorProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
@@ -5863,7 +5870,7 @@ int _simSetFloatArrayProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int cnt = int(luaWrap_lua_rawlen(L, 3));
         std::vector<double> v;
@@ -5881,7 +5888,7 @@ int _simSetFloatArrayProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -5908,7 +5915,7 @@ int _simGetFloatArrayProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
@@ -5947,7 +5954,7 @@ int _simSetIntArrayProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int cnt = int(luaWrap_lua_rawlen(L, 3));
         std::vector<int> v;
@@ -5965,7 +5972,7 @@ int _simSetIntArrayProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -5992,7 +5999,7 @@ int _simGetIntArrayProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
@@ -6031,7 +6038,7 @@ int _simSetHandleArrayProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int cnt = int(luaWrap_lua_rawlen(L, 3));
         std::vector<long long int> v;
@@ -6049,7 +6056,7 @@ int _simSetHandleArrayProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -6076,7 +6083,7 @@ int _simGetHandleArrayProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
@@ -6115,7 +6122,7 @@ int _simSetStringArrayProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         std::vector<std::string> strings;
         fetchTextArrayArg(L, 3, strings);
@@ -6139,7 +6146,7 @@ int _simSetStringArrayProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -6166,7 +6173,7 @@ int _simGetStringArrayProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
@@ -6213,7 +6220,7 @@ int _simRemoveProperty(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
@@ -6228,7 +6235,7 @@ int _simRemoveProperty(luaWrap_lua_State* L)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
             {
-                int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 std::string nn(pName);
                 if (target == sim_handle_app)
@@ -6255,7 +6262,7 @@ int _simGetPropertyName(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         int index = luaWrap_lua_tointeger(L, 2);
         SPropertyOptions opt;
         std::string propertyPrefix;
@@ -6298,7 +6305,7 @@ int _simGetPropertyInfo(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         SPropertyOptions opt;
         bool noError = false;
@@ -6350,7 +6357,7 @@ int _simSetPropertyInfo(luaWrap_lua_State* L)
     {
         long long int target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
-            target = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            target = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         SPropertyInfo infos;
         infos.flags = luaWrap_lua_tointeger(L, 3);
@@ -6370,7 +6377,7 @@ int _simSetEventFilters(luaWrap_lua_State* L)
 
     if (luaWrap_lua_isnonbuffertable(L, 1))
     {
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
         CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
         CDetachedScript::buildFromInterpreterStack_lua(L, stack, 1, 1);
         std::vector<long long int> intKeys;
@@ -6434,7 +6441,7 @@ int _callMethod(luaWrap_lua_State* L)
         CInterfaceStack* inStack = App::scenes->interfaceStackContainer->createStack();
         CDetachedScript::buildFromInterpreterStack_lua(L, inStack, 3, 0); // skip the two first args
         CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();
-        int res = CALL_C_API(simCallMethod, target, methodName.c_str(), inStack->getObjectHandle(), outStack->getObjectHandle(), CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+        int res = CALL_C_API(simCallMethod, target, methodName.c_str(), inStack->getObjectHandle(), outStack->getObjectHandle(), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
         if (res == 1)
         {
             int s = int(CDetachedScript::buildOntoInterpreterStack_lua(L, outStack, false, false));
@@ -6519,7 +6526,7 @@ int _simRemoveObjects(luaWrap_lua_State* L)
                     delayed = luaToBool(L, 2);
                 if (delayed)
                     cnt = -cnt;
-                //int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+                //int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 //CDetachedScript *it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
                 CALL_C_API(simRemoveObjects, &handles[0], cnt);
             }
@@ -6638,7 +6645,7 @@ int _simLoadScene(luaWrap_lua_State* L)
     LUA_START("sim.loadScene");
 
     int retVal = -1; // error
-    int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+    int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
     CDetachedScript* script = App::scenes->getDetachedScriptFromHandle(currentScriptID);
     if ((script != nullptr) && ((script->getScriptType() == sim_scripttype_addonfunction) ||
                                 (script->getScriptType() == sim_scripttype_addon) ||
@@ -6680,7 +6687,7 @@ int _simCloseScene(luaWrap_lua_State* L)
     LUA_START("sim.closeScene");
 
     int retVal = -1; // error
-    int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+    int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
     CDetachedScript* script = App::scenes->getDetachedScriptFromHandle(currentScriptID);
     if ((script != nullptr) && ((script->getScriptType() == sim_scripttype_addonfunction) ||
                                 (script->getScriptType() == sim_scripttype_addon) ||
@@ -6938,7 +6945,7 @@ int _simLaunchExecutable(luaWrap_lua_State* L)
                 if (showStatus == 0)
                     sh = VVARIOUS_HIDE;
                 CDetachedScript* it =
-                    App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+                    App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
                 std::string what(it->getDescriptiveName());
                 what += " (via sim.launchExecutable)";
                 if (1 == CALL_C_API(simCheckExecAuthorization, what.c_str(), (file + " " + args).c_str(), it->getScriptHandle()))
@@ -7100,7 +7107,7 @@ int _simTest(luaWrap_lua_State* L)
             CInterfaceStack* stack = App::scenes->interfaceStackContainer->getStack(stackHandle);
             std::string str;
             stack->printContent(-1, str);
-            CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+            CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
             App::logScriptMsg(it, sim_verbosity_msgs, str.c_str());
             LUA_END(0);
         }
@@ -7147,7 +7154,7 @@ int _simTextEditorOpen(luaWrap_lua_State* L)
             const char* arg1 = luaWrap_lua_tostring(L, 1);
             const char* arg2 = luaWrap_lua_tostring(L, 2);
             retVal = GuiApp::mainWindow->codeEditorContainer->open(
-                arg1, arg2, CDetachedScript::getScriptHandleFromInterpreterState_lua(L));
+                arg1, arg2, CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
         }
     }
     else
@@ -7312,7 +7319,7 @@ int _simGetStackTraceback(luaWrap_lua_State* L)
             scriptHandle = luaToInt(L, 1);
     }
     else
-        scriptHandle = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+        scriptHandle = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
     CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(scriptHandle);
     if (it != nullptr)
         retVal = it->getAndClearLastStackTraceback();
@@ -7428,7 +7435,7 @@ int _simSetAutoYieldDelay(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0))
     {
         int timeInMs = int(luaToDouble(L, 1) * 1000.0);
-        int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+        int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
         if (it != nullptr)
             it->setDelayForAutoYielding(timeInMs);
@@ -7444,7 +7451,7 @@ int _simGetAutoYieldDelay(luaWrap_lua_State* L)
     LUA_START("sim.getAutoYieldDelay");
 
     int timeInMs = 0;
-    int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+    int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
     CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
     if (it != nullptr)
         timeInMs = it->getDelayForAutoYielding();
@@ -7460,7 +7467,7 @@ int _setAutoYield(luaWrap_lua_State* L)
 
     if (luaWrap_lua_gettop(L) > 0)
     {
-        int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+        int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
         if (it != nullptr)
         {
@@ -7493,7 +7500,7 @@ int _getAutoYield(luaWrap_lua_State* L)
 { // doesn't generate an error
     TRACE_LUA_API;
     LUA_START("getAutoYield");
-    int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+    int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
     CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
     bool retVal = false;
     int level = 0;
@@ -7512,7 +7519,7 @@ int _getYieldAllowed(luaWrap_lua_State* L)
 {
     TRACE_LUA_API;
     LUA_START("getYieldAllowed");
-    int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+    int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
     CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
     bool canYield = true;
     if (it != nullptr)
@@ -7528,7 +7535,7 @@ int _setYieldAllowed(luaWrap_lua_State* L)
 
     if (luaWrap_lua_gettop(L) > 0)
     {
-        int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+        int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
         if (it != nullptr)
         {
@@ -7571,14 +7578,14 @@ int _registerScriptFuncHook(luaWrap_lua_State* L)
         if (luaWrap_lua_gettop(L) >= 4)
         {
             bool onlyUnregister = luaToBool(L, 4);
-            int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
             CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
             it->removeFunctionHook(systemFunc, userFunc, execBefore);
             if (!onlyUnregister)
                 it->registerFunctionHook(systemFunc, userFunc, execBefore);
         }
         else
-            retVal = CALL_C_API(simRegisterScriptFuncHook, CDetachedScript::getScriptHandleFromInterpreterState_lua(L), systemFunc, userFunc, execBefore, 0); // compatibility version
+            retVal = CALL_C_API(simRegisterScriptFuncHook, CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), systemFunc, userFunc, execBefore, 0); // compatibility version
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -9946,7 +9953,7 @@ int _simCreateDrawingObject(luaWrap_lua_State* L)
             ambient[1] += emission[1];
             ambient[2] += emission[2];
         }
-        setCurrentScriptInfo_cSide(CDetachedScript::getScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal = CALL_C_API(simAddDrawingObject, objType, size, duplicateTolerance, parentID, maxItemCount, ambient.data(), nullptr, specular.data(), nullptr);
         setCurrentScriptInfo_cSide(-1, -1);
     }
@@ -10827,7 +10834,7 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State* L)
         fetchFloatArrayArg(L, 6, textCol, {0.0, 0.0, 0.0});
         std::vector<float> bgCol;
         fetchFloatArrayArg(L, 7, bgCol, {1.0, 1.0, 1.0});
-        int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+        int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         CDetachedScript* itScrObj = App::scenes->getDetachedScriptFromHandle(currentScriptID);
         if ((itScrObj->getScriptType() == sim_scripttype_main) || (itScrObj->getScriptType() == sim_scripttype_simulation))
             mode |= 1; // Add-ons and customization scripts do not have this restriction
@@ -10837,7 +10844,7 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State* L)
             mode -= 16;
         }
         std::string name(luaWrap_lua_tostring(L, 1));
-        setCurrentScriptInfo_cSide(CDetachedScript::getScriptHandleFromInterpreterState_lua(L), -1); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), -1); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal = CALL_C_API(simAuxiliaryConsoleOpen, title.c_str(), maxLines, mode, pos.data(), size.data(), textCol.data(), bgCol.data());
         setCurrentScriptInfo_cSide(-1, -1);
     }
@@ -11700,7 +11707,7 @@ int _simRuckigPos(luaWrap_lua_State* L)
             getDoublesFromTable(L, 7, dofs * 2, &targetPosVel[0]);
 
             setCurrentScriptInfo_cSide(
-                CDetachedScript::getScriptHandleFromInterpreterState_lua(L),
+                CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
                 CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
                     L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or
                          // for autom. object deletion when script ends)
@@ -11771,7 +11778,7 @@ int _simRuckigVel(luaWrap_lua_State* L)
             getDoublesFromTable(L, 7, dofs, &targetVel[0]);
 
             setCurrentScriptInfo_cSide(
-                CDetachedScript::getScriptHandleFromInterpreterState_lua(L),
+                CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
                 CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
                     L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or
                          // for autom. object deletion when script ends)
@@ -11927,7 +11934,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
         std::string funcName;
         int scriptHandleOrType = luaToInt(L, 1);
         if (scriptHandleOrType == sim_handle_self)
-            scriptHandleOrType = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            scriptHandleOrType = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
 
         funcName = luaWrap_lua_tostring(L, 2);
         script = App::scenes->getDetachedScriptFromHandle(scriptHandleOrType);
@@ -12159,8 +12166,8 @@ int _simInitScript(luaWrap_lua_State* L)
     if (res == 2)
         scriptHandle = luaToInt(L, 1);
     if (scriptHandle == sim_handle_self)
-        scriptHandle = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
-    if (scriptHandle == CDetachedScript::getScriptHandleFromInterpreterState_lua(L))
+        scriptHandle = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
+    if (scriptHandle == CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L))
         scriptHandle = -scriptHandle - 1;
     if ((res == 0) || (res == 2))
         CALL_C_API(simInitScript, scriptHandle); // executes asynchronously if script handle is negative
@@ -12194,7 +12201,7 @@ int _simModuleEntry(luaWrap_lua_State* L)
                 if (res == 2)
                     state = luaToInt(L, 3);
                 setCurrentScriptInfo_cSide(
-                    CDetachedScript::getScriptHandleFromInterpreterState_lua(L),
+                    CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
                     CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
                         L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment,
                              // or for autom. object deletion when script ends)
@@ -12266,7 +12273,7 @@ int _simBroadcastMsg(luaWrap_lua_State* L)
                 options = luaToInt(L, 2);
             CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
             CDetachedScript::buildFromInterpreterStack_lua(L, stack, 1, 0);
-            int scriptHandle = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            int scriptHandle = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
             stack->pushInt32OntoStack(scriptHandle, false);
             App::scenes->broadcastMsg(stack, scriptHandle, options);
             App::scenes->interfaceStackContainer->destroyStack(stack);
@@ -12302,7 +12309,7 @@ int _simHandleJointMotion(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.handleJointMotion");
 
-    int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+    int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
     CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
     if (it != nullptr)
     {
@@ -12760,7 +12767,7 @@ int _simCreateCollectionEx(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0))
     {
         int options = luaToInt(L, 1);
-        setCurrentScriptInfo_cSide(CDetachedScript::getScriptHandleFromInterpreterState_lua(L),
+        setCurrentScriptInfo_cSide(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
                                    CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
                                        L)); // for transmitting to the master function additional info (e.g.for autom.
                                             // name adjustment, or for autom. object deletion when script ends)
@@ -12810,7 +12817,7 @@ int _simHandleAddOnScripts(luaWrap_lua_State* L)
     LUA_START("sim.handleAddOnScripts");
 
     int retVal = -1;
-    int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+    int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
     CDetachedScript* itScrObj = App::scenes->getDetachedScriptFromHandle(currentScriptID);
     if (itScrObj->getScriptType() == sim_scripttype_main)
     {
@@ -12839,7 +12846,7 @@ int _simHandleSandboxScript(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.handleSandboxScript");
 
-    int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+    int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
     CDetachedScript* itScrObj = App::scenes->getDetachedScriptFromHandle(currentScriptID);
     if (itScrObj->getScriptType() == sim_scripttype_main)
     {
@@ -13569,7 +13576,7 @@ int _simHandleSimulationStart(luaWrap_lua_State* L)
     LUA_START("sim.handleSimulationStart");
 
     int retVal = -1;
-    int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+    int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
     CDetachedScript* itScrObj = App::scenes->getDetachedScriptFromHandle(currentScriptID);
     if (itScrObj->getScriptType() == sim_scripttype_main)
     {
@@ -13593,7 +13600,7 @@ int _simHandleSensingStart(luaWrap_lua_State* L)
     LUA_START("sim.handleSensingStart");
 
     int retVal = -1;
-    int currentScriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+    int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
     CDetachedScript* itScrObj = App::scenes->getDetachedScriptFromHandle(currentScriptID);
     if (itScrObj->getScriptType() == sim_scripttype_main)
     {
@@ -14077,7 +14084,7 @@ int _simExecuteScriptString(luaWrap_lua_State* L)
     {
         int scriptID = fetchIntArg(L, 1);
         if (scriptID == sim_handle_self)
-            scriptID = CDetachedScript::getScriptHandleFromInterpreterState_lua(L);
+            scriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         std::string stringToExecute(fetchTextArg(L, 2));
         CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
         int retVal = CALL_C_API(simExecuteScriptString, scriptID, stringToExecute.c_str(), stack->getObjectHandle());

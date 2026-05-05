@@ -12519,7 +12519,7 @@ int simExecuteScriptString_internal(int scriptHandle, const char* stringToExecut
                 {
                     if (script->getLang() == "python")
                     {
-                        if (script->getScriptState() == CDetachedScript::scriptState_initialized)
+                        if (script->getScriptState() == sim_scriptstate_initialized)
                         {
                             CInterfaceStack* tmpStack = App::scenes->interfaceStackContainer->createStack();
                             CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();

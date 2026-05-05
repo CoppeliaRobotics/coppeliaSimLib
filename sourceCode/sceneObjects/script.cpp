@@ -102,9 +102,9 @@ bool CScript::canDestroyNow()
             retVal = false;
         if (retVal)
         {
-            if (detachedScript->_scriptState == CDetachedScript::scriptState_initialized)
+            if (detachedScript->_scriptState == sim_scriptstate_initialized)
                 detachedScript->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
-            detachedScript->_scriptState = CDetachedScript::scriptState_ended; // just in case
+            detachedScript->_scriptState = sim_scriptstate_ended; // just in case
             detachedScript->resetScript();
             // Announcements need to happen immediately after calling cleanup!
             App::scenes->announceScriptStateWillBeErased(detachedScript->getScriptHandle(), detachedScript->getScriptUid(), detachedScript->isSimulationOrMainScript(), detachedScript->isSceneSwitchPersistentScript());
@@ -432,7 +432,7 @@ void CScript::reinitAfterSimulationIfNeeded()
     {
         if (detachedScript->getScriptType() == sim_scripttype_customization)
         {
-            if ((detachedScript->getScriptState() & CDetachedScript::scriptState_error) && _resetAfterSimError)
+            if ((detachedScript->getScriptState() & sim_scriptstate_error) && _resetAfterSimError)
                 detachedScript->initScript();
         }
     }

@@ -434,7 +434,7 @@ void CSceneContainer::getActiveScripts(std::vector<CDetachedScript*>& scripts, b
     TRACE_INTERNAL;
     if (reverse)
     {
-        if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == CDetachedScript::scriptState_initialized))
+        if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == sim_scriptstate_initialized))
             scripts.push_back(sandboxScript);
         addOnScriptContainer->getActiveScripts(scripts);
         if (scene != nullptr)
@@ -445,7 +445,7 @@ void CSceneContainer::getActiveScripts(std::vector<CDetachedScript*>& scripts, b
         if (scene != nullptr)
             scene->getActiveScripts(scripts, reverse, alsoLegacyScripts);
         addOnScriptContainer->getActiveScripts(scripts);
-        if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == CDetachedScript::scriptState_initialized))
+        if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == sim_scriptstate_initialized))
             scripts.push_back(sandboxScript);
     }
 }

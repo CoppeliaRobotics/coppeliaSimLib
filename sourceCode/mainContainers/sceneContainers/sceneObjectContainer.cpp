@@ -3099,7 +3099,7 @@ void CSceneObjectContainer::getActiveScripts(std::vector<CDetachedScript*>& scri
     if (reverse)
     { // reverse order
         CDetachedScript* script = embeddedScriptContainer->getMainScript();
-        if ((script != nullptr) && (script->getScriptState() == CDetachedScript::scriptState_initialized))
+        if ((script != nullptr) && (script->getScriptState() == sim_scriptstate_initialized))
             scripts.push_back(script);
 
         // child + customization scripts (legacy + new):
@@ -3116,7 +3116,7 @@ void CSceneObjectContainer::getActiveScripts(std::vector<CDetachedScript*>& scri
         _getActiveScripts(scripts, reverse);
 
         CDetachedScript* script = embeddedScriptContainer->getMainScript();
-        if ((script != nullptr) && (script->getScriptState() == CDetachedScript::scriptState_initialized))
+        if ((script != nullptr) && (script->getScriptState() == sim_scriptstate_initialized))
             scripts.push_back(script);
     }
 }
@@ -3195,7 +3195,7 @@ void CSceneObjectContainer::_getActiveScripts(std::vector<CDetachedScript*>& scr
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {
         CScript* script = getScriptFromHandle(scriptHandles[i]);
-        if ((script != nullptr) && (script->detachedScript->getScriptState() == CDetachedScript::scriptState_initialized))
+        if ((script != nullptr) && (script->detachedScript->getScriptState() == sim_scriptstate_initialized))
             scripts.push_back(script->detachedScript);
     }
 }

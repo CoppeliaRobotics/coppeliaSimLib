@@ -2991,7 +2991,7 @@ std::string _method_executeString(int targetObj, const char* method, CDetachedSc
             {
                 if (target->getLang() == "python")
                 {
-                    if (target->getScriptState() == CDetachedScript::scriptState_initialized)
+                    if (target->getScriptState() == sim_scriptstate_initialized)
                     {
                         CInterfaceStack* tmpStack = App::scenes->interfaceStackContainer->createStack();
                         tmpStack->pushTextOntoStack(stringToExecute.c_str());

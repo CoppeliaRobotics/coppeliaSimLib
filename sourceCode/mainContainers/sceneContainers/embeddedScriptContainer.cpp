@@ -462,7 +462,7 @@ void CEmbeddedScriptContainer::getActiveLegacyScripts(std::vector<CDetachedScrip
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {
         CDetachedScript* script = getDetachedScriptFromHandle(scriptHandles[i]);
-        if ((script != nullptr) && (script->getScriptState() == CDetachedScript::scriptState_initialized))
+        if ((script != nullptr) && (script->getScriptState() == sim_scriptstate_initialized))
             scripts.push_back(script);
     }
 }

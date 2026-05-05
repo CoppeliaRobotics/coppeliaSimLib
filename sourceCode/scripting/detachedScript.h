@@ -39,16 +39,6 @@ class CDetachedScript : public Obj
     friend class CScript;
 
   public:
-    enum
-    {
-        scriptState_unloaded = 0,
-        scriptState_uninitialized,
-        scriptState_initialized,
-        scriptState_ended,
-        scriptState_error = 8,
-        scriptState_suspended = 16 // only add-ons
-    };
-
     CDetachedScript(int scriptType);
     virtual ~CDetachedScript();
 
@@ -220,7 +210,8 @@ class CDetachedScript : public Obj
     void registerNewFunctions_lua();
     static void buildFromInterpreterStack_lua(void* LL, CInterfaceStack* stack, int fromPos, int cnt);
     static size_t buildOntoInterpreterStack_lua(void* LL, const CInterfaceStack* stack, bool takeOnlyTop, bool interlaceWithTypeInfo = false);
-    static int getScriptHandleFromInterpreterState_lua(void* LL);
+    static int getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(void* LL);
+    static int getDetachedScriptHandleFromInterpreterState_lua(void* LL);
     static std::string getSearchPath_lua();
     static std::string getSearchCPath_lua();
     // -----------------------------
