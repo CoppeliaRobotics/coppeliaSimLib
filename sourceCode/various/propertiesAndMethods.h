@@ -4,6 +4,12 @@
 #include <vector>
 #include <map>
 
+struct SDeprecatedProperty {
+    std::string repl;
+    std::vector<int> types;
+};
+extern const std::map<std::string, SDeprecatedProperty> propDeprecationMapping;
+
 struct SProperty {
     const char* name;
     int type;
@@ -477,6 +483,7 @@ struct SJointProperty
     FUNCX(propDynCont_mujocoKinematicWeldSolref, "dynamics.mujoco.kinematicWeldSolref", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propDynCont_mujocoKinematicWeldSolimp, "dynamics.mujoco.kinematicWeldSolimp", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propDynCont_mujocoKinematicWeldTorqueScale, "dynamics.mujoco.kinematicWeldTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    /* Following for backward compatibility: */ \
     FUNCX(propDynCont_DEPRECATED_dynamicsEnabled, "dynamicsEnabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dynamics enabled"}, {"description", ""}}), "") \
     FUNCX(propDynCont_DEPRECATED_showContactPoints, "showContactPoints", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", "Show contact points"}, {"description", ""}}), "") \
     FUNCX(propDynCont_DEPRECATED_dynamicsEngine, "dynamicsEngine", sim_propertytype_intarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dynamics engine"}, {"description", "Selected dynamics engine index and version"}}), "") \
@@ -620,6 +627,7 @@ struct SJointProperty
     FUNCX(propSimulation_simulationState, "simulation.state", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Simulation state"}, {"description", ""}}), "") \
     FUNCX(propSimulation_stepsPerRendering, "simulation.stepsPerRendering", sim_propertytype_int, 0,  jsonStr({{"label", "Steps per frame"}, {"description", "Simulation steps per frame"}}), "") \
     FUNCX(propSimulation_speedModifier, "simulation.speedModifier", sim_propertytype_int, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Speed modifier"}, {"description", ""}}), "") \
+    /* Following for backward compatibility: */ \
     FUNCX(propSimulation_DEPRECATED_removeNewObjectsAtEnd, "removeNewObjectsAtEnd", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
     FUNCX(propSimulation_DEPRECATED_realtimeSimulation, "realtimeSimulation", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
     FUNCX(propSimulation_DEPRECATED_pauseSimulationAtTime, "pauseSimulationAtTime", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
@@ -644,14 +652,14 @@ struct SJointProperty
     FUNCX(propMeshWrapper_DEPRECATED_inertia, "inertia", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE,  jsonStr({{"label", "Inertia tensor"}, {"description", "Inertia tensor, relative to the shape's reference frame"}}), "")
 
 #define MESH_PROPERTIES \
-    FUNCX(propMesh_textureResolution, "textureResolution", sim_propertytype_intarray2, sim_propertyinfo_notwritable,  jsonStr({{"label", "Texture resolution"}, {"description", ""}}), "") \
-    FUNCX(propMesh_textureCoordinates, "textureCoordinates", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Texture coordinates"}, {"description", ""}}), "") \
-    FUNCX(propMesh_textureApplyMode, "textureApplyMode", sim_propertytype_int, 0,  jsonStr({{"label", "Texture apply mode"}, {"description", ""}}), "") \
-    FUNCX(propMesh_textureRepeatU, "textureRepeatU", sim_propertytype_bool, 0,  jsonStr({{"label", "Texture repeat U"}, {"description", ""}}), "") \
-    FUNCX(propMesh_textureRepeatV, "textureRepeatV", sim_propertytype_bool, 0,  jsonStr({{"label", "Texture repeat V"}, {"description", ""}}), "") \
-    FUNCX(propMesh_textureInterpolate, "textureInterpolate", sim_propertytype_bool, 0,  jsonStr({{"label", "Interpolate texture"}, {"description", ""}}), "") \
-    FUNCX(propMesh_texture, "rawTexture", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Texture"}, {"description", ""}}), "") \
-    FUNCX(propMesh_textureID, "textureID", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Texture ID"}, {"description", ""}}), "") \
+    FUNCX(propMesh_textureResolution, "texture.resolution", sim_propertytype_intarray2, sim_propertyinfo_notwritable,  jsonStr({{"label", "Texture resolution"}, {"description", ""}}), "") \
+    FUNCX(propMesh_textureCoordinates, "texture.coordinates", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Texture coordinates"}, {"description", ""}}), "") \
+    FUNCX(propMesh_textureApplyMode, "texture.applyMode", sim_propertytype_int, 0,  jsonStr({{"label", "Texture apply mode"}, {"description", ""}}), "") \
+    FUNCX(propMesh_textureRepeatU, "texture.repeatU", sim_propertytype_bool, 0,  jsonStr({{"label", "Texture repeat U"}, {"description", ""}}), "") \
+    FUNCX(propMesh_textureRepeatV, "texture.repeatV", sim_propertytype_bool, 0,  jsonStr({{"label", "Texture repeat V"}, {"description", ""}}), "") \
+    FUNCX(propMesh_textureInterpolate, "texture.interpolate", sim_propertytype_bool, 0,  jsonStr({{"label", "Interpolate texture"}, {"description", ""}}), "") \
+    FUNCX(propMesh_texture, "texture.rawData", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Texture"}, {"description", ""}}), "") \
+    FUNCX(propMesh_textureID, "texture.id", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Texture ID"}, {"description", ""}}), "") \
     FUNCX(propMesh_vertices, "vertices", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Vertices"}, {"description", ""}}), "") \
     FUNCX(propMesh_indices, "indices", sim_propertytype_intarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Indices"}, {"description", "Indices (3 values per triangle)"}}), "") \
     FUNCX(propMesh_normals, "normals", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Normals"}, {"description", "Normals (3*3 values per triangle)"}}), "") \
@@ -663,7 +671,16 @@ struct SJointProperty
     FUNCX(propMesh_shape, "shape", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Shape handle"}, {"description", ""}, {"handleType", "shape"}}), "") \
     FUNCX(propMesh_primitiveType, "primitiveType", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Primitive type"}, {"description", ""}}), "") \
     FUNCX(propMesh_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable,  jsonStr({{"label", "Convex"}, {"description", "Whether mesh is convex or not"}}), "") \
-    FUNCX(propMesh_colorName, "colorName", sim_propertytype_string, 0,  jsonStr({{"label", "Color name"}, {"description", ""}}), "")
+    FUNCX(propMesh_colorName, "colorName", sim_propertytype_string, 0,  jsonStr({{"label", "Color name"}, {"description", ""}}), "") \
+    /* Following for backward compatibility: */ \
+    FUNCX(propMesh_DEPRECATED_textureResolution, "textureResolution", sim_propertytype_intarray2, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propMesh_DEPRECATED_textureCoordinates, "textureCoordinates", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propMesh_DEPRECATED_textureApplyMode, "textureApplyMode", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propMesh_DEPRECATED_textureRepeatU, "textureRepeatU", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propMesh_DEPRECATED_textureRepeatV, "textureRepeatV", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propMesh_DEPRECATED_textureInterpolate, "textureInterpolate", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propMesh_DEPRECATED_texture, "rawTexture", sim_propertytype_buffer, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propMesh_DEPRECATED_textureID, "textureID", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "")
 
 #define VIEWABLEBASE_PROPERTIES \
     FUNCX(propViewableBase_viewAngle, "viewAngle", sim_propertytype_float, 0,  jsonStr({{"label", "View angle"}, {"description", "View angle (in perspective projection mode)"}}), "") \
@@ -777,6 +794,7 @@ struct SJointProperty
     FUNCX(propMaterial_mujocoAdhesionForcerange, "dynamics.mujoco.adhesionforcerange", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propMaterial_mujocoAdhesionCtrl, "dynamics.mujoco.adhesionctrl", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propMaterial_mujocoGravcomp, "dynamics.mujoco.gravcomp", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    /* Following for backward compatibility: */ \
     FUNCX(propMaterial_DEPRECATED_engineProperties, "engineProperties", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  jsonStr({{"label", "Engine properties"}, {"description", "Engine properties as JSON text"}}), "") \
     FUNCX(propMaterial_DEPRECATED_bulletRestitution, "bullet.restitution", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_body_restitution, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propMaterial_DEPRECATED_bulletFriction0, "bullet.frictionOld", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_body_oldfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
@@ -1044,35 +1062,53 @@ struct SJointProperty
     FUNCX(propShape_METHOD_divide, "divide", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define CAMERA_PROPERTIES \
-    FUNCX(propCamera_size, "cameraSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Camera size"}}), "") \
+    FUNCX(propCamera_size, "size", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Camera size"}}), "") \
     FUNCX(propCamera_parentAsManipProxy, "parentAsManipulationProxy", sim_propertytype_bool, 0,  jsonStr({{"label", "Parent as proxy"}, {"description", "Use parent as manipulation proxy"}}), "") \
     FUNCX(propCamera_translationEnabled, "translationEnabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Translation enabled"}, {"description", ""}}), "") \
     FUNCX(propCamera_rotationEnabled, "rotationEnabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Rotation enabled"}, {"description", ""}}), "") \
-    FUNCX(propCamera_trackedObjectHandle, "trackedObjectHandle", sim_propertytype_int, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Tracked object"}, {"description", "Tracked scene object handle"}}), "")
+    FUNCX(propCamera_trackedObject, "trackedObject", sim_propertytype_handle, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Tracked object"}, {"description", "Tracked scene object"}, {"handleType", "sceneObject"}}), "") \
+    /* Following for backward compatibility: */ \
+    FUNCX(propCamera_DEPRECATED_size, "cameraSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propCamera_DEPRECATED_trackedObject, "trackedObjectHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
 
 #define DUMMY_PROPERTIES \
-    FUNCX(propDummy_size, "dummySize", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Size"}, {"description", "Dummy size"}}), "") \
     FUNCX(propDummy_linkedDummy, "linkedDummy", sim_propertytype_handle, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Linked dummy"}, {"description", "Handle of the linked dummy"}, {"handleType", "dummy"}}), "") \
-    FUNCX(propDummy_dummyType, "dummyType", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Type"}, {"description", "Dummy type"}}), "") \
     FUNCX(propDummy_assemblyTag, "assemblyTag", sim_propertytype_string, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Assembly tag"}, {"description", ""}}), "") \
-    FUNCX(propDummy_engineProperties, "engineProperties", sim_propertytype_string, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Engine properties"}, {"description", "Engine properties as JSON text"}}), "") \
-    FUNCX(propDummy_mujocoLimitsEnabled, "mujoco.limitsEnabled", sim_propertytype_bool, 0, sim_mujoco_dummy_limited, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDummy_mujocoLimitsRange, "mujoco.limitsRange", sim_propertytype_floatarray, 0, sim_mujoco_dummy_range1, sim_mujoco_dummy_range2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDummy_mujocoLimitsSolref, "mujoco.limitsSolref", sim_propertytype_floatarray, 0, sim_mujoco_dummy_solreflimit1, sim_mujoco_dummy_solreflimit2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDummy_mujocoLimitsSolimp, "mujoco.limitsSolimp", sim_propertytype_floatarray, 0, sim_mujoco_dummy_solimplimit1, sim_mujoco_dummy_solimplimit2, sim_mujoco_dummy_solimplimit3, sim_mujoco_dummy_solimplimit4, sim_mujoco_dummy_solimplimit5,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDummy_mujocoMargin, "mujoco.margin", sim_propertytype_float, 0, sim_mujoco_dummy_margin, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDummy_mujocoSpringStiffness, "mujoco.springStiffness", sim_propertytype_float, 0, sim_mujoco_dummy_stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDummy_mujocoSpringDamping, "mujoco.springDamping", sim_propertytype_float, 0, sim_mujoco_dummy_damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDummy_mujocoSpringLength, "mujoco.springLength", sim_propertytype_float, 0, sim_mujoco_dummy_springlength, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDummy_mujocoJointProxyHandle, "mujoco.jointProxyHandle", sim_propertytype_int, sim_propertyinfo_modelhashexclude, sim_mujoco_dummy_proxyjointid, -1, -1, -1, -1,  jsonStr({{"label", "Joint proxy"}, {"description", "Handle of the joint proxy, MuJoCo only"}}), "") \
-    FUNCX(propDummy_mujocoOverlapConstrSolref, "mujoco.overlapConstrSolref", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDummy_mujocoOverlapConstrSolimp, "mujoco.overlapConstrSolimp", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propDummy_mujocoOverlapConstrTorqueScale, "mujoco.overlapConstrTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDummy_size, "size", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Size"}, {"description", "Dummy size"}}), "") \
+    FUNCX(propDummy_dummyType, "type", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Type"}, {"description", "Dummy type"}}), "") \
+    FUNCX(propDummy_engineProperties, "dynamics.engineProperties", sim_propertytype_string, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Engine properties"}, {"description", "Engine properties as JSON text"}}), "") \
+    FUNCX(propDummy_mujocoLimitsEnabled, "dynamics.mujoco.limitsEnabled", sim_propertytype_bool, 0, sim_mujoco_dummy_limited, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDummy_mujocoLimitsRange, "dynamics.mujoco.limitsRange", sim_propertytype_floatarray, 0, sim_mujoco_dummy_range1, sim_mujoco_dummy_range2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDummy_mujocoLimitsSolref, "dynamics.mujoco.limitsSolref", sim_propertytype_floatarray, 0, sim_mujoco_dummy_solreflimit1, sim_mujoco_dummy_solreflimit2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDummy_mujocoLimitsSolimp, "dynamics.mujoco.limitsSolimp", sim_propertytype_floatarray, 0, sim_mujoco_dummy_solimplimit1, sim_mujoco_dummy_solimplimit2, sim_mujoco_dummy_solimplimit3, sim_mujoco_dummy_solimplimit4, sim_mujoco_dummy_solimplimit5,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDummy_mujocoMargin, "dynamics.mujoco.margin", sim_propertytype_float, 0, sim_mujoco_dummy_margin, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDummy_mujocoSpringStiffness, "dynamics.mujoco.springStiffness", sim_propertytype_float, 0, sim_mujoco_dummy_stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDummy_mujocoSpringDamping, "dynamics.mujoco.springDamping", sim_propertytype_float, 0, sim_mujoco_dummy_damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDummy_mujocoSpringLength, "dynamics.mujoco.springLength", sim_propertytype_float, 0, sim_mujoco_dummy_springlength, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDummy_mujocoJointProxyHandle, "dynamics.mujoco.jointProxyHandle", sim_propertytype_int, sim_propertyinfo_modelhashexclude, sim_mujoco_dummy_proxyjointid, -1, -1, -1, -1,  jsonStr({{"label", "Joint proxy"}, {"description", "Handle of the joint proxy, MuJoCo only"}}), "") \
+    FUNCX(propDummy_mujocoOverlapConstrSolref, "dynamics.mujoco.overlapConstrSolref", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDummy_mujocoOverlapConstrSolimp, "dynamics.mujoco.overlapConstrSolimp", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDummy_mujocoOverlapConstrTorqueScale, "dynamics.mujoco.overlapConstrTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     /* Following for backward compatibility: */ \
+    FUNCX(propDummy_DEPRECATED_size, "dummySize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_DEPRECATED_dummyType, "dummyType", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_DEPRECATED_engineProperties, "engineProperties", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_DEPRECATED_mujocoLimitsEnabled, "mujoco.limitsEnabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_dummy_limited, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_DEPRECATED_mujocoLimitsRange, "mujoco.limitsRange", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_dummy_range1, sim_mujoco_dummy_range2, -1, -1, -1, "", "") \
+    FUNCX(propDummy_DEPRECATED_mujocoLimitsSolref, "mujoco.limitsSolref", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_dummy_solreflimit1, sim_mujoco_dummy_solreflimit2, -1, -1, -1, "", "") \
+    FUNCX(propDummy_DEPRECATED_mujocoLimitsSolimp, "mujoco.limitsSolimp", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_dummy_solimplimit1, sim_mujoco_dummy_solimplimit2, sim_mujoco_dummy_solimplimit3, sim_mujoco_dummy_solimplimit4, sim_mujoco_dummy_solimplimit5, "", "") \
+    FUNCX(propDummy_DEPRECATED_mujocoMargin, "mujoco.margin", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_dummy_margin, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_DEPRECATED_mujocoSpringStiffness, "mujoco.springStiffness", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_dummy_stiffness, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_DEPRECATED_mujocoSpringDamping, "mujoco.springDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_dummy_damping, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_DEPRECATED_mujocoSpringLength, "mujoco.springLength", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_dummy_springlength, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_DEPRECATED_mujocoJointProxyHandle, "mujoco.jointProxyHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_dummy_proxyjointid, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_DEPRECATED_mujocoOverlapConstrSolref, "mujoco.overlapConstrSolref", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_DEPRECATED_mujocoOverlapConstrSolimp, "mujoco.overlapConstrSolimp", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_DEPRECATED_mujocoOverlapConstrTorqueScale, "mujoco.overlapConstrTorquescale", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "") \
     FUNCX(propDummy_DEPRECATED_linkedDummyHandle, "linkedDummyHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "")
 
 #define FORCESENSOR_PROPERTIES \
-    FUNCX(propForceSensor_size, "sensorSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Sensor size"}}), "") \
+    FUNCX(propForceSensor_size, "size", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Sensor size"}}), "") \
     FUNCX(propForceSensor_forceThresholdEnabled, "forceThresholdEnabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Force threshold enabled"}, {"description", ""}}), "") \
     FUNCX(propForceSensor_torqueThresholdEnabled, "torqueThresholdEnabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Torque threshold enabled"}, {"description", ""}}), "") \
     FUNCX(propForceSensor_filterType, "filterType", sim_propertytype_int, 0,  jsonStr({{"label", "Filter"}, {"description", "Filter type"}}), "") \
@@ -1086,13 +1122,14 @@ struct SJointProperty
     FUNCX(propForceSensor_filteredSensorTorque, "filteredTorque", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Filtered torque"}, {"description", "Filtered torque vector"}}), "") \
     FUNCX(propForceSensor_intrinsicError, "intrinsicError", sim_propertytype_pose, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Intrinsic error"}, {"description", "Intrinsic error, generated by some physics engines"}}), "") \
     /* Following for backward compatibility: */ \
+    FUNCX(propForceSensor_DEPRECATED_size, "sensorSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
     FUNCX(propForceSensor_DEPRECATED_sensorForce, "sensorForce", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
     FUNCX(propForceSensor_DEPRECATED_sensorTorque, "sensorTorque", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
     FUNCX(propForceSensor_DEPRECATED_sensorAverageForce, "filterSensorForce", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
     FUNCX(propForceSensor_DEPRECATED_sensorAverageTorque, "filterSensorTorque", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "") \
 
 #define GRAPH_PROPERTIES \
-    FUNCX(propGraph_size, "graphSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the 3D graph representation"}}), "") \
+    FUNCX(propGraph_size, "size", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the 3D graph representation"}}), "") \
     FUNCX(propGraph_bufferSize, "bufferSize", sim_propertytype_int, 0,  jsonStr({{"label", "Buffer size"}, {"description", ""}}), "") \
     FUNCX(propGraph_cyclic, "cyclic", sim_propertytype_bool, 0,  jsonStr({{"label", "Cyclic"}, {"description", "Buffer is cyclic"}}), "") \
     FUNCX(propGraph_backgroundColor, "backgroundColor", sim_propertytype_color, 0,  jsonStr({{"label", "Background color"}, {"description", ""}}), "") \
@@ -1103,123 +1140,216 @@ struct SJointProperty
     FUNCX(propGraph_METHOD_removeTrace, "removeTrace", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propGraph_METHOD_snapshotTrace, "snapshotTrace", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propGraph_METHOD_step, "step", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
-    FUNCX(propGraph_METHOD_resetGraph, "resetGraph", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
+    FUNCX(propGraph_METHOD_resetGraph, "resetGraph", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    /* Following for backward compatibility: */ \
+    FUNCX(propGraph_DEPRECATED_size, "graphSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "")
 
 #define JOINT_PROPERTIES \
-    FUNCX(propJoint_length, "jointLength", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Size"}, {"description", "Joint size"}}), "") \
-    FUNCX(propJoint_diameter, "jointDiameter", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Size"}, {"description", "Joint size"}}), "") \
     FUNCX(propJoint_position, "jointPosition", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Position"}, {"description", "Joint linear/angular displacement"}}), "") \
     FUNCX(propJoint_quaternion, "jointQuaternion", sim_propertytype_quaternion, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Spherical joint quaternion"}, {"description", ""}}), "") \
     FUNCX(propJoint_screwLead, "screwLead", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Screw lead"}, {"description", ""}}), "") \
     FUNCX(propJoint_intrinsicError, "intrinsicError", sim_propertytype_pose, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Intrinsic error"}, {"description", "Intrinsic error, generated by some physics engines"}}), "") \
     FUNCX(propJoint_intrinsicPose, "intrinsicPose", sim_propertytype_pose, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Intrinsic pose"}, {"description", "Intrinsic pose (includes a possible intrinsic error)"}}), "") \
     FUNCX(propJoint_calcVelocity, "calcVelocity", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Velocity"}, {"description", "Calculated joint linear or angular velocity"}}), "") \
-    FUNCX(propJoint_jointType, "jointType", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable, -1, -1, -1, -1, -1,  jsonStr({{"label", "Type"}, {"description", "Joint type"}}), "") \
     FUNCX(propJoint_cyclic, "cyclic", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Cyclic"}, {"description", "Cyclic revolute joint, has no limits"}}), "") \
     FUNCX(propJoint_enforceLimits, "enforceLimits", sim_propertytype_bool, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Enforce limits"}, {"description", "Enforce limits strictly"}}), "") \
     FUNCX(propJoint_interval, "interval", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Interval"}, {"description", "Joint limits (lower and upper bounds)"}}), "") \
     FUNCX(propJoint_targetPos, "targetPos", sim_propertytype_float, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Target position"}, {"description", "Position to reach by controller"}}), "") \
     FUNCX(propJoint_targetVel, "targetVel", sim_propertytype_float, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Target velocity"}, {"description", "Velocity to reach by controller"}}), "") \
     FUNCX(propJoint_targetForce, "targetForce", sim_propertytype_float, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Target force"}, {"description", "Maximum force to exert"}}), "") \
-    FUNCX(propJoint_jointForce, "jointForce", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Force"}, {"description", "Force applied"}}), "") \
-    FUNCX(propJoint_averageJointForce, "averageJointForce", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Average force"}, {"description", "Force applied on average (in a simulation step)"}}), "") \
-    FUNCX(propJoint_jointMode, "jointMode", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Mode"}, {"description", "Joint mode"}}), "") \
-    FUNCX(propJoint_dynCtrlMode, "dynCtrlMode", sim_propertytype_int, 0, -1, -1, -1, -1, -1, jsonStr({{"label", "Control mode" }, {"description", "Joint control mode, when in dynamic mode"}, {"enum", "jointDynCtrlMode"}}), "") \
+    FUNCX(propJoint_length, "length", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Size"}, {"description", "Joint size"}}), "") \
+    FUNCX(propJoint_diameter, "diameter", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Size"}, {"description", "Joint size"}}), "") \
+    FUNCX(propJoint_jointType, "type", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable, -1, -1, -1, -1, -1,  jsonStr({{"label", "Type"}, {"description", "Joint type"}}), "") \
+    FUNCX(propJoint_jointForce, "force", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Force"}, {"description", "Force applied"}}), "") \
+    FUNCX(propJoint_averageJointForce, "averageForce", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Average force"}, {"description", "Force applied on average (in a simulation step)"}}), "") \
+    FUNCX(propJoint_jointMode, "mode", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Mode"}, {"description", "Joint mode"}}), "") \
     FUNCX(propJoint_dependencyMaster, "dependencyMaster", sim_propertytype_handle, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dependency master"}, {"description", "Handle of master joint (in a dependency relationship)"}, {"handleType", "joint"}}), "") \
     FUNCX(propJoint_dependencyParams, "dependencyParams", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dependency parameters"}, {"description", "Dependency parameters (offset and coefficient)"}}), "") \
     FUNCX(propJoint_maxVelAccelJerk, "maxVelAccelJerk", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Maximum velocity, acceleration and jerk"}, {"description", ""}}), "") \
-    FUNCX(propJoint_springDamperParams, "springDamperParams", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Spring damper parameters"}, {"description", ""}}), "") \
-    FUNCX(propJoint_dynVelMode, "dynVelMode", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dynamic velocity mode"}, {"description", "Dynamic velocity mode (0: default, 1: Ruckig)"}}), "") \
-    FUNCX(propJoint_dynPosMode, "dynPosMode", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dynamic position mode"}, {"description", "Dynamic position mode (0: default, 1: Ruckig)"}}), "") \
-    FUNCX(propJoint_engineProperties, "engineProperties", sim_propertytype_string, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Engine properties"}, {"description", "Engine properties as JSON text"}}), "") \
-    FUNCX(propJoint_bulletStopErp, "bullet.stopErp", sim_propertytype_float, 0, sim_bullet_joint_stoperp, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_bulletStopCfm, "bullet.stopCfm", sim_propertytype_float, 0, sim_bullet_joint_stopcfm, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_bulletNormalCfm, "bullet.normalCfm", sim_propertytype_float, 0, sim_bullet_joint_normalcfm, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_bulletPosPid, "bullet.posPid", sim_propertytype_floatarray, 0, sim_bullet_joint_pospid1, sim_bullet_joint_pospid2, sim_bullet_joint_pospid3, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_odeStopErp, "ode.stopErp", sim_propertytype_float, 0, sim_ode_joint_stoperp, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_odeStopCfm, "ode.stopCfm", sim_propertytype_float, 0, sim_ode_joint_stopcfm, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_odeNormalCfm, "ode.normalCfm", sim_propertytype_float, 0, sim_ode_joint_normalcfm, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_odeBounce, "ode.bounce", sim_propertytype_float, 0, sim_ode_joint_bounce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_odeFudgeFactor, "ode.fudge", sim_propertytype_float, 0, sim_ode_joint_fudgefactor, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_odePosPid, "ode.posPid", sim_propertytype_floatarray, 0, sim_ode_joint_pospid1, sim_ode_joint_pospid2, sim_ode_joint_pospid3, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexLowerLimitDamping, "vortex.axisLimitsLowerDamping", sim_propertytype_float, 0, sim_vortex_joint_lowerlimitdamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexUpperLimitDamping, "vortex.axisLimitsUpperDamping", sim_propertytype_float, 0, sim_vortex_joint_upperlimitdamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexLowerLimitStiffness, "vortex.axisLimitsLowerStiffness", sim_propertytype_float, 0, sim_vortex_joint_lowerlimitstiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexUpperLimitStiffness, "vortex.axisLimitsUpperStiffness", sim_propertytype_float, 0, sim_vortex_joint_upperlimitstiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexLowerLimitRestitution, "vortex.axisLimitsLowerRestitution", sim_propertytype_float, 0, sim_vortex_joint_lowerlimitrestitution, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexUpperLimitRestitution, "vortex.axisLimitsUpperRestitution", sim_propertytype_float, 0, sim_vortex_joint_upperlimitrestitution, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexLowerLimitMaxForce, "vortex.axisLimitsLowerMaxForce", sim_propertytype_float, 0, sim_vortex_joint_lowerlimitmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexUpperLimitMaxForce, "vortex.axisLimitsUpperMaxForce", sim_propertytype_float, 0, sim_vortex_joint_upperlimitmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexAxisFrictionEnabled, "vortex.axisFrictionEnabled", sim_propertytype_bool, 0, sim_vortex_joint_motorfrictionenabled, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexAxisFrictionProportional, "vortex.axisFrictionProportional", sim_propertytype_bool, 0, sim_vortex_joint_proportionalmotorfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexAxisFrictionCoeff, "vortex.axisFrictionValue", sim_propertytype_float, 0, sim_vortex_joint_motorconstraintfrictioncoeff, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexAxisFrictionMaxForce, "vortex.axisFrictionMaxForce", sim_propertytype_float, 0, sim_vortex_joint_motorconstraintfrictionmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexAxisFrictionLoss, "vortex.axisFrictionLoss", sim_propertytype_float, 0, sim_vortex_joint_motorconstraintfrictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexRelaxationEnabledBits, "vortex.relaxationEnabledBits", sim_propertytype_int, 0, sim_vortex_joint_relaxationenabledbc, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexFrictionEnabledBits, "vortex.frictionEnabledBits", sim_propertytype_int, 0, sim_vortex_joint_frictionenabledbc, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexFrictionProportionalBits, "vortex.frictionProportionalBits", sim_propertytype_int, 0, sim_vortex_joint_frictionproportionalbc, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexXAxisPosRelaxationStiffness, "vortex.xAxisPosRelaxationStiffness", sim_propertytype_float, 0, sim_vortex_joint_p0stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexXAxisPosRelaxationDamping, "vortex.xAxisPosRelaxationDamping", sim_propertytype_float, 0, sim_vortex_joint_p0damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexXAxisPosRelaxationLoss, "vortex.xAxisPosRelaxationLoss", sim_propertytype_float, 0, sim_vortex_joint_p0loss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexXAxisPosFrictionCoeff, "vortex.xAxisPosFrictionCoeff", sim_propertytype_float, 0, sim_vortex_joint_p0frictioncoeff, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexXAxisPosFrictionMaxForce, "vortex.xAxisPosFrictionMaxForce", sim_propertytype_float, 0, sim_vortex_joint_p0frictionmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexXAxisPosFrictionLoss, "vortex.xAxisPosFrictionLoss", sim_propertytype_float, 0, sim_vortex_joint_p0frictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexYAxisPosRelaxationStiffness, "vortex.yAxisPosRelaxationStiffness", sim_propertytype_float, 0, sim_vortex_joint_p1stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexYAxisPosRelaxationDamping, "vortex.yAxisPosRelaxationDamping", sim_propertytype_float, 0, sim_vortex_joint_p1damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexYAxisPosRelaxationLoss, "vortex.yAxisPosRelaxationLoss", sim_propertytype_float, 0, sim_vortex_joint_p1loss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexYAxisPosFrictionCoeff, "vortex.yAxisPosFrictionCoeff", sim_propertytype_float, 0, sim_vortex_joint_p1frictioncoeff, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexYAxisPosFrictionMaxForce, "vortex.yAxisPosFrictionMaxForce", sim_propertytype_float, 0, sim_vortex_joint_p1frictionmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexYAxisPosFrictionLoss, "vortex.yAxisPosFrictionLoss", sim_propertytype_float, 0, sim_vortex_joint_p1frictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexZAxisPosRelaxationStiffness, "vortex.zAxisPosRelaxationStiffness", sim_propertytype_float, 0, sim_vortex_joint_p2stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexZAxisPosRelaxationDamping, "vortex.zAxisPosRelaxationDamping", sim_propertytype_float, 0, sim_vortex_joint_p2damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexZAxisPosRelaxationLoss, "vortex.zAxisPosRelaxationLoss", sim_propertytype_float, 0, sim_vortex_joint_p2loss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexZAxisPosFrictionCoeff, "vortex.zAxisPosFrictionCoeff", sim_propertytype_float, 0, sim_vortex_joint_p2frictioncoeff, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexZAxisPosFrictionMaxForce, "vortex.zAxisPosFrictionMaxForce", sim_propertytype_float, 0, sim_vortex_joint_p2frictionmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexZAxisPosFrictionLoss, "vortex.zAxisPosFrictionLoss", sim_propertytype_float, 0, sim_vortex_joint_p2frictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexXAxisOrientRelaxStiffness, "vortex.xAxisOrientRelaxationStiffness", sim_propertytype_float, 0, sim_vortex_joint_a0stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexXAxisOrientRelaxDamping, "vortex.xAxisOrientRelaxationDamping", sim_propertytype_float, 0, sim_vortex_joint_a0damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexXAxisOrientRelaxLoss, "vortex.xAxisOrientRelaxationLoss", sim_propertytype_float, 0, sim_vortex_joint_a0loss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexXAxisOrientFrictionCoeff, "vortex.xAxisOrientFrictionCoeff", sim_propertytype_float, 0, sim_vortex_joint_a0frictioncoeff, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexXAxisOrientFrictionMaxTorque, "vortex.xAxisOrientFrictionMaxTorque", sim_propertytype_float, 0, sim_vortex_joint_a0frictionmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexXAxisOrientFrictionLoss, "vortex.xAxisOrientFrictionLoss", sim_propertytype_float, 0, sim_vortex_joint_a0frictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexYAxisOrientRelaxStiffness, "vortex.yAxisOrientRelaxationStiffness", sim_propertytype_float, 0, sim_vortex_joint_a1stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexYAxisOrientRelaxDamping, "vortex.yAxisOrientRelaxationDamping", sim_propertytype_float, 0, sim_vortex_joint_a1damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexYAxisOrientRelaxLoss, "vortex.yAxisOrientRelaxationLoss", sim_propertytype_float, 0, sim_vortex_joint_a1loss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexYAxisOrientFrictionCoeff, "vortex.yAxisOrientFrictionCoeff", sim_propertytype_float, 0, sim_vortex_joint_a1frictioncoeff, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexYAxisOrientFrictionMaxTorque, "vortex.yAxisOrientFrictionMaxTorque", sim_propertytype_float, 0, sim_vortex_joint_a1frictionmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexYAxisOrientFrictionLoss, "vortex.yAxisOrientFrictionLoss", sim_propertytype_float, 0, sim_vortex_joint_a1frictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexZAxisOrientRelaxStiffness, "vortex.zAxisOrientRelaxationStiffness", sim_propertytype_float, 0, sim_vortex_joint_a2stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexZAxisOrientRelaxDamping, "vortex.zAxisOrientRelaxationDamping", sim_propertytype_float, 0, sim_vortex_joint_a2damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexZAxisOrientRelaxLoss, "vortex.zAxisOrientRelaxationLoss", sim_propertytype_float, 0, sim_vortex_joint_a2loss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexZAxisOrientFrictionCoeff, "vortex.zAxisOrientFrictionCoeff", sim_propertytype_float, 0, sim_vortex_joint_a2frictioncoeff, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexZAxisOrientFrictionMaxTorque, "vortex.zAxisOrientFrictionMaxTorque", sim_propertytype_float, 0, sim_vortex_joint_a2frictionmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexZAxisOrientFrictionLoss, "vortex.zAxisOrientFrictionLoss", sim_propertytype_float, 0, sim_vortex_joint_a2frictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_vortexPosPid, "vortex.posPid", sim_propertytype_floatarray, 0, sim_vortex_joint_pospid1, sim_vortex_joint_pospid2, sim_vortex_joint_pospid3, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_newtonPosPid, "newton.posPid", sim_propertytype_floatarray, 0, sim_newton_joint_pospid1, sim_newton_joint_pospid2, sim_newton_joint_pospid3, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_mujocoArmature, "mujoco.armature", sim_propertytype_float, 0, sim_mujoco_joint_armature, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_mujocoMargin, "mujoco.margin", sim_propertytype_float, 0, sim_mujoco_joint_margin, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_mujocoFrictionLoss, "mujoco.frictionLoss", sim_propertytype_float, 0, sim_mujoco_joint_frictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_mujocoSpringStiffness, "mujoco.springStiffness", sim_propertytype_float, 0, sim_mujoco_joint_stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_mujocoSpringDamping, "mujoco.springDamping", sim_propertytype_float, 0, sim_mujoco_joint_damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_mujocoSpringRef, "mujoco.springRef", sim_propertytype_float, 0, sim_mujoco_joint_springref, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_mujocoPosPid, "mujoco.posPid", sim_propertytype_floatarray, 0, sim_mujoco_joint_pospid1, sim_mujoco_joint_pospid2, sim_mujoco_joint_pospid3, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_mujocoLimitsSolRef, "mujoco.limitsSolref", sim_propertytype_floatarray, 0, sim_mujoco_joint_solreflimit1, sim_mujoco_joint_solreflimit2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_mujocoLimitsSolImp, "mujoco.limitsSolimp", sim_propertytype_floatarray, 0, sim_mujoco_joint_solimplimit1, sim_mujoco_joint_solimplimit2, sim_mujoco_joint_solimplimit3, sim_mujoco_joint_solimplimit4, sim_mujoco_joint_solimplimit5,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_mujocoFrictionSolRef, "mujoco.frictionSolref", sim_propertytype_floatarray, 0, sim_mujoco_joint_solreffriction1, sim_mujoco_joint_solreffriction2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_mujocoFrictionSolImp, "mujoco.frictionSolimp", sim_propertytype_floatarray, 0, sim_mujoco_joint_solimpfriction1, sim_mujoco_joint_solimpfriction2, sim_mujoco_joint_solimpfriction3, sim_mujoco_joint_solimpfriction4, sim_mujoco_joint_solimpfriction5,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_mujocoSpringDamper, "mujoco.springSpringDamper", sim_propertytype_floatarray, 0, sim_mujoco_joint_springdamper1, sim_mujoco_joint_springdamper2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propJoint_mujocoDependencyPolyCoef, "mujoco.dependencyPolyCoeff", sim_propertytype_floatarray, 0, sim_mujoco_joint_polycoef1, sim_mujoco_joint_polycoef2, sim_mujoco_joint_polycoef3, sim_mujoco_joint_polycoef4, sim_mujoco_joint_polycoef5,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_dynCtrlMode, "dynamics.ctrlMode", sim_propertytype_int, 0, -1, -1, -1, -1, -1, jsonStr({{"label", "Control mode" }, {"description", "Joint control mode, when in dynamic mode"}, {"enum", "jointDynCtrlMode"}}), "") \
+    FUNCX(propJoint_springDamperParams, "dynamics.springDamperParams", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Spring damper parameters"}, {"description", ""}}), "") \
+    FUNCX(propJoint_dynVelMode, "dynamics.velMode", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dynamic velocity mode"}, {"description", "Dynamic velocity mode (0: default, 1: Ruckig)"}}), "") \
+    FUNCX(propJoint_dynPosMode, "dynamics.posMode", sim_propertytype_int, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dynamic position mode"}, {"description", "Dynamic position mode (0: default, 1: Ruckig)"}}), "") \
+    FUNCX(propJoint_engineProperties, "dynamics.engineProperties", sim_propertytype_string, sim_propertyinfo_modelhashexclude, -1, -1, -1, -1, -1,  jsonStr({{"label", "Engine properties"}, {"description", "Engine properties as JSON text"}}), "") \
+    FUNCX(propJoint_bulletStopErp, "dynamics.bullet.stopErp", sim_propertytype_float, 0, sim_bullet_joint_stoperp, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_bulletStopCfm, "dynamics.bullet.stopCfm", sim_propertytype_float, 0, sim_bullet_joint_stopcfm, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_bulletNormalCfm, "dynamics.bullet.normalCfm", sim_propertytype_float, 0, sim_bullet_joint_normalcfm, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_bulletPosPid, "dynamics.bullet.posPid", sim_propertytype_floatarray, 0, sim_bullet_joint_pospid1, sim_bullet_joint_pospid2, sim_bullet_joint_pospid3, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_odeStopErp, "dynamics.ode.stopErp", sim_propertytype_float, 0, sim_ode_joint_stoperp, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_odeStopCfm, "dynamics.ode.stopCfm", sim_propertytype_float, 0, sim_ode_joint_stopcfm, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_odeNormalCfm, "dynamics.ode.normalCfm", sim_propertytype_float, 0, sim_ode_joint_normalcfm, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_odeBounce, "dynamics.ode.bounce", sim_propertytype_float, 0, sim_ode_joint_bounce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_odeFudgeFactor, "dynamics.ode.fudge", sim_propertytype_float, 0, sim_ode_joint_fudgefactor, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_odePosPid, "dynamics.ode.posPid", sim_propertytype_floatarray, 0, sim_ode_joint_pospid1, sim_ode_joint_pospid2, sim_ode_joint_pospid3, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexLowerLimitDamping, "dynamics.vortex.axisLimitsLowerDamping", sim_propertytype_float, 0, sim_vortex_joint_lowerlimitdamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexUpperLimitDamping, "dynamics.vortex.axisLimitsUpperDamping", sim_propertytype_float, 0, sim_vortex_joint_upperlimitdamping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexLowerLimitStiffness, "dynamics.vortex.axisLimitsLowerStiffness", sim_propertytype_float, 0, sim_vortex_joint_lowerlimitstiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexUpperLimitStiffness, "dynamics.vortex.axisLimitsUpperStiffness", sim_propertytype_float, 0, sim_vortex_joint_upperlimitstiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexLowerLimitRestitution, "dynamics.vortex.axisLimitsLowerRestitution", sim_propertytype_float, 0, sim_vortex_joint_lowerlimitrestitution, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexUpperLimitRestitution, "dynamics.vortex.axisLimitsUpperRestitution", sim_propertytype_float, 0, sim_vortex_joint_upperlimitrestitution, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexLowerLimitMaxForce, "dynamics.vortex.axisLimitsLowerMaxForce", sim_propertytype_float, 0, sim_vortex_joint_lowerlimitmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexUpperLimitMaxForce, "dynamics.vortex.axisLimitsUpperMaxForce", sim_propertytype_float, 0, sim_vortex_joint_upperlimitmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexAxisFrictionEnabled, "dynamics.vortex.axisFrictionEnabled", sim_propertytype_bool, 0, sim_vortex_joint_motorfrictionenabled, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexAxisFrictionProportional, "dynamics.vortex.axisFrictionProportional", sim_propertytype_bool, 0, sim_vortex_joint_proportionalmotorfriction, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexAxisFrictionCoeff, "dynamics.vortex.axisFrictionValue", sim_propertytype_float, 0, sim_vortex_joint_motorconstraintfrictioncoeff, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexAxisFrictionMaxForce, "dynamics.vortex.axisFrictionMaxForce", sim_propertytype_float, 0, sim_vortex_joint_motorconstraintfrictionmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexAxisFrictionLoss, "dynamics.vortex.axisFrictionLoss", sim_propertytype_float, 0, sim_vortex_joint_motorconstraintfrictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexRelaxationEnabledBits, "dynamics.vortex.relaxationEnabledBits", sim_propertytype_int, 0, sim_vortex_joint_relaxationenabledbc, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexFrictionEnabledBits, "dynamics.vortex.frictionEnabledBits", sim_propertytype_int, 0, sim_vortex_joint_frictionenabledbc, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexFrictionProportionalBits, "dynamics.vortex.frictionProportionalBits", sim_propertytype_int, 0, sim_vortex_joint_frictionproportionalbc, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexXAxisPosRelaxationStiffness, "dynamics.vortex.xAxisPosRelaxationStiffness", sim_propertytype_float, 0, sim_vortex_joint_p0stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexXAxisPosRelaxationDamping, "dynamics.vortex.xAxisPosRelaxationDamping", sim_propertytype_float, 0, sim_vortex_joint_p0damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexXAxisPosRelaxationLoss, "dynamics.vortex.xAxisPosRelaxationLoss", sim_propertytype_float, 0, sim_vortex_joint_p0loss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexXAxisPosFrictionCoeff, "dynamics.vortex.xAxisPosFrictionCoeff", sim_propertytype_float, 0, sim_vortex_joint_p0frictioncoeff, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexXAxisPosFrictionMaxForce, "dynamics.vortex.xAxisPosFrictionMaxForce", sim_propertytype_float, 0, sim_vortex_joint_p0frictionmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexXAxisPosFrictionLoss, "dynamics.vortex.xAxisPosFrictionLoss", sim_propertytype_float, 0, sim_vortex_joint_p0frictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexYAxisPosRelaxationStiffness, "dynamics.vortex.yAxisPosRelaxationStiffness", sim_propertytype_float, 0, sim_vortex_joint_p1stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexYAxisPosRelaxationDamping, "dynamics.vortex.yAxisPosRelaxationDamping", sim_propertytype_float, 0, sim_vortex_joint_p1damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexYAxisPosRelaxationLoss, "dynamics.vortex.yAxisPosRelaxationLoss", sim_propertytype_float, 0, sim_vortex_joint_p1loss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexYAxisPosFrictionCoeff, "dynamics.vortex.yAxisPosFrictionCoeff", sim_propertytype_float, 0, sim_vortex_joint_p1frictioncoeff, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexYAxisPosFrictionMaxForce, "dynamics.vortex.yAxisPosFrictionMaxForce", sim_propertytype_float, 0, sim_vortex_joint_p1frictionmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexYAxisPosFrictionLoss, "dynamics.vortex.yAxisPosFrictionLoss", sim_propertytype_float, 0, sim_vortex_joint_p1frictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexZAxisPosRelaxationStiffness, "dynamics.vortex.zAxisPosRelaxationStiffness", sim_propertytype_float, 0, sim_vortex_joint_p2stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexZAxisPosRelaxationDamping, "dynamics.vortex.zAxisPosRelaxationDamping", sim_propertytype_float, 0, sim_vortex_joint_p2damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexZAxisPosRelaxationLoss, "dynamics.vortex.zAxisPosRelaxationLoss", sim_propertytype_float, 0, sim_vortex_joint_p2loss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexZAxisPosFrictionCoeff, "dynamics.vortex.zAxisPosFrictionCoeff", sim_propertytype_float, 0, sim_vortex_joint_p2frictioncoeff, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexZAxisPosFrictionMaxForce, "dynamics.vortex.zAxisPosFrictionMaxForce", sim_propertytype_float, 0, sim_vortex_joint_p2frictionmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexZAxisPosFrictionLoss, "dynamics.vortex.zAxisPosFrictionLoss", sim_propertytype_float, 0, sim_vortex_joint_p2frictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexXAxisOrientRelaxStiffness, "dynamics.vortex.xAxisOrientRelaxationStiffness", sim_propertytype_float, 0, sim_vortex_joint_a0stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexXAxisOrientRelaxDamping, "dynamics.vortex.xAxisOrientRelaxationDamping", sim_propertytype_float, 0, sim_vortex_joint_a0damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexXAxisOrientRelaxLoss, "dynamics.vortex.xAxisOrientRelaxationLoss", sim_propertytype_float, 0, sim_vortex_joint_a0loss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexXAxisOrientFrictionCoeff, "dynamics.vortex.xAxisOrientFrictionCoeff", sim_propertytype_float, 0, sim_vortex_joint_a0frictioncoeff, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexXAxisOrientFrictionMaxTorque, "dynamics.vortex.xAxisOrientFrictionMaxTorque", sim_propertytype_float, 0, sim_vortex_joint_a0frictionmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexXAxisOrientFrictionLoss, "dynamics.vortex.xAxisOrientFrictionLoss", sim_propertytype_float, 0, sim_vortex_joint_a0frictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexYAxisOrientRelaxStiffness, "dynamics.vortex.yAxisOrientRelaxationStiffness", sim_propertytype_float, 0, sim_vortex_joint_a1stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexYAxisOrientRelaxDamping, "dynamics.vortex.yAxisOrientRelaxationDamping", sim_propertytype_float, 0, sim_vortex_joint_a1damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexYAxisOrientRelaxLoss, "dynamics.vortex.yAxisOrientRelaxationLoss", sim_propertytype_float, 0, sim_vortex_joint_a1loss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexYAxisOrientFrictionCoeff, "dynamics.vortex.yAxisOrientFrictionCoeff", sim_propertytype_float, 0, sim_vortex_joint_a1frictioncoeff, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexYAxisOrientFrictionMaxTorque, "dynamics.vortex.yAxisOrientFrictionMaxTorque", sim_propertytype_float, 0, sim_vortex_joint_a1frictionmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexYAxisOrientFrictionLoss, "dynamics.vortex.yAxisOrientFrictionLoss", sim_propertytype_float, 0, sim_vortex_joint_a1frictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexZAxisOrientRelaxStiffness, "dynamics.vortex.zAxisOrientRelaxationStiffness", sim_propertytype_float, 0, sim_vortex_joint_a2stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexZAxisOrientRelaxDamping, "dynamics.vortex.zAxisOrientRelaxationDamping", sim_propertytype_float, 0, sim_vortex_joint_a2damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexZAxisOrientRelaxLoss, "dynamics.vortex.zAxisOrientRelaxationLoss", sim_propertytype_float, 0, sim_vortex_joint_a2loss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexZAxisOrientFrictionCoeff, "dynamics.vortex.zAxisOrientFrictionCoeff", sim_propertytype_float, 0, sim_vortex_joint_a2frictioncoeff, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexZAxisOrientFrictionMaxTorque, "dynamics.vortex.zAxisOrientFrictionMaxTorque", sim_propertytype_float, 0, sim_vortex_joint_a2frictionmaxforce, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexZAxisOrientFrictionLoss, "dynamics.vortex.zAxisOrientFrictionLoss", sim_propertytype_float, 0, sim_vortex_joint_a2frictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_vortexPosPid, "dynamics.vortex.posPid", sim_propertytype_floatarray, 0, sim_vortex_joint_pospid1, sim_vortex_joint_pospid2, sim_vortex_joint_pospid3, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_newtonPosPid, "dynamics.newton.posPid", sim_propertytype_floatarray, 0, sim_newton_joint_pospid1, sim_newton_joint_pospid2, sim_newton_joint_pospid3, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_mujocoArmature, "dynamics.mujoco.armature", sim_propertytype_float, 0, sim_mujoco_joint_armature, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_mujocoMargin, "dynamics.mujoco.margin", sim_propertytype_float, 0, sim_mujoco_joint_margin, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_mujocoFrictionLoss, "dynamics.mujoco.frictionLoss", sim_propertytype_float, 0, sim_mujoco_joint_frictionloss, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_mujocoSpringStiffness, "dynamics.mujoco.springStiffness", sim_propertytype_float, 0, sim_mujoco_joint_stiffness, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_mujocoSpringDamping, "dynamics.mujoco.springDamping", sim_propertytype_float, 0, sim_mujoco_joint_damping, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_mujocoSpringRef, "dynamics.mujoco.springRef", sim_propertytype_float, 0, sim_mujoco_joint_springref, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_mujocoPosPid, "dynamics.mujoco.posPid", sim_propertytype_floatarray, 0, sim_mujoco_joint_pospid1, sim_mujoco_joint_pospid2, sim_mujoco_joint_pospid3, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_mujocoLimitsSolRef, "dynamics.mujoco.limitsSolref", sim_propertytype_floatarray, 0, sim_mujoco_joint_solreflimit1, sim_mujoco_joint_solreflimit2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_mujocoLimitsSolImp, "dynamics.mujoco.limitsSolimp", sim_propertytype_floatarray, 0, sim_mujoco_joint_solimplimit1, sim_mujoco_joint_solimplimit2, sim_mujoco_joint_solimplimit3, sim_mujoco_joint_solimplimit4, sim_mujoco_joint_solimplimit5,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_mujocoFrictionSolRef, "dynamics.mujoco.frictionSolref", sim_propertytype_floatarray, 0, sim_mujoco_joint_solreffriction1, sim_mujoco_joint_solreffriction2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_mujocoFrictionSolImp, "dynamics.mujoco.frictionSolimp", sim_propertytype_floatarray, 0, sim_mujoco_joint_solimpfriction1, sim_mujoco_joint_solimpfriction2, sim_mujoco_joint_solimpfriction3, sim_mujoco_joint_solimpfriction4, sim_mujoco_joint_solimpfriction5,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_mujocoSpringDamper, "dynamics.mujoco.springSpringDamper", sim_propertytype_floatarray, 0, sim_mujoco_joint_springdamper1, sim_mujoco_joint_springdamper2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_mujocoDependencyPolyCoef, "dynamics.mujoco.dependencyPolyCoeff", sim_propertytype_floatarray, 0, sim_mujoco_joint_polycoef1, sim_mujoco_joint_polycoef2, sim_mujoco_joint_polycoef3, sim_mujoco_joint_polycoef4, sim_mujoco_joint_polycoef5,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     /* Following for backward compatibility: */ \
+    FUNCX(propJoint_DEPRECATED_length, "jointLength", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_DEPRECATED_diameter, "jointDiameter", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_DEPRECATED_jointType, "jointType", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_DEPRECATED_jointForce, "jointForce", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_DEPRECATED_averageJointForce, "averageJointForce", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_DEPRECATED_jointMode, "jointMode", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_DEPRECATED_dynCtrlMode, "dynCtrlMode", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_DEPRECATED_springDamperParams, "springDamperParams", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_dynVelMode, "dynVelMode", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_dynPosMode, "dynPosMode", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_engineProperties, "engineProperties", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_bulletStopErp, "bullet.stopErp", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_joint_stoperp, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_bulletStopCfm, "bullet.stopCfm", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_joint_stopcfm, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_bulletNormalCfm, "bullet.normalCfm", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_joint_normalcfm, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_bulletPosPid, "bullet.posPid", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_bullet_joint_pospid1, sim_bullet_joint_pospid2, sim_bullet_joint_pospid3, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_odeStopErp, "ode.stopErp", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_joint_stoperp, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_odeStopCfm, "ode.stopCfm", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_joint_stopcfm, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_odeNormalCfm, "ode.normalCfm", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_joint_normalcfm, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_odeBounce, "ode.bounce", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_joint_bounce, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_odeFudgeFactor, "ode.fudge", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_joint_fudgefactor, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_odePosPid, "ode.posPid", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_ode_joint_pospid1, sim_ode_joint_pospid2, sim_ode_joint_pospid3, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexLowerLimitDamping, "vortex.axisLimitsLowerDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_lowerlimitdamping, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexUpperLimitDamping, "vortex.axisLimitsUpperDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_upperlimitdamping, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexLowerLimitStiffness, "vortex.axisLimitsLowerStiffness", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_lowerlimitstiffness, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexUpperLimitStiffness, "vortex.axisLimitsUpperStiffness", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_upperlimitstiffness, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexLowerLimitRestitution, "vortex.axisLimitsLowerRestitution", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_lowerlimitrestitution, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexUpperLimitRestitution, "vortex.axisLimitsUpperRestitution", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_upperlimitrestitution, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexLowerLimitMaxForce, "vortex.axisLimitsLowerMaxForce", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_lowerlimitmaxforce, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexUpperLimitMaxForce, "vortex.axisLimitsUpperMaxForce", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_upperlimitmaxforce, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexAxisFrictionEnabled, "vortex.axisFrictionEnabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_motorfrictionenabled, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexAxisFrictionProportional, "vortex.axisFrictionProportional", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_proportionalmotorfriction, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexAxisFrictionCoeff, "vortex.axisFrictionValue", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_motorconstraintfrictioncoeff, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexAxisFrictionMaxForce, "vortex.axisFrictionMaxForce", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_motorconstraintfrictionmaxforce, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexAxisFrictionLoss, "vortex.axisFrictionLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_motorconstraintfrictionloss, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexRelaxationEnabledBits, "vortex.relaxationEnabledBits", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_relaxationenabledbc, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexFrictionEnabledBits, "vortex.frictionEnabledBits", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_frictionenabledbc, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexFrictionProportionalBits, "vortex.frictionProportionalBits", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_frictionproportionalbc, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexXAxisPosRelaxationStiffness, "vortex.xAxisPosRelaxationStiffness", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p0stiffness, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexXAxisPosRelaxationDamping, "vortex.xAxisPosRelaxationDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p0damping, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexXAxisPosRelaxationLoss, "vortex.xAxisPosRelaxationLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p0loss, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexXAxisPosFrictionCoeff, "vortex.xAxisPosFrictionCoeff", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p0frictioncoeff, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexXAxisPosFrictionMaxForce, "vortex.xAxisPosFrictionMaxForce", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p0frictionmaxforce, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexXAxisPosFrictionLoss, "vortex.xAxisPosFrictionLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p0frictionloss, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexYAxisPosRelaxationStiffness, "vortex.yAxisPosRelaxationStiffness", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p1stiffness, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexYAxisPosRelaxationDamping, "vortex.yAxisPosRelaxationDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p1damping, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexYAxisPosRelaxationLoss, "vortex.yAxisPosRelaxationLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p1loss, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexYAxisPosFrictionCoeff, "vortex.yAxisPosFrictionCoeff", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p1frictioncoeff, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexYAxisPosFrictionMaxForce, "vortex.yAxisPosFrictionMaxForce", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p1frictionmaxforce, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexYAxisPosFrictionLoss, "vortex.yAxisPosFrictionLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p1frictionloss, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexZAxisPosRelaxationStiffness, "vortex.zAxisPosRelaxationStiffness", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p2stiffness, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexZAxisPosRelaxationDamping, "vortex.zAxisPosRelaxationDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p2damping, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexZAxisPosRelaxationLoss, "vortex.zAxisPosRelaxationLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p2loss, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexZAxisPosFrictionCoeff, "vortex.zAxisPosFrictionCoeff", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p2frictioncoeff, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexZAxisPosFrictionMaxForce, "vortex.zAxisPosFrictionMaxForce", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p2frictionmaxforce, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexZAxisPosFrictionLoss, "vortex.zAxisPosFrictionLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_p2frictionloss, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexXAxisOrientRelaxStiffness, "vortex.xAxisOrientRelaxationStiffness", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a0stiffness, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexXAxisOrientRelaxDamping, "vortex.xAxisOrientRelaxationDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a0damping, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexXAxisOrientRelaxLoss, "vortex.xAxisOrientRelaxationLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a0loss, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexXAxisOrientFrictionCoeff, "vortex.xAxisOrientFrictionCoeff", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a0frictioncoeff, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexXAxisOrientFrictionMaxTorque, "vortex.xAxisOrientFrictionMaxTorque", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a0frictionmaxforce, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexXAxisOrientFrictionLoss, "vortex.xAxisOrientFrictionLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a0frictionloss, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexYAxisOrientRelaxStiffness, "vortex.yAxisOrientRelaxationStiffness", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a1stiffness, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexYAxisOrientRelaxDamping, "vortex.yAxisOrientRelaxationDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a1damping, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexYAxisOrientRelaxLoss, "vortex.yAxisOrientRelaxationLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a1loss, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexYAxisOrientFrictionCoeff, "vortex.yAxisOrientFrictionCoeff", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a1frictioncoeff, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexYAxisOrientFrictionMaxTorque, "vortex.yAxisOrientFrictionMaxTorque", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a1frictionmaxforce, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexYAxisOrientFrictionLoss, "vortex.yAxisOrientFrictionLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a1frictionloss, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexZAxisOrientRelaxStiffness, "vortex.zAxisOrientRelaxationStiffness", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a2stiffness, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexZAxisOrientRelaxDamping, "vortex.zAxisOrientRelaxationDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a2damping, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexZAxisOrientRelaxLoss, "vortex.zAxisOrientRelaxationLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a2loss, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexZAxisOrientFrictionCoeff, "vortex.zAxisOrientFrictionCoeff", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a2frictioncoeff, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexZAxisOrientFrictionMaxTorque, "vortex.zAxisOrientFrictionMaxTorque", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a2frictionmaxforce, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexZAxisOrientFrictionLoss, "vortex.zAxisOrientFrictionLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_a2frictionloss, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_vortexPosPid, "vortex.posPid", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_vortex_joint_pospid1, sim_vortex_joint_pospid2, sim_vortex_joint_pospid3, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_newtonPosPid, "newton.posPid", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_newton_joint_pospid1, sim_newton_joint_pospid2, sim_newton_joint_pospid3, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_mujocoArmature, "mujoco.armature", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_joint_armature, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_mujocoMargin, "mujoco.margin", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_joint_margin, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_mujocoFrictionLoss, "mujoco.frictionLoss", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_joint_frictionloss, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_mujocoSpringStiffness, "mujoco.springStiffness", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_joint_stiffness, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_mujocoSpringDamping, "mujoco.springDamping", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_joint_damping, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_mujocoSpringRef, "mujoco.springRef", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_joint_springref, -1, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_mujocoPosPid, "mujoco.posPid", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_joint_pospid1, sim_mujoco_joint_pospid2, sim_mujoco_joint_pospid3, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_mujocoLimitsSolRef, "mujoco.limitsSolref", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_joint_solreflimit1, sim_mujoco_joint_solreflimit2, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_mujocoLimitsSolImp, "mujoco.limitsSolimp", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_joint_solimplimit1, sim_mujoco_joint_solimplimit2, sim_mujoco_joint_solimplimit3, sim_mujoco_joint_solimplimit4, sim_mujoco_joint_solimplimit5,  "", "") \
+    FUNCX(propJoint_DEPRECATED_mujocoFrictionSolRef, "mujoco.frictionSolref", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_joint_solreffriction1, sim_mujoco_joint_solreffriction2, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_mujocoFrictionSolImp, "mujoco.frictionSolimp", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_joint_solimpfriction1, sim_mujoco_joint_solimpfriction2, sim_mujoco_joint_solimpfriction3, sim_mujoco_joint_solimpfriction4, sim_mujoco_joint_solimpfriction5,  "", "") \
+    FUNCX(propJoint_DEPRECATED_mujocoSpringDamper, "mujoco.springSpringDamper", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_joint_springdamper1, sim_mujoco_joint_springdamper2, -1, -1, -1,  "", "") \
+    FUNCX(propJoint_DEPRECATED_mujocoDependencyPolyCoef, "mujoco.dependencyPolyCoeff", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, sim_mujoco_joint_polycoef1, sim_mujoco_joint_polycoef2, sim_mujoco_joint_polycoef3, sim_mujoco_joint_polycoef4, sim_mujoco_joint_polycoef5,  "", "") \
     FUNCX(propJoint_DEPRECATED_dependencyMaster, "dependencyMasterHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, -1, -1, -1, -1, -1, "", "")
 
 #define LIGHT_PROPERTIES \
-    FUNCX(propLight_size, "lightSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Light size"}}), "") \
+    FUNCX(propLight_size, "size", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Light size"}}), "") \
     FUNCX(propLight_enabled, "enabled", sim_propertytype_bool, 0,  jsonStr({{"label", "Enabled"}, {"description", ""}}), "") \
-    FUNCX(propLight_lightType, "lightType", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Type"}, {"description", "Light type"}}), "") \
+    FUNCX(propLight_lightType, "type", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Type"}, {"description", "Light type"}}), "") \
     FUNCX(propLight_spotExponent, "spotExponent", sim_propertytype_int, 0,  jsonStr({{"label", "Spot exponent"}, {"description", ""}}), "") \
     FUNCX(propLight_spotCutoffAngle, "spotCutoffAngle", sim_propertytype_float, 0,  jsonStr({{"label", "Cut off angle"}, {"description", "Spot cut off angle"}}), "") \
     FUNCX(propLight_attenuationFactors, "attenuationFactors", sim_propertytype_floatarray, 0,  jsonStr({{"label", "Attenuation factor"}, {"description", ""}}), "") \
-    FUNCX(propLight_povCastShadows, "povray.castShadows", sim_propertytype_bool, sim_propertyinfo_silent,  jsonStr({{"label", "POV-Ray: cast shadows"}, {"description", "Light casts shadows (with the POV-Ray renderer plugin)"}}), "")
+    FUNCX(propLight_povCastShadows, "povray.castShadows", sim_propertytype_bool, sim_propertyinfo_silent,  jsonStr({{"label", "POV-Ray: cast shadows"}, {"description", "Light casts shadows (with the POV-Ray renderer plugin)"}}), "") \
+    /* Following for backward compatibility: */ \
+    FUNCX(propLight_DEPRECATED_size, "lightSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propLight_DEPRECATED_lightType, "lightType", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "")
 
 #define MIRROR_PROPERTIES \
     FUNCX(propMirror_fake, "", sim_propertytype_float, sim_propertyinfo_constant | sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_notreadable,  jsonStr({{"label", ""}, {"description", ""}}), "")
@@ -1244,24 +1374,28 @@ struct SJointProperty
     FUNCX(propPointCloud_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Colors"}, {"description", "Point colors"}}), "")
 
 #define PROXIMITYSENSOR_PROPERTIES \
-    FUNCX(propProximitySensor_size, "sensorPointSize", sim_propertytype_float, 0,  jsonStr({{"label", "Sensor point size"}, {"description", ""}}), "") \
+    FUNCX(propProximitySensor_size, "pointSize", sim_propertytype_float, 0,  jsonStr({{"label", "Sensor point size"}, {"description", ""}}), "") \
     FUNCX(propProximitySensor_frontFaceDetection, "frontFaceDetection", sim_propertytype_bool, 0,  jsonStr({{"label", "Front face detection"}, {"description", ""}}), "") \
     FUNCX(propProximitySensor_backFaceDetection, "backFaceDetection", sim_propertytype_bool, 0,  jsonStr({{"label", "Back face detection"}, {"description", ""}}), "") \
     FUNCX(propProximitySensor_exactMode, "exactMode", sim_propertytype_bool, 0,  jsonStr({{"label", "Exact mode"}, {"description", ""}}), "") \
     FUNCX(propProximitySensor_explicitHandling, "explicitHandling", sim_propertytype_bool, 0,  jsonStr({{"label", "Explicit handling"}, {"description", ""}}), "") \
     FUNCX(propProximitySensor_showVolume, "showVolume", sim_propertytype_bool, 0,  jsonStr({{"label", "Show volume"}, {"description", ""}}), "") \
     FUNCX(propProximitySensor_randomizedDetection, "randomizedDetection", sim_propertytype_bool, sim_propertyinfo_notwritable,  jsonStr({{"label", "Randomized detection"}, {"description", ""}}), "") \
-    FUNCX(propProximitySensor_sensorType, "sensorType", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Type"}, {"description", "Sensor type"}}), "") \
-    FUNCX(propProximitySensor_detectedObjectHandle, "detectedObjectHandle", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Detected object"}, {"description", "Detected scene object handle"}}), "") \
+    FUNCX(propProximitySensor_sensorType, "type", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Type"}, {"description", "Sensor type"}}), "") \
+    FUNCX(propProximitySensor_detectedObject, "detectedObject", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Detected object"}, {"description", "Detected scene object"}, {"handleType", "sceneObject"}}), "") \
     FUNCX(propProximitySensor_angleThreshold, "angleThreshold", sim_propertytype_float, 0,  jsonStr({{"label", "Angle threshold"}, {"description", "Angle threshold, 0.0 to disable"}}), "") \
     FUNCX(propProximitySensor_detectedPoint, "detectedPoint", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Detected point"}, {"description", ""}}), "") \
     FUNCX(propProximitySensor_detectedNormal, "detectedNormal", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Detected normal"}, {"description", "Detected normal vector"}}), "") \
     FUNCX(propProximitySensor_METHOD_handleSensor, "handleSensor", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propProximitySensor_METHOD_resetSensor, "resetSensor", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
-    FUNCX(propProximitySensor_METHOD_checkSensor, "checkSensor", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
+    FUNCX(propProximitySensor_METHOD_checkSensor, "checkSensor", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    /* Following for backward compatibility: */ \
+    FUNCX(propProximitySensor_DEPRECATED_size, "sensorPointSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
+    FUNCX(propProximitySensor_DEPRECATED_sensorType, "sensorType", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propProximitySensor_DEPRECATED_detectedObjectHandle, "detectedObjectHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "")
 
 #define VISIONSENSOR_PROPERTIES \
-    FUNCX(propVisionSensor_size, "sensorSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Sensor size"}}), "") \
+    FUNCX(propVisionSensor_size, "size", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Sensor size"}}), "") \
     FUNCX(propVisionSensor_backgroundCol, "backgroundColor", sim_propertytype_color, 0,  jsonStr({{"label", "Background color"}, {"description", ""}}), "") \
     FUNCX(propVisionSensor_renderMode, "renderMode", sim_propertytype_int, 0,  jsonStr({{"label", "Render mode"}, {"description", ""}}), "") \
     FUNCX(propVisionSensor_backgroundSameAsEnv, "backgroundColorFromEnvironment", sim_propertytype_bool, 0,  jsonStr({{"label", "Background color from environment"}, {"description", ""}}), "") \
@@ -1287,13 +1421,16 @@ struct SJointProperty
     FUNCX(propVisionSensor_METHOD_checkSensor, "checkSensor", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propVisionSensor_METHOD_getDepth, "getDepth", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propVisionSensor_METHOD_getImage, "getImage", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
-    FUNCX(propVisionSensor_METHOD_setImage, "setImage", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
+    FUNCX(propVisionSensor_METHOD_setImage, "setImage", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    /* Following for backward compatibility: */ \
+    FUNCX(propVisionSensor_DEPRECATED_size, "sensorSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "")
 
 #define SCRIPT_PROPERTIES \
-    FUNCX(propScript_size, "scriptSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the object"}}), "") \
+    FUNCX(propScript_size, "size", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the object"}}), "") \
     FUNCX(propScript_resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0,  jsonStr({{"label", "Reset after simulation error"}, {"description", ""}}), "") \
     FUNCX(propScript_detachedScript, "detachedScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Detached script handle"}, {"description", ""}, {"handleType", "detachedScript"}}), "") \
     /* Following for backward compatibility: */ \
+    FUNCX(propScript_DEPRECATED_size, "scriptSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
     FUNCX(propScript_DEPRECATED_scriptDisabled, "scriptDisabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent, "", "") \
     FUNCX(propScript_DEPRECATED_restartOnError, "restartOnError", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent, "", "") \
     FUNCX(propScript_DEPRECATED_execPriority, "execPriority", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent, "", "") \
@@ -1323,11 +1460,5 @@ struct SJointProperty
     FUNCX(propMarker_METHOD_removeItems, "removeItems", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define CUSTOMSCENEOBJECT_PROPERTIES \
-    FUNCX(propCustomSceneObject_size, "objectSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Custom scene object size"}}), "")
+    FUNCX(propCustomSceneObject_size, "size", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Custom scene object size"}}), "")
 
-struct SDeprecatedProperty {
-    std::string repl;
-    std::vector<int> types;
-};
-
-extern const std::map<std::string, SDeprecatedProperty> propDeprecationMapping;

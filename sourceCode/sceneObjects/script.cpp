@@ -178,12 +178,17 @@ void CScript::addObjectEventData(CCbor* ev)
     }
     else
         _scriptColor.addGenesisEventData(ev);
-    ev->appendKeyDouble(propScript_size.name, _scriptSize);
     ev->appendKeyBool(propScript_resetAfterSimError.name, _resetAfterSimError);
     if (App::getEventProtocolVersion() <= 3)
+    {
+        ev->appendKeyDouble("scriptSize", _scriptSize);
         ev->appendKeyInt64(propScript_detachedScript.name, detachedScript->getObjectHandle());
+    }
     else
+    {
+        ev->appendKeyDouble(propScript_size.name, _scriptSize);
         ev->appendKeyHandle(propScript_detachedScript.name, detachedScript->getObjectHandle());
+    }
     if (App::getEventProtocolVersion() == 2)
         ev->closeArrayOrMap(); // script
     CSceneObject::addObjectEventData(ev);
@@ -459,7 +464,10 @@ void CScript::setScriptSize(double s)
         {
             const char* cmd = propScript_size.name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyDouble(cmd, _scriptSize);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyDouble("scriptSize", _scriptSize);
+            else
+                ev->appendKeyDouble(cmd, _scriptSize);
             App::scenes->pushEvent();
         }
     }

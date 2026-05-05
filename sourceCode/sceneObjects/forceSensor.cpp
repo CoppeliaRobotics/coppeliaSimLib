@@ -629,7 +629,10 @@ void CForceSensor::setForceSensorSize(double s)
         {
             const char* cmd = propForceSensor_size.name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyDouble(cmd, _forceSensorSize);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyDouble("sensorSize", _forceSensorSize);
+            else
+                ev->appendKeyDouble(cmd, _forceSensorSize);
             App::scenes->pushEvent();
         }
     }
@@ -676,9 +679,9 @@ void CForceSensor::addObjectEventData(CCbor* ev)
     }
     else
         _color.addGenesisEventData(ev);
-    ev->appendKeyDouble(propForceSensor_size.name, _forceSensorSize);
     if (App::getEventProtocolVersion() <= 3)
     {
+        ev->appendKeyDouble("sensorSize", _forceSensorSize);
         double p[7];
         _intrinsicTransformationError.getData(p, true);
         ev->appendKeyDoubleArray(propForceSensor_intrinsicError.name, p, 7);
@@ -689,6 +692,7 @@ void CForceSensor::addObjectEventData(CCbor* ev)
     }
     else
     {
+        ev->appendKeyDouble(propForceSensor_size.name, _forceSensorSize);
         ev->appendKeyPose(propForceSensor_intrinsicError.name, _intrinsicTransformationError);
         ev->appendKeyVector3(propForceSensor_sensorForce.name, _lastForce_dynStep);
         ev->appendKeyVector3(propForceSensor_sensorTorque.name, _lastTorque_dynStep);

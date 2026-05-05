@@ -276,15 +276,19 @@ void CDummy::addObjectEventData(CCbor* ev)
     }
     else
         _dummyColor.addGenesisEventData(ev);
-    ev->appendKeyDouble(propDummy_size.name, _dummySize);
     if (App::getEventProtocolVersion() <= 3)
     {
+        ev->appendKeyDouble("dummySize", _dummySize);
         ev->appendKeyInt64("linkedDummyHandle", _linkedDummyHandle); // for backw. compatibility
         ev->appendKeyInt64(propDummy_linkedDummy.name, _linkedDummyHandle);
+        ev->appendKeyInt64("dummyType", _linkType);
     }
     else
+    {
+        ev->appendKeyDouble(propDummy_size.name, _dummySize);
         ev->appendKeyHandle(propDummy_linkedDummy.name, _linkedDummyHandle);
-    ev->appendKeyInt64(propDummy_dummyType.name, _linkType);
+        ev->appendKeyInt64(propDummy_dummyType.name, _linkType);
+    }
     ev->appendKeyText(propDummy_assemblyTag.name, _assemblyTag.c_str());
 
     // Engine properties:
@@ -960,7 +964,10 @@ bool CDummy::setDummyType(int lt, bool check)
         {
             const char* cmd = propDummy_dummyType.name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt64(cmd, _linkType);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyInt64("dummyType", _linkType);
+            else
+                ev->appendKeyInt64(cmd, _linkType);
             App::scenes->pushEvent();
         }
         _setLinkType_sendOldIk(lt);
@@ -1152,7 +1159,10 @@ void CDummy::setDummySize(double s)
         {
             const char* cmd = propDummy_size.name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyDouble(cmd, _dummySize);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyDouble("dummySize", _dummySize);
+            else
+                ev->appendKeyDouble(cmd, _dummySize);
             App::scenes->pushEvent();
         }
     }
@@ -1842,7 +1852,10 @@ void CDummy::_sendEngineString(CCbor* eev /*= nullptr*/)
         std::string current(prop.getObjectProperties(_objectHandle));
         if (ev == nullptr)
             ev = App::scenes->createSceneObjectChangedEvent(this, false, propDummy_engineProperties.name, true);
-        ev->appendKeyText(propDummy_engineProperties.name, current.c_str());
+        if (App::getEventProtocolVersion() <= 3)
+            ev->appendKeyText("engineProperties", current.c_str());
+        else
+            ev->appendKeyText(propDummy_engineProperties.name, current.c_str());
         if ((ev != nullptr) && (eev == nullptr))
             App::scenes->pushEvent();
     }

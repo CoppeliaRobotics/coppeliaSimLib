@@ -220,68 +220,96 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
             if (evv == nullptr)
                 App::scenes->pushEvent();
         }
+        else if (App::getEventProtocolVersion() == 3)
+        {
+            const char* cmd = "voxels";
+            if (evv == nullptr)
+                ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
+            ev->appendKeyDoubleArray(cmd, _voxelPositions.data(), _voxelPositions.size());
+            ev->appendKeyBuff(propOctree_colors.name, _colorsByte.data(), _colorsByte.size());
+            ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
+            ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
+            ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
+            if (evv == nullptr)
+                App::scenes->pushEvent();
+        }
         else
         {
-            if (App::getEventProtocolVersion() == 3)
+            if (_octreeInfo == nullptr)
             {
-                const char* cmd = "voxels";
+                _remBBPts(nullptr, 0);
                 if (evv == nullptr)
-                    ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-                ev->appendKeyDoubleArray(cmd, _voxelPositions.data(), _voxelPositions.size());
-                ev->appendKeyBuff(propOctree_colors.name, _colorsByte.data(), _colorsByte.size());
-                ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
-                ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
-                ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
+                    ev = App::scenes->createSceneObjectChangedEvent(this, false, "set", true);
+                ev->openKeyMap("set");
+                ev->appendKeyFloatArray(propOctree_points.name, nullptr, 0);
+                ev->appendKeyUint8Array(propOctree_colors.name, nullptr, 0);
+                ev->appendKeyUint32Array("ids", nullptr, 0);
+                ev->closeArrayOrMap();
                 if (evv == nullptr)
+                {
                     App::scenes->pushEvent();
+                    computeBoundingBox();
+                    ev = App::scenes->createSceneObjectChangedEvent(this, false, "bb", true);
+                    ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
+                    ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
+                    App::scenes->pushEvent();
+                }
             }
             else
             {
-                if (_octreeInfo == nullptr)
+                if (_refreshDisplay)
+                    App::scenes->pluginContainer->geomPlugin_refreshDisplayOctreeData(_octreeInfo);
+                float* pts;
+                unsigned char* cols;
+                unsigned int* ids;
+                unsigned int* remIds;
+                int newCnt, remCnt;
+                int r = App::scenes->pluginContainer->geomPlugin_getDisplayOctreeData(_octreeInfo, &pts, &cols, &ids, &newCnt, &remIds, &remCnt);
+                if (r >= 0)
                 {
-                    _remBBPts(nullptr, 0);
-                    if (evv == nullptr)
-                        ev = App::scenes->createSceneObjectChangedEvent(this, false, "set", true);
-                    ev->openKeyMap("set");
-                    ev->appendKeyFloatArray(propOctree_points.name, nullptr, 0);
-                    ev->appendKeyUint8Array(propOctree_colors.name, nullptr, 0);
-                    ev->appendKeyUint32Array("ids", nullptr, 0);
-                    ev->closeArrayOrMap();
-                    if (evv == nullptr)
+                    if (r == 1)
                     {
-                        App::scenes->pushEvent();
-                        computeBoundingBox();
-                        ev = App::scenes->createSceneObjectChangedEvent(this, false, "bb", true);
-                        ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
-                        ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
-                        App::scenes->pushEvent();
-                    }
-                }
-                else
-                {
-                    if (_refreshDisplay)
-                    {
-                        App::scenes->pluginContainer->geomPlugin_refreshDisplayOctreeData(_octreeInfo);
-                        _refreshDisplay = false;
-                    }
-                    float* pts;
-                    unsigned char* cols;
-                    unsigned int* ids;
-                    unsigned int* remIds;
-                    int newCnt, remCnt;
-                    int r = App::scenes->pluginContainer->geomPlugin_getDisplayOctreeData(_octreeInfo, &pts, &cols, &ids, &newCnt, &remIds, &remCnt);
-                    if (r >= 0)
-                    {
-                        if (r == 1)
+                        _remBBPts(nullptr, 0);
+                        _addBBPts(pts, ids, newCnt);
+                        if (evv == nullptr)
+                            ev = App::scenes->createSceneObjectChangedEvent(this, false, "set", true);
+                        ev->openKeyMap("set");
+                        ev->appendKeyFloatArray(propOctree_points.name, pts, newCnt * 3);
+                        ev->appendKeyUint8Array(propOctree_colors.name, cols, newCnt * 4);
+                        ev->appendKeyUint32Array("ids", ids, newCnt);
+                        ev->closeArrayOrMap();
+                        if (evv == nullptr)
                         {
-                            _remBBPts(nullptr, 0);
-                            _addBBPts(pts, ids, newCnt);
+                            App::scenes->pushEvent();
+                            computeBoundingBox();
+                            ev = App::scenes->createSceneObjectChangedEvent(this, false, "bb", true);
+                            ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
+                            ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
+                            App::scenes->pushEvent();
+                        }
+                        else
+                        { // update the BB, do not generate an event!!
+                            _isInScene = false;
+                            computeBoundingBox();
+                            _isInScene = true;
+                        }
+                    }
+                    else
+                    {
+                        if (remCnt > 0)
+                            _remBBPts(remIds, remCnt);
+                        _addBBPts(pts, ids, newCnt);
+                        if (newCnt + remCnt > 0)
+                        {
                             if (evv == nullptr)
-                                ev = App::scenes->createSceneObjectChangedEvent(this, false, "set", true);
-                            ev->openKeyMap("set");
+                                ev = App::scenes->createSceneObjectChangedEvent(this, false, "addRemove", true);
+                            ev->openKeyMap("add");
                             ev->appendKeyFloatArray(propOctree_points.name, pts, newCnt * 3);
                             ev->appendKeyUint8Array(propOctree_colors.name, cols, newCnt * 4);
                             ev->appendKeyUint32Array("ids", ids, newCnt);
+                            ev->closeArrayOrMap();
+                            ev->openKeyMap("rem");
+                            ev->appendKeyUint32Array("ids", remIds, remCnt);
                             ev->closeArrayOrMap();
                             if (evv == nullptr)
                             {
@@ -293,41 +321,14 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                                 App::scenes->pushEvent();
                             }
                         }
-                        else
-                        {
-                            if (remCnt > 0)
-                                _remBBPts(remIds, remCnt);
-                            _addBBPts(pts, ids, newCnt);
-                            if (newCnt + remCnt > 0)
-                            {
-                                if (evv == nullptr)
-                                    ev = App::scenes->createSceneObjectChangedEvent(this, false, "addRemove", true);
-                                ev->openKeyMap("add");
-                                ev->appendKeyFloatArray(propOctree_points.name, pts, newCnt * 3);
-                                ev->appendKeyUint8Array(propOctree_colors.name, cols, newCnt * 4);
-                                ev->appendKeyUint32Array("ids", ids, newCnt);
-                                ev->closeArrayOrMap();
-                                ev->openKeyMap("rem");
-                                ev->appendKeyUint32Array("ids", remIds, remCnt);
-                                ev->closeArrayOrMap();
-                                if (evv == nullptr)
-                                {
-                                    App::scenes->pushEvent();
-                                    computeBoundingBox();
-                                    ev = App::scenes->createSceneObjectChangedEvent(this, false, "bb", true);
-                                    ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
-                                    ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
-                                    App::scenes->pushEvent();
-                                }
-                            }
-                        }
-                        delete[] pts;
-                        delete[] cols;
-                        delete[] ids;
-                        delete[] remIds;
                     }
+                    delete[] pts;
+                    delete[] cols;
+                    delete[] ids;
+                    delete[] remIds;
                 }
             }
+            _refreshDisplay = false;
         }
     }
 }
@@ -1201,6 +1202,7 @@ void COcTree::serialize(CSer& ar)
             }
             _readPositionsAndColorsAndSetDimensions();
             _updateOctreeEvent(false);
+            computeBoundingBox();
         }
     }
     else
@@ -1357,6 +1359,7 @@ void COcTree::serialize(CSer& ar)
             }
             _readPositionsAndColorsAndSetDimensions();
             _updateOctreeEvent(false);
+            computeBoundingBox();
         }
     }
 }

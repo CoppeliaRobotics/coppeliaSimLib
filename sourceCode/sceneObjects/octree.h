@@ -150,7 +150,7 @@ class COcTree : public CSceneObject
     int _normalBufferId;
     bool _refreshDisplay;
 
-           // For bounding box calculation:
+    // For bounding box calculation:
     std::multiset<float> _xs;
     std::multiset<float> _ys;
     std::multiset<float> _zs;

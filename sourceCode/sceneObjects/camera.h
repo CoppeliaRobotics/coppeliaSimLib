@@ -58,6 +58,8 @@ class CCamera : public CViewableBase
     int getBoolProperty(const char* pName, bool& pState) const override;
     int setIntProperty(const char* pName, int pState) override;
     int getIntProperty(const char* pName, int& pState) const override;
+    int setHandleProperty(const char* pName, long long int pState) override;
+    int getHandleProperty(const char* pName, long long int& pState) const override;
     int setFloatProperty(const char* pName, double pState) override;
     int getFloatProperty(const char* pName, double& pState) const override;
     int getStringProperty(const char* ppName, std::string& pState) const override;

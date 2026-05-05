@@ -667,7 +667,10 @@ void CVisionSensor::setVisionSensorSize(const double s)
         {
             const char* cmd = propVisionSensor_size.name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyDouble(cmd, _visionSensorSize);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyDouble("sensorSize", _visionSensorSize);
+            else
+                ev->appendKeyDouble(cmd, _visionSensorSize);
             App::scenes->pushEvent();
         }
         computeBoundingBox();
@@ -2154,11 +2157,16 @@ void CVisionSensor::addObjectEventData(CCbor* ev)
     }
     else
         color.addGenesisEventData(ev);
-    ev->appendKeyDouble(propVisionSensor_size.name, _visionSensorSize);
     if (App::getEventProtocolVersion() <= 3)
+    {
+        ev->appendKeyDouble("sensorSize", _visionSensorSize);
         ev->appendKeyFloatArray(propVisionSensor_backgroundCol.name, _defaultBufferValues, 3);
+    }
     else
+    {
+        ev->appendKeyDouble(propVisionSensor_size.name, _visionSensorSize);
         ev->appendKeyColor(propVisionSensor_backgroundCol.name, _defaultBufferValues);
+    }
     ev->appendKeyInt64(propVisionSensor_renderMode.name, _renderMode);
     ev->appendKeyBool(propVisionSensor_backgroundSameAsEnv.name, _useSameBackgroundAsEnvironment);
     ev->appendKeyBool(propVisionSensor_explicitHandling.name, _explicitHandling);
@@ -2179,16 +2187,8 @@ void CVisionSensor::addObjectEventData(CCbor* ev)
         ev->appendKeyDoubleArray(propViewableBase_clippingPlanes.name, arr, 2);
         ev->appendKeyBool(propViewableBase_perspective.name, _perspective);
         ev->appendKeyBool(propViewableBase_showFrustum.name, _showVolume);
-        if (App::getEventProtocolVersion() <= 3)
-        {
-            ev->appendKeyDoubleArray(propViewableBase_frustumCornerNear.name, _volumeVectorNear.data, 3);
-            ev->appendKeyDoubleArray(propViewableBase_frustumCornerFar.name, _volumeVectorFar.data, 3);
-        }
-        else
-        {
-            ev->appendKeyVector3(propViewableBase_frustumCornerNear.name, _volumeVectorNear);
-            ev->appendKeyVector3(propViewableBase_frustumCornerFar.name, _volumeVectorFar);
-        }
+        ev->appendKeyDoubleArray(propViewableBase_frustumCornerNear.name, _volumeVectorNear.data, 3);
+        ev->appendKeyDoubleArray(propViewableBase_frustumCornerFar.name, _volumeVectorFar.data, 3);
         ev->appendKeyInt32Array(propViewableBase_resolution.name, _resolution, 2);
         ev->closeArrayOrMap(); // visionSensor
         CSceneObject::addObjectEventData(ev);

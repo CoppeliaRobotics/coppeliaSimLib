@@ -886,7 +886,10 @@ void CCamera::setCameraSize(double size)
         {
             const char* cmd = propCamera_size.name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyDouble(cmd, _cameraSize);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyDouble("cameraSize", _cameraSize);
+            else
+                ev->appendKeyDouble(cmd, _cameraSize);
             App::scenes->pushEvent();
         }
         computeBoundingBox();
@@ -938,9 +941,12 @@ void CCamera::setTrackedObjectHandle(int trackedObjHandle)
     {
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propCamera_trackedObjectHandle.name;
+            const char* cmd = propCamera_trackedObject.name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt64(cmd, _trackedObjectHandle);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyInt64("trackedObjectHandle", _trackedObjectHandle);
+            else
+                ev->appendKeyHandle(cmd, _trackedObjectHandle);
             App::scenes->pushEvent();
         }
         handleCameraTracking();
@@ -985,11 +991,19 @@ void CCamera::addObjectEventData(CCbor* ev)
     }
     else
         _color.addGenesisEventData(ev);
-    ev->appendKeyDouble(propCamera_size.name, _cameraSize);
+    if (App::getEventProtocolVersion() <= 3)
+    {
+        ev->appendKeyDouble("cameraSize", _cameraSize);
+        ev->appendKeyInt64("trackedObjectHandle", _trackedObjectHandle);
+    }
+    else
+    {
+        ev->appendKeyDouble(propCamera_size.name, _cameraSize);
+        ev->appendKeyHandle(propCamera_trackedObject.name, _trackedObjectHandle);
+    }
     ev->appendKeyBool(propCamera_parentAsManipProxy.name, _useParentObjectAsManipulationProxy);
     ev->appendKeyBool(propCamera_translationEnabled.name, _allowTranslation);
     ev->appendKeyBool(propCamera_rotationEnabled.name, _allowRotation);
-    ev->appendKeyInt64(propCamera_trackedObjectHandle.name, _trackedObjectHandle);
     if (App::getEventProtocolVersion() == 2)
     {
         ev->appendKeyDouble(propViewableBase_viewAngle.name, _viewAngle);
@@ -998,16 +1012,8 @@ void CCamera::addObjectEventData(CCbor* ev)
         ev->appendKeyDoubleArray(propViewableBase_clippingPlanes.name, arr, 2);
         ev->appendKeyBool(propViewableBase_perspective.name, _perspective);
         ev->appendKeyBool(propViewableBase_showFrustum.name, _showVolume);
-        if (App::getEventProtocolVersion() <= 3)
-        {
-            ev->appendKeyDoubleArray(propViewableBase_frustumCornerNear.name, _volumeVectorNear.data, 3);
-            ev->appendKeyDoubleArray(propViewableBase_frustumCornerFar.name, _volumeVectorFar.data, 3);
-        }
-        else
-        {
-            ev->appendKeyVector3(propViewableBase_frustumCornerNear.name, _volumeVectorNear);
-            ev->appendKeyVector3(propViewableBase_frustumCornerFar.name, _volumeVectorFar);
-        }
+        ev->appendKeyDoubleArray(propViewableBase_frustumCornerNear.name, _volumeVectorNear.data, 3);
+        ev->appendKeyDoubleArray(propViewableBase_frustumCornerFar.name, _volumeVectorFar.data, 3);
         ev->appendKeyInt32Array(propViewableBase_resolution.name, _resolution, 2);
         ev->closeArrayOrMap(); //"camera"
         CSceneObject::addObjectEventData(ev);
@@ -3377,7 +3383,7 @@ int CCamera::setIntProperty(const char* ppName, int pState)
     int retVal = CViewableBase::setIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propCamera_trackedObjectHandle.name)
+        if (_pName == propCamera_DEPRECATED_trackedObject.name)
         {
             setTrackedObjectHandle(pState);
             retVal = sim_propertyret_ok;
@@ -3393,7 +3399,39 @@ int CCamera::getIntProperty(const char* ppName, int& pState) const
     int retVal = CViewableBase::getIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propCamera_trackedObjectHandle.name)
+        if (_pName == propCamera_DEPRECATED_trackedObject.name)
+        {
+            pState = _trackedObjectHandle;
+            retVal = sim_propertyret_ok;
+        }
+    }
+
+    return retVal;
+}
+
+int CCamera::setHandleProperty(const char* ppName, long long int pState)
+{
+    std::string _pName(ppName);
+    int retVal = CViewableBase::setHandleProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        if (_pName == propCamera_trackedObject.name)
+        {
+            setTrackedObjectHandle(pState);
+            retVal = sim_propertyret_ok;
+        }
+    }
+
+    return retVal;
+}
+
+int CCamera::getHandleProperty(const char* ppName, long long int& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = CViewableBase::getHandleProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        if (_pName == propCamera_trackedObject.name)
         {
             pState = _trackedObjectHandle;
             retVal = sim_propertyret_ok;
