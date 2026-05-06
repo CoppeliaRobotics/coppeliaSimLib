@@ -35,7 +35,7 @@ class CCodeEditorContainer
 
     // From sim thread:
     int openScriptWithExternalEditor(int scriptHandle);
-    void announceScriptStateWillBeErased(int scriptHandle, long long int scriptUid);
+    void announceScriptStateWillBeErased(int detachedScriptHandle, long long int scriptUid);
 
     int open(const char* initText, const char* xml, int callingScriptHandle); // func. sim.textEditorOpen
     int openSimulationScript(int scriptHandle);                               // main and simulation scripts

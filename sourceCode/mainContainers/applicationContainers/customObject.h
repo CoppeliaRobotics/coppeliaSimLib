@@ -22,10 +22,10 @@ extern const std::vector<SProperty> allProps_customObject;
 class CustomObject: public Obj
 {
   public:
-    CustomObject(long long int handle,const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle, int target); // class definition
+    CustomObject(long long int handle,const char* objectTypeStr, const char* objectMetaInfo, int originDetachedScriptHandle, int target); // class definition
     virtual ~CustomObject();
 
-    CustomObject* createObject(long long int handle, int originScriptHandle) const;
+    CustomObject* createObject(long long int handle, int originDetachedScriptHandle) const;
 
     void pushObjectCreationEvent();
     void serialize(CSer& ar);
@@ -78,7 +78,7 @@ class CustomObject: public Obj
     CCustomProperties& getCustomProperties() { return _customProperties; }
     const CCustomProperties& getCustomProperties() const { return _customProperties; }
 
-    int getScriptHandle() const;
+    int getDetachedScriptHandle() const;
     bool getVolatile() const;
     void setVolatile(bool v);
     bool getResetChanged();
@@ -91,7 +91,7 @@ class CustomObject: public Obj
     void _callPropertySetterGetter(const char* pName, const char* suffix, T& pState, PushF pushFunc, GetF getFunc) const;
     void _triggerEvent(const char* pName, CCbor* evv = nullptr);
 
-    int _scriptHandle;
+    int _detachedScriptHandle;
     int _target;
     bool _volatile;
     bool _changed;

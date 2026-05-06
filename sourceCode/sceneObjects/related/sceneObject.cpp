@@ -4277,8 +4277,7 @@ void CSceneObject::announceObjectWillBeErased(const CSceneObject* object, bool c
     }
 }
 
-void CSceneObject::announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript,
-                                              bool copyBuffer)
+void CSceneObject::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer)
 {
 }
 

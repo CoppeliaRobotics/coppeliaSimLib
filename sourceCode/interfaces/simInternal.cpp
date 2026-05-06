@@ -34,6 +34,7 @@
 
 int _currentScriptNameIndex = -1;
 int _currentScriptHandle = -1;
+int _currentDetachedScriptHandle = -1;
 
 bool fullModelCopyFromApi = true;
 bool waitingForTrigger = false;
@@ -120,8 +121,9 @@ std::string getIndexAdjustedObjectName(const char* nm)
     return (retVal);
 }
 
-void setCurrentScriptInfo_cSide(int scriptHandle, int scriptNameIndex)
+void setCurrentScriptInfo_cSide(int detachedScriptHandle, int scriptHandle, int scriptNameIndex)
 {
+    _currentDetachedScriptHandle = detachedScriptHandle;
     _currentScriptHandle = scriptHandle;
     _currentScriptNameIndex = scriptNameIndex;
 }
@@ -6180,7 +6182,7 @@ int simAddDrawingObject_internal(int objectType, double size, double duplicateTo
         }
         int creatorHandle = -1;
         if ((objectType & sim_drawing_persistent) == 0)
-            creatorHandle = _currentScriptHandle;
+            creatorHandle = _currentDetachedScriptHandle;
         CDrawingObject* it = new CDrawingObject(objectType, size, duplicateTolerance, parentObjectHandle, maxItemCount, creatorHandle);
         if (color != nullptr)
             it->color.setColor(color, sim_materialcomponent_diffuse);
@@ -9262,7 +9264,7 @@ int simModuleEntry_internal(int handle, const char* label, int state)
         if (handle == -1)
         {
             first = true;
-            handle = App::scenes->moduleMenuItemContainer->addMenuItem(label, _currentScriptHandle);
+            handle = App::scenes->moduleMenuItemContainer->addMenuItem(label, _currentDetachedScriptHandle);
         }
         CModuleMenuItem* item = App::scenes->moduleMenuItemContainer->getItemFromHandle(handle);
         if (item != nullptr)
@@ -9999,7 +10001,7 @@ int simCreateCollectionEx_internal(int options)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CCollection* it = new CCollection(_currentScriptHandle);
+        CCollection* it = new CCollection(_currentDetachedScriptHandle);
         it->setCollectionName("___col___", false); // is actually not used anymore
         App::scene->collections->addCollection(it, false);
         it->setOverridesObjectMainProperties((options & 1) != 0);

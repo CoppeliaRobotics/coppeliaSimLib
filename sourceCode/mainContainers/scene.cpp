@@ -1212,15 +1212,15 @@ void CScene::announceObjectWillBeErased(const CSceneObject* object)
     ikGroups_old->announceObjectWillBeErased(object->getObjectHandle());
 }
 
-void CScene::announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
+void CScene::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 {
-    sceneObjects->announceScriptWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
+    sceneObjects->announceScriptWillBeErased(scriptOrDetachedScriptHandle, simulationScript, sceneSwitchPersistentScript);
 }
 
-void CScene::announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
+void CScene::announceScriptStateWillBeErased(int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 {
-    collections->announceScriptStateWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
-    drawingCont->announceScriptStateWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
+    collections->announceScriptStateWillBeErased(detachedScriptHandle, simulationScript, sceneSwitchPersistentScript);
+    drawingCont->announceScriptStateWillBeErased(detachedScriptHandle, simulationScript, sceneSwitchPersistentScript);
 }
 
 CDetachedScript* CScene::getDetachedScriptFromHandle(int scriptHandle) const

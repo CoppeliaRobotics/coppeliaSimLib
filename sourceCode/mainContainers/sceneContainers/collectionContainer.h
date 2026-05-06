@@ -22,7 +22,7 @@ class CCollectionContainer
     void newScene();
     void actualizeAllCollections();
     void announceObjectWillBeErased(long long int objectHandle);
-    void announceScriptStateWillBeErased(long long int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptStateWillBeErased(long long int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     void setUpDefaultValues();
     void removeAllCollections();
 

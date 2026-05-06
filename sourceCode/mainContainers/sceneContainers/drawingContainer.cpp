@@ -122,13 +122,12 @@ void CDrawingContainer::announceObjectWillBeErased(const CSceneObject* object)
     }
 }
 
-void CDrawingContainer::announceScriptStateWillBeErased(int scriptHandle, bool simulationScript,
-                                                        bool sceneSwitchPersistentScript)
+void CDrawingContainer::announceScriptStateWillBeErased(int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     size_t i = 0;
     while (i < _allObjects.size())
     {
-        if (_allObjects[i]->announceScriptStateWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript))
+        if (_allObjects[i]->announceScriptStateWillBeErased(detachedScriptHandle, simulationScript, sceneSwitchPersistentScript))
             removeObject(_allObjects[i]->getObjectHandle());
         else
             i++;

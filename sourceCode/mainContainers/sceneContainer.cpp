@@ -843,23 +843,23 @@ void CSceneContainer::announceObjectWillBeErased(const CSceneObject* object)
     scene->announceObjectWillBeErased(object);
 }
 
-void CSceneContainer::announceScriptWillBeErased(int scriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
+void CSceneContainer::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     // Inform plugins about this event:
-    int pluginData[4] = {scriptHandle, int(scriptUid & 0xffffffff), int((scriptUid >> 32) & 0xffffffff), 0};
+    int pluginData[4] = {scriptOrDetachedScriptHandle, int(scriptUid & 0xffffffff), int((scriptUid >> 32) & 0xffffffff), 0};
     pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptabouttobedestroyed, pluginData);
 
-    scene->announceScriptWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
+    scene->announceScriptWillBeErased(scriptOrDetachedScriptHandle, simulationScript, sceneSwitchPersistentScript);
 }
 
-void CSceneContainer::announceScriptStateWillBeErased(int scriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
+void CSceneContainer::announceScriptStateWillBeErased(int detachedScriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
 {
-    pluginContainer->announceScriptStateWillBeErased(scriptHandle, scriptUid);
-    moduleMenuItemContainer->announceScriptStateWillBeErased(scriptHandle);
-    scene->announceScriptStateWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript);
+    pluginContainer->announceScriptStateWillBeErased(detachedScriptHandle, scriptUid);
+    moduleMenuItemContainer->announceScriptStateWillBeErased(detachedScriptHandle);
+    scene->announceScriptStateWillBeErased(detachedScriptHandle, simulationScript, sceneSwitchPersistentScript);
 #ifdef SIM_WITH_GUI
     if (GuiApp::mainWindow != nullptr)
-        GuiApp::mainWindow->announceScriptStateWillBeErased(scriptHandle, scriptUid);
+        GuiApp::mainWindow->announceScriptStateWillBeErased(detachedScriptHandle, scriptUid);
 #endif
-    customObjects->announceScriptStateWillBeErased(scriptHandle);
+    customObjects->announceScriptStateWillBeErased(detachedScriptHandle);
 }

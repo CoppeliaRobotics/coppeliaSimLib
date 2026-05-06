@@ -16,7 +16,7 @@ class CSceneObject;
 class CDrawingObject : public Obj
 {
   public:
-    CDrawingObject(int theObjectType, double size, double duplicateTolerance, int sceneObjId, int maxItemCount, int creatorHandle);
+    CDrawingObject(int theObjectType, double size, double duplicateTolerance, int sceneObjId, int maxItemCount, int detachedScriptHandle);
     virtual ~CDrawingObject();
 
     void setObjectId(int newId);
@@ -25,7 +25,7 @@ class CDrawingObject : public Obj
     void setItems(const double* itemData, size_t itemCnt);
     int getObjectType() const;
     bool announceObjectWillBeErased(const CSceneObject* object);
-    bool announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    bool announceScriptStateWillBeErased(int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
     int getLongProperty(const char* pName, long long int& pState) const override;
     int getHandleProperty(const char* pName, long long int& pState) const;
@@ -70,7 +70,7 @@ class CDrawingObject : public Obj
     int _maxItemCount;
     int _startItem;
     double _duplicateTolerance;
-    int _creatorHandle;
+    int _detachedScriptHandle;
     bool _rebuildRemoteItems;
 
     std::vector<double> _data;

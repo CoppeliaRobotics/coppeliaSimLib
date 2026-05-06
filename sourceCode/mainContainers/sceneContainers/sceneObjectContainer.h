@@ -151,7 +151,7 @@ class CSceneObjectContainer
     void simulationEnded();
 
     void announceObjectWillBeErased(const CSceneObject* object);
-    void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
     void handleDataCallbacks();
     bool shouldTemporarilySuspendMainScript();

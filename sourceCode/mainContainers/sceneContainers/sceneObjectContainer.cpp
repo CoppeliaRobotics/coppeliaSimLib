@@ -90,14 +90,13 @@ void CSceneObjectContainer::announceObjectWillBeErased(const CSceneObject* objec
     }
 }
 
-void CSceneObjectContainer::announceScriptWillBeErased(int scriptHandle, bool simulationScript,
-                                                       bool sceneSwitchPersistentScript)
+void CSceneObjectContainer::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     TRACE_INTERNAL;
     for (size_t i = 0; i < getObjectCount(); i++)
     {
         CSceneObject* it = getObjectFromIndex(i);
-        it->announceScriptWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript, false);
+        it->announceScriptWillBeErased(scriptOrDetachedScriptHandle, simulationScript, sceneSwitchPersistentScript, false);
     }
 }
 

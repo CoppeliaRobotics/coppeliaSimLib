@@ -46,13 +46,13 @@ std::vector<double>* CDrawingObject::getDataPtr()
     return (&_data);
 }
 
-CDrawingObject::CDrawingObject(int theObjectType, double size, double duplicateTolerance, int sceneObjId, int maxItemCount, int creatorHandle)
+CDrawingObject::CDrawingObject(int theObjectType, double size, double duplicateTolerance, int sceneObjId, int maxItemCount, int detachedScriptHandle)
 {
     _objectTypeStr = "drawingObject";
     _originalObjectTypeStr = _objectTypeStr;
     _objectMetaInfo = OBJECT_META_INFO;
     _rebuildRemoteItems = true;
-    _creatorHandle = creatorHandle;
+    _detachedScriptHandle = detachedScriptHandle;
     double tr = 0.0;
     if (theObjectType & sim_drawing_50percenttransparency)
         tr += 0.5;
@@ -356,10 +356,9 @@ bool CDrawingObject::announceObjectWillBeErased(const CSceneObject* object)
     return (_sceneObjectId == object->getObjectHandle());
 }
 
-bool CDrawingObject::announceScriptStateWillBeErased(int scriptHandle, bool simulationScript,
-                                                     bool sceneSwitchPersistentScript)
+bool CDrawingObject::announceScriptStateWillBeErased(int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 {
-    return ((!sceneSwitchPersistentScript) && (_creatorHandle == scriptHandle));
+    return ((!sceneSwitchPersistentScript) && (_detachedScriptHandle == detachedScriptHandle));
 }
 
 void CDrawingObject::_initBufferedEventData()

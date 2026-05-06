@@ -34,7 +34,7 @@ class CCopyBuffer
 
   private:
     void _announceObjectWillBeErased(const CSceneObject* object);
-    void _announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    void _announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
     // Old:
     void _announceCollectionWillBeErased(int groupID);
@@ -44,7 +44,7 @@ class CCopyBuffer
     // Not supported anymore for copy/paste operations:
     // void _announce2DElementWillBeErased(int elementID);
 
-    void _eraseScriptInBuffer(int objectID);
+    void _eraseScriptInBuffer(int scriptOrDetachedScriptHandle);
     void _eraseTextureObjectInBuffer(int objectID);
 
     // Old:

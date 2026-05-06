@@ -514,8 +514,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
             std::vector<int> sel;
             for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
             {
-                CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(
-                    App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+                CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
                 if ((it->getObjectProperty() & sim_objectproperty_cannotdelete) == 0)
                 {
                     if (((it->getObjectProperty() & sim_objectproperty_cannotdeleteduringsim) == 0) ||

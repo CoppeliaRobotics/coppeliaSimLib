@@ -1875,7 +1875,7 @@ int simSetNameSuffix_internal(int nameSuffixNumber)
 
     if (nameSuffixNumber < -1)
         nameSuffixNumber = -1;
-    setCurrentScriptInfo_cSide(_currentScriptHandle, nameSuffixNumber);
+    setCurrentScriptInfo_cSide(_currentScriptHandle, _currentScriptHandle, nameSuffixNumber);
     return (1);
 }
 

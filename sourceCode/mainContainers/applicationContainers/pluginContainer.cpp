@@ -172,9 +172,9 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion, lo
     return (plug);
 }
 
-void CPluginContainer::announceScriptStateWillBeErased(int scriptHandle, long long int scriptUid)
+void CPluginContainer::announceScriptStateWillBeErased(int detachedScriptHandle, long long int scriptUid)
 {
-    int pluginData[4] = {scriptHandle, int(scriptUid & 0xffffffff), int((scriptUid >> 32) & 0xffffffff), 0};
+    int pluginData[4] = {detachedScriptHandle, int(scriptUid & 0xffffffff), int((scriptUid >> 32) & 0xffffffff), 0};
     sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptstateabouttobedestroyed, pluginData);
 
     for (size_t i = 0; i < _allPlugins.size(); i++)

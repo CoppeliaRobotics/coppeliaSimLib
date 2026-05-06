@@ -14,8 +14,7 @@ CGraphDataStream::CGraphDataStream()
     _uid = App::getFreshUniqueId(-1);
 }
 
-CGraphDataStream::CGraphDataStream(const char* streamName, const char* unitStr, int options, const float* color,
-                                   double cyclicRange, int scriptHandle)
+CGraphDataStream::CGraphDataStream(const char* streamName, const char* unitStr, int options, const float* color, double cyclicRange, int scriptHandle)
 {
     _streamName = streamName;
     _transformationType = sim_stream_transf_raw;
@@ -32,8 +31,7 @@ CGraphDataStream::~CGraphDataStream()
 {
 }
 
-void CGraphDataStream::setBasics(const char* unitStr, int options, const float* color, double cyclicRange,
-                                 int scriptHandle)
+void CGraphDataStream::setBasics(const char* unitStr, int options, const float* color, double cyclicRange, int scriptHandle)
 {
     _unitStr.clear();
     if (unitStr != nullptr)
@@ -327,9 +325,7 @@ bool CGraphDataStream::getTransformedValue(int startPt, int pos, double& retVal)
     return (cumulativeValueCount > 0);
 }
 
-bool CGraphDataStream::getCurveData(bool staticCurve, int* index, int startPt, int ptCnt,
-                                    const std::vector<double>& times, std::string* label, std::vector<double>& xVals,
-                                    std::vector<double>& yVals, int* curveType, float col[3], double minMax[6]) const
+bool CGraphDataStream::getCurveData(bool staticCurve, int* index, int startPt, int ptCnt, const std::vector<double>& times, std::string* label, std::vector<double>& xVals, std::vector<double>& yVals, int* curveType, float col[3], double minMax[6]) const
 {
     if (_visible && (staticCurve == _static))
     {
@@ -852,10 +848,9 @@ CGraphDataStream* CGraphDataStream::copyYourself() const
     return (newObj);
 }
 
-bool CGraphDataStream::announceScriptWillBeErased(int scriptHandle, bool simulationScript,
-                                                  bool sceneSwitchPersistentScript, bool copyBuffer)
+bool CGraphDataStream::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer)
 {
-    return ((scriptHandle == _scriptHandle) && (!sceneSwitchPersistentScript));
+    return ((scriptOrDetachedScriptHandle == _scriptHandle) && (!sceneSwitchPersistentScript));
 }
 
 void CGraphDataStream::performScriptLoadingMapping(const std::map<int, int>* map)

@@ -31,7 +31,7 @@ class CGraph : public CSceneObject
     void serialize(CSer& ar) override;
 
     void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
-    void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer) override;
+    void announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer) override;
     void performObjectLoadingMapping(const std::map<int, int>* map, int opType) override;
     void performScriptLoadingMapping(const std::map<int, int>* map, int opType) override;
     void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType) override;
@@ -72,9 +72,7 @@ class CGraph : public CSceneObject
     bool isPotentiallyRenderable() const override;
 
     // Various
-    bool getGraphCurveData(int graphType, int index, std::string& label, std::vector<double>& xVals,
-                           std::vector<double>& yVals, int& curveType, float col[3], double minMax[6], int& curveId,
-                           int& curveWidth, long long int& curveUid) const;
+    bool getGraphCurveData(int graphType, int index, std::string& label, std::vector<double>& xVals, std::vector<double>& yVals, int& curveType, float col[3], double minMax[6], int& curveId, int& curveWidth, long long int& curveUid) const;
     void curveToClipboard(int graphType, const char* curveName) const;
     void curveToStatic(int graphType, const char* curveName);
     void removeStaticCurve(int graphType, const char* curveName);

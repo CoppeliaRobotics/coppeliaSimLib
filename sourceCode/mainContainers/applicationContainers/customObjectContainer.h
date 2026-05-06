@@ -26,7 +26,7 @@ class CustomObjectContainer
     long long int getFreshHandle(bool forObject) const;
     CustomObject* getItem(long long int objectHandle) const;
     bool removeItem(long long int objectHandle);
-    void announceScriptStateWillBeErased(int scriptHandle);
+    void announceScriptStateWillBeErased(int detachedScriptHandle);
     void clear();
 
     long long int makeClass(const char* typeString, const char* objectMetaInfo);
@@ -35,7 +35,7 @@ class CustomObjectContainer
     CustomObject* getClass(long long int objectHandle) const;
     CustomObject* getClass(const char* typeString) const;
 
-    long long int makeObject(const CustomObject* classObject, bool isVolatile, int originScriptHandle);
+    long long int makeObject(const CustomObject* classObject, bool isVolatile, int originDetachedScriptHandle);
     CustomObject* getObject(long long int objectHandle) const;
     bool removeObject(long long int objectHandle);
     void getAllObjectHandles(std::vector<long long int>& objects) const;

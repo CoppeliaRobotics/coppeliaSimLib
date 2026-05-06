@@ -1406,12 +1406,9 @@ int _simGetPathPlanningHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0))
     {
         std::string name(luaWrap_lua_tostring(L, 1));
-        setCurrentScriptInfo_cSide(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
-                                   CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
-                                       L)); // for transmitting to the master function additional info (e.g.for autom.
-                                            // name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal = CALL_C_API(simGetPathPlanningHandle, name.c_str());
-        setCurrentScriptInfo_cSide(-1, -1);
+        setCurrentScriptInfo_cSide(-1, -1, -1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -1639,12 +1636,9 @@ int _simGetUIHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0))
     {
         std::string name(luaWrap_lua_tostring(L, 1));
-        setCurrentScriptInfo_cSide(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
-                                   CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
-                                       L)); // for transmitting to the master function additional info (e.g.for autom.
-                                            // name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal = CALL_C_API(simGetUIHandle, name.c_str());
-        setCurrentScriptInfo_cSide(-1, -1);
+        setCurrentScriptInfo_cSide(-1, -1, -1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -3186,12 +3180,9 @@ int _simGetIkGroupHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0))
     {
         std::string name(luaWrap_lua_tostring(L, 1));
-        setCurrentScriptInfo_cSide(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
-                                   CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
-                                       L)); // for transmitting to the master function additional info (e.g.for autom.
-                                            // name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal = CALL_C_API(simGetIkGroupHandle, name.c_str());
-        setCurrentScriptInfo_cSide(-1, -1);
+        setCurrentScriptInfo_cSide(-1, -1, -1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -4426,12 +4417,9 @@ int _simGetCollectionHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0))
     {
         std::string name(luaWrap_lua_tostring(L, 1));
-        setCurrentScriptInfo_cSide(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
-                                   CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
-                                       L)); // for transmitting to the master function additional info (e.g.for autom.
-                                            // name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal = CALL_C_API(simGetCollectionHandle, name.c_str());
-        setCurrentScriptInfo_cSide(-1, -1);
+        setCurrentScriptInfo_cSide(-1, -1, -1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -4600,12 +4588,9 @@ int _simGetCollisionHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0))
     {
         std::string name(luaWrap_lua_tostring(L, 1));
-        setCurrentScriptInfo_cSide(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
-                                   CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
-                                       L)); // for transmitting to the master function additional info (e.g.for autom.
-                                            // name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal = CALL_C_API(simGetCollisionHandle, name.c_str());
-        setCurrentScriptInfo_cSide(-1, -1);
+        setCurrentScriptInfo_cSide(-1, -1, -1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -4622,12 +4607,9 @@ int _simGetDistanceHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0))
     {
         std::string name(luaWrap_lua_tostring(L, 1));
-        setCurrentScriptInfo_cSide(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
-                                   CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
-                                       L)); // for transmitting to the master function additional info (e.g.for autom.
-                                            // name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal = CALL_C_API(simGetDistanceHandle, name.c_str());
-        setCurrentScriptInfo_cSide(-1, -1);
+        setCurrentScriptInfo_cSide(-1, -1, -1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -5759,13 +5741,9 @@ int _sim_getObjectHandle(luaWrap_lua_State* L)
                         if (res == 2)
                             options = luaToInt(L, 4);
                         std::string name(luaWrap_lua_tostring(L, 1));
-                        setCurrentScriptInfo_cSide(
-                            CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
-                            CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
-                                L)); // for transmitting to the master function additional info (e.g.for autom. name
-                                     // adjustment, or for autom. object deletion when script ends)
+                        setCurrentScriptInfo_cSide(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                         retVal = CALL_C_API(simGetObjectHandleEx, name.c_str(), index, proxyForSearch, options);
-                        setCurrentScriptInfo_cSide(-1, -1);
+                        setCurrentScriptInfo_cSide(-1, -1, -1);
                     }
                 }
             }
@@ -6469,13 +6447,9 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
                     if (((scriptName.size() > 0) || (objectHandle >= 0)) ||
                         ((scriptType == sim_scripttype_main) || (scriptType == sim_scripttype_sandbox)))
                     {
-                        setCurrentScriptInfo_cSide(
-                            CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
-                            CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
-                                L)); // for transmitting to the master function additional info (e.g.for autom. name
-                                     // adjustment, or for autom. object deletion when script ends)
+                        setCurrentScriptInfo_cSide(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                         retVal = CALL_C_API(simGetScriptHandleEx, scriptType, objectHandle, scriptName.c_str());
-                        setCurrentScriptInfo_cSide(-1, -1);
+                        setCurrentScriptInfo_cSide(-1, -1, -1);
                     }
                 }
                 else
@@ -6486,13 +6460,9 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
                 if (checkInputArguments(L, nullptr, argOffset, lua_arg_string, 0))
                 {
                     std::string name(luaWrap_lua_tostring(L, 1));
-                    setCurrentScriptInfo_cSide(
-                        CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
-                        CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
-                            L));                                        // for transmitting to the master function additional info (e.g.for autom. name
-                                                                        // adjustment, or for autom. object deletion when script ends)
+                    setCurrentScriptInfo_cSide(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
                     retVal = CALL_C_API(simGetScriptHandle, name.c_str()); // deprecated func.
-                    setCurrentScriptInfo_cSide(-1, -1);
+                    setCurrentScriptInfo_cSide(-1, -1, -1);
                 }
                 else
                     checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0); // just generate an error
@@ -6546,12 +6516,9 @@ int _simSetDoubleSignal(luaWrap_lua_State* L)
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0, lua_arg_number, 0))
     {
-        setCurrentScriptInfo_cSide(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
-                                   CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
-                                       L)); // for transmitting to the master function additional info (e.g.for autom.
-                                            // name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal = CALL_C_API(simSetDoubleSignalOld, luaWrap_lua_tostring(L, 1), luaToDouble(L, 2));
-        setCurrentScriptInfo_cSide(-1, -1);
+        setCurrentScriptInfo_cSide(-1, -1, -1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -7404,12 +7371,9 @@ int _simSetInt32Signal(luaWrap_lua_State* L)
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0, lua_arg_number, 0))
     {
-        setCurrentScriptInfo_cSide(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
-                                   CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
-                                       L)); // for transmitting to the master function additional info (e.g.for autom.
-                                            // name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal = CALL_C_API(simSetInt32Signal, luaWrap_lua_tostring(L, 1), luaToInt(L, 2));
-        setCurrentScriptInfo_cSide(-1, -1);
+        setCurrentScriptInfo_cSide(-1, -1, -1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -7464,12 +7428,9 @@ int _simSetFloatSignal(luaWrap_lua_State* L)
     int retVal = -1; // error
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0, lua_arg_number, 0))
     {
-        setCurrentScriptInfo_cSide(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
-                                   CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
-                                       L)); // for transmitting to the master function additional info (e.g.for autom.
-                                            // name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal = CALL_C_API(simSetFloatSignal, luaWrap_lua_tostring(L, 1), luaToDouble(L, 2));
-        setCurrentScriptInfo_cSide(-1, -1);
+        setCurrentScriptInfo_cSide(-1, -1, -1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
@@ -7526,12 +7487,9 @@ int _simSetStringSignal(luaWrap_lua_State* L)
     {
         size_t dataLength;
         const char* data = luaWrap_lua_tobuffer(L, 2, &dataLength);
-        setCurrentScriptInfo_cSide(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L),
-                                   CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(
-                                       L)); // for transmitting to the master function additional info (e.g.for autom.
-                                            // name adjustment, or for autom. object deletion when script ends)
+        setCurrentScriptInfo_cSide(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
         retVal = CALL_C_API(simSetStringSignal, luaWrap_lua_tostring(L, 1), data, int(dataLength));
-        setCurrentScriptInfo_cSide(-1, -1);
+        setCurrentScriptInfo_cSide(-1, -1, -1);
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!

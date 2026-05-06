@@ -6,8 +6,7 @@ class CGraphDataStream
 {
   public:
     CGraphDataStream();
-    CGraphDataStream(const char* streamName, const char* unitStr, int options, const float* color, double cyclicRange,
-                     int scriptHandle);
+    CGraphDataStream(const char* streamName, const char* unitStr, int options, const float* color, double cyclicRange, int scriptHandle);
     virtual ~CGraphDataStream();
 
     void setBasics(const char* unitStr, int options, const float* color, double cyclicRange, int scriptHandle);
@@ -18,13 +17,10 @@ class CGraphDataStream
     void setNextValueToInsert(double v);
     void insertNextValue(int absIndex, bool firstValue, const std::vector<double>& times);
     bool getTransformedValue(int startPt, int pos, double& retVal) const;
-    bool getCurveData(bool staticCurve, int* index, int startPt, int ptCnt, const std::vector<double>& times,
-                      std::string* label, std::vector<double>& xVals, std::vector<double>& yVals, int* curveType,
-                      float col[3], double minMax[6]) const;
+    bool getCurveData(bool staticCurve, int* index, int startPt, int ptCnt, const std::vector<double>& times, std::string* label, std::vector<double>& xVals, std::vector<double>& yVals, int* curveType, float col[3], double minMax[6]) const;
     bool getExportValue(int startPt, int relPos, double* val, std::string* label) const;
     void makeStatic(int startPt, int ptCnt, const std::vector<double>& times);
-    bool announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript,
-                                    bool copyBuffer);
+    bool announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer);
     void performScriptLoadingMapping(const std::map<int, int>* map);
 
     void setId(int id);

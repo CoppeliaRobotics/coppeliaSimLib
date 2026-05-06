@@ -10,12 +10,12 @@ static std::string OBJECT_META_INFO = R"(
 }
 )";
 
-CustomObject::CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo, int originScriptHandle, int target)
+CustomObject::CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo, int originDetachedScriptHandle, int target)
 {
     _objectHandle = handle;
     _objectTypeStr = objectTypeStr;
     _objectMetaInfo = objectMetaInfo;
-    _scriptHandle = originScriptHandle;
+    _detachedScriptHandle = originDetachedScriptHandle;
     _target = target;
     _volatile = true;
     _changed = false;
@@ -35,7 +35,7 @@ CustomObject::~CustomObject()
     }
 }
 
-CustomObject* CustomObject::createObject(long long int handle, int originScriptHandle) const
+CustomObject* CustomObject::createObject(long long int handle, int originDetachedScriptHandle) const
 {
     CustomObject* retVal = nullptr;
     QJsonDocument doc = QJsonDocument::fromJson(_objectMetaInfo.c_str());
@@ -45,15 +45,15 @@ CustomObject* CustomObject::createObject(long long int handle, int originScriptH
         jsonObj["class"] = false;
         QJsonDocument newDoc(jsonObj);
         std::string newObjectMetaInfo = QString::fromUtf8(newDoc.toJson(QJsonDocument::Compact)).toStdString();
-        retVal = new CustomObject(handle, _objectTypeStr.c_str(), newObjectMetaInfo.c_str(), originScriptHandle, _target);
+        retVal = new CustomObject(handle, _objectTypeStr.c_str(), newObjectMetaInfo.c_str(), originDetachedScriptHandle, _target);
         retVal->_customProperties.copyFromExceptMethods(&_customProperties);
     }
     return retVal;
 }
 
-int CustomObject::getScriptHandle() const
+int CustomObject::getDetachedScriptHandle() const
 {
-    return _scriptHandle;
+    return _detachedScriptHandle;
 }
 
 bool CustomObject::getVolatile() const

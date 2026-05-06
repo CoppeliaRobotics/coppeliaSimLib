@@ -30,7 +30,7 @@ class CCollection : public Obj
     void performCollectionLoadingMapping(const std::map<int, int>* map, int opType);
     void performObjectLoadingMapping(const std::map<int, int>* map, int opType);
     bool announceObjectWillBeErased(long long int objectHandle, bool copyBuffer);
-    bool announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    bool announceScriptStateWillBeErased(int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     CCollection* copyYourself() const;
     void emptyCollection();
     int getCreatorHandle() const;
@@ -70,7 +70,7 @@ class CCollection : public Obj
     void _updateCollectionObjects_(const std::vector<int>& sceneObjectHandles);
 
     std::vector<CCollectionElement*> _collectionElements;
-    int _creatorHandle; // -2: old gui items, -1: c-side, otherwise script handle
+    int _creatorHandle; // -2: old gui items, -1: c-side, otherwise detached script handle
     std::string _uniquePersistentIdString;
     std::vector<int> _collectionObjects;
     std::string _collectionLoadName;

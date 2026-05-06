@@ -137,7 +137,7 @@ void CDetachedScript::destroy(CDetachedScript* obj, bool registeredObject, bool 
                 VFile::eraseFile(fname.c_str());
         }
         if (announceScriptDestruction)
-            App::scenes->announceScriptWillBeErased(obj->getScriptHandle(), obj->getScriptUid(), obj->isSimulationOrMainScript(), obj->isSceneSwitchPersistentScript());
+            App::scenes->announceScriptWillBeErased(obj->getObjectHandle(), obj->getScriptUid(), obj->isSimulationOrMainScript(), obj->isSceneSwitchPersistentScript());
     }
     if (obj->_addOnUiMenuHandle != -1)
         App::scenes->moduleMenuItemContainer->removeMenuItem(obj->_addOnUiMenuHandle);
@@ -2635,7 +2635,7 @@ bool CDetachedScript::_killInterpreterState()
             // if (_scriptType==sim_scripttype_addonfunction) // Not needed
             // if (_scriptType==sim_scripttype_sandbox) // Not needed
         }
-        App::scenes->announceScriptStateWillBeErased(_scriptHandle, _scriptUid, isSimulationOrMainScript(), isSceneSwitchPersistentScript());
+        App::scenes->announceScriptStateWillBeErased(_objectHandle, _scriptUid, isSimulationOrMainScript(), isSceneSwitchPersistentScript());
         luaWrap_lua_close((luaWrap_lua_State*)_interpreterState);
         _interpreterState = nullptr;
     }

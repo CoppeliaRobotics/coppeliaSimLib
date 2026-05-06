@@ -257,7 +257,7 @@ CCodeEditorContainer::~CCodeEditorContainer()
 {
 }
 
-void CCodeEditorContainer::announceScriptStateWillBeErased(int scriptHandle, long long int scriptUid)
+void CCodeEditorContainer::announceScriptStateWillBeErased(int detachedScriptHandle, long long int scriptUid)
 {
     for (size_t i = 0; i < _allEditors.size(); i++)
     {

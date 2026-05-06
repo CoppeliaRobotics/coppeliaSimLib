@@ -955,12 +955,12 @@ void CCopyBuffer::_restoreBuffers_temp()
     */
 }
 
-void CCopyBuffer::_eraseScriptInBuffer(int objectID)
+void CCopyBuffer::_eraseScriptInBuffer(int scriptOrDetachedScriptHandle)
 {
-    _announceScriptWillBeErased(objectID, false, false);
+    _announceScriptWillBeErased(scriptOrDetachedScriptHandle, false, false);
     for (size_t i = 0; i < luaScriptBuffer.size(); i++)
     {
-        if (luaScriptBuffer[i]->getScriptHandle() == objectID)
+        if (luaScriptBuffer[i]->getScriptHandle() == scriptOrDetachedScriptHandle)
         {
             CDetachedScript::destroy(luaScriptBuffer[i], false);
             luaScriptBuffer.erase(luaScriptBuffer.begin() + i);
@@ -1189,11 +1189,10 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject* object)
     */
 }
 
-void CCopyBuffer::_announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
+void CCopyBuffer::_announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     for (size_t i = 0; i < objectBuffer.size(); i++)
-        objectBuffer[i]->announceScriptWillBeErased(scriptHandle, simulationScript, sceneSwitchPersistentScript,
-                                                    true); // this never triggers scene object destruction!
+        objectBuffer[i]->announceScriptWillBeErased(scriptOrDetachedScriptHandle, simulationScript, sceneSwitchPersistentScript, true); // this never triggers scene object destruction!
 }
 
 void CCopyBuffer::_announceCollectionWillBeErased(int collectionID)

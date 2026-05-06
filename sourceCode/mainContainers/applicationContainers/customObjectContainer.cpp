@@ -270,10 +270,10 @@ CustomObject* CustomObjectContainer::getClass(long long int objectHandle) const
     return retVal;
 }
 
-long long int CustomObjectContainer::makeObject(const CustomObject* classObject, bool isVolatile, int originScriptHandle)
+long long int CustomObjectContainer::makeObject(const CustomObject* classObject, bool isVolatile, int originDetachedScriptHandle)
 {
     long long int retVal = getFreshHandle(true);
-    CustomObject* obj = classObject->createObject(retVal, originScriptHandle);
+    CustomObject* obj = classObject->createObject(retVal, originDetachedScriptHandle);
     obj->setVolatile(isVolatile);
     _customObjects.insert({retVal, obj});
     obj->pushObjectCreationEvent();
@@ -345,13 +345,13 @@ void CustomObjectContainer::_notifyClassListChanged() const
     }
 }
 
-void CustomObjectContainer::announceScriptStateWillBeErased(int scriptHandle)
+void CustomObjectContainer::announceScriptStateWillBeErased(int detachedScriptHandle)
 {
     bool notify = false;
     for (auto it = _customObjects.begin(); it != _customObjects.end(); )
     {
         CustomObject* obj = it->second;
-        if (obj->getScriptHandle() == scriptHandle)
+        if (obj->getDetachedScriptHandle() == detachedScriptHandle)
         {
             notify = true;
             delete obj;
@@ -366,7 +366,7 @@ void CustomObjectContainer::announceScriptStateWillBeErased(int scriptHandle)
     for (auto it = _customClasses.begin(); it != _customClasses.end(); )
     {
         CustomObject* obj = it->second;
-        if (obj->getScriptHandle() == scriptHandle)
+        if (obj->getDetachedScriptHandle() == detachedScriptHandle)
         {
             notify = true;
             delete obj;

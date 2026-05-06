@@ -107,8 +107,8 @@ bool CScript::canDestroyNow()
             detachedScript->_scriptState = sim_scriptstate_ended; // just in case
             detachedScript->resetScript();
             // Announcements need to happen immediately after calling cleanup!
-            App::scenes->announceScriptStateWillBeErased(detachedScript->getScriptHandle(), detachedScript->getScriptUid(), detachedScript->isSimulationOrMainScript(), detachedScript->isSceneSwitchPersistentScript());
-            App::scenes->announceScriptWillBeErased(detachedScript->getScriptHandle(), detachedScript->getScriptUid(), detachedScript->isSimulationOrMainScript(), detachedScript->isSceneSwitchPersistentScript());
+            App::scenes->announceScriptStateWillBeErased(detachedScript->getObjectHandle(), detachedScript->getScriptUid(), detachedScript->isSimulationOrMainScript(), detachedScript->isSceneSwitchPersistentScript());
+            App::scenes->announceScriptWillBeErased(_objectHandle, detachedScript->getScriptUid(), detachedScript->isSimulationOrMainScript(), detachedScript->isSceneSwitchPersistentScript());
             App::scenes->setModificationFlag(16384);
             CDetachedScript::destroy(detachedScript, true, true);
             detachedScript = nullptr;

@@ -7077,7 +7077,7 @@ std::string _method_makeObject(int targetObj, const char* method, CDetachedScrip
             {
                 int h = -1;
                 if ((currentScript != nullptr) && (!scriptPersistent) && isVolatile)
-                    h = currentScript->getScriptHandle();
+                    h = currentScript->getObjectHandle();
                 long long int retVal = -1;
                 if (appScope)
                     retVal = App::scenes->customObjects->makeObject(customObjectClass, isVolatile, h);

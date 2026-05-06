@@ -20,7 +20,7 @@ class CPluginContainer
     void unloadNewPlugins();
     void unloadLegacyPlugins();
 
-    void announceScriptStateWillBeErased(int scriptHandle, long long int scriptUid);
+    void announceScriptStateWillBeErased(int detachedScriptHandle, long long int scriptUid);
 
     void uiCallAllPlugins(int msg, int* auxData = nullptr, void* auxPointer = nullptr);
     void sendEventCallbackMessageToAllPlugins(int msg, int* auxData = nullptr, void* auxPointer = nullptr, bool onlyToNewPlugins = false);

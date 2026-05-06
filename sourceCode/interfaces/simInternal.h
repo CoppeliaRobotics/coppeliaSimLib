@@ -40,7 +40,7 @@ decltype(auto) callCapi(Func&& f) {
 #define CALL_C_API_CLEAR_ERRORS(func, ...) CApiUtils::callCapiAndClearErrors([&]() { return func##_internal(__VA_ARGS__); })
 #define CALL_C_API(func, ...) CApiUtils::callCapi([&]() { return func##_internal(__VA_ARGS__); })
 
-void setCurrentScriptInfo_cSide(int scriptHandle, int scriptNameIndex);
+void setCurrentScriptInfo_cSide(int detachedScriptHandle, int scriptHandle, int scriptNameIndex);
 int getCurrentScriptNameIndex_cSide();
 std::string getIndexAdjustedObjectName(const char* nm);
 void setLastInfo(const char* infoStr);

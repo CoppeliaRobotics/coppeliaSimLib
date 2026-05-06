@@ -74,8 +74,8 @@ class CScene : public Obj
     void cleanupHashNames_allObjects(int suffix);
 
     void announceObjectWillBeErased(const CSceneObject* object);
-    void announceScriptWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
-    void announceScriptStateWillBeErased(int scriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptStateWillBeErased(int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
     CDetachedScript* getDetachedScriptFromHandle(int scriptHandle) const;
     CDetachedScript* getDetachedScriptFromUid(int uid) const;

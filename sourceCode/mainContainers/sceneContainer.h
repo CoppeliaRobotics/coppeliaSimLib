@@ -52,8 +52,8 @@ class CSceneContainer
     CDetachedScript* getDetachedScriptFromHandle(int scriptHandle) const;
     CDetachedScript* getDetachedScriptFromUid(int uid) const;
     void announceObjectWillBeErased(const CSceneObject* object);
-    void announceScriptWillBeErased(int scriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
-    void announceScriptStateWillBeErased(int scriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptWillBeErased(int scriptOrDetachedScriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptStateWillBeErased(int detachedScriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
 
     void getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
     void callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int scriptToExclude = -1);
