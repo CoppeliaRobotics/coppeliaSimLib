@@ -3209,6 +3209,9 @@ int simCallMethod_internal(long long int target, const char* nname, int inputSta
         CDetachedScript* currentScript = App::scenes->getDetachedScriptFromHandle(detachedScript);
         int retVal = 0; // -1: error in method, 0: method not found, 1: ok
 
+        if ((target == sim_handle_self) && (currentScript != nullptr))
+            target = currentScript->getObjectHandle();
+
         // Check if such a method is supported in here, or if we have to call Lua:
         // -----------------------------------------------------------------------
         CInterfaceStack* _inStack = inStack;

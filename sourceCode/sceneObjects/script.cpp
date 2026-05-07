@@ -483,7 +483,10 @@ void CScript::resetAfterSimError(bool r)
 
 int CScript::getDetachedScriptHandle() const
 {
-    return detachedScript->getObjectHandle();
+    int retVal = -1;
+    if (detachedScript != nullptr)
+        retVal = detachedScript->getObjectHandle();
+    return retVal;
 }
 
 #ifdef SIM_WITH_GUI
