@@ -893,6 +893,7 @@ struct SJointProperty
     FUNCX(propSceneObject_modelInvisible, "modelInvisible", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Inherited model invisibility"}, {"description", ""}}), "") \
     FUNCX(propSceneObject_modelBase, "modelBase", sim_propertytype_bool, 0,  jsonStr({{"label", "Model base"}, {"description", "Model base flag, indicates the scene object is the base of a model"}}), "") \
     FUNCX(propSceneObject_layer, "layer", sim_propertytype_int, 0,  jsonStr({{"label", "Visibility layer"}, {"description", ""}}), "") \
+    FUNCX(propSceneObject_tree, "tree", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object tree"}, {"description", ""}}), "") \
     FUNCX(propSceneObject_childOrder, "childOrder", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Child order"}, {"description", ""}}), "") \
     FUNCX(propSceneObject_parentUid, "parentUid", sim_propertytype_long, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Parent UID"}, {"description", "Parent scene object unique identifier"}}), "") \
     FUNCX(propSceneObject_objectUid, "objectUid", sim_propertytype_long, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object UID"}, {"description", "Scene object unique identifier"}}), "") \
@@ -1354,6 +1355,8 @@ struct SJointProperty
     FUNCX(propOctree_showPoints, "showPoints", sim_propertytype_bool, 0,  jsonStr({{"label", "Show points instead of voxels"}, {"description", ""}}), "") \
     FUNCX(propOctree_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Voxels"}, {"description", "Voxel positions"}}), "") \
     FUNCX(propOctree_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Voxel Colors"}, {"description", ""}}), "") \
+    FUNCX(propOctree_METHOD_insertFrom, "insertFrom", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propOctree_METHOD_subtractFrom, "subtractFrom", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
     FUNCX(propOctree_DEPRECATED_voxels, "voxels", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "")
 
@@ -1365,7 +1368,9 @@ struct SJointProperty
     FUNCX(propPointCloud_cellSize, "cellSize", sim_propertytype_float, 0,  jsonStr({{"label", "Cell size"}, {"description", "Size of the oc-tree cell/voxel"}}), "") \
     FUNCX(propPointCloud_pointDisplayFraction, "pointDisplayFraction", sim_propertytype_float, 0,  jsonStr({{"label", "Display fraction"}, {"description", "Fraction of points to be displayed in an oc-tree cell/voxel"}}), "") \
     FUNCX(propPointCloud_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Points"}, {"description", "Point positions"}}), "") \
-    FUNCX(propPointCloud_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Colors"}, {"description", "Point colors"}}), "")
+    FUNCX(propPointCloud_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Colors"}, {"description", "Point colors"}}), "") \
+    FUNCX(propPointCloud_METHOD_insertFrom, "insertFrom", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propPointCloud_METHOD_subtractFrom, "subtractFrom", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define PROXIMITYSENSOR_PROPERTIES \
     FUNCX(propProximitySensor_size, "pointSize", sim_propertytype_float, 0,  jsonStr({{"label", "Sensor point size"}, {"description", ""}}), "") \

@@ -334,7 +334,7 @@ int CSceneObject::getChildOrder() const
     return (_childOrder);
 }
 
-int CSceneObject::getHierarchyTreeObjects(std::vector<CSceneObject*>& allObjects)
+int CSceneObject::getHierarchyTreeObjects(std::vector<CSceneObject*>& allObjects) const
 {
     int retVal = 1;
     allObjects.push_back((CSceneObject*)this);
@@ -6979,6 +6979,14 @@ int CSceneObject::getHandleArrayProperty(const char* ppName, std::vector<long lo
         {
             for (size_t i = 0; i < _childList.size(); i++)
                 pState.push_back(_childList[i]->getObjectHandle());
+            retVal = sim_propertyret_ok;
+        }
+        else if (strcmp(ppName, propSceneObject_tree.name) == 0)
+        {
+            std::vector<CSceneObject*> objects;
+            getHierarchyTreeObjects(objects);
+            for (size_t i = 0; i < objects.size(); i++)
+                pState.push_back(objects[i]->getObjectHandle());
             retVal = sim_propertyret_ok;
         }
 

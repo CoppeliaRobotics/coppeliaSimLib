@@ -12044,7 +12044,7 @@ int simSubtractObjectFromPointCloud_internal(int pointCloudHandle, int objectHan
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        if (!isOctree(__func__, pointCloudHandle))
+        if (!isPointCloud(__func__, pointCloudHandle))
             return (-1);
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);

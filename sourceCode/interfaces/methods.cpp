@@ -208,6 +208,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["step"] = _method_step;
         funcTable["makeClass"] = _method_makeClass;
         funcTable["makeObject"] = _method_makeObject;
+        funcTable["insertFrom"] = _method_insertFrom;
+        funcTable["subtractFrom"] = _method_subtractFrom;
     }
 
     std::string retVal("__notFound__");
@@ -683,6 +685,13 @@ void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<int
             int cnt = int(tbl->getArraySize());
             outArr.resize(cnt);
             tbl->getInt32Array(outArr.data(), cnt);
+        }
+        else if (obj->getObjectType() == sim_stackitem_handlearray)
+        {
+            const CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
+            size_t cnt;
+            const long long int* v = arr->getValue(&cnt);
+            outArr.assign(v, v + cnt);
         }
     }
 }
@@ -7091,3 +7100,160 @@ std::string _method_makeObject(int targetObj, const char* method, CDetachedScrip
         errMsg = SIM_ERROR_INVALID_TARGET;
     return errMsg;
 }
+
+std::string _method_insertFrom(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
+    if (target != nullptr)
+    {
+        COcTree* ocTree = nullptr;
+        CPointCloud* ptCloud = nullptr;
+        if (target->getObjectType() == sim_sceneobject_octree)
+            ocTree = (COcTree*)target;
+        if (target->getObjectType() == sim_sceneobject_pointcloud)
+            ptCloud = (CPointCloud*)target;
+        if ((ocTree != nullptr) || (ptCloud != nullptr))
+        {
+            if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
+            {
+                std::vector<int> objects;
+                fetchHandleArray(inStack, 0, objects);
+                if (ocTree != nullptr)
+                {
+                    float color[3];
+                    bool hasColor = false;
+                    int tag = 0;
+                    if (hasNonNullArg(inStack, 1))
+                    {
+                        CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+                        hasColor = map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
+                        map->fetchInt32FromKey("tag", tag, &errMsg);
+                    }
+                    if (errMsg.size() == 0)
+                    {
+                        float savedCols[3];
+                        ocTree->getColor()->getColor(savedCols, sim_materialcomponent_diffuse);
+                        float* cptr = ocTree->getColor()->getColorsPtr();
+                        if (hasColor)
+                        {
+                            cptr[0] = color[0];
+                            cptr[1] = color[1];
+                            cptr[2] = color[2];
+                        }
+                        for (size_t i = 0; i < objects.size(); i++)
+                        {
+                            CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(objects[i]);
+                            if (obj != nullptr)
+                                ocTree->insertObject(obj, tag);
+                        }
+                        cptr[0] = savedCols[0];
+                        cptr[1] = savedCols[1];
+                        cptr[2] = savedCols[2];
+                    }
+                }
+                if (ptCloud != nullptr)
+                {
+                    float color[3];
+                    bool hasColor = false;
+                    double gridSize = 0.02;
+                    double duplicateTolerance;
+                    bool hasDuplicateTolerance = false;
+                    if (hasNonNullArg(inStack, 1))
+                    {
+                        CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+                        hasColor = map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
+                        map->fetchDoubleFromKey("gridSize", gridSize, &errMsg);
+                        hasDuplicateTolerance = map->fetchDoubleFromKey("duplicateTolerance", duplicateTolerance, &errMsg);
+                    }
+                    if (errMsg.size() == 0)
+                    {
+                        double savedGridSize = ptCloud->getBuildResolution();
+                        ptCloud->setBuildResolution(gridSize);
+                        float savedCols[3];
+                        ptCloud->getColor()->getColor(savedCols, sim_materialcomponent_diffuse);
+                        if (hasColor)
+                        {
+                            ptCloud->getColor()->getColorsPtr()[0] = color[0];
+                            ptCloud->getColor()->getColorsPtr()[1] = color[1];
+                            ptCloud->getColor()->getColorsPtr()[2] = color[2];
+                        }
+                        double insertionToleranceSaved = ptCloud->getInsertionDistanceTolerance();
+                        if (hasDuplicateTolerance)
+                            ptCloud->setInsertionDistanceTolerance(duplicateTolerance);
+
+                        for (size_t i = 0; i < objects.size(); i++)
+                        {
+                            CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(objects[i]);
+                            if (obj != nullptr)
+                                ptCloud->insertObject(obj);
+                        }
+
+                        ptCloud->setInsertionDistanceTolerance(insertionToleranceSaved);
+                        ptCloud->setBuildResolution(savedGridSize);
+                        ptCloud->getColor()->getColorsPtr()[0] = savedCols[0];
+                        ptCloud->getColor()->getColorsPtr()[1] = savedCols[1];
+                        ptCloud->getColor()->getColorsPtr()[2] = savedCols[2];
+                    }
+                }
+            }
+        }
+        else
+            errMsg = "method not available for that target.";
+    }
+    return errMsg;
+}
+
+std::string _method_subtractFrom(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
+    if (target != nullptr)
+    {
+        COcTree* ocTree = nullptr;
+        CPointCloud* ptCloud = nullptr;
+        if (target->getObjectType() == sim_sceneobject_octree)
+            ocTree = (COcTree*)target;
+        if (target->getObjectType() == sim_sceneobject_pointcloud)
+            ptCloud = (CPointCloud*)target;
+        if ((ocTree != nullptr) || (ptCloud != nullptr))
+        {
+            if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
+            {
+                std::vector<int> objects;
+                fetchHandleArray(inStack, 0, objects);
+                if (ocTree != nullptr)
+                {
+                    for (size_t i = 0; i < objects.size(); i++)
+                    {
+                        CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(objects[i]);
+                        if (obj != nullptr)
+                            ocTree->subtractObject(obj);
+                    }
+                }
+                if (ptCloud != nullptr)
+                {
+                    double tolerance = 0.02;
+                    if (hasNonNullArg(inStack, 1))
+                    {
+                        CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+                        map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
+                    }
+                    if (errMsg.size() == 0)
+                    {
+                        for (size_t i = 0; i < objects.size(); i++)
+                        {
+                            CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(objects[i]);
+                            if (obj != nullptr)
+                                ptCloud->subtractObject(obj, tolerance);
+                        }
+                    }
+                }
+            }
+        }
+        else
+            errMsg = "method not available for that target.";
+    }
+    return errMsg;
+}
+

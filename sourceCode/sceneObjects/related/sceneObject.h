@@ -173,7 +173,7 @@ class CSceneObject : public Obj
     std::string getExtensionString() const;
     int getVisibilityLayer() const;
     int getChildOrder() const;
-    int getHierarchyTreeObjects(std::vector<CSceneObject*>& allObjects);
+    int getHierarchyTreeObjects(std::vector<CSceneObject*>& allObjects) const;
     std::string getObjectAlias() const;
     std::string getObjectAliasAndOrderIfRequired() const;
     std::string getObjectAliasAndHandle() const;

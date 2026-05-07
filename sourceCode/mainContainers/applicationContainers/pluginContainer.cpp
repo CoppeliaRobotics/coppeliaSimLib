@@ -2162,8 +2162,7 @@ bool CPluginContainer::geomPlugin_removePointsFromPtcloud(void* pcStruct, const 
         double _tr[7];
         ptcloudTransformation.getData(_tr);
         currentGeomPlugin->pushCurrentPlugin();
-        retVal = currentGeomPlugin->geomPlugin_removePointsFromPtcloud(pcStruct, _tr, points, pointCnt, proximityTol,
-                                                                       countRemoved);
+        retVal = currentGeomPlugin->geomPlugin_removePointsFromPtcloud(pcStruct, _tr, points, pointCnt, proximityTol, countRemoved);
         currentGeomPlugin->popCurrentPlugin();
     }
     return (retVal);
