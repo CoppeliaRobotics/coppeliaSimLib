@@ -1341,46 +1341,55 @@ std::string _method_getPosition(int targetObj, const char* method, CDetachedScri
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional, arg_bool | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
     {
-        int relativeToObjectHandle = fetchHandle(inStack, 0, sim_handle_world);
-        bool relToJointBase = fetchBool(inStack, 1, false);
-        if (relativeToObjectHandle == sim_handle_parent)
+        long long int relativeToObjectHandle = sim_handle_world;
+        bool relToJointBase = false;
+        if (hasNonNullArg(inStack, 0))
         {
-            relativeToObjectHandle = sim_handle_world;
-            CSceneObject* parent = target->getParent();
-            if (parent != nullptr)
-                relativeToObjectHandle = parent->getObjectHandle();
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
+            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
         }
-        if (relativeToObjectHandle != sim_handle_world)
+        if (errMsg.empty())
         {
-            CSceneObject* it2 = getSceneObject(relativeToObjectHandle, method, &errMsg, 0);
-            if (it2 == nullptr)
-                return errMsg;
-        }
-        CSceneObject* relObj = getSceneObject(relativeToObjectHandle, method);
-        C7Vector tr;
-        if (relObj == nullptr)
-            tr = target->getCumulativeTransformation();
-        else
-        {
-            if (relToJointBase)
+            if (relativeToObjectHandle == sim_handle_parent)
             {
-                C7Vector relTr(relObj->getCumulativeTransformation());
-                tr = relTr.getInverse() * target->getCumulativeTransformation();
+                relativeToObjectHandle = sim_handle_world;
+                CSceneObject* parent = target->getParent();
+                if (parent != nullptr)
+                    relativeToObjectHandle = parent->getObjectHandle();
             }
+            if (relativeToObjectHandle != sim_handle_world)
+            {
+                CSceneObject* it2 = getSceneObject(relativeToObjectHandle, method, &errMsg, 0);
+                if (it2 == nullptr)
+                    return errMsg;
+            }
+            CSceneObject* relObj = getSceneObject(relativeToObjectHandle, method);
+            C7Vector tr;
+            if (relObj == nullptr)
+                tr = target->getCumulativeTransformation();
             else
             {
-                if (target->getParent() == relObj)
-                    tr = target->getLocalTransformation(); // in case of a series of get/set, not losing precision
-                else
+                if (relToJointBase)
                 {
-                    C7Vector relTr(relObj->getFullCumulativeTransformation());
+                    C7Vector relTr(relObj->getCumulativeTransformation());
                     tr = relTr.getInverse() * target->getCumulativeTransformation();
                 }
+                else
+                {
+                    if (target->getParent() == relObj)
+                        tr = target->getLocalTransformation(); // in case of a series of get/set, not losing precision
+                    else
+                    {
+                        C7Vector relTr(relObj->getFullCumulativeTransformation());
+                        tr = relTr.getInverse() * target->getCumulativeTransformation();
+                    }
+                }
             }
+            pushVector3(outStack, tr.X);
         }
-        pushVector3(outStack, tr.X);
     }
     return errMsg;
 }
@@ -1389,64 +1398,73 @@ std::string _method_setPosition(int targetObj, const char* method, CDetachedScri
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_vector3, arg_handle | arg_optional, arg_bool | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_vector3, arg_map | arg_optional}))
     {
         C3Vector position = fetchVector3(inStack, 0);
-        int relativeToObjectHandle = fetchHandle(inStack, 1, sim_handle_world);
-        bool relToJointBase = fetchBool(inStack, 2, false);
-        if (isFloatArrayOk(position.data, 3))
+        long long int relativeToObjectHandle = sim_handle_world;
+        bool relToJointBase = false;
+        if (hasNonNullArg(inStack, 1))
         {
-            if (relativeToObjectHandle == sim_handle_parent)
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
+            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            if (isFloatArrayOk(position.data, 3))
             {
-                relativeToObjectHandle = sim_handle_world;
-                CSceneObject* parent = target->getParent();
-                if (parent != nullptr)
-                    relativeToObjectHandle = parent->getObjectHandle();
-            }
-            if (relativeToObjectHandle != sim_handle_world)
-            {
-                CSceneObject* it2 = getSceneObject(relativeToObjectHandle, method, &errMsg, 1);
-                if (it2 == nullptr)
-                    return errMsg;
-            }
-            if (target->getDynamicFlag() > 1) // for non-static shapes, and other objects that are in the dyn. world
-                target->setDynamicsResetFlag(true, true);
-            CSceneObject* relObj =getSceneObject(relativeToObjectHandle, method);
-            if (relObj == nullptr)
-                App::scene->sceneObjects->setObjectAbsolutePosition(target->getObjectHandle(), position);
-            else
-            {
-                if (relToJointBase)
+                if (relativeToObjectHandle == sim_handle_parent)
                 {
-                    C7Vector absTr(target->getCumulativeTransformation());
-                    C7Vector relTr(relObj->getCumulativeTransformation());
-                    C7Vector x(relTr.getInverse() * absTr);
-                    x.X = position;
-                    absTr = relTr * x;
-                    App::scene->sceneObjects->setObjectAbsolutePosition(target->getObjectHandle(), absTr.X);
+                    relativeToObjectHandle = sim_handle_world;
+                    CSceneObject* parent = target->getParent();
+                    if (parent != nullptr)
+                        relativeToObjectHandle = parent->getObjectHandle();
                 }
+                if (relativeToObjectHandle != sim_handle_world)
+                {
+                    CSceneObject* it2 = getSceneObject(relativeToObjectHandle, method, &errMsg, 1);
+                    if (it2 == nullptr)
+                        return errMsg;
+                }
+                if (target->getDynamicFlag() > 1) // for non-static shapes, and other objects that are in the dyn. world
+                    target->setDynamicsResetFlag(true, true);
+                CSceneObject* relObj =getSceneObject(relativeToObjectHandle, method);
+                if (relObj == nullptr)
+                    App::scene->sceneObjects->setObjectAbsolutePosition(target->getObjectHandle(), position);
                 else
                 {
-                    if (target->getParent() == relObj)
-                    { // special here, in order to not lose precision in a series of get/set
-                        C7Vector tr(target->getLocalTransformation());
-                        tr.X = position;
-                        target->setLocalTransformation(tr);
-                    }
-                    else
+                    if (relToJointBase)
                     {
                         C7Vector absTr(target->getCumulativeTransformation());
-                        C7Vector relTr(relObj->getFullCumulativeTransformation());
+                        C7Vector relTr(relObj->getCumulativeTransformation());
                         C7Vector x(relTr.getInverse() * absTr);
                         x.X = position;
                         absTr = relTr * x;
                         App::scene->sceneObjects->setObjectAbsolutePosition(target->getObjectHandle(), absTr.X);
                     }
+                    else
+                    {
+                        if (target->getParent() == relObj)
+                        { // special here, in order to not lose precision in a series of get/set
+                            C7Vector tr(target->getLocalTransformation());
+                            tr.X = position;
+                            target->setLocalTransformation(tr);
+                        }
+                        else
+                        {
+                            C7Vector absTr(target->getCumulativeTransformation());
+                            C7Vector relTr(relObj->getFullCumulativeTransformation());
+                            C7Vector x(relTr.getInverse() * absTr);
+                            x.X = position;
+                            absTr = relTr * x;
+                            App::scene->sceneObjects->setObjectAbsolutePosition(target->getObjectHandle(), absTr.X);
+                        }
+                    }
                 }
             }
+            else
+                errMsg = SIM_ERROR_INVALID_DATA;
         }
-        else
-            errMsg = SIM_ERROR_INVALID_DATA;
     }
     return errMsg;
 }
@@ -1455,53 +1473,62 @@ std::string _method_getQuaternion(int targetObj, const char* method, CDetachedSc
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional, arg_bool | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
     {
-        int relativeToObjectHandle = fetchHandle(inStack, 0, sim_handle_world);
-        bool relToJointBase = fetchBool(inStack, 1, false);
-        if (relativeToObjectHandle == sim_handle_parent)
+        long long int relativeToObjectHandle = sim_handle_world;
+        bool relToJointBase = false;
+        if (hasNonNullArg(inStack, 0))
         {
-            relativeToObjectHandle = sim_handle_world;
-            CSceneObject* parent = target->getParent();
-            if (parent != nullptr)
-                relativeToObjectHandle = parent->getObjectHandle();
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
+            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
         }
-        bool inverse = false;
-        if (relativeToObjectHandle == sim_handle_inverse)
+        if (errMsg.empty())
         {
-            inverse = true;
-            relativeToObjectHandle = sim_handle_world;
-        }
-        if (relativeToObjectHandle != sim_handle_world)
-        {
-            if (getSceneObject(relativeToObjectHandle, method, &errMsg, 0) == nullptr)
-                return errMsg;
-        }
-        CSceneObject* relObj = getSceneObject(relativeToObjectHandle, method);
-        C7Vector tr;
-        if (relObj == nullptr)
-            tr = target->getCumulativeTransformation();
-        else
-        {
-            if (relToJointBase)
+            if (relativeToObjectHandle == sim_handle_parent)
             {
-                C7Vector relTr(relObj->getCumulativeTransformation());
-                tr = relTr.getInverse() * target->getCumulativeTransformation();
+                relativeToObjectHandle = sim_handle_world;
+                CSceneObject* parent = target->getParent();
+                if (parent != nullptr)
+                    relativeToObjectHandle = parent->getObjectHandle();
             }
+            bool inverse = false;
+            if (relativeToObjectHandle == sim_handle_inverse)
+            {
+                inverse = true;
+                relativeToObjectHandle = sim_handle_world;
+            }
+            if (relativeToObjectHandle != sim_handle_world)
+            {
+                if (getSceneObject(relativeToObjectHandle, method, &errMsg, 0) == nullptr)
+                    return errMsg;
+            }
+            CSceneObject* relObj = getSceneObject(relativeToObjectHandle, method);
+            C7Vector tr;
+            if (relObj == nullptr)
+                tr = target->getCumulativeTransformation();
             else
             {
-                if (target->getParent() == relObj)
-                    tr = target->getLocalTransformation(); // in case of a series get/set, not to lose precision
-                else
+                if (relToJointBase)
                 {
-                    C7Vector relTr(relObj->getFullCumulativeTransformation());
+                    C7Vector relTr(relObj->getCumulativeTransformation());
                     tr = relTr.getInverse() * target->getCumulativeTransformation();
                 }
+                else
+                {
+                    if (target->getParent() == relObj)
+                        tr = target->getLocalTransformation(); // in case of a series get/set, not to lose precision
+                    else
+                    {
+                        C7Vector relTr(relObj->getFullCumulativeTransformation());
+                        tr = relTr.getInverse() * target->getCumulativeTransformation();
+                    }
+                }
             }
+            if (inverse)
+                tr.Q.inverse();
+            pushQuaternion(outStack, tr.Q);
         }
-        if (inverse)
-            tr.Q.inverse();
-        pushQuaternion(outStack, tr.Q);
     }
     return errMsg;
 }
@@ -1510,72 +1537,81 @@ std::string _method_setQuaternion(int targetObj, const char* method, CDetachedSc
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_quaternion, arg_handle | arg_optional, arg_bool | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_quaternion, arg_map | arg_optional}))
     {
         C4Vector quaternion = fetchQuaternion(inStack, 0);
-        int relativeToObjectHandle = fetchHandle(inStack, 1, sim_handle_world);
-        bool relToJointBase = fetchBool(inStack, 2, false);
-        if (isFloatArrayOk(quaternion.data, 4))
+        long long int relativeToObjectHandle = sim_handle_world;
+        bool relToJointBase = false;
+        if (hasNonNullArg(inStack, 1))
         {
-            if (relativeToObjectHandle == sim_handle_parent)
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
+            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            if (isFloatArrayOk(quaternion.data, 4))
             {
-                relativeToObjectHandle = sim_handle_world;
-                CSceneObject* parent = target->getParent();
-                if (parent != nullptr)
-                    relativeToObjectHandle = parent->getObjectHandle();
-            }
-            bool inverse = false;
-            if (relativeToObjectHandle == sim_handle_inverse)
-            {
-                inverse = true;
-                relativeToObjectHandle = sim_handle_world;
-            }
-            if (relativeToObjectHandle != sim_handle_world)
-            {
-                if (getSceneObject(relativeToObjectHandle, method, &errMsg, 1) == nullptr)
-                    return errMsg;
-            }
-            if (target->getDynamicFlag() > 1) // for non-static shapes, and other objects that are in the dyn. world
-                target->setDynamicsResetFlag(true, true);
-            CSceneObject* relObj = getSceneObject(relativeToObjectHandle, method);
-            if (relObj == nullptr)
-            {
-                quaternion.normalize();
-                if (inverse)
-                    quaternion.inverse();
-                App::scene->sceneObjects->setObjectAbsoluteOrientation(target->getObjectHandle(), quaternion.getEulerAngles());
-            }
-            else
-            {
-                if ((target->getParent() == relObj) && (!relToJointBase))
-                { // special here, in order to not lose precision in a series of get/set
-                    C7Vector tr(target->getLocalTransformation());
-                    tr.Q = quaternion;
-                    tr.Q.normalize();
+                if (relativeToObjectHandle == sim_handle_parent)
+                {
+                    relativeToObjectHandle = sim_handle_world;
+                    CSceneObject* parent = target->getParent();
+                    if (parent != nullptr)
+                        relativeToObjectHandle = parent->getObjectHandle();
+                }
+                bool inverse = false;
+                if (relativeToObjectHandle == sim_handle_inverse)
+                {
+                    inverse = true;
+                    relativeToObjectHandle = sim_handle_world;
+                }
+                if (relativeToObjectHandle != sim_handle_world)
+                {
+                    if (getSceneObject(relativeToObjectHandle, method, &errMsg, 1) == nullptr)
+                        return errMsg;
+                }
+                if (target->getDynamicFlag() > 1) // for non-static shapes, and other objects that are in the dyn. world
+                    target->setDynamicsResetFlag(true, true);
+                CSceneObject* relObj = getSceneObject(relativeToObjectHandle, method);
+                if (relObj == nullptr)
+                {
+                    quaternion.normalize();
                     if (inverse)
-                        tr.Q.inverse();
-                    target->setLocalTransformation(tr);
+                        quaternion.inverse();
+                    App::scene->sceneObjects->setObjectAbsoluteOrientation(target->getObjectHandle(), quaternion.getEulerAngles());
                 }
                 else
                 {
-                    C7Vector absTr(target->getCumulativeTransformation());
-                    C7Vector relTr;
-                    if (relToJointBase)
-                        relTr = relObj->getCumulativeTransformation();
+                    if ((target->getParent() == relObj) && (!relToJointBase))
+                    { // special here, in order to not lose precision in a series of get/set
+                        C7Vector tr(target->getLocalTransformation());
+                        tr.Q = quaternion;
+                        tr.Q.normalize();
+                        if (inverse)
+                            tr.Q.inverse();
+                        target->setLocalTransformation(tr);
+                    }
                     else
-                        relTr = relObj->getFullCumulativeTransformation();
-                    C7Vector x(relTr.getInverse() * absTr);
-                    x.Q = quaternion;
-                    x.Q.normalize();
-                    if (inverse)
-                        x.Q.inverse();
-                    absTr = relTr * x;
-                    App::scene->sceneObjects->setObjectAbsoluteOrientation(target->getObjectHandle(), absTr.Q.getEulerAngles());
+                    {
+                        C7Vector absTr(target->getCumulativeTransformation());
+                        C7Vector relTr;
+                        if (relToJointBase)
+                            relTr = relObj->getCumulativeTransformation();
+                        else
+                            relTr = relObj->getFullCumulativeTransformation();
+                        C7Vector x(relTr.getInverse() * absTr);
+                        x.Q = quaternion;
+                        x.Q.normalize();
+                        if (inverse)
+                            x.Q.inverse();
+                        absTr = relTr * x;
+                        App::scene->sceneObjects->setObjectAbsoluteOrientation(target->getObjectHandle(), absTr.Q.getEulerAngles());
+                    }
                 }
             }
+            else
+                errMsg = SIM_ERROR_INVALID_DATA;
         }
-        else
-            errMsg = SIM_ERROR_INVALID_DATA;
     }
     return errMsg;
 }
@@ -1584,59 +1620,17 @@ std::string _method_getPose(int targetObj, const char* method, CDetachedScript* 
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional, arg_bool | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
     {
-        int relativeToObjectHandle = fetchHandle(inStack, 0, sim_handle_world);
-        bool relToJointBase = fetchBool(inStack, 1, false);
-        if (relativeToObjectHandle == sim_handle_parent)
+        long long int relativeToObjectHandle = sim_handle_world;
+        bool relToJointBase = false;
+        if (hasNonNullArg(inStack, 0))
         {
-            relativeToObjectHandle = sim_handle_world;
-            CSceneObject* parent = target->getParent();
-            if (parent != nullptr)
-                relativeToObjectHandle = parent->getObjectHandle();
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
+            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
         }
-        bool inverse = false;
-        if (relativeToObjectHandle == sim_handle_inverse)
-        {
-            inverse = true;
-            relativeToObjectHandle = sim_handle_world;
-        }
-        if (relativeToObjectHandle != sim_handle_world)
-        {
-            if (getSceneObject(relativeToObjectHandle, method, &errMsg, 0) == nullptr)
-                return errMsg;
-        }
-        CSceneObject* relObj = getSceneObject(relativeToObjectHandle, method);
-        C7Vector tr;
-        if (relObj == nullptr)
-            tr = target->getCumulativeTransformation();
-        else
-        {
-            C7Vector relTr;
-            if (relToJointBase)
-                relTr = relObj->getCumulativeTransformation();
-            else
-                relTr = relObj->getFullCumulativeTransformation();
-            tr = relTr.getInverse() * target->getCumulativeTransformation();
-        }
-        if (inverse)
-            tr.inverse();
-        pushPose(outStack, tr);
-    }
-    return errMsg;
-}
-
-std::string _method_setPose(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_pose, arg_handle | arg_optional, arg_bool | arg_optional}))
-    {
-        C7Vector tr = fetchPose(inStack, 0);
-        int relativeToObjectHandle = fetchHandle(inStack, 1, sim_handle_world);
-        bool relToJointBase = fetchBool(inStack, 2, false);
-
-        if (isFloatArrayOk(tr.X.data, 3) && isFloatArrayOk(tr.Q.data, 4))
+        if (errMsg.empty())
         {
             if (relativeToObjectHandle == sim_handle_parent)
             {
@@ -1653,29 +1647,88 @@ std::string _method_setPose(int targetObj, const char* method, CDetachedScript* 
             }
             if (relativeToObjectHandle != sim_handle_world)
             {
-                if (getSceneObject(relativeToObjectHandle, method, &errMsg, 1) == nullptr)
+                if (getSceneObject(relativeToObjectHandle, method, &errMsg, 0) == nullptr)
                     return errMsg;
             }
-            if (target->getDynamicFlag() > 1) // for non-static shapes, and other objects that are in the dyn. world
-                target->setDynamicsResetFlag(true, true);
-            tr.Q.normalize();
-            if (inverse)
-                tr.inverse();
-            CSceneObject* objRel = getSceneObject(relativeToObjectHandle, method);
-            if (objRel == nullptr)
-                App::scene->sceneObjects->setObjectAbsolutePose(target->getObjectHandle(), tr, false);
+            CSceneObject* relObj = getSceneObject(relativeToObjectHandle, method);
+            C7Vector tr;
+            if (relObj == nullptr)
+                tr = target->getCumulativeTransformation();
             else
             {
                 C7Vector relTr;
                 if (relToJointBase)
-                    relTr = objRel->getCumulativeTransformation();
+                    relTr = relObj->getCumulativeTransformation();
                 else
-                    relTr = objRel->getFullCumulativeTransformation();
-                App::scene->sceneObjects->setObjectAbsolutePose(target->getObjectHandle(), relTr * tr, false);
+                    relTr = relObj->getFullCumulativeTransformation();
+                tr = relTr.getInverse() * target->getCumulativeTransformation();
             }
+            if (inverse)
+                tr.inverse();
+            pushPose(outStack, tr);
         }
-        else
-            errMsg = SIM_ERROR_INVALID_DATA;
+    }
+    return errMsg;
+}
+
+std::string _method_setPose(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_pose, arg_map | arg_optional}))
+    {
+        C7Vector tr = fetchPose(inStack, 0);
+        long long int relativeToObjectHandle = sim_handle_world;
+        bool relToJointBase = false;
+        if (hasNonNullArg(inStack, 1))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
+            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            if (isFloatArrayOk(tr.X.data, 3) && isFloatArrayOk(tr.Q.data, 4))
+            {
+                if (relativeToObjectHandle == sim_handle_parent)
+                {
+                    relativeToObjectHandle = sim_handle_world;
+                    CSceneObject* parent = target->getParent();
+                    if (parent != nullptr)
+                        relativeToObjectHandle = parent->getObjectHandle();
+                }
+                bool inverse = false;
+                if (relativeToObjectHandle == sim_handle_inverse)
+                {
+                    inverse = true;
+                    relativeToObjectHandle = sim_handle_world;
+                }
+                if (relativeToObjectHandle != sim_handle_world)
+                {
+                    if (getSceneObject(relativeToObjectHandle, method, &errMsg, 1) == nullptr)
+                        return errMsg;
+                }
+                if (target->getDynamicFlag() > 1) // for non-static shapes, and other objects that are in the dyn. world
+                    target->setDynamicsResetFlag(true, true);
+                tr.Q.normalize();
+                if (inverse)
+                    tr.inverse();
+                CSceneObject* objRel = getSceneObject(relativeToObjectHandle, method);
+                if (objRel == nullptr)
+                    App::scene->sceneObjects->setObjectAbsolutePose(target->getObjectHandle(), tr, false);
+                else
+                {
+                    C7Vector relTr;
+                    if (relToJointBase)
+                        relTr = objRel->getCumulativeTransformation();
+                    else
+                        relTr = objRel->getFullCumulativeTransformation();
+                    App::scene->sceneObjects->setObjectAbsolutePose(target->getObjectHandle(), relTr * tr, false);
+                }
+            }
+            else
+                errMsg = SIM_ERROR_INVALID_DATA;
+        }
     }
     return errMsg;
 }
