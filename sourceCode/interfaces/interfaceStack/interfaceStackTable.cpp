@@ -769,6 +769,84 @@ bool CInterfaceStackTable::fetchInt64ArrayFromKey(const char* fieldName, long lo
     return retVal;
 }
 
+bool CInterfaceStackTable::fetchStringArrayFromKey(const char* fieldName, std::vector<std::string>& arr, std::string* errMsg /*= nullptr*/) const
+{
+    bool retVal = false;
+    bool err = false;
+    CInterfaceStackObject* obj = getMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        err = true;
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable* table = (CInterfaceStackTable*)obj;
+            table->getTextArray(arr);
+            retVal = true;
+        }
+    }
+    if (retVal)
+        err = false;
+    if (err && (errMsg != nullptr))
+    {
+        errMsg[0] = "invalid '";
+        errMsg[0] += fieldName;
+        errMsg[0] += "' field.";
+    }
+    return retVal;
+}
+
+bool CInterfaceStackTable::fetchArrayAsConsecutiveFloatsFromKey(const char* fieldName, std::vector<float>& arr, std::string* errMsg /*= nullptr*/) const
+{
+    bool retVal = false;
+    bool err = false;
+    CInterfaceStackObject* obj = getMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        err = true;
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable* table = (CInterfaceStackTable*)obj;
+            table->getItemsAsConsecutiveFloats(arr);
+            retVal = true;
+        }
+    }
+    if (retVal)
+        err = false;
+    if (err && (errMsg != nullptr))
+    {
+        errMsg[0] = "invalid '";
+        errMsg[0] += fieldName;
+        errMsg[0] += "' field.";
+    }
+    return retVal;
+}
+
+bool CInterfaceStackTable::fetchArrayAsConsecutiveDoublesFromKey(const char* fieldName, std::vector<double>& arr, std::string* errMsg /*= nullptr*/) const
+{
+    bool retVal = false;
+    bool err = false;
+    CInterfaceStackObject* obj = getMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        err = true;
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable* table = (CInterfaceStackTable*)obj;
+            table->getItemsAsConsecutiveDoubles(arr);
+            retVal = true;
+        }
+    }
+    if (retVal)
+        err = false;
+    if (err && (errMsg != nullptr))
+    {
+        errMsg[0] = "invalid '";
+        errMsg[0] += fieldName;
+        errMsg[0] += "' field.";
+    }
+    return retVal;
+}
+
 void CInterfaceStackTable::getMapKeys(std::vector<std::string>* stringKeys, std::vector<long long int>* intKeys) const
 {
     if (!_isTableArray)

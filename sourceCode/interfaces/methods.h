@@ -72,8 +72,6 @@ CDetachedScript* getDetachedScript(int identifier, const char* method, std::stri
 bool doesEntityExist(int identifier, const char* method, std::string* errMsg = nullptr, size_t argPos = -1);
 std::string getInvalidArgString(size_t argPos);
 
-extern std::string _method_test(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-
 extern std::string _method_getPosition(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_setPosition(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getQuaternion(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

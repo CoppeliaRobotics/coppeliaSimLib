@@ -108,6 +108,9 @@ class CInterfaceStackTable : public CInterfaceStackObject
     bool fetchFloatArrayFromKey(const char* fieldName, float* arr, size_t cnt, std::string* errMsg = nullptr) const;
     bool fetchInt32ArrayFromKey(const char* fieldName, int* arr, size_t cnt, std::string* errMsg = nullptr) const;
     bool fetchInt64ArrayFromKey(const char* fieldName, long long int* arr, size_t cnt, std::string* errMsg = nullptr) const;
+    bool fetchStringArrayFromKey(const char* fieldName, std::vector<std::string>& arr, std::string* errMsg = nullptr) const;
+    bool fetchArrayAsConsecutiveFloatsFromKey(const char* fieldName, std::vector<float>& arr, std::string* errMsg = nullptr) const;
+    bool fetchArrayAsConsecutiveDoublesFromKey(const char* fieldName, std::vector<double>& arr, std::string* errMsg = nullptr) const;
 
     bool removeFromKey(const char* keyToRemove);
     bool removeFromKey(const CInterfaceStackObject* keyToRemove);

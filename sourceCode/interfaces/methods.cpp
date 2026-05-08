@@ -50,7 +50,6 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
     static std::map<std::string, std::function<std::string(int, const char*, CDetachedScript*, const CInterfaceStack*, CInterfaceStack*)>> funcTable;
     if (funcTable.size() == 0)
     {
-        funcTable["test"] = _method_test;
         funcTable["getPosition"] = _method_getPosition;
         funcTable["setPosition"] = _method_setPosition;
         funcTable["getQuaternion"] = _method_getQuaternion;
@@ -1278,65 +1277,6 @@ std::string getInvalidArgString(size_t argPos)
     return retVal;
 }
 
-
-std::string _method_test(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {sim_stackitem_null,sim_stackitem_double,sim_stackitem_bool,sim_stackitem_string,sim_stackitem_integer,sim_stackitem_quaternion,sim_stackitem_pose,sim_stackitem_handle,sim_stackitem_color,sim_stackitem_table,2,sim_stackitem_string,sim_stackitem_matrix | arg_optional,2,3}))
-    {
-        pushNull(outStack);
-        double doubleArg = fetchDouble(inStack, 1);
-        pushDouble(outStack, doubleArg);
-        printf("Double arg: %f\n", doubleArg);
-        bool boolArg = fetchBool(inStack, 2);
-        pushBool(outStack, boolArg);
-        printf("Bool arg: %u\n", boolArg);
-        std::string stringArg = fetchText(inStack, 3);
-        pushText(outStack, stringArg.c_str());
-        printf("text arg: %s\n", stringArg.c_str());
-        int intArg = fetchInt(inStack, 4);
-        pushInt(outStack, intArg);
-        printf("Int arg: %i\n", intArg);
-        C4Vector q = fetchQuaternion(inStack, 5);
-        pushQuaternion(outStack, q);
-        printf("Quaternion arg: %f, %f, %f, %f\n", q.data[1], q.data[2], q.data[3], q.data[0]);
-        C7Vector p = fetchPose(inStack, 6);
-        pushPose(outStack, p);
-        printf("Pose arg: %f, %f, %f,%f, %f, %f, %f\n", p.X(0), p.X(1), p.X(2), p.Q(1), p.Q(2), p.Q(3), p.Q(0));
-        int handleArg = fetchHandle(inStack, 7);
-        pushHandle(outStack, handleArg);
-        printf("Handle arg: %i\n", handleArg);
-        float col[3];
-        fetchColor(inStack, 8, col);
-        pushColor(outStack, col);
-        printf("Color arg: %f, %f, %f\n", col[0], col[1], col[2]);
-        std::vector<std::string> strArrArg;
-        fetchTextArray(inStack, 9, strArrArg);
-        pushTextArray(outStack, strArrArg.data(), strArrArg.size());
-        printf("string array arg: size %zu, data: %s, %s\n", strArrArg.size(), strArrArg[0].c_str(), strArrArg[1].c_str());
-        CMatrix matrixArg = fetchMatrix(inStack, 10);
-        pushMatrix(outStack, matrixArg);
-        printf("Matrix arg: ");
-        for (size_t i = 0; i <matrixArg.data.size(); i++)
-            printf("%f, ", matrixArg.data[i]);
-        printf("\n");
-        C3Vector v = fetchVector3(inStack, 11);
-        pushVector3(outStack, v);
-        printf("Vector3 arg: %f, %f, %f\n", v.data[0], v.data[1], v.data[2]);
-        std::vector<double> vectArg;
-        fetchVector(inStack, 12, vectArg);
-        pushVector(outStack, vectArg.data(), vectArg.size());
-        printf("Vector arg: size %zu, data: %f, %f\n", vectArg.size(), vectArg[0], vectArg[1]);
-    }
-
-//    outStack->copyFrom(inStack);
-//    std::string str;
-//    outStack->printContent(-1, str);
-//    printf(str.c_str());
-    return errMsg;
-}
-
 std::string _method_getPosition(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
@@ -1737,48 +1677,56 @@ std::string _method_setParent(int targetObj, const char* method, CDetachedScript
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional, arg_integer | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional, arg_map | arg_optional}))
     {
         int parentObjectHandle = fetchHandle(inStack, 0, -1);
-        int  parentingMode = fetchInt(inStack, 1, sim_parentingmode_keepworldpose);
-        if (parentObjectHandle != -1)
+        int  parentingMode = sim_parentingmode_keepworldpose;
+        if (hasNonNullArg(inStack, 1))
         {
-            if (getSceneObject(parentObjectHandle, method, &errMsg, 0) == nullptr)
-                return errMsg;
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchInt32FromKey("mode", parentingMode, &errMsg);
         }
-        CSceneObject* parentIt = getSceneObject(parentObjectHandle, method);
-        CSceneObject* pp = parentIt;
-        while (pp != nullptr)
+        if (errMsg.empty())
         {
-            if (pp == target)
+            if (parentObjectHandle != -1)
             {
-                errMsg = SIM_ERROR_OBJECT_IS_ANCESTOR_OF_DESIRED_PARENT;
-                return errMsg;
+                if (getSceneObject(parentObjectHandle, method, &errMsg, 0) == nullptr)
+                    return errMsg;
             }
-            pp = pp->getParent();
-        }
-        if (parentingMode == sim_parentingmode_keepworldpose)
-            App::scene->sceneObjects->setObjectParent(target, parentIt, true);
-        else
-        {
-            if (parentingMode == sim_parentingmode_assembly)
+            CSceneObject* parentIt = getSceneObject(parentObjectHandle, method);
+            CSceneObject* pp = parentIt;
+            while (pp != nullptr)
             {
-                if (parentIt != nullptr)
+                if (pp == target)
                 {
-                    if (!App::assemble(parentIt->getObjectHandle(), target->getObjectHandle(), false))
+                    errMsg = SIM_ERROR_OBJECT_IS_ANCESTOR_OF_DESIRED_PARENT;
+                    return errMsg;
+                }
+                pp = pp->getParent();
+            }
+            if (parentingMode == sim_parentingmode_keepworldpose)
+                App::scene->sceneObjects->setObjectParent(target, parentIt, true);
+            else
+            {
+                if (parentingMode == sim_parentingmode_assembly)
+                {
+                    if (parentIt != nullptr)
+                    {
+                        if (!App::assemble(parentIt->getObjectHandle(), target->getObjectHandle(), false))
+                        {
+                            errMsg = SIM_ERROR_INVALID_ASSEMBLY;
+                            return errMsg;
+                        }
+                    }
+                    else
                     {
                         errMsg = SIM_ERROR_INVALID_ASSEMBLY;
                         return errMsg;
                     }
                 }
                 else
-                {
-                    errMsg = SIM_ERROR_INVALID_ASSEMBLY;
-                    return errMsg;
-                }
+                    App::scene->sceneObjects->setObjectParent(target, parentIt, false);
             }
-            else
-                App::scene->sceneObjects->setObjectParent(target, parentIt, false);
         }
     }
     return errMsg;
@@ -2072,30 +2020,38 @@ std::string _method_loadScene(int targetObj, const char* method, CDetachedScript
     {
         if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation) && (currentScript->getScriptType() != sim_scripttype_customization)))
         {
-            if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_bool | arg_optional}))
+            if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
             {
                 std::string path = fetchText(inStack, 0);
-                bool createNewScene = fetchBool(inStack, 1, false);
-                if (App::scene->simulation->isSimulationStopped())
+                bool createNewScene = false;
+                if (hasNonNullArg(inStack, 1))
                 {
-                    if (path.size() > 0)
+                    CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+                    map->fetchBoolFromKey("createNew", createNewScene, &errMsg);
+                }
+                if (errMsg.empty())
+                {
+                    if (App::scene->simulation->isSimulationStopped())
                     {
-                        if (createNewScene)
-                            CFileOperations::createNewScene(true);
-                        if (CFileOperations::loadScene(path.c_str(), false, nullptr, nullptr, &errMsg))
+                        if (path.size() > 0)
                         {
+                            if (createNewScene)
+                                CFileOperations::createNewScene(true);
+                            if (CFileOperations::loadScene(path.c_str(), false, nullptr, nullptr, &errMsg))
+                            {
 #ifdef SIM_WITH_GUI
-                            if (GuiApp::mainWindow != nullptr)
-                                GuiApp::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
+                                if (GuiApp::mainWindow != nullptr)
+                                    GuiApp::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
 #endif
-                            App::scene->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
+                                App::scene->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
+                            }
                         }
+                        else
+                            CFileOperations::createNewScene(createNewScene);
                     }
                     else
-                        CFileOperations::createNewScene(createNewScene);
+                        errMsg = SIM_ERROR_SIMULATION_NOT_STOPPED;
                 }
-                else
-                    errMsg = SIM_ERROR_SIMULATION_NOT_STOPPED;
             }
         }
         else
@@ -2113,19 +2069,27 @@ std::string _method_loadSceneFromBuffer(int targetObj, const char* method, CDeta
     {
         if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation) && (currentScript->getScriptType() != sim_scripttype_customization)))
         {
-            if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_bool | arg_optional}))
+            if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
             {
                 std::vector<char> buff;
                 fetchBuffer(inStack, 0, buff);
-                bool createNewScene = fetchBool(inStack, 1, false);
-                if (App::scene->simulation->isSimulationStopped())
+                bool createNewScene = false;
+                if (hasNonNullArg(inStack, 1))
                 {
-                    if (createNewScene)
-                        CFileOperations::createNewScene(true);
-                    CFileOperations::loadScene(nullptr, false, &buff, nullptr, &errMsg);
+                    CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+                    map->fetchBoolFromKey("createNew", createNewScene, &errMsg);
                 }
-                else
-                    errMsg = SIM_ERROR_SIMULATION_NOT_STOPPED;
+                if (errMsg.empty())
+                {
+                    if (App::scene->simulation->isSimulationStopped())
+                    {
+                        if (createNewScene)
+                            CFileOperations::createNewScene(true);
+                        CFileOperations::loadScene(nullptr, false, &buff, nullptr, &errMsg);
+                    }
+                    else
+                        errMsg = SIM_ERROR_SIMULATION_NOT_STOPPED;
+                }
             }
         }
         else
@@ -2381,99 +2345,130 @@ std::string _method_removeObjects(int targetObj, const char* method, CDetachedSc
 std::string _method_duplicateObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_handle, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
     {
         std::vector<long long int> objectHandles;
         fetchHandleArray(inStack, 0, objectHandles);
-        int options = fetchInt(inStack, 1, 0);
-        if (objectHandles.size() > 0)
+        bool models = false;
+        bool noScripts = false;
+        bool noCustomData = false;
+        bool noObjectRefs = false;
+        bool noTextures = false;
+        bool noDna = false;
+        if (hasNonNullArg(inStack, 1))
         {
-            // memorize current selection:
-            std::vector<int> initSel;
-            for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
-                initSel.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
-            for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
-                App::scene->sceneObjects->getObjectFromIndex(i)->setCopyString("");
-            // adjust the selection to copy:
-            std::vector<int> selT;
-            for (size_t i = 0; i < objectHandles.size(); i++)
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchBoolFromKey("models", models, &errMsg);
+            map->fetchBoolFromKey("noScripts", noScripts, &errMsg);
+            map->fetchBoolFromKey("noCustomData", noCustomData, &errMsg);
+            map->fetchBoolFromKey("noObjectRefs", noObjectRefs, &errMsg);
+            map->fetchBoolFromKey("noTextures", noTextures, &errMsg);
+            map->fetchBoolFromKey("noDna", noDna, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            if (objectHandles.size() > 0)
             {
-                CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(int(objectHandles[i]));
-                if (it != nullptr)
+                int options = 0;
+                if (models)
+                    options = options | 1;
+                if (noScripts)
+                    options = options | 2;
+                if (noCustomData)
+                    options = options | 4;
+                if (noObjectRefs)
+                    options = options | 8;
+                if (noTextures)
+                    options = options | 16;
+                if (noDna)
+                    options = options | 32;
+                // memorize current selection:
+                std::vector<int> initSel;
+                for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
+                    initSel.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+                for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
+                    App::scene->sceneObjects->getObjectFromIndex(i)->setCopyString("");
+                // adjust the selection to copy:
+                std::vector<int> selT;
+                for (size_t i = 0; i < objectHandles.size(); i++)
                 {
-                    if (((options & 1) == 0) || it->getModelBase())
-                        selT.push_back(int(objectHandles[i]));
-                    // Here we can't use custom data, dna, etc. since it might be stripped away during the copy, dep. on the options
-                    it->setCopyString(std::to_string(objectHandles[i]).c_str());
-                }
-            }
-            // if we just wanna handle models, make sure no model has a parent that will also be copied:
-            std::vector<int> sel;
-            if (options & 1)
-            {
-                for (size_t i = 0; i < selT.size(); i++)
-                {
-                    CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(selT[i]);
-                    bool ok = true;
-                    if (it->getParent() != nullptr)
+                    CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(int(objectHandles[i]));
+                    if (it != nullptr)
                     {
-                        for (size_t j = 0; j < selT.size(); j++)
+                        if (((options & 1) == 0) || it->getModelBase())
+                            selT.push_back(int(objectHandles[i]));
+                        // Here we can't use custom data, dna, etc. since it might be stripped away during the copy, dep. on the options
+                        it->setCopyString(std::to_string(objectHandles[i]).c_str());
+                    }
+                }
+                // if we just wanna handle models, make sure no model has a parent that will also be copied:
+                std::vector<int> sel;
+                if (options & 1)
+                {
+                    for (size_t i = 0; i < selT.size(); i++)
+                    {
+                        CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(selT[i]);
+                        bool ok = true;
+                        if (it->getParent() != nullptr)
                         {
-                            CSceneObject* it2 = App::scene->sceneObjects->getObjectFromHandle(selT[j]);
-                            if (it != it2)
+                            for (size_t j = 0; j < selT.size(); j++)
                             {
-                                if (it->hasAncestor(it2))
+                                CSceneObject* it2 = App::scene->sceneObjects->getObjectFromHandle(selT[j]);
+                                if (it != it2)
                                 {
-                                    ok = false;
-                                    break;
+                                    if (it->hasAncestor(it2))
+                                    {
+                                        ok = false;
+                                        break;
+                                    }
                                 }
                             }
                         }
+                        if (ok)
+                            sel.push_back(selT[i]);
                     }
-                    if (ok)
-                        sel.push_back(selT[i]);
                 }
-            }
-            else
-                sel.assign(selT.begin(), selT.end());
+                else
+                    sel.assign(selT.begin(), selT.end());
 
-            if (options & 1)
-                App::scene->sceneObjects->addModelObjects(sel);
-            if ((options & 2) == 0)
-                App::scene->sceneObjects->addCompatibilityScripts(sel);
-            App::scenes->copyBuffer->memorizeBuffer();
-            App::scenes->copyBuffer->copyCurrentSelection(sel, App::scene->environment->getSceneLocked(), options >> 1);
-            App::scene->sceneObjects->deselectObjects();
-            App::scenes->copyBuffer->pasteBuffer(App::scene->environment->getSceneLocked(), 0);
-            App::scenes->copyBuffer->restoreBuffer();
-            App::scenes->copyBuffer->clearMemorizedBuffer();
+                if (options & 1)
+                    App::scene->sceneObjects->addModelObjects(sel);
+                if ((options & 2) == 0)
+                    App::scene->sceneObjects->addCompatibilityScripts(sel);
+                App::scenes->copyBuffer->memorizeBuffer();
+                App::scenes->copyBuffer->copyCurrentSelection(sel, App::scene->environment->getSceneLocked(), options >> 1);
+                App::scene->sceneObjects->deselectObjects();
+                App::scenes->copyBuffer->pasteBuffer(App::scene->environment->getSceneLocked(), 0);
+                App::scenes->copyBuffer->restoreBuffer();
+                App::scenes->copyBuffer->clearMemorizedBuffer();
 
-            // Restore the initial selection:
-            App::scene->sceneObjects->deselectObjects();
-            for (size_t i = 0; i < initSel.size(); i++)
-                App::scene->sceneObjects->addObjectToSelection(initSel[i]);
+                // Restore the initial selection:
+                App::scene->sceneObjects->deselectObjects();
+                for (size_t i = 0; i < initSel.size(); i++)
+                    App::scene->sceneObjects->addObjectToSelection(initSel[i]);
 
-            for (size_t i = 0; i < objectHandles.size(); i++)
-            { // now return the handles of the copies. Each input handle has a corresponding output handle:
-                CSceneObject* original = App::scene->sceneObjects->getObjectFromHandle(int(objectHandles[i]));
-                objectHandles[i] = -1; // a handle in the output array can be -1 (e.g. with stripped-away scripts)
-                if (original != nullptr)
-                {
-                    std::string str = original->getCopyString();
-                    original->setCopyString("");
-                    for (size_t j = 0; j < App::scene->sceneObjects->getObjectCount(); j++)
+                for (size_t i = 0; i < objectHandles.size(); i++)
+                { // now return the handles of the copies. Each input handle has a corresponding output handle:
+                    CSceneObject* original = App::scene->sceneObjects->getObjectFromHandle(int(objectHandles[i]));
+                    objectHandles[i] = -1; // a handle in the output array can be -1 (e.g. with stripped-away scripts)
+                    if (original != nullptr)
                     {
-                        CSceneObject* potentialCopy = App::scene->sceneObjects->getObjectFromIndex(j);
-                        if (potentialCopy->getCopyString().compare(str) == 0)
+                        std::string str = original->getCopyString();
+                        original->setCopyString("");
+                        for (size_t j = 0; j < App::scene->sceneObjects->getObjectCount(); j++)
                         {
-                            objectHandles[i] = potentialCopy->getObjectHandle();
-                            break;
+                            CSceneObject* potentialCopy = App::scene->sceneObjects->getObjectFromIndex(j);
+                            if (potentialCopy->getCopyString().compare(str) == 0)
+                            {
+                                objectHandles[i] = potentialCopy->getObjectHandle();
+                                break;
+                            }
                         }
                     }
                 }
             }
+            pushHandleArray(outStack, objectHandles.data(), objectHandles.size());
         }
-        pushHandleArray(outStack, objectHandles.data(), objectHandles.size());
     }
     return errMsg;
 }
@@ -2482,39 +2477,47 @@ std::string _method_addItem(int targetObj, const char* method, CDetachedScript* 
 {
     std::string errMsg;
     CCollection* target = getCollection(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_handle, arg_integer | arg_optional, arg_bool | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_handle, arg_map | arg_optional}))
     {
         int objectHandle = fetchHandle(inStack, 0);
-        int what = fetchInt(inStack, 1, sim_handle_single);
-        bool excludeObj = fetchBool(inStack, 2, false);
-
-        if (what != sim_handle_all)
+        int what = sim_handle_single;
+        bool excludeObj = false;
+        if (hasNonNullArg(inStack, 1))
         {
-            if (getSceneObject(objectHandle, method, &errMsg, 0) == nullptr)
-                return errMsg;
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchInt32FromKey("mode", what, &errMsg);
+            map->fetchBoolFromKey("excludeObject", excludeObj, &errMsg);
         }
-        CCollectionElement* el = nullptr;
-        if (what == sim_handle_all)
-            el = new CCollectionElement(-1, sim_collectionelement_all, true);
-        if (what == sim_handle_single)
-            el = new CCollectionElement(objectHandle, sim_collectionelement_loose, true);
-        if (what == sim_handle_tree)
+        if (errMsg.size() == 0)
         {
-            int what = sim_collectionelement_frombaseincluded;
-            if (excludeObj)
-                what = sim_collectionelement_frombaseexcluded;
-            el = new CCollectionElement(objectHandle, what, true);
+            if (what != sim_handle_all)
+            {
+                if (getSceneObject(objectHandle, method, &errMsg, 0) == nullptr)
+                    return errMsg;
+            }
+            CCollectionElement* el = nullptr;
+            if (what == sim_handle_all)
+                el = new CCollectionElement(-1, sim_collectionelement_all, true);
+            if (what == sim_handle_single)
+                el = new CCollectionElement(objectHandle, sim_collectionelement_loose, true);
+            if (what == sim_handle_tree)
+            {
+                int what = sim_collectionelement_frombaseincluded;
+                if (excludeObj)
+                    what = sim_collectionelement_frombaseexcluded;
+                el = new CCollectionElement(objectHandle, what, true);
+            }
+            if (what == sim_handle_chain)
+            {
+                int what = sim_collectionelement_fromtipincluded;
+                if (excludeObj)
+                    what = sim_collectionelement_fromtipexcluded;
+                el = new CCollectionElement(objectHandle, what, true);
+            }
+            if (el == nullptr)
+                return getInvalidArgString(1);
+            target->addCollectionElement(el);
         }
-        if (what == sim_handle_chain)
-        {
-            int what = sim_collectionelement_fromtipincluded;
-            if (excludeObj)
-                what = sim_collectionelement_fromtipexcluded;
-            el = new CCollectionElement(objectHandle, what, true);
-        }
-        if (el == nullptr)
-            return getInvalidArgString(1);
-        target->addCollectionElement(el);
     }
     return errMsg;
 }
@@ -2523,39 +2526,47 @@ std::string _method_removeItem(int targetObj, const char* method, CDetachedScrip
 {
     std::string errMsg;
     CCollection* target = getCollection(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_handle, arg_integer | arg_optional, arg_bool | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_handle, arg_map | arg_optional}))
     {
         int objectHandle = fetchHandle(inStack, 0);
-        int what = fetchInt(inStack, 1, sim_handle_single);
-        bool excludeObj = fetchBool(inStack, 2, false);
-
-        if (what != sim_handle_all)
+        int what = sim_handle_single;
+        bool excludeObj = false;
+        if (hasNonNullArg(inStack, 1))
         {
-            if (getSceneObject(objectHandle, method, &errMsg, 0) == nullptr)
-                return errMsg;
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchInt32FromKey("mode", what, &errMsg);
+            map->fetchBoolFromKey("excludeObject", excludeObj, &errMsg);
         }
-        CCollectionElement* el = nullptr;
-        if (what == sim_handle_all)
-            el = new CCollectionElement(-1, sim_collectionelement_all, false);
-        if (what == sim_handle_single)
-            el = new CCollectionElement(objectHandle, sim_collectionelement_loose, false);
-        if (what == sim_handle_tree)
+        if (errMsg.size() == 0)
         {
-            int what = sim_collectionelement_frombaseincluded;
-            if (excludeObj)
-                what = sim_collectionelement_frombaseexcluded;
-            el = new CCollectionElement(objectHandle, what, false);
+            if (what != sim_handle_all)
+            {
+                if (getSceneObject(objectHandle, method, &errMsg, 0) == nullptr)
+                    return errMsg;
+            }
+            CCollectionElement* el = nullptr;
+            if (what == sim_handle_all)
+                el = new CCollectionElement(-1, sim_collectionelement_all, false);
+            if (what == sim_handle_single)
+                el = new CCollectionElement(objectHandle, sim_collectionelement_loose, false);
+            if (what == sim_handle_tree)
+            {
+                int what = sim_collectionelement_frombaseincluded;
+                if (excludeObj)
+                    what = sim_collectionelement_frombaseexcluded;
+                el = new CCollectionElement(objectHandle, what, false);
+            }
+            if (what == sim_handle_chain)
+            {
+                int what = sim_collectionelement_fromtipincluded;
+                if (excludeObj)
+                    what = sim_collectionelement_fromtipexcluded;
+                el = new CCollectionElement(objectHandle, what, false);
+            }
+            if (el == nullptr)
+                return getInvalidArgString(1);
+            target->addCollectionElement(el);
         }
-        if (what == sim_handle_chain)
-        {
-            int what = sim_collectionelement_fromtipincluded;
-            if (excludeObj)
-                what = sim_collectionelement_fromtipexcluded;
-            el = new CCollectionElement(objectHandle, what, false);
-        }
-        if (el == nullptr)
-            return getInvalidArgString(1);
-        target->addCollectionElement(el);
     }
     return errMsg;
 }
@@ -2581,32 +2592,40 @@ std::string _method_checkCollision(int targetObj, const char* method, CDetachedS
 std::string _method_checkDistance(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (doesEntityExist(targetObj, method, &errMsg, -1) && checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional, arg_double | arg_optional}))
+    if (doesEntityExist(targetObj, method, &errMsg, -1) && checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional, arg_map | arg_optional}))
     {
         int otherEntity = fetchHandle(inStack, 0, sim_handle_all);
-        double threshold = fetchDouble(inStack, 1, 0.0);
-        if ((otherEntity == sim_handle_all) || doesEntityExist(otherEntity, method, &errMsg, 0))
+        double threshold = 0.0;
+        if (hasNonNullArg(inStack, 1))
         {
-            int distIds[2] = {-1, -1};
-            if (otherEntity == sim_handle_all)
-                otherEntity = -1;
-            int buffer[4];
-            App::scene->cacheData->getCacheDataDist(targetObj, otherEntity, buffer);
-            if (threshold <= 0.0)
-                threshold = DBL_MAX;
-            double distanceData[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-            bool result = CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(targetObj, otherEntity, threshold, distanceData, buffer, buffer + 2, true, true);
-            App::scene->cacheData->setCacheDataDist(targetObj, otherEntity, buffer);
-            if (result)
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchDoubleFromKey("threshold", threshold, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            if ((otherEntity == sim_handle_all) || doesEntityExist(otherEntity, method, &errMsg, 0))
             {
-                distIds[0] = buffer[0];
-                distIds[1] = buffer[2];
+                int distIds[2] = {-1, -1};
+                if (otherEntity == sim_handle_all)
+                    otherEntity = -1;
+                int buffer[4];
+                App::scene->cacheData->getCacheDataDist(targetObj, otherEntity, buffer);
+                if (threshold <= 0.0)
+                    threshold = DBL_MAX;
+                double distanceData[7] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+                bool result = CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(targetObj, otherEntity, threshold, distanceData, buffer, buffer + 2, true, true);
+                App::scene->cacheData->setCacheDataDist(targetObj, otherEntity, buffer);
+                if (result)
+                {
+                    distIds[0] = buffer[0];
+                    distIds[1] = buffer[2];
+                }
+                pushBool(outStack, result);
+                pushDouble(outStack, distanceData[6]);
+                pushVector3(outStack, C3Vector(distanceData));
+                pushVector3(outStack, C3Vector(distanceData + 3));
+                pushShortHandleArray(outStack, distIds, 2);
             }
-            pushBool(outStack, result);
-            pushDouble(outStack, distanceData[6]);
-            pushVector3(outStack, C3Vector(distanceData));
-            pushVector3(outStack, C3Vector(distanceData + 3));
-            pushShortHandleArray(outStack, distIds, 2);
         }
     }
     return errMsg;
@@ -2623,51 +2642,57 @@ std::string _method_checkSensor(int targetObj, const char* method, CDetachedScri
     {
         if (proxSensor != nullptr)
         {
-            if (checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional, arg_integer | arg_optional, arg_double | arg_optional}))
+            if (checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional, arg_map | arg_optional}))
             {
                 int entity = fetchHandle(inStack, 0, sim_handle_all);
-                int options = fetchInt(inStack, 1, -1);
-                double maxNormal = fetchDouble(inStack, 2, 0.0);
-                if ((entity == sim_handle_all) || doesEntityExist(entity, method, &errMsg, 0))
+                bool frontFaces;
+                bool backFaces;
+                bool exact;
+                bool hasFrontFaces = false;
+                bool hasBackFaces = false;
+                bool hasExact = false;
+                double maxNormal = 0.0;
+                bool hasMaxNormal = false;
+                if (hasNonNullArg(inStack, 1))
                 {
-                    if (entity == sim_handle_all)
-                        entity = -1;
-                    if (options == -1)
+                    CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+                    hasFrontFaces = map->fetchBoolFromKey("frontFaces", frontFaces, &errMsg);
+                    hasBackFaces = map->fetchBoolFromKey("backFaces", backFaces, &errMsg);
+                    hasExact = map->fetchBoolFromKey("exact", exact, &errMsg);
+                    hasMaxNormal = map->fetchDoubleFromKey("maxNormal", maxNormal, &errMsg);
+                }
+                if (errMsg.size() == 0)
+                {
+                    if ((entity == sim_handle_all) || doesEntityExist(entity, method, &errMsg, 0))
                     {
-                        options = 0;
-                        if (proxSensor->getFrontFaceDetection())
-                            options = options | 1;
-                        if (proxSensor->getBackFaceDetection())
-                            options = options | 2;
-                        if (!proxSensor->getExactMode())
-                            options = options | 4;
+                        if (entity == sim_handle_all)
+                            entity = -1;
+                        if (!hasFrontFaces)
+                            frontFaces = proxSensor->getFrontFaceDetection();
+                        if (!hasBackFaces)
+                            backFaces = proxSensor->getBackFaceDetection();
+                        if (!hasExact)
+                            exact = proxSensor->getExactMode();
+                        if (!hasMaxNormal)
+                            maxNormal = proxSensor->getAllowedNormal();
+                        int detectedObj;
+                        C3Vector dPoint;
+                        dPoint.clear();
+                        double minThreshold = -1.0;
+                        if (proxSensor->convexVolume->getSmallestDistanceAllowed() > 0.0)
+                            minThreshold = proxSensor->convexVolume->getSmallestDistanceAllowed();
+                        C3Vector normV;
+                        normV.clear();
+                        double dist = DBL_MAX;
+                        bool detected = CProxSensorRoutine::detectEntity(targetObj, entity, exact, maxNormal > 0.0, maxNormal, dPoint, dist, frontFaces, backFaces, detectedObj, minThreshold, normV, true);
+                        if (!detected)
+                            dist = 0.0;
+                        pushBool(outStack, detected);
+                        pushDouble(outStack, dist);
+                        pushVector3(outStack, dPoint);
+                        pushHandle(outStack, detectedObj);
+                        pushVector3(outStack, normV);
                     }
-                    if (maxNormal == 0.0)
-                        maxNormal = proxSensor->getAllowedNormal();
-                    if (maxNormal != 0.0)
-                        options = options | 8;
-                    bool frontFace = (options & 1);
-                    bool backFace = (options & 2);
-                    if (!(frontFace || backFace))
-                        frontFace = true;
-                    bool fastDetection = (options & 4);
-                    int detectedObj;
-                    C3Vector dPoint;
-                    dPoint.clear();
-                    double minThreshold = -1.0;
-                    if (proxSensor->convexVolume->getSmallestDistanceAllowed() > 0.0)
-                        minThreshold = proxSensor->convexVolume->getSmallestDistanceAllowed();
-                    C3Vector normV;
-                    normV.clear();
-                    double dist = DBL_MAX;
-                    bool detected = CProxSensorRoutine::detectEntity(targetObj, entity, !fastDetection, maxNormal > 0.0, maxNormal, dPoint, dist, frontFace, backFace, detectedObj, minThreshold, normV, true);
-                    if (!detected)
-                        dist = 0.0;
-                    pushBool(outStack, detected);
-                    pushDouble(outStack, dist);
-                    pushVector3(outStack, dPoint);
-                    pushHandle(outStack, detectedObj);
-                    pushVector3(outStack, normV);
                 }
             }
         }
@@ -2777,134 +2802,141 @@ std::string _method_getObjects(int targetObj, const char* method, CDetachedScrip
     std::string errMsg;
     if ((targetObj == sim_handle_app) || (targetObj == sim_handle_scene))
     {
-        if (checkInputArguments(method, inStack, &errMsg, {arg_table | arg_optional, -1, arg_string}))
+        if (checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
         {
             std::vector<std::string> types;
-            fetchTextArray(inStack, 0, types);
-            std::vector<int> objects;
-            if (types.size() == 0)
-                types = {"sceneObject", "drawingObject", "collection", "detachedScript", "mesh"};
-            for (size_t j = 0; j < types.size(); j++)
+            if (hasNonNullArg(inStack, 0))
             {
-                std::string t = types[j];
-                if (t == "sceneObject")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
-                        objects.push_back(App::scene->sceneObjects->getObjectFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "shape")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
-                        objects.push_back(App::scene->sceneObjects->getShapeFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "joint")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
-                        objects.push_back(App::scene->sceneObjects->getJointFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "dummy")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_dummy); i++)
-                        objects.push_back(App::scene->sceneObjects->getDummyFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "script")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_script); i++)
-                        objects.push_back(App::scene->sceneObjects->getScriptFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "marker")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_marker); i++)
-                        objects.push_back(App::scene->sceneObjects->getMarkerFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "mirror")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_mirror); i++)
-                        objects.push_back(App::scene->sceneObjects->getMirrorFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "graph")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_graph); i++)
-                        objects.push_back(App::scene->sceneObjects->getGraphFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "light")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_light); i++)
-                        objects.push_back(App::scene->sceneObjects->getLightFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "camera")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_camera); i++)
-                        objects.push_back(App::scene->sceneObjects->getCameraFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "proximitySensor")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_proximitysensor); i++)
-                        objects.push_back(App::scene->sceneObjects->getProximitySensorFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "visionSensor")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_visionsensor); i++)
-                        objects.push_back(App::scene->sceneObjects->getVisionSensorFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "path")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_path); i++)
-                        objects.push_back(App::scene->sceneObjects->getPathFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "mill")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_mill); i++)
-                        objects.push_back(App::scene->sceneObjects->getMillFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "forceSensor")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_forcesensor); i++)
-                        objects.push_back(App::scene->sceneObjects->getForceSensorFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "ocTree")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_octree); i++)
-                        objects.push_back(App::scene->sceneObjects->getOctreeFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "pointCloud")
-                {
-                    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_pointcloud); i++)
-                        objects.push_back(App::scene->sceneObjects->getPointCloudFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "drawingObject")
-                {
-                    for (size_t i = 0; i < App::scene->drawingCont->getObjectCount(); i++)
-                        objects.push_back(App::scene->drawingCont->getObjectFromIndex(i)->getObjectHandle());
-                }
-                else if (t == "collection")
-                {
-                    for (size_t i = 0; i < App::scene->collections->getObjectCount(); i++)
-                        objects.push_back(int(App::scene->collections->getObjectFromIndex(i)->getObjectHandle()));
-                }
-                else if (t == "detachedScript")
-                {
-                    if (App::scenes->sandboxScript != nullptr)
-                        objects.push_back(App::scenes->sandboxScript->getScriptHandle());
-                    std::vector<int> addOns = App::scenes->addOnScriptContainer->getAddOnHandles();
-                    objects.insert(objects.end(), addOns.begin(), addOns.end());
-                    objects.push_back(App::scene->sceneObjects->embeddedScriptContainer->getMainScript()->getScriptHandle());
-                }
-                else if (t == "mesh")
-                {
-                    std::vector<CMesh*> meshes;
-                    App::scene->sceneObjects->getAllMeshes(meshes);
-                    for (size_t i = 0; i < meshes.size(); i++)
-                        objects.push_back(int(meshes[i]->getObjectHandle()));
-                }
-                else
-                {
-                    errMsg = "invalid object type(s).";
-                    break;
-                }
+                CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+                map->fetchStringArrayFromKey("types", types, &errMsg);
             }
-            if (errMsg == "")
-                pushShortHandleArray(outStack, objects.data(), objects.size());
+            if (errMsg.empty())
+            {
+                std::vector<int> objects;
+                if (types.size() == 0)
+                    types = {"sceneObject", "drawingObject", "collection", "detachedScript", "mesh"};
+                for (size_t j = 0; j < types.size(); j++)
+                {
+                    std::string t = types[j];
+                    if (t == "sceneObject")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
+                            objects.push_back(App::scene->sceneObjects->getObjectFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "shape")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
+                            objects.push_back(App::scene->sceneObjects->getShapeFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "joint")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
+                            objects.push_back(App::scene->sceneObjects->getJointFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "dummy")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_dummy); i++)
+                            objects.push_back(App::scene->sceneObjects->getDummyFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "script")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_script); i++)
+                            objects.push_back(App::scene->sceneObjects->getScriptFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "marker")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_marker); i++)
+                            objects.push_back(App::scene->sceneObjects->getMarkerFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "mirror")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_mirror); i++)
+                            objects.push_back(App::scene->sceneObjects->getMirrorFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "graph")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_graph); i++)
+                            objects.push_back(App::scene->sceneObjects->getGraphFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "light")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_light); i++)
+                            objects.push_back(App::scene->sceneObjects->getLightFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "camera")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_camera); i++)
+                            objects.push_back(App::scene->sceneObjects->getCameraFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "proximitySensor")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_proximitysensor); i++)
+                            objects.push_back(App::scene->sceneObjects->getProximitySensorFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "visionSensor")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_visionsensor); i++)
+                            objects.push_back(App::scene->sceneObjects->getVisionSensorFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "path")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_path); i++)
+                            objects.push_back(App::scene->sceneObjects->getPathFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "mill")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_mill); i++)
+                            objects.push_back(App::scene->sceneObjects->getMillFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "forceSensor")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_forcesensor); i++)
+                            objects.push_back(App::scene->sceneObjects->getForceSensorFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "ocTree")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_octree); i++)
+                            objects.push_back(App::scene->sceneObjects->getOctreeFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "pointCloud")
+                    {
+                        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_pointcloud); i++)
+                            objects.push_back(App::scene->sceneObjects->getPointCloudFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "drawingObject")
+                    {
+                        for (size_t i = 0; i < App::scene->drawingCont->getObjectCount(); i++)
+                            objects.push_back(App::scene->drawingCont->getObjectFromIndex(i)->getObjectHandle());
+                    }
+                    else if (t == "collection")
+                    {
+                        for (size_t i = 0; i < App::scene->collections->getObjectCount(); i++)
+                            objects.push_back(int(App::scene->collections->getObjectFromIndex(i)->getObjectHandle()));
+                    }
+                    else if (t == "detachedScript")
+                    {
+                        if (App::scenes->sandboxScript != nullptr)
+                            objects.push_back(App::scenes->sandboxScript->getScriptHandle());
+                        std::vector<int> addOns = App::scenes->addOnScriptContainer->getAddOnHandles();
+                        objects.insert(objects.end(), addOns.begin(), addOns.end());
+                        objects.push_back(App::scene->sceneObjects->embeddedScriptContainer->getMainScript()->getScriptHandle());
+                    }
+                    else if (t == "mesh")
+                    {
+                        std::vector<CMesh*> meshes;
+                        App::scene->sceneObjects->getAllMeshes(meshes);
+                        for (size_t i = 0; i < meshes.size(); i++)
+                            objects.push_back(int(meshes[i]->getObjectHandle()));
+                    }
+                    else
+                    {
+                        errMsg = "invalid object type(s).";
+                        break;
+                    }
+                }
+                if (errMsg == "")
+                    pushShortHandleArray(outStack, objects.data(), objects.size());
+            }
         }
     }
 
@@ -2915,27 +2947,34 @@ std::string _method_addItems(int targetObj, const char* method, CDetachedScript*
 {
     std::string errMsg;
     CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_marker, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_vector3, arg_table | arg_optional, -1, arg_color, arg_table | arg_optional, -1, arg_quaternion, arg_table | arg_optional, -1, arg_vector3}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_vector3, arg_map | arg_optional}))
     {
         std::vector<float> pts;
         fetchArrayAsConsecutiveNumbers(inStack, 0, pts);
         std::vector<float> ccols;
-        fetchArrayAsConsecutiveNumbers(inStack, 1, ccols);
-        std::vector<unsigned char> cols;
-        for (size_t i = 0; i < ccols.size() / 3; i++)
-        {
-            cols.push_back((unsigned char)(ccols[3 * i + 0] * 255.1f));
-            cols.push_back((unsigned char)(ccols[3 * i + 1] * 255.1f));
-            cols.push_back((unsigned char)(ccols[3 * i + 2] * 255.1f));
-            cols.push_back(255);
-        }
         std::vector<float> quats;
-        fetchArrayAsConsecutiveNumbers(inStack, 2, quats);
         std::vector<float> sizes;
-        fetchArrayAsConsecutiveNumbers(inStack, 3, sizes);
-        std::vector<long long int> newIds;
-        target->addItems(&pts, &quats, &cols, &sizes, true, &newIds);
-        pushLongArray(outStack, newIds.data(), newIds.size());
+        if (hasNonNullArg(inStack, 1))
+        {
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchArrayAsConsecutiveFloatsFromKey("colors", ccols, &errMsg);
+            map->fetchArrayAsConsecutiveFloatsFromKey("quaternions", quats, &errMsg);
+            map->fetchArrayAsConsecutiveFloatsFromKey("sizes", sizes, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            std::vector<unsigned char> cols;
+            for (size_t i = 0; i < ccols.size() / 3; i++)
+            {
+                cols.push_back((unsigned char)(ccols[3 * i + 0] * 255.1f));
+                cols.push_back((unsigned char)(ccols[3 * i + 1] * 255.1f));
+                cols.push_back((unsigned char)(ccols[3 * i + 2] * 255.1f));
+                cols.push_back(255);
+            }
+            std::vector<long long int> newIds;
+            target->addItems(&pts, &quats, &cols, &sizes, true, &newIds);
+            pushLongArray(outStack, newIds.data(), newIds.size());
+        }
     }
     return errMsg;
 }
@@ -3180,21 +3219,29 @@ std::string _method_scaleTree(int targetObj, const char* method, CDetachedScript
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if (checkInputArguments(method, inStack, &errMsg, {arg_double, arg_bool | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_double, arg_map | arg_optional}))
     {
         double scalingFactor = fetchDouble(inStack, 0);
-        bool rootPositionIsScaled = fetchBool(inStack, 1, true);
-        std::vector<int> sel;
-        target->getAllHandlesRecursive(&sel);
-        if (scalingFactor >= 0.0001)
+        bool rootPositionIsScaled = true;
+        if (hasNonNullArg(inStack, 1))
         {
-            CSceneObjectOperations::scaleObjects(sel, scalingFactor, true, !rootPositionIsScaled);
-#ifdef SIM_WITH_GUI
-            GuiApp::setFullDialogRefreshFlag();
-#endif
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchBoolFromKey("scaleRootPosition", rootPositionIsScaled, &errMsg);
         }
-        else
-            errMsg = SIM_ERROR_INVALID_INPUT;
+        if (errMsg.empty())
+        {
+            std::vector<int> sel;
+            target->getAllHandlesRecursive(&sel);
+            if (scalingFactor >= 0.0001)
+            {
+                CSceneObjectOperations::scaleObjects(sel, scalingFactor, true, !rootPositionIsScaled);
+#ifdef SIM_WITH_GUI
+                GuiApp::setFullDialogRefreshFlag();
+#endif
+            }
+            else
+                errMsg = SIM_ERROR_INVALID_INPUT;
+        }
     }
     return errMsg;
 }
@@ -3242,44 +3289,53 @@ std::string _method_getName(int targetObj, const char* method, CDetachedScript* 
     if (targetTemplate == nullptr)
     {
         CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-        if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer | arg_optional}))
+        if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional}))
         {
-            int t = fetchInt(inStack, 0, -1);
+            std::string t = fetchText(inStack, 0, "name");
             std::string nm;
-            if (t == -1)
-                nm = target->getObjectAlias(); // just the alias, e.g. "alias"
-            if (t == 0)
-                nm = target->getObjectAliasAndOrderIfRequired(); // the alias with order, e.g. "alias[0]"
-            if (t == 1)
-                nm = target->getObjectAlias_shortPath(); // the alias with unique path, short, e.g. "/obj/alias[0]"
-            if (t == 2)
-                nm = target->getObjectAlias_fullPath(); // the alias with full path, e.g. "/obj/obj2/alias[0]"
-            if (t == 3)
-            { // just the alias, if unique, e.g. "alias", otherwise the alias with handle, e.g. "alias__42__"
-                if (App::scene->sceneObjects->getObjectFromPath(
-                        nullptr, (std::string("/") + target->getObjectAlias()).c_str(), 1) == nullptr)
-                    nm = target->getObjectAlias();
-                else
-                    t = 4;
+            if (t == "name")
+                nm = target->getObjectAlias();
+            else if (t == "nameOrder")
+            {
+                nm = target->getObjectAliasAndOrderIfRequired();
+                if (nm[nm.size() - 1] != ']')
+                    nm += "[0]";
             }
-            if (t == 4)
-            { // the alias with object handle, e.g. "alias__42__"
+            else if (t == "shortPath")
+                nm = target->getObjectAlias_shortPath();
+            else if (t == "fullPath")
+                nm = target->getObjectAlias_fullPath();
+            else if (t == "nameHandle")
+            {
                 nm = target->getObjectAlias() + "__";
                 nm += std::to_string(target->getObjectHandle());
                 nm += "__";
             }
-            if (t == 5)
-                nm = target->getObjectAlias_printPath(); // the print version, not guaranteed to be unique, e.g.
-                                                     // "/obj/.../alias[0]"
-            if (t == 6)
-                nm = target->getObjectPathAndIndex(0); // the path with index, e.g. "/alias{3}"
-            if (t == 7)
-                nm = target->getObjectPathAndIndex(1); // the path with index, e.g. "/parentModel{1}/alias{3}"
-            if (t == 8)
-                nm = target->getObjectPathAndIndex(2); // the path with index, e.g. "/greatParent{0}/parentModel{1}/alias{3}"
-            if (t == 9)
-                nm = target->getObjectPathAndIndex(999); // the path with index, e.g. "/.../.../greatParent{0}/parentModel{1}/alias{3}"
-            pushText(outStack, nm.c_str());
+            else if (t == "printPath")
+                nm = target->getObjectAlias_printPath();
+            else if (t == "nameIndex")
+            {
+                nm = target->getObjectPathAndIndex(0);
+                nm.erase(0, 1);
+                if (nm[nm.size() - 1] != '}')
+                    nm += "{0}";
+            }
+            else if (t == "pathIndex")
+            {
+                nm = target->getObjectPathAndIndex(999);
+                if (nm[nm.size() - 1] != '}')
+                    nm += "{0}";
+                for (size_t i = nm.size(); i > 1; )
+                {
+                    --i;
+                    if (nm[i] == '/' && nm[i - 1] != '}')
+                        nm.insert(i, "{0}");
+                }
+            }
+            if (!nm.empty())
+                pushText(outStack, nm.c_str());
+            else
+                errMsg = "invalid format.";
         }
     }
     else
@@ -3303,7 +3359,7 @@ std::string _method_dynamicReset(int targetObj, const char* method, CDetachedScr
             CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
             map->fetchBoolFromKey("tree", tree, &errMsg);
         }
-        if (errMsg.size() == 0)
+        if (errMsg.empty())
             target->setDynamicsResetFlag(true, tree);
     }
     return errMsg;
@@ -3363,13 +3419,13 @@ std::string _method_loadImageFromBuffer(int targetObj, const char* method, CDeta
 std::string _method_saveImage(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_string, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_string, arg_map | arg_optional}))
     {
         std::string img = fetchBuffer(inStack, 0);
         std::vector<int> res;
         fetchIntArray(inStack, 1, res);
         std::string filename = fetchText(inStack, 2);
-        int quality = fetchInt(inStack, 3, -1);
+        int quality = -1;
         int options = 0;
         int channels = 3;
         if (img.size() == res[0] * res[1])
@@ -3382,18 +3438,26 @@ std::string _method_saveImage(int targetObj, const char* method, CDetachedScript
             channels = 4;
             options = 1;
         }
-        if ((img.size() == res[0] * res[1] * channels) && (res[0] > 0) && (res[1] > 0))
+        if (hasNonNullArg(inStack, 3))
         {
-            if (filename.size() > 0)
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(3);
+            map->fetchInt32FromKey("quality", quality, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            if ((img.size() == res[0] * res[1] * channels) && (res[0] > 0) && (res[1] > 0))
             {
-                if (!CImageLoaderSaver::save((unsigned char*)img.c_str(), res.data(), options, filename.c_str(), quality, nullptr))
-                    errMsg = SIM_ERROR_OPERATION_FAILED;
+                if (filename.size() > 0)
+                {
+                    if (!CImageLoaderSaver::save((unsigned char*)img.c_str(), res.data(), options, filename.c_str(), quality, nullptr))
+                        errMsg = SIM_ERROR_OPERATION_FAILED;
+                }
+                else
+                    errMsg = SIM_ERROR_INVALID_FILENAME;
             }
             else
-                errMsg = SIM_ERROR_INVALID_FILENAME;
+                errMsg = SIM_ERROR_INVALID_RESOLUTION;
         }
-        else
-            errMsg = SIM_ERROR_INVALID_RESOLUTION;
     }
     return errMsg;
 }
@@ -3401,14 +3465,13 @@ std::string _method_saveImage(int targetObj, const char* method, CDetachedScript
 std::string _method_saveImageToBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_string | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_map | arg_optional}))
     {
         std::string img = fetchBuffer(inStack, 0);
         std::vector<int> res;
         fetchIntArray(inStack, 1, res);
-        std::string ext = fetchText(inStack, 2, "png");
-        ext = "." + ext;
-        int quality = fetchInt(inStack, 3, -1);
+        std::string ext = "png";
+        int quality = -1;
         int options = 0;
         int channels = 3;
         if (img.size() == res[0] * res[1])
@@ -3421,16 +3484,26 @@ std::string _method_saveImageToBuffer(int targetObj, const char* method, CDetach
             channels = 4;
             options = 1;
         }
-        if ((img.size() == res[0] * res[1] * channels) && (res[0] > 0) && (res[1] > 0))
+        if (hasNonNullArg(inStack, 2))
         {
-            std::string retBuff;
-            if (CImageLoaderSaver::save((unsigned char*)img.c_str(), res.data(), options, ext.c_str(), quality, &retBuff))
-                pushBuffer(outStack, retBuff.data(), retBuff.size());
-            else
-                errMsg = SIM_ERROR_OPERATION_FAILED;
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
+            map->fetchInt32FromKey("quality", quality, &errMsg);
+            map->fetchStringFromKey("format", ext, &errMsg);
         }
-        else
-            errMsg = SIM_ERROR_INVALID_RESOLUTION;
+        if (errMsg.empty())
+        {
+            ext = "." + ext;
+            if ((img.size() == res[0] * res[1] * channels) && (res[0] > 0) && (res[1] > 0))
+            {
+                std::string retBuff;
+                if (CImageLoaderSaver::save((unsigned char*)img.c_str(), res.data(), options, ext.c_str(), quality, &retBuff))
+                    pushBuffer(outStack, retBuff.data(), retBuff.size());
+                else
+                    errMsg = SIM_ERROR_OPERATION_FAILED;
+            }
+            else
+                errMsg = SIM_ERROR_INVALID_RESOLUTION;
+        }
     }
     return errMsg;
 }
@@ -3438,93 +3511,113 @@ std::string _method_saveImageToBuffer(int targetObj, const char* method, CDetach
 std::string _method_transformImage(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_table, 2, arg_integer, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_table, 2, arg_integer, arg_map | arg_optional}))
     {
         std::string img = fetchBuffer(inStack, 0);
         std::vector<int> inRes;
         fetchIntArray(inStack, 1, inRes);
         std::vector<int> outRes;
         fetchIntArray(inStack, 2, outRes);
-        int options = fetchInt(inStack, 3, 0);
-        int optionsS = options & 0x0003;
-        options |= 1;
-        options -= 1;
-        int channels = 3;
-        if (img.size() == inRes[0] * inRes[1])
-            channels = 1;
-        if (img.size() == (inRes[0] * inRes[1]) * 4)
+        std::string type = "rgb";
+        std::string aspectRatio = "ignore";
+        bool smooth = true;
+        bool flipAxisX = false;
+        bool flipAxisY = false;
+        if (hasNonNullArg(inStack, 3))
         {
-            channels = 4;
-            options |= 1;
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(3);
+            map->fetchStringFromKey("type", type, &errMsg);
+            map->fetchStringFromKey("aspectRatio", aspectRatio, &errMsg);
+            map->fetchBoolFromKey("smooth", smooth, &errMsg);
+            map->fetchBoolFromKey("flipAxisX", flipAxisX, &errMsg);
+            map->fetchBoolFromKey("flipAxisY", flipAxisY, &errMsg);
         }
-        if ((img.size() == inRes[0] * inRes[1] * channels) && (inRes[0] > 0) && (inRes[1] > 0))
+        if (errMsg.empty())
         {
-            if (channels == 1)
-            {
-                std::string img2;
-                img2.reserve(img.size() * 3);
-                for (size_t i = 0; i < img.size(); i++)
-                {
-                    img2[3 * i + 0] = img[i];
-                    img2[3 * i + 1] = img[i];
-                    img2[3 * i + 2] = img[i];
-                }
-                img.swap(img2);
-            }
-            options |= 2;
-            if ((optionsS == 0) || (optionsS == 2))
-                options -= 2;
-            unsigned char* retVal = CImageLoaderSaver::getScaledImage((unsigned char*)img.data(), inRes.data(), outRes.data(), options);
-            std::vector<unsigned char> imgOut;
-            channels = 3;
-            if (optionsS == 0)
-                imgOut.assign(retVal, retVal + outRes[0] * outRes[1] * 3);
-            else if (optionsS == 1)
-            {
-                imgOut.assign(retVal, retVal + outRes[0] * outRes[1] * 4);
-                channels = 4;
-            }
-            else if (optionsS == 2)
-            {
+            int options = 0;
+            if (!smooth)
+                options |= 16;
+            if (aspectRatio == "keep")
+                options |= 4;
+            else if (aspectRatio == "keepExpand")
+                options |= 8;
+            int channels = 3;
+            if (img.size() == inRes[0] * inRes[1])
                 channels = 1;
-                imgOut.resize(outRes[0] * outRes[1]);
-                for (size_t i = 0; i < outRes[0] * outRes[1]; i++)
-                {
-                    int g = int(retVal[3 * i + 0]) + int(retVal[3 * i + 1]) + int(retVal[3 * i + 2]);
-                    if (g > 255)
-                        g = 255;
-                    imgOut[i] = (unsigned char)g;
-                }
-            }
-            delete[] retVal;
-            std::vector<unsigned char> imgOut2(imgOut);
-            for (int x = 0; x < outRes[0]; x++)
+            if (img.size() == (inRes[0] * inRes[1]) * 4)
             {
-                int x2 = x;
-                if (options & 32)
-                    x2 = outRes[0] - 1 - x;
-                for (int y = 0; y < outRes[1]; y++)
+                channels = 4;
+                options |= 1;
+            }
+            if ((img.size() == inRes[0] * inRes[1] * channels) && (inRes[0] > 0) && (inRes[1] > 0))
+            {
+                if (channels == 1)
                 {
-                    int y2 = y;
-                    if (options & 64)
-                        y2 = outRes[1] - 1 - y;
-                    if (channels >= 1)
-                        imgOut[channels * (x + y * outRes[0]) + 0] = imgOut2[channels * (x2 + y2 * outRes[0]) + 0];
-                    if (channels >= 3)
+                    std::string img2;
+                    img2.reserve(img.size() * 3);
+                    for (size_t i = 0; i < img.size(); i++)
                     {
-                        imgOut[channels * (x + y * outRes[0]) + 1] = imgOut2[channels * (x2 + y2 * outRes[0]) + 1];
-                        imgOut[channels * (x + y * outRes[0]) + 2] = imgOut2[channels * (x2 + y2 * outRes[0]) + 2];
-                        if (channels >= 4)
-                            imgOut[channels * (x + y * outRes[0]) + 3] = imgOut2[channels * (x2 + y2 * outRes[0]) + 3];
+                        img2[3 * i + 0] = img[i];
+                        img2[3 * i + 1] = img[i];
+                        img2[3 * i + 2] = img[i];
+                    }
+                    img.swap(img2);
+                }
+                options |= 2;
+                if ((type == "rgb") || (type == "grey"))
+                    options -= 2;
+                unsigned char* retVal = CImageLoaderSaver::getScaledImage((unsigned char*)img.data(), inRes.data(), outRes.data(), options);
+                std::vector<unsigned char> imgOut;
+                channels = 3;
+                if (type == "rgb")
+                    imgOut.assign(retVal, retVal + outRes[0] * outRes[1] * 3);
+                else if (type == "rgba")
+                {
+                    imgOut.assign(retVal, retVal + outRes[0] * outRes[1] * 4);
+                    channels = 4;
+                }
+                else if (type == "grey")
+                {
+                    channels = 1;
+                    imgOut.resize(outRes[0] * outRes[1]);
+                    for (size_t i = 0; i < outRes[0] * outRes[1]; i++)
+                    {
+                        int g = int(retVal[3 * i + 0]) + int(retVal[3 * i + 1]) + int(retVal[3 * i + 2]);
+                        if (g > 255)
+                            g = 255;
+                        imgOut[i] = (unsigned char)g;
                     }
                 }
+                delete[] retVal;
+                std::vector<unsigned char> imgOut2(imgOut);
+                for (int x = 0; x < outRes[0]; x++)
+                {
+                    int x2 = x;
+                    if (flipAxisX)
+                        x2 = outRes[0] - 1 - x;
+                    for (int y = 0; y < outRes[1]; y++)
+                    {
+                        int y2 = y;
+                        if (flipAxisY)
+                            y2 = outRes[1] - 1 - y;
+                        if (channels >= 1)
+                            imgOut[channels * (x + y * outRes[0]) + 0] = imgOut2[channels * (x2 + y2 * outRes[0]) + 0];
+                        if (channels >= 3)
+                        {
+                            imgOut[channels * (x + y * outRes[0]) + 1] = imgOut2[channels * (x2 + y2 * outRes[0]) + 1];
+                            imgOut[channels * (x + y * outRes[0]) + 2] = imgOut2[channels * (x2 + y2 * outRes[0]) + 2];
+                            if (channels >= 4)
+                                imgOut[channels * (x + y * outRes[0]) + 3] = imgOut2[channels * (x2 + y2 * outRes[0]) + 3];
+                        }
+                    }
+                }
+                pushBuffer(outStack, (char*)imgOut.data(), channels * outRes[0] * outRes[1]);
+                pushIntArray(outStack, outRes.data(), 2);
+                pushInt(outStack, channels);
             }
-            pushBuffer(outStack, (char*)imgOut.data(), channels * outRes[0] * outRes[1]);
-            pushIntArray(outStack, outRes.data(), 2);
-            pushInt(outStack, channels);
+            else
+                errMsg = SIM_ERROR_INVALID_RESOLUTION;
         }
-        else
-            errMsg = SIM_ERROR_INVALID_RESOLUTION;
     }
     return errMsg;
 }
@@ -3533,40 +3626,48 @@ std::string _method_getImage(int targetObj, const char* method, CDetachedScript*
 {
     std::string errMsg;
     CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_visionsensor, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table | arg_optional, 2, arg_integer, arg_table | arg_optional, 2, arg_integer, arg_integer | arg_optional, arg_double | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
     {
-        std::vector<int> pos;
-        fetchIntArray(inStack, 0, pos, {0, 0});
-        std::vector<int> size;
-        fetchIntArray(inStack, 1, size, {0, 0});
-        int options = fetchInt(inStack, 2, 0); // rgb
-        double rgbaCutOff = fetchDouble(inStack, 3, 0.999);
-        int res[2];
-        target->getResolution(res);
-        options &= 0x003;
-        int opts = options;
-        if (options == 1)
-            options = 2;
-        else if (options == 2)
-            options = 1;
-        if (size[0] == 0)
-            size[0] = res[0];
-        if (size[1] == 0)
-            size[1] = res[1];
-        unsigned char* img = target->readPortionOfCharImage(pos[0], pos[1], size[0], size[1], rgbaCutOff, options);
-        if (img != nullptr)
+        std::vector<int> pos = {0, 0};
+        std::vector<int> size = {0, 0};
+        std::string type("rgb");
+        double rgbaCutOff = 0.999;
+        if (hasNonNullArg(inStack, 0))
         {
-            int s = 3;
-            if (opts == 2)
-                s = 1; // greyscale
-            if (opts == 1)
-                s = 4; // + alpha channel
-            pushBuffer(outStack, (char*)img, s * size[0] * size[1]);
-            delete[]((char*)img);
-            pushIntArray(outStack, res, 2);
+            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+            map->fetchInt32ArrayFromKey("position", pos.data(), 2, &errMsg);
+            map->fetchInt32ArrayFromKey("size", size.data(), 2, &errMsg);
+            map->fetchStringFromKey("type", type, &errMsg);
+            map->fetchDoubleFromKey("rgbaCutOff", rgbaCutOff, &errMsg);
         }
-        else
-            errMsg = SIM_ERROR_INVALID_ARGUMENTS;
+        if (errMsg.empty())
+        {
+            int options = 0;
+            int res[2];
+            target->getResolution(res);
+            if (type == "rgba")
+                options = 2;
+            else if (type == "grey")
+                options = 1;
+            if (size[0] == 0)
+                size[0] = res[0];
+            if (size[1] == 0)
+                size[1] = res[1];
+            unsigned char* img = target->readPortionOfCharImage(pos[0], pos[1], size[0], size[1], rgbaCutOff, options);
+            if (img != nullptr)
+            {
+                int s = 3;
+                if (type == "grey")
+                    s = 1; // greyscale
+                if (type == "rgba")
+                    s = 4; // + alpha channel
+                pushBuffer(outStack, (char*)img, s * size[0] * size[1]);
+                delete[]((char*)img);
+                pushIntArray(outStack, res, 2);
+            }
+            else
+                errMsg = SIM_ERROR_INVALID_ARGUMENTS;
+        }
     }
     return errMsg;
 }
