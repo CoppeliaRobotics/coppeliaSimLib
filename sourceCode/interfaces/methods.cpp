@@ -972,6 +972,18 @@ void fetchTextArray(const CInterfaceStack* inStack, int index, std::vector<std::
     }
 }
 
+CInterfaceStackTable* fetchMap(const CInterfaceStack* inStack, int index)
+{
+    CInterfaceStackTable* retVal = nullptr;
+    if (inStack->getStackSize() > index)
+    {
+        CInterfaceStackObject* obj = inStack->getStackObjectFromIndex(index);
+        if (obj->getObjectType() == sim_stackitem_table)
+            retVal = (CInterfaceStackTable*)obj;
+    }
+    return retVal;
+}
+
 void fetchArrayAsConsecutiveNumbers(const CInterfaceStack* inStack, int index, std::vector<float>& outArr)
 { // quaternions and poses are fetched as qx,qy,qz,qw and x,y,z,qx,qy,qz,qw respectively
     outArr.clear();
@@ -1285,9 +1297,8 @@ std::string _method_getPosition(int targetObj, const char* method, CDetachedScri
     {
         long long int relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
-        if (hasNonNullArg(inStack, 0))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
             map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
             map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
         }
@@ -1343,9 +1354,8 @@ std::string _method_setPosition(int targetObj, const char* method, CDetachedScri
         C3Vector position = fetchVector3(inStack, 0);
         long long int relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
             map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
         }
@@ -1417,9 +1427,8 @@ std::string _method_getQuaternion(int targetObj, const char* method, CDetachedSc
     {
         long long int relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
-        if (hasNonNullArg(inStack, 0))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
             map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
             map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
         }
@@ -1482,9 +1491,8 @@ std::string _method_setQuaternion(int targetObj, const char* method, CDetachedSc
         C4Vector quaternion = fetchQuaternion(inStack, 0);
         long long int relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
             map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
         }
@@ -1564,9 +1572,8 @@ std::string _method_getPose(int targetObj, const char* method, CDetachedScript* 
     {
         long long int relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
-        if (hasNonNullArg(inStack, 0))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
             map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
             map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
         }
@@ -1620,9 +1627,8 @@ std::string _method_setPose(int targetObj, const char* method, CDetachedScript* 
         C7Vector tr = fetchPose(inStack, 0);
         long long int relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
             map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
         }
@@ -1681,9 +1687,8 @@ std::string _method_setParent(int targetObj, const char* method, CDetachedScript
     {
         int parentObjectHandle = fetchHandle(inStack, 0, -1);
         int  parentingMode = sim_parentingmode_keepworldpose;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchInt32FromKey("mode", parentingMode, &errMsg);
         }
         if (errMsg.empty())
@@ -2024,9 +2029,8 @@ std::string _method_loadScene(int targetObj, const char* method, CDetachedScript
             {
                 std::string path = fetchText(inStack, 0);
                 bool createNewScene = false;
-                if (hasNonNullArg(inStack, 1))
+                if (CInterfaceStackTable* map = fetchMap(inStack, 1))
                 {
-                    CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
                     map->fetchBoolFromKey("createNew", createNewScene, &errMsg);
                 }
                 if (errMsg.empty())
@@ -2074,9 +2078,8 @@ std::string _method_loadSceneFromBuffer(int targetObj, const char* method, CDeta
                 std::vector<char> buff;
                 fetchBuffer(inStack, 0, buff);
                 bool createNewScene = false;
-                if (hasNonNullArg(inStack, 1))
+                if (CInterfaceStackTable* map = fetchMap(inStack, 1))
                 {
-                    CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
                     map->fetchBoolFromKey("createNew", createNewScene, &errMsg);
                 }
                 if (errMsg.empty())
@@ -2188,9 +2191,8 @@ std::string _method_removeModel(int targetObj, const char* method, CDetachedScri
     {
         bool delayed = false;
         bool noError = false;
-        if (hasNonNullArg(inStack, 0))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
             map->fetchBoolFromKey("delayed", delayed, &errMsg);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
@@ -2232,9 +2234,8 @@ std::string _method_remove(int targetObj, const char* method, CDetachedScript* c
         {
             bool delayed = false;
             bool noError = false;
-            if (hasNonNullArg(inStack, 0))
+            if (CInterfaceStackTable* map = fetchMap(inStack, 0))
             {
-                CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
                 map->fetchBoolFromKey("delayed", delayed, &errMsg);
                 map->fetchBoolFromKey("noError", noError, &errMsg);
             }
@@ -2297,9 +2298,8 @@ std::string _method_removeObjects(int targetObj, const char* method, CDetachedSc
         fetchHandleArray(inStack, 0, objectHandles);
         bool delayed = false;
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("delayed", delayed, &errMsg);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
@@ -2355,9 +2355,8 @@ std::string _method_duplicateObjects(int targetObj, const char* method, CDetache
         bool noObjectRefs = false;
         bool noTextures = false;
         bool noDna = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("models", models, &errMsg);
             map->fetchBoolFromKey("noScripts", noScripts, &errMsg);
             map->fetchBoolFromKey("noCustomData", noCustomData, &errMsg);
@@ -2482,9 +2481,8 @@ std::string _method_addItem(int targetObj, const char* method, CDetachedScript* 
         int objectHandle = fetchHandle(inStack, 0);
         int what = sim_handle_single;
         bool excludeObj = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchInt32FromKey("mode", what, &errMsg);
             map->fetchBoolFromKey("excludeObject", excludeObj, &errMsg);
         }
@@ -2531,9 +2529,8 @@ std::string _method_removeItem(int targetObj, const char* method, CDetachedScrip
         int objectHandle = fetchHandle(inStack, 0);
         int what = sim_handle_single;
         bool excludeObj = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchInt32FromKey("mode", what, &errMsg);
             map->fetchBoolFromKey("excludeObject", excludeObj, &errMsg);
         }
@@ -2596,9 +2593,8 @@ std::string _method_checkDistance(int targetObj, const char* method, CDetachedSc
     {
         int otherEntity = fetchHandle(inStack, 0, sim_handle_all);
         double threshold = 0.0;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchDoubleFromKey("threshold", threshold, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -2653,9 +2649,8 @@ std::string _method_checkSensor(int targetObj, const char* method, CDetachedScri
                 bool hasExact = false;
                 double maxNormal = 0.0;
                 bool hasMaxNormal = false;
-                if (hasNonNullArg(inStack, 1))
+                if (CInterfaceStackTable* map = fetchMap(inStack, 1))
                 {
-                    CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
                     hasFrontFaces = map->fetchBoolFromKey("frontFaces", frontFaces, &errMsg);
                     hasBackFaces = map->fetchBoolFromKey("backFaces", backFaces, &errMsg);
                     hasExact = map->fetchBoolFromKey("exact", exact, &errMsg);
@@ -2805,9 +2800,8 @@ std::string _method_getObjects(int targetObj, const char* method, CDetachedScrip
         if (checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
         {
             std::vector<std::string> types;
-            if (hasNonNullArg(inStack, 0))
+            if (CInterfaceStackTable* map = fetchMap(inStack, 0))
             {
-                CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
                 map->fetchStringArrayFromKey("types", types, &errMsg);
             }
             if (errMsg.empty())
@@ -2954,9 +2948,8 @@ std::string _method_addItems(int targetObj, const char* method, CDetachedScript*
         std::vector<float> ccols;
         std::vector<float> quats;
         std::vector<float> sizes;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchArrayAsConsecutiveFloatsFromKey("colors", ccols, &errMsg);
             map->fetchArrayAsConsecutiveFloatsFromKey("quaternions", quats, &errMsg);
             map->fetchArrayAsConsecutiveFloatsFromKey("sizes", sizes, &errMsg);
@@ -3223,9 +3216,8 @@ std::string _method_scaleTree(int targetObj, const char* method, CDetachedScript
     {
         double scalingFactor = fetchDouble(inStack, 0);
         bool rootPositionIsScaled = true;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("scaleRootPosition", rootPositionIsScaled, &errMsg);
         }
         if (errMsg.empty())
@@ -3354,9 +3346,8 @@ std::string _method_dynamicReset(int targetObj, const char* method, CDetachedScr
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
     {
         bool tree = false;
-        if (hasNonNullArg(inStack, 0))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
             map->fetchBoolFromKey("tree", tree, &errMsg);
         }
         if (errMsg.empty())
@@ -3438,9 +3429,8 @@ std::string _method_saveImage(int targetObj, const char* method, CDetachedScript
             channels = 4;
             options = 1;
         }
-        if (hasNonNullArg(inStack, 3))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 3))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(3);
             map->fetchInt32FromKey("quality", quality, &errMsg);
         }
         if (errMsg.empty())
@@ -3484,9 +3474,8 @@ std::string _method_saveImageToBuffer(int targetObj, const char* method, CDetach
             channels = 4;
             options = 1;
         }
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchInt32FromKey("quality", quality, &errMsg);
             map->fetchStringFromKey("format", ext, &errMsg);
         }
@@ -3523,9 +3512,8 @@ std::string _method_transformImage(int targetObj, const char* method, CDetachedS
         bool smooth = true;
         bool flipAxisX = false;
         bool flipAxisY = false;
-        if (hasNonNullArg(inStack, 3))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 3))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(3);
             map->fetchStringFromKey("type", type, &errMsg);
             map->fetchStringFromKey("aspectRatio", aspectRatio, &errMsg);
             map->fetchBoolFromKey("smooth", smooth, &errMsg);
@@ -3632,9 +3620,8 @@ std::string _method_getImage(int targetObj, const char* method, CDetachedScript*
         std::vector<int> size = {0, 0};
         std::string type("rgb");
         double rgbaCutOff = 0.999;
-        if (hasNonNullArg(inStack, 0))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
             map->fetchInt32ArrayFromKey("position", pos.data(), 2, &errMsg);
             map->fetchInt32ArrayFromKey("size", size.data(), 2, &errMsg);
             map->fetchStringFromKey("type", type, &errMsg);
@@ -3676,41 +3663,47 @@ std::string _method_setImage(int targetObj, const char* method, CDetachedScript*
 {
     std::string errMsg;
     CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_visionsensor, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table | arg_optional, 2, arg_integer, arg_table | arg_optional, 2, arg_integer}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::vector<char> img;
         fetchBuffer(inStack, 0, img);
-        std::vector<int> pos;
-        fetchIntArray(inStack, 1, pos, {0, 0});
-        std::vector<int> size;
-        fetchIntArray(inStack, 2, size, {0, 0});
-        int res[2];
-        target->getResolution(res);
-        if (size[0] == 0)
-            size[0] = res[0];
-        if (size[1] == 0)
-            size[1] = res[1];
-        int s = 0;
-        int opt = 0;
-        if (size[0] * size[1] == img.size())
+        std::vector<int> pos = {0, 0};
+        std::vector<int> size = {0, 0};
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            s = 1;
-            opt = 1;
+            map->fetchInt32ArrayFromKey("position", pos.data(), 2, &errMsg);
+            map->fetchInt32ArrayFromKey("size", size.data(), 2, &errMsg);
         }
-        else if (size[0] * size[1] * 3 == img.size())
-            s = 3;
-        else if (size[0] * size[1] * 4 == img.size())
+        if (errMsg.empty())
         {
-            s = 4;
-            opt = 2;
+            int res[2];
+            target->getResolution(res);
+            if (size[0] == 0)
+                size[0] = res[0];
+            if (size[1] == 0)
+                size[1] = res[1];
+            int s = 0;
+            int opt = 0;
+            if (size[0] * size[1] == img.size())
+            {
+                s = 1;
+                opt = 1;
+            }
+            else if (size[0] * size[1] * 3 == img.size())
+                s = 3;
+            else if (size[0] * size[1] * 4 == img.size())
+            {
+                s = 4;
+                opt = 2;
+            }
+            if (s > 0)
+            {
+                if (!target->writePortionOfCharImage((unsigned char*)img.data(), pos[0], pos[1], size[0], size[1], opt))
+                    errMsg = SIM_ERROR_INVALID_ARGUMENTS;
+            }
+            else
+                errMsg = SIM_ERROR_INCORRECT_BUFFER_SIZE;
         }
-        if (s > 0)
-        {
-            if (!target->writePortionOfCharImage((unsigned char*)img.data(), pos[0], pos[1], size[0], size[1], opt))
-                errMsg = SIM_ERROR_INVALID_ARGUMENTS;
-        }
-        else
-            errMsg = SIM_ERROR_INCORRECT_BUFFER_SIZE;
     }
     return errMsg;
 }
@@ -3719,35 +3712,41 @@ std::string _method_getDepth(int targetObj, const char* method, CDetachedScript*
 {
     std::string errMsg;
     CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_visionsensor, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table | arg_optional, 2, arg_integer, arg_table | arg_optional, 2, arg_integer}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
     {
-        std::vector<int> pos;
-        fetchIntArray(inStack, 0, pos, {0, 0});
-        std::vector<int> size;
-        fetchIntArray(inStack, 1, size, {0, 0});
-        int res[2];
-        target->getResolution(res);
-        if ((size[0] == 0) && (size[1] == 0))
+        std::vector<int> pos = {0, 0};
+        std::vector<int> size = {0, 0};
+        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
         {
-            size[0] = res[0];
-            size[1] = res[1];
+            map->fetchInt32ArrayFromKey("position", pos.data(), 2, &errMsg);
+            map->fetchInt32ArrayFromKey("size", size.data(), 2, &errMsg);
         }
-        float* buff = target->readPortionOfImage(pos[0], pos[1], size[0], size[1], 2);
-        if (buff != nullptr)
+        if (errMsg.empty())
         {
-            double np, fp;
-            target->getClippingPlanes(np, fp);
-            float n = (float)np;
-            float f = (float)fp;
-            float fmn = f - n;
-            for (int i = 0; i < size[0] * size[1]; i++)
-                buff[i] = n + fmn * buff[i];
-            pushFloatArray(outStack, buff, size[0] * size[1]);
-            delete[]((char*)buff);
-            pushIntArray(outStack, res, 2);
+            int res[2];
+            target->getResolution(res);
+            if ((size[0] == 0) && (size[1] == 0))
+            {
+                size[0] = res[0];
+                size[1] = res[1];
+            }
+            float* buff = target->readPortionOfImage(pos[0], pos[1], size[0], size[1], 2);
+            if (buff != nullptr)
+            {
+                double np, fp;
+                target->getClippingPlanes(np, fp);
+                float n = (float)np;
+                float f = (float)fp;
+                float fmn = f - n;
+                for (int i = 0; i < size[0] * size[1]; i++)
+                    buff[i] = n + fmn * buff[i];
+                pushFloatArray(outStack, buff, size[0] * size[1]);
+                delete[]((char*)buff);
+                pushIntArray(outStack, res, 2);
+            }
+            else
+                errMsg = SIM_ERROR_INVALID_ARGUMENTS;
         }
-        else
-            errMsg = SIM_ERROR_INVALID_ARGUMENTS;
     }
     return errMsg;
 }
@@ -3819,9 +3818,8 @@ std::string _method_logInfo(int targetObj, const char* method, CDetachedScript* 
         if (hasNonNullArg(inStack, 0))
         {
             int verb = 0;
-            if (hasNonNullArg(inStack, 1))
+            if (CInterfaceStackTable* map = fetchMap(inStack, 1))
             {
-                CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
                 CInterfaceStackObject* obj = map->getMapObject("undecorated");
                 if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
                 {
@@ -3869,9 +3867,8 @@ std::string _method_logWarn(int targetObj, const char* method, CDetachedScript* 
         if (hasNonNullArg(inStack, 0))
         {
             int verb = 0;
-            if (hasNonNullArg(inStack, 1))
+            if (CInterfaceStackTable* map = fetchMap(inStack, 1))
             {
-                CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
                 CInterfaceStackObject* obj = map->getMapObject("undecorated");
                 if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
                 {
@@ -3919,9 +3916,8 @@ std::string _method_logError(int targetObj, const char* method, CDetachedScript*
         if (hasNonNullArg(inStack, 0))
         {
             int verb = 0;
-            if (hasNonNullArg(inStack, 1))
+            if (CInterfaceStackTable* map = fetchMap(inStack, 1))
             {
-                CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
                 CInterfaceStackObject* obj = map->getMapObject("undecorated");
                 if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
                 {
@@ -4025,9 +4021,8 @@ std::string _method_getObject(int targetObj, const char* method, CDetachedScript
             path = "./" + path;
         int index = -1;
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             CInterfaceStackObject* obj = map->getMapObject("index");
             if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_integer))
                 index = (int)((CInterfaceStackInteger*)obj)->getValue();
@@ -4102,9 +4097,8 @@ std::string _method_getObjectFromUid(int targetObj, const char* method, CDetache
     {
         long long int uid = fetchLong(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             CInterfaceStackObject* obj = map->getMapObject("noError");
             if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
                 noError = ((CInterfaceStackBool*)obj)->getValue();
@@ -4185,9 +4179,8 @@ std::string _method_addForce(int targetObj, const char* method, CDetachedScript*
             pos = fetchVector3(inStack, 1);
         bool reset = false;
         bool relative = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             CInterfaceStackObject* obj = map->getMapObject("reset");
             if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
                 reset = ((CInterfaceStackBool*)obj)->getValue();
@@ -4219,9 +4212,8 @@ std::string _method_addTorque(int targetObj, const char* method, CDetachedScript
         C3Vector torque = fetchVector3(inStack, 0);
         bool reset = false;
         bool relative = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             CInterfaceStackObject* obj = map->getMapObject("reset");
             if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
                 reset = ((CInterfaceStackBool*)obj)->getValue();
@@ -4281,7 +4273,7 @@ std::string _method_divide(int targetObj, const char* method, CDetachedScript* c
 std::string _method_groupShapes(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_handle}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray}))
     {
         std::vector<long long int> objectHandles;
         fetchHandleArray(inStack, 0, objectHandles);
@@ -4306,7 +4298,7 @@ std::string _method_groupShapes(int targetObj, const char* method, CDetachedScri
 std::string _method_mergeShapes(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_handle}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray}))
     {
         std::vector<long long int> objectHandles;
         fetchHandleArray(inStack, 0, objectHandles);
@@ -4467,43 +4459,51 @@ std::string _method_unpack(int targetObj, const char* method, CDetachedScript* c
 std::string _method_packDoubleTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<double> arr;
         fetchDoubleArray(inStack, 0, arr);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int tableSize = int(arr.size());
+        int startIndex = 0;
+        int count = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            int tableSize = int(arr.size());
 
-        if (count < 0)
-            count = 0;
-        if ((startIndex < 0) || (startIndex >= tableSize))
-            count = 0;
-        else
-        {
-            if (count == 0)
-                count = tableSize - startIndex;
-            if (count > tableSize - startIndex)
-                count = tableSize - startIndex;
-        }
-        std::string data;
-        if (count > 0)
-        {
-            data.resize(sizeof(double) * count);
-            for (int i = 0; i < count; i++)
+            if (count < 0)
+                count = 0;
+            if ((startIndex < 0) || (startIndex >= tableSize))
+                count = 0;
+            else
             {
-                double v = arr[startIndex + i];
-                data[sizeof(double) * i + 0] = ((char*)&v)[0];
-                data[sizeof(double) * i + 1] = ((char*)&v)[1];
-                data[sizeof(double) * i + 2] = ((char*)&v)[2];
-                data[sizeof(double) * i + 3] = ((char*)&v)[3];
-                data[sizeof(double) * i + 4] = ((char*)&v)[4];
-                data[sizeof(double) * i + 5] = ((char*)&v)[5];
-                data[sizeof(double) * i + 6] = ((char*)&v)[6];
-                data[sizeof(double) * i + 7] = ((char*)&v)[7];
+                if (count == 0)
+                    count = tableSize - startIndex;
+                if (count > tableSize - startIndex)
+                    count = tableSize - startIndex;
             }
+            std::string data;
+            if (count > 0)
+            {
+                data.resize(sizeof(double) * count);
+                for (int i = 0; i < count; i++)
+                {
+                    double v = arr[startIndex + i];
+                    data[sizeof(double) * i + 0] = ((char*)&v)[0];
+                    data[sizeof(double) * i + 1] = ((char*)&v)[1];
+                    data[sizeof(double) * i + 2] = ((char*)&v)[2];
+                    data[sizeof(double) * i + 3] = ((char*)&v)[3];
+                    data[sizeof(double) * i + 4] = ((char*)&v)[4];
+                    data[sizeof(double) * i + 5] = ((char*)&v)[5];
+                    data[sizeof(double) * i + 6] = ((char*)&v)[6];
+                    data[sizeof(double) * i + 7] = ((char*)&v)[7];
+                }
+            }
+            pushBuffer(outStack, data.data(), data.size());
         }
-        pushBuffer(outStack, data.data(), data.size());
     }
     return errMsg;
 }
@@ -4511,46 +4511,54 @@ std::string _method_packDoubleTable(int targetObj, const char* method, CDetached
 std::string _method_packFloatTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<double> arr;
         fetchDoubleArray(inStack, 0, arr);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int tableSize = int(arr.size());
+        int startIndex = 0;
+        int count = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            int tableSize = int(arr.size());
 
-        if (count < 0)
-            count = 0;
-        if ((startIndex < 0) || (startIndex >= tableSize))
-            count = 0;
-        else
-        {
-            if (count == 0)
-                count = tableSize - startIndex;
-            if (count > tableSize - startIndex)
-                count = tableSize - startIndex;
-        }
-        std::string data;
-        if (count > 0)
-        {
-            data.resize(sizeof(float) * count);
-            for (int i = 0; i < count; i++)
+            if (count < 0)
+                count = 0;
+            if ((startIndex < 0) || (startIndex >= tableSize))
+                count = 0;
+            else
             {
-                float v;
-                double x = arr[startIndex + i];
-                if (x > double(std::numeric_limits<float>::max()))
-                    v = std::numeric_limits<float>::max();
-                else if (x < -double(std::numeric_limits<float>::max()))
-                    v = -std::numeric_limits<float>::max();
-                else
-                    v = float(x);
-                data[sizeof(float) * i + 0] = ((char*)&v)[0];
-                data[sizeof(float) * i + 1] = ((char*)&v)[1];
-                data[sizeof(float) * i + 2] = ((char*)&v)[2];
-                data[sizeof(float) * i + 3] = ((char*)&v)[3];
+                if (count == 0)
+                    count = tableSize - startIndex;
+                if (count > tableSize - startIndex)
+                    count = tableSize - startIndex;
             }
+            std::string data;
+            if (count > 0)
+            {
+                data.resize(sizeof(float) * count);
+                for (int i = 0; i < count; i++)
+                {
+                    float v;
+                    double x = arr[startIndex + i];
+                    if (x > double(std::numeric_limits<float>::max()))
+                        v = std::numeric_limits<float>::max();
+                    else if (x < -double(std::numeric_limits<float>::max()))
+                        v = -std::numeric_limits<float>::max();
+                    else
+                        v = float(x);
+                    data[sizeof(float) * i + 0] = ((char*)&v)[0];
+                    data[sizeof(float) * i + 1] = ((char*)&v)[1];
+                    data[sizeof(float) * i + 2] = ((char*)&v)[2];
+                    data[sizeof(float) * i + 3] = ((char*)&v)[3];
+                }
+            }
+            pushBuffer(outStack, data.data(), data.size());
         }
-        pushBuffer(outStack, data.data(), data.size());
     }
     return errMsg;
 }
@@ -4558,43 +4566,51 @@ std::string _method_packFloatTable(int targetObj, const char* method, CDetachedS
 std::string _method_packInt64Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<int64_t> arr;
         fetchLongArray(inStack, 0, arr);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int tableSize = int(arr.size());
+        int startIndex = 0;
+        int count = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            int tableSize = int(arr.size());
 
-        if (count < 0)
-            count = 0;
-        if ((startIndex < 0) || (startIndex >= tableSize))
-            count = 0;
-        else
-        {
-            if (count == 0)
-                count = tableSize - startIndex;
-            if (count > tableSize - startIndex)
-                count = tableSize - startIndex;
-        }
-        std::string data;
-        if (count > 0)
-        {
-            data.resize(sizeof(int64_t) * count);
-            for (int i = 0; i < count; i++)
+            if (count < 0)
+                count = 0;
+            if ((startIndex < 0) || (startIndex >= tableSize))
+                count = 0;
+            else
             {
-                int64_t v = arr[startIndex + i];
-                data[sizeof(int64_t) * i + 0] = ((char*)&v)[0];
-                data[sizeof(int64_t) * i + 1] = ((char*)&v)[1];
-                data[sizeof(int64_t) * i + 2] = ((char*)&v)[2];
-                data[sizeof(int64_t) * i + 3] = ((char*)&v)[3];
-                data[sizeof(int64_t) * i + 4] = ((char*)&v)[4];
-                data[sizeof(int64_t) * i + 5] = ((char*)&v)[5];
-                data[sizeof(int64_t) * i + 6] = ((char*)&v)[6];
-                data[sizeof(int64_t) * i + 7] = ((char*)&v)[7];
+                if (count == 0)
+                    count = tableSize - startIndex;
+                if (count > tableSize - startIndex)
+                    count = tableSize - startIndex;
             }
+            std::string data;
+            if (count > 0)
+            {
+                data.resize(sizeof(int64_t) * count);
+                for (int i = 0; i < count; i++)
+                {
+                    int64_t v = arr[startIndex + i];
+                    data[sizeof(int64_t) * i + 0] = ((char*)&v)[0];
+                    data[sizeof(int64_t) * i + 1] = ((char*)&v)[1];
+                    data[sizeof(int64_t) * i + 2] = ((char*)&v)[2];
+                    data[sizeof(int64_t) * i + 3] = ((char*)&v)[3];
+                    data[sizeof(int64_t) * i + 4] = ((char*)&v)[4];
+                    data[sizeof(int64_t) * i + 5] = ((char*)&v)[5];
+                    data[sizeof(int64_t) * i + 6] = ((char*)&v)[6];
+                    data[sizeof(int64_t) * i + 7] = ((char*)&v)[7];
+                }
+            }
+            pushBuffer(outStack, data.data(), data.size());
         }
-        pushBuffer(outStack, data.data(), data.size());
     }
     return errMsg;
 }
@@ -4602,46 +4618,54 @@ std::string _method_packInt64Table(int targetObj, const char* method, CDetachedS
 std::string _method_packInt32Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<int64_t> arr;
         fetchLongArray(inStack, 0, arr);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int tableSize = int(arr.size());
+        int startIndex = 0;
+        int count = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            int tableSize = int(arr.size());
 
-        if (count < 0)
-            count = 0;
-        if ((startIndex < 0) || (startIndex >= tableSize))
-            count = 0;
-        else
-        {
-            if (count == 0)
-                count = tableSize - startIndex;
-            if (count > tableSize - startIndex)
-                count = tableSize - startIndex;
-        }
-        std::string data;
-        if (count > 0)
-        {
-            data.resize(sizeof(int32_t) * count);
-            for (int i = 0; i < count; i++)
+            if (count < 0)
+                count = 0;
+            if ((startIndex < 0) || (startIndex >= tableSize))
+                count = 0;
+            else
             {
-                int32_t v;
-                int64_t x = arr[startIndex + i];
-                if (x > std::numeric_limits<int32_t>::max())
-                    v = std::numeric_limits<int32_t>::max();
-                else if (x < std::numeric_limits<int32_t>::min())
-                    v = std::numeric_limits<int32_t>::min();
-                else
-                    v = int32_t(x);
-                data[sizeof(int32_t) * i + 0] = ((char*)&v)[0];
-                data[sizeof(int32_t) * i + 1] = ((char*)&v)[1];
-                data[sizeof(int32_t) * i + 2] = ((char*)&v)[2];
-                data[sizeof(int32_t) * i + 3] = ((char*)&v)[3];
+                if (count == 0)
+                    count = tableSize - startIndex;
+                if (count > tableSize - startIndex)
+                    count = tableSize - startIndex;
             }
+            std::string data;
+            if (count > 0)
+            {
+                data.resize(sizeof(int32_t) * count);
+                for (int i = 0; i < count; i++)
+                {
+                    int32_t v;
+                    int64_t x = arr[startIndex + i];
+                    if (x > std::numeric_limits<int32_t>::max())
+                        v = std::numeric_limits<int32_t>::max();
+                    else if (x < std::numeric_limits<int32_t>::min())
+                        v = std::numeric_limits<int32_t>::min();
+                    else
+                        v = int32_t(x);
+                    data[sizeof(int32_t) * i + 0] = ((char*)&v)[0];
+                    data[sizeof(int32_t) * i + 1] = ((char*)&v)[1];
+                    data[sizeof(int32_t) * i + 2] = ((char*)&v)[2];
+                    data[sizeof(int32_t) * i + 3] = ((char*)&v)[3];
+                }
+            }
+            pushBuffer(outStack, data.data(), data.size());
         }
-        pushBuffer(outStack, data.data(), data.size());
     }
     return errMsg;
 }
@@ -4649,46 +4673,54 @@ std::string _method_packInt32Table(int targetObj, const char* method, CDetachedS
 std::string _method_packUInt32Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<int64_t> arr;
         fetchLongArray(inStack, 0, arr);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int tableSize = int(arr.size());
+        int startIndex = 0;
+        int count = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            int tableSize = int(arr.size());
 
-        if (count < 0)
-            count = 0;
-        if ((startIndex < 0) || (startIndex >= tableSize))
-            count = 0;
-        else
-        {
-            if (count == 0)
-                count = tableSize - startIndex;
-            if (count > tableSize - startIndex)
-                count = tableSize - startIndex;
-        }
-        std::string data;
-        if (count > 0)
-        {
-            data.resize(sizeof(uint32_t) * count);
-            for (int i = 0; i < count; i++)
+            if (count < 0)
+                count = 0;
+            if ((startIndex < 0) || (startIndex >= tableSize))
+                count = 0;
+            else
             {
-                uint32_t v;
-                int64_t x = arr[startIndex + i];
-                if (x > int64_t(std::numeric_limits<uint32_t>::max()))
-                    v = std::numeric_limits<uint32_t>::max();
-                else if (x < 0)
-                    v = 0;
-                else
-                    v = uint32_t(x);
-                data[sizeof(uint32_t) * i + 0] = ((char*)&v)[0];
-                data[sizeof(uint32_t) * i + 1] = ((char*)&v)[1];
-                data[sizeof(uint32_t) * i + 2] = ((char*)&v)[2];
-                data[sizeof(uint32_t) * i + 3] = ((char*)&v)[3];
+                if (count == 0)
+                    count = tableSize - startIndex;
+                if (count > tableSize - startIndex)
+                    count = tableSize - startIndex;
             }
+            std::string data;
+            if (count > 0)
+            {
+                data.resize(sizeof(uint32_t) * count);
+                for (int i = 0; i < count; i++)
+                {
+                    uint32_t v;
+                    int64_t x = arr[startIndex + i];
+                    if (x > int64_t(std::numeric_limits<uint32_t>::max()))
+                        v = std::numeric_limits<uint32_t>::max();
+                    else if (x < 0)
+                        v = 0;
+                    else
+                        v = uint32_t(x);
+                    data[sizeof(uint32_t) * i + 0] = ((char*)&v)[0];
+                    data[sizeof(uint32_t) * i + 1] = ((char*)&v)[1];
+                    data[sizeof(uint32_t) * i + 2] = ((char*)&v)[2];
+                    data[sizeof(uint32_t) * i + 3] = ((char*)&v)[3];
+                }
+            }
+            pushBuffer(outStack, data.data(), data.size());
         }
-        pushBuffer(outStack, data.data(), data.size());
     }
     return errMsg;
 }
@@ -4696,44 +4728,52 @@ std::string _method_packUInt32Table(int targetObj, const char* method, CDetached
 std::string _method_packInt16Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<int64_t> arr;
         fetchLongArray(inStack, 0, arr);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int tableSize = int(arr.size());
+        int startIndex = 0;
+        int count = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            int tableSize = int(arr.size());
 
-        if (count < 0)
-            count = 0;
-        if ((startIndex < 0) || (startIndex >= tableSize))
-            count = 0;
-        else
-        {
-            if (count == 0)
-                count = tableSize - startIndex;
-            if (count > tableSize - startIndex)
-                count = tableSize - startIndex;
-        }
-        std::string data;
-        if (count > 0)
-        {
-            data.resize(sizeof(int16_t) * count);
-            for (int i = 0; i < count; i++)
+            if (count < 0)
+                count = 0;
+            if ((startIndex < 0) || (startIndex >= tableSize))
+                count = 0;
+            else
             {
-                int16_t v;
-                int64_t x = arr[startIndex + i];
-                if (x > int64_t(std::numeric_limits<int16_t>::max()))
-                    v = std::numeric_limits<int16_t>::max();
-                else if (x < std::numeric_limits<int16_t>::min())
-                    v = std::numeric_limits<int16_t>::min();
-                else
-                    v = int16_t(x);
-                data[sizeof(int16_t) * i + 0] = ((char*)&v)[0];
-                data[sizeof(int16_t) * i + 1] = ((char*)&v)[1];
+                if (count == 0)
+                    count = tableSize - startIndex;
+                if (count > tableSize - startIndex)
+                    count = tableSize - startIndex;
             }
+            std::string data;
+            if (count > 0)
+            {
+                data.resize(sizeof(int16_t) * count);
+                for (int i = 0; i < count; i++)
+                {
+                    int16_t v;
+                    int64_t x = arr[startIndex + i];
+                    if (x > int64_t(std::numeric_limits<int16_t>::max()))
+                        v = std::numeric_limits<int16_t>::max();
+                    else if (x < std::numeric_limits<int16_t>::min())
+                        v = std::numeric_limits<int16_t>::min();
+                    else
+                        v = int16_t(x);
+                    data[sizeof(int16_t) * i + 0] = ((char*)&v)[0];
+                    data[sizeof(int16_t) * i + 1] = ((char*)&v)[1];
+                }
+            }
+            pushBuffer(outStack, data.data(), data.size());
         }
-        pushBuffer(outStack, data.data(), data.size());
     }
     return errMsg;
 }
@@ -4741,44 +4781,52 @@ std::string _method_packInt16Table(int targetObj, const char* method, CDetachedS
 std::string _method_packUInt16Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<int64_t> arr;
         fetchLongArray(inStack, 0, arr);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int tableSize = int(arr.size());
+        int startIndex = 0;
+        int count = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            int tableSize = int(arr.size());
 
-        if (count < 0)
-            count = 0;
-        if ((startIndex < 0) || (startIndex >= tableSize))
-            count = 0;
-        else
-        {
-            if (count == 0)
-                count = tableSize - startIndex;
-            if (count > tableSize - startIndex)
-                count = tableSize - startIndex;
-        }
-        std::string data;
-        if (count > 0)
-        {
-            data.resize(sizeof(uint16_t) * count);
-            for (int i = 0; i < count; i++)
+            if (count < 0)
+                count = 0;
+            if ((startIndex < 0) || (startIndex >= tableSize))
+                count = 0;
+            else
             {
-                uint16_t v;
-                int64_t x = arr[startIndex + i];
-                if (x > int64_t(std::numeric_limits<uint16_t>::max()))
-                    v = std::numeric_limits<uint16_t>::max();
-                else if (x < 0)
-                    v = 0;
-                else
-                    v = uint16_t(x);
-                data[sizeof(uint16_t) * i + 0] = ((char*)&v)[0];
-                data[sizeof(uint16_t) * i + 1] = ((char*)&v)[1];
+                if (count == 0)
+                    count = tableSize - startIndex;
+                if (count > tableSize - startIndex)
+                    count = tableSize - startIndex;
             }
+            std::string data;
+            if (count > 0)
+            {
+                data.resize(sizeof(uint16_t) * count);
+                for (int i = 0; i < count; i++)
+                {
+                    uint16_t v;
+                    int64_t x = arr[startIndex + i];
+                    if (x > int64_t(std::numeric_limits<uint16_t>::max()))
+                        v = std::numeric_limits<uint16_t>::max();
+                    else if (x < 0)
+                        v = 0;
+                    else
+                        v = uint16_t(x);
+                    data[sizeof(uint16_t) * i + 0] = ((char*)&v)[0];
+                    data[sizeof(uint16_t) * i + 1] = ((char*)&v)[1];
+                }
+            }
+            pushBuffer(outStack, data.data(), data.size());
         }
-        pushBuffer(outStack, data.data(), data.size());
     }
     return errMsg;
 }
@@ -4786,43 +4834,51 @@ std::string _method_packUInt16Table(int targetObj, const char* method, CDetached
 std::string _method_packInt8Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<int64_t> arr;
         fetchLongArray(inStack, 0, arr);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int tableSize = int(arr.size());
+        int startIndex = 0;
+        int count = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            int tableSize = int(arr.size());
 
-        if (count < 0)
-            count = 0;
-        if ((startIndex < 0) || (startIndex >= tableSize))
-            count = 0;
-        else
-        {
-            if (count == 0)
-                count = tableSize - startIndex;
-            if (count > tableSize - startIndex)
-                count = tableSize - startIndex;
-        }
-        std::string data;
-        if (count > 0)
-        {
-            data.resize(sizeof(int8_t) * count);
-            for (int i = 0; i < count; i++)
+            if (count < 0)
+                count = 0;
+            if ((startIndex < 0) || (startIndex >= tableSize))
+                count = 0;
+            else
             {
-                int8_t v;
-                int64_t x = arr[startIndex + i];
-                if (x > int64_t(std::numeric_limits<int8_t>::max()))
-                    v = std::numeric_limits<int8_t>::max();
-                else if (x < std::numeric_limits<int8_t>::min())
-                    v = std::numeric_limits<int8_t>::min();
-                else
-                    v = int8_t(x);
-                data[i] = ((char*)&v)[0];
+                if (count == 0)
+                    count = tableSize - startIndex;
+                if (count > tableSize - startIndex)
+                    count = tableSize - startIndex;
             }
+            std::string data;
+            if (count > 0)
+            {
+                data.resize(sizeof(int8_t) * count);
+                for (int i = 0; i < count; i++)
+                {
+                    int8_t v;
+                    int64_t x = arr[startIndex + i];
+                    if (x > int64_t(std::numeric_limits<int8_t>::max()))
+                        v = std::numeric_limits<int8_t>::max();
+                    else if (x < std::numeric_limits<int8_t>::min())
+                        v = std::numeric_limits<int8_t>::min();
+                    else
+                        v = int8_t(x);
+                    data[i] = ((char*)&v)[0];
+                }
+            }
+            pushBuffer(outStack, data.data(), data.size());
         }
-        pushBuffer(outStack, data.data(), data.size());
     }
     return errMsg;
 }
@@ -4830,43 +4886,51 @@ std::string _method_packInt8Table(int targetObj, const char* method, CDetachedSc
 std::string _method_packUInt8Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<int64_t> arr;
         fetchLongArray(inStack, 0, arr);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int tableSize = int(arr.size());
+        int startIndex = 0;
+        int count = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            int tableSize = int(arr.size());
 
-        if (count < 0)
-            count = 0;
-        if ((startIndex < 0) || (startIndex >= tableSize))
-            count = 0;
-        else
-        {
-            if (count == 0)
-                count = tableSize - startIndex;
-            if (count > tableSize - startIndex)
-                count = tableSize - startIndex;
-        }
-        std::string data;
-        if (count > 0)
-        {
-            data.resize(sizeof(uint8_t) * count);
-            for (int i = 0; i < count; i++)
+            if (count < 0)
+                count = 0;
+            if ((startIndex < 0) || (startIndex >= tableSize))
+                count = 0;
+            else
             {
-                uint8_t v;
-                int64_t x = arr[startIndex + i];
-                if (x > int64_t(std::numeric_limits<uint8_t>::max()))
-                    v = std::numeric_limits<uint8_t>::max();
-                else if (x < 0)
-                    v = 0;
-                else
-                    v = uint8_t(x);
-                data[i] = ((char*)&v)[0];
+                if (count == 0)
+                    count = tableSize - startIndex;
+                if (count > tableSize - startIndex)
+                    count = tableSize - startIndex;
             }
+            std::string data;
+            if (count > 0)
+            {
+                data.resize(sizeof(uint8_t) * count);
+                for (int i = 0; i < count; i++)
+                {
+                    uint8_t v;
+                    int64_t x = arr[startIndex + i];
+                    if (x > int64_t(std::numeric_limits<uint8_t>::max()))
+                        v = std::numeric_limits<uint8_t>::max();
+                    else if (x < 0)
+                        v = 0;
+                    else
+                        v = uint8_t(x);
+                    data[i] = ((char*)&v)[0];
+                }
+            }
+            pushBuffer(outStack, data.data(), data.size());
         }
-        pushBuffer(outStack, data.data(), data.size());
     }
     return errMsg;
 }
@@ -4874,53 +4938,61 @@ std::string _method_packUInt8Table(int targetObj, const char* method, CDetachedS
 std::string _method_unpackDoubleTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string dat = fetchBuffer(inStack, 0);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int additionalCharOffset = fetchInt(inStack, 3, 0);
-
-        if (additionalCharOffset < 0)
-            additionalCharOffset = 0;
-        if (additionalCharOffset > int(dat.size()))
-            additionalCharOffset = int(dat.size());
-
-        size_t offset = size_t(additionalCharOffset);
-        size_t remainingLength = dat.size() - offset;
-        const char* data = dat.data() + offset;
-        size_t dataLength = sizeof(double) * (remainingLength / sizeof(double));
-        int packetCount = int(dataLength / sizeof(double));
-
-        if (count < 0)
-            count = 0;
-        if (count == 0)
-            count = int(1999999999);
-
-        std::vector<double> outData;
-        if (dataLength != 0)
+        int startIndex = 0;
+        int count = 0;
+        int additionalCharOffset = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            if ((startIndex >= 0) && (startIndex < packetCount))
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+            map->fetchInt32FromKey("byteOffset", additionalCharOffset, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            if (additionalCharOffset < 0)
+                additionalCharOffset = 0;
+            if (additionalCharOffset > int(dat.size()))
+                additionalCharOffset = int(dat.size());
+
+            size_t offset = size_t(additionalCharOffset);
+            size_t remainingLength = dat.size() - offset;
+            const char* data = dat.data() + offset;
+            size_t dataLength = sizeof(double) * (remainingLength / sizeof(double));
+            int packetCount = int(dataLength / sizeof(double));
+
+            if (count < 0)
+                count = 0;
+            if (count == 0)
+                count = int(1999999999);
+
+            std::vector<double> outData;
+            if (dataLength != 0)
             {
-                if (count > packetCount - startIndex)
-                    count = packetCount - startIndex;
-                outData.reserve(count);
-                for (int i = 0; i < count; i++)
+                if ((startIndex >= 0) && (startIndex < packetCount))
                 {
-                    double v;
-                    ((char*)&v)[0] = data[sizeof(double) * (i + startIndex) + 0];
-                    ((char*)&v)[1] = data[sizeof(double) * (i + startIndex) + 1];
-                    ((char*)&v)[2] = data[sizeof(double) * (i + startIndex) + 2];
-                    ((char*)&v)[3] = data[sizeof(double) * (i + startIndex) + 3];
-                    ((char*)&v)[4] = data[sizeof(double) * (i + startIndex) + 4];
-                    ((char*)&v)[5] = data[sizeof(double) * (i + startIndex) + 5];
-                    ((char*)&v)[6] = data[sizeof(double) * (i + startIndex) + 6];
-                    ((char*)&v)[7] = data[sizeof(double) * (i + startIndex) + 7];
-                    outData.push_back(v);
+                    if (count > packetCount - startIndex)
+                        count = packetCount - startIndex;
+                    outData.reserve(count);
+                    for (int i = 0; i < count; i++)
+                    {
+                        double v;
+                        ((char*)&v)[0] = data[sizeof(double) * (i + startIndex) + 0];
+                        ((char*)&v)[1] = data[sizeof(double) * (i + startIndex) + 1];
+                        ((char*)&v)[2] = data[sizeof(double) * (i + startIndex) + 2];
+                        ((char*)&v)[3] = data[sizeof(double) * (i + startIndex) + 3];
+                        ((char*)&v)[4] = data[sizeof(double) * (i + startIndex) + 4];
+                        ((char*)&v)[5] = data[sizeof(double) * (i + startIndex) + 5];
+                        ((char*)&v)[6] = data[sizeof(double) * (i + startIndex) + 6];
+                        ((char*)&v)[7] = data[sizeof(double) * (i + startIndex) + 7];
+                        outData.push_back(v);
+                    }
                 }
             }
+            pushDoubleArray(outStack, outData.data(), outData.size());
         }
-        pushDoubleArray(outStack, outData.data(), outData.size());
     }
     return errMsg;
 }
@@ -4928,49 +5000,58 @@ std::string _method_unpackDoubleTable(int targetObj, const char* method, CDetach
 std::string _method_unpackFloatTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string dat = fetchBuffer(inStack, 0);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int additionalCharOffset = fetchInt(inStack, 3, 0);
-
-        if (additionalCharOffset < 0)
-            additionalCharOffset = 0;
-        if (additionalCharOffset > int(dat.size()))
-            additionalCharOffset = int(dat.size());
-
-        size_t offset = size_t(additionalCharOffset);
-        size_t remainingLength = dat.size() - offset;
-        const char* data = dat.data() + offset;
-        size_t dataLength = sizeof(float) * (remainingLength / sizeof(float));
-        int packetCount = int(dataLength / sizeof(float));
-
-        if (count < 0)
-            count = 0;
-        if (count == 0)
-            count = int(1999999999);
-
-        std::vector<float> outData;
-        if (dataLength != 0)
+        int startIndex = 0;
+        int count = 0;
+        int additionalCharOffset = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            if ((startIndex >= 0) && (startIndex < packetCount))
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+            map->fetchInt32FromKey("byteOffset", additionalCharOffset, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+
+            if (additionalCharOffset < 0)
+                additionalCharOffset = 0;
+            if (additionalCharOffset > int(dat.size()))
+                additionalCharOffset = int(dat.size());
+
+            size_t offset = size_t(additionalCharOffset);
+            size_t remainingLength = dat.size() - offset;
+            const char* data = dat.data() + offset;
+            size_t dataLength = sizeof(float) * (remainingLength / sizeof(float));
+            int packetCount = int(dataLength / sizeof(float));
+
+            if (count < 0)
+                count = 0;
+            if (count == 0)
+                count = int(1999999999);
+
+            std::vector<float> outData;
+            if (dataLength != 0)
             {
-                if (count > packetCount - startIndex)
-                    count = packetCount - startIndex;
-                outData.reserve(count);
-                for (int i = 0; i < count; i++)
+                if ((startIndex >= 0) && (startIndex < packetCount))
                 {
-                    float v;
-                    ((char*)&v)[0] = data[sizeof(float) * (i + startIndex) + 0];
-                    ((char*)&v)[1] = data[sizeof(float) * (i + startIndex) + 1];
-                    ((char*)&v)[2] = data[sizeof(float) * (i + startIndex) + 2];
-                    ((char*)&v)[3] = data[sizeof(float) * (i + startIndex) + 3];
-                    outData.push_back(v);
+                    if (count > packetCount - startIndex)
+                        count = packetCount - startIndex;
+                    outData.reserve(count);
+                    for (int i = 0; i < count; i++)
+                    {
+                        float v;
+                        ((char*)&v)[0] = data[sizeof(float) * (i + startIndex) + 0];
+                        ((char*)&v)[1] = data[sizeof(float) * (i + startIndex) + 1];
+                        ((char*)&v)[2] = data[sizeof(float) * (i + startIndex) + 2];
+                        ((char*)&v)[3] = data[sizeof(float) * (i + startIndex) + 3];
+                        outData.push_back(v);
+                    }
                 }
             }
+            pushFloatArray(outStack, outData.data(), outData.size());
         }
-        pushFloatArray(outStack, outData.data(), outData.size());
     }
     return errMsg;
 }
@@ -4978,53 +5059,62 @@ std::string _method_unpackFloatTable(int targetObj, const char* method, CDetache
 std::string _method_unpackInt64Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string dat = fetchBuffer(inStack, 0);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int additionalCharOffset = fetchInt(inStack, 3, 0);
-
-        if (additionalCharOffset < 0)
-            additionalCharOffset = 0;
-        if (additionalCharOffset > int(dat.size()))
-            additionalCharOffset = int(dat.size());
-
-        size_t offset = size_t(additionalCharOffset);
-        size_t remainingLength = dat.size() - offset;
-        const char* data = dat.data() + offset;
-        size_t dataLength = sizeof(int64_t) * (remainingLength / sizeof(int64_t));
-        int packetCount = int(dataLength / sizeof(int64_t));
-
-        if (count < 0)
-            count = 0;
-        if (count == 0)
-            count = int(1999999999);
-
-        std::vector<int64_t> outData;
-        if (dataLength != 0)
+        int startIndex = 0;
+        int count = 0;
+        int additionalCharOffset = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            if ((startIndex >= 0) && (startIndex < packetCount))
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+            map->fetchInt32FromKey("byteOffset", additionalCharOffset, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+
+            if (additionalCharOffset < 0)
+                additionalCharOffset = 0;
+            if (additionalCharOffset > int(dat.size()))
+                additionalCharOffset = int(dat.size());
+
+            size_t offset = size_t(additionalCharOffset);
+            size_t remainingLength = dat.size() - offset;
+            const char* data = dat.data() + offset;
+            size_t dataLength = sizeof(int64_t) * (remainingLength / sizeof(int64_t));
+            int packetCount = int(dataLength / sizeof(int64_t));
+
+            if (count < 0)
+                count = 0;
+            if (count == 0)
+                count = int(1999999999);
+
+            std::vector<int64_t> outData;
+            if (dataLength != 0)
             {
-                if (count > packetCount - startIndex)
-                    count = packetCount - startIndex;
-                outData.reserve(count);
-                for (int i = 0; i < count; i++)
+                if ((startIndex >= 0) && (startIndex < packetCount))
                 {
-                    int64_t v;
-                    ((char*)&v)[0] = data[sizeof(int64_t) * (i + startIndex) + 0];
-                    ((char*)&v)[1] = data[sizeof(int64_t) * (i + startIndex) + 1];
-                    ((char*)&v)[2] = data[sizeof(int64_t) * (i + startIndex) + 2];
-                    ((char*)&v)[3] = data[sizeof(int64_t) * (i + startIndex) + 3];
-                    ((char*)&v)[4] = data[sizeof(int64_t) * (i + startIndex) + 4];
-                    ((char*)&v)[5] = data[sizeof(int64_t) * (i + startIndex) + 5];
-                    ((char*)&v)[6] = data[sizeof(int64_t) * (i + startIndex) + 6];
-                    ((char*)&v)[7] = data[sizeof(int64_t) * (i + startIndex) + 7];
-                    outData.push_back(v);
+                    if (count > packetCount - startIndex)
+                        count = packetCount - startIndex;
+                    outData.reserve(count);
+                    for (int i = 0; i < count; i++)
+                    {
+                        int64_t v;
+                        ((char*)&v)[0] = data[sizeof(int64_t) * (i + startIndex) + 0];
+                        ((char*)&v)[1] = data[sizeof(int64_t) * (i + startIndex) + 1];
+                        ((char*)&v)[2] = data[sizeof(int64_t) * (i + startIndex) + 2];
+                        ((char*)&v)[3] = data[sizeof(int64_t) * (i + startIndex) + 3];
+                        ((char*)&v)[4] = data[sizeof(int64_t) * (i + startIndex) + 4];
+                        ((char*)&v)[5] = data[sizeof(int64_t) * (i + startIndex) + 5];
+                        ((char*)&v)[6] = data[sizeof(int64_t) * (i + startIndex) + 6];
+                        ((char*)&v)[7] = data[sizeof(int64_t) * (i + startIndex) + 7];
+                        outData.push_back(v);
+                    }
                 }
             }
+            pushLongArray(outStack, outData.data(), outData.size());
         }
-        pushLongArray(outStack, outData.data(), outData.size());
     }
     return errMsg;
 }
@@ -5032,49 +5122,58 @@ std::string _method_unpackInt64Table(int targetObj, const char* method, CDetache
 std::string _method_unpackInt32Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string dat = fetchBuffer(inStack, 0);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int additionalCharOffset = fetchInt(inStack, 3, 0);
-
-        if (additionalCharOffset < 0)
-            additionalCharOffset = 0;
-        if (additionalCharOffset > int(dat.size()))
-            additionalCharOffset = int(dat.size());
-
-        size_t offset = size_t(additionalCharOffset);
-        size_t remainingLength = dat.size() - offset;
-        const char* data = dat.data() + offset;
-        size_t dataLength = sizeof(int32_t) * (remainingLength / sizeof(int32_t));
-        int packetCount = int(dataLength / sizeof(int32_t));
-
-        if (count < 0)
-            count = 0;
-        if (count == 0)
-            count = int(1999999999);
-
-        std::vector<int> outData;
-        if (dataLength != 0)
+        int startIndex = 0;
+        int count = 0;
+        int additionalCharOffset = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            if ((startIndex >= 0) && (startIndex < packetCount))
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+            map->fetchInt32FromKey("byteOffset", additionalCharOffset, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+
+            if (additionalCharOffset < 0)
+                additionalCharOffset = 0;
+            if (additionalCharOffset > int(dat.size()))
+                additionalCharOffset = int(dat.size());
+
+            size_t offset = size_t(additionalCharOffset);
+            size_t remainingLength = dat.size() - offset;
+            const char* data = dat.data() + offset;
+            size_t dataLength = sizeof(int32_t) * (remainingLength / sizeof(int32_t));
+            int packetCount = int(dataLength / sizeof(int32_t));
+
+            if (count < 0)
+                count = 0;
+            if (count == 0)
+                count = int(1999999999);
+
+            std::vector<int> outData;
+            if (dataLength != 0)
             {
-                if (count > packetCount - startIndex)
-                    count = packetCount - startIndex;
-                outData.reserve(count);
-                for (int i = 0; i < count; i++)
+                if ((startIndex >= 0) && (startIndex < packetCount))
                 {
-                    int32_t v;
-                    ((char*)&v)[0] = data[sizeof(int32_t) * (i + startIndex) + 0];
-                    ((char*)&v)[1] = data[sizeof(int32_t) * (i + startIndex) + 1];
-                    ((char*)&v)[2] = data[sizeof(int32_t) * (i + startIndex) + 2];
-                    ((char*)&v)[3] = data[sizeof(int32_t) * (i + startIndex) + 3];
-                    outData.push_back(v);
+                    if (count > packetCount - startIndex)
+                        count = packetCount - startIndex;
+                    outData.reserve(count);
+                    for (int i = 0; i < count; i++)
+                    {
+                        int32_t v;
+                        ((char*)&v)[0] = data[sizeof(int32_t) * (i + startIndex) + 0];
+                        ((char*)&v)[1] = data[sizeof(int32_t) * (i + startIndex) + 1];
+                        ((char*)&v)[2] = data[sizeof(int32_t) * (i + startIndex) + 2];
+                        ((char*)&v)[3] = data[sizeof(int32_t) * (i + startIndex) + 3];
+                        outData.push_back(v);
+                    }
                 }
             }
+            pushIntArray(outStack, outData.data(), outData.size());
         }
-        pushIntArray(outStack, outData.data(), outData.size());
     }
     return errMsg;
 }
@@ -5082,49 +5181,58 @@ std::string _method_unpackInt32Table(int targetObj, const char* method, CDetache
 std::string _method_unpackUInt32Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string dat = fetchBuffer(inStack, 0);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int additionalCharOffset = fetchInt(inStack, 3, 0);
-
-        if (additionalCharOffset < 0)
-            additionalCharOffset = 0;
-        if (additionalCharOffset > int(dat.size()))
-            additionalCharOffset = int(dat.size());
-
-        size_t offset = size_t(additionalCharOffset);
-        size_t remainingLength = dat.size() - offset;
-        const char* data = dat.data() + offset;
-        size_t dataLength = sizeof(uint32_t) * (remainingLength / sizeof(uint32_t));
-        int packetCount = int(dataLength / sizeof(uint32_t));
-
-        if (count < 0)
-            count = 0;
-        if (count == 0)
-            count = int(1999999999);
-
-        std::vector<int64_t> outData;
-        if (dataLength != 0)
+        int startIndex = 0;
+        int count = 0;
+        int additionalCharOffset = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            if ((startIndex >= 0) && (startIndex < packetCount))
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+            map->fetchInt32FromKey("byteOffset", additionalCharOffset, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+
+            if (additionalCharOffset < 0)
+                additionalCharOffset = 0;
+            if (additionalCharOffset > int(dat.size()))
+                additionalCharOffset = int(dat.size());
+
+            size_t offset = size_t(additionalCharOffset);
+            size_t remainingLength = dat.size() - offset;
+            const char* data = dat.data() + offset;
+            size_t dataLength = sizeof(uint32_t) * (remainingLength / sizeof(uint32_t));
+            int packetCount = int(dataLength / sizeof(uint32_t));
+
+            if (count < 0)
+                count = 0;
+            if (count == 0)
+                count = int(1999999999);
+
+            std::vector<int64_t> outData;
+            if (dataLength != 0)
             {
-                if (count > packetCount - startIndex)
-                    count = packetCount - startIndex;
-                outData.reserve(count);
-                for (int i = 0; i < count; i++)
+                if ((startIndex >= 0) && (startIndex < packetCount))
                 {
-                    uint32_t v;
-                    ((char*)&v)[0] = data[sizeof(uint32_t) * (i + startIndex) + 0];
-                    ((char*)&v)[1] = data[sizeof(uint32_t) * (i + startIndex) + 1];
-                    ((char*)&v)[2] = data[sizeof(uint32_t) * (i + startIndex) + 2];
-                    ((char*)&v)[3] = data[sizeof(uint32_t) * (i + startIndex) + 3];
-                    outData.push_back(v);
+                    if (count > packetCount - startIndex)
+                        count = packetCount - startIndex;
+                    outData.reserve(count);
+                    for (int i = 0; i < count; i++)
+                    {
+                        uint32_t v;
+                        ((char*)&v)[0] = data[sizeof(uint32_t) * (i + startIndex) + 0];
+                        ((char*)&v)[1] = data[sizeof(uint32_t) * (i + startIndex) + 1];
+                        ((char*)&v)[2] = data[sizeof(uint32_t) * (i + startIndex) + 2];
+                        ((char*)&v)[3] = data[sizeof(uint32_t) * (i + startIndex) + 3];
+                        outData.push_back(v);
+                    }
                 }
             }
+            pushLongArray(outStack, outData.data(), outData.size());
         }
-        pushLongArray(outStack, outData.data(), outData.size());
     }
     return errMsg;
 }
@@ -5132,47 +5240,56 @@ std::string _method_unpackUInt32Table(int targetObj, const char* method, CDetach
 std::string _method_unpackInt16Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string dat = fetchBuffer(inStack, 0);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int additionalCharOffset = fetchInt(inStack, 3, 0);
-
-        if (additionalCharOffset < 0)
-            additionalCharOffset = 0;
-        if (additionalCharOffset > int(dat.size()))
-            additionalCharOffset = int(dat.size());
-
-        size_t offset = size_t(additionalCharOffset);
-        size_t remainingLength = dat.size() - offset;
-        const char* data = dat.data() + offset;
-        size_t dataLength = sizeof(int16_t) * (remainingLength / sizeof(int16_t));
-        int packetCount = int(dataLength / sizeof(int16_t));
-
-        if (count < 0)
-            count = 0;
-        if (count == 0)
-            count = int(1999999999);
-
-        std::vector<int> outData;
-        if (dataLength != 0)
+        int startIndex = 0;
+        int count = 0;
+        int additionalCharOffset = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            if ((startIndex >= 0) && (startIndex < packetCount))
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+            map->fetchInt32FromKey("byteOffset", additionalCharOffset, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+
+            if (additionalCharOffset < 0)
+                additionalCharOffset = 0;
+            if (additionalCharOffset > int(dat.size()))
+                additionalCharOffset = int(dat.size());
+
+            size_t offset = size_t(additionalCharOffset);
+            size_t remainingLength = dat.size() - offset;
+            const char* data = dat.data() + offset;
+            size_t dataLength = sizeof(int16_t) * (remainingLength / sizeof(int16_t));
+            int packetCount = int(dataLength / sizeof(int16_t));
+
+            if (count < 0)
+                count = 0;
+            if (count == 0)
+                count = int(1999999999);
+
+            std::vector<int> outData;
+            if (dataLength != 0)
             {
-                if (count > packetCount - startIndex)
-                    count = packetCount - startIndex;
-                outData.reserve(count);
-                for (int i = 0; i < count; i++)
+                if ((startIndex >= 0) && (startIndex < packetCount))
                 {
-                    int16_t v;
-                    ((char*)&v)[0] = data[sizeof(int16_t) * (i + startIndex) + 0];
-                    ((char*)&v)[1] = data[sizeof(int16_t) * (i + startIndex) + 1];
-                    outData.push_back(v);
+                    if (count > packetCount - startIndex)
+                        count = packetCount - startIndex;
+                    outData.reserve(count);
+                    for (int i = 0; i < count; i++)
+                    {
+                        int16_t v;
+                        ((char*)&v)[0] = data[sizeof(int16_t) * (i + startIndex) + 0];
+                        ((char*)&v)[1] = data[sizeof(int16_t) * (i + startIndex) + 1];
+                        outData.push_back(v);
+                    }
                 }
             }
+            pushIntArray(outStack, outData.data(), outData.size());
         }
-        pushIntArray(outStack, outData.data(), outData.size());
     }
     return errMsg;
 }
@@ -5180,47 +5297,56 @@ std::string _method_unpackInt16Table(int targetObj, const char* method, CDetache
 std::string _method_unpackUInt16Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string dat = fetchBuffer(inStack, 0);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int additionalCharOffset = fetchInt(inStack, 3, 0);
-
-        if (additionalCharOffset < 0)
-            additionalCharOffset = 0;
-        if (additionalCharOffset > int(dat.size()))
-            additionalCharOffset = int(dat.size());
-
-        size_t offset = size_t(additionalCharOffset);
-        size_t remainingLength = dat.size() - offset;
-        const char* data = dat.data() + offset;
-        size_t dataLength = sizeof(uint16_t) * (remainingLength / sizeof(uint16_t));
-        int packetCount = int(dataLength / sizeof(uint16_t));
-
-        if (count < 0)
-            count = 0;
-        if (count == 0)
-            count = int(1999999999);
-
-        std::vector<int> outData;
-        if (dataLength != 0)
+        int startIndex = 0;
+        int count = 0;
+        int additionalCharOffset = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            if ((startIndex >= 0) && (startIndex < packetCount))
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+            map->fetchInt32FromKey("byteOffset", additionalCharOffset, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+
+            if (additionalCharOffset < 0)
+                additionalCharOffset = 0;
+            if (additionalCharOffset > int(dat.size()))
+                additionalCharOffset = int(dat.size());
+
+            size_t offset = size_t(additionalCharOffset);
+            size_t remainingLength = dat.size() - offset;
+            const char* data = dat.data() + offset;
+            size_t dataLength = sizeof(uint16_t) * (remainingLength / sizeof(uint16_t));
+            int packetCount = int(dataLength / sizeof(uint16_t));
+
+            if (count < 0)
+                count = 0;
+            if (count == 0)
+                count = int(1999999999);
+
+            std::vector<int> outData;
+            if (dataLength != 0)
             {
-                if (count > packetCount - startIndex)
-                    count = packetCount - startIndex;
-                outData.reserve(count);
-                for (int i = 0; i < count; i++)
+                if ((startIndex >= 0) && (startIndex < packetCount))
                 {
-                    uint16_t v;
-                    ((char*)&v)[0] = data[sizeof(uint16_t) * (i + startIndex) + 0];
-                    ((char*)&v)[1] = data[sizeof(uint16_t) * (i + startIndex) + 1];
-                    outData.push_back(v);
+                    if (count > packetCount - startIndex)
+                        count = packetCount - startIndex;
+                    outData.reserve(count);
+                    for (int i = 0; i < count; i++)
+                    {
+                        uint16_t v;
+                        ((char*)&v)[0] = data[sizeof(uint16_t) * (i + startIndex) + 0];
+                        ((char*)&v)[1] = data[sizeof(uint16_t) * (i + startIndex) + 1];
+                        outData.push_back(v);
+                    }
                 }
             }
+            pushIntArray(outStack, outData.data(), outData.size());
         }
-        pushIntArray(outStack, outData.data(), outData.size());
     }
     return errMsg;
 }
@@ -5228,46 +5354,55 @@ std::string _method_unpackUInt16Table(int targetObj, const char* method, CDetach
 std::string _method_unpackInt8Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string dat = fetchBuffer(inStack, 0);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int additionalCharOffset = fetchInt(inStack, 3, 0);
-
-        if (additionalCharOffset < 0)
-            additionalCharOffset = 0;
-        if (additionalCharOffset > int(dat.size()))
-            additionalCharOffset = int(dat.size());
-
-        size_t offset = size_t(additionalCharOffset);
-        size_t remainingLength = dat.size() - offset;
-        const char* data = dat.data() + offset;
-        size_t dataLength = sizeof(int8_t) * (remainingLength / sizeof(int8_t));
-        int packetCount = int(dataLength / sizeof(int8_t));
-
-        if (count < 0)
-            count = 0;
-        if (count == 0)
-            count = int(1999999999);
-
-        std::vector<int> outData;
-        if (dataLength != 0)
+        int startIndex = 0;
+        int count = 0;
+        int additionalCharOffset = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            if ((startIndex >= 0) && (startIndex < packetCount))
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+            map->fetchInt32FromKey("byteOffset", additionalCharOffset, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+
+            if (additionalCharOffset < 0)
+                additionalCharOffset = 0;
+            if (additionalCharOffset > int(dat.size()))
+                additionalCharOffset = int(dat.size());
+
+            size_t offset = size_t(additionalCharOffset);
+            size_t remainingLength = dat.size() - offset;
+            const char* data = dat.data() + offset;
+            size_t dataLength = sizeof(int8_t) * (remainingLength / sizeof(int8_t));
+            int packetCount = int(dataLength / sizeof(int8_t));
+
+            if (count < 0)
+                count = 0;
+            if (count == 0)
+                count = int(1999999999);
+
+            std::vector<int> outData;
+            if (dataLength != 0)
             {
-                if (count > packetCount - startIndex)
-                    count = packetCount - startIndex;
-                outData.reserve(count);
-                for (int i = 0; i < count; i++)
+                if ((startIndex >= 0) && (startIndex < packetCount))
                 {
-                    int8_t v;
-                    ((char*)&v)[0] = data[i + startIndex];
-                    outData.push_back(v);
+                    if (count > packetCount - startIndex)
+                        count = packetCount - startIndex;
+                    outData.reserve(count);
+                    for (int i = 0; i < count; i++)
+                    {
+                        int8_t v;
+                        ((char*)&v)[0] = data[i + startIndex];
+                        outData.push_back(v);
+                    }
                 }
             }
+            pushIntArray(outStack, outData.data(), outData.size());
         }
-        pushIntArray(outStack, outData.data(), outData.size());
     }
     return errMsg;
 }
@@ -5275,46 +5410,55 @@ std::string _method_unpackInt8Table(int targetObj, const char* method, CDetached
 std::string _method_unpackUInt8Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer | arg_optional, arg_integer | arg_optional, arg_integer | arg_optional}))
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string dat = fetchBuffer(inStack, 0);
-        int startIndex = fetchInt(inStack, 1, 0);
-        int count = fetchInt(inStack, 2, 0);
-        int additionalCharOffset = fetchInt(inStack, 3, 0);
-
-        if (additionalCharOffset < 0)
-            additionalCharOffset = 0;
-        if (additionalCharOffset > int(dat.size()))
-            additionalCharOffset = int(dat.size());
-
-        size_t offset = size_t(additionalCharOffset);
-        size_t remainingLength = dat.size() - offset;
-        const char* data = dat.data() + offset;
-        size_t dataLength = sizeof(uint8_t) * (remainingLength / sizeof(uint8_t));
-        int packetCount = int(dataLength / sizeof(uint8_t));
-
-        if (count < 0)
-            count = 0;
-        if (count == 0)
-            count = int(1999999999);
-
-        std::vector<int> outData;
-        if (dataLength != 0)
+        int startIndex = 0;
+        int count = 0;
+        int additionalCharOffset = 0;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            if ((startIndex >= 0) && (startIndex < packetCount))
+            map->fetchInt32FromKey("start", startIndex, &errMsg);
+            map->fetchInt32FromKey("count", count, &errMsg);
+            map->fetchInt32FromKey("byteOffset", additionalCharOffset, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+
+            if (additionalCharOffset < 0)
+                additionalCharOffset = 0;
+            if (additionalCharOffset > int(dat.size()))
+                additionalCharOffset = int(dat.size());
+
+            size_t offset = size_t(additionalCharOffset);
+            size_t remainingLength = dat.size() - offset;
+            const char* data = dat.data() + offset;
+            size_t dataLength = sizeof(uint8_t) * (remainingLength / sizeof(uint8_t));
+            int packetCount = int(dataLength / sizeof(uint8_t));
+
+            if (count < 0)
+                count = 0;
+            if (count == 0)
+                count = int(1999999999);
+
+            std::vector<int> outData;
+            if (dataLength != 0)
             {
-                if (count > packetCount - startIndex)
-                    count = packetCount - startIndex;
-                outData.reserve(count);
-                for (int i = 0; i < count; i++)
+                if ((startIndex >= 0) && (startIndex < packetCount))
                 {
-                    uint8_t v;
-                    ((char*)&v)[0] = data[i + startIndex];
-                    outData.push_back(v);
+                    if (count > packetCount - startIndex)
+                        count = packetCount - startIndex;
+                    outData.reserve(count);
+                    for (int i = 0; i < count; i++)
+                    {
+                        uint8_t v;
+                        ((char*)&v)[0] = data[i + startIndex];
+                        outData.push_back(v);
+                    }
                 }
             }
+            pushIntArray(outStack, outData.data(), outData.size());
         }
-        pushIntArray(outStack, outData.data(), outData.size());
     }
     return errMsg;
 }
@@ -5413,9 +5557,8 @@ std::string _method_getBoolProperty(int targetObj, const char* method, CDetached
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5444,9 +5587,8 @@ std::string _method_getBufferProperty(int targetObj, const char* method, CDetach
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5479,9 +5621,8 @@ std::string _method_getColorProperty(int targetObj, const char* method, CDetache
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5510,9 +5651,8 @@ std::string _method_getFloatArrayProperty(int targetObj, const char* method, CDe
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5545,9 +5685,8 @@ std::string _method_getFloatProperty(int targetObj, const char* method, CDetache
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5576,9 +5715,8 @@ std::string _method_getStringArrayProperty(int targetObj, const char* method, CD
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5620,9 +5758,8 @@ std::string _method_getHandleArrayProperty(int targetObj, const char* method, CD
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5656,9 +5793,8 @@ std::string _method_getHandleProperty(int targetObj, const char* method, CDetach
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5687,9 +5823,8 @@ std::string _method_getIntArray2Property(int targetObj, const char* method, CDet
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5718,9 +5853,8 @@ std::string _method_getIntArrayProperty(int targetObj, const char* method, CDeta
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5753,9 +5887,8 @@ std::string _method_getIntProperty(int targetObj, const char* method, CDetachedS
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5784,9 +5917,8 @@ std::string _method_getLongProperty(int targetObj, const char* method, CDetached
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5815,9 +5947,8 @@ std::string _method_getPoseProperty(int targetObj, const char* method, CDetached
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5850,9 +5981,8 @@ std::string _method_getQuaternionProperty(int targetObj, const char* method, CDe
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5885,9 +6015,8 @@ std::string _method_getStringProperty(int targetObj, const char* method, CDetach
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5920,9 +6049,8 @@ std::string _method_getVector3Property(int targetObj, const char* method, CDetac
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5952,9 +6080,8 @@ std::string _method_setBoolProperty(int targetObj, const char* method, CDetached
         std::string pName = fetchText(inStack, 0);
         bool pValue = fetchBool(inStack, 1);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -5990,9 +6117,8 @@ std::string _method_setBufferProperty(int targetObj, const char* method, CDetach
         std::string pName = fetchText(inStack, 0);
         std::string pValue = fetchBuffer(inStack, 1);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6029,9 +6155,8 @@ std::string _method_setColorProperty(int targetObj, const char* method, CDetache
         float pValue[3];
         fetchColor(inStack, 1, pValue);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6068,9 +6193,8 @@ std::string _method_setFloatArrayProperty(int targetObj, const char* method, CDe
         std::vector<double> pValue;
         fetchDoubleArray(inStack, 1, pValue);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6106,9 +6230,8 @@ std::string _method_setFloatProperty(int targetObj, const char* method, CDetache
         std::string pName = fetchText(inStack, 0);
         double pValue = fetchDouble(inStack, 1);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6145,9 +6268,8 @@ std::string _method_setStringArrayProperty(int targetObj, const char* method, CD
         std::vector<std::string> pValue;
         fetchTextArray(inStack, 1, pValue);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6191,9 +6313,8 @@ std::string _method_setHandleArrayProperty(int targetObj, const char* method, CD
         std::vector<long long int> pValue;
         fetchHandleArray(inStack, 1, pValue);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6229,9 +6350,8 @@ std::string _method_setHandleProperty(int targetObj, const char* method, CDetach
         std::string pName = fetchText(inStack, 0);
         long long int pValue = fetchHandle(inStack, 1);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6268,9 +6388,8 @@ std::string _method_setIntArray2Property(int targetObj, const char* method, CDet
         std::vector<int> pValue;
         fetchIntArray(inStack, 1, pValue);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6307,9 +6426,8 @@ std::string _method_setIntArrayProperty(int targetObj, const char* method, CDeta
         std::vector<int> pValue;
         fetchIntArray(inStack, 1, pValue);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6345,9 +6463,8 @@ std::string _method_setIntProperty(int targetObj, const char* method, CDetachedS
         std::string pName = fetchText(inStack, 0);
         int pValue = fetchInt(inStack, 1);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6383,9 +6500,8 @@ std::string _method_setLongProperty(int targetObj, const char* method, CDetached
         std::string pName = fetchText(inStack, 0);
         long long int pValue = fetchLong(inStack, 1);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6421,9 +6537,8 @@ std::string _method_setPoseProperty(int targetObj, const char* method, CDetached
         std::string pName = fetchText(inStack, 0);
         C7Vector pState = fetchPose(inStack, 1);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6461,9 +6576,8 @@ std::string _method_setQuaternionProperty(int targetObj, const char* method, CDe
         std::string pName = fetchText(inStack, 0);
         C4Vector pState = fetchQuaternion(inStack, 1);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6501,9 +6615,8 @@ std::string _method_setStringProperty(int targetObj, const char* method, CDetach
         std::string pName = fetchText(inStack, 0);
         std::string pValue = fetchText(inStack, 1);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6539,9 +6652,8 @@ std::string _method_setVector3Property(int targetObj, const char* method, CDetac
         std::string pName = fetchText(inStack, 0);
         C3Vector pValue = fetchVector3(inStack, 1);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6576,9 +6688,8 @@ std::string _method_getMatrixProperty(int targetObj, const char* method, CDetach
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6614,9 +6725,8 @@ std::string _method_setMatrixProperty(int targetObj, const char* method, CDetach
         std::string pName = fetchText(inStack, 0);
         CMatrix pValue = fetchMatrix(inStack, 1);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6651,9 +6761,8 @@ std::string _method_getMethodProperty(int targetObj, const char* method, CDetach
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6697,9 +6806,8 @@ std::string _method_setMethodProperty(int targetObj, const char* method, CDetach
         std::string pName = fetchText(inStack, 0);
         std::string pValue = fetchBuffer(inStack, 1); // can be nil, in which case we register a dummy function
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6736,9 +6844,8 @@ std::string _method_getTableProperty(int targetObj, const char* method, CDetache
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6773,9 +6880,8 @@ std::string _method_setTableProperty(int targetObj, const char* method, CDetache
         std::string pName = fetchText(inStack, 0);
         std::string pValue = fetchBuffer(inStack, 1);
         bool noError = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(2);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6810,9 +6916,8 @@ std::string _method_removeProperty(int targetObj, const char* method, CDetachedS
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6844,9 +6949,8 @@ std::string _method_getPropertyName(int targetObj, const char* method, CDetached
         int index = fetchInt(inStack, 0);
         SPropertyOptions opt;
         std::string propertyPrefix;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchStringFromKey("prefix", propertyPrefix, &errMsg);
             map->fetchInt32FromKey("excludeFlags", opt.excludeFlags, &errMsg);
         }
@@ -6887,9 +6991,8 @@ std::string _method_getPropertyInfo(int targetObj, const char* method, CDetached
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
         SPropertyOptions opt;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchBoolFromKey("noError", noError, &errMsg);
             map->fetchBoolFromKey("shortInfoTxt", opt.shortInfoTxt, &errMsg);
             map->fetchInt32FromKey("bitCoded", opt.bitCoded, &errMsg);
@@ -6941,9 +7044,8 @@ std::string _method_createCustomObjectClass(int targetObj, const char* method, C
     {
         std::string typeStr = fetchText(inStack, 0);
         std::string metaInfoStr = R"({"superclass": "object"})";
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchStringFromKey("metaInfo", metaInfoStr, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -6969,21 +7071,20 @@ std::string _method_addCurve(int targetObj, const char* method, CDetachedScript*
 {
     std::string errMsg;
     CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_graph, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table, 2, arg_integer, arg_optional | arg_color, arg_optional | arg_map}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table, 2, arg_integer, arg_optional | arg_map}))
     {
         std::vector<int> streamIds;
         fetchIntArray(inStack, 0, streamIds);
-        float color[3];
-        fetchColor(inStack, 1, color, {0.0f, 1.0f, 0.0f});
+        float color[3] = {0.0f, 1.0f, 0.0f};
         std::string name("curve");
         std::string unitStr("");
         double defaultVals[2] = {0.0, 0.0};
         int width = 2;
         bool hideLabel = false;
         bool drawLine = false;
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
             map->fetchStringFromKey("name", name, &errMsg);
             map->fetchStringFromKey("unit", unitStr, &errMsg);
             map->fetchDoubleArrayFromKey("default", defaultVals, 2, &errMsg);
@@ -7036,9 +7137,8 @@ std::string _method_addSignal(int targetObj, const char* method, CDetachedScript
         double scale = 1.0;
         double offset = 0.0;
         int smoothing = 1;
-        if (hasNonNullArg(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
             map->fetchStringFromKey("name", name, &errMsg);
             map->fetchStringFromKey("unit", unitStr, &errMsg);
             map->fetchBoolFromKey("hideSignal", hideSignal, &errMsg);
@@ -7147,15 +7247,14 @@ std::string _method_snapshotTrace(int targetObj, const char* method, CDetachedSc
 {
     std::string errMsg;
     CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_graph, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_color, arg_optional | arg_map}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_map}))
     {
         int trace = fetchInt(inStack, 0);
-        float color[3];
-        fetchColor(inStack, 1, color, {1.0f, 1.0f, 1.0f});
+        float color[3] = {1.0f, 1.0f, 1.0f};
         std::string name("snapshot");
-        if (hasNonNullArg(inStack, 2))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
+            map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
             map->fetchStringFromKey("name", name, &errMsg);
         }
         if (errMsg.size() == 0)
@@ -7229,9 +7328,8 @@ std::string _method_makeObject(int targetObj, const char* method, CDetachedScrip
             bool appScope = true;
             bool scriptPersistent = false;
             bool isVolatile = true;
-            if (hasNonNullArg(inStack, 0))
+            if (CInterfaceStackTable* map = fetchMap(inStack, 0))
             {
-                CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
                 map->fetchBoolFromKey("appScope", appScope, &errMsg);
                 map->fetchBoolFromKey("scriptPersistent", scriptPersistent, &errMsg);
                 map->fetchBoolFromKey("volatile", isVolatile, &errMsg);
@@ -7278,9 +7376,8 @@ std::string _method_insertFrom(int targetObj, const char* method, CDetachedScrip
                     float color[3];
                     bool hasColor = false;
                     int tag = 0;
-                    if (hasNonNullArg(inStack, 1))
+                    if (CInterfaceStackTable* map = fetchMap(inStack, 1))
                     {
-                        CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
                         hasColor = map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
                         map->fetchInt32FromKey("tag", tag, &errMsg);
                     }
@@ -7313,9 +7410,8 @@ std::string _method_insertFrom(int targetObj, const char* method, CDetachedScrip
                     double gridSize = 0.02;
                     double duplicateTolerance;
                     bool hasDuplicateTolerance = false;
-                    if (hasNonNullArg(inStack, 1))
+                    if (CInterfaceStackTable* map = fetchMap(inStack, 1))
                     {
-                        CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
                         hasColor = map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
                         map->fetchDoubleFromKey("gridSize", gridSize, &errMsg);
                         hasDuplicateTolerance = map->fetchDoubleFromKey("duplicateTolerance", duplicateTolerance, &errMsg);
@@ -7388,9 +7484,8 @@ std::string _method_subtractFrom(int targetObj, const char* method, CDetachedScr
                 if (ptCloud != nullptr)
                 {
                     double tolerance = 0.02;
-                    if (hasNonNullArg(inStack, 1))
+                    if (CInterfaceStackTable* map = fetchMap(inStack, 1))
                     {
-                        CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(1);
                         map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
                     }
                     if (errMsg.size() == 0)
