@@ -536,7 +536,6 @@ const std::map<std::string, SDeprecatedPropertyItems> tmpMap = {
     {propForceSensor_DEPRECATED_sensorForce.name,                       {propForceSensor_sensorForce.name, sim_sceneobject_forcesensor}},
     {propForceSensor_DEPRECATED_sensorTorque.name,                      {propForceSensor_sensorTorque.name, sim_sceneobject_forcesensor}},
 
-    {propScript_DEPRECATED_size.name,                                   {propScript_size.name, sim_sceneobject_script}},
     {propScript_DEPRECATED_scriptDisabled.name,                         {"__noReplace__", sim_sceneobject_script}},
     {propScript_DEPRECATED_restartOnError.name,                         {"__noReplace__", sim_sceneobject_script}},
     {propScript_DEPRECATED_execPriority.name,                           {"__noReplace__", sim_sceneobject_script}},

@@ -93,6 +93,34 @@ bool CInterfaceStackTable::getUCharArray(unsigned char* array, int count) const
     return (retVal);
 }
 
+bool CInterfaceStackTable::getUInt32Array(unsigned int* array, int count) const
+{
+    if (!_isTableArray)
+        return (false);
+    bool retVal = true;
+    size_t c = (size_t)count;
+    if (c > _tableObjects.size())
+        c = _tableObjects.size();
+    for (size_t i = 0; i < c; i++)
+    {
+        int t = _tableObjects[i]->getObjectType();
+        if (t == sim_stackitem_double)
+            array[i] = (unsigned int)((CInterfaceStackNumber*)_tableObjects[i])->getValue();
+        else if (t == sim_stackitem_integer)
+            array[i] = (unsigned int)((CInterfaceStackInteger*)_tableObjects[i])->getValue();
+        else if (t == sim_stackitem_handle)
+            array[i] = (unsigned int)((CInterfaceStackHandle*)_tableObjects[i])->getValue();
+        else
+        {
+            array[i] = 0;
+            retVal = false;
+        }
+    }
+    for (size_t i = c; i < (size_t)count; i++)
+        array[i] = 0; // fill with zeros
+    return (retVal);
+}
+
 bool CInterfaceStackTable::getInt32Array(int* array, int count) const
 {
     if (!_isTableArray)
@@ -688,6 +716,47 @@ bool CInterfaceStackTable::fetchFloatArrayFromKey(const char* fieldName, float* 
     return retVal;
 }
 
+bool CInterfaceStackTable::fetchUInt32ArrayFromKey(const char* fieldName, unsigned int* arr, size_t cnt, std::string* errMsg /*= nullptr*/) const
+{
+    bool retVal = false;
+    bool err = false;
+    CInterfaceStackObject* obj = getMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        err = true;
+        if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable* table = (CInterfaceStackTable*)obj;
+            if (table->getArraySize() == cnt)
+            {
+                table->getUInt32Array(arr, int(cnt));
+                retVal = true;
+            }
+        }
+        else if (obj->getObjectType() == sim_stackitem_handlearray)
+        {
+            const CInterfaceStackHandleArray* a = (CInterfaceStackHandleArray*)obj;
+            size_t c;
+            const long long int* A = a->getValue(&c);
+            if (c == cnt)
+            {
+                for (size_t i = 0; i < cnt; i++)
+                    arr[i] = (unsigned int)A[i];
+                retVal = true;
+            }
+        }
+    }
+    if (retVal)
+        err = false;
+    if (err && (errMsg != nullptr))
+    {
+        errMsg[0] = "invalid '";
+        errMsg[0] += fieldName;
+        errMsg[0] += "' field.";
+    }
+    return retVal;
+}
+
 bool CInterfaceStackTable::fetchInt32ArrayFromKey(const char* fieldName, int* arr, size_t cnt, std::string* errMsg /*= nullptr*/) const
 {
     bool retVal = false;
@@ -843,6 +912,64 @@ bool CInterfaceStackTable::fetchArrayAsConsecutiveDoublesFromKey(const char* fie
         errMsg[0] = "invalid '";
         errMsg[0] += fieldName;
         errMsg[0] += "' field.";
+    }
+    return retVal;
+}
+
+bool CInterfaceStackTable::fetchMatrixDataFromKey(const char* fieldName, std::vector<double>& arr, int rows, int cols, bool rowByRow, std::string* errMsg /*= nullptr*/) const
+{
+    bool retVal = false;
+    bool err = false;
+    CInterfaceStackObject* obj = getMapObject(fieldName);
+    if (obj != nullptr)
+    {
+        err = true;
+        if (obj->getObjectType() == sim_stackitem_matrix)
+        {
+            const CMatrix* m = ((CInterfaceStackMatrix*)obj)->getValue();
+            if (((m->rows == rows) || (rows == -1)) && ((m->cols == cols) || (cols == -1)))
+            {
+                if (rowByRow)
+                    arr = m->data;
+                else
+                {
+                    CMatrix mm = m[0];
+                    mm.transpose();
+                    arr = mm.data;
+                }
+                retVal = true;
+            }
+        }
+        else if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable* table = (CInterfaceStackTable*)obj;
+            if (table->isMatrixEquivalent(rows, cols))
+            {
+                table->getItemsAsConsecutiveDoubles(arr);
+                retVal = true;
+            }
+        }
+    }
+    if (retVal)
+        err = false;
+    if (err && (errMsg != nullptr))
+    {
+        errMsg[0] = "invalid '";
+        errMsg[0] += fieldName;
+        errMsg[0] += "' field.";
+    }
+    return retVal;
+}
+
+bool CInterfaceStackTable::fetchMatrixDataFromKey(const char* fieldName, std::vector<float>& arr, int rows, int cols, bool rowByRow, std::string* errMsg /*= nullptr*/) const
+{
+    std::vector<double> a;
+    bool retVal = fetchMatrixDataFromKey(fieldName, a, rows, cols, rowByRow, errMsg);
+    if (retVal)
+    {
+        arr.resize(a.size());
+        for (size_t i = 0; i < a.size(); i++)
+            arr[i] = (float)a[i];
     }
     return retVal;
 }
@@ -1499,11 +1626,97 @@ int CInterfaceStackTable::getTableInfo(int infoType) const
     return retVal;
 }
 
+bool CInterfaceStackTable::isMatrixEquivalent(int rows, int cols) const
+{
+    bool retVal = true;
+    size_t s = getArraySize();
+    int rc[2] = {-1, -1};
+    if (rows != -1)
+    {
+        rc[0] = rows;
+        rc[1] = cols;
+    }
+    else
+        rc[0] = cols;
+
+    bool anySizeOk = (rc[0] == -1);
+
+    if (s > 0)
+    {
+        int r = -1;
+        for (size_t i = 0; i < s; i++)
+        {
+            CInterfaceStackObject* obj = getArrayItemAtIndex(i);
+            int d = -1;
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (tbl->getArraySize() > 0)
+                {
+                    if (tbl->areAllValuesThis(sim_stackitem_double, true))
+                        d = int(tbl->getArraySize());
+                }
+            }
+            else if (obj->getObjectType() == sim_stackitem_matrix)
+            {
+                CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)obj;
+                const CMatrix* mm = m->getValue();
+                if ((mm->rows == 1) || (mm->cols == 1))
+                    d = int(std::max<size_t>(mm->rows, mm->cols));
+            }
+            else if (obj->getObjectType() == sim_stackitem_quaternion)
+                d = 4;
+            else if (obj->getObjectType() == sim_stackitem_pose)
+                d = 7;
+            if (d == -1)
+            {
+                retVal = false;
+                break;
+            }
+            if (i == 0)
+            {
+                r = d;
+                if (!anySizeOk)
+                {
+                    if ((s != rc[0]) && (r != rc[0]))
+                    {
+                        retVal = false;
+                        break;
+                    }
+                    else if ((s == rc[0]) && (rc[1] != -1) && (r != rc[1]))
+                    {
+                        retVal = false;
+                        break;
+                    }
+                    else if ((r == rc[0]) && (rc[1] != -1) && (s != rc[1]))
+                    {
+                        retVal = false;
+                        break;
+                    }
+                }
+            }
+            else if (d != r)
+            {
+                retVal = false;
+                break;
+            }
+        }
+    }
+    else
+        retVal = false;
+    return retVal;
+}
+
 bool CInterfaceStackTable::_isEquivalent(int what, CInterfaceStackObject* obj)
 {
-    if ((what == sim_stackitem_double) || (what == sim_stackitem_integer) || (what == sim_stackitem_handle))
+    if ((what == sim_stackitem_double) || (what == sim_stackitem_integer))
     {
-        if ((obj->getObjectType() != sim_stackitem_double) && (obj->getObjectType() != sim_stackitem_integer) && (obj->getObjectType() != sim_stackitem_handle))
+        if ((obj->getObjectType() != sim_stackitem_double) && (obj->getObjectType() != sim_stackitem_integer))
+            return false;
+    }
+    else if (what == sim_stackitem_handle)
+    {
+        if ((obj->getObjectType() != sim_stackitem_integer) && (obj->getObjectType() != sim_stackitem_handle))
             return false;
     }
     else if (what == sim_stackitem_exvector)

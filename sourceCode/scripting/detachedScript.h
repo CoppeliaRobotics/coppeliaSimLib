@@ -85,14 +85,14 @@ class CDetachedScript : public Obj
 
     int executeScriptString(const char* scriptString, CInterfaceStack* outStack);
 
-    int setBoolProperty(const char* pName, bool pState);
-    int getBoolProperty(const char* pName, bool& pState) const;
-    int setIntProperty(const char* pName, int pState);
-    int getIntProperty(const char* pName, int& pState) const;
-    int setLongProperty(const char* pName, long long int pState);
+    int setBoolProperty(const char* pName, bool pState) override;
+    int getBoolProperty(const char* pName, bool& pState) const override;
+    int setIntProperty(const char* pName, int pState) override;
+    int getIntProperty(const char* pName, int& pState) const override;
+    int setLongProperty(const char* pName, long long int pState)override;
     int getLongProperty(const char* pName, long long int& pState) const override;
-    int getHandleProperty(const char* pName, long long int& pState) const;
-    int setStringProperty(const char* pName, const std::string& pState);
+    int getHandleProperty(const char* pName, long long int& pState) const override;
+    int setStringProperty(const char* pName, const std::string& pState)override;
     int getStringProperty(const char* pName, std::string& pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;

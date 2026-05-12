@@ -87,6 +87,7 @@ class CInterfaceStackTable : public CInterfaceStackObject
     void appendArrayOrMapObject(CInterfaceStackObject* key, CInterfaceStackObject* obj);
 
     bool getUCharArray(unsigned char* array, int count) const;
+    bool getUInt32Array(unsigned int* array, int count) const;
     bool getInt32Array(int* array, int count) const;
     bool getInt64Array(long long int* array, int count) const;
     bool getHandleArray(long long int* array, int count) const;
@@ -106,17 +107,21 @@ class CInterfaceStackTable : public CInterfaceStackObject
     bool fetchInt64FromKey(const char* fieldName, long long int& v, std::string* errMsg = nullptr) const;
     bool fetchDoubleArrayFromKey(const char* fieldName, double* arr, size_t cnt, std::string* errMsg = nullptr) const;
     bool fetchFloatArrayFromKey(const char* fieldName, float* arr, size_t cnt, std::string* errMsg = nullptr) const;
+    bool fetchUInt32ArrayFromKey(const char* fieldName, unsigned int* arr, size_t cnt, std::string* errMsg = nullptr) const;
     bool fetchInt32ArrayFromKey(const char* fieldName, int* arr, size_t cnt, std::string* errMsg = nullptr) const;
     bool fetchInt64ArrayFromKey(const char* fieldName, long long int* arr, size_t cnt, std::string* errMsg = nullptr) const;
     bool fetchStringArrayFromKey(const char* fieldName, std::vector<std::string>& arr, std::string* errMsg = nullptr) const;
     bool fetchArrayAsConsecutiveFloatsFromKey(const char* fieldName, std::vector<float>& arr, std::string* errMsg = nullptr) const;
     bool fetchArrayAsConsecutiveDoublesFromKey(const char* fieldName, std::vector<double>& arr, std::string* errMsg = nullptr) const;
+    bool fetchMatrixDataFromKey(const char* fieldName, std::vector<double>& arr, int rows, int cols, bool rowByRow, std::string* errMsg = nullptr) const;
+    bool fetchMatrixDataFromKey(const char* fieldName, std::vector<float>& arr, int rows, int cols, bool rowByRow, std::string* errMsg = nullptr) const;
 
     bool removeFromKey(const char* keyToRemove);
     bool removeFromKey(const CInterfaceStackObject* keyToRemove);
 
     int getTableInfo(int infoType) const;
     bool areAllValuesThis(int what, bool tolerant) const;
+    bool isMatrixEquivalent(int rows, int cols) const;
 
 
   protected:

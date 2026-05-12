@@ -1357,6 +1357,13 @@ struct SJointProperty
     FUNCX(propOctree_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Voxel Colors"}, {"description", ""}}), "") \
     FUNCX(propOctree_METHOD_insertFrom, "insertFrom", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propOctree_METHOD_subtractFrom, "subtractFrom", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propOctree_METHOD_clear, "clear", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propOctree_METHOD_insertVoxels, "insertVoxels", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propOctree_METHOD_insertVoxelsFromBuffer, "insertVoxelsFromBuffer", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propOctree_METHOD_subtractVoxels, "subtractVoxels", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propOctree_METHOD_subtractVoxelsFromBuffer, "subtractVoxelsFromBuffer", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propOctree_METHOD_checkPoints, "checkPoints", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propOctree_METHOD_checkPointsFromBuffer, "checkPointsFromBuffer", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
     FUNCX(propOctree_DEPRECATED_voxels, "voxels", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_notwritable, "", "")
 
@@ -1370,7 +1377,14 @@ struct SJointProperty
     FUNCX(propPointCloud_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Points"}, {"description", "Point positions"}}), "") \
     FUNCX(propPointCloud_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Colors"}, {"description", "Point colors"}}), "") \
     FUNCX(propPointCloud_METHOD_insertFrom, "insertFrom", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
-    FUNCX(propPointCloud_METHOD_subtractFrom, "subtractFrom", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
+    FUNCX(propPointCloud_METHOD_subtractFrom, "subtractFrom", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propPointCloud_METHOD_clear, "clear", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propPointCloud_METHOD_insertPoints, "insertPoints", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propPointCloud_METHOD_insertPointsFromBuffer, "insertPointsFromBuffer", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propPointCloud_METHOD_subtractPoints, "subtractPoints", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propPointCloud_METHOD_subtractPointsFromBuffer, "subtractPointsFromBuffer", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propPointCloud_METHOD_intersectPoints, "intersectPoints", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
+    FUNCX(propPointCloud_METHOD_intersectPointsFromBuffer, "intersectPointsFromBuffer", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "")
 
 #define PROXIMITYSENSOR_PROPERTIES \
     FUNCX(propProximitySensor_size, "pointSize", sim_propertytype_float, 0,  jsonStr({{"label", "Sensor point size"}, {"description", ""}}), "") \
@@ -1427,7 +1441,6 @@ struct SJointProperty
     FUNCX(propScript_resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0,  jsonStr({{"label", "Reset after simulation error"}, {"description", ""}}), "") \
     FUNCX(propScript_detachedScript, "detachedScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Detached script handle"}, {"description", ""}, {"handleType", "detachedScript"}}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propScript_DEPRECATED_size, "scriptSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE, "", "") \
     FUNCX(propScript_DEPRECATED_scriptDisabled, "scriptDisabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent, "", "") \
     FUNCX(propScript_DEPRECATED_restartOnError, "restartOnError", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent, "", "") \
     FUNCX(propScript_DEPRECATED_execPriority, "execPriority", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED_MODELHASHEXCLUDE | sim_propertyinfo_silent, "", "") \

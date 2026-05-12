@@ -209,6 +209,19 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["makeObject"] = _method_makeObject;
         funcTable["insertFrom"] = _method_insertFrom;
         funcTable["subtractFrom"] = _method_subtractFrom;
+        funcTable["clear"] = _method_clear;
+        funcTable["insertVoxels"] = _method_insertVoxels;
+        funcTable["insertVoxelsFromBuffer"] = _method_insertVoxelsFromBuffer;
+        funcTable["subtractVoxels"] = _method_subtractVoxels;
+        funcTable["subtractVoxelsFromBuffer"] = _method_subtractVoxelsFromBuffer;
+        funcTable["checkPoints"] = _method_checkPoints;
+        funcTable["checkPointsFromBuffer"] = _method_checkPointsFromBuffer;
+        funcTable["insertPoints"] = _method_insertPoints;
+        funcTable["insertPointsFromBuffer"] = _method_insertPointsFromBuffer;
+        funcTable["subtractPoints"] = _method_subtractPoints;
+        funcTable["subtractPointsFromBuffer"] = _method_subtractPointsFromBuffer;
+        funcTable["intersectPoints"] = _method_intersectPoints;
+        funcTable["intersectPointsFromBuffer"] = _method_intersectPointsFromBuffer;
     }
 
     std::string retVal("__notFound__");
@@ -361,6 +374,8 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                             retVal = true;
                         else if ( (desiredArgType == arg_vector3) && (m->getValue()->cols == 1) && (m->getValue()->rows == 3) )
                             retVal = true;
+                        else
+                            retVal = false;
                     }
                     else
                     {
@@ -371,6 +386,8 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                             {
                                 if (desiredArgType == arg_handlearray)
                                     retVal = tbl->areAllValuesThis(arg_handle, true);
+                                else if (desiredArgType == arg_matrix)
+                                    retVal =tbl->isMatrixEquivalent(rows, cols);
                                 else
                                 {
                                     if (tbl->areAllValuesThis(arg_double, true))
@@ -908,6 +925,42 @@ CMatrix fetchMatrix(const CInterfaceStack* inStack, int index)
             return CMatrix(((CInterfaceStackMatrix*)obj)->getValue()[0]);
     }
     return CMatrix();
+}
+
+void fetchMatrixData(const CInterfaceStack* inStack, int index, std::vector<double>& data, bool rowByRow)
+{
+    data.clear();
+    int argCnt = inStack->getStackSize();
+    if (argCnt > index)
+    {
+        const CInterfaceStackObject* obj = inStack->getStackObjectFromIndex(index);
+        if (obj->getObjectType() == sim_stackitem_matrix)
+        {
+            if (rowByRow)
+                data = ((CInterfaceStackMatrix*)obj)->getValue()->data;
+            else
+            {
+                CMatrix m = ((CInterfaceStackMatrix*)obj)->getValue()[0];
+                m.transpose();
+                data = m.data;
+            }
+        }
+        else if (obj->getObjectType() == sim_stackitem_table)
+        {
+            CInterfaceStackTable* table = (CInterfaceStackTable*)obj;
+            table->getItemsAsConsecutiveDoubles(data);
+        }
+    }
+}
+
+void fetchMatrixData(const CInterfaceStack* inStack, int index, std::vector<float>& data, bool rowByRow)
+{
+    data.clear();
+    std::vector<double> d;
+    fetchMatrixData(inStack, index, d, rowByRow);
+    data.resize(d.size());
+    for (size_t i = 0; i < d.size(); i++)
+        data[i] = (float)d[i];
 }
 
 void fetchDoubleArray(const CInterfaceStack* inStack, int index, std::vector<double>& outArr, std::initializer_list<double> arr /*= {}*/)
@@ -2941,18 +2994,18 @@ std::string _method_addItems(int targetObj, const char* method, CDetachedScript*
 {
     std::string errMsg;
     CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_marker, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_vector3, arg_map | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
     {
         std::vector<float> pts;
-        fetchArrayAsConsecutiveNumbers(inStack, 0, pts);
+        fetchMatrixData(inStack, 0, pts, false);
         std::vector<float> ccols;
         std::vector<float> quats;
         std::vector<float> sizes;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
             map->fetchArrayAsConsecutiveFloatsFromKey("colors", ccols, &errMsg);
-            map->fetchArrayAsConsecutiveFloatsFromKey("quaternions", quats, &errMsg);
-            map->fetchArrayAsConsecutiveFloatsFromKey("sizes", sizes, &errMsg);
+            map->fetchMatrixDataFromKey("quaternions", quats, -1, 4, true, &errMsg);
+            map->fetchMatrixDataFromKey("sizes", sizes, 3, -1, false, &errMsg);
         }
         if (errMsg.empty())
         {
@@ -7502,6 +7555,539 @@ std::string _method_subtractFrom(int targetObj, const char* method, CDetachedScr
         }
         else
             errMsg = "method not available for that target.";
+    }
+    return errMsg;
+}
+
+std::string _method_clear(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
+    if (target != nullptr)
+    {
+        COcTree* ocTree = nullptr;
+        CPointCloud* ptCloud = nullptr;
+        if (target->getObjectType() == sim_sceneobject_octree)
+            ocTree = (COcTree*)target;
+        if (target->getObjectType() == sim_sceneobject_pointcloud)
+            ptCloud = (CPointCloud*)target;
+        if ((ocTree != nullptr) || (ptCloud != nullptr))
+        {
+            if (checkInputArguments(method, inStack, &errMsg, {}))
+            {
+                if (ocTree != nullptr)
+                    ocTree->clear();
+                if (ptCloud != nullptr)
+                    ptCloud->clear();
+            }
+        }
+        else
+            errMsg = "method not available for that target.";
+    }
+    return errMsg;
+}
+
+std::string _method_insertVoxels(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    {
+        std::vector<double> pts;
+        fetchMatrixData(inStack, 0, pts, false);
+        std::vector<float> colors;
+        std::vector<unsigned int> tags;
+        tags.resize(pts.size() / 3);
+        bool hasColors = false;
+        bool hasTags = false;
+        float color[3];
+        int tag = 0;
+        bool hasColor = false;
+        bool relative = false;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            hasColors = map->fetchArrayAsConsecutiveFloatsFromKey("colors", colors, &errMsg);
+            if (hasColors && (colors.size() != pts.size()))
+                errMsg = "invalid 'colors' field.";
+            hasTags = map->fetchUInt32ArrayFromKey("tags", tags.data(), tags.size(), &errMsg);
+            hasColor = map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
+            map->fetchInt32FromKey("tag", tag, &errMsg);
+            map->fetchBoolFromKey("relative", relative, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            std::vector<unsigned char> _cols;
+            _cols.resize(pts.size());
+            if (hasColors)
+            {
+                for (size_t i = 0; i < pts.size(); i++)
+                    _cols[i] = (unsigned char)(colors[i] * 255.1f);
+            }
+            else
+            {
+                if (!hasColor)
+                    target->getColor()->getColor(color, sim_materialcomponent_diffuse);
+                for (size_t i = 0; i < pts.size() / 3; i++)
+                {
+                    _cols[3 * i + 0] = (unsigned char)(color[0] * 255.1f);
+                    _cols[3 * i + 1] = (unsigned char)(color[1] * 255.1f);
+                    _cols[3 * i + 2] = (unsigned char)(color[2] * 255.1f);
+                }
+            }
+            if (!hasTags)
+            {
+                tags.resize(0);
+                tags.resize(pts.size() / 3, tag);
+            }
+            target->insertPoints(pts.data(), int(pts.size()) / 3, relative, _cols.data(), true, tags.data(), 0);
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_insertVoxelsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    {
+        std::string buff = fetchBuffer(inStack, 0);
+        size_t l = buff.size() / sizeof(float);
+        std::vector<double> pts;
+        pts.resize(l);
+        for (size_t i = 0; i < l; i++)
+            pts[i] = (double)((float*)buff.data())[i];
+        std::vector<float> colors;
+        std::vector<unsigned int> tags;
+        tags.resize(pts.size() / 3);
+        bool hasColors = false;
+        bool hasTags = false;
+        float color[3];
+        int tag = 0;
+        bool hasColor = false;
+        bool relative = false;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            buff.clear();
+            hasColors = map->fetchStringFromKey("colors", buff, &errMsg);
+            if (hasColors)
+            {
+                l = buff.size() / sizeof(float);
+                if ( l != pts.size())
+                    errMsg = "invalid 'colors' field.";
+                else
+                {
+                    colors.resize(l);
+                    for (size_t i = 0; i < l; i++)
+                        colors[i] = ((float*)buff.data())[i];
+                }
+            }
+            buff.clear();
+            hasTags = map->fetchStringFromKey("tags", buff, &errMsg);
+            if (hasTags)
+            {
+                l = buff.size() / sizeof(unsigned int);
+                if ( l != pts.size() / 3)
+                    errMsg = "invalid 'tags' field.";
+                else
+                {
+                    tags.resize(l);
+                    for (size_t i = 0; i < l; i++)
+                        tags[i] = ((unsigned int*)buff.data())[i];
+                }
+            }
+            hasColor = map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
+            map->fetchInt32FromKey("tag", tag, &errMsg);
+            map->fetchBoolFromKey("relative", relative, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            std::vector<unsigned char> _cols;
+            _cols.resize(pts.size());
+            if (hasColors)
+            {
+                for (size_t i = 0; i < pts.size(); i++)
+                    _cols[i] = (unsigned char)(colors[i] * 255.1f);
+            }
+            else
+            {
+                if (!hasColor)
+                    target->getColor()->getColor(color, sim_materialcomponent_diffuse);
+                for (size_t i = 0; i < pts.size() / 3; i++)
+                {
+                    _cols[3 * i + 0] = (unsigned char)(color[0] * 255.1f);
+                    _cols[3 * i + 1] = (unsigned char)(color[1] * 255.1f);
+                    _cols[3 * i + 2] = (unsigned char)(color[2] * 255.1f);
+                }
+            }
+            if (!hasTags)
+            {
+                tags.resize(0);
+                tags.resize(pts.size() / 3, tag);
+            }
+            target->insertPoints(pts.data(), int(pts.size()) / 3, relative, _cols.data(), true, tags.data(), 0);
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_subtractVoxels(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    {
+        std::vector<double> pts;
+        fetchMatrixData(inStack, 0, pts, false);
+        bool relative = false;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchBoolFromKey("relative", relative, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            target->subtractPoints(pts.data(), int(pts.size()) / 3, relative);
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_subtractVoxelsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    {
+        std::string buff = fetchBuffer(inStack, 0);
+        size_t l = buff.size() / sizeof(float);
+        std::vector<double> pts;
+        pts.resize(l);
+        for (size_t i = 0; i < l; i++)
+            pts[i] = (double)((float*)buff.data())[i];
+        bool relative = false;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchBoolFromKey("relative", relative, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            target->subtractPoints(pts.data(), int(pts.size()) / 3, relative);
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_checkPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    {
+        std::vector<double> pts;
+        fetchMatrixData(inStack, 0, pts, false);
+        bool relative = false;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchBoolFromKey("relative", relative, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            unsigned int tag = 0;
+            unsigned long long int location = 0;
+            unsigned int locLow = location & 0xffffffff;
+            unsigned int locHigh = (location >> 32) & 0xffffffff;
+
+            if (relative)
+            {
+                C7Vector tr(target->getFullCumulativeTransformation());
+                for (size_t i = 0; i < pts.size() / 3; i++)
+                {
+                    C3Vector v(pts.data() + 3 * i);
+                    v *= tr;
+                    pts[3 * i + 0] = v(0);
+                    pts[3 * i + 1] = v(1);
+                    pts[3 * i + 2] = v(2);
+                }
+            }
+
+            bool coll = false;
+            if (pts.size() == 3)
+                coll = App::scenes->pluginContainer->geomPlugin_getOctreePointCollision(target->getOctreeInfo(), target->getFullCumulativeTransformation(), C3Vector(pts.data()), &tag, &location);
+            else
+                coll = App::scenes->pluginContainer->geomPlugin_getOctreePointsCollision(target->getOctreeInfo(), target->getFullCumulativeTransformation(), pts.data(), pts.size() / 3);
+
+            pushBool(outStack, coll);
+            pushLong(outStack, tag);
+            pushLong(outStack, locLow);
+            pushLong(outStack, locHigh);
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_checkPointsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    {
+        std::string buff = fetchBuffer(inStack, 0);
+        size_t l = buff.size() / sizeof(float);
+        std::vector<double> pts;
+        pts.resize(l);
+        for (size_t i = 0; i < l; i++)
+            pts[i] = (double)((float*)buff.data())[i];
+        bool relative = false;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchBoolFromKey("relative", relative, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            unsigned int tag = 0;
+            unsigned long long int location = 0;
+            unsigned int locLow = location & 0xffffffff;
+            unsigned int locHigh = (location >> 32) & 0xffffffff;
+
+            if (relative)
+            {
+                C7Vector tr(target->getFullCumulativeTransformation());
+                for (size_t i = 0; i < pts.size() / 3; i++)
+                {
+                    C3Vector v(pts.data() + 3 * i);
+                    v *= tr;
+                    pts[3 * i + 0] = v(0);
+                    pts[3 * i + 1] = v(1);
+                    pts[3 * i + 2] = v(2);
+                }
+            }
+
+            bool coll = false;
+            if (pts.size() == 3)
+                coll = App::scenes->pluginContainer->geomPlugin_getOctreePointCollision(target->getOctreeInfo(), target->getFullCumulativeTransformation(), C3Vector(pts.data()), &tag, &location);
+            else
+                coll = App::scenes->pluginContainer->geomPlugin_getOctreePointsCollision(target->getOctreeInfo(), target->getFullCumulativeTransformation(), pts.data(), pts.size() / 3);
+
+            pushBool(outStack, coll);
+            pushLong(outStack, tag);
+            pushLong(outStack, locLow);
+            pushLong(outStack, locHigh);
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_insertPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    {
+        std::vector<double> pts;
+        fetchMatrixData(inStack, 0, pts, false);
+        std::vector<float> colors;
+        bool hasColors = false;
+        float color[3];
+        bool hasColor = false;
+        bool relative = false;
+        double tolerance = target->getInsertionDistanceTolerance();
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            hasColors = map->fetchArrayAsConsecutiveFloatsFromKey("colors", colors, &errMsg);
+            if (hasColors && (colors.size() != pts.size()))
+                errMsg = "invalid 'colors' field.";
+            hasColor = map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
+            map->fetchBoolFromKey("relative", relative, &errMsg);
+            map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            std::vector<unsigned char> _cols;
+            _cols.resize(pts.size());
+            if (hasColors)
+            {
+                for (size_t i = 0; i < pts.size(); i++)
+                    _cols[i] = (unsigned char)(colors[i] * 255.1f);
+            }
+            else
+            {
+                if (!hasColor)
+                    target->getColor()->getColor(color, sim_materialcomponent_diffuse);
+                for (size_t i = 0; i < pts.size() / 3; i++)
+                {
+                    _cols[3 * i + 0] = (unsigned char)(color[0] * 255.1f);
+                    _cols[3 * i + 1] = (unsigned char)(color[1] * 255.1f);
+                    _cols[3 * i + 2] = (unsigned char)(color[2] * 255.1f);
+                }
+            }
+            double insertionToleranceSaved = target->getInsertionDistanceTolerance();
+            target->setInsertionDistanceTolerance(tolerance);
+            target->insertPoints(pts.data(), int(pts.size()) / 3, relative, _cols.data(), true);
+            target->setInsertionDistanceTolerance(insertionToleranceSaved);
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_insertPointsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    {
+        std::string buff = fetchBuffer(inStack, 0);
+        size_t l = buff.size() / sizeof(float);
+        std::vector<double> pts;
+        pts.resize(l);
+        for (size_t i = 0; i < l; i++)
+            pts[i] = (double)((float*)buff.data())[i];
+        std::vector<float> colors;
+        bool hasColors = false;
+        float color[3];
+        bool hasColor = false;
+        bool relative = false;
+        double tolerance = target->getInsertionDistanceTolerance();
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            buff.clear();
+            hasColors = map->fetchStringFromKey("colors", buff, &errMsg);
+            if (hasColors)
+            {
+                l = buff.size() / sizeof(float);
+                if ( l != pts.size())
+                    errMsg = "invalid 'colors' field.";
+                else
+                {
+                    colors.resize(l);
+                    for (size_t i = 0; i < l; i++)
+                        colors[i] = ((float*)buff.data())[i];
+                }
+            }
+            hasColor = map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
+            map->fetchBoolFromKey("relative", relative, &errMsg);
+            map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            std::vector<unsigned char> _cols;
+            _cols.resize(pts.size());
+            if (hasColors)
+            {
+                for (size_t i = 0; i < pts.size(); i++)
+                    _cols[i] = (unsigned char)(colors[i] * 255.1f);
+            }
+            else
+            {
+                if (!hasColor)
+                    target->getColor()->getColor(color, sim_materialcomponent_diffuse);
+                for (size_t i = 0; i < pts.size() / 3; i++)
+                {
+                    _cols[3 * i + 0] = (unsigned char)(color[0] * 255.1f);
+                    _cols[3 * i + 1] = (unsigned char)(color[1] * 255.1f);
+                    _cols[3 * i + 2] = (unsigned char)(color[2] * 255.1f);
+                }
+            }
+            double insertionToleranceSaved = target->getInsertionDistanceTolerance();
+            target->setInsertionDistanceTolerance(tolerance);
+            target->insertPoints(pts.data(), int(pts.size()) / 3, relative, _cols.data(), true);
+            target->setInsertionDistanceTolerance(insertionToleranceSaved);
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_intersectPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    {
+        std::vector<double> pts;
+        fetchMatrixData(inStack, 0, pts, false);
+        bool relative = false;
+        double tolerance = 0.01;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchBoolFromKey("relative", relative, &errMsg);
+            map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
+        }
+        if (errMsg.size() == 0)
+            target->intersectPoints(pts.data(), int(pts.size()) / 3, relative, tolerance);
+    }
+    return errMsg;
+}
+
+std::string _method_intersectPointsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    {
+        std::string buff = fetchBuffer(inStack, 0);
+        size_t l = buff.size() / sizeof(float);
+        std::vector<double> pts;
+        pts.resize(l);
+        for (size_t i = 0; i < l; i++)
+            pts[i] = (double)((float*)buff.data())[i];
+        bool relative = false;
+        double tolerance = 0.01;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchBoolFromKey("relative", relative, &errMsg);
+            map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
+        }
+        if (errMsg.size() == 0)
+            target->intersectPoints(pts.data(), int(pts.size()) / 3, relative, tolerance);
+    }
+    return errMsg;
+}
+
+std::string _method_subtractPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    {
+        std::vector<double> pts;
+        fetchMatrixData(inStack, 0, pts, false);
+        bool relative = false;
+        double tolerance = 0.01;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchBoolFromKey("relative", relative, &errMsg);
+            map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            target->removePoints(pts.data(), int(pts.size()) / 3, relative, tolerance);
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_subtractPointsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    {
+        std::string buff = fetchBuffer(inStack, 0);
+        size_t l = buff.size() / sizeof(float);
+        std::vector<double> pts;
+        pts.resize(l);
+        for (size_t i = 0; i < l; i++)
+            pts[i] = (double)((float*)buff.data())[i];
+        bool relative = false;
+        double tolerance = 0.01;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchBoolFromKey("relative", relative, &errMsg);
+            map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            target->removePoints(pts.data(), int(pts.size()) / 3, relative, tolerance);
+        }
     }
     return errMsg;
 }

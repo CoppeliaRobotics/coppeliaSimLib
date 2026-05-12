@@ -26,6 +26,8 @@ C7Vector fetchPose(const CInterfaceStack* inStack, int index, const double xyzqw
 C3Vector fetchVector3(const CInterfaceStack* inStack, int index, std::initializer_list<double> xyz = {});
 C3Vector fetchVector3(const CInterfaceStack* inStack, int index, const double xyz[3]);
 CMatrix fetchMatrix(const CInterfaceStack* inStack, int index);
+void fetchMatrixData(const CInterfaceStack* inStack, int index, std::vector<double>& data, bool rowByRow);
+void fetchMatrixData(const CInterfaceStack* inStack, int index, std::vector<float>& data, bool rowByRow);
 void fetchIntArray(const CInterfaceStack* inStack, int index, std::vector<int>& outArr, std::initializer_list<int> arr = {});
 void fetchIntArray(const CInterfaceStack* inStack, int index, std::vector<int>& outArr, std::vector<int>& arr);
 void fetchLongArray(const CInterfaceStack* inStack, int index, std::vector<long long int>& outArr);
@@ -225,6 +227,19 @@ extern std::string _method_makeClass(int targetObj, const char* method, CDetache
 extern std::string _method_makeObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_insertFrom(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_subtractFrom(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_clear(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_insertVoxels(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_insertVoxelsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_subtractVoxels(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_subtractVoxelsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_checkPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_checkPointsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_insertPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_insertPointsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_subtractPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_subtractPointsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_intersectPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_intersectPointsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 
 extern std::string _method_remove(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_removeObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
@@ -237,19 +252,9 @@ extern std::string _method_createCustomObjectClass(int targetObj, const char* me
 /*
 
 
-#define OCTREE_META_METHODS R"(
-     "checkPointOccupancy": "sim-2.checkOctreePointOccupancy",
-     "insertObject": "sim-2.insertObjectIntoOctree",
-     "insertVoxels": "sim-2.insertVoxelsIntoOctree",
-     "removeVoxels": "sim-2.removeVoxelsFromOctree",
-     "subtractObject": "sim-2.subtractObjectFromOctree")"
 
 #define POINTCLOUD_META_METHODS R"(
-        "insertObject": "sim-2.insertObjectIntoPointCloud",
-        "insertPoints": "sim-2.insertPointsIntoPointCloud",
         "intersectPoints": "sim-2.intersectPointsWithPointCloud",
-        "removePoints": "sim-2.removePointsFromPointCloud",
-        "subtractObject": "sim-2.subtractObjectFromPointCloud")"
 
 
 */
