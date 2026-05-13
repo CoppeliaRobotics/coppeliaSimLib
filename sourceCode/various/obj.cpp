@@ -89,12 +89,16 @@ void Obj::setMetaInfo(const char* info)
             for (const auto& v : values)
                 target->push_back(v.trimmed().toStdString());
     }
+    if ((_superClass.size() == 0) || (_superClass[_superClass.size() - 1] != "object"))
+        _superClass.push_back("object");
 }
 
 void Obj::setMetaInfo(const std::vector<std::string>& superClass, const std::vector<std::string>& nameSpaces)
 {
     _superClass = superClass;
     _nameSpaces = nameSpaces;
+    if ((_superClass.size() == 0) || (_superClass[_superClass.size() - 1] != "object"))
+        _superClass.push_back("object");
 }
 
 std::string Obj::getMetaInfo() const
