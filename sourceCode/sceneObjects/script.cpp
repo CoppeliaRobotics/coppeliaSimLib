@@ -10,18 +10,6 @@
 #include <guiApp.h>
 #endif
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "sceneObject",
-    "namespaces": {
-        "refs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "origRefs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "customData": {},
-        "signal": {}
-    }
-}
-)";
-
 CScript::CScript()
 {
     _commonInit(sim_scripttype_simulation, "", 0, nullptr);
@@ -44,7 +32,6 @@ void CScript::_commonInit(int scriptType, const char* text, int options, const c
 {
     _objectTypeStr = "script";
     _originalObjectTypeStr = _objectTypeStr;
-    _objectMetaInfo = OBJECT_META_INFO;
     detachedScript = new CDetachedScript(scriptType);
     detachedScript->_scriptText = text;
     detachedScript->_sceneObjectScript = true;

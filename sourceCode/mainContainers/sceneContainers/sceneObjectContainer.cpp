@@ -5413,7 +5413,7 @@ int CSceneObjectContainer::getStringArrayProperty_t(long long int target, const 
             C7Vector shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
-                return sim_propertyret_unknownproperty;
+                return mesh->getStringArrayProperty_mesh(pName, pState, shapeRelTr);
         }
         retVal = sim_propertyret_unknowntarget;
     }

@@ -2141,20 +2141,6 @@ int CConvexVolume::getIntArray2Property(const char* pName, int* pState) const
     return retVal;
 }
 
-int CConvexVolume::setVector2Property(const char* pName, const double* pState)
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
-int CConvexVolume::getVector2Property(const char* pName, double* pState) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
 int CConvexVolume::setFloatArrayProperty(const char* pName, const std::vector<double>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;

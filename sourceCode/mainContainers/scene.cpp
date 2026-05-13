@@ -20,15 +20,6 @@
 #endif
 
 static std::string OBJECT_TYPE = "scene";
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "object",
-    "namespaces": {
-        "customData": {},
-        "signal": {}
-    }
-}
-)";
 
 std::vector<SLoadOperationIssue> CScene::_loadOperationIssues;
 #ifdef USE_LONG_LONG_HANDLES
@@ -46,7 +37,7 @@ CScene::CScene()
 {
     _objectHandle = sim_handle_scene;
     _objectTypeStr = OBJECT_TYPE;
-    _objectMetaInfo = OBJECT_META_INFO;
+    setMetaInfo("superClass: object; nameSpaces: customData, signal");
     collections = nullptr;
     distances_old = nullptr;
     collisions_old = nullptr;
@@ -2739,16 +2730,20 @@ int CScene::getBoolProperty_t(long long int target, const char* ppName, bool& pS
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->getBoolProperty(pName, pState);
-        if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
-            retVal = simulation->getBoolProperty(pName, pState);
-        if ((retVal == sim_propertyret_unknownproperty) && (environment != nullptr))
-            retVal = environment->getBoolProperty(pName, pState);
-        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
-            retVal = sceneObjects->getBoolProperty_t(-1, pName, pState);
+        retVal = Obj::getBoolProperty(ppName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
+            if (dynamicsContainer != nullptr)
+                retVal = dynamicsContainer->getBoolProperty(pName, pState);
+            if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
+                retVal = simulation->getBoolProperty(pName, pState);
+            if ((retVal == sim_propertyret_unknownproperty) && (environment != nullptr))
+                retVal = environment->getBoolProperty(pName, pState);
+            if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
+                retVal = sceneObjects->getBoolProperty_t(-1, pName, pState);
+            if (retVal == sim_propertyret_unknownproperty)
+            {
+            }
         }
     }
     else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
@@ -3862,11 +3857,13 @@ int CScene::getStringArrayProperty_t(long long int target, const char* ppName, s
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
+        retVal = Obj::getStringArrayProperty(ppName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getStringArrayProperty_t(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
         }
+
     }
     else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->getStringArrayProperty_t(target, ppName, pState);

@@ -7096,14 +7096,23 @@ std::string _method_createCustomObjectClass(int targetObj, const char* method, C
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string typeStr = fetchText(inStack, 0);
-        std::string metaInfoStr = R"({"superclass": "object"})";
+        std::vector<std::string> superClass = {"object"};
+        std::vector<std::string> nameSpaces = {};
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            map->fetchStringFromKey("metaInfo", metaInfoStr, &errMsg);
+            CInterfaceStackObject* obj = map->getMapObject("metaInfo");
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* mInfo = (CInterfaceStackTable*)obj;
+                mInfo->fetchStringArrayFromKey("superClass", superClass, &errMsg);
+                mInfo->fetchStringArrayFromKey("nameSpaces", nameSpaces, &errMsg);
+            }
+            else
+                errMsg = "invalid 'metaInfo' field.";
         }
         if (errMsg.size() == 0)
         {
-            long long int retVal = App::scenes->customObjects->makeClass(typeStr.c_str(), metaInfoStr.c_str());
+            long long int retVal = App::scenes->customObjects->makeClass(typeStr.c_str(), superClass, nameSpaces);
             if (retVal >= 0)
                 pushHandle(outStack, retVal);
             else

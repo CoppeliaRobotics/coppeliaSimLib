@@ -7,14 +7,6 @@
 #include <drawingObjectRendering.h>
 #endif
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "object",
-    "namespaces": {
-    }
-}
-)";
-
 double CDrawingObject::getSize() const
 {
     return (_size);
@@ -50,7 +42,7 @@ CDrawingObject::CDrawingObject(int theObjectType, double size, double duplicateT
 {
     _objectTypeStr = "drawingObject";
     _originalObjectTypeStr = _objectTypeStr;
-    _objectMetaInfo = OBJECT_META_INFO;
+    setMetaInfo("superClass: object");
     _rebuildRemoteItems = true;
     _detachedScriptHandle = detachedScriptHandle;
     double tr = 0.0;
@@ -595,11 +587,19 @@ void CDrawingObject::pushAppendNewPointEvent()
     }
 }
 
+int CDrawingObject::getBoolProperty(const char* ppName, bool& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = Obj::getBoolProperty(ppName, pState);
+ 
+    return retVal;
+}
+
 int CDrawingObject::getLongProperty(const char* ppName, long long int& pState) const
 {
     std::string _pName(ppName);
     int retVal = Obj::getLongProperty(ppName, pState);
- 
+
     return retVal;
 }
 
@@ -621,6 +621,14 @@ int CDrawingObject::getStringProperty(const char* ppName, std::string& pState) c
 {
     std::string _pName(ppName);
     int retVal = Obj::getStringProperty(ppName, pState);
+
+    return retVal;
+}
+
+int CDrawingObject::getStringArrayProperty(const char* ppName, std::vector<std::string>& pState) const
+{
+    std::string _pName(ppName);
+    int retVal = Obj::getStringArrayProperty(ppName, pState);
 
     return retVal;
 }

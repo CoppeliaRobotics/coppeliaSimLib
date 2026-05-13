@@ -26,18 +26,6 @@
     (sim_displayattribute_renderpass | sim_displayattribute_forbidwireframe | sim_displayattribute_forbidedges | \
      sim_displayattribute_originalcolors | sim_displayattribute_ignorelayer | sim_displayattribute_forvisionsensor)
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "sceneObject",
-    "namespaces": {
-        "refs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "origRefs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "customData": {},
-        "signal": {}
-    }
-}
-)";
-
 CVisionSensor::CVisionSensor()
 {
     commonInit();
@@ -360,7 +348,6 @@ void CVisionSensor::commonInit()
 {
     _objectTypeStr = "visionSensor";
     _originalObjectTypeStr = _objectTypeStr;
-    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_visionsensor;
     _nearClippingPlane = 0.01;
     _farClippingPlane = 10.0;

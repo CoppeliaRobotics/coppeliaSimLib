@@ -2233,55 +2233,6 @@ int CDynMaterialObject::getStringProperty(const char* pName, std::string& pState
     return retVal;
 }
 
-int CDynMaterialObject::setVector2Property(const char* pName, const double* pState, CCbor* eev /* = nullptr*/)
-{
-    int retVal = sim_propertyret_unknownproperty;
-    std::string N;
-    CCbor* ev = nullptr;
-    if (eev != nullptr)
-        ev = eev;
-
-    auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1) {
-        if ((pName == nullptr) || (propertyName == pName))
-        {
-            retVal = sim_propertyret_ok;
-            bool pa = false;
-            if (pState != nullptr)
-            {
-                for (size_t i = 0; i < 2; i++)
-                    pa = pa || (arr[simiIndex1 + i] != pState[i]);
-            }
-            if ((pName == nullptr) || pa)
-            {
-                if (pName != nullptr)
-                {
-                    for (size_t i = 0; i < 2; i++)
-                        arr[simiIndex1 + i] = pState[i];
-                }
-                if ((_shapeHandleForEvents != -1) && App::scenes->getEventsEnabled())
-                {
-                    if (ev == nullptr)
-                        ev = App::scenes->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propertyName.c_str(), true);
-                    ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 2);
-                    if (pName != nullptr)
-                        sendEngineString(ev);
-                }
-            }
-        }
-    };
-
-    if ((ev != nullptr) && (eev == nullptr))
-        App::scenes->pushEvent();
-    return retVal;
-}
-
-int CDynMaterialObject::getVector2Property(const char* pName, double* pState) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
 int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev /* = nullptr*/)
 {
     int retVal = sim_propertyret_unknownproperty;

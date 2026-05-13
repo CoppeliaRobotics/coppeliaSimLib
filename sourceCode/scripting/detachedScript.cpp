@@ -31,14 +31,6 @@
 #define BASE_SANDBOX_SCRIPT "sandboxScriptBase.lua"
 #define INITIALLY_SUSPEND_LOADED_SCRIPTS true
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "object",
-    "namespaces": {
-    }
-}
-)";
-
 int CDetachedScript::_nextScriptHandle = sim_object_detachedscriptstart;
 std::vector<int> CDetachedScript::_externalScriptCalls;
 std::map<std::string, std::pair<int, int>> CDetachedScript::_signalNameToScriptHandle;
@@ -47,7 +39,7 @@ CDetachedScript::CDetachedScript(int scriptType)
 { // scriptType to -1 for serialization
     _objectTypeStr = "detachedScript";
     _originalObjectTypeStr = _objectTypeStr;
-    _objectMetaInfo = OBJECT_META_INFO;
+    setMetaInfo("superClass: object");
     _scriptUid = App::getFreshUniqueId(-1);
     _tempSuspended = false;
     _sceneObjectScript = false;
@@ -4169,7 +4161,6 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
     CInterfaceStackObject* retVal = nullptr;
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     index = luaWrap_lua_absindex(L, index);
-    int typeIndex = index + 1;
     int t = luaWrap_lua_stype(L, index); // returns only simple types
     int m_rows, m_cols;
     bool metatable = false;
@@ -4181,46 +4172,11 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
         retVal = new CInterfaceStackNumber(luaWrap_lua_tonumber(L, index));
     else if (t == sim_stackitem_integer)
         retVal = new CInterfaceStackInteger(luaWrap_lua_tointeger(L, index));
-    else if (t == sim_stackitem_handle)
-        retVal = new CInterfaceStackHandle(luaWrap_lua_tointeger(L, index));
-    else if ( (t == sim_stackitem_string) || (t == -2) ) // -2 for buffers (as string, via type hint)
+    else if (t == sim_stackitem_string)
     {
         size_t l;
         const char* c = luaWrap_lua_tobuffer(L, index, &l);
-        retVal = new CInterfaceStackString(c, l, t == -2);
-    }
-    else if (t == sim_stackitem_matrix)
-    { // matrix as simple table, via type hint
-        std::vector<double> dat;
-        dat.resize(m_rows * m_cols);
-        getDoublesFromTable(L, index, m_rows * m_cols, dat.data());
-        retVal = new CInterfaceStackMatrix(dat.data(), m_rows, m_cols);
-    }
-    else if (t == sim_stackitem_quaternion)
-    { // quaternion as simple table, via type hint
-        double dat[4];
-        getDoublesFromTable(L, index, 4, dat);
-        retVal = new CInterfaceStackQuaternion(dat, true);
-    }
-    else if (t == sim_stackitem_pose)
-    { // pose as simple table, via type hint
-        double dat[7];
-        getDoublesFromTable(L, index, 7, dat);
-        retVal = new CInterfaceStackPose(dat, true);
-    }
-    else if (t == sim_stackitem_color)
-    { // color as simple table, via type hint
-        float dat[3];
-        getFloatsFromTable(L, index, 3, dat);
-        retVal = new CInterfaceStackColor(dat);
-    }
-    else if (t == sim_stackitem_handlearray)
-    { // handle array as simple table, via type hint
-        size_t arraySize = luaWrap_lua_rawlen(L, index);
-        std::vector<long long int> dat;
-        dat.resize(arraySize);
-        getLongsFromTable(L, index, arraySize, dat.data());
-        retVal = new CInterfaceStackHandleArray(dat.data(), arraySize);
+        retVal = new CInterfaceStackString(c, l, false);
     }
     else if (t == sim_stackitem_table)
     { // this part is more tricky:
@@ -4314,7 +4270,6 @@ CInterfaceStackTable* CDetachedScript::_getTableFromInterpreterStack_lua(void* L
 { // there must be a table at the given index
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     index = luaWrap_lua_absindex(L, index);
-    int typeIndex = index + 1;
     CInterfaceStackTable* table = new CInterfaceStackTable();
 
     //int tableValueCnt = _countInterpreterStackTableEntries_lua(L, index);
@@ -4539,7 +4494,7 @@ int CDetachedScript::setBoolProperty(const char* pName, bool pState)
 
 int CDetachedScript::getBoolProperty(const char* pName, bool& pState) const
 {
-    int retVal = sim_propertyret_unknownproperty;
+    int retVal = Obj::getBoolProperty(pName, pState);
 
     if (strcmp(propDetachedScript_scriptDisabled.name, pName) == 0)
     {
@@ -4667,6 +4622,16 @@ int CDetachedScript::getStringProperty(const char* pName, std::string& pState) c
             retVal = sim_propertyret_ok;
             pState = _addOnMenuPath;
         }
+    }
+
+    return retVal;
+}
+
+int CDetachedScript::getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const
+{
+    int retVal = Obj::getStringArrayProperty(pName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
     }
 
     return retVal;

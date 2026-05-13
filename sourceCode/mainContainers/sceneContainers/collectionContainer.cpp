@@ -262,6 +262,22 @@ void CCollectionContainer::addCollectionToSelection(long long int collectionHand
     }
 }
 
+int CCollectionContainer::getBoolProperty_t(long long int target, const char* pName, bool& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CCollection* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+            return it->getBoolProperty(pName, pState);
+        retVal = -2; // collection does not exist
+    }
+    return retVal;
+}
+
 int CCollectionContainer::getLongProperty_t(long long int target, const char* pName, long long int& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
@@ -328,6 +344,22 @@ int CCollectionContainer::getHandleArrayProperty_t(long long int target, const c
         CCollection* it = getObjectFromHandle(int(target));
         if (it != nullptr)
             return it->getHandleArrayProperty(pName, pState);
+        retVal = -2; // collection does not exist
+    }
+    return retVal;
+}
+
+int CCollectionContainer::getStringArrayProperty_t(long long int target, const char* pName, std::vector<std::string>& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CCollection* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+            return it->getStringArrayProperty(pName, pState);
         retVal = -2; // collection does not exist
     }
     return retVal;

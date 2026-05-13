@@ -10,23 +10,10 @@
 #include <guiApp.h>
 #endif
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "sceneObject",
-    "namespaces": {
-        "refs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "origRefs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "customData": {},
-        "signal": {}
-    }
-}
-)";
-
 CCustomSceneObject::CCustomSceneObject()
 {
     _objectTypeStr = "customSceneObject";
     _originalObjectTypeStr = _objectTypeStr;
-    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_customsceneobject;
     _localObjectSpecialProperty = 0;
 

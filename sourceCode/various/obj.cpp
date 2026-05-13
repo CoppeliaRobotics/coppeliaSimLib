@@ -2,33 +2,36 @@
 #include <utils.h>
 
 std::string OBJECT_TYPE = "object";
-std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "",
-    "namespaces": {
-        "namedParam": {},
-        "customData": {},
-        "signal": {}
-    }
-}
-)";
 
 Obj::Obj()
 {
     _isClass = false;
+    _isSceneObject = false;
 }
 
-Obj::Obj(long long int objectHandle, const char* objectTypeStr, const char* objectMetaInfo)
+Obj::Obj(long long int objectHandle, const char* objectTypeStr, const char* metaInfo)
 {
     _objectHandle = objectHandle;
     _objectTypeStr = objectTypeStr;
-    _objectMetaInfo =objectMetaInfo;
+    setMetaInfo(metaInfo);
     _originalObjectTypeStr = objectTypeStr;
     _isClass = false;
+    _isSceneObject = false;
 }
 
 Obj::~Obj()
 {
+}
+
+void Obj::copyYourselfInto(Obj* it) const
+{
+    it->_objectHandle = _objectHandle;
+    it->_objectTypeStr = _objectTypeStr;
+    it->_superClass = _superClass;
+    it->_nameSpaces = _nameSpaces;
+    it->_originalObjectTypeStr = _originalObjectTypeStr;
+    it->_isClass = _isClass;
+    it->_isSceneObject = _isSceneObject;
 }
 
 void Obj::addObjectEventData(CCbor* ev)
@@ -62,24 +65,93 @@ std::string Obj::getObjectTypeStr() const
     return _objectTypeStr;
 }
 
-void Obj::setObjectMetaInfo(const char* objectMetaInfo)
+void Obj::setMetaInfo(const char* info)
 {
-    _objectMetaInfo = objectMetaInfo;
+    _superClass.clear();
+    _nameSpaces.clear();
+
+    const QStringList parts = QString(info).split(';', Qt::SkipEmptyParts);
+    for (const auto& part : parts)
+    {
+        const int colonIdx = part.indexOf(':');
+        if (colonIdx < 0) continue;
+
+        const QString key = part.left(colonIdx).trimmed().toLower();
+        const QStringList values = part.mid(colonIdx + 1).split(',', Qt::SkipEmptyParts);
+
+        std::vector<std::string>* target = nullptr;
+        if (key == "superclass")
+            target = &_superClass;
+        else if (key == "namespaces")
+            target = &_nameSpaces;
+
+        if (target)
+            for (const auto& v : values)
+                target->push_back(v.trimmed().toStdString());
+    }
 }
 
-std::string Obj::getObjectMetaInfo() const
+void Obj::setMetaInfo(const std::vector<std::string>& superClass, const std::vector<std::string>& nameSpaces)
 {
-    return _objectMetaInfo;
+    _superClass = superClass;
+    _nameSpaces = nameSpaces;
 }
 
-void Obj::setIsClass()
+std::string Obj::getMetaInfo() const
 {
-    _isClass = true;
+    std::string retVal;
+    for (size_t i = 0; i < _superClass.size(); i++)
+    {
+        if (i == 0)
+            retVal += "superClass: ";
+        else
+            retVal += ",";
+        retVal += _superClass[i];
+    }
+    if (!retVal.empty())
+        retVal +=";";
+    for (size_t i = 0; i < _nameSpaces.size(); i++)
+    {
+        if (i == 0)
+            retVal += "nameSpaces: ";
+        else
+            retVal += ",";
+        retVal += _nameSpaces[i];
+    }
+    return retVal;
+}
+
+void Obj::setIsClass(bool isClass)
+{
+    _isClass = isClass;
 }
 
 bool Obj::isClass() const
 {
     return _isClass;
+}
+
+bool Obj::isSceneObject() const
+{
+    return _isSceneObject;
+}
+
+int Obj::getBoolProperty(const char* ppName, bool& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (strcmp(ppName, propObject_metaInfoIsClass.name) == 0)
+    {
+        pState = _isClass;
+        retVal = sim_propertyret_ok;
+    }
+    else if (strcmp(ppName, propObject_metaInfoIsSceneObject.name) == 0)
+    {
+        pState = _isSceneObject;
+        retVal = sim_propertyret_ok;
+    }
+
+    return retVal;
 }
 
 int Obj::setLongProperty(const char* ppName, long long int pState)
@@ -117,9 +189,22 @@ int Obj::getStringProperty(const char* ppName, std::string& pState) const
         pState = _objectTypeStr;
         retVal = sim_propertyret_ok;
     }
-    else if (strcmp(ppName, propObject_objectMetaInfo.name) == 0)
+
+    return retVal;
+}
+
+int Obj::getStringArrayProperty(const char* ppName, std::vector<std::string>& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (strcmp(ppName, propObject_metaInfoSuperClass.name) == 0)
     {
-        pState = _objectMetaInfo;
+        pState = _superClass;
+        retVal = sim_propertyret_ok;
+    }
+    else if (strcmp(ppName, propObject_metaInfoNameSpaces.name) == 0)
+    {
+        pState = _nameSpaces;
         retVal = sim_propertyret_ok;
     }
 

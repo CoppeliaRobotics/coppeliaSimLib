@@ -140,6 +140,7 @@ class CMesh : public CMeshWrapper
     int getFloatArrayProperty_mesh(const char* pName, std::vector<double>& pState, const C7Vector& shapeRelTr) const;
     int setIntArrayProperty_mesh(const char* pName, const std::vector<int>& pState, const C7Vector& shapeRelTr);
     int getIntArrayProperty_mesh(const char* pName, std::vector<int>& pState, const C7Vector& shapeRelTr) const;
+    int getStringArrayProperty_mesh(const char* pName, std::vector<std::string>& pState, const C7Vector& shapeRelTr) const;
     int removeProperty(const char* pName) override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;

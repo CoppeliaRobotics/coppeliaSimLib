@@ -29,6 +29,8 @@
 
 CSceneObject::CSceneObject()
 {
+    setMetaInfo("superClass: sceneObject; nameSpaces: refs, origRefs, customData, signal");
+    _isSceneObject = true;
     _sceneObjectCustomizationPart = nullptr;
     customObjectData_volatile.setItemsAreVolatile();
     _selected = false;
@@ -1720,10 +1722,7 @@ CSceneObject* CSceneObject::copyYourself()
     if (getObjectType() == sim_sceneobject_forcesensor)
         theNewObject = new CForceSensor();
 
-    theNewObject->_objectMetaInfo = _objectMetaInfo;
-    theNewObject->_objectTypeStr = _objectTypeStr;
-    theNewObject->_originalObjectTypeStr = _originalObjectTypeStr;
-    theNewObject->_objectHandle = _objectHandle; // important for copy operations connections
+    Obj::copyYourselfInto(theNewObject); // important, e.g. _objectHandle for copy operations connections
     theNewObject->_authorizedViewableObjects = _authorizedViewableObjects;
     theNewObject->_initialVisibilityLayer = _initialVisibilityLayer; // for cases object copied during simulation
     if (_initialValuesInitialized)
@@ -2607,8 +2606,8 @@ void CSceneObject::serialize(CSer& ar)
             ar << _originalObjectTypeStr;
             ar.flush();
 
-            ar.storeDataName("Omi");
-            ar << _objectMetaInfo;
+            ar.storeDataName("Oma");
+            ar << getMetaInfo();
             ar.flush();
 
             C7Vector tr = getLocalTransformation();
@@ -2912,7 +2911,9 @@ void CSceneObject::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        ar >> _objectMetaInfo;
+                        std::string tmp;
+                        ar >> tmp;
+                        setMetaInfo(tmp.c_str());
                     }
 
                     if (theName.compare("Cfq") == 0)
@@ -3477,7 +3478,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.xmlAddNode_string("objectType", _objectTypeStr.c_str());
             _originalObjectTypeStr = _objectTypeStr;
             ar.xmlAddNode_string("originalObjectType", _originalObjectTypeStr.c_str());
-            ar.xmlAddNode_string("objectMetaInfo", _objectMetaInfo.c_str());
+            ar.xmlAddNode_string("metaInfo", getMetaInfo().c_str());
 
             if (exhaustiveXml)
             {
@@ -3797,7 +3798,9 @@ void CSceneObject::serialize(CSer& ar)
 
                 ar.xmlGetNode_string("objectType", _objectTypeStr, false);
                 originalObjectTypeStrSet = ar.xmlGetNode_string("originalObjectType", _originalObjectTypeStr, false); // has to come after objectType
-                ar.xmlGetNode_string("objectMetaInfo", _objectMetaInfo, false);
+                std::string tmp;
+                ar.xmlGetNode_string("objectMetaInfo", tmp, false);
+                setMetaInfo(tmp.c_str());
 
                 if (exhaustiveXml)
                 {

@@ -8,20 +8,12 @@
 #include <guiApp.h>
 #endif
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "object",
-    "namespaces": {
-    }
-}
-)";
-
 CCollection::CCollection(int creatorHandle)
 {
     _objectHandle = -1;
     _objectTypeStr = "collection";
     _originalObjectTypeStr = _objectTypeStr;
-    _objectMetaInfo = OBJECT_META_INFO;
+    setMetaInfo("superClass: object");
     _creatorHandle = creatorHandle;
     _overridesObjectMainProperties = false;
     _uniquePersistentIdString = utils::generateUniqueAlphaNumericString();
@@ -279,6 +271,17 @@ int CCollection::getSceneObjectHandleFromIndex(size_t index) const
     return retVal;
 }
 
+int CCollection::getBoolProperty(const char* ppName, bool& pState) const
+{
+    int retVal = Obj::getBoolProperty(ppName, pState);
+
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+    }
+
+    return retVal;
+}
+
 int CCollection::getLongProperty(const char* ppName, long long int& pState) const
 {
     int retVal = Obj::getLongProperty(ppName, pState);
@@ -322,6 +325,18 @@ int CCollection::getHandleArrayProperty(const char* ppName, std::vector<long lon
         for (size_t i = 0; i < _collectionObjects.size(); i++)
             pState.push_back(_collectionObjects[i]);
         retVal = sim_propertyret_ok;
+    }
+
+    return retVal;
+}
+
+int CCollection::getStringArrayProperty(const char* ppName, std::vector<std::string>& pState) const
+{
+    int retVal = Obj::getStringArrayProperty(ppName, pState);
+
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+
     }
 
     return retVal;

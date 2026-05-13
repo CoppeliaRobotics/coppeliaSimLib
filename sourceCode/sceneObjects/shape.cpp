@@ -14,18 +14,6 @@
 #include <shapeRendering.h>
 #endif
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "sceneObject",
-    "namespaces": {
-        "refs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "origRefs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "customData": {},
-        "signal": {}
-    }
-}
-)";
-
 CShape::CShape()
 {
     commonInit();
@@ -343,7 +331,6 @@ void CShape::computeBoundingBox()
 void CShape::commonInit()
 {
     _objectTypeStr = "shape";
-    _objectMetaInfo = OBJECT_META_INFO;
     _originalObjectTypeStr = _objectTypeStr;
     _objectType = sim_sceneobject_shape;
     _containsTransparentComponents = false;

@@ -35,17 +35,6 @@ char App::_qApp_arg0[] = {"CoppeliaSim"};
 char* App::_qApp_argv[1] = {_qApp_arg0};
 #endif
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "object",
-    "namespaces": {
-        "namedParam": {},
-        "customData": {},
-        "signal": {}
-    }
-}
-)";
-
 CSimThread* App::simThread = nullptr;
 CUserSettings* App::userSettings = nullptr;
 CFolderSystem* App::folders = nullptr;
@@ -82,8 +71,7 @@ VMutex App::_appSemaphore;
 std::map<std::string, SSysSemaphore> App::_systemSemaphores;
 std::vector<std::string> App::_pluginNames;
 int App::_eventProtocolVersion = SIM_EVENT_PROTOCOL_VERSION;
-Obj* App::_obj = new Obj(sim_handle_app, "app", OBJECT_META_INFO.c_str());
-
+Obj* App::_obj = new Obj(sim_handle_app, "app", "superClass: object; nameSpaces: namedParam, customData, signal");
 
 long long int App::_nextUniqueId = sim_object_variousstart;
 #ifdef USE_LONG_LONG_HANDLES
@@ -1617,49 +1605,53 @@ int App::getBoolProperty_t(long long int target, const char* ppName, bool& pStat
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        if (strcmp(pName, propApp_hierarchyEnabled.name) == 0)
+        retVal = _obj->getBoolProperty(ppName, pState);
+        if (retVal == sim_propertyret_unknownproperty)
         {
-            pState = getHierarchyEnabled();
-            retVal = sim_propertyret_ok;
-        }
-        else if (strcmp(pName, propApp_browserEnabled.name) == 0)
-        {
+            if (strcmp(pName, propApp_hierarchyEnabled.name) == 0)
+            {
+                pState = getHierarchyEnabled();
+                retVal = sim_propertyret_ok;
+            }
+            else if (strcmp(pName, propApp_browserEnabled.name) == 0)
+            {
 #ifdef SIM_WITH_GUI
-            pState = GuiApp::getBrowserEnabled();
+                pState = GuiApp::getBrowserEnabled();
 #else
-            pState = false;
+                pState = false;
 #endif
-            retVal = sim_propertyret_ok;
-        }
-        else if (strcmp(pName, propApp_displayEnabled.name) == 0)
-        {
-            pState = getOpenGlDisplayEnabled();
-            retVal = sim_propertyret_ok;
-        }
-        else if (strcmp(pName, propApp_canSave.name) == 0)
-        {
-            pState = canSave();
-            retVal = sim_propertyret_ok;
-        }
-        else if (strcmp(pName, propApp_execUnsafe.name) == 0)
-        {
-            if (userSettings != nullptr)
-            {
-                pState = userSettings->execUnsafe;
                 retVal = sim_propertyret_ok;
             }
-            else
-                retVal = 0;
-        }
-        else if (strcmp(pName, propApp_execUnsafeExt.name) == 0)
-        {
-            if (userSettings != nullptr)
+            else if (strcmp(pName, propApp_displayEnabled.name) == 0)
             {
-                pState = userSettings->execUnsafeExt;
+                pState = getOpenGlDisplayEnabled();
                 retVal = sim_propertyret_ok;
             }
-            else
-                retVal = 0;
+            else if (strcmp(pName, propApp_canSave.name) == 0)
+            {
+                pState = canSave();
+                retVal = sim_propertyret_ok;
+            }
+            else if (strcmp(pName, propApp_execUnsafe.name) == 0)
+            {
+                if (userSettings != nullptr)
+                {
+                    pState = userSettings->execUnsafe;
+                    retVal = sim_propertyret_ok;
+                }
+                else
+                    retVal = 0;
+            }
+            else if (strcmp(pName, propApp_execUnsafeExt.name) == 0)
+            {
+                if (userSettings != nullptr)
+                {
+                    pState = userSettings->execUnsafeExt;
+                    retVal = sim_propertyret_ok;
+                }
+                else
+                    retVal = 0;
+            }
         }
     }
     else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
@@ -3455,15 +3447,19 @@ int App::getStringArrayProperty_t(long long int target, const char* ppName, std:
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        if (strcmp(pName, propApp_appArgs.name) == 0)
+        retVal = _obj->getStringArrayProperty(ppName, pState);
+        if (retVal == sim_propertyret_unknownproperty)
         {
-            pState = _applicationArguments;
-            retVal = sim_propertyret_ok;
-        }
-        else if (strcmp(pName, propApp_pluginNames.name) == 0)
-        {
-            pState = _pluginNames;
-            retVal = sim_propertyret_ok;
+            if (strcmp(pName, propApp_appArgs.name) == 0)
+            {
+                pState = _applicationArguments;
+                retVal = sim_propertyret_ok;
+            }
+            else if (strcmp(pName, propApp_pluginNames.name) == 0)
+            {
+                pState = _pluginNames;
+                retVal = sim_propertyret_ok;
+            }
         }
     }
     else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))

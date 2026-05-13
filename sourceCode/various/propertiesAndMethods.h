@@ -103,7 +103,10 @@ struct SJointProperty
 #define OBJECT_PROPERTIES \
     FUNCX(propObject_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, jsonStr({{"label", "Object type"}, {"description", ""}}), "") \
     FUNCX(propObject_handle, "handle", sim_propertytype_long, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, jsonStr({{"label", "Handle"}, {"description", ""}}), "") \
-    FUNCX(propObject_objectMetaInfo, "objectMetaInfo", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, jsonStr({{"label", "Object meta information"}, {"description", ""}}), "") \
+    FUNCX(propObject_metaInfoSuperClass, "metaInfo.superClass", sim_propertytype_stringarray, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, jsonStr({{"label", "object super class"}, {"description", ""}}), "") \
+    FUNCX(propObject_metaInfoNameSpaces, "metaInfo.nameSpaces", sim_propertytype_stringarray, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, jsonStr({{"label", "object name spaces"}, {"description", ""}}), "") \
+    FUNCX(propObject_metaInfoIsClass, "metaInfo.isClass", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, jsonStr({{"label", "class flag"}, {"description", ""}}), "") \
+    FUNCX(propObject_metaInfoIsSceneObject, "metaInfo.isSceneObject", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, jsonStr({{"label", "sceneObject flag"}, {"description", ""}}), "") \
     FUNCX(propObject_METHOD_getBoolProperty, "getBoolProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_getBufferProperty, "getBufferProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_getColorProperty, "getColorProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
@@ -120,7 +123,6 @@ struct SJointProperty
     FUNCX(propObject_METHOD_getQuaternionProperty, "getQuaternionProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_getStringProperty, "getStringProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_getTableProperty, "getTableProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
-    FUNCX(propObject_METHOD_getVector2Property, "getVector2Property", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_getVector3Property, "getVector3Property", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_setBoolProperty, "setBoolProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_setBufferProperty, "setBufferProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
@@ -138,7 +140,6 @@ struct SJointProperty
     FUNCX(propObject_METHOD_setQuaternionProperty, "setQuaternionProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_setStringProperty, "setStringProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_setTableProperty, "setTableProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
-    FUNCX(propObject_METHOD_setVector2Property, "setVector2Property", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_setVector3Property, "setVector3Property", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_setMatrixProperty, "setMatrixProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_getMatrixProperty, "getMatrixProperty", sim_propertytype_method, sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({}), "") \

@@ -204,9 +204,7 @@ class CDynMaterialObject
     int getFloatProperty(const char* pName, double& pState) const;
     int setStringProperty(const char* pName, const std::string& pState);
     int getStringProperty(const char* pName, std::string& pState) const;
-    int setVector2Property(const char* pName, const double* pState, CCbor* eev = nullptr);
-    int getVector2Property(const char* pName, double* pState) const;
-    int setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev = nullptr);
+   int setVector3Property(const char* pName, const C3Vector* pState, CCbor* eev = nullptr);
     int getVector3Property(const char* pName, C3Vector* pState) const;
     int setFloatArrayProperty(const char* pName, const std::vector<double>& pState, CCbor* eev = nullptr);
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;

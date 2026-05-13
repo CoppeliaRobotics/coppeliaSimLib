@@ -194,24 +194,17 @@ bool CustomObjectContainer::removeItem(long long int objectHandle)
     return retVal;
 }
 
-long long int CustomObjectContainer::makeClass(const char* typeString, const char* objectMetaInfo)
+long long int CustomObjectContainer::makeClass(const char* typeString, const std::vector<std::string>& superClass, const std::vector<std::string>& nameSpaces)
 {
     long long int retVal = -1;
     if (getClass(typeString) == nullptr)
     {
         retVal = getFreshHandle(false);
-        QJsonDocument doc = QJsonDocument::fromJson(objectMetaInfo);
-        if ((!doc.isNull()) && doc.isObject())
-        {
-            QJsonObject jsonObj = doc.object();
-            jsonObj["class"] = true;
-            QJsonDocument newDoc(jsonObj);
-            std::string newObjectMetaInfo = QString::fromUtf8(newDoc.toJson(QJsonDocument::Compact)).toStdString();
-            CustomObject* obj = new CustomObject(retVal, typeString, newObjectMetaInfo.c_str(), -1, _target);
-            obj->setIsClass();
-            _customClasses.insert({typeString, obj});
-            _notifyClassListChanged();
-        }
+        CustomObject* obj = new CustomObject(retVal, typeString, "", -1, _target);
+        obj->setMetaInfo(superClass, nameSpaces);
+        obj->setIsClass(true);
+        _customClasses.insert({typeString, obj});
+        _notifyClassListChanged();
     }
     return retVal;
 }

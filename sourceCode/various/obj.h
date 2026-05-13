@@ -73,23 +73,26 @@ class Obj
 {
   public:
     Obj();
-    Obj(long long int objectHandle, const char* objectTypeStr, const char* objectMetaInfo);
+    Obj(long long int objectHandle, const char* objectTypeStr, const char* metaInfo);
     virtual ~Obj();
 
     virtual void addObjectEventData(CCbor* ev);
 
+    void copyYourselfInto(Obj* it) const;
     long long int getObjectHandle() const;
     void setOriginalObjectTypeStr(const char* originalObjectTypeStr);
     std::string getOriginalObjectTypeStr() const;
     void setObjectTypeStr(const char* objectTypeStr);
     std::string getObjectTypeStr() const;
-    void setObjectMetaInfo(const char* objectMetaInfo);
-    std::string getObjectMetaInfo() const;
-    void setIsClass();
+    void setMetaInfo(const char* info);
+    void setMetaInfo(const std::vector<std::string>& superClass, const std::vector<std::string>& nameSpaces);
+    std::string getMetaInfo() const;
+    void setIsClass(bool isClass);
     bool isClass() const;
+    bool isSceneObject() const;
 
     virtual int setBoolProperty(const char* pName, bool pState) { return sim_propertyret_unknownproperty; }
-    virtual int getBoolProperty(const char* pName, bool& pState) const { return sim_propertyret_unknownproperty; }
+    virtual int getBoolProperty(const char* pName, bool& pState) const;
     virtual int setIntProperty(const char* pName, int pState) { return sim_propertyret_unknownproperty; }
     virtual int getIntProperty(const char* pName, int& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setLongProperty(const char* pName, long long int pState);
@@ -123,7 +126,7 @@ class Obj
     virtual int setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState) { return sim_propertyret_unknownproperty; }
     virtual int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState) { return sim_propertyret_unknownproperty; }
-    virtual int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const { return sim_propertyret_unknownproperty; }
+    virtual int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const;
     virtual int setMethodProperty(const char* pName, const void* pState) { return sim_propertyret_unknownproperty; }
     virtual int getMethodProperty(const char* pName, void*& pState) const  { return sim_propertyret_unknownproperty; }
     virtual int setMethodProperty(const char* pName, const std::string& pState)  { return sim_propertyret_unknownproperty; }
@@ -137,7 +140,9 @@ class Obj
   protected:
     long long int _objectHandle;
     std::string _objectTypeStr;
-    std::string _objectMetaInfo;
+    std::vector<std::string> _superClass;
+    std::vector<std::string> _nameSpaces;
     std::string _originalObjectTypeStr;
     bool _isClass;
+    bool _isSceneObject;
 };

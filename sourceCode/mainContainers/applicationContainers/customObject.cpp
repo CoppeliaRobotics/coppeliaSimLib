@@ -2,19 +2,11 @@
 #include <utils.h>
 #include <app.h>
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "object",
-    "namespaces": {
-    }
-}
-)";
-
 CustomObject::CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo, int originDetachedScriptHandle, int target)
 {
     _objectHandle = handle;
     _objectTypeStr = objectTypeStr;
-    _objectMetaInfo = objectMetaInfo;
+    setMetaInfo(objectMetaInfo);
     _detachedScriptHandle = originDetachedScriptHandle;
     _target = target;
     _volatile = true;
@@ -37,17 +29,8 @@ CustomObject::~CustomObject()
 
 CustomObject* CustomObject::createObject(long long int handle, int originDetachedScriptHandle) const
 {
-    CustomObject* retVal = nullptr;
-    QJsonDocument doc = QJsonDocument::fromJson(_objectMetaInfo.c_str());
-    if ((!doc.isNull()) && doc.isObject())
-    {
-        QJsonObject jsonObj = doc.object();
-        jsonObj["class"] = false;
-        QJsonDocument newDoc(jsonObj);
-        std::string newObjectMetaInfo = QString::fromUtf8(newDoc.toJson(QJsonDocument::Compact)).toStdString();
-        retVal = new CustomObject(handle, _objectTypeStr.c_str(), newObjectMetaInfo.c_str(), originDetachedScriptHandle, _target);
-        retVal->_customProperties.copyFromExceptMethods(&_customProperties);
-    }
+    CustomObject* retVal = new CustomObject(handle, _objectTypeStr.c_str(), getMetaInfo().c_str(), originDetachedScriptHandle, _target);
+    retVal->_customProperties.copyFromExceptMethods(&_customProperties);
     return retVal;
 }
 
@@ -254,10 +237,10 @@ void CustomObject::serialize(CSer& ar)
             std::vector<std::string> data;
             _customProperties.getAllPropertyData(names, data);
 
-            ar.storeDataName("obj");
+            ar.storeDataName("ob2");
             ar << _objectHandle;
             ar << _objectTypeStr;
-            ar << _objectMetaInfo;
+            ar << getMetaInfo();
             ar << int(names.size());
             ar.flush();
 
@@ -283,13 +266,15 @@ void CustomObject::serialize(CSer& ar)
                 if (theName.compare(SER_END_OF_OBJECT) != 0)
                 {
                     bool noHit = true;
-                    if (theName.compare("obj") == 0)
+                    if (theName.compare("ob2") == 0)
                     {
                         noHit = false;
                         ar >> byteQuantity;
                         ar >> _objectHandle;
                         ar >> _objectTypeStr;
-                        ar >> _objectMetaInfo;
+                        std::string tmp;
+                        ar >> tmp;
+                        setMetaInfo(tmp.c_str());
                         int cnt;
                         ar >> cnt;
                     }
@@ -321,7 +306,7 @@ void CustomObject::serialize(CSer& ar)
 
             ar.xmlAddNode_longlong("handle", _objectHandle);
             ar.xmlAddNode_string("type", _objectTypeStr.c_str());
-            ar.xmlAddNode_string("metaInfo", _objectMetaInfo.c_str());
+            ar.xmlAddNode_string("metaInfo", getMetaInfo().c_str());
 
             for (size_t i = 0; i < names.size(); i++)
             {
@@ -335,7 +320,9 @@ void CustomObject::serialize(CSer& ar)
         {
             ar.xmlGetNode_longlong("handle", _objectHandle);
             ar.xmlGetNode_string("type", _objectTypeStr);
-            ar.xmlGetNode_string("metaInfo", _objectMetaInfo);
+            std::string tmp;
+            ar.xmlGetNode_string("metaInfo", tmp);
+            setMetaInfo(tmp.c_str());
 
             if (ar.xmlPushChildNode("property", false))
             {

@@ -141,43 +141,41 @@ class CInterfaceStack : public Obj
 
     void printContent(int cIndex, std::string& buffer) const;
 
-    int setBoolProperty(const char* pName, bool pState);
-    int getBoolProperty(const char* pName, bool& pState) const;
-    int setIntProperty(const char* pName, int pState);
-    int getIntProperty(const char* pName, int& pState) const;
-    int setLongProperty(const char* pName, long long int pState);
+    int setBoolProperty(const char* pName, bool pState) override;
+    int getBoolProperty(const char* pName, bool& pState) const override;
+    int setIntProperty(const char* pName, int pState) override;
+    int getIntProperty(const char* pName, int& pState) const override;
+    int setLongProperty(const char* pName, long long int pState) override;
     int getLongProperty(const char* pName, long long int& pState) const override;
-    int setFloatProperty(const char* pName, double pState);
-    int getFloatProperty(const char* pName, double& pState) const;
-    int setHandleProperty(const char* pName, long long int pState);
-    int getHandleProperty(const char* pName, long long int& pState) const;
-    int setStringProperty(const char* pName, const std::string& pState);
+    int setFloatProperty(const char* pName, double pState) override;
+    int getFloatProperty(const char* pName, double& pState) const override;
+    int setHandleProperty(const char* pName, long long int pState) override;
+    int getHandleProperty(const char* pName, long long int& pState) const override;
+    int setStringProperty(const char* pName, const std::string& pState) override;
     int getStringProperty(const char* pName, std::string& pState) const override;
-    int setBufferProperty(const char* pName, const std::string& pState);
-    int getBufferProperty(const char* pName, std::string& pState) const;
-    int setIntArray2Property(const char* pName, const int* pState);
-    int getIntArray2Property(const char* pName, int* pState) const;
-    int setVector2Property(const char* pName, const double* pState);
-    int getVector2Property(const char* pName, double* pState) const;
-    int setVector3Property(const char* pName, const C3Vector& pState);
-    int getVector3Property(const char* pName, C3Vector& pState) const;
-    int setMatrixProperty(const char* pName, const CMatrix& pState);
-    int getMatrixProperty(const char* pName, CMatrix& pState) const;
-    int setQuaternionProperty(const char* pName, const C4Vector& pState);
-    int getQuaternionProperty(const char* pName, C4Vector& pState) const;
-    int setPoseProperty(const char* pName, const C7Vector& pState);
-    int getPoseProperty(const char* pName, C7Vector& pState) const;
-    int setColorProperty(const char* pName, const float* pState);
-    int getColorProperty(const char* pName, float* pState) const;
-    int setFloatArrayProperty(const char* pName, const std::vector<double>& pState);
-    int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
-    int setIntArrayProperty(const char* pName, const std::vector<int>& pState);
-    int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
-    int setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState); // ALL handle items have to be of the same type
-    int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const; // ALL handle items have to be of the same type
-    int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState);
-    int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const;
-    int removeProperty(const char* pName);
+    int setBufferProperty(const char* pName, const std::string& pState) override;
+    int getBufferProperty(const char* pName, std::string& pState) const override;
+    int setIntArray2Property(const char* pName, const int* pState) override;
+    int getIntArray2Property(const char* pName, int* pState) const override;
+    int setVector3Property(const char* pName, const C3Vector& pState) override;
+    int getVector3Property(const char* pName, C3Vector& pState) const override;
+    int setMatrixProperty(const char* pName, const CMatrix& pState) override;
+    int getMatrixProperty(const char* pName, CMatrix& pState) const override;
+    int setQuaternionProperty(const char* pName, const C4Vector& pState) override;
+    int getQuaternionProperty(const char* pName, C4Vector& pState) const override;
+    int setPoseProperty(const char* pName, const C7Vector& pState) override;
+    int getPoseProperty(const char* pName, C7Vector& pState) const override;
+    int setColorProperty(const char* pName, const float* pState) override;
+    int getColorProperty(const char* pName, float* pState) const override;
+    int setFloatArrayProperty(const char* pName, const std::vector<double>& pState) override;
+    int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
+    int setIntArrayProperty(const char* pName, const std::vector<int>& pState) override;
+    int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
+    int setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState) override; // ALL handle items have to be of the same type
+    int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const override; // ALL handle items have to be of the same type
+    int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState) override;
+    int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const override;
+    int removeProperty(const char* pName) override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
 

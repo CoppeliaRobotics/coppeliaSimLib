@@ -159,6 +159,22 @@ void CDrawingContainer::pushAppendNewPointEvents()
         _allObjects[i]->pushAppendNewPointEvent();
 }
 
+int CDrawingContainer::getBoolProperty_t(long long int target, const char* pName, bool& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CDrawingObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+            return it->getBoolProperty(pName, pState);
+        retVal = -2; // drawing object does not exist
+    }
+    return retVal;
+}
+
 int CDrawingContainer::getLongProperty_t(long long int target, const char* pName, long long int& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
@@ -219,6 +235,22 @@ int CDrawingContainer::getHandleArrayProperty_t(long long int target, const char
                 pState.push_back(_allObjects[i]->getObjectHandle());
             retVal = sim_propertyret_ok;
         }
+    }
+    return retVal;
+}
+
+int CDrawingContainer::getStringArrayProperty_t(long long int target, const char* pName, std::vector<std::string>& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CDrawingObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+            return it->getStringArrayProperty(pName, pState);
+        retVal = -2; // drawing object does not exist
     }
     return retVal;
 }

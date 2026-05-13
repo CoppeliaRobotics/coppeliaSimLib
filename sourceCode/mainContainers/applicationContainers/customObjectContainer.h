@@ -29,7 +29,7 @@ class CustomObjectContainer
     void announceScriptStateWillBeErased(int detachedScriptHandle);
     void clear();
 
-    long long int makeClass(const char* typeString, const char* objectMetaInfo);
+    long long int makeClass(const char* typeString, const std::vector<std::string>& superClass, const std::vector<std::string>& nameSpaces);
     bool removeClass(const char* typeString);
     bool removeClass(long long int objectHandle);
     CustomObject* getClass(long long int objectHandle) const;

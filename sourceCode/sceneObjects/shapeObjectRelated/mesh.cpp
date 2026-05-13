@@ -13,14 +13,6 @@
 #include <shapeRendering.h>
 #endif
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "object",
-    "namespaces": {
-    }
-}
-)";
-
 unsigned int CMesh::_extRendererUniqueObjectID = 0;
 unsigned int CMesh::_extRendererUniqueMeshID = 0;
 unsigned int CMesh::_extRendererUniqueTextureID = 0;
@@ -111,7 +103,7 @@ void CMesh::_commonInit()
 {
     _objectTypeStr = "mesh";
     _originalObjectTypeStr = _objectTypeStr;
-    _objectMetaInfo = OBJECT_META_INFO;
+    setMetaInfo("superClass: object");
     _objectHandle = App::getFreshUniqueId(-1);
     _isInSceneShapeUid = -1;
     _isInSceneShapeHandle = -1;
@@ -2999,7 +2991,7 @@ int CMesh::setBoolProperty_mesh(const char* ppName, bool pState, const C7Vector&
 int CMesh::getBoolProperty_mesh(const char* ppName, bool& pState, const C7Vector& shapeRelTr) const
 {
     const char* pName = ppName;
-    int retVal = sim_propertyret_unknownproperty;
+    int retVal = Obj::getBoolProperty(ppName, pState);
 
     if (strcmp(pName, propMesh_showEdges.name) == 0)
     {
@@ -3363,6 +3355,18 @@ int CMesh::getIntArrayProperty_mesh(const char* ppName, std::vector<int>& pState
     {
         retVal = sim_propertyret_ok;
         pState.assign(_indices.begin(), _indices.end());
+    }
+
+    return retVal;
+}
+
+int CMesh::getStringArrayProperty_mesh(const char* ppName, std::vector<std::string>& pState, const C7Vector& shapeRelTr) const
+{
+    const char* pName = ppName;
+    int retVal = Obj::getStringArrayProperty(ppName, pState);
+
+    if (retVal == sim_propertyret_unknownproperty)
+    {
     }
 
     return retVal;

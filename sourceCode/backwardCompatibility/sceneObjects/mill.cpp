@@ -8,18 +8,6 @@
 #include <millRendering.h>
 #endif
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "sceneObject",
-    "namespaces": {
-        "refs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "origRefs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "customData": {},
-        "signal": {}
-    }
-}
-)";
-
 CMill::CMill(int theType)
 {
     commonInit();
@@ -69,7 +57,6 @@ void CMill::commonInit()
 {
     _objectTypeStr = "mill";
     _originalObjectTypeStr = _objectTypeStr;
-    _objectMetaInfo = OBJECT_META_INFO;
     convexVolume = new CConvexVolume();
     _explicitHandling = false;
     _objectType = sim_sceneobject_mill;

@@ -9,18 +9,6 @@
 #include <proximitySensorRendering.h>
 #endif
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "sceneObject",
-    "namespaces": {
-        "refs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "origRefs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "customData": {},
-        "signal": {}
-    }
-}
-)";
-
 CProxSensor::CProxSensor(int theType)
 {
     commonInit();
@@ -166,7 +154,6 @@ void CProxSensor::commonInit()
 {
     _objectTypeStr = "proximitySensor";
     _originalObjectTypeStr = _objectTypeStr;
-    _objectMetaInfo = OBJECT_META_INFO;
     convexVolume = new CConvexVolume();
     _explicitHandling = false;
     _objectType = sim_sceneobject_proximitysensor;

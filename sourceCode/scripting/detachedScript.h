@@ -94,6 +94,7 @@ class CDetachedScript : public Obj
     int getHandleProperty(const char* pName, long long int& pState) const override;
     int setStringProperty(const char* pName, const std::string& pState)override;
     int getStringProperty(const char* pName, std::string& pState) const override;
+    int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
 

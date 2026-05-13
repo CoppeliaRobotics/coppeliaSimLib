@@ -16,18 +16,6 @@
 #include <oGL.h>
 #endif
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "sceneObject",
-    "namespaces": {
-        "refs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "origRefs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "customData": {},
-        "signal": {}
-    }
-}
-)";
-
 unsigned int CCamera::selectBuff[SELECTION_BUFFER_SIZE * 4];
 
 CCamera::CCamera()
@@ -666,7 +654,6 @@ void CCamera::commonInit()
 {
     _objectTypeStr = "camera";
     _originalObjectTypeStr = _objectTypeStr;
-    _objectMetaInfo = OBJECT_META_INFO;
     _showVolume = false;
     _objectType = sim_sceneobject_camera;
     _nearClippingPlane = 0.05;
@@ -1710,7 +1697,6 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
     bool mouseIsDown = false;
     bool mouseJustWentDown = false;
     bool mouseJustWentUp = false;
-    bool mouseMovedWhileDown = false;
     int navigationMode = sim_navigation_passive;
     if (windowSize != nullptr)
     {
@@ -1738,7 +1724,6 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
             mouseIsDown = subView->isMouseDown();
             mouseJustWentDown = subView->didMouseJustGoDown();
             mouseJustWentUp = subView->didMouseJustGoUp();
-            mouseMovedWhileDown = subView->didMouseMoveWhileDown();
             navigationMode = GuiApp::getMouseMode() & 0x00ff;
         }
     }
@@ -1760,8 +1745,6 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
 
     int passes[3] = {RENDERPASS, -1, -1}; // last should always be rendering pass!
 
-    bool specialSelectionAndNavigationPass = false;
-    bool regularObjectsCannotBeSelected = false;
     bool processHitForMouseUpProcessing = false;
     if (subView != nullptr)
     {
@@ -1803,10 +1786,6 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
                     //                  passes[0]=DEPTHPASS;
                     //                  passes[1]=PICKPASS;
                     //                  passes[2]=RENDERPASS;
-                    if ((GuiApp::getMouseMode() & sim_navigation_clickselection) == 0)
-                        regularObjectsCannotBeSelected = true;
-                    else
-                        specialSelectionAndNavigationPass = true;
                 }
                 else if (selectionStatus == SHIFTSELECTION)
                 { // shift key
@@ -2509,14 +2488,12 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
     if (App::scene->simulation->getDynamicContentVisualizationOnly())
         displayAttrib |= sim_displayattribute_dynamiccontentonly;
 
-    int viewIndex = -1;
     if (subView != nullptr)
     {
         if ((!subView->getShowEdges()) || CEnvironment::getShapeEdgesTemporarilyDisabled())
             displayAttrib |= sim_displayattribute_forbidedges;
         if (subView->getThickEdges())
             displayAttrib |= sim_displayattribute_thickEdges;
-        viewIndex = int(subView->getViewIndex());
     }
 
     bool shapeEditMode = ((GuiApp::getEditModeType() & SHAPE_EDIT_MODE) != 0);
@@ -2850,7 +2827,6 @@ void CCamera::performDepthPerception(CSView* subView, bool isPerspective)
     TRACE_INTERNAL;
     if (subView == nullptr)
         return;
-    int mouseMode = GuiApp::getMouseMode();
     int windowSize[2];
     subView->getViewSize(windowSize);
     GLint viewport[4];
@@ -2874,13 +2850,9 @@ void CCamera::performDepthPerception(CSView* subView, bool isPerspective)
         subView->setMousePositionDepth(ORTHO_CAMERA_NEAR_CLIPPING_PLANE +
                                        pixel[0] * (ORTHO_CAMERA_FAR_CLIPPING_PLANE - ORTHO_CAMERA_NEAR_CLIPPING_PLANE));
 
-    double clippFar = _farClippingPlane;
     double clippNear = _nearClippingPlane;
     if (!isPerspective)
-    {
-        clippFar = ORTHO_CAMERA_FAR_CLIPPING_PLANE;
         clippNear = ORTHO_CAMERA_NEAR_CLIPPING_PLANE;
-    }
 
     if (pixel[0] >= (1.0 - 2.0 * std::numeric_limits<double>::epsilon()))
     { // The cursor hit the far clipping plane:
@@ -2942,13 +2914,9 @@ void CCamera::performDepthPerception(CSView* subView, bool isPerspective)
 void CCamera::_drawOverlay(bool passiveView, bool drawText, bool displ_ref, int windowSize[2], CSView* subView)
 {
     TRACE_INTERNAL;
-    int navigationMode = sim_navigation_passive;
     int selectionMode = NOSELECTION;
     if (subView != nullptr)
-    {
-        navigationMode = GuiApp::getMouseMode() & 0x00ff;
         selectionMode = subView->getSelectionStatus();
-    }
     ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

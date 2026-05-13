@@ -10,23 +10,10 @@
 #include <guiApp.h>
 #endif
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "sceneObject",
-    "namespaces": {
-        "refs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "origRefs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "customData": {},
-        "signal": {}
-    }
-}
-)";
-
 CMarker::CMarker(int type /*= sim_markertype_points*/, unsigned char col[3] /*= nullptr*/, double size[3] /*= nullptr*/, int maxCnt /*= 0*/, int options /*= 0*/, float duplicateTol /*= 0.0f*/, const std::vector<float>* vertices /*= nullptr*/, const std::vector<int>* indices /*= nullptr*/, const std::vector<float>* normals /*= nullptr*/)
 {
     _objectTypeStr = "marker";
     _originalObjectTypeStr = _objectTypeStr;
-    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_marker;
     _localObjectSpecialProperty = 0;
 
@@ -60,7 +47,7 @@ CMarker::CMarker(int type /*= sim_markertype_points*/, unsigned char col[3] /*= 
     {
         _vertices = vertices[0];
         _vertices.resize(3 * (_vertices.size() / 3));
-        int m = (_vertices.size() / 3) - 1;
+        int m = (int(_vertices.size()) / 3) - 1;
         _indices = indices[0];
         _indices.resize(3 * (_indices.size() / 3));
         size_t i = 0;
@@ -265,7 +252,7 @@ void CMarker::remItems(const std::vector<long long int>* ids)
             size_t l = 0;
             while (_ids[l] != id)
                 l++;
-            int newItemsStart = _ids.size() - _newItemsCnt;
+            int newItemsStart = int(_ids.size()) - _newItemsCnt;
             if (l < newItemsStart)
                 _remIds.push_back(id); // only if not a newly added item
             else

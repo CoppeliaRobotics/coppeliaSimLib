@@ -9,18 +9,6 @@
 #include <guiApp.h>
 #endif
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "sceneObject",
-    "namespaces": {
-        "refs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "origRefs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "customData": {},
-        "signal": {}
-    }
-}
-)";
-
 int CLight::_maximumOpenGlLights = 8;
 
 CLight::CLight()
@@ -64,7 +52,6 @@ void CLight::_commonInit()
 {
     _objectTypeStr = "light";
     _originalObjectTypeStr = _objectTypeStr;
-    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_light;
     _lightSize = 0.10;
     _spotExponent = 5;

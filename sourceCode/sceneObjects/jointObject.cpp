@@ -11,18 +11,6 @@
 #include <jointRendering.h>
 #endif
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "sceneObject",
-    "namespaces": {
-        "refs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "origRefs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "customData": {},
-        "signal": {}
-    }
-}
-)";
-
 CJoint::CJoint()
 {
     _commonInit();
@@ -86,7 +74,6 @@ void CJoint::_commonInit()
 {
     _objectTypeStr = "joint";
     _originalObjectTypeStr = _objectTypeStr;
-    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_joint;
     _localObjectSpecialProperty = 0;
 

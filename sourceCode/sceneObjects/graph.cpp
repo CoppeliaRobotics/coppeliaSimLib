@@ -13,23 +13,10 @@
 #include <guiApp.h>
 #endif
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "sceneObject",
-    "namespaces": {
-        "refs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "origRefs": {"newPropertyForcedType": )" + std::to_string(sim_propertytype_handlearray) + R"(},
-        "customData": {},
-        "signal": {}
-    }
-}
-)";
-
 CGraph::CGraph()
 {
     _objectTypeStr = "graph";
     _originalObjectTypeStr = _objectTypeStr;
-    _objectMetaInfo = OBJECT_META_INFO;
     _objectType = sim_sceneobject_graph;
     justDrawCurves = false;
     _needsRefresh = true;
@@ -2642,7 +2629,6 @@ void CGraph::lookAt(int windowSize[2], CSView* subView, bool timeGraph, bool dra
     int mouseDownRelativePosition[2];
     double graphPos[2] = {-2.0, -2.0};
     double graphSize[2] = {4.0, 4.0};
-    int selectionStatus = NOSELECTION;
     bool autoMode = true;
     bool timeGraphYaxisAutoMode = true;
     bool mouseIsDown = false;
@@ -2676,10 +2662,7 @@ void CGraph::lookAt(int windowSize[2], CSView* subView, bool timeGraph, bool dra
         subView->getGraphSize(graphSize);
         timeGraph = subView->getTimeGraph();
         if (!passiveSubView)
-        {
-            selectionStatus = subView->getSelectionStatus();
             mouseIsDown = subView->isMouseDown();
-        }
     }
 
     // We go a first time through the rendering process without displaying anything (we check the view size etc.)

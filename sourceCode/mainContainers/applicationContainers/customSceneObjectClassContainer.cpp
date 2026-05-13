@@ -12,35 +12,22 @@ CustomSceneObjectClassContainer::~CustomSceneObjectClassContainer()
 
 int CustomSceneObjectClassContainer::makeObject(int classHandle)
 {
-    int retVal = -1;
     CSceneObject* classObj = getClass(classHandle);
-    QJsonDocument doc = QJsonDocument::fromJson(classObj->getObjectMetaInfo().c_str());
-    if ((!doc.isNull()) && doc.isObject())
-    {
-        QJsonObject jsonObj = doc.object();
-        jsonObj["class"] = false;
-        QJsonDocument newDoc(jsonObj);
-        std::string newObjectMetaInfo = QString::fromUtf8(newDoc.toJson(QJsonDocument::Compact)).toStdString();
-        CSceneObject* obj = classObj->copyYourself();
-        obj->setObjectMetaInfo(newObjectMetaInfo.c_str());
-        retVal = App::scene->sceneObjects->addObjectToScene(obj, false, true);
-    }
+    CSceneObject* obj = classObj->copyYourself();
+    obj->setMetaInfo(classObj->getMetaInfo().c_str());
+    obj->setIsClass(false);
+    int retVal = App::scene->sceneObjects->addObjectToScene(obj, false, true);
     return retVal;
 }
 
 int CustomSceneObjectClassContainer::makeClass(CSceneObject* obj, const char* typeString)
 {
     int retVal = -1;
-    QJsonDocument doc = QJsonDocument::fromJson(obj->getObjectMetaInfo().c_str());
-    if ((!doc.isNull()) && doc.isObject() && (getClass(typeString) == nullptr))
+    if (getClass(typeString) == nullptr)
     {
-        QJsonObject jsonObj = doc.object();
-        jsonObj["class"] = true;
-        QJsonDocument newDoc(jsonObj);
-        std::string newObjectMetaInfo = QString::fromUtf8(newDoc.toJson(QJsonDocument::Compact)).toStdString();
         CSceneObject* copy = obj->copyYourself();
-        copy->setIsClass();
-        copy->setObjectMetaInfo(newObjectMetaInfo.c_str());
+        copy->setIsClass(true);
+        copy->setMetaInfo(obj->getMetaInfo().c_str());
         std::string orig = obj->getOriginalObjectTypeStr();
         copy->setObjectTypeStr(typeString);
         copy->setOriginalObjectTypeStr(orig.c_str());

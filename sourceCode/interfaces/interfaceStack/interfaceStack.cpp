@@ -17,20 +17,12 @@
 #include <utils.h>
 #include <algorithm>
 
-static std::string OBJECT_META_INFO = R"(
-{
-    "superclass": "object",
-    "namespaces": {
-    }
-}
-)";
-
 CInterfaceStack::CInterfaceStack(int a, int b, const char* c)
 { // args just to avoid direct object creation
     _objectHandle = -1;
     _objectTypeStr = "stack";
     _originalObjectTypeStr = _objectTypeStr;
-    _objectMetaInfo = OBJECT_META_INFO;
+    setMetaInfo("superClass: object");
 }
 
 CInterfaceStack::~CInterfaceStack()
@@ -1799,37 +1791,41 @@ int CInterfaceStack::setBoolProperty(const char*ppName, bool pState)
 
 int CInterfaceStack::getBoolProperty(const char*ppName, bool& pState) const
 {
-    std::string key;
-    int arrIndex;
-    int stackIndex;
-    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
-    if (retVal == 0)
+    int retVal = Obj::getBoolProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
     {
-        retVal = sim_propertyret_unknownproperty;
-        if (key.size() == 0)
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+        if (retVal == 0)
         {
-            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
-            if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_bool) )
+            retVal = sim_propertyret_unknownproperty;
+            if (key.size() == 0)
             {
-                pState = ((CInterfaceStackBool*)it)->getValue();
-                retVal = sim_propertyret_ok;
-            }
-        }
-        else
-        { // we want to read a specific array/map item
-            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
-            if (obj->getObjectType() == sim_stackitem_table)
-            {
-                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                CInterfaceStackObject* it = nullptr;
-                if (arrIndex >= 0)
-                    it = tbl->getArrayItemAtIndex(arrIndex);
-                else
-                    it = tbl->getMapObject(key.c_str());
+                CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
                 if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_bool) )
                 {
                     pState = ((CInterfaceStackBool*)it)->getValue();
                     retVal = sim_propertyret_ok;
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_bool) )
+                    {
+                        pState = ((CInterfaceStackBool*)it)->getValue();
+                        retVal = sim_propertyret_ok;
+                    }
                 }
             }
         }
@@ -2432,111 +2428,6 @@ int CInterfaceStack::getIntArray2Property(const char*ppName, int* pState) const
                     {
                         tbl->getInt32Array(pState, int(arrSize));
                         retVal = sim_propertyret_ok;
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-int CInterfaceStack::setVector2Property(const char*ppName, const double* pState)
-{
-    std::string key;
-    int stackIndex;
-    int retVal = _getStackLocation_write(ppName, stackIndex, key);
-    if (retVal == 0)
-    {
-        retVal = sim_propertyret_unknownproperty;
-        if (key.size() == 0)
-        {
-            CInterfaceStackTable* tbl = new CInterfaceStackTable();
-            tbl->setDoubleArray(pState, 2);
-            replaceStackObjectFromIndex(stackIndex, tbl);
-            retVal = sim_propertyret_ok;
-        }
-        else
-        { // we want to append an array or map item
-            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
-            if (obj->getObjectType() == sim_stackitem_table)
-            {
-                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                if (key == "@arrayAppend@")
-                {
-                    if (tbl->isTableArray())
-                    {
-                        CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                        tbl2->setDoubleArray(pState, 2);
-                        tbl->appendArrayObject(tbl2);
-                        retVal = sim_propertyret_ok;
-                    }
-                }
-                else
-                {
-                    if (tbl->isTableMap())
-                    {
-                        CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
-                        tbl2->setDoubleArray(pState, 2);
-                        tbl->appendMapObject_object(key.c_str(), tbl2);
-                        retVal = sim_propertyret_ok;
-                    }
-                }
-            }
-        }
-    }
-    return retVal;
-}
-
-int CInterfaceStack::getVector2Property(const char*ppName, double* pState) const
-{
-    std::string key;
-    int arrIndex;
-    int stackIndex;
-    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
-    if (retVal == 0)
-    {
-        retVal = sim_propertyret_unknownproperty;
-        if (key.size() == 0)
-        {
-            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
-            if (it != nullptr)
-            {
-                if (it->getObjectType() == sim_stackitem_matrix)
-                {
-                    CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
-                    const CMatrix* M = m->getValue();
-                    if ((M->cols == 1) && (M->rows == 2))
-                    {
-                        pState[0] = M->data[0];
-                        pState[1] = M->data[1];
-                        retVal = sim_propertyret_ok;
-                    }
-                }
-            }
-        }
-        else
-        { // we want to read a specific array/map item
-            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
-            if (obj->getObjectType() == sim_stackitem_table)
-            {
-                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                CInterfaceStackObject* it = nullptr;
-                if (arrIndex >= 0)
-                    it = tbl->getArrayItemAtIndex(arrIndex);
-                else
-                    it = tbl->getMapObject(key.c_str());
-                if (it != nullptr)
-                {
-                    if (it->getObjectType() == sim_stackitem_matrix)
-                    {
-                        CInterfaceStackMatrix* m = (CInterfaceStackMatrix*)it;
-                        const CMatrix* M = m->getValue();
-                        if ((M->cols == 1) && (M->rows == 2))
-                        {
-                            pState[0] = M->data[0];
-                            pState[1] = M->data[1];
-                            retVal = sim_propertyret_ok;
-                        }
                     }
                 }
             }
@@ -3364,37 +3255,19 @@ int CInterfaceStack::setStringArrayProperty(const char*ppName, const std::vector
 
 int CInterfaceStack::getStringArrayProperty(const char*ppName, std::vector<std::string>& pState) const
 {
-    std::string key;
-    int arrIndex;
-    int stackIndex;
-    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
-    if (retVal == 0)
+    int retVal = Obj::getStringArrayProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
     {
-        retVal = sim_propertyret_unknownproperty;
-        if (key.size() == 0)
+        std::string key;
+        int arrIndex;
+        int stackIndex;
+        int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+        if (retVal == 0)
         {
-            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
-            if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+            retVal = sim_propertyret_unknownproperty;
+            if (key.size() == 0)
             {
-                CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
-                if (tbl->areAllValuesThis(sim_stackitem_string, true))
-                {
-                    tbl->getTextArray(pState);
-                    retVal = sim_propertyret_ok;
-                }
-            }
-        }
-        else
-        { // we want to read a specific array/map item
-            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
-            if (obj->getObjectType() == sim_stackitem_table)
-            {
-                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-                CInterfaceStackObject* it = nullptr;
-                if (arrIndex >= 0)
-                    it = tbl->getArrayItemAtIndex(arrIndex);
-                else
-                    it = tbl->getMapObject(key.c_str());
+                CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
                 if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
                 {
                     CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
@@ -3402,6 +3275,28 @@ int CInterfaceStack::getStringArrayProperty(const char*ppName, std::vector<std::
                     {
                         tbl->getTextArray(pState);
                         retVal = sim_propertyret_ok;
+                    }
+                }
+            }
+            else
+            { // we want to read a specific array/map item
+                CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+                if (obj->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                    CInterfaceStackObject* it = nullptr;
+                    if (arrIndex >= 0)
+                        it = tbl->getArrayItemAtIndex(arrIndex);
+                    else
+                        it = tbl->getMapObject(key.c_str());
+                    if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                    {
+                        CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                        if (tbl->areAllValuesThis(sim_stackitem_string, true))
+                        {
+                            tbl->getTextArray(pState);
+                            retVal = sim_propertyret_ok;
+                        }
                     }
                 }
             }
