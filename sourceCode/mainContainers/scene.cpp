@@ -2753,9 +2753,11 @@ int CScene::getBoolProperty_t(long long int target, const char* ppName, bool& pS
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
+        retVal = collections->getBoolProperty_t(target, ppName, pState);
     }
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
+        retVal = drawingCont->getBoolProperty_t(target, ppName, pState);
     }
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
         retVal = customObjects->getBoolProperty_t(target, ppName, pState);
@@ -3869,9 +3871,11 @@ int CScene::getStringArrayProperty_t(long long int target, const char* ppName, s
         retVal = sceneObjects->getStringArrayProperty_t(target, ppName, pState);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
+        retVal = collections->getStringArrayProperty_t(target, ppName, pState);
     }
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
+        retVal = drawingCont->getStringArrayProperty_t(target, ppName, pState);
     }
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
         retVal = customObjects->getStringArrayProperty_t(target, ppName, pState);

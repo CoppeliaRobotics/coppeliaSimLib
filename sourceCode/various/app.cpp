@@ -3466,10 +3466,7 @@ int App::getStringArrayProperty_t(long long int target, const char* ppName, std:
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
-        {
-          //const char* pName = ppName;
-          //retVal = script->getStringArrayProperty(pName, pState);
-        }
+            retVal = script->getStringArrayProperty(pName, pState);
         else
             retVal = sim_propertyret_unknowntarget;
     }
