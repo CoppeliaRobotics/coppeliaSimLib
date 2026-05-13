@@ -3799,8 +3799,8 @@ void CSceneObject::serialize(CSer& ar)
                 ar.xmlGetNode_string("objectType", _objectTypeStr, false);
                 originalObjectTypeStrSet = ar.xmlGetNode_string("originalObjectType", _originalObjectTypeStr, false); // has to come after objectType
                 std::string tmp;
-                ar.xmlGetNode_string("metaInfo", tmp, false);
-                setMetaInfo(tmp.c_str());
+                if (ar.xmlGetNode_string("metaInfo", tmp, false))
+                    setMetaInfo(tmp.c_str());
 
                 if (exhaustiveXml)
                 {
