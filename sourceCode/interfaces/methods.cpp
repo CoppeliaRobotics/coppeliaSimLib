@@ -7105,7 +7105,7 @@ std::string _method_createCustomObjectClass(int targetObj, const char* method, C
             {
                 CInterfaceStackTable* mInfo = (CInterfaceStackTable*)obj;
                 mInfo->fetchStringArrayFromKey("superClass", superClass, &errMsg);
-                mInfo->fetchStringArrayFromKey("nameSpaces", nameSpaces, &errMsg);
+                mInfo->fetchStringArrayFromKey("namespaces", nameSpaces, &errMsg);
             }
             else
                 errMsg = "invalid 'metaInfo' field.";
