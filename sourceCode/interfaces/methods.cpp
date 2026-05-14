@@ -7096,7 +7096,8 @@ std::string _method_createCustomObjectClass(int targetObj, const char* method, C
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string typeStr = fetchText(inStack, 0);
-        std::vector<std::string> superClass = {"object"};
+        bool hasSuperClassInfo = false;
+        std::vector<std::string> superClass = {};
         std::vector<std::string> nameSpaces = {};
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
@@ -7104,7 +7105,7 @@ std::string _method_createCustomObjectClass(int targetObj, const char* method, C
             if (obj->getObjectType() == sim_stackitem_table)
             {
                 CInterfaceStackTable* mInfo = (CInterfaceStackTable*)obj;
-                mInfo->fetchStringArrayFromKey("superClass", superClass, &errMsg);
+                hasSuperClassInfo = mInfo->fetchStringArrayFromKey("superClass", superClass, &errMsg);
                 mInfo->fetchStringArrayFromKey("namespaces", nameSpaces, &errMsg);
             }
             else
@@ -7112,6 +7113,8 @@ std::string _method_createCustomObjectClass(int targetObj, const char* method, C
         }
         if (errMsg.size() == 0)
         {
+            if (!hasSuperClassInfo)
+                superClass.push_back("object");
             long long int retVal = App::scenes->customObjects->makeClass(typeStr.c_str(), superClass, nameSpaces);
             if (retVal >= 0)
                 pushHandle(outStack, retVal);
