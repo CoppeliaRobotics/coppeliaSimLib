@@ -159,7 +159,7 @@ class CDetachedScript : public Obj
     void setDelayForAutoYielding(int d);
     int changeAutoYieldingForbidLevel(int dx, bool absolute);
     int getAutoYieldingForbidLevel() const;
-    int changeOverallYieldingForbidLevel(int dx, bool absolute);
+    int changeManualYieldingForbidLevel(int dx, bool absolute);
     std::string getLang() const;
     void setLang(const char* lang);
     void setExecutionDepth(int d);
@@ -282,7 +282,7 @@ class CDetachedScript : public Obj
     int _timeForNextAutoYielding;
     int _delayForAutoYielding;
     int _forbidAutoYieldingLevel;
-    int _forbidOverallYieldingLevel;
+    int _forbidManualYieldingLevel;
 
     std::string _scriptText;
     std::string _scriptTextExec; // the one getting executed!

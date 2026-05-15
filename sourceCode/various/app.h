@@ -109,6 +109,9 @@ class App
     static int getExitCode();
     static int getAppStage();
     static void setAppStage(int s);
+    static void changeAppWideYieldingForbidLevel(int dx);
+    static bool isAppWideYieldingForbidden();
+
 
     static void pushGenesisEvents();
     static void setPluginList(const std::vector<CPlugin*>* plugins);
@@ -204,6 +207,7 @@ class App
     static bool _hierarchyEnabled;
     static bool _openGlDisplayEnabled;
     static int _eventProtocolVersion;
+    static int _appWideYieldingForbidLevel;
 
     static long long int _nextUniqueId;
     static SignalHandler* _sigHandler;

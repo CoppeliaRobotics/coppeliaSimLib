@@ -35,14 +35,16 @@
     std::string functionName(_LUA_START(L, funcName, argOffset)); \
     std::string errorString; \
     std::string warningString; \
-    bool cSideErrorOrWarningReporting = true;
+    bool cSideErrorOrWarningReporting = true; \
+    App::changeAppWideYieldingForbidLevel(1);
 
 #define LUA_START_NO_CSIDE_ERROR(funcName) \
     int argOffset = 0; \
     std::string functionName(_LUA_START(L, funcName, argOffset)); \
     std::string errorString; \
     std::string warningString; \
-    bool cSideErrorOrWarningReporting = false;
+    bool cSideErrorOrWarningReporting = false; \
+    App::changeAppWideYieldingForbidLevel(1);
 
 #define LUA_END(p) \
     do \
@@ -51,6 +53,7 @@
             warningString = CApiErrors::getAndClearLastWarning(); \
         _reportWarningsIfNeeded(L, functionName.c_str(), warningString.c_str()); \
         CApiErrors::getAndClearLastError(); \
+        App::changeAppWideYieldingForbidLevel(-1); \
         return p; \
     } while (0)
 
@@ -2852,14 +2855,14 @@ int _genericFunctionHandler(luaWrap_lua_State* L, void (*callback)(struct SScrip
 
     // Now we can call the callback:
     CDetachedScript::setInExternalCall(currentScriptID);
-    itObj->changeAutoYieldingForbidLevel(1, false); // no automatic thread switching when calling a plugin or internal function
+    App::changeAppWideYieldingForbidLevel(1);
 
     if (callback != nullptr)
         callback(cb);
     else
         func->callBackFunction_new(cb); // call into old plugin
 
-    itObj->changeAutoYieldingForbidLevel(-1, false);
+    App::changeAppWideYieldingForbidLevel(-1);
     CDetachedScript::setInExternalCall(-1);
 
     // Now we have to build the returned data onto the stack:
@@ -6420,15 +6423,12 @@ int _callMethod(luaWrap_lua_State* L)
     {
         long long int target = fetchHandleArg(L, 1);
         std::string methodName = fetchTextArg(L, 2);
-//        std::string m;
-//        m = m + "Target: " + std::to_string(target);
-//        m+= " Method: " + methodName;
-//        App::logScriptMsg(nullptr, 0, m.c_str());
         methodName = "@" + methodName;
+        int currentScriptId = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
         CInterfaceStack* inStack = App::scenes->interfaceStackContainer->createStack();
         CDetachedScript::buildFromInterpreterStack_lua(L, inStack, 3, 0); // skip the two first args
         CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();
-        int res = CALL_C_API(simCallMethod, target, methodName.c_str(), inStack->getObjectHandle(), outStack->getObjectHandle(), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
+        int res = CALL_C_API(simCallMethod, target, methodName.c_str(), inStack->getObjectHandle(), outStack->getObjectHandle(), currentScriptId);
         if (res == 1)
         {
             int s = int(CDetachedScript::buildOntoInterpreterStack_lua(L, outStack, false, false));
@@ -7530,7 +7530,7 @@ int _setYieldAllowed(luaWrap_lua_State* L)
             if (luaWrap_lua_isnumber(L, 1))
             {
                 int a = luaToInt(L, 1);
-                retVal = it->changeOverallYieldingForbidLevel(a, true);
+                retVal = it->changeManualYieldingForbidLevel(a, true);
             }
             else
             {
@@ -7538,7 +7538,7 @@ int _setYieldAllowed(luaWrap_lua_State* L)
                 int a = 1;
                 if (allow)
                     a = -1;
-                retVal = it->changeOverallYieldingForbidLevel(a, false);
+                retVal = it->changeManualYieldingForbidLevel(a, false);
             }
             luaWrap_lua_pushinteger(L, retVal);
             LUA_END(1);

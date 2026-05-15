@@ -199,7 +199,7 @@ void CDetachedScript::fromFileToBuffer()
 bool CDetachedScript::shouldAutoYield()
 {
     bool retVal = false;
-    if ((_forbidAutoYieldingLevel == 0) && (_forbidOverallYieldingLevel == 0))
+    if ((_forbidAutoYieldingLevel == 0) && (_forbidManualYieldingLevel == 0) && (!App::isAppWideYieldingForbidden()))
     {
         retVal = VDateTime::getTimeDiffInMs(_timeForNextAutoYielding) > 0;
         if (retVal)
@@ -218,7 +218,7 @@ bool CDetachedScript::shouldAutoYield()
 
 bool CDetachedScript::canManualYield() const
 {
-    return (_forbidOverallYieldingLevel == 0);
+    return (_forbidManualYieldingLevel == 0);
 }
 
 int CDetachedScript::getDelayForAutoYielding() const
@@ -254,16 +254,16 @@ int CDetachedScript::getAutoYieldingForbidLevel() const
     return (_forbidAutoYieldingLevel);
 }
 
-int CDetachedScript::changeOverallYieldingForbidLevel(int dx, bool absolute)
+int CDetachedScript::changeManualYieldingForbidLevel(int dx, bool absolute)
 {
-    int retVal = _forbidOverallYieldingLevel;
+    int retVal = _forbidManualYieldingLevel;
     if (absolute)
-        _forbidOverallYieldingLevel = dx;
+        _forbidManualYieldingLevel = dx;
     else
     {
-        _forbidOverallYieldingLevel += dx;
-        if (_forbidOverallYieldingLevel < 0)
-            _forbidOverallYieldingLevel = 0;
+        _forbidManualYieldingLevel += dx;
+        if (_forbidManualYieldingLevel < 0)
+            _forbidManualYieldingLevel = 0;
     }
     return (retVal);
 }
@@ -2036,10 +2036,10 @@ int CDetachedScript::_callSystemScriptFunction(int callType, const CInterfaceSta
     { // remember: a script func. can call another script func indirectly via the system, even system callback can do
         // that!
         _timeForNextAutoYielding = int(VDateTime::getTimeInMs()) + _delayForAutoYielding;
-        _forbidOverallYieldingLevel = 0;
+        _forbidManualYieldingLevel = 0;
     }
     else
-        changeOverallYieldingForbidLevel(1, false);
+        changeManualYieldingForbidLevel(1, false);
 
     CInterfaceStack* _outStack = App::scenes->interfaceStackContainer->createStack();
     if (outStack == nullptr)
@@ -2107,7 +2107,7 @@ int CDetachedScript::_callSystemScriptFunction(int callType, const CInterfaceSta
     // ---------------------------------
 
     if (_executionDepth != 0)
-        changeOverallYieldingForbidLevel(-1, false);
+        changeManualYieldingForbidLevel(-1, false);
 
     if (_executionDepth == 0)
     { // a system script func. could call a custom script function which could call a system script function, etc. Let
@@ -2379,7 +2379,7 @@ int CDetachedScript::callCustomScriptFunction(const char* functionName, CInterfa
     int retVal = 0;
     if (_scriptState == sim_scriptstate_initialized)
     {
-        changeOverallYieldingForbidLevel(1, false); // never yield from such a call
+        changeManualYieldingForbidLevel(1, false); // never yield from such a call
         if (outStack != nullptr)
             outStack->clear();
         // -------------------------------------
@@ -2436,7 +2436,7 @@ int CDetachedScript::callCustomScriptFunction(const char* functionName, CInterfa
             if (_executionDepth == 0)
                 _killInterpreterState();
         }
-        changeOverallYieldingForbidLevel(-1, false);
+        changeManualYieldingForbidLevel(-1, false);
         if (errorMsg != nullptr)
             errorMsg[0] = errMsg;
     }
@@ -2447,7 +2447,7 @@ int CDetachedScript::executeScriptString(const char* scriptString, CInterfaceSta
 { // retVal: -2: script not initialized, is disabled, or had previously an error, -1: string caused an error, 0: string
     // didn't cause an error
     int retVal = -2;
-    changeOverallYieldingForbidLevel(1, false);
+    changeManualYieldingForbidLevel(1, false);
     if (_scriptState == sim_scriptstate_initialized)
     {
         if (_executionDepth == 0)
@@ -2461,7 +2461,7 @@ int CDetachedScript::executeScriptString(const char* scriptString, CInterfaceSta
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = -1;
     }
-    changeOverallYieldingForbidLevel(-1, false);
+    changeManualYieldingForbidLevel(-1, false);
     return (retVal);
 }
 
@@ -3038,7 +3038,7 @@ bool CDetachedScript::_initInterpreterState(std::string* errorMsg)
     _delayForAutoYielding = 2;
     _forbidAutoYieldingLevel = 0;
     _timeForNextAutoYielding = int(VDateTime::getTimeInMs()) + _delayForAutoYielding;
-    _forbidOverallYieldingLevel = 0;
+    _forbidManualYieldingLevel = 0;
 
     luaWrap_lua_State* L = luaWrap_luaL_newstate();
     _interpreterState = L;
@@ -4067,10 +4067,10 @@ void CDetachedScript::serialize(CSer& ar)
 int CDetachedScript::_execSimpleString_safe_lua(void* LL, const char* string)
 {
     int t1 = _forbidAutoYieldingLevel;
-    int t2 = _forbidOverallYieldingLevel;
+    int t2 = _forbidManualYieldingLevel;
     int retVal = luaWrap_luaL_dostring((luaWrap_lua_State*)LL, string);
     _forbidAutoYieldingLevel = t1;
-    _forbidOverallYieldingLevel = t2;
+    _forbidManualYieldingLevel = t2;
     return (retVal);
 }
 
@@ -4778,7 +4778,7 @@ int CDetachedScript::callScriptFunction_DEPRECATED(const char* functionName, SLu
     if (_scriptState != sim_scriptstate_initialized)
         return (retVal);
 
-    changeOverallYieldingForbidLevel(1, false);
+    changeManualYieldingForbidLevel(1, false);
     luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     int oldTop = luaWrap_lua_gettop(L); // We store lua's stack
 
@@ -4931,7 +4931,7 @@ int CDetachedScript::callScriptFunction_DEPRECATED(const char* functionName, SLu
         retVal = 0;
     }
     luaWrap_lua_settop(L, oldTop); // We restore lua's stack
-    changeOverallYieldingForbidLevel(-1, false);
+    changeManualYieldingForbidLevel(-1, false);
     return (retVal);
 }
 int CDetachedScript::setScriptVariable_old(const char* variableName, CInterfaceStack* stack)

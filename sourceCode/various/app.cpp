@@ -71,6 +71,7 @@ VMutex App::_appSemaphore;
 std::map<std::string, SSysSemaphore> App::_systemSemaphores;
 std::vector<std::string> App::_pluginNames;
 int App::_eventProtocolVersion = SIM_EVENT_PROTOCOL_VERSION;
+int App::_appWideYieldingForbidLevel = 0;
 Obj* App::_obj = new Obj(sim_handle_app, "app", "superClass: object; nameSpaces: namedParam, customData, signal");
 
 long long int App::_nextUniqueId = sim_object_variousstart;
@@ -162,6 +163,16 @@ int App::getAppStage()
 void App::setAppStage(int s)
 {
     _appStage = s;
+}
+
+void App::changeAppWideYieldingForbidLevel(int dx)
+{
+    _appWideYieldingForbidLevel += dx;
+}
+
+bool App::isAppWideYieldingForbidden()
+{
+    return (_appWideYieldingForbidLevel != 0);
 }
 
 void App::init(const char* appDir, int)
