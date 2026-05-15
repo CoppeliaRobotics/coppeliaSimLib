@@ -222,6 +222,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["subtractPointsFromBuffer"] = _method_subtractPointsFromBuffer;
         funcTable["intersectPoints"] = _method_intersectPoints;
         funcTable["intersectPointsFromBuffer"] = _method_intersectPointsFromBuffer;
+        funcTable["setTargetPosition"] = _method_setTargetPosition;
+        funcTable["setTargetVelocity"] = _method_setTargetVelocity;
     }
 
     std::string retVal("__notFound__");
@@ -7188,10 +7190,9 @@ std::string _method_addSignal(int targetObj, const char* method, CDetachedScript
 {
     std::string errMsg;
     CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_graph, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_optional | arg_color, arg_optional | arg_map}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_optional | arg_map}))
     {
-        float color[3];
-        fetchColor(inStack, 0, color, {1.0f, 0.0f, 0.0f});
+        float color[3] = {1.0f, 0.0f, 0.0f};
         std::string name("signal");
         std::string unitStr("");
         bool hideSignal = false;
@@ -7202,8 +7203,9 @@ std::string _method_addSignal(int targetObj, const char* method, CDetachedScript
         double scale = 1.0;
         double offset = 0.0;
         int smoothing = 1;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
         {
+            map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
             map->fetchStringFromKey("name", name, &errMsg);
             map->fetchStringFromKey("unit", unitStr, &errMsg);
             map->fetchBoolFromKey("hideSignal", hideSignal, &errMsg);
@@ -8099,6 +8101,119 @@ std::string _method_subtractPointsFromBuffer(int targetObj, const char* method, 
         if (errMsg.size() == 0)
         {
             target->removePoints(pts.data(), int(pts.size()) / 3, relative, tolerance);
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_setTargetPosition(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CJoint* target = (CJoint*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_joint, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_double, arg_map | arg_optional}))
+    {
+        double targetPos = fetchDouble(inStack, 0);
+        double origMaxVelAccelJerk[3];
+        double maxVelAccelJerk[3];
+        target->getMaxVelAccelJerk(maxVelAccelJerk);
+        target->getMaxVelAccelJerk(origMaxVelAccelJerk);
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchDoubleFromKey("maxVelocity", maxVelAccelJerk[0], &errMsg);
+            map->fetchDoubleFromKey("maxAcceleration", maxVelAccelJerk[1], &errMsg);
+            map->fetchDoubleFromKey("maxJerk", maxVelAccelJerk[2], &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            if (target->getJointType() != sim_joint_spherical)
+            {
+                if ((target->getJointMode() == sim_jointmode_kinematic) || (target->getJointMode() == sim_jointmode_dynamic))
+                {
+                    if ((target->getJointMode() != sim_jointmode_kinematic) && (target->getDynPosCtrlType() != 1)) // getDynPosCtrlType: built-in position mode + pos PID (0) or Ruckig (1)
+                    {
+                        maxVelAccelJerk[1] = origMaxVelAccelJerk[1];
+                        maxVelAccelJerk[2] = origMaxVelAccelJerk[2];
+                    }
+                    target->setMaxVelAccelJerk(maxVelAccelJerk);
+                }
+                if (target->getJointMode() == sim_jointmode_dynamic)
+                {
+                    target->setTargetPosition(targetPos);
+                    target->setKinematicMotionType(0, true); // reset
+                }
+                else
+                {
+                    if (target->getJointMode() == sim_jointmode_kinematic)
+                    {
+                        target->setTargetPosition(targetPos);
+                        target->setKinematicMotionType(1, false); // pos
+                    }
+                    else
+                        target->setKinematicMotionType(0, true); // reset
+                }
+            }
+            else
+                errMsg = SIM_ERROR_JOINT_SPHERICAL;
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_setTargetVelocity(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CJoint* target = (CJoint*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_joint, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_double, arg_map | arg_optional}))
+    {
+        double targetVel = fetchDouble(inStack, 0);
+        double origMaxVelAccelJerk[3];
+        double maxVelAccelJerk[3];
+        target->getMaxVelAccelJerk(maxVelAccelJerk);
+        target->getMaxVelAccelJerk(origMaxVelAccelJerk);
+        double initVel;
+        bool hasInitVel = false;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            hasInitVel = map->fetchDoubleFromKey("initVelocity", initVel, &errMsg);
+            map->fetchDoubleFromKey("maxAcceleration", maxVelAccelJerk[1], &errMsg);
+            map->fetchDoubleFromKey("maxJerk", maxVelAccelJerk[2], &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            if (target->getJointType() != sim_joint_spherical)
+            {
+                if ((target->getJointMode() == sim_jointmode_kinematic) || (target->getJointMode() == sim_jointmode_dynamic))
+                {
+                    if ((target->getJointMode() != sim_jointmode_kinematic) && (target->getDynPosCtrlType() != 1)) // getDynPosCtrlType: built-in position mode + pos PID (0) or Ruckig (1)
+                    {
+                        maxVelAccelJerk[0] = origMaxVelAccelJerk[0];
+                        maxVelAccelJerk[1] = origMaxVelAccelJerk[1];
+                        maxVelAccelJerk[2] = origMaxVelAccelJerk[2];
+                    }
+                    target->setMaxVelAccelJerk(maxVelAccelJerk);
+                }
+                if (hasInitVel)
+                    target->setKinematicMotionType(2, true, initVel);
+
+
+                if (target->getJointMode() == sim_jointmode_dynamic)
+                {
+                    target->setTargetVelocity(targetVel);
+                    target->setKinematicMotionType(0, true); // reset
+                }
+                else
+                {
+                    if (target->getJointMode() == sim_jointmode_kinematic)
+                    {
+                        target->setTargetVelocity(targetVel);
+                        target->setKinematicMotionType(2, false); // vel
+                    }
+                    else
+                        target->setKinematicMotionType(0, true); // reset
+                }
+            }
+            else
+                errMsg = SIM_ERROR_JOINT_SPHERICAL;
         }
     }
     return errMsg;

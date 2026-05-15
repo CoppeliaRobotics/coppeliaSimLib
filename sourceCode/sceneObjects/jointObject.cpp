@@ -465,7 +465,10 @@ void CJoint::setTargetVelocity(double v)
             {
                 const char* cmd = propJoint_targetVel.name;
                 CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-                ev->appendKeyDouble(cmd, _targetVel);
+                if (App::getEventProtocolVersion() <= 3)
+                    ev->appendKeyDouble("targetVel", _targetVel);
+                else
+                    ev->appendKeyDouble(cmd, _targetVel);
                 App::scenes->pushEvent();
             }
             if (_targetVel * _targetForce < 0.0)
@@ -551,7 +554,10 @@ void CJoint::setTargetPosition(double pos)
             {
                 const char* cmd = propJoint_targetPos.name;
                 CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-                ev->appendKeyDouble(cmd, _targetPos);
+                if (App::getEventProtocolVersion() <= 3)
+                    ev->appendKeyDouble("targetPos", _targetPos);
+                else
+                    ev->appendKeyDouble(cmd, _targetPos);
                 App::scenes->pushEvent();
             }
         }
@@ -2050,15 +2056,21 @@ void CJoint::addObjectEventData(CCbor* ev)
         ev->appendKeyInt64(propJoint_dynPosMode.name, _dynPositionCtrlType);
     }
     if (App::getEventProtocolVersion() <= 3)
+    {
         ev->appendKeyInt64("dependencyMasterHandle", _dependencyMasterJointHandle);
+        ev->appendKeyDouble("targetPos", _targetPos);
+        ev->appendKeyDouble("targetVel", _targetVel);
+    }
     else
+    {
         ev->appendKeyHandle(propJoint_dependencyMaster.name, _dependencyMasterJointHandle);
+        ev->appendKeyDouble(propJoint_targetPos.name, _targetPos);
+        ev->appendKeyDouble(propJoint_targetVel.name, _targetVel);
+    }
     double arr[2] = {_dependencyJointOffset, _dependencyJointMult};
     ev->appendKeyDoubleArray(propJoint_dependencyParams.name, arr, 2);
     ev->appendKeyBool(propJoint_cyclic.name, _isCyclic);
     ev->appendKeyBool(propJoint_enforceLimits.name, _enforceLimits);
-    ev->appendKeyDouble(propJoint_targetPos.name, _targetPos);
-    ev->appendKeyDouble(propJoint_targetVel.name, _targetVel);
     ev->appendKeyDouble(propJoint_targetForce.name, _targetForce);
 
     if (App::getEventProtocolVersion() <= 3)

@@ -555,6 +555,8 @@ const std::map<std::string, SDeprecatedPropertyItems> tmpMap = {
     {propLight_DEPRECATED_lightType.name,                               {propLight_lightType.name, sim_sceneobject_light}},
 
     {propJoint_DEPRECATED_dependencyMaster.name,                        {std::string(propJoint_dependencyMaster.name) + "__noReplace__", sim_sceneobject_joint}},
+    {propJoint_DEPRECATED_targetPos.name,                               {propJoint_targetPos.name, sim_sceneobject_joint}},
+    {propJoint_DEPRECATED_targetVel.name,                               {propJoint_targetPos.name, sim_sceneobject_joint}},
     {propJoint_DEPRECATED_length.name,                                  {propJoint_length.name, sim_sceneobject_joint}},
     {propJoint_DEPRECATED_diameter.name,                                {propJoint_diameter.name, sim_sceneobject_joint}},
     {propJoint_DEPRECATED_jointType.name,                               {propJoint_jointType.name, sim_sceneobject_joint}},

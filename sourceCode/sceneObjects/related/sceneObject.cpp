@@ -6175,6 +6175,21 @@ int CSceneObject::getBoolProperty(const char* ppName, bool& pState) const
             retVal = sim_propertyret_ok;
             pState = isObjectVisible();
         }
+        else if (_pName == propSceneObject_dynamicallyEnabled.name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = false;
+            if ((_objectType == sim_sceneobject_shape) || (_objectType == sim_sceneobject_forcesensor) || (_objectType == sim_sceneobject_joint))
+            {
+                pState = (_dynamicSimulationIconCode == sim_dynamicsimicon_objectisdynamicallysimulated);
+                if (_objectType == sim_sceneobject_joint)
+                {
+                    CJoint* joint = (CJoint*)this;
+                    if (joint->getJointMode() != sim_jointmode_dynamic)
+                        pState = false; // we do not consider a joint dyn. enabled when in deprecated hybrid mode
+                }
+            }
+        }
     }
     return retVal;
 }
