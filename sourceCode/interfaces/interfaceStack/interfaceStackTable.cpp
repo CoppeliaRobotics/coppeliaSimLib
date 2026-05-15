@@ -610,7 +610,7 @@ bool CInterfaceStackTable::fetchDoubleArrayFromKey(const char* fieldName, double
             const CMatrix* matr = m->getValue();
             if (matr->rows * matr->cols == cnt)
             {
-                std::memcpy(arr, matr->data.data(), cnt);
+                std::memcpy(arr, matr->data.data(), cnt * sizeof(double));
                 retVal = true;
             }
         }
@@ -701,7 +701,7 @@ bool CInterfaceStackTable::fetchFloatArrayFromKey(const char* fieldName, float* 
         {
             const CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
             const float* C = c->getValue();
-            std::memcpy(arr, C, cnt);
+            std::memcpy(arr, C, cnt * sizeof(float));
             retVal = true;
         }
     }
@@ -822,7 +822,7 @@ bool CInterfaceStackTable::fetchInt64ArrayFromKey(const char* fieldName, long lo
             const long long int* A = a->getValue(&c);
             if (c == cnt)
             {
-                std::memcpy(arr, A, cnt);
+                std::memcpy(arr, A, cnt * sizeof(long long int));
                 retVal = true;
             }
         }

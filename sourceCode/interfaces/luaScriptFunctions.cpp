@@ -2852,10 +2852,14 @@ int _genericFunctionHandler(luaWrap_lua_State* L, void (*callback)(struct SScrip
 
     // Now we can call the callback:
     CDetachedScript::setInExternalCall(currentScriptID);
+    itObj->changeAutoYieldingForbidLevel(1, false); // no automatic thread switching when calling a plugin or internal function
+
     if (callback != nullptr)
         callback(cb);
     else
         func->callBackFunction_new(cb); // call into old plugin
+
+    itObj->changeAutoYieldingForbidLevel(-1, false);
     CDetachedScript::setInExternalCall(-1);
 
     // Now we have to build the returned data onto the stack:
@@ -2898,7 +2902,7 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
         {
             CPluginCallbackContainer* cont = plug->getPluginCallbackContainer();
             SPluginCallback* pcb = cont->getCallbackFromName(funcName.c_str());
-            App::logMsg(sim_verbosity_trace, (std::string("sim.genericFunctionHandler: ") + functionName).c_str());
+            App::logMsg(sim_verbosity_trace, (std::string("sim.genericFunctionHandler: ") + funcName).c_str());
             if (pcb != nullptr)
             {
                 if (pcb->callback != nullptr)
@@ -2908,12 +2912,12 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
                     plug->popCurrentPlugin();
                 }
                 else
-                    errorString = std::string("sim.genericFunctionHandler: pcb->callback is NULL (") + functionName +
+                    errorString = std::string("sim.genericFunctionHandler: pcb->callback is NULL (") + funcName +
                                   ", funcN: " + funcN + ")";
             }
             else
                 errorString =
-                    std::string("sim.genericFunctionHandler: pcb is NULL (") + functionName + ", funcN: " + funcN + ")";
+                    std::string("sim.genericFunctionHandler: pcb is NULL (") + funcName + ", funcN: " + funcN + ")";
         }
         else
             errorString = "plugin not loaded.";
@@ -2926,15 +2930,15 @@ int _simGenericFunctionHandler(luaWrap_lua_State* L)
                 App::scenes->scriptCustomFuncAndVarContainer->getCustomFunctionFromIndex(j);
             if (it->getFunctionID() == id_old)
             { // we have the right one! Now we need to prepare the input and output argument arrays:
-                functionName = it->getFunctionName();
-                App::logMsg(sim_verbosity_trace, (std::string("sim.genericFunctionHandler: ") + functionName).c_str());
+                std::string funcName = it->getFunctionName();
+                App::logMsg(sim_verbosity_trace, (std::string("sim.genericFunctionHandler: ") + funcName).c_str());
                 if (it->getPluginName().size() != 0)
                 {
-                    functionName += "@simExt";
-                    functionName += it->getPluginName();
+                    funcName += "@simExt";
+                    funcName += it->getPluginName();
                 }
                 else
-                    functionName += "@plugin";
+                    funcName += "@plugin";
 
                 if (it->getUsesStackToExchangeData())
                     outputArgCount = _genericFunctionHandler(L, nullptr, errorString, it);
