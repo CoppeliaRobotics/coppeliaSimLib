@@ -2996,10 +2996,10 @@ std::string _method_addItems(int targetObj, const char* method, CDetachedScript*
 {
     std::string errMsg;
     CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_marker, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, -1, 3, arg_map | arg_optional}))
     {
         std::vector<float> pts;
-        fetchMatrixData(inStack, 0, pts, false);
+        fetchMatrixData(inStack, 0, pts, true);
         std::vector<float> ccols;
         std::vector<float> quats;
         std::vector<float> sizes;
@@ -3007,7 +3007,7 @@ std::string _method_addItems(int targetObj, const char* method, CDetachedScript*
         {
             map->fetchArrayAsConsecutiveFloatsFromKey("colors", ccols, &errMsg);
             map->fetchMatrixDataFromKey("quaternions", quats, -1, 4, true, &errMsg);
-            map->fetchMatrixDataFromKey("sizes", sizes, 3, -1, false, &errMsg);
+            map->fetchMatrixDataFromKey("sizes", sizes, -1, 3, true, &errMsg);
         }
         if (errMsg.empty())
         {
@@ -7605,10 +7605,10 @@ std::string _method_insertVoxels(int targetObj, const char* method, CDetachedScr
 {
     std::string errMsg;
     COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, -1, 3, arg_map | arg_optional}))
     {
         std::vector<double> pts;
-        fetchMatrixData(inStack, 0, pts, false);
+        fetchMatrixData(inStack, 0, pts, true);
         std::vector<float> colors;
         std::vector<unsigned int> tags;
         tags.resize(pts.size() / 3);
@@ -7749,10 +7749,10 @@ std::string _method_subtractVoxels(int targetObj, const char* method, CDetachedS
 {
     std::string errMsg;
     COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, -1, 3, arg_map | arg_optional}))
     {
         std::vector<double> pts;
-        fetchMatrixData(inStack, 0, pts, false);
+        fetchMatrixData(inStack, 0, pts, true);
         bool relative = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
@@ -7795,10 +7795,10 @@ std::string _method_checkPoints(int targetObj, const char* method, CDetachedScri
 {
     std::string errMsg;
     COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, -1, 3, arg_map | arg_optional}))
     {
         std::vector<double> pts;
-        fetchMatrixData(inStack, 0, pts, false);
+        fetchMatrixData(inStack, 0, pts, true);
         bool relative = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
@@ -7895,10 +7895,10 @@ std::string _method_insertPoints(int targetObj, const char* method, CDetachedScr
 {
     std::string errMsg;
     CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, -1, 3, arg_map | arg_optional}))
     {
         std::vector<double> pts;
-        fetchMatrixData(inStack, 0, pts, false);
+        fetchMatrixData(inStack, 0, pts, true);
         std::vector<float> colors;
         bool hasColors = false;
         float color[3];
@@ -8014,10 +8014,10 @@ std::string _method_intersectPoints(int targetObj, const char* method, CDetached
 {
     std::string errMsg;
     CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, -1, 3, arg_map | arg_optional}))
     {
         std::vector<double> pts;
-        fetchMatrixData(inStack, 0, pts, false);
+        fetchMatrixData(inStack, 0, pts, true);
         bool relative = false;
         double tolerance = 0.01;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
@@ -8060,10 +8060,10 @@ std::string _method_subtractPoints(int targetObj, const char* method, CDetachedS
 {
     std::string errMsg;
     CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, -1, 3, arg_map | arg_optional}))
     {
         std::vector<double> pts;
-        fetchMatrixData(inStack, 0, pts, false);
+        fetchMatrixData(inStack, 0, pts, true);
         bool relative = false;
         double tolerance = 0.01;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
