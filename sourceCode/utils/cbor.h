@@ -91,10 +91,10 @@ class CCbor
     void appendKeyText(const char* key, const char* v, int l = -1);
     void appendKeyTextArray(const char* key, const std::vector<std::string>& txtArr);
 
-    void openArray();
-    void openKeyArray(const char* key);
-    void openMap();
-    void openKeyMap(const char* key);
+    void openArray(int sizedArray = -1);
+    void openKeyArray(const char* key, int sizedArray = -1);
+    void openMap(int sizedMap = -1);
+    void openKeyMap(const char* key, int sizedMap = -1);
     void closeArrayOrMap();
 
     void appendLuaString(const std::string& v, bool isBuffer, bool isText);
@@ -128,4 +128,5 @@ class CCbor
     size_t _discardableEventCnt;
     std::vector<SEventInf> _eventInfos;
     std::map<std::string, size_t> _mergeableEventIds;
+    std::vector<bool> _sizedArrayInfo;
 };

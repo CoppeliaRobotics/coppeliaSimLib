@@ -145,7 +145,7 @@ bool CDrawingObject::addItem(const double* itemData)
 
         if ((otherFloatsPerItem == 0) && App::scenes->getEventsEnabled())
         {
-            if (App::getEventProtocolVersion()  >= 3)
+            if (App::getEventProtocolVersion()  > 3)
             {
                 CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
                 ev->appendKeyFloatArray("points", nullptr, 0);
