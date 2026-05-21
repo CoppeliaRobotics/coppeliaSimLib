@@ -1103,7 +1103,7 @@ int CDetachedScript::getScriptState() const
 void CDetachedScript::pushObjectCreationEvent()
 {
     CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _scriptUid, nullptr, false);
-    ev->appendKeyText(propObject_objectType.name, getObjectTypeStr().c_str());
+    Obj::addObjectEventData(ev);
     if (App::getEventProtocolVersion() <= 3)
     {
         ev->appendKeyBool("scriptDisabled", _scriptIsDisabled);
@@ -4583,6 +4583,11 @@ int CDetachedScript::setStringProperty(const char* pName, const std::string& pSt
     {
         retVal = sim_propertyret_ok;
         setScriptText(pState.c_str());
+    }
+    else if (strcmp(propDetachedScript_addOnMenuPath.name, pName) == 0)
+    {
+        retVal = sim_propertyret_ok;
+        _addOnMenuPath = pState;
     }
 
     return retVal;

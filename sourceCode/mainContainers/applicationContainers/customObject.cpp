@@ -212,7 +212,7 @@ void CustomObject::pushObjectCreationEvent()
     if ((App::scenes != nullptr) && App::scenes->getEventsEnabled())
     {
         CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
-        ev->appendKeyText(propObject_objectType.name, getObjectTypeStr().c_str());
+        Obj::addObjectEventData(ev);
         int indexI = 0;
         int index = indexI;
         std::string pName, appartenance;

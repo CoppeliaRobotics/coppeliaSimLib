@@ -50,7 +50,7 @@ class CCollection : public Obj
 
     size_t getSceneObjectCountInCollection() const;
     int getSceneObjectHandleFromIndex(size_t index) const;
-    void pushCreationEvent() const;
+    void pushCreationEvent();
 
     int getBoolProperty(const char* pName, bool& pState) const override;
     int getLongProperty(const char* pName, long long int& pState) const override;

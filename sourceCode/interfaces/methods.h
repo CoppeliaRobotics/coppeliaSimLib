@@ -250,13 +250,3 @@ extern std::string _method_createLight(int targetObj, const char* method, CDetac
 extern std::string _method_createGraph(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_createCustomSceneObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_createCustomObjectClass(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-
-/*
-
-
-
-#define POINTCLOUD_META_METHODS R"(
-        "intersectPoints": "sim-2.intersectPointsWithPointCloud",
-
-
-*/

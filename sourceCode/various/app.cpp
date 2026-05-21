@@ -4124,6 +4124,7 @@ void App::pushGenesisEvents()
     {
         CSimFlavor::getStringVal(22); // trigger calculations and print mids
         CCbor* ev = scenes->createEvent(EVENTTYPE_GENESISBEGIN, -1, -1, nullptr, false);
+        _obj->addObjectEventData(ev);
         scenes->pushEvent();
 
         if (App::getEventProtocolVersion() == 2)
@@ -4131,7 +4132,6 @@ void App::pushGenesisEvents()
         else
             ev = scenes->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_app, sim_handle_app, nullptr, false);
         ev->appendKeyText(propApp_sessionId.name, scenes->getSessionId().c_str());
-        ev->appendKeyText(propObject_objectType.name, _obj->getObjectTypeStr().c_str());
         ev->appendKeyInt64(propApp_protocolVersion.name, _eventProtocolVersion);
         ev->appendKeyText(propApp_productVersion.name, SIM_VERSION_STR_SHORT);
         ev->appendKeyInt64(propApp_productVersionNb.name, SIM_PROGRAM_FULL_VERSION_NB);

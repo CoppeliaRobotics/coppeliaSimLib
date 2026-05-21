@@ -452,6 +452,7 @@ void CDrawingObject::pushAddEvent()
         if (App::getEventProtocolVersion()  >= 3)
         {
             CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
+            Obj::addObjectEventData(ev);
             std::string tp;
             switch (_objectType & 0x001f)
             {
@@ -483,7 +484,6 @@ void CDrawingObject::pushAddEvent()
                 tp = "spherePoint";
                 break;
             }
-            ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
             ev->appendKeyInt64(propObject_handle.name, _objectHandle);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt64(propDrawingObject_parent.name, _sceneObjectId);
@@ -500,6 +500,7 @@ void CDrawingObject::pushAddEvent()
         if (App::getEventProtocolVersion() <= 3)
         { // For backw. compatibility
             CCbor* ev = App::scenes->createEvent("drawingObjectAdded", _objectHandle, _objectHandle, nullptr, false);
+            Obj::addObjectEventData(ev);
             std::string tp;
             switch (_objectType & 0x001f)
             {
@@ -531,7 +532,6 @@ void CDrawingObject::pushAddEvent()
                 tp = "spherePoint";
                 break;
             }
-            ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
             ev->appendKeyText("type", tp.c_str());
             ev->appendKeyInt64("maxCnt", _maxItemCount);
             ev->appendKeyDouble("size", _size);

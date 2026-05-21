@@ -37,6 +37,10 @@ void Obj::copyYourselfInto(Obj* it) const
 void Obj::addObjectEventData(CCbor* ev)
 {
     ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
+    ev->appendKeyTextArray(propObject_metaInfoSuperClass.name, _superClass);
+    ev->appendKeyTextArray(propObject_metaInfoNameSpaces.name, _nameSpaces);
+    ev->appendKeyBool(propObject_metaInfoIsClass.name, _isClass);
+    ev->appendKeyBool(propObject_metaInfoIsSceneObject.name, _isSceneObject);
 }
 
 long long int Obj::getObjectHandle() const

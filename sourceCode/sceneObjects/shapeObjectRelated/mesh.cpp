@@ -520,14 +520,13 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vecto
     _isInSceneShapeHandle = shapeHandle;
     _isInSceneShapeUid = shapeUid;
     CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
-
+    Obj::addObjectEventData(ev);
     if (App::getEventProtocolVersion() <= 3)
         ev->appendKeyInt64(propMesh_shape.name, _isInSceneShapeHandle);
     else
         ev->appendKeyHandle(propMesh_shape.name, _isInSceneShapeHandle);
     ev->appendKeyInt64(propMesh_shapeUid.name, _isInSceneShapeUid);
     ev->appendKeyInt64(propMesh_primitiveType.name, _purePrimitive);
-    ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
     std::vector<float> vertices;
     vertices.resize(_verticesForDisplayAndDisk.size());
     for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)

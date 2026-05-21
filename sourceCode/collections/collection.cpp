@@ -657,14 +657,14 @@ void CCollection::_removeCollectionElementFromHandle(int collectionElementHandle
     }
 }
 
-void CCollection::pushCreationEvent() const
+void CCollection::pushCreationEvent()
 {
     if (App::scenes->getEventsEnabled())
     {
-        if (App::getEventProtocolVersion()  >= 3)
+        if (App::getEventProtocolVersion()  > 3)
         {
             CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
-            ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
+            Obj::addObjectEventData(ev);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
             else

@@ -1245,8 +1245,8 @@ void CScene::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack
 void CScene::pushGenesisEvents()
 {
     CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, false);
+    Obj::addObjectEventData(ev);
     ev->appendKeyInt64(propObject_handle.name, _objectHandle);
-    ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
     simulation->appendGenesisData(ev);
     environment->appendGenesisData(ev);
     customSceneData.appendEventData(nullptr, ev);
