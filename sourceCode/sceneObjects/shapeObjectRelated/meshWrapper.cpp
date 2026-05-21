@@ -490,8 +490,8 @@ void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia, bool force
         if ((_parentObjectHandle >= 0) && App::scenes->getEventsEnabled())
         {
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(_parentObjectHandle, false, propMeshWrapper_inertiaMatrix.name, true);
-            ev->appendKeyMatrix(propMeshWrapper_inertiaMatrix.name, _iMatrix * _mass);
             C3Vector pmi(_pmi * _mass);
+            ev->appendKeyMatrix(propMeshWrapper_inertiaMatrix.name, _iMatrix * _mass);
             ev->appendKeyDoubleArray(propMeshWrapper_pmi.name, pmi.data, 3);
             if (App::getEventProtocolVersion() <= 3)
             {

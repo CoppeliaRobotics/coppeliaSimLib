@@ -2552,7 +2552,7 @@ bool CDetachedScript::resetScript()
 void CDetachedScript::initScript()
 { // add-on scripts won't reload, just reinitialize
     resetScript();
-    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization) || (_scriptType == sim_scripttype_sandbox))
+//    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization) || (_scriptType == sim_scripttype_sandbox))
     {
         if (_scriptType == sim_scripttype_sandbox)
         {

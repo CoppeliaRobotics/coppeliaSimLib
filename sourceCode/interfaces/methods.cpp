@@ -3067,7 +3067,6 @@ std::string _method_callFunction(int targetObj, const char* method, CDetachedScr
             if (p == std::string::npos)
             {
                 int rr = target->callCustomScriptFunction(funcName.c_str(), inStack2, outStack);
-                printf("rr: %i\n", rr);
                 if (rr != 1)
                 {
                     if (rr == -1)

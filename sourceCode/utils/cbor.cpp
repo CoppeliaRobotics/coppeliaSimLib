@@ -2,6 +2,8 @@
 #include <app.h>
 #include <string.h>
 
+#define USE_TAGGED_ARRAYS (true)
+
 std::set<std::string> CCbor::allEVentFieldNames;
 
 bool CCbor::isText(const char* v, size_t l)
@@ -67,41 +69,81 @@ void CCbor::appendHandle(long long int h)
 void CCbor::appendUint8Array(const unsigned char* v, size_t cnt)
 {
     _handleDataField();
-    _buff.push_back(0xD8); // Tag header
-    _buff.push_back(0x40); // 64
-    _appendItemTypeAndLength(0x40, cnt);
-    if (cnt > 0)
-        _buff.insert(_buff.end(), v, v + cnt);
+    if (USE_TAGGED_ARRAYS)
+    {
+        _buff.push_back(0xD8); // Tag header
+        _buff.push_back(0x40); // 64
+        _appendItemTypeAndLength(0x40, cnt);
+        if (cnt > 0)
+            _buff.insert(_buff.end(), v, v + cnt);
+    }
+    else
+    {
+        openArray(cnt);
+        for (size_t i = 0; i < cnt; i++)
+            appendInt64(v[i]);
+        closeArrayOrMap();
+    }
 }
 
 void CCbor::appendInt32Array(const int* v, size_t cnt)
 {
     _handleDataField();
-    _buff.push_back(0xD8); // Tag header
-    _buff.push_back(0x4e); // 78
-    _appendItemTypeAndLength(0x40, cnt * sizeof(int));
-    if (cnt > 0)
-        _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(int));
+    if (USE_TAGGED_ARRAYS)
+    {
+        _buff.push_back(0xD8); // Tag header
+        _buff.push_back(0x4e); // 78
+        _appendItemTypeAndLength(0x40, cnt * sizeof(int));
+        if (cnt > 0)
+            _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(int));
+    }
+    else
+    {
+        openArray(cnt);
+        for (size_t i = 0; i < cnt; i++)
+            appendInt64(v[i]);
+        closeArrayOrMap();
+    }
 }
 
 void CCbor::appendUint32Array(const unsigned int* v, size_t cnt)
 {
     _handleDataField();
-    _buff.push_back(0xD8); // Tag header
-    _buff.push_back(0x46); // 70
-    _appendItemTypeAndLength(0x40, cnt * sizeof(unsigned int));
-    if (cnt > 0)
-        _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(unsigned int));
+    if (USE_TAGGED_ARRAYS)
+    {
+        _buff.push_back(0xD8); // Tag header
+        _buff.push_back(0x46); // 70
+        _appendItemTypeAndLength(0x40, cnt * sizeof(unsigned int));
+        if (cnt > 0)
+            _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(unsigned int));
+    }
+    else
+    {
+        openArray(cnt);
+        for (size_t i = 0; i < cnt; i++)
+            appendInt64(v[i]);
+        closeArrayOrMap();
+    }
 }
 
 void CCbor::appendInt64Array(const long long int* v, size_t cnt)
 {
     _handleDataField();
-    _buff.push_back(0xD8); // Tag header
-    _buff.push_back(0x4f); // 79
-    _appendItemTypeAndLength(0x40, cnt * sizeof(long long int));
-    if (cnt > 0)
-        _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(long long int));
+    if (USE_TAGGED_ARRAYS)
+    {
+        _buff.push_back(0xD8); // Tag header
+        _buff.push_back(0x4f); // 79
+        _appendItemTypeAndLength(0x40, cnt * sizeof(long long int));
+        if (cnt > 0)
+            _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(long long int));
+    }
+    else
+    {
+        openArray(cnt);
+        for (size_t i = 0; i < cnt; i++)
+            appendInt64(v[i]);
+        closeArrayOrMap();
+    }
 }
 
 void CCbor::appendHandleArray(const long long int* h, size_t cnt)
@@ -117,7 +159,7 @@ void CCbor::appendHandleArray(const long long int* h, size_t cnt)
     _buff.push_back(((unsigned char*)&w)[2]);
     _buff.push_back(((unsigned char*)&w)[1]);
     _buff.push_back(((unsigned char*)&w)[0]);
-    openArray(cnt);
+    openArray(int(cnt));
     for (size_t i = 0; i < cnt; i++)
         appendInt64(h[i]);
     closeArrayOrMap();
@@ -146,11 +188,21 @@ void CCbor::appendFloat(float v)
 void CCbor::appendFloatArray(const float* v, size_t cnt)
 {
     _handleDataField();
-    _buff.push_back(0xD8); // Tag header
-    _buff.push_back(0x55); // 85
-    _appendItemTypeAndLength(0x40, cnt * sizeof(float));
-    if (cnt > 0)
-        _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(float));
+    if (USE_TAGGED_ARRAYS)
+    {
+        _buff.push_back(0xD8); // Tag header
+        _buff.push_back(0x55); // 85
+        _appendItemTypeAndLength(0x40, cnt * sizeof(float));
+        if (cnt > 0)
+            _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(float));
+    }
+    else
+    {
+        openArray(int(cnt));
+        for (size_t i = 0; i < cnt; i++)
+            appendFloat(v[i]);
+        closeArrayOrMap();
+    }
 }
 
 void CCbor::appendDouble(double v)
@@ -175,11 +227,21 @@ void CCbor::appendDouble(double v)
 void CCbor::appendDoubleArray(const double* v, size_t cnt)
 {
     _handleDataField();
-    _buff.push_back(0xD8); // Tag header (216)
-    _buff.push_back(0x56); // 86
-    _appendItemTypeAndLength(0x40, cnt * sizeof(double));
-    if (cnt > 0)
-        _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(double));
+    if (USE_TAGGED_ARRAYS)
+    {
+        _buff.push_back(0xD8); // Tag header (216)
+        _buff.push_back(0x56); // 86
+        _appendItemTypeAndLength(0x40, cnt * sizeof(double));
+        if (cnt > 0)
+            _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(double));
+    }
+    else
+    {
+        openArray(int(cnt));
+        for (size_t i = 0; i < cnt; i++)
+            appendDouble(v[i]);
+        closeArrayOrMap();
+    }
 }
 
 void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
@@ -191,7 +253,7 @@ void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
     _buff.push_back(0x82); // array of 2 values (rows and cols)
     _appendItemTypeAndLength(0, rows);
     _appendItemTypeAndLength(0, cols);
-    openArray(rows * cols);
+    openArray(int(rows * cols));
     for (size_t i = 0; i < rows * cols; i++)
         appendDouble(v[i]);
     closeArrayOrMap();
@@ -406,7 +468,7 @@ void CCbor::appendText(const char* v, int l /*=-1*/)
 
 void CCbor::appendTextArray(const std::vector<std::string>& txtArr)
 {
-    openArray(txtArr.size()); // _handleDataField() called in there
+    openArray(int(txtArr.size())); // _handleDataField() called in there
     for (size_t i = 0; i < txtArr.size(); i++)
         appendText(txtArr[i].c_str());
     closeArrayOrMap();
