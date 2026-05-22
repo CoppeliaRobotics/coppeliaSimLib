@@ -1735,12 +1735,16 @@ std::string CInterfaceStack::getBufferFromTable() const
     return (retVal);
 }
 
-std::string CInterfaceStack::getCborEncodedBuffer(int options) const
-{
+std::string CInterfaceStack::getCborEncodedBuffer(int index, int options) const
+{ // index == -1 --> last stack item, otherwise item at index
     std::string retVal; // empty string=error
-    if (_stackObjects.size() != 0)
+    if ((_stackObjects.size() != 0) && ((index == -1) || (index < _stackObjects.size())))
     {
-        CInterfaceStackObject* it = _stackObjects[_stackObjects.size() - 1];
+        CInterfaceStackObject* it;
+        if (index == -1)
+            it = _stackObjects[_stackObjects.size() - 1];
+        else
+            it = _stackObjects[index];
         CCbor cborObj(nullptr, options);
         it->addCborObjectData(&cborObj);
         retVal = cborObj.getBuff();

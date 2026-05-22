@@ -1867,6 +1867,15 @@ int CPointCloud::getBufferProperty(const char* ppName, std::string& pState) cons
             retVal = sim_propertyret_ok;
             pState.assign(_displayColorsByte.begin(), _displayColorsByte.end());
         }
+        else if (_pName == propPointCloud_packedPoints.name)
+        {
+            retVal = sim_propertyret_ok;
+            std::vector<float> p;
+            p.resize(_displayPoints.size());
+            for (size_t i = 0; i <_displayPoints.size(); i++)
+                p[i] = (float)_displayPoints[i];
+            pState.assign((char*)p.data(), _displayPoints.size() * sizeof(float));
+        }
     }
 
     return retVal;
@@ -1979,12 +1988,12 @@ int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& inf
         if (retVal != sim_propertyret_unknownproperty)
         {
             std::string _pName(ppName);
-            if (_pName == propPointCloud_points.name)
+            if ((_pName == propPointCloud_points.name) || (_pName == propPointCloud_packedPoints.name))
             {
                 if (_displayPoints.size() > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;
             }
-            if (_pName == propPointCloud_colors.name)
+            else if (_pName == propPointCloud_colors.name)
             {
                 if (_displayColorsByte.size() * 3 > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;

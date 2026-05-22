@@ -1166,6 +1166,21 @@ int CMarker::getBufferProperty(const char* pName, std::string& pState) const
             pState.assign(_rgba.begin(), _rgba.end());
             retVal = sim_propertyret_ok;
         }
+        else if (strcmp(pName, propMarker_packedPoints.name) == 0)
+        {
+            pState.assign((char*)_pts.data(), _pts.size() * sizeof(float));
+            retVal = sim_propertyret_ok;
+        }
+        else if (strcmp(pName, propMarker_packedQuaternions.name) == 0)
+        {
+            pState.assign((char*)_quats.data(), _quats.size() * sizeof(float));
+            retVal = sim_propertyret_ok;
+        }
+        else if (strcmp(pName, propMarker_packedSizes.name) == 0)
+        {
+            pState.assign((char*)_sizes.data(), _sizes.size() * sizeof(float));
+            retVal = sim_propertyret_ok;
+        }
     }
 
     return retVal;

@@ -130,24 +130,24 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["unpackTable"] = _method_unpackTable;
         funcTable["pack"] = _method_pack;
         funcTable["unpack"] = _method_unpack;
-        funcTable["packDoubleTable"] = _method_packDoubleTable;
-        funcTable["packFloatTable"] = _method_packFloatTable;
-        funcTable["packInt64Table"] = _method_packInt64Table;
-        funcTable["packInt32Table"] = _method_packInt32Table;
-        funcTable["packUInt32Table"] = _method_packUInt32Table;
-        funcTable["packInt16Table"] = _method_packInt16Table;
-        funcTable["packUInt16Table"] = _method_packUInt16Table;
-        funcTable["packInt8Table"] = _method_packInt8Table;
-        funcTable["packUInt8Table"] = _method_packUInt8Table;
-        funcTable["unpackDoubleTable"] = _method_unpackDoubleTable;
-        funcTable["unpackFloatTable"] = _method_unpackFloatTable;
-        funcTable["unpackInt64Table"] = _method_unpackInt64Table;
-        funcTable["unpackInt32Table"] = _method_unpackInt32Table;
-        funcTable["unpackUInt32Table"] = _method_unpackUInt32Table;
-        funcTable["unpackInt16Table"] = _method_unpackInt16Table;
-        funcTable["unpackUInt16Table"] = _method_unpackUInt16Table;
-        funcTable["unpackInt8Table"] = _method_unpackInt8Table;
-        funcTable["unpackUInt8Table"] = _method_unpackUInt8Table;
+        funcTable["packDoubleArray"] = _method_packDoubleArray;
+        funcTable["packFloatArray"] = _method_packFloatArray;
+        funcTable["packInt64Array"] = _method_packInt64Array;
+        funcTable["packInt32Array"] = _method_packInt32Array;
+        funcTable["packUInt32Array"] = _method_packUInt32Array;
+        funcTable["packInt16Array"] = _method_packInt16Array;
+        funcTable["packUInt16Array"] = _method_packUInt16Array;
+        funcTable["packInt8Array"] = _method_packInt8Array;
+        funcTable["packUInt8Array"] = _method_packUInt8Array;
+        funcTable["unpackDoubleArray"] = _method_unpackDoubleArray;
+        funcTable["unpackFloatArray"] = _method_unpackFloatArray;
+        funcTable["unpackInt64Array"] = _method_unpackInt64Array;
+        funcTable["unpackInt32Array"] = _method_unpackInt32Array;
+        funcTable["unpackUInt32Array"] = _method_unpackUInt32Array;
+        funcTable["unpackInt16Array"] = _method_unpackInt16Array;
+        funcTable["unpackUInt16Array"] = _method_unpackUInt16Array;
+        funcTable["unpackInt8Array"] = _method_unpackInt8Array;
+        funcTable["unpackUInt8Array"] = _method_unpackUInt8Array;
         funcTable["groupShapes"] = _method_groupShapes;
         funcTable["mergeShapes"] = _method_mergeShapes;
         funcTable["createCamera"] = _method_createCamera;
@@ -207,23 +207,24 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["step"] = _method_step;
         funcTable["makeClass"] = _method_makeClass;
         funcTable["makeObject"] = _method_makeObject;
-        funcTable["insertFrom"] = _method_insertFrom;
-        funcTable["subtractFrom"] = _method_subtractFrom;
+        funcTable["addFromObject"] = _method_addFromObject;
+        funcTable["subtractFromObject"] = _method_subtractFromObject;
         funcTable["clear"] = _method_clear;
-        funcTable["insertVoxels"] = _method_insertVoxels;
-        funcTable["insertVoxelsFromBuffer"] = _method_insertVoxelsFromBuffer;
+        funcTable["addVoxels"] = _method_addVoxels;
+        funcTable["addPackedVoxels"] = _method_addPackedVoxels;
         funcTable["subtractVoxels"] = _method_subtractVoxels;
-        funcTable["subtractVoxelsFromBuffer"] = _method_subtractVoxelsFromBuffer;
+        funcTable["subtractPackedVoxels"] = _method_subtractPackedVoxels;
         funcTable["checkPoints"] = _method_checkPoints;
-        funcTable["checkPointsFromBuffer"] = _method_checkPointsFromBuffer;
-        funcTable["insertPoints"] = _method_insertPoints;
-        funcTable["insertPointsFromBuffer"] = _method_insertPointsFromBuffer;
+        funcTable["checkPackedPoints"] = _method_checkPackedPoints;
+        funcTable["addPoints"] = _method_addPoints;
+        funcTable["addPackedPoints"] = _method_addPackedPoints;
         funcTable["subtractPoints"] = _method_subtractPoints;
-        funcTable["subtractPointsFromBuffer"] = _method_subtractPointsFromBuffer;
+        funcTable["subtractPackedPoints"] = _method_subtractPackedPoints;
         funcTable["intersectPoints"] = _method_intersectPoints;
-        funcTable["intersectPointsFromBuffer"] = _method_intersectPointsFromBuffer;
+        funcTable["intersectPackedPoints"] = _method_intersectPackedPoints;
         funcTable["setTargetPosition"] = _method_setTargetPosition;
         funcTable["setTargetVelocity"] = _method_setTargetVelocity;
+        funcTable["pushEvent"] = _method_pushEvent;
     }
 
     std::string retVal("__notFound__");
@@ -4510,7 +4511,7 @@ std::string _method_unpack(int targetObj, const char* method, CDetachedScript* c
     return errMsg;
 }
 
-std::string _method_packDoubleTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packDoubleArray(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
@@ -4562,7 +4563,7 @@ std::string _method_packDoubleTable(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_packFloatTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packFloatArray(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
@@ -4617,7 +4618,7 @@ std::string _method_packFloatTable(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_packInt64Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packInt64Array(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
@@ -4669,7 +4670,7 @@ std::string _method_packInt64Table(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_packInt32Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packInt32Array(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
@@ -4724,7 +4725,7 @@ std::string _method_packInt32Table(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_packUInt32Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packUInt32Array(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
@@ -4779,7 +4780,7 @@ std::string _method_packUInt32Table(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_packInt16Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packInt16Array(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
@@ -4832,7 +4833,7 @@ std::string _method_packInt16Table(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_packUInt16Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packUInt16Array(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
@@ -4885,7 +4886,7 @@ std::string _method_packUInt16Table(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_packInt8Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packInt8Array(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
@@ -4937,7 +4938,7 @@ std::string _method_packInt8Table(int targetObj, const char* method, CDetachedSc
     return errMsg;
 }
 
-std::string _method_packUInt8Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packUInt8Array(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
@@ -4989,7 +4990,7 @@ std::string _method_packUInt8Table(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_unpackDoubleTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackDoubleArray(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
@@ -5051,7 +5052,7 @@ std::string _method_unpackDoubleTable(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_unpackFloatTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackFloatArray(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
@@ -5110,7 +5111,7 @@ std::string _method_unpackFloatTable(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
-std::string _method_unpackInt64Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackInt64Array(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
@@ -5173,7 +5174,7 @@ std::string _method_unpackInt64Table(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
-std::string _method_unpackInt32Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackInt32Array(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
@@ -5232,7 +5233,7 @@ std::string _method_unpackInt32Table(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
-std::string _method_unpackUInt32Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackUInt32Array(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
@@ -5291,7 +5292,7 @@ std::string _method_unpackUInt32Table(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_unpackInt16Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackInt16Array(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
@@ -5348,7 +5349,7 @@ std::string _method_unpackInt16Table(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
-std::string _method_unpackUInt16Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackUInt16Array(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
@@ -5405,7 +5406,7 @@ std::string _method_unpackUInt16Table(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_unpackInt8Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackInt8Array(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
@@ -5461,7 +5462,7 @@ std::string _method_unpackInt8Table(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_unpackUInt8Table(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackUInt8Array(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
@@ -7419,7 +7420,7 @@ std::string _method_makeObject(int targetObj, const char* method, CDetachedScrip
     return errMsg;
 }
 
-std::string _method_insertFrom(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addFromObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
@@ -7520,7 +7521,7 @@ std::string _method_insertFrom(int targetObj, const char* method, CDetachedScrip
     return errMsg;
 }
 
-std::string _method_subtractFrom(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_subtractFromObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
@@ -7600,7 +7601,7 @@ std::string _method_clear(int targetObj, const char* method, CDetachedScript* cu
     return errMsg;
 }
 
-std::string _method_insertVoxels(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addVoxels(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
@@ -7658,7 +7659,7 @@ std::string _method_insertVoxels(int targetObj, const char* method, CDetachedScr
     return errMsg;
 }
 
-std::string _method_insertVoxelsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addPackedVoxels(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
@@ -7765,7 +7766,7 @@ std::string _method_subtractVoxels(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_subtractVoxelsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_subtractPackedVoxels(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
@@ -7838,7 +7839,7 @@ std::string _method_checkPoints(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_checkPointsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_checkPackedPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
@@ -7890,7 +7891,7 @@ std::string _method_checkPointsFromBuffer(int targetObj, const char* method, CDe
     return errMsg;
 }
 
-std::string _method_insertPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
@@ -7942,7 +7943,7 @@ std::string _method_insertPoints(int targetObj, const char* method, CDetachedScr
     return errMsg;
 }
 
-std::string _method_insertPointsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addPackedPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
@@ -8030,7 +8031,7 @@ std::string _method_intersectPoints(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_intersectPointsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_intersectPackedPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
@@ -8078,7 +8079,7 @@ std::string _method_subtractPoints(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_subtractPointsFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_subtractPackedPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
@@ -8213,6 +8214,37 @@ std::string _method_setTargetVelocity(int targetObj, const char* method, CDetach
             }
             else
                 errMsg = SIM_ERROR_JOINT_SPHERICAL;
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_pushEvent(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_map, arg_map | arg_optional}))
+    {
+        std::string eventName("userEvent");
+        long long int eventHandle = -1;
+        long long int eventUid = -1;
+        bool mergeable = false;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchStringFromKey("name", eventName, &errMsg);
+            map->fetchInt64FromKey("handle", eventHandle, &errMsg);
+            map->fetchInt64FromKey("uid", eventUid, &errMsg);
+            map->fetchBoolFromKey("mergeable", mergeable, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            if (App::scenes->getEventsEnabled())
+            {
+                CCbor* ev = App::scenes->createNakedEvent(eventName.c_str(), eventHandle, eventUid, mergeable);
+                ev->appendText("data");
+                std::string buff = inStack->getCborEncodedBuffer(0, 0);
+                ev->appendRaw((unsigned char*)buff.data(), buff.size());
+                App::scenes->pushEvent();
+            }
         }
     }
     return errMsg;

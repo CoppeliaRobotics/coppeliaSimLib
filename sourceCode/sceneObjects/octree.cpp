@@ -1487,6 +1487,15 @@ int COcTree::getBufferProperty(const char* ppName, std::string& pState) const
             retVal = sim_propertyret_ok;
             pState.assign(_colorsByte.begin(), _colorsByte.end());
         }
+        else if (_pName == propOctree_packedPoints.name)
+        {
+            retVal = sim_propertyret_ok;
+            std::vector<float> p;
+            p.resize(_voxelPositions.size());
+            for (size_t i = 0; i <_voxelPositions.size(); i++)
+                p[i] = (float)_voxelPositions[i];
+            pState.assign((char*)p.data(), _voxelPositions.size() * sizeof(float));
+        }
     }
 
     return retVal;
@@ -1599,7 +1608,7 @@ int COcTree::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
         if (retVal != sim_propertyret_unknownproperty)
         {
             std::string _pName(ppName);
-            if (_pName == propOctree_points.name)
+            if ((_pName == propOctree_points.name) || (_pName == propOctree_packedPoints.name))
             {
                 if (_voxelPositions.size() > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;

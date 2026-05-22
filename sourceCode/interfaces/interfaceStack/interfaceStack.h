@@ -137,7 +137,7 @@ class CInterfaceStack : public Obj
     const C4Vector* getStackMapQuaternion(const char* fieldName) const;
     const C7Vector* getStackMapPose(const char* fieldName) const;
     std::string getBufferFromTable() const;
-    std::string getCborEncodedBuffer(int options) const;
+    std::string getCborEncodedBuffer(int index, int options) const;
 
     void printContent(int cIndex, std::string& buffer) const;
 

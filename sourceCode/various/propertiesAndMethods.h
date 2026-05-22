@@ -250,24 +250,24 @@ struct SJointProperty
     FUNCX(propApp_METHOD_unpack, "unpack", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_serialize, "serialize", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_deserialize, "deserialize", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_packDoubleTable, "packDoubleTable", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_packFloatTable, "packFloatTable", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_packInt64Table, "packInt64Table", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_packInt32Table, "packInt32Table", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_packUInt32Table, "packUInt32Table", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_packInt16Table, "packInt16Table", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_packUInt16Table, "packUInt16Table", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_packInt8Table, "packInt8Table", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_packUInt8Table, "packUInt8Table", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_unpackDoubleTable, "unpackDoubleTable", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_unpackFloatTable, "unpackFloatTable", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_unpackInt64Table, "unpackInt64Table", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_unpackInt32Table, "unpackInt32Table", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_unpackUInt32Table, "unpackUInt32Table", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_unpackInt16Table, "unpackInt16Table", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_unpackUInt16Table, "unpackUInt16Table", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_unpackInt8Table, "unpackInt8Table", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_unpackUInt8Table, "unpackUInt8Table", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_packDoubleArray, "packDoubleArray", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_packFloatArray, "packFloatArray", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_packInt64Array, "packInt64Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_packInt32Array, "packInt32Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_packUInt32Array, "packUInt32Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_packInt16Array, "packInt16Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_packUInt16Array, "packUInt16Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_packInt8Array, "packInt8Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_packUInt8Array, "packUInt8Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_unpackDoubleArray, "unpackDoubleArray", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_unpackFloatArray, "unpackFloatArray", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_unpackInt64Array, "unpackInt64Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_unpackInt32Array, "unpackInt32Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_unpackUInt32Array, "unpackUInt32Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_unpackInt16Array, "unpackInt16Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_unpackUInt16Array, "unpackUInt16Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_unpackInt8Array, "unpackInt8Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_unpackUInt8Array, "unpackUInt8Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_fastIdleLoop, "fastIdleLoop", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_throttle, "throttle", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_scheduleExecution, "scheduleExecution", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
@@ -275,6 +275,7 @@ struct SJointProperty
     FUNCX(propApp_METHOD_openFile, "openFile", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_createCustomObjectClass, "createCustomObjectClass", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_quit, "quit", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_pushEvent, "pushEvent", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
     FUNCX(propApp_DEPRECATED_appDir, "appPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
     FUNCX(propApp_DEPRECATED_tempDir, "tempPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
@@ -855,7 +856,7 @@ struct SJointProperty
     FUNCX(propMaterial_DEPRECATED_vortexSecondaryAngularAxisFrictionModel, "vortex.angularSecondaryAxisFrictionModel", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED, sim_vortex_body_secangularaxisfrictionmodel, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propMaterial_DEPRECATED_vortexNormalAngularAxisFrictionModel, "vortex.angularNormalAxisFrictionModel", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED, sim_vortex_body_normalangularaxisfrictionmodel, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propMaterial_DEPRECATED_vortexAutoSleepStepLiveThreshold, "vortex.autoSleepThresholdSteps", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED, sim_vortex_body_autosleepsteplivethreshold, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
-    FUNCX(propMaterial_DEPRECATED_vortexMaterialUniqueId, "vortex.materialUniqueId", sim_propertytype_int, sim_propertyinfo_modelhashexclude, sim_vortex_body_materialuniqueid, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_DEPRECATED_vortexMaterialUniqueId, "vortex.materialUniqueId", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED, sim_vortex_body_materialuniqueid, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propMaterial_DEPRECATED_vortexPrimitiveShapesAsConvex, "vortex.primitiveAsConvex", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED, sim_vortex_body_pureshapesasconvex, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propMaterial_DEPRECATED_vortexConvexShapesAsRandom, "vortex.convexAsRandom", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED, sim_vortex_body_convexshapesasrandom, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propMaterial_DEPRECATED_vortexRandomShapesAsTerrain, "vortex.randomAsTerrain", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED, sim_vortex_body_randomshapesasterrain, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
@@ -1361,37 +1362,39 @@ struct SJointProperty
     FUNCX(propOctree_randomColors, "randomColors", sim_propertytype_bool, 0,  jsonStr({{"label", "Random voxel colors"}, {"description", ""}}), "") \
     FUNCX(propOctree_showPoints, "showPoints", sim_propertytype_bool, 0,  jsonStr({{"label", "Show points instead of voxels"}, {"description", ""}}), "") \
     FUNCX(propOctree_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Voxels"}, {"description", "Voxel positions"}}), "") \
+    FUNCX(propOctree_packedPoints, "packedPoints", sim_propertytype_buffer, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Packed voxels"}, {"description", "Voxel positions, as packed floats"}}), "") \
     FUNCX(propOctree_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Voxel Colors"}, {"description", ""}}), "") \
-    FUNCX(propOctree_METHOD_insertFrom, "insertFrom", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propOctree_METHOD_subtractFrom, "subtractFrom", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propOctree_METHOD_addFromObject, "addFromObject", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propOctree_METHOD_subtractFromObject, "subtractFromObject", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propOctree_METHOD_clear, "clear", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propOctree_METHOD_insertVoxels, "insertVoxels", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propOctree_METHOD_insertVoxelsFromBuffer, "insertVoxelsFromBuffer", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propOctree_METHOD_addVoxels, "addVoxels", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propOctree_METHOD_addPackedVoxels, "addPackedVoxels", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propOctree_METHOD_subtractVoxels, "subtractVoxels", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propOctree_METHOD_subtractVoxelsFromBuffer, "subtractVoxelsFromBuffer", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propOctree_METHOD_subtractPackedVoxels, "subtractPackedVoxels", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propOctree_METHOD_checkPoints, "checkPoints", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propOctree_METHOD_checkPointsFromBuffer, "checkPointsFromBuffer", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propOctree_METHOD_checkPackedPoints, "checkPackedPoints", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
     FUNCX(propOctree_DEPRECATED_voxels, "voxels", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_notwritable, "", "")
 
 #define POINTCLOUD_PROPERTIES \
-    FUNCX(propPointCloud_ocTreeStruct, "ocTreeStruct", sim_propertytype_bool, 0,  jsonStr({{"label", "OC-Tree structure Enabled"}, {"description", "Use an oc-tree structure"}}), "") \
+    FUNCX(propPointCloud_ocTreeStruct, "octreeStruct", sim_propertytype_bool, 0,  jsonStr({{"label", "OC-Tree structure Enabled"}, {"description", "Use an oc-tree structure"}}), "") \
     FUNCX(propPointCloud_randomColors, "randomColors", sim_propertytype_bool, 0,  jsonStr({{"label", "Random point colors"}, {"description", ""}}), "") \
     FUNCX(propPointCloud_pointSize, "pointSize", sim_propertytype_int, 0,  jsonStr({{"label", "Point size"}, {"description", ""}}), "") \
     FUNCX(propPointCloud_maxPtsInCell, "maxPointsInCell", sim_propertytype_int, 0,  jsonStr({{"label", "Max. points in cell"}, {"description", "Maximum number of points in an oc-tree cell/voxel"}}), "") \
     FUNCX(propPointCloud_cellSize, "cellSize", sim_propertytype_float, 0,  jsonStr({{"label", "Cell size"}, {"description", "Size of the oc-tree cell/voxel"}}), "") \
     FUNCX(propPointCloud_pointDisplayFraction, "pointDisplayFraction", sim_propertytype_float, 0,  jsonStr({{"label", "Display fraction"}, {"description", "Fraction of points to be displayed in an oc-tree cell/voxel"}}), "") \
     FUNCX(propPointCloud_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Points"}, {"description", "Point positions"}}), "") \
+    FUNCX(propPointCloud_packedPoints, "packedPoints", sim_propertytype_buffer, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Packed points"}, {"description", "Point positions, as packed floats"}}), "") \
     FUNCX(propPointCloud_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Colors"}, {"description", "Point colors"}}), "") \
-    FUNCX(propPointCloud_METHOD_insertFrom, "insertFrom", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propPointCloud_METHOD_subtractFrom, "subtractFrom", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propPointCloud_METHOD_addFromObject, "addFromObject", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propPointCloud_METHOD_subtractFromObject, "subtractFromObject", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propPointCloud_METHOD_clear, "clear", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propPointCloud_METHOD_insertPoints, "insertPoints", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propPointCloud_METHOD_insertPointsFromBuffer, "insertPointsFromBuffer", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propPointCloud_METHOD_addPoints, "addPoints", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propPointCloud_METHOD_addPackedPoints, "addPackedPoints", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propPointCloud_METHOD_subtractPoints, "subtractPoints", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propPointCloud_METHOD_subtractPointsFromBuffer, "subtractPointsFromBuffer", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propPointCloud_METHOD_subtractPackedPoints, "subtractPackedPoints", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propPointCloud_METHOD_intersectPoints, "intersectPoints", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propPointCloud_METHOD_intersectPointsFromBuffer, "intersectPointsFromBuffer", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "")
+    FUNCX(propPointCloud_METHOD_intersectPackedPoints, "intersectPackedPoints", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "")
 
 #define PROXIMITYSENSOR_PROPERTIES \
     FUNCX(propProximitySensor_size, "pointSize", sim_propertytype_float, 0,  jsonStr({{"label", "Sensor point size"}, {"description", ""}}), "") \
@@ -1467,8 +1470,11 @@ struct SJointProperty
     FUNCX(propMarker_overlay, "overlay", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Overlay"}, {"description", "Items are are displayed overlaid"}}), "") \
     FUNCX(propMarker_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Points"}, {"description", ""}}), "") \
     FUNCX(propMarker_quaternions, "quaternions", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Quaternions"}, {"description", ""}}), "") \
-    FUNCX(propMarker_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable,  jsonStr({{"label", "Colors"}, {"description", ""}}), "") \
     FUNCX(propMarker_sizes, "sizes", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Sizes"}, {"description", ""}}), "") \
+    FUNCX(propMarker_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable,  jsonStr({{"label", "Colors"}, {"description", ""}}), "") \
+    FUNCX(propMarker_packedPoints, "packedPoints", sim_propertytype_buffer, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Packed points"}, {"description", ""}}), "") \
+    FUNCX(propMarker_packedQuaternions, "packedQuaternions", sim_propertytype_buffer, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Packed quaternions"}, {"description", ""}}), "") \
+    FUNCX(propMarker_packedSizes, "packedSizes", sim_propertytype_buffer, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Packed sizes"}, {"description", ""}}), "") \
     FUNCX(propMarker_vertices, "vertices", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Vertices"}, {"description", "Vertices for custom marker"}}), "") \
     FUNCX(propMarker_indices, "indices", sim_propertytype_intarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Indices"}, {"description", "Indices for custom marker"}}), "") \
     FUNCX(propMarker_normals, "normals", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Normals"}, {"description", "Normals for custom marker"}}), "") \

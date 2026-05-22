@@ -12214,7 +12214,7 @@ int _simPushUserEvent(luaWrap_lua_State* L)
                     ev->appendText("data");
                     CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
                     CDetachedScript::buildFromInterpreterStack_lua(L, stack, 4, 1); // skip the 3 first args
-                    std::string buff = stack->getCborEncodedBuffer(0);
+                    std::string buff = stack->getCborEncodedBuffer(-1, 0);
                     App::scenes->interfaceStackContainer->destroyStack(stack);
                     ev->appendRaw((unsigned char*)buff.data(), buff.size());
                     App::scenes->pushEvent();
@@ -13498,9 +13498,9 @@ int _simPackTable(luaWrap_lua_State* L)
                     s = stack->getBufferFromTable();
                 // (Since 10.07.2025 a Lua wrapper handles CBOR encoding)
                 if (scheme == 1)
-                    s = stack->getCborEncodedBuffer(1);
+                    s = stack->getCborEncodedBuffer(-1, 1);
                 if (scheme == 2)
-                    s = stack->getCborEncodedBuffer(0); // doubles coded as double
+                    s = stack->getCborEncodedBuffer(-1, 0); // doubles coded as double
                 luaWrap_lua_pushbuffer(L, s.c_str(), s.length());
                 App::scenes->interfaceStackContainer->destroyStack(stack);
                 LUA_END(1);
