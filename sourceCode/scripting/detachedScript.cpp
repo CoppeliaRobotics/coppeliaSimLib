@@ -2891,7 +2891,9 @@ std::string CDetachedScript::getSearchPath_lua()
     // backw. compatibility:
     retVal += App::folders->getInterpretersRootPath() + "/bwf/?.lua;";
 
-    retVal += App::folders->getInterpretersRootPath() + "/luarocks/share/lua/5.4/?.lua";
+    // luarocks:
+    retVal += App::folders->getInterpretersRootPath() + "/luarocks/share/lua/5.4/?.lua;";
+    retVal += App::folders->getInterpretersRootPath() + "/luarocks/share/lua/5.4/?/init.lua";
 
     if (App::scene->environment->getScenePathAndName().compare("") != 0)
     {
