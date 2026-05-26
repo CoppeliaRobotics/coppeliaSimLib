@@ -51,6 +51,7 @@ class CInterfaceStackTable : public CInterfaceStackObject
     void appendArrayObject_text(const char* txtStr);
     void appendArrayObject_int32Array(const int* arr, size_t l);
     void appendArrayObject_int64Array(const long long int* arr, size_t l);
+    void appendArrayObject_handleArray(const int* arr, size_t l);
     void appendArrayObject_handleArray(const long long int* arr, size_t l);
     void appendArrayObject_floatArray(const float* arr, size_t l);
     void appendArrayObject_doubleArray(const double* arr, size_t l);

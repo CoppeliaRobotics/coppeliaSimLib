@@ -2184,7 +2184,10 @@ int CDetachedScript::_callScriptFunction(int sysCallType, const char* functionNa
                     }
                 }
                 else
-                    err = "invalid target.";
+                {
+                    err = "invalid target: ";
+                    err += func;
+                }
             }
             if (err.size() > 0)
             {
@@ -2235,7 +2238,10 @@ int CDetachedScript::_callScriptFunction(int sysCallType, const char* functionNa
                     }
                 }
                 else
-                    err = "invalid target.";
+                {
+                    err = "invalid target: ";
+                    err += func;
+                }
             }
             if (err.size() > 0)
             {
@@ -2391,6 +2397,7 @@ int CDetachedScript::callCustomScriptFunction(const char* functionName, CInterfa
         luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
         bool extFunc = false;
         std::string funcName(functionName);
+
         if ((funcName.size() != 0) && (funcName[0] == '@'))
             funcName.erase(funcName.begin());
         else

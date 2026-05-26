@@ -5,7 +5,7 @@
 #include <map>
 
 struct SDeprecatedProperty {
-    std::string repl;
+    std::vector<std::string> replacements;
     std::vector<int> types;
 };
 extern const std::map<std::string, SDeprecatedProperty> propDeprecationMapping;
@@ -611,6 +611,7 @@ struct SJointProperty
     FUNCX(propScene_METHOD_stopSimulation, "simulation.stop", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_groupShapes, "groupShapes", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_mergeShapes, "mergeShapes", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propScene_METHOD_getContactInfo, "getContactInfo", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
     FUNCX(propScene_DEPRECATED_sceneIsLocked, "sceneIsLocked", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_notwritable,  "", "") \
     FUNCX(propScene_DEPRECATED_sceneUid, "sceneUid", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable,  "", "") \
@@ -1063,6 +1064,7 @@ struct SJointProperty
     FUNCX(propShape_METHOD_computeInertia, "computeInertia", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propShape_METHOD_setAppearance, "setAppearance", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propShape_METHOD_getAppearance, "getAppearance", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propShape_METHOD_getContactInfo, "getContactInfo", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propShape_METHOD_ungroup, "ungroup", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propShape_METHOD_divide, "divide", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "")
 

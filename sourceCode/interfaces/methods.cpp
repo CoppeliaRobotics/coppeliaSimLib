@@ -225,6 +225,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["setTargetPosition"] = _method_setTargetPosition;
         funcTable["setTargetVelocity"] = _method_setTargetVelocity;
         funcTable["pushEvent"] = _method_pushEvent;
+        funcTable["getContactInfo"] = _method_getContactInfo;
     }
 
     std::string retVal("__notFound__");
@@ -3063,7 +3064,6 @@ std::string _method_callFunction(int targetObj, const char* method, CDetachedScr
         {
             CInterfaceStack* inStack2 = App::scenes->interfaceStackContainer->createStackCopy(inStack);
             delete inStack2->detachStackObjectFromIndex(0);
-
             size_t p = funcName.find(':');
             if (p == std::string::npos)
             {
@@ -8244,6 +8244,71 @@ std::string _method_pushEvent(int targetObj, const char* method, CDetachedScript
                 std::string buff = inStack->getCborEncodedBuffer(0, 0);
                 ev->appendRaw((unsigned char*)buff.data(), buff.size());
                 App::scenes->pushEvent();
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_getContactInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CShape* target = nullptr;
+    if (targetObj != sim_handle_scene)
+        target = (CShape*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_shape, &errMsg, -1);
+    if (errMsg.empty())
+    {
+        if (checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
+        {
+            int dynPass = sim_handle_all;
+            if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+            {
+                map->fetchInt32FromKey("dynPass", dynPass, &errMsg);
+            }
+            if (errMsg.size() == 0)
+            {
+                int obj = sim_handle_all;
+                if (target != nullptr)
+                    obj = target->getObjectHandle();
+                double contactInfo[9];
+                int objectHandles[2];
+                CInterfaceStackTable* contactObjects = new CInterfaceStackTable();
+                std::vector<double> contactPoints;
+                std::vector<double> contactForces;
+                std::vector<double> contactNormals;
+                int index = 0;
+//                BLABLA
+                while (App::scene->dynamicsContainer->getContactForce(dynPass, obj, index, objectHandles, contactInfo) > 0)
+                {
+                    contactObjects->appendArrayObject_handleArray(objectHandles, 2);
+                    contactPoints.push_back(contactInfo[0]);
+                    contactPoints.push_back(contactInfo[1]);
+                    contactPoints.push_back(contactInfo[2]);
+                    contactForces.push_back(contactInfo[3]);
+                    contactForces.push_back(contactInfo[4]);
+                    contactForces.push_back(contactInfo[5]);
+                    contactNormals.push_back(contactInfo[6]);
+                    contactNormals.push_back(contactInfo[7]);
+                    contactNormals.push_back(contactInfo[8]);
+                    index++;
+                }
+                outStack->pushObjectOntoStack(contactObjects);
+                if (contactPoints.size() > 0)
+                {
+                    CMatrix m(contactPoints.size()/3, 3);
+                    m.data = contactPoints;
+                    outStack->pushMatrixOntoStack(m);
+                    m.data = contactForces;
+                    outStack->pushMatrixOntoStack(m);
+                    m.data = contactNormals;
+                    outStack->pushMatrixOntoStack(m);
+                }
+                else
+                {
+                    outStack->pushNullOntoStack();
+                    outStack->pushNullOntoStack();
+                    outStack->pushNullOntoStack();
+                }
             }
         }
     }

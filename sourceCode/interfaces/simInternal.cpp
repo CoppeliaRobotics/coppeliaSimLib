@@ -672,44 +672,48 @@ bool isPropertyNameValid(const char* functionName, const char* pName)
 
 std::string checkForDeprecation(const char* funcName, const char* pName, int target)
 {
-   if (propDeprecationMapping.find(pName) == propDeprecationMapping.end())
-        return pName;
+    // propDeprecationMapping: std::map<std::string, SDeprecatedProperty> with
+    // struct SDeprecatedProperty {std::vector<std::string> replacements; std::vector<int> types;}
 
-    std::string nName = propDeprecationMapping.find(pName)->second.repl;
+    if (propDeprecationMapping.find(pName) == propDeprecationMapping.end())
+        return pName; // not deprecated
+
     const std::vector<int>* types = &propDeprecationMapping.find(pName)->second.types;
-    int okCnt = 0;
+    const std::vector<std::string>* repls = &propDeprecationMapping.find(pName)->second.replacements;
+
+    std::string nName;
+    bool found = false;
     for (size_t i = 0; i < types->size(); i++)
     {
         int type = types->at(i);
+        nName = repls->at(i);
         if ((target == sim_handle_scene) && (type == sim_objecttype_scene))
-            break;
+            found = true;
         else if ((target == sim_handle_app) && (type == sim_objecttype_app))
-            break;
+            found = true;
         else if ((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectclassend))
         {
             if (type == sim_objecttype_sceneobject)
-                break;
+                found = true;
             else
             {
                 CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(target);
                 if ((obj != nullptr) && (obj->getObjectType() == type))
-                    break;
-                else
-                    okCnt++;
+                    found = true;
             }
         }
         else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend) && (type == sim_objecttype_detachedscript))
-            break;
+            found = true;
         else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend) && (type == sim_objecttype_interfacestack))
-            break;
+            found = true;
         else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend) && (type == sim_objecttype_collection))
-            break;
+            found = true;
         else if ((target >= sim_object_customstart) && (target <= sim_object_customend) && (type == sim_objecttype_customobject))
+            found = true;
+        if (found)
             break;
-        else
-            okCnt++;
     }
-    if (okCnt == types->size())
+    if (!found)
         return pName;
     std::string str("property '");
     str += pName;

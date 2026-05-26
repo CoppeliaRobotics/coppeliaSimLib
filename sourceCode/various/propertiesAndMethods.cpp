@@ -350,7 +350,7 @@ struct SDeprecatedPropertyItems {
     int type;
 };
 
-const std::map<std::string, SDeprecatedPropertyItems> tmpMap = {
+const std::vector<std::pair<std::string, SDeprecatedPropertyItems>> tmpPairs = {
     {propApp_DEPRECATED_appArg1.name,                                   {std::string(propApp_appArgs.name) + "__noReplace__", sim_objecttype_app}},
     {propApp_DEPRECATED_appArg2.name,                                   {std::string(propApp_appArgs.name) + "__noReplace__", sim_objecttype_app}},
     {propApp_DEPRECATED_appArg3.name,                                   {std::string(propApp_appArgs.name) + "__noReplace__", sim_objecttype_app}},
@@ -771,17 +771,20 @@ const std::map<std::string, SDeprecatedPropertyItems> tmpMap = {
 
 const std::map<std::string, SDeprecatedProperty> propDeprecationMapping = []() {
     std::map<std::string, SDeprecatedProperty> result;
-    for (const auto& [key, item] : tmpMap)
+    for (size_t i = 0; i < tmpPairs.size(); i++)
     {
+        std::string key = tmpPairs[i].first;
+        auto item = tmpPairs[i].second;
         auto it = result.find(key);
         if (it != result.end())
         {
             auto& types = it->second.types;
-            if (std::find(types.begin(), types.end(), item.type) == types.end())
-                types.push_back(item.type);
+            auto& repls = it->second.replacements;
+            types.push_back(item.type);
+            repls.push_back(item.repl);
         }
         else
-            result[key] = {item.repl, {item.type}};
+            result[key] = {{item.repl}, {item.type}};
     }
     return result;
 }();

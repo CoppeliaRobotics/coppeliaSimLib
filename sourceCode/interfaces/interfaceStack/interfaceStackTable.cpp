@@ -1281,6 +1281,13 @@ void CInterfaceStackTable::appendArrayObject_int64Array(const long long int* arr
     appendArrayObject(newObj);
 }
 
+void CInterfaceStackTable::appendArrayObject_handleArray(const int* arr, size_t l)
+{
+    CInterfaceStackHandleArray* newObj = new CInterfaceStackHandleArray(nullptr, 0);
+    newObj->setValue(arr, l);
+    appendArrayObject(newObj);
+}
+
 void CInterfaceStackTable::appendArrayObject_handleArray(const long long int* arr, size_t l)
 {
     CInterfaceStackHandleArray* newObj = new CInterfaceStackHandleArray(arr, l);
