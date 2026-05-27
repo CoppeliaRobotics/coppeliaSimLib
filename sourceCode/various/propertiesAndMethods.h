@@ -651,10 +651,11 @@ struct SJointProperty
     FUNCX(propMeshWrapper_mass, "mass", sim_propertytype_float, 0,  jsonStr({{"label", "Mass"}, {"description", ""}}), "") \
     FUNCX(propMeshWrapper_com, "centerOfMass", sim_propertytype_vector3, 0,  jsonStr({{"label", "Center of mass"}, {"description", "Center of mass, relative to the shape's reference frame"}}), "") \
     FUNCX(propMeshWrapper_inertiaMatrix, "inertiaMatrix", sim_propertytype_matrix, 0,  jsonStr({{"label", "Inertia matrix"}, {"description", "Inertia matrix, relative to the shape's reference frame"}}), "") \
-    FUNCX(propMeshWrapper_pmi, "principalMomentOfInertia", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Principal moment of inertia"}, {"description", "Principal moment of inertia, relative to pmiQuaternion"}}), "") \
+    FUNCX(propMeshWrapper_pmi, "pmi", sim_propertytype_vector3, sim_propertyinfo_notwritable,  jsonStr({{"label", "Principal moment of inertia"}, {"description", "Principal moment of inertia, relative to pmiQuaternion"}}), "") \
     FUNCX(propMeshWrapper_pmiQuaternion, "pmiQuaternion", sim_propertytype_quaternion, sim_propertyinfo_notwritable,  jsonStr({{"label", "Quaternion of the principal moment of inertia"}, {"description", "Quaternion of the principal moment of inertia, relative to the shape's reference frame"}}), "") \
     /* Following for backward compatibility: */ \
-    FUNCX(propMeshWrapper_DEPRECATED_inertia, "inertia", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED,  jsonStr({{"label", "Inertia tensor"}, {"description", "Inertia tensor, relative to the shape's reference frame"}}), "")
+    FUNCX(propMeshWrapper_DEPRECATED_pmi, "principalMomentOfInertia", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_notwritable, "","") \
+    FUNCX(propMeshWrapper_DEPRECATED_inertia, "inertia", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED, "", "")
 
 #define MESH_PROPERTIES \
     FUNCX(propMesh_textureResolution, "texture.resolution", sim_propertytype_intarray2, sim_propertyinfo_notwritable,  jsonStr({{"label", "Texture resolution"}, {"description", ""}}), "") \
@@ -665,9 +666,9 @@ struct SJointProperty
     FUNCX(propMesh_textureInterpolate, "texture.interpolate", sim_propertytype_bool, 0,  jsonStr({{"label", "Interpolate texture"}, {"description", ""}}), "") \
     FUNCX(propMesh_texture, "texture.rawData", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Texture"}, {"description", ""}}), "") \
     FUNCX(propMesh_textureID, "texture.id", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Texture ID"}, {"description", ""}}), "") \
-    FUNCX(propMesh_vertices, "vertices", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Vertices"}, {"description", ""}}), "") \
+    FUNCX(propMesh_vertices, "vertices", sim_propertytype_matrix, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Vertices"}, {"description", ""}}), "") \
     FUNCX(propMesh_indices, "indices", sim_propertytype_intarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Indices"}, {"description", "Indices (3 values per triangle)"}}), "") \
-    FUNCX(propMesh_normals, "normals", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Normals"}, {"description", "Normals (3*3 values per triangle)"}}), "") \
+    FUNCX(propMesh_normals, "normals", sim_propertytype_matrix, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Normals"}, {"description", "Normals (3*3 values per triangle)"}}), "") \
     FUNCX(propMesh_shadingAngle, "shadingAngle", sim_propertytype_float, 0,  jsonStr({{"label", "Shading angle"}, {"description", ""}}), "") \
     FUNCX(propMesh_showEdges, "showEdges", sim_propertytype_bool, 0,  jsonStr({{"label", "Visible edges"}, {"description", ""}}), "") \
     FUNCX(propMesh_culling, "culling", sim_propertytype_bool, 0,  jsonStr({{"label", "Backface culling"}, {"description", ""}}), "") \
@@ -1365,7 +1366,7 @@ struct SJointProperty
     FUNCX(propOctree_voxelSize, "voxelSize", sim_propertytype_float, 0,  jsonStr({{"label", "Voxel size"}, {"description", ""}}), "") \
     FUNCX(propOctree_randomColors, "randomColors", sim_propertytype_bool, 0,  jsonStr({{"label", "Random voxel colors"}, {"description", ""}}), "") \
     FUNCX(propOctree_showPoints, "showPoints", sim_propertytype_bool, 0,  jsonStr({{"label", "Show points instead of voxels"}, {"description", ""}}), "") \
-    FUNCX(propOctree_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Voxels"}, {"description", "Voxel positions"}}), "") \
+    FUNCX(propOctree_points, "points", sim_propertytype_matrix, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Voxels"}, {"description", "Voxel positions"}}), "") \
     FUNCX(propOctree_packedPoints, "packedPoints", sim_propertytype_buffer, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Packed voxels"}, {"description", "Voxel positions, as packed floats"}}), "") \
     FUNCX(propOctree_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Voxel Colors"}, {"description", ""}}), "") \
     FUNCX(propOctree_METHOD_addFromObject, "addFromObject", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
@@ -1387,7 +1388,7 @@ struct SJointProperty
     FUNCX(propPointCloud_maxPtsInCell, "maxPointsInCell", sim_propertytype_int, 0,  jsonStr({{"label", "Max. points in cell"}, {"description", "Maximum number of points in an oc-tree cell/voxel"}}), "") \
     FUNCX(propPointCloud_cellSize, "cellSize", sim_propertytype_float, 0,  jsonStr({{"label", "Cell size"}, {"description", "Size of the oc-tree cell/voxel"}}), "") \
     FUNCX(propPointCloud_pointDisplayFraction, "pointDisplayFraction", sim_propertytype_float, 0,  jsonStr({{"label", "Display fraction"}, {"description", "Fraction of points to be displayed in an oc-tree cell/voxel"}}), "") \
-    FUNCX(propPointCloud_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Points"}, {"description", "Point positions"}}), "") \
+    FUNCX(propPointCloud_points, "points", sim_propertytype_matrix, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Points"}, {"description", "Point positions"}}), "") \
     FUNCX(propPointCloud_packedPoints, "packedPoints", sim_propertytype_buffer, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Packed points"}, {"description", "Point positions, as packed floats"}}), "") \
     FUNCX(propPointCloud_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Colors"}, {"description", "Point colors"}}), "") \
     FUNCX(propPointCloud_METHOD_addFromObject, "addFromObject", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
@@ -1434,7 +1435,7 @@ struct SJointProperty
     FUNCX(propVisionSensor_emitImageChangedEvent, "emitImageChangedEvent", sim_propertytype_bool, 0,  jsonStr({{"label", "Emit image change event"}, {"description", ""}}), "") \
     FUNCX(propVisionSensor_emitDepthChangedEvent, "emitDepthChangedEvent", sim_propertytype_bool, 0,  jsonStr({{"label", "Emit depth change event"}, {"description", ""}}), "") \
     FUNCX(propVisionSensor_imageBuffer, "imageBuffer", sim_propertytype_buffer, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "RGB buffer"}, {"description", ""}}), "") \
-    FUNCX(propVisionSensor_depthBuffer, "depthBuffer", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Depth buffer"}, {"description", ""}}), "") \
+    FUNCX(propVisionSensor_depthBuffer, "depth", sim_propertytype_matrix, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Depth buffer"}, {"description", ""}}), "") \
     FUNCX(propVisionSensor_packedDepthBuffer, "packedDepthBuffer", sim_propertytype_buffer, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Packed depth buffer"}, {"description", ""}}), "") \
     FUNCX(propVisionSensor_triggerState, "triggerState", sim_propertytype_bool, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Trigger state"}, {"description", ""}}), "") \
     FUNCX(propVisionSensor_packet1, "packet1", sim_propertytype_floatarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Data packet 1"}, {"description", ""}}), "") \
@@ -1448,7 +1449,9 @@ struct SJointProperty
     FUNCX(propVisionSensor_METHOD_checkSensor, "checkSensor", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propVisionSensor_METHOD_getDepth, "getDepth", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propVisionSensor_METHOD_getImage, "getImage", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propVisionSensor_METHOD_setImage, "setImage", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "")
+    FUNCX(propVisionSensor_METHOD_setImage, "setImage", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    /* Following for backward compatibility: */ \
+    FUNCX(propVisionSensor_DEPRECATED_depthBuffer, "depthBuffer", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_notwritable, "", "")
 
 #define SCRIPT_PROPERTIES \
     FUNCX(propScript_size, "scriptSize", sim_propertytype_float, 0,  jsonStr({{"label", "Size"}, {"description", "Size of the object"}}), "") \
@@ -1472,16 +1475,16 @@ struct SJointProperty
     FUNCX(propMarker_cyclic, "cyclic", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Cyclic"}, {"description", "Item buffer is cyclic"}}), "") \
     FUNCX(propMarker_local, "local", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Local"}, {"description", "Coordinates are local to the marker's reference frame"}}), "") \
     FUNCX(propMarker_overlay, "overlay", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"label", "Overlay"}, {"description", "Items are are displayed overlaid"}}), "") \
-    FUNCX(propMarker_points, "points", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Points"}, {"description", ""}}), "") \
-    FUNCX(propMarker_quaternions, "quaternions", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Quaternions"}, {"description", ""}}), "") \
-    FUNCX(propMarker_sizes, "sizes", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Sizes"}, {"description", ""}}), "") \
+    FUNCX(propMarker_points, "points", sim_propertytype_matrix, sim_propertyinfo_notwritable,  jsonStr({{"label", "Points"}, {"description", ""}}), "") \
+    FUNCX(propMarker_quaternions, "quaternions", sim_propertytype_matrix, sim_propertyinfo_notwritable,  jsonStr({{"label", "Quaternions"}, {"description", ""}}), "") \
+    FUNCX(propMarker_sizes, "sizes", sim_propertytype_matrix, sim_propertyinfo_notwritable,  jsonStr({{"label", "Sizes"}, {"description", ""}}), "") \
     FUNCX(propMarker_colors, "colors", sim_propertytype_buffer, sim_propertyinfo_notwritable,  jsonStr({{"label", "Colors"}, {"description", ""}}), "") \
     FUNCX(propMarker_packedPoints, "packedPoints", sim_propertytype_buffer, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Packed points"}, {"description", ""}}), "") \
     FUNCX(propMarker_packedQuaternions, "packedQuaternions", sim_propertytype_buffer, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Packed quaternions"}, {"description", ""}}), "") \
     FUNCX(propMarker_packedSizes, "packedSizes", sim_propertytype_buffer, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Packed sizes"}, {"description", ""}}), "") \
-    FUNCX(propMarker_vertices, "vertices", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Vertices"}, {"description", "Vertices for custom marker"}}), "") \
+    FUNCX(propMarker_vertices, "vertices", sim_propertytype_matrix, sim_propertyinfo_notwritable,  jsonStr({{"label", "Vertices"}, {"description", "Vertices for custom marker"}}), "") \
     FUNCX(propMarker_indices, "indices", sim_propertytype_intarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Indices"}, {"description", "Indices for custom marker"}}), "") \
-    FUNCX(propMarker_normals, "normals", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Normals"}, {"description", "Normals for custom marker"}}), "") \
+    FUNCX(propMarker_normals, "normals", sim_propertytype_matrix, sim_propertyinfo_notwritable,  jsonStr({{"label", "Normals"}, {"description", "Normals for custom marker"}}), "") \
     FUNCX(propMarker_METHOD_addItems, "addItems", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propMarker_METHOD_clearItems, "clearItems", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propMarker_METHOD_removeItems, "removeItems", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "")

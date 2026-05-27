@@ -492,9 +492,10 @@ void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia, bool force
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(_parentObjectHandle, false, propMeshWrapper_inertiaMatrix.name, true);
             C3Vector pmi(_pmi * _mass);
             ev->appendKeyMatrix(propMeshWrapper_inertiaMatrix.name, _iMatrix * _mass);
-            ev->appendKeyDoubleArray(propMeshWrapper_pmi.name, pmi.data, 3);
+            ev->appendKeyVector3(propMeshWrapper_pmi.name, pmi.data);
             if (App::getEventProtocolVersion() <= 3)
             {
+                ev->appendKeyDoubleArray(propMeshWrapper_DEPRECATED_pmi.name, pmi.data, 3);
                 double dat[9];
                 _in *= _mass;
                 _in.getData(dat);
@@ -1271,9 +1272,10 @@ void CMeshWrapper::addObjectEventData(int parentObjectHandle, CCbor* ev)
             ev->appendKeyVector3(propMeshWrapper_com.name, _com);
         ev->appendKeyMatrix(propMeshWrapper_inertiaMatrix.name, _iMatrix * _mass);
         C3Vector pmi(_pmi * _mass);
-        ev->appendKeyDoubleArray(propMeshWrapper_pmi.name, pmi.data, 3);
+        ev->appendKeyVector3(propMeshWrapper_pmi.name, pmi.data);
         if (App::getEventProtocolVersion() <= 3)
         {
+            ev->appendKeyDoubleArray(propMeshWrapper_DEPRECATED_pmi.name, pmi.data, 3);
             C3X3Matrix inertia(_iMatrix * _mass);
             double dat[9];
             inertia.getData(dat);
@@ -1333,6 +1335,13 @@ int CMeshWrapper::getVector3Property_wrapper(const char* pName, C3Vector& pState
     {
         retVal = sim_propertyret_ok;
         pState = _com;
+    }
+    else if (strcmp(propMeshWrapper_pmi.name, pName) == 0)
+    {
+        retVal = sim_propertyret_ok;
+        pState.data[0] = _pmi.data[0];
+        pState.data[1] = _pmi.data[1];
+        pState.data[2] = _pmi.data[2];
     }
 
     return retVal;
@@ -1427,7 +1436,7 @@ int CMeshWrapper::getFloatArrayProperty_wrapper(const char* pName, std::vector<d
         _iMatrix.getData(pState.data());
         retVal = sim_propertyret_ok;
     }
-    else if (strcmp(propMeshWrapper_pmi.name, pName) == 0)
+    else if (strcmp(propMeshWrapper_DEPRECATED_pmi.name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState.push_back(_pmi(0));

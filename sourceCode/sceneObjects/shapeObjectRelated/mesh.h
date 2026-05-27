@@ -130,6 +130,7 @@ class CMesh : public CMeshWrapper
     int getIntArray2Property_mesh(const char* pName, int* pState, const C7Vector& shapeRelTr) const;
     int setVector3Property_mesh(const char* pName, const C3Vector& pState, const C7Vector& shapeRelTr);
     int getVector3Property_mesh(const char* pName, C3Vector& pState, const C7Vector& shapeRelTr) const;
+    int getMatrixProperty_mesh(const char* pName, CMatrix& pState, const C7Vector& shapeRelTr) const;
     int setQuaternionProperty_mesh(const char* pName, const C4Vector& pState, const C7Vector& shapeRelTr);
     int getQuaternionProperty_mesh(const char* pName, C4Vector& pState, const C7Vector& shapeRelTr) const;
     int setPoseProperty_mesh(const char* pName, const C7Vector& pState, const C7Vector& shapeRelTr);

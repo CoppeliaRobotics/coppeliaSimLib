@@ -76,6 +76,7 @@ class CVisionSensor : public CViewableBase
     int getColorProperty(const char* pName, float* pState) const override;
     int setVector3Property(const char* pName, const C3Vector& pState) override;
     int getVector3Property(const char* pName, C3Vector& pState) const override;
+    int getMatrixProperty(const char* pName, CMatrix& pState) const override;
     int setFloatArrayProperty(const char* pName, const std::vector<double>& pState) override;
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
     int setIntArrayProperty(const char* pName, const std::vector<int>& pState) override;

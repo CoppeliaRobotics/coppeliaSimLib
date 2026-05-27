@@ -65,6 +65,7 @@ class COcTree : public CSceneObject
     int getStringProperty(const char* pName, std::string& pState) const override;
     int setBufferProperty(const char* pName, const std::string& pState) override;
     int getBufferProperty(const char* pName, std::string& pState) const override;
+    int getMatrixProperty(const char* pName, CMatrix& pState) const  override;
     int setColorProperty(const char* pName, const float* pState) override;
     int getColorProperty(const char* pName, float* pState) const override;
     int setFloatArrayProperty(const char* pName, const std::vector<double>& pState) override;

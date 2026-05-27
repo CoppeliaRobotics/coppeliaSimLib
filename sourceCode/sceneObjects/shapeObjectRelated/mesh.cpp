@@ -538,8 +538,6 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vecto
         vertices[3 * j + 1] = (float)v(1);
         vertices[3 * j + 2] = (float)v(2);
     }
-    ev->appendKeyFloatArray(propMesh_vertices.name, vertices.data(), vertices.size());
-    ev->appendKeyInt32Array(propMesh_indices.name, _indices.data(), _indices.size());
 
     std::vector<float> normals;
     normals.resize(_indices.size() * 3);
@@ -552,7 +550,17 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vecto
         normals[3 * j + 1] = (float)n(1);
         normals[3 * j + 2] = (float)n(2);
     }
-    ev->appendKeyFloatArray(propMesh_normals.name, normals.data(), normals.size());
+    if (App::getEventProtocolVersion() <= 3)
+    {
+        ev->appendKeyFloatArray(propMesh_vertices.name, vertices.data(), vertices.size());
+        ev->appendKeyFloatArray(propMesh_normals.name, normals.data(), normals.size());
+    }
+    else
+    {
+        ev->appendKeyMatrix(propMesh_vertices.name, vertices.data(), vertices.size() / 3, 3);
+        ev->appendKeyMatrix(propMesh_normals.name, normals.data(), normals.size() / 3, 3);
+    }
+    ev->appendKeyInt32Array(propMesh_indices.name, _indices.data(), _indices.size());
 
     color.addGenesisEventData(ev);
     ev->appendKeyDouble(propMesh_shadingAngle.name, _shadingAngle);
@@ -3236,6 +3244,42 @@ int CMesh::getVector3Property_mesh(const char* ppName, C3Vector& pState, const C
     return retVal;
 }
 
+int CMesh::getMatrixProperty_mesh(const char* ppName, CMatrix& pState, const C7Vector& shapeRelTr) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (strcmp(ppName, propMesh_vertices.name) == 0)
+    {
+        retVal = sim_propertyret_ok;
+        pState.resize(_verticesForDisplayAndDisk.size() / 3, 3, 0.0);
+        for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)
+        {
+            C3Vector v;
+            v.setData(_verticesForDisplayAndDisk.data() + j * 3);
+            v = shapeRelTr * v;
+            pState.data[3 * j + 0] = v(0);
+            pState.data[3 * j + 1] = v(1);
+            pState.data[3 * j + 2] = v(2);
+        }
+    }
+    else if (strcmp(ppName, propMesh_normals.name) == 0)
+    {
+        retVal = sim_propertyret_ok;
+        pState.resize(_indices.size(), 3, 0.0);
+        for (size_t j = 0; j < _indices.size(); j++)
+        {
+            C3Vector n;
+            n.setData(&_normalsForDisplayAndDisk[0] + j * 3);
+            n = shapeRelTr.Q * n; // only orientation
+            pState.data[3 * j + 0] = n(0);
+            pState.data[3 * j + 1] = n(1);
+            pState.data[3 * j + 2] = n(2);
+        }
+    }
+
+    return retVal;
+}
+
 int CMesh::setQuaternionProperty_mesh(const char* ppName, const C4Vector& pState, const C7Vector& shapeRelTr)
 {
     int retVal = sim_propertyret_unknownproperty;
@@ -3297,35 +3341,7 @@ int CMesh::getFloatArrayProperty_mesh(const char* ppName, std::vector<double>& p
     int retVal = sim_propertyret_unknownproperty;
     pState.clear();
 
-    if (strcmp(pName, propMesh_vertices.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState.resize(_verticesForDisplayAndDisk.size());
-        for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)
-        {
-            C3Vector v;
-            v.setData(_verticesForDisplayAndDisk.data() + j * 3);
-            v = shapeRelTr * v;
-            pState[3 * j + 0] = v(0);
-            pState[3 * j + 1] = v(1);
-            pState[3 * j + 2] = v(2);
-        }
-    }
-    else if (strcmp(pName, propMesh_normals.name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        pState.resize(_indices.size() * 3);
-        for (size_t j = 0; j < _indices.size(); j++)
-        {
-            C3Vector n;
-            n.setData(&_normalsForDisplayAndDisk[0] + j * 3);
-            n = shapeRelTr.Q * n; // only orientation
-            pState[3 * j + 0] = n(0);
-            pState[3 * j + 1] = n(1);
-            pState[3 * j + 2] = n(2);
-        }
-    }
-    else if ((strcmp(pName, propMesh_textureCoordinates.name) == 0) && (_textureProperty != nullptr))
+    if ((strcmp(pName, propMesh_textureCoordinates.name) == 0) && (_textureProperty != nullptr))
     {
         retVal = sim_propertyret_ok;
         const std::vector<float>* tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);

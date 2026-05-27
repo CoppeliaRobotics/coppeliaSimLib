@@ -495,7 +495,10 @@ void CVisionSensor::_emitDepthChangedEvent(CCbor* thirdPartyEv /*= nullptr*/) co
         CCbor* ev = thirdPartyEv;
         if (thirdPartyEv == nullptr)
             ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-        ev->appendKeyFloatArray(cmd, _depthBuffer, _resolution[0] * _resolution[1]);
+        if (App::getEventProtocolVersion() <= 3)
+            ev->appendKeyFloatArray(propVisionSensor_DEPRECATED_depthBuffer.name, _depthBuffer, _resolution[0] * _resolution[1]);
+        else
+            ev->appendKeyMatrix(cmd, _depthBuffer, _resolution[1], _resolution[0]);
         if (thirdPartyEv == nullptr)
             App::scenes->pushEvent();
     }
@@ -3771,6 +3774,23 @@ int CVisionSensor::getVector3Property(const char* ppName, C3Vector& pState) cons
     return retVal;
 }
 
+int CVisionSensor::getMatrixProperty(const char* ppName, CMatrix& pState) const
+{
+    int retVal = CViewableBase::getMatrixProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        if (strcmp(propVisionSensor_depthBuffer.name, ppName) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState.resize(_resolution[1], _resolution[0], 0.0);
+            for (size_t i = 0; i < _resolution[0] * _resolution[1]; i++)
+                pState.data[i] = (double)_depthBuffer[i];
+        }
+    }
+
+    return retVal;
+}
+
 int CVisionSensor::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState)
 {
     const std::string _pName = ppName;
@@ -3789,7 +3809,7 @@ int CVisionSensor::getFloatArrayProperty(const char* ppName, std::vector<double>
     int retVal = CViewableBase::getFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propVisionSensor_depthBuffer.name)
+        if (_pName == propVisionSensor_DEPRECATED_depthBuffer.name)
         {
             retVal = sim_propertyret_ok;
             for (size_t i = 0; i < _resolution[0] * _resolution[1]; i++)
@@ -3902,7 +3922,7 @@ int CVisionSensor::getPropertyInfo(const char* ppName, int& info, std::string& i
                 if (3 * _resolution[0] * _resolution[1] > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;
             }
-            if (_pName == propVisionSensor_depthBuffer.name)
+            if ((_pName == propVisionSensor_depthBuffer.name) || (_pName == propVisionSensor_DEPRECATED_depthBuffer.name))
             {
                 if (_resolution[0] * _resolution[1] > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;

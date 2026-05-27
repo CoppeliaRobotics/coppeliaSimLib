@@ -244,6 +244,21 @@ void CCbor::appendDoubleArray(const double* v, size_t cnt)
     }
 }
 
+void CCbor::appendMatrix(const float* v, size_t rows, size_t cols)
+{
+    _handleDataField();
+    _buff.push_back(0xD8); // major type 6, tag header (216)
+    _buff.push_back(40); // tag 40 for matrices
+    _buff.push_back(0x82); // array of 2 values (dims + data)
+    _buff.push_back(0x82); // array of 2 values (rows and cols)
+    _appendItemTypeAndLength(0, rows);
+    _appendItemTypeAndLength(0, cols);
+    openArray(int(rows * cols));
+    for (size_t i = 0; i < rows * cols; i++)
+        appendFloat(v[i]);
+    closeArrayOrMap();
+}
+
 void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
 {
     _handleDataField();
@@ -787,24 +802,18 @@ void CCbor::appendKeyBool(const char* key, bool v)
     appendBool(v);
 }
 
+void CCbor::appendKeyMatrix(const char* key, const float* v, size_t rows, size_t cols)
+{
+    appendText(key);
+    appendMatrix(v, rows, cols);
+}
+
 void CCbor::appendKeyMatrix(const char* key, const double* v, size_t rows, size_t cols)
 {
     appendText(key);
     appendMatrix(v, rows, cols);
 }
-/*
-void CCbor::appendKeyMatrix(const char* key, const C3X3Matrix& m)
-{
-    appendText(key);
-    appendMatrix(m);
-}
 
-void CCbor::appendKeyMatrix(const char* key, const C4X4Matrix& m)
-{
-    appendText(key);
-    appendMatrix(m);
-}
-*/
 void CCbor::appendKeyMatrix(const char* key, const CMatrix& m)
 {
     appendText(key);

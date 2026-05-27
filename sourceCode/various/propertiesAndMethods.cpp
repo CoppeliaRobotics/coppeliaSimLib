@@ -663,6 +663,7 @@ const std::vector<std::pair<std::string, SDeprecatedPropertyItems>> tmpPairs = {
     {propDummy_DEPRECATED_mujocoOverlapConstrSolimp.name,               {propDummy_mujocoOverlapConstrSolimp.name, sim_sceneobject_dummy}},
     {propDummy_DEPRECATED_mujocoOverlapConstrTorqueScale.name,          {propDummy_mujocoOverlapConstrTorqueScale.name, sim_sceneobject_dummy}},
 
+    {propMeshWrapper_DEPRECATED_pmi.name,                                              {std::string(propMeshWrapper_pmi.name) + "__noReplace__", sim_sceneobject_shape}},
     {propMeshWrapper_DEPRECATED_inertia.name,                                          {std::string(propMeshWrapper_inertiaMatrix.name) + "__noReplace__", sim_sceneobject_shape}},
     {propMaterial_DEPRECATED_engineProperties.name,                                    {propMaterial_engineProperties.name, sim_sceneobject_shape}},
     {propMaterial_DEPRECATED_bulletRestitution.name,                                   {propMaterial_bulletRestitution.name, sim_sceneobject_shape}},
@@ -767,6 +768,8 @@ const std::vector<std::pair<std::string, SDeprecatedPropertyItems>> tmpPairs = {
     {propProximitySensor_DEPRECATED_size.name,                          {propProximitySensor_size.name, sim_sceneobject_proximitysensor}},
     {propProximitySensor_DEPRECATED_sensorType.name,                    {propProximitySensor_sensorType.name, sim_sceneobject_proximitysensor}},
     {propProximitySensor_DEPRECATED_detectedObjectHandle.name,          {std::string(propProximitySensor_detectedObject.name) + "__noReplace__", sim_sceneobject_proximitysensor}},
+
+    {propVisionSensor_DEPRECATED_depthBuffer.name,                      {std::string(propVisionSensor_depthBuffer.name) + "__noReplace__", sim_sceneobject_visionsensor}},
 
 };
 

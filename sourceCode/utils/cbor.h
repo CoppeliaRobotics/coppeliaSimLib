@@ -43,6 +43,7 @@ class CCbor
     void appendFloatArray(const float* v, size_t cnt);
     void appendDouble(double v);
     void appendDoubleArray(const double* v, size_t cnt);
+    void appendMatrix(const float* v, size_t rows, size_t cols);
     void appendMatrix(const double* v, size_t rows, size_t cols);
     void appendMatrix(const C3X3Matrix& m);
     void appendMatrix(const C4X4Matrix& m);
@@ -75,9 +76,8 @@ class CCbor
     void appendKeyDoubleArray(const char* key, const double* v, size_t cnt);
     void appendKeyNull(const char* key);
     void appendKeyBool(const char* key, bool v);
+    void appendKeyMatrix(const char* key, const float* v, size_t rows, size_t cols);
     void appendKeyMatrix(const char* key, const double* v, size_t rows, size_t cols);
-//    void appendKeyMatrix(const char* key, const C3X3Matrix& m);
-//    void appendKeyMatrix(const char* key, const C4X4Matrix& m);
     void appendKeyMatrix(const char* key, const CMatrix& m);
     void appendKeyVector2(const char* key, const double* v);
     void appendKeyVector3(const char* key, const double* v);

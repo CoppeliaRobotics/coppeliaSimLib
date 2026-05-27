@@ -5027,7 +5027,7 @@ int CSceneObjectContainer::getMatrixProperty_t(long long int target, const char*
             C7Vector shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
-                return sim_propertyret_unknownproperty;
+                return mesh->getMatrixProperty_mesh(pName, pState, shapeRelTr);
         }
         retVal = sim_propertyret_unknowntarget;
     }

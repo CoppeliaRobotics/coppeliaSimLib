@@ -277,7 +277,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                 if (evv == nullptr)
                     ev = App::scenes->createSceneObjectChangedEvent(this, false, "set", true);
                 ev->openKeyMap("set");
-                ev->appendKeyFloatArray(propPointCloud_points.name, nullptr, 0);
+                ev->appendKeyMatrix(propPointCloud_points.name, (float*)nullptr, 0, 3);
                 ev->appendKeyUint8Array(propPointCloud_colors.name, nullptr, 0);
                 ev->appendKeyUint32Array("ids", nullptr, 0);
                 ev->closeArrayOrMap();
@@ -310,7 +310,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                         if (evv == nullptr)
                             ev = App::scenes->createSceneObjectChangedEvent(this, false, "set", true);
                         ev->openKeyMap("set");
-                        ev->appendKeyFloatArray(propPointCloud_points.name, pts, newCnt * 3);
+                        ev->appendKeyMatrix(propPointCloud_points.name, pts, newCnt, 3);
                         ev->appendKeyUint8Array(propPointCloud_colors.name, cols, newCnt * 4);
                         ev->appendKeyUint32Array("ids", ids, newCnt);
                         ev->closeArrayOrMap();
@@ -334,7 +334,7 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                             if (evv == nullptr)
                                 ev = App::scenes->createSceneObjectChangedEvent(this, false, "addRemove", true);
                             ev->openKeyMap("add");
-                            ev->appendKeyFloatArray(propPointCloud_points.name, pts, newCnt * 3);
+                            ev->appendKeyMatrix(propPointCloud_points.name, pts, newCnt, 3);
                             ev->appendKeyUint8Array(propPointCloud_colors.name, cols, newCnt * 4);
                             ev->appendKeyUint32Array("ids", ids, newCnt);
                             ev->closeArrayOrMap();
@@ -1901,31 +1901,41 @@ int CPointCloud::getColorProperty(const char* ppName, float* pState) const
 
 int CPointCloud::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState)
 {
-    std::string _pName(ppName);
     int retVal = CSceneObject::setFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
     }
-
     return retVal;
 }
 
 int CPointCloud::getFloatArrayProperty(const char* ppName, std::vector<double>& pState) const
 {
-    std::string _pName(ppName);
     pState.clear();
     int retVal = CSceneObject::getFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
+    }
+    return retVal;
+}
+
+int CPointCloud::getMatrixProperty(const char* pName, CMatrix& pState) const
+{
+    int retVal = CSceneObject::getMatrixProperty(pName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        std::string _pName(pName);
         if (_pName == propPointCloud_points.name)
         {
             retVal = sim_propertyret_ok;
-            pState.assign(_displayPoints.begin(), _displayPoints.end());
+            pState.resize(_displayPoints.size() / 3, 3, 0.0);
+            pState.data = _displayPoints;
         }
     }
 
     return retVal;
 }
+
+
 
 int CPointCloud::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
