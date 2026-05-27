@@ -6345,7 +6345,7 @@ int CSceneObject::getLongProperty(const char* ppName, long long int& pState) con
             if (_parentObject != nullptr)
                 pState = _parentObject->getObjectUid();
         }
-        else if (strcmp(ppName, propSceneObject_objectUid.name) == 0)
+        else if (strcmp(ppName, propSceneObject_uid.name) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = _objectUid;

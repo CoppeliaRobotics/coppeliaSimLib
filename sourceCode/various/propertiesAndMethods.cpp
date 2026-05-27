@@ -502,6 +502,7 @@ const std::vector<std::pair<std::string, SDeprecatedPropertyItems>> tmpPairs = {
     {propMesh_DEPRECATED_textureID.name,                                {propMesh_textureID.name, sim_objecttype_mesh}},
 
     {propSceneObject_DEPRECATED_parentHandle.name,                      {std::string(propSceneObject_parent.name) + "__noReplace__", sim_objecttype_sceneobject}},
+    {propSceneObject_DEPRECATED_objectUid.name,                         {propSceneObject_uid.name, sim_objecttype_sceneobject}},
     {propSceneObject_DEPRECATED_modelProperty.name,                     {propSceneObject_modelProperty.name, sim_objecttype_sceneobject}},
     {propSceneObject_DEPRECATED_modelNotCollidable.name,                {propSceneObject_modelNotCollidable.name, sim_objecttype_sceneobject}},
     {propSceneObject_DEPRECATED_modelNotMeasurable.name,                {propSceneObject_modelNotMeasurable.name, sim_objecttype_sceneobject}},

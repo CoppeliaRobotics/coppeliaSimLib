@@ -11,7 +11,7 @@ CInterfaceStackMatrix::CInterfaceStackMatrix(const double* matrix, size_t rows, 
         _matrix.data.assign(matrix, matrix + rows * cols);
     }
     else
-        _matrix.resize(1, 1, 0.0);
+        _matrix.resize(0, 0, 0.0);
 }
 
 CInterfaceStackMatrix::~CInterfaceStackMatrix()
@@ -86,7 +86,8 @@ unsigned int CInterfaceStackMatrix::createFromData(const char* data, unsigned ch
     pos += sizeof(cols);
     _matrix.resize(rows, cols, 0.0);
     size_t cnt = rows * cols;
-    std::memcpy(_matrix.data.data(), data + pos, cnt * sizeof(double));
+    if (cnt > 0)
+        std::memcpy(_matrix.data.data(), data + pos, cnt * sizeof(double));
     return (unsigned int)(sizeof(rows) + sizeof(cols) + cnt * sizeof(double));
 }
 

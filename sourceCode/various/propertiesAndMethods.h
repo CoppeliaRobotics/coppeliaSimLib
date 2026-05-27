@@ -276,6 +276,7 @@ struct SJointProperty
     FUNCX(propApp_METHOD_createCustomObjectClass, "createCustomObjectClass", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_quit, "quit", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_pushEvent, "pushEvent", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_getGenesisEvents, "getGenesisEvents", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
     FUNCX(propApp_DEPRECATED_appDir, "appPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
     FUNCX(propApp_DEPRECATED_tempDir, "tempPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
@@ -611,7 +612,7 @@ struct SJointProperty
     FUNCX(propScene_METHOD_stopSimulation, "simulation.stop", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_groupShapes, "groupShapes", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_mergeShapes, "mergeShapes", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propScene_METHOD_getContactInfo, "getContactInfo", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propScene_METHOD_getContacts, "getContacts", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
     FUNCX(propScene_DEPRECATED_sceneIsLocked, "sceneIsLocked", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_notwritable,  "", "") \
     FUNCX(propScene_DEPRECATED_sceneUid, "sceneUid", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable,  "", "") \
@@ -900,7 +901,7 @@ struct SJointProperty
     FUNCX(propSceneObject_tree, "tree", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object tree"}, {"description", ""}}), "") \
     FUNCX(propSceneObject_childOrder, "childOrder", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Child order"}, {"description", ""}}), "") \
     FUNCX(propSceneObject_parentUid, "parentUid", sim_propertytype_long, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Parent UID"}, {"description", "Parent scene object unique identifier"}}), "") \
-    FUNCX(propSceneObject_objectUid, "objectUid", sim_propertytype_long, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object UID"}, {"description", "Scene object unique identifier"}}), "") \
+    FUNCX(propSceneObject_uid, "uid", sim_propertytype_long, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Object UID"}, {"description", "Scene object unique identifier"}}), "") \
     FUNCX(propSceneObject_parent, "parent", sim_propertytype_handle, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Parent"}, {"description", "Parent scene object handle"}, {"handleType", "sceneObject"}}), "") \
     FUNCX(propSceneObject_selected, "selected", sim_propertytype_bool, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Selected"}, {"description", "Selection state"}}), "") \
     FUNCX(propSceneObject_hierarchyColor, "hierarchyColor", sim_propertytype_int, 0,  jsonStr({{"label", "Hierarchy color"}, {"description", "Hierarchy color index"}}), "") \
@@ -1007,6 +1008,7 @@ struct SJointProperty
     FUNCX(propSceneObject_DEPRECATED_alias, "alias", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED, "", "") \
     FUNCX(propSceneObject_DEPRECATED_deprecatedName, "deprecatedName", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED, "", "") \
     FUNCX(propSceneObject_DEPRECATED_bbHsize, "bbHSize", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_notwritable, "", "") \
+    FUNCX(propSceneObject_DEPRECATED_objectUid, "objectUid", sim_propertytype_long, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
     FUNCX(propSceneObject_DEPRECATED_movementOptions, "movementOptionsFlags", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED, "", "") \
     FUNCX(propSceneObject_DEPRECATED_movementStepSize, "movementStepSize", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED, "", "") \
     FUNCX(propSceneObject_DEPRECATED_movementRelativity, "movementRelativity", sim_propertytype_intarray, SIM_PROPERTYINFO_DEPRECATED, "", "") \

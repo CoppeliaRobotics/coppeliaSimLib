@@ -1908,6 +1908,10 @@ int simSetMatrixProperty_internal(long long int target, const char* ppName, cons
         int retVal = sim_propertyret_invalidname;
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
+            if (r < 0)
+                r = 0;
+            if (c < 0)
+                c = 0;
             std::string pName(ppName);
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_matrix))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_matrix))))
             {
@@ -1915,13 +1919,13 @@ int simSetMatrixProperty_internal(long long int target, const char* ppName, cons
                 packed.resize(2 * sizeof(int) + r * c * sizeof(double));
                 int dims[2] = { r, c };
                 memcpy(&packed[0], dims, 2 * sizeof(int));
-                memcpy(&packed[0] + 2 * sizeof(int), pState, r * c * sizeof(double));
+                if (r * c > 0)
+                    memcpy(&packed[0] + 2 * sizeof(int), pState, r * c * sizeof(double));
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), packed.data(), 2 * sizeof(int) + r * c * sizeof(double));
             }
             else
             {
-                CMatrix m(r, c);
-                m.data.assign(pState, pState + r * c);
+                CMatrix m(r, c, pState);
                 pName = checkForDeprecation(__func__, pName.c_str(), target);
                 retVal = App::setMatrixProperty_t(target, pName.c_str(), m);
                 if (retVal != sim_propertyret_ok)
@@ -1975,16 +1979,19 @@ int simGetMatrixProperty_internal(long long int target, const char* ppName, doub
             retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
             if (retVal > 0)
             {
-                if (l >= 2 * sizeof(int) + 1 * sizeof(double))
+                printf("a %i\n", l);
+                if (l >= 2 * sizeof(int))
                 {
                     int _r = ((int*)data)[0];
                     int _c = ((int*)data)[1];
+                    printf("b %i %i\n", _r, _c);
                     if (((_r * _c) * sizeof(double) + 2 * sizeof(int)) == l)
                     {
                         r[0] = _r;
                         c[0] = _c;
                         pState[0] = new double[_r * _c];
-                        memcpy(pState[0], data + 2 * sizeof(int), _r * _c * sizeof(double));
+                        if (_r * _c > 0)
+                            memcpy(pState[0], data + 2 * sizeof(int), _r * _c * sizeof(double));
                     }
                     else
                     {
@@ -2008,7 +2015,8 @@ int simGetMatrixProperty_internal(long long int target, const char* ppName, doub
             if (retVal == sim_propertyret_ok)
             {
                 pState[0] = new double[m.rows * m.cols];
-                memcpy(pState[0], m.data.data(), m.rows * m.cols * sizeof(double));
+                if (m.rows * m.cols > 0)
+                   memcpy(pState[0], m.data.data(), m.rows * m.cols * sizeof(double));
                 r[0] = (int)m.rows;
                 c[0] = (int)m.cols;
             }

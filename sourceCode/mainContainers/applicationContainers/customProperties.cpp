@@ -41,7 +41,6 @@ void CCustomProperties::setAllPropertyData(const std::vector<std::string>& names
 
 void CCustomProperties::copyFromExceptMethods(const CCustomProperties* source)
 {
-    printf("a\n");
     _properties = source->_properties;
     std::string pName, appart;
     int index = 0;
@@ -58,11 +57,9 @@ void CCustomProperties::copyFromExceptMethods(const CCustomProperties* source)
     }
     for (size_t i = 0; i < toRemove.size(); i++)
     {
-        printf("c: %i, %s\n", i, toRemove[i].c_str());
         setPropertyInfo(toRemove[i].c_str(), sim_propertyinfo_removable, "");
         removeProperty(toRemove[i].c_str());
     }
-    printf("d\n");
 }
 
 void CCustomProperties::_writeInt32(std::string& buf, size_t offset, int32_t val)
@@ -732,7 +729,8 @@ int CCustomProperties::getMatrixProperty(const char* pName, CMatrix& pState) con
         if (dataLen >= 8 + (size_t)(rows * cols) * sizeof(double))
         {
             pState.resize(rows, cols, 0.0);
-            std::memcpy(pState.data.data(), dataPtr + 8, (size_t)(rows * cols) * sizeof(double));
+            if (rows * cols > 0)
+                std::memcpy(pState.data.data(), dataPtr + 8, (size_t)(rows * cols) * sizeof(double));
         }
     }
     return sim_propertyret_ok;

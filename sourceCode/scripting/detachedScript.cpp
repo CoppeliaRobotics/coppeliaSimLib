@@ -3480,7 +3480,7 @@ bool CDetachedScript::replaceScriptText(const char* oldTxt, const char* newTxt)
     while (startPos != std::string::npos)
     {
         theScript.replace(startPos, strlen(oldTxt), newTxt);
-        startPos = theScript.find(oldTxt, startPos + 1);
+        startPos = theScript.find(oldTxt, startPos + strlen(newTxt));
         replacedSomething = true;
     }
     if (replacedSomething)
@@ -6305,6 +6305,12 @@ void CDetachedScript::_detectDeprecated_old(CDetachedScript* detachedScript)
 
     if (_containsScriptText_old(detachedScript, "LightParameters"))
         App::logMsg(sim_verbosity_errors, "Contains LightParameters...");
+
+
+
+   // _replaceScriptText_old(detachedScript, "dynamicsEngine", "dynamics.engine");
+   // _replaceScriptText_old(detachedScript, "mujoco.adhesionctrl", "dynamics.mujoco.adhesionctrl");
+
 
     _replaceScriptText_old(detachedScript, "sim.light_omnidirectional_subtype", "sim.light_omnidirectional");
     _replaceScriptText_old(detachedScript, "sim.light_spot_subtype", "sim.light_spot");

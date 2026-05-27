@@ -225,7 +225,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["setTargetPosition"] = _method_setTargetPosition;
         funcTable["setTargetVelocity"] = _method_setTargetVelocity;
         funcTable["pushEvent"] = _method_pushEvent;
-        funcTable["getContactInfo"] = _method_getContactInfo;
+        funcTable["getContacts"] = _method_getContacts;
+        funcTable["getGenesisEvents"] = _method_getGenesisEvents;
     }
 
     std::string retVal("__notFound__");
@@ -8250,7 +8251,7 @@ std::string _method_pushEvent(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_getContactInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getContacts(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* target = nullptr;
@@ -8260,7 +8261,7 @@ std::string _method_getContactInfo(int targetObj, const char* method, CDetachedS
     {
         if (checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
         {
-            int dynPass = sim_handle_all;
+            int dynPass = App::scenes->pluginContainer->dyn_getDynamicStepDivider() - 1;
             if (CInterfaceStackTable* map = fetchMap(inStack, 0))
             {
                 map->fetchInt32FromKey("dynPass", dynPass, &errMsg);
@@ -8272,25 +8273,49 @@ std::string _method_getContactInfo(int targetObj, const char* method, CDetachedS
                     obj = target->getObjectHandle();
                 double contactInfo[9];
                 int objectHandles[2];
+                struct SCont {
+                    std::vector<int> body2;
+                    std::vector<double> contactPoints;
+                    std::vector<double> contactForces;
+                    std::vector<double> contactNormals;
+                };
+                std::map<int, SCont> colls;
+                int index = sim_handleflag_extended;
+                while (App::scene->dynamicsContainer->getContactForce(dynPass, obj, index, objectHandles, contactInfo) > 0)
+                {
+                    auto it = colls.find(objectHandles[0]);
+                    if (it == colls.end())
+                    {
+                        colls[objectHandles[0]] = {{}, {}, {}, {}};
+                        it = colls.find(objectHandles[0]);
+                    }
+                    it->second.body2.push_back(objectHandles[1]);
+                    it->second.contactPoints.push_back(contactInfo[0]);
+                    it->second.contactPoints.push_back(contactInfo[1]);
+                    it->second.contactPoints.push_back(contactInfo[2]);
+                    it->second.contactForces.push_back(contactInfo[3]);
+                    it->second.contactForces.push_back(contactInfo[4]);
+                    it->second.contactForces.push_back(contactInfo[5]);
+                    it->second.contactNormals.push_back(contactInfo[6]);
+                    it->second.contactNormals.push_back(contactInfo[7]);
+                    it->second.contactNormals.push_back(contactInfo[8]);
+                    index++;
+                }
+
                 CInterfaceStackTable* contactObjects = new CInterfaceStackTable();
                 std::vector<double> contactPoints;
                 std::vector<double> contactForces;
                 std::vector<double> contactNormals;
-                int index = 0;
-//                BLABLA
-                while (App::scene->dynamicsContainer->getContactForce(dynPass, obj, index, objectHandles, contactInfo) > 0)
+                for (const auto& pair : colls)
                 {
-                    contactObjects->appendArrayObject_handleArray(objectHandles, 2);
-                    contactPoints.push_back(contactInfo[0]);
-                    contactPoints.push_back(contactInfo[1]);
-                    contactPoints.push_back(contactInfo[2]);
-                    contactForces.push_back(contactInfo[3]);
-                    contactForces.push_back(contactInfo[4]);
-                    contactForces.push_back(contactInfo[5]);
-                    contactNormals.push_back(contactInfo[6]);
-                    contactNormals.push_back(contactInfo[7]);
-                    contactNormals.push_back(contactInfo[8]);
-                    index++;
+                    contactPoints.insert(contactPoints.end(), pair.second.contactPoints.begin(), pair.second.contactPoints.end());
+                    contactForces.insert(contactForces.end(), pair.second.contactForces.begin(), pair.second.contactForces.end());
+                    contactNormals.insert(contactNormals.end(), pair.second.contactNormals.begin(), pair.second.contactNormals.end());
+                    for (size_t i = 0; i < pair.second.body2.size(); i++)
+                    {
+                        int hs[2] = {pair.first, pair.second.body2[i]};
+                        contactObjects->appendArrayObject_handleArray(hs, 2);
+                    }
                 }
                 outStack->pushObjectOntoStack(contactObjects);
                 if (contactPoints.size() > 0)
@@ -8311,6 +8336,18 @@ std::string _method_getContactInfo(int targetObj, const char* method, CDetachedS
                 }
             }
         }
+    }
+    return errMsg;
+}
+
+std::string _method_getGenesisEvents(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {}))
+    {
+        std::vector<unsigned char> genesisEvents;
+        App::scenes->getGenesisEvents(&genesisEvents, nullptr);
+        outStack->pushBufferOntoStack((char*)genesisEvents.data(), genesisEvents.size());
     }
     return errMsg;
 }
