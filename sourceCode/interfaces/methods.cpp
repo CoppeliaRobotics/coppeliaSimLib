@@ -7053,24 +7053,33 @@ std::string _method_getPropertyInfo(int targetObj, const char* method, CDetached
             map->fetchBoolFromKey("shortInfoTxt", opt.shortInfoTxt, &errMsg);
             map->fetchInt32FromKey("bitCoded", opt.bitCoded, &errMsg);
         }
-        SPropertyInfo infos;
-        int res = CALL_C_API(simGetPropertyInfo, targetObj, pName.c_str(), &infos, &opt);
-        if (res == sim_propertyret_ok)
+        if (errMsg.empty())
         {
-            pushInt(outStack, infos.type);
-            pushInt(outStack, infos.flags);
-            if (infos.infoTxt == nullptr)
-                pushText(outStack, "");
+            SPropertyInfo infos;
+            int res = CALL_C_API(simGetPropertyInfo, targetObj, pName.c_str(), &infos, &opt);
+            if (res == sim_propertyret_ok)
+            {
+                pushInt(outStack, infos.type);
+                pushInt(outStack, infos.flags);
+                if (infos.infoTxt == nullptr)
+                    pushText(outStack, "");
+                else
+                {
+                    pushText(outStack, infos.infoTxt);
+                    delete[] infos.infoTxt;
+                }
+            }
             else
             {
-                pushText(outStack, infos.infoTxt);
-                delete[] infos.infoTxt;
+                if (!noError)
+                    errMsg = CApiErrors::getAndClearLastError();
+                else
+                {
+                    pushNull(outStack);
+                    pushNull(outStack);
+                    pushNull(outStack);
+                }
             }
-        }
-        else
-        {
-            if (!noError)
-                errMsg = CApiErrors::getAndClearLastError();
         }
     }
     return errMsg;

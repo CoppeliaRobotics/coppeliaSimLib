@@ -29,7 +29,7 @@ CInterfaceStackObject* CInterfaceStackPose::copyYourself() const
     return retVal;
 }
 
-void CInterfaceStackPose::printContent(int spaces, std::string& buffer) const
+void CInterfaceStackPose::fetchContent(int spaces, std::string& buffer) const
 {
     for (int i = 0; i < spaces; i++)
         buffer += " ";

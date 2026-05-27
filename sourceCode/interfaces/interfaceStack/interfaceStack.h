@@ -139,7 +139,7 @@ class CInterfaceStack : public Obj
     std::string getBufferFromTable() const;
     std::string getCborEncodedBuffer(int index, int options) const;
 
-    void printContent(int cIndex, std::string& buffer) const;
+    void fetchContent(int cIndex, std::string& buffer) const;
 
     int setBoolProperty(const char* pName, bool pState) override;
     int getBoolProperty(const char* pName, bool& pState) const override;

@@ -40,7 +40,7 @@ CInterfaceStackObject* CInterfaceStackMatrix::getTypeEquivalent() const
     return retVal;
 }
 
-void CInterfaceStackMatrix::printContent(int spaces, std::string& buffer) const
+void CInterfaceStackMatrix::fetchContent(int spaces, std::string& buffer) const
 {
     for (int i = 0; i < spaces; i++)
         buffer += " ";

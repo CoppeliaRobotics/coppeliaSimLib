@@ -35,7 +35,7 @@ CInterfaceStackObject* CInterfaceStackHandleArray::copyYourself() const
     return retVal;
 }
 
-void CInterfaceStackHandleArray::printContent(int spaces, std::string& buffer) const
+void CInterfaceStackHandleArray::fetchContent(int spaces, std::string& buffer) const
 {
     for (int i = 0; i < spaces; i++)
         buffer += " ";

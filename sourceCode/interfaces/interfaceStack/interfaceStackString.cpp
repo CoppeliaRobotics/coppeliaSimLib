@@ -80,7 +80,7 @@ CInterfaceStackObject* CInterfaceStackString::getTypeEquivalent() const
     return retVal;
 }
 
-void CInterfaceStackString::printContent(int spaces, std::string& buffer) const
+void CInterfaceStackString::fetchContent(int spaces, std::string& buffer) const
 {
     for (int i = 0; i < spaces; i++)
         buffer += " ";

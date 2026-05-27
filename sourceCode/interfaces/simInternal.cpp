@@ -11638,7 +11638,7 @@ int simDebugStack_internal(int stackHandle, int cIndex)
         if (stack != nullptr)
         {
             std::string buffer;
-            stack->printContent(cIndex, buffer);
+            stack->fetchContent(cIndex, buffer);
             if (cIndex < 0)
             {
                 buffer = "STACK CONTENT:\n--------------\n" + buffer;

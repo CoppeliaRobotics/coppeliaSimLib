@@ -51,7 +51,7 @@ bool CInterfaceStack::insertItem(int pos, CInterfaceStackObject* item)
     return retVal;
 }
 
-void CInterfaceStack::printContent(int cIndex, std::string& buffer) const
+void CInterfaceStack::fetchContent(int cIndex, std::string& buffer) const
 {
     if (cIndex < 0)
     {
@@ -62,7 +62,7 @@ void CInterfaceStack::printContent(int cIndex, std::string& buffer) const
             buffer += "Item ";
             buffer += std::to_string(i);
             buffer += ":\n";
-            _stackObjects[i]->printContent(4, buffer);
+            _stackObjects[i]->fetchContent(4, buffer);
         }
 //        buffer += "--------------";
     }
@@ -73,7 +73,7 @@ void CInterfaceStack::printContent(int cIndex, std::string& buffer) const
 //            buffer = "STACK CONTENT at index ";
 //            buffer += std::to_string(cIndex);
 //            buffer += ":\n--------------\n";
-            _stackObjects[cIndex]->printContent(0, buffer);
+            _stackObjects[cIndex]->fetchContent(0, buffer);
 //            buffer += "--------------";
         }
 //        else
@@ -2213,7 +2213,7 @@ int CInterfaceStack::getStringProperty(const char* ppName, std::string& pState) 
     {
         if (strcmp(propStack_content.name, ppName) == 0)
         {
-            printContent(-1, pState);
+            fetchContent(-1, pState);
             retVal = sim_propertyret_ok;
         }
     }

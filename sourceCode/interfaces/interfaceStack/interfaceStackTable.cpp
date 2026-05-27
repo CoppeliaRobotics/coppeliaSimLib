@@ -1914,7 +1914,7 @@ bool CInterfaceStackTable::areAllValuesThis(int what, bool tolerant) const
     return true;
 }
 
-void CInterfaceStackTable::printContent(int spaces, std::string& buffer) const
+void CInterfaceStackTable::fetchContent(int spaces, std::string& buffer) const
 {
     for (int i = 0; i < spaces; i++)
         buffer += " ";
@@ -1932,7 +1932,7 @@ void CInterfaceStackTable::printContent(int spaces, std::string& buffer) const
                 buffer += std::to_string((int)_tableObjects.size() * 2);
                 buffer += " items, key is omitted):\n";
                 for (size_t i = 0; i < _tableObjects.size(); i++)
-                    _tableObjects[i]->printContent(spaces + 4, buffer);
+                    _tableObjects[i]->fetchContent(spaces + 4, buffer);
             }
             else
             {
@@ -1940,7 +1940,7 @@ void CInterfaceStackTable::printContent(int spaces, std::string& buffer) const
                 buffer += std::to_string((int)_tableObjects.size());
                 buffer += " items, key and value):\n";
                 for (size_t i = 0; i < _tableObjects.size(); i++)
-                    _tableObjects[i]->printContent(spaces + 4, buffer);
+                    _tableObjects[i]->fetchContent(spaces + 4, buffer);
             }
         }
     }

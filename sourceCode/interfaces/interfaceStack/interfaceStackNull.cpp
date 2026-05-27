@@ -16,7 +16,7 @@ CInterfaceStackObject* CInterfaceStackNull::copyYourself() const
     return (retVal);
 }
 
-void CInterfaceStackNull::printContent(int spaces, std::string& buffer) const
+void CInterfaceStackNull::fetchContent(int spaces, std::string& buffer) const
 {
     for (int i = 0; i < spaces; i++)
         buffer += " ";

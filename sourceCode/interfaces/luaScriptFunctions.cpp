@@ -7093,7 +7093,7 @@ int _simTest(luaWrap_lua_State* L)
             int stackHandle = luaToInt(L, 2);
             CInterfaceStack* stack = App::scenes->interfaceStackContainer->getStack(stackHandle);
             std::string str;
-            stack->printContent(-1, str);
+            stack->fetchContent(-1, str);
             CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
             App::logScriptMsg(it, sim_verbosity_msgs, str.c_str());
             LUA_END(0);

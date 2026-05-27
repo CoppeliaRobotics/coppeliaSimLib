@@ -31,7 +31,7 @@ CInterfaceStackObject* CInterfaceStackNumber::copyYourself() const
     return (retVal);
 }
 
-void CInterfaceStackNumber::printContent(int spaces, std::string& buffer) const
+void CInterfaceStackNumber::fetchContent(int spaces, std::string& buffer) const
 {
     for (int i = 0; i < spaces; i++)
         buffer += " ";

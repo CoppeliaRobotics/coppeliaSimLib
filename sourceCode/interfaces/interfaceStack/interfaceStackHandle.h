@@ -9,7 +9,7 @@ class CInterfaceStackHandle : public CInterfaceStackObject
     virtual ~CInterfaceStackHandle();
 
     CInterfaceStackObject* copyYourself() const override;
-    void printContent(int spaces, std::string& buffer) const override;
+    void fetchContent(int spaces, std::string& buffer) const override;
     std::string getObjectData(std::string& auxInfos) const override;
     void addCborObjectData(CCbor* cborObj) const override;
     unsigned int createFromData(const char* data, unsigned char version, std::vector<CInterfaceStackObject*>& allCreatedObjects) override;

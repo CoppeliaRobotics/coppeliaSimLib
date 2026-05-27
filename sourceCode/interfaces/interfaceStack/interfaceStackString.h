@@ -12,7 +12,7 @@ class CInterfaceStackString : public CInterfaceStackObject
 
     CInterfaceStackObject* copyYourself() const override;
     CInterfaceStackObject* getTypeEquivalent() const override;
-    void printContent(int spaces, std::string& buffer) const override;
+    void fetchContent(int spaces, std::string& buffer) const override;
     std::string getObjectData(std::string& auxInfos) const override;
     void setCborCoded(bool coded);
     void setAuxData(unsigned char opt);
