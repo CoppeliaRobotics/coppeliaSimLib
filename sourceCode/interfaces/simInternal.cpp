@@ -1979,12 +1979,10 @@ int simGetMatrixProperty_internal(long long int target, const char* ppName, doub
             retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
             if (retVal > 0)
             {
-                printf("a %i\n", l);
                 if (l >= 2 * sizeof(int))
                 {
                     int _r = ((int*)data)[0];
                     int _c = ((int*)data)[1];
-                    printf("b %i %i\n", _r, _c);
                     if (((_r * _c) * sizeof(double) + 2 * sizeof(int)) == l)
                     {
                         r[0] = _r;

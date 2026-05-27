@@ -5,13 +5,9 @@
 CInterfaceStackMatrix::CInterfaceStackMatrix(const double* matrix, size_t rows, size_t cols)
 {
     _objectType = sim_stackitem_matrix;
-    if (matrix != nullptr)
-    {
-        _matrix.resize(rows, cols, 0.0);
+    _matrix.resize(rows, cols, 0.0);
+    if ((matrix != nullptr) && (rows * cols > 0))
         _matrix.data.assign(matrix, matrix + rows * cols);
-    }
-    else
-        _matrix.resize(0, 0, 0.0);
 }
 
 CInterfaceStackMatrix::~CInterfaceStackMatrix()
@@ -94,7 +90,7 @@ unsigned int CInterfaceStackMatrix::createFromData(const char* data, unsigned ch
 bool CInterfaceStackMatrix::checkCreateFromData(const char* data, unsigned int& w, unsigned int l, unsigned char version)
 {
     bool retVal = false;
-    if (l >= 2 * sizeof(size_t) + sizeof(double))
+    if (l >= 2 * sizeof(size_t))
     {
         size_t r, c;
         std::memcpy(&r, data + 0, sizeof(r));

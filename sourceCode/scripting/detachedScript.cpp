@@ -4171,7 +4171,6 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
     luaWrap_lua_State* L = (luaWrap_lua_State*)LL;
     index = luaWrap_lua_absindex(L, index);
     int t = luaWrap_lua_stype(L, index); // returns only simple types
-    int m_rows, m_cols;
     bool metatable = false;
     if (t == sim_stackitem_null)
         retVal = new CInterfaceStackNull();
@@ -4191,7 +4190,7 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
     { // this part is more tricky:
         metatable = luaWrap_lua_hasmetatable(L, index);
         if (metatable)
-        { // we have a metatable (not via type hint):
+        { // we have a metatable:
             int handleVal;
             size_t rows, cols;
             std::vector<double> dat;
