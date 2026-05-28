@@ -2684,7 +2684,8 @@ bool CDetachedScript::_killInterpreterState()
         utils::replaceSubstringStart(nn, "obj.", "");
         CALL_C_API_CLEAR_ERRORS(simRemoveProperty, toRem[i].second, nn.c_str());
     }
-    _eventFilters.clear();
+    _eventFilters_target.clear();
+    _eventFilters_type.clear();
 
     return (retVal);
 }
@@ -2720,16 +2721,18 @@ bool CDetachedScript::addCommandToOutsideCommandQueue(int commandID, int auxVal1
     return (true);
 }
 
-void CDetachedScript::setEventFilters(const std::map<long long int, std::set<std::string>>& filters)
+void CDetachedScript::setEventFilters(const std::map<long long int, std::set<std::string>>& targetFilters, const std::map<std::string, std::set<std::string>>& typeFilters)
 {
-    _eventFilters = filters;
+    _eventFilters_target = targetFilters;
+    _eventFilters_type = typeFilters;
 }
 
 bool CDetachedScript::prepareFilteredEventsBuffer(const std::vector<unsigned char>& input, const std::vector<SEventInf>& inf, std::vector<unsigned char>& output) const
 {
     bool retVal = false;
-    if (_eventFilters.size() > 0)
+    if (_eventFilters_target.size() + _eventFilters_type.size() > 0)
     {
+        // Following 4 for backw. compatibility:
         long long int mainScriptHandle = -1;
         CDetachedScript* mainScript = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
         if (mainScript != nullptr)
@@ -2740,42 +2743,124 @@ bool CDetachedScript::prepareFilteredEventsBuffer(const std::vector<unsigned cha
         {
             long long int t = inf[ev].target;
             long long int altT = t;
-            if ((t >= 0) && (t <= sim_object_sceneobjectend))
+            std::string typeInfo1;
+            std::string typeInfo2;
+            if (t == sim_handle_app)
+                typeInfo1 = "app";
+            else if (t == sim_handle_scene)
+                typeInfo1 = "scene";
+            else if ((t >= sim_object_sceneobjectstart) && (t <= sim_object_sceneobjectclassend))
+            {
                 altT = sim_handle_sceneobject;
+                typeInfo1 = "sceneObject";
+                CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(t);
+                if (obj != nullptr)
+                    typeInfo2 = typeInfo2 = obj->getObjectTypeStr();
+            }
             else if ((t >= sim_object_detachedscriptstart) && (t <= sim_object_detachedscriptend))
             {
                 if (t == App::scenes->sandboxScript->getScriptHandle())
                     altT = sim_handle_sandbox;
                 else if ((mainScriptHandle != -1) && (t == mainScriptHandle))
                     altT = sim_handle_mainscript;
+                typeInfo1 = "detachedScript";
             }
+            else if ((t >= sim_object_collectionstart) && (t <= sim_object_collectionend))
+                typeInfo1 = "collection";
+            else if ((t >= sim_object_customstart) && (t <= sim_object_customend))
+                typeInfo1 = "customObject";
+            else if ((t >= sim_object_stackstart) && (t <= sim_object_stackend))
+                typeInfo1 = "stack";
             else if (t >= sim_object_variousstart)
+            {
                 altT = sim_handle_mesh;
-            auto s_event = _eventFilters.find(t);
-            if ((s_event == _eventFilters.end()) && (t != altT))
-                s_event = _eventFilters.find(altT);
-            if (s_event != _eventFilters.end())
-            { // we keep that event... maybe (if not empty)
-                if (inf[ev].fieldPositions.size() == 0)
+                typeInfo1 = "mesh";
+            }
+            auto s_event_target = _eventFilters_target.find(t);
+            auto s_event_type1 = _eventFilters_type.find(typeInfo1);
+            auto s_event_type2 = _eventFilters_type.find(typeInfo2);
+
+            // Following 2 for backw. compatibility:
+            if ((s_event_target == _eventFilters_target.end()) && (t != altT))
+                s_event_target = _eventFilters_target.find(altT);
+
+            if (inf[ev].fieldPositions.size() == 0)
+            {
+                if ((s_event_target != _eventFilters_target.end()) || (s_event_type1 != _eventFilters_type.end()) || (s_event_type2 != _eventFilters_type.end()))
+                { // we keep that event... maybe (if not empty)
                     output.insert(output.end(), input.begin() + inf[ev].pos, input.begin() + inf[ev].pos + inf[ev].size); // empty data field
-                else
-                {
-                    bool headerThere = false;
+                }
+            }
+            else
+            {
+                bool addedAll = false;
+                bool headerThere = false;
+                std::set<std::string> addedFields;
+                if ((s_event_target != _eventFilters_target.end()) && (!addedAll))
+                { // we keep that event... maybe (if not empty)
+                    addedAll = (s_event_target->second.size() == 0);
                     for (size_t i = 0; i < inf[ev].fieldNames.size(); i++)
                     {
-                        if ((s_event->second.find(inf[ev].fieldNames[i]) != s_event->second.end()) || (s_event->second.size() == 0))
+                        if (addedFields.find(inf[ev].fieldNames[i]) == addedFields.end())
                         {
-                            if (!headerThere)
+                            if ((s_event_target->second.find(inf[ev].fieldNames[i]) != s_event_target->second.end()) || (s_event_target->second.size() == 0))
                             {
-                                headerThere = true;
-                                output.insert(output.end(), input.begin() + inf[ev].pos, input.begin() + inf[ev].fieldPositions[0]); // up to the first data field
+                                addedFields.insert(inf[ev].fieldNames[i]);
+                                if (!headerThere)
+                                { // insert the header:
+                                    headerThere = true;
+                                    output.insert(output.end(), input.begin() + inf[ev].pos, input.begin() + inf[ev].fieldPositions[0]); // up to the first data field
+                                }
+                                output.insert(output.end(), input.begin() + inf[ev].fieldPositions[i], input.begin() + inf[ev].fieldPositions[i] + inf[ev].fieldSizes[i]);
                             }
-                            output.insert(output.end(), input.begin() + inf[ev].fieldPositions[i], input.begin() + inf[ev].fieldPositions[i] + inf[ev].fieldSizes[i]);
                         }
                     }
-                    if (headerThere)
-                        output.insert(output.end(), input.begin() + inf[ev].fieldPositions[inf[ev].fieldPositions.size() - 1] + inf[ev].fieldSizes[inf[ev].fieldSizes.size() - 1], input.begin() + inf[ev].pos + inf[ev].size); // to the end of that event
                 }
+
+                if ((s_event_type1 != _eventFilters_type.end()) && (!addedAll))
+                { // we keep that event... maybe (if not empty)
+                    addedAll = (s_event_type1->second.size() == 0);
+                    for (size_t i = 0; i < inf[ev].fieldNames.size(); i++)
+                    {
+                        if (addedFields.find(inf[ev].fieldNames[i]) == addedFields.end())
+                        {
+                            if ((s_event_type1->second.find(inf[ev].fieldNames[i]) != s_event_type1->second.end()) || (s_event_type1->second.size() == 0))
+                            {
+                                addedFields.insert(inf[ev].fieldNames[i]);
+                                if (!headerThere)
+                                { // insert the header:
+                                    headerThere = true;
+                                    output.insert(output.end(), input.begin() + inf[ev].pos, input.begin() + inf[ev].fieldPositions[0]); // up to the first data field
+                                }
+                                output.insert(output.end(), input.begin() + inf[ev].fieldPositions[i], input.begin() + inf[ev].fieldPositions[i] + inf[ev].fieldSizes[i]);
+                            }
+                        }
+                    }
+                }
+
+                auto s_event_type2 = _eventFilters_type.find(typeInfo2);
+                if ((s_event_type2 != _eventFilters_type.end()) && (!addedAll))
+                { // we keep that event... maybe (if not empty)
+                    addedAll = (s_event_type2->second.size() == 0);
+                    for (size_t i = 0; i < inf[ev].fieldNames.size(); i++)
+                    {
+                        if (addedFields.find(inf[ev].fieldNames[i]) == addedFields.end())
+                        {
+                            if ((s_event_type2->second.find(inf[ev].fieldNames[i]) != s_event_type2->second.end()) || (s_event_type2->second.size() == 0))
+                            {
+                                addedFields.insert(inf[ev].fieldNames[i]);
+                                if (!headerThere)
+                                { // insert the header:
+                                    headerThere = true;
+                                    output.insert(output.end(), input.begin() + inf[ev].pos, input.begin() + inf[ev].fieldPositions[0]); // up to the first data field
+                                }
+                                output.insert(output.end(), input.begin() + inf[ev].fieldPositions[i], input.begin() + inf[ev].fieldPositions[i] + inf[ev].fieldSizes[i]);
+                            }
+                        }
+                    }
+                }
+                if (addedFields.size() > 0)
+                    output.insert(output.end(), input.begin() + inf[ev].fieldPositions[inf[ev].fieldPositions.size() - 1] + inf[ev].fieldSizes[inf[ev].fieldSizes.size() - 1], input.begin() + inf[ev].pos + inf[ev].size); // to the end of that event
             }
         }
         output.push_back(input[input.size() - 1]); // "array close" (holding all events)

@@ -244,8 +244,8 @@ struct SJointProperty
     FUNCX(propApp_METHOD_logWarn, "logWarn", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_logError, "logError", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_systemLock, "systemLock", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_packTable, "packTable", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propApp_METHOD_unpackTable, "unpackTable", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+/*    FUNCX(propApp_METHOD_packTable, "packTable", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") */ \
+/*    FUNCX(propApp_METHOD_unpackTable, "unpackTable", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") */ \
     FUNCX(propApp_METHOD_pack, "pack", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_unpack, "unpack", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_serialize, "serialize", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
@@ -323,8 +323,8 @@ struct SJointProperty
     FUNCX(propDetachedScript_METHOD_callFunction, "callFunction", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propDetachedScript_METHOD_getFunctions, "getFunctions", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propDetachedScript_METHOD_executeString, "executeString", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propDetachedScript_METHOD_getApiFunc, "getApiFunc", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propDetachedScript_METHOD_getApiInfo, "getApiInfo", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+/*    FUNCX(propDetachedScript_METHOD_getApiFunc, "getApiFunc", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") */ \
+/*    FUNCX(propDetachedScript_METHOD_getApiInfo, "getApiInfo", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") */ \
     FUNCX(propDetachedScript_METHOD_getStackTraceback, "getStackTraceback", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propDetachedScript_METHOD_remove, "remove", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propDetachedScript_METHOD_registerFunctionHook, "registerFunctionHook", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
@@ -337,6 +337,7 @@ struct SJointProperty
     FUNCX(propDetachedScript_METHOD_step, "step", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propDetachedScript_METHOD_wait, "wait", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propDetachedScript_METHOD_init, "init", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propDetachedScript_METHOD_setEventFilters, "setEventFilters", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
     FUNCX(propDetachedScript_DEPRECATED_scriptType, "scriptType", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"", ""}, {"", ""}}), "") \
     FUNCX(propDetachedScript_DEPRECATED_scriptDisabled, "scriptDisabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED,  jsonStr({{"", ""}, {"", ""}}), "") \
@@ -1067,7 +1068,7 @@ struct SJointProperty
     FUNCX(propShape_METHOD_computeInertia, "computeInertia", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propShape_METHOD_setAppearance, "setAppearance", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propShape_METHOD_getAppearance, "getAppearance", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
-    FUNCX(propShape_METHOD_getContactInfo, "getContactInfo", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propShape_METHOD_getContacts, "getContacts", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propShape_METHOD_ungroup, "ungroup", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propShape_METHOD_divide, "divide", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "")
 

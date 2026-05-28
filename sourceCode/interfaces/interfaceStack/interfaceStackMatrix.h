@@ -6,6 +6,7 @@
 class CInterfaceStackMatrix : public CInterfaceStackObject
 {
   public:
+    CInterfaceStackMatrix(const float* matrix, size_t rows, size_t cols);
     CInterfaceStackMatrix(const double* matrix, size_t rows, size_t cols);
     virtual ~CInterfaceStackMatrix();
 

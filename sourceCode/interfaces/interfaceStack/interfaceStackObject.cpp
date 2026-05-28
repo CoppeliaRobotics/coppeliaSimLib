@@ -103,7 +103,7 @@ CInterfaceStackObject* CInterfaceStackObject::createFromDataStatic(const char* d
     }
     else if (t == sim_stackitem_matrix)
     {
-        obj = new CInterfaceStackMatrix(nullptr, 0, 0);
+        obj = new CInterfaceStackMatrix((float*)nullptr, 0, 0);
         retOffset += obj->createFromData(data + retOffset, version, allCreatedObjects);
     }
     else if (t == sim_stackitem_quaternion)

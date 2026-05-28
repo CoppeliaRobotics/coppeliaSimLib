@@ -3,6 +3,12 @@
 #include <string.h>
 
 #define USE_TAGGED_ARRAYS (true)
+#define NO_DATAFIELD_HANDLE(code) \
+do { \
+        (_handleDataFieldDisableLevel)++; \
+        do { code } while(0); \
+        (_handleDataFieldDisableLevel)--; \
+} while(0)
 
 std::set<std::string> CCbor::allEVentFieldNames;
 
@@ -63,7 +69,9 @@ void CCbor::appendHandle(long long int h)
     _buff.push_back(((unsigned char*)&w)[2]);
     _buff.push_back(((unsigned char*)&w)[1]);
     _buff.push_back(((unsigned char*)&w)[0]);
-    appendInt64(h);
+    NO_DATAFIELD_HANDLE({
+        appendInt64(h);
+    });
 }
 
 void CCbor::appendUint8Array(const unsigned char* v, size_t cnt)
@@ -79,10 +87,12 @@ void CCbor::appendUint8Array(const unsigned char* v, size_t cnt)
     }
     else
     {
-        openArray(cnt);
-        for (size_t i = 0; i < cnt; i++)
-            appendInt64(v[i]);
-        closeArrayOrMap();
+        NO_DATAFIELD_HANDLE({
+            openArray(cnt);
+            for (size_t i = 0; i < cnt; i++)
+                appendInt64(v[i]);
+            closeArrayOrMap();
+        });
     }
 }
 
@@ -99,10 +109,12 @@ void CCbor::appendInt32Array(const int* v, size_t cnt)
     }
     else
     {
-        openArray(cnt);
-        for (size_t i = 0; i < cnt; i++)
-            appendInt64(v[i]);
-        closeArrayOrMap();
+        NO_DATAFIELD_HANDLE({
+            openArray(cnt);
+            for (size_t i = 0; i < cnt; i++)
+                appendInt64(v[i]);
+            closeArrayOrMap();
+        });
     }
 }
 
@@ -119,10 +131,12 @@ void CCbor::appendUint32Array(const unsigned int* v, size_t cnt)
     }
     else
     {
-        openArray(cnt);
-        for (size_t i = 0; i < cnt; i++)
-            appendInt64(v[i]);
-        closeArrayOrMap();
+        NO_DATAFIELD_HANDLE({
+            openArray(cnt);
+            for (size_t i = 0; i < cnt; i++)
+                appendInt64(v[i]);
+            closeArrayOrMap();
+        });
     }
 }
 
@@ -139,10 +153,12 @@ void CCbor::appendInt64Array(const long long int* v, size_t cnt)
     }
     else
     {
-        openArray(cnt);
-        for (size_t i = 0; i < cnt; i++)
-            appendInt64(v[i]);
-        closeArrayOrMap();
+        NO_DATAFIELD_HANDLE({
+            openArray(cnt);
+            for (size_t i = 0; i < cnt; i++)
+                appendInt64(v[i]);
+            closeArrayOrMap();
+        });
     }
 }
 
@@ -159,10 +175,12 @@ void CCbor::appendHandleArray(const long long int* h, size_t cnt)
     _buff.push_back(((unsigned char*)&w)[2]);
     _buff.push_back(((unsigned char*)&w)[1]);
     _buff.push_back(((unsigned char*)&w)[0]);
-    openArray(int(cnt));
-    for (size_t i = 0; i < cnt; i++)
-        appendInt64(h[i]);
-    closeArrayOrMap();
+    NO_DATAFIELD_HANDLE({
+        openArray(int(cnt));
+        for (size_t i = 0; i < cnt; i++)
+            appendInt64(h[i]);
+        closeArrayOrMap();
+    });
 }
 
 void CCbor::appendHandleArray(const int* h, size_t cnt)
@@ -172,7 +190,9 @@ void CCbor::appendHandleArray(const int* h, size_t cnt)
     arr.resize(cnt);
     for (size_t i = 0; i < cnt; i++)
         arr[i] = h[i];
-    appendHandleArray(arr.data(), cnt);
+    NO_DATAFIELD_HANDLE({
+        appendHandleArray(arr.data(), cnt);
+    });
 }
 
 void CCbor::appendFloat(float v)
@@ -198,10 +218,12 @@ void CCbor::appendFloatArray(const float* v, size_t cnt)
     }
     else
     {
-        openArray(int(cnt));
-        for (size_t i = 0; i < cnt; i++)
-            appendFloat(v[i]);
-        closeArrayOrMap();
+        NO_DATAFIELD_HANDLE({
+            openArray(int(cnt));
+            for (size_t i = 0; i < cnt; i++)
+                appendFloat(v[i]);
+            closeArrayOrMap();
+        });
     }
 }
 
@@ -237,10 +259,12 @@ void CCbor::appendDoubleArray(const double* v, size_t cnt)
     }
     else
     {
-        openArray(int(cnt));
-        for (size_t i = 0; i < cnt; i++)
-            appendDouble(v[i]);
-        closeArrayOrMap();
+        NO_DATAFIELD_HANDLE({
+            openArray(int(cnt));
+            for (size_t i = 0; i < cnt; i++)
+                appendDouble(v[i]);
+            closeArrayOrMap();
+        });
     }
 }
 
@@ -253,10 +277,12 @@ void CCbor::appendMatrix(const float* v, size_t rows, size_t cols)
     _buff.push_back(0x82); // array of 2 values (rows and cols)
     _appendItemTypeAndLength(0, rows);
     _appendItemTypeAndLength(0, cols);
-    openArray(int(rows * cols));
-    for (size_t i = 0; i < rows * cols; i++)
-        appendFloat(v[i]);
-    closeArrayOrMap();
+    NO_DATAFIELD_HANDLE({
+        openArray(int(rows * cols));
+        for (size_t i = 0; i < rows * cols; i++)
+            appendFloat(v[i]);
+        closeArrayOrMap();
+    });
 }
 
 void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
@@ -268,15 +294,16 @@ void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
     _buff.push_back(0x82); // array of 2 values (rows and cols)
     _appendItemTypeAndLength(0, rows);
     _appendItemTypeAndLength(0, cols);
-    openArray(int(rows * cols));
-    for (size_t i = 0; i < rows * cols; i++)
-        appendDouble(v[i]);
-    closeArrayOrMap();
+    NO_DATAFIELD_HANDLE({
+        openArray(int(rows * cols));
+        for (size_t i = 0; i < rows * cols; i++)
+            appendDouble(v[i]);
+        closeArrayOrMap();
+    });
 }
 
 void CCbor::appendMatrix(const C3X3Matrix& m)
 {
-    _handleDataField();
     double v[9];
     m.getData(v);
     appendMatrix(v, 3, 3);
@@ -284,7 +311,6 @@ void CCbor::appendMatrix(const C3X3Matrix& m)
 
 void CCbor::appendMatrix(const C4X4Matrix& m)
 {
-    _handleDataField();
     double v[16];
     m.getData(v);
     appendMatrix(v, 4, 4);
@@ -324,22 +350,24 @@ void CCbor::appendQuaternion(const double* v, bool xyzwLayout /*= false*/)
     _buff.push_back(((unsigned char*)&w)[1]);
     _buff.push_back(((unsigned char*)&w)[0]);
 
-    openArray(4);
-    if (xyzwLayout)
-    {
-        appendDouble(v[0]);
-        appendDouble(v[1]);
-        appendDouble(v[2]);
-        appendDouble(v[3]);
-    }
-    else
-    {
-        appendDouble(v[1]);
-        appendDouble(v[2]);
-        appendDouble(v[3]);
-        appendDouble(v[0]);
-    }
-    closeArrayOrMap();
+    NO_DATAFIELD_HANDLE({
+        openArray(4);
+        if (xyzwLayout)
+        {
+            appendDouble(v[0]);
+            appendDouble(v[1]);
+            appendDouble(v[2]);
+            appendDouble(v[3]);
+        }
+        else
+        {
+            appendDouble(v[1]);
+            appendDouble(v[2]);
+            appendDouble(v[3]);
+            appendDouble(v[0]);
+        }
+        closeArrayOrMap();
+    });
 }
 
 void CCbor::appendQuaternion(const C4Vector& q)
@@ -360,28 +388,30 @@ void CCbor::appendPose(const double* v, bool xyzqxqyqzqwLayout /*= false*/)
     _buff.push_back(((unsigned char*)&w)[2]);
     _buff.push_back(((unsigned char*)&w)[1]);
     _buff.push_back(((unsigned char*)&w)[0]);
-    openArray(7);
-    if (xyzqxqyqzqwLayout)
-    {
-        appendDouble(v[0]);
-        appendDouble(v[1]);
-        appendDouble(v[2]);
-        appendDouble(v[3]);
-        appendDouble(v[4]);
-        appendDouble(v[5]);
-        appendDouble(v[6]);
-    }
-    else
-    {
-        appendDouble(v[0]);
-        appendDouble(v[1]);
-        appendDouble(v[2]);
-        appendDouble(v[4]);
-        appendDouble(v[5]);
-        appendDouble(v[6]);
-        appendDouble(v[3]);
-    }
-    closeArrayOrMap();
+    NO_DATAFIELD_HANDLE({
+        openArray(7);
+        if (xyzqxqyqzqwLayout)
+        {
+            appendDouble(v[0]);
+            appendDouble(v[1]);
+            appendDouble(v[2]);
+            appendDouble(v[3]);
+            appendDouble(v[4]);
+            appendDouble(v[5]);
+            appendDouble(v[6]);
+        }
+        else
+        {
+            appendDouble(v[0]);
+            appendDouble(v[1]);
+            appendDouble(v[2]);
+            appendDouble(v[4]);
+            appendDouble(v[5]);
+            appendDouble(v[6]);
+            appendDouble(v[3]);
+        }
+        closeArrayOrMap();
+    });
 }
 
 void CCbor::appendPose(const C7Vector& p)
@@ -404,11 +434,13 @@ void CCbor::appendColor(const float c[3])
     _buff.push_back(((unsigned char*)&w)[2]);
     _buff.push_back(((unsigned char*)&w)[1]);
     _buff.push_back(((unsigned char*)&w)[0]);
-    openArray(3);
-    appendDouble(c[0]);
-    appendDouble(c[1]);
-    appendDouble(c[2]);
-    closeArrayOrMap();
+    NO_DATAFIELD_HANDLE({
+        openArray(3);
+        appendDouble(c[0]);
+        appendDouble(c[1]);
+        appendDouble(c[2]);
+        closeArrayOrMap();
+    });
 }
 
 void CCbor::appendNull()
@@ -483,10 +515,13 @@ void CCbor::appendText(const char* v, int l /*=-1*/)
 
 void CCbor::appendTextArray(const std::vector<std::string>& txtArr)
 {
-    openArray(int(txtArr.size())); // _handleDataField() called in there
-    for (size_t i = 0; i < txtArr.size(); i++)
-        appendText(txtArr[i].c_str());
-    closeArrayOrMap();
+    _handleDataField();
+    NO_DATAFIELD_HANDLE({
+        openArray(int(txtArr.size())); // _handleDataField() called in there
+        for (size_t i = 0; i < txtArr.size(); i++)
+            appendText(txtArr[i].c_str());
+        closeArrayOrMap();
+    });
 }
 
 void CCbor::appendRaw(const unsigned char* v, size_t l)
@@ -577,6 +612,7 @@ void CCbor::clear()
     _eventOpen = false;
     _nextIsKeyInData = true;
     _inDataField = false;
+    _handleDataFieldDisableLevel = 0;
 }
 
 std::string CCbor::getBuff() const
@@ -896,25 +932,28 @@ void CCbor::_handleDataField(const char* key /*= nullptr*/)
 {
     if ((_eventDepth == 2) && _inDataField)
     {
-        if (_nextIsKeyInData)
+        if (_handleDataFieldDisableLevel == 0)
         {
-            if (_eventInfos.size() > 0)
+            if (_nextIsKeyInData)
             {
-                SEventInf* inf = &_eventInfos[_eventInfos.size() - 1];
-                // for previous key-value pair:
-                if (inf->fieldPositions.size() > 0)
-                    inf->fieldSizes.push_back(_buff.size() - inf->fieldPositions[inf->fieldPositions.size() - 1]);
-                // For current key-value pair:
-                inf->fieldPositions.push_back(_buff.size());
-                if (key != nullptr)
+                if (_eventInfos.size() > 0)
                 {
-                    inf->fieldNames.push_back(key);
-                    allEVentFieldNames.insert(key);
+                    SEventInf* inf = &_eventInfos[_eventInfos.size() - 1];
+                    // for previous key-value pair:
+                    if (inf->fieldPositions.size() > 0)
+                        inf->fieldSizes.push_back(_buff.size() - inf->fieldPositions[inf->fieldPositions.size() - 1]);
+                    // For current key-value pair:
+                    inf->fieldPositions.push_back(_buff.size());
+                    if (key != nullptr)
+                    {
+                        inf->fieldNames.push_back(key);
+                        allEVentFieldNames.insert(key);
+                    }
+                    else
+                        inf->fieldNames.push_back("");
                 }
-                else
-                    inf->fieldNames.push_back("");
             }
+            _nextIsKeyInData = !_nextIsKeyInData;
         }
-        _nextIsKeyInData = !_nextIsKeyInData;
     }
 }

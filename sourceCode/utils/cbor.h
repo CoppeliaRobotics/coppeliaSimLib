@@ -125,6 +125,7 @@ class CCbor
     bool _eventOpen;    // true when not yet pushed
     bool _nextIsKeyInData;
     bool _inDataField;
+    int _handleDataFieldDisableLevel;
     size_t _discardableEventCnt;
     std::vector<SEventInf> _eventInfos;
     std::map<std::string, size_t> _mergeableEventIds;

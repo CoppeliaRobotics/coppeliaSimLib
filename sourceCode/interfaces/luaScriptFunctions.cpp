@@ -6404,8 +6404,9 @@ int _simSetEventFilters(luaWrap_lua_State* L)
                 }
             }
         }
+        std::map<std::string, std::set<std::string>> dummyFilters;
         App::scenes->interfaceStackContainer->destroyStack(stack);
-        it->setEventFilters(filters);
+        it->setEventFilters(filters, dummyFilters);
     }
     else
         errorString = "bad argument #1 (expecting a table)";

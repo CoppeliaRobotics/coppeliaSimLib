@@ -44,29 +44,6 @@ CInterfaceStackTable* fetchMap(const CInterfaceStack* inStack, int index);
 void fetchArrayAsConsecutiveNumbers(const CInterfaceStack* inStack, int index, std::vector<float>& outArr);
 void fetchArrayAsConsecutiveNumbers(const CInterfaceStack* inStack, int index, std::vector<double>& outArr);
 
-void pushNull(CInterfaceStack* outStack);
-void pushBool(CInterfaceStack* outStack, bool v);
-void pushLong(CInterfaceStack* outStack, long long int v);
-void pushInt(CInterfaceStack* outStack, int v);
-void pushHandle(CInterfaceStack* outStack, long long int v);
-void pushDouble(CInterfaceStack* outStack, double v);
-void pushText(CInterfaceStack* outStack, const char* v);
-void pushBuffer(CInterfaceStack* outStack, const char* buff, size_t length);
-void pushColor(CInterfaceStack* outStack, float v[3]);
-void pushQuaternion(CInterfaceStack* outStack, const C4Vector& v);
-void pushPose(CInterfaceStack* outStack, const C7Vector& v);
-void pushVector3(CInterfaceStack* outStack, const C3Vector& v);
-void pushVector(CInterfaceStack* outStack, const double* v, size_t length);
-void pushMatrix(CInterfaceStack* outStack, const CMatrix& v);
-void pushIntArray(CInterfaceStack* outStack, const int* v, size_t length);
-void pushLongArray(CInterfaceStack* outStack, const long long int* v, size_t length);
-void pushHandleArray(CInterfaceStack* outStack, const long long int* v, size_t length);
-void pushShortHandleArray(CInterfaceStack* outStack, const int* v, size_t length);
-void pushFloatArray(CInterfaceStack* outStack, const float* v, size_t length);
-void pushDoubleArray(CInterfaceStack* outStack, const double* v, size_t length);
-void pushTextArray(CInterfaceStack* outStack, const std::string* v, size_t length);
-void pushObject(CInterfaceStack* outStack, CInterfaceStackObject* obj);
-
 CSceneObject* getSceneObject(int identifier, const char* method, std::string* errMsg = nullptr, size_t argPos = -1);
 CSceneObject* getSpecificSceneObjectType(int identifier, const char* method, int type, std::string* errMsg = nullptr, size_t argPos = -1);
 CCollection* getCollection(int identifier, const char* method, std::string* errMsg = nullptr, size_t argPos = -1);
@@ -111,8 +88,8 @@ extern std::string _method_clearItems(int targetObj, const char* method, CDetach
 extern std::string _method_removeItems(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_callFunction(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_executeString(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-extern std::string _method_getApiInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-extern std::string _method_getApiFunc(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+//extern std::string _method_getApiInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+//extern std::string _method_getApiFunc(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getStackTraceback(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_init(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_scale(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
@@ -149,8 +126,8 @@ extern std::string _method_addForce(int targetObj, const char* method, CDetached
 extern std::string _method_addTorque(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_ungroup(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_divide(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-extern std::string _method_packTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-extern std::string _method_unpackTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+//extern std::string _method_packTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+//extern std::string _method_unpackTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_pack(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_unpack(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_packDoubleArray(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
@@ -245,6 +222,7 @@ extern std::string _method_setTargetVelocity(int targetObj, const char* method, 
 extern std::string _method_pushEvent(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getContacts(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getGenesisEvents(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_setEventFilters(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 
 extern std::string _method_remove(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_removeObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

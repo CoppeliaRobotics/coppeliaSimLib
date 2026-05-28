@@ -2,6 +2,17 @@
 #include <interfaceStackString.h>
 
 
+CInterfaceStackMatrix::CInterfaceStackMatrix(const float* matrix, size_t rows, size_t cols)
+{
+    _objectType = sim_stackitem_matrix;
+    _matrix.resize(rows, cols, 0.0);
+    if ((matrix != nullptr) && (rows * cols > 0))
+    {
+        for (size_t i = 0; i < rows * cols; i++)
+            _matrix.data[i] = (double)matrix[i];
+    }
+}
+
 CInterfaceStackMatrix::CInterfaceStackMatrix(const double* matrix, size_t rows, size_t cols)
 {
     _objectType = sim_stackitem_matrix;

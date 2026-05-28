@@ -49,11 +49,15 @@ class CInterfaceStack : public Obj
     void pushFloatArrayOntoStack(const float* arr, size_t l, bool toFront = false);
     void pushDoubleArrayOntoStack(const double* arr, size_t l, bool toFront = false);
     void pushTextArrayOntoStack(const std::string* arr, size_t l, bool toFront = false);
+    void pushVector3OntoStack(const double* vector, bool toFront = false);
+    void pushVector3OntoStack(const C3Vector& vector, bool toFront = false);
+    void pushVectorOntoStack(const double* vector, size_t l, bool toFront = false);
+    void pushMatrixOntoStack(const float* matrix, size_t rows, size_t cols, bool toFront = false);
+    void pushMatrixOntoStack(const double* matrix, size_t rows, size_t cols, bool toFront = false);
     void pushMatrixOntoStack(const CMatrix& matrix, bool toFront = false);
     void pushQuaternionOntoStack(const C4Vector& quaternion, bool toFront = false);
-    void pushPoseOntoStack(const C7Vector& pose, bool toFront = false);
-    void pushMatrixOntoStack(const double* matrix, size_t rows, size_t cols, bool toFront = false);
     void pushQuaternionOntoStack(const double* q, bool toFront = false, bool xyzwLayout = false);
+    void pushPoseOntoStack(const C7Vector& pose, bool toFront = false);
     void pushPoseOntoStack(const double* q, bool toFront = false, bool xyzqxqyqzqwLayout = false);
     void pushColorOntoStack(const float c[3], bool toFront = false);
 

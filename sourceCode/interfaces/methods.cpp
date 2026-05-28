@@ -88,8 +88,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["removeItems"] = _method_removeItems;
         funcTable["callFunction"] = _method_callFunction;
         funcTable["executeString"] = _method_executeString;
-        funcTable["getApiInfo"] = _method_getApiInfo;
-        funcTable["getApiFunc"] = _method_getApiFunc;
+//        funcTable["getApiInfo"] = _method_getApiInfo;
+//        funcTable["getApiFunc"] = _method_getApiFunc;
         funcTable["getStackTraceback"] = _method_getStackTraceback;
         funcTable["init"] = _method_init;
         funcTable["scale"] = _method_scale;
@@ -126,8 +126,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["addTorque"] = _method_addTorque;
         funcTable["ungroup"] = _method_ungroup;
         funcTable["divide"] = _method_divide;
-        funcTable["packTable"] = _method_packTable;
-        funcTable["unpackTable"] = _method_unpackTable;
+//        funcTable["packTable"] = _method_packTable;
+//        funcTable["unpackTable"] = _method_unpackTable;
         funcTable["pack"] = _method_pack;
         funcTable["unpack"] = _method_unpack;
         funcTable["packDoubleArray"] = _method_packDoubleArray;
@@ -227,6 +227,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["pushEvent"] = _method_pushEvent;
         funcTable["getContacts"] = _method_getContacts;
         funcTable["getGenesisEvents"] = _method_getGenesisEvents;
+        funcTable["setEventFilters"] = _method_setEventFilters;
     }
 
     std::string retVal("__notFound__");
@@ -1072,118 +1073,6 @@ void fetchArrayAsConsecutiveNumbers(const CInterfaceStack* inStack, int index, s
     }
 }
 
-void pushNull(CInterfaceStack* outStack)
-{
-    outStack->pushNullOntoStack();
-}
-
-void pushBool(CInterfaceStack* outStack, bool v)
-{
-    outStack->pushBoolOntoStack(v);
-}
-
-void pushLong(CInterfaceStack* outStack, long long int v)
-{
-    outStack->pushInt64OntoStack(v);
-}
-
-void pushInt(CInterfaceStack* outStack, int v)
-{
-    outStack->pushInt32OntoStack(v);
-}
-
-void pushHandle(CInterfaceStack* outStack, long long int v)
-{
-    outStack->pushHandleOntoStack(v);
-}
-
-void pushDouble(CInterfaceStack* outStack, double v)
-{
-    outStack->pushDoubleOntoStack(v);
-}
-
-void pushText(CInterfaceStack* outStack, const char* v)
-{
-    outStack->pushTextOntoStack(v);
-}
-
-void pushBuffer(CInterfaceStack* outStack, const char* buff, size_t length)
-{
-    outStack->pushBufferOntoStack(buff, length);
-}
-
-void pushColor(CInterfaceStack* outStack, float v[3])
-{
-    outStack->pushColorOntoStack(v);
-}
-
-void pushQuaternion(CInterfaceStack* outStack, const C4Vector& v)
-{
-    outStack->pushQuaternionOntoStack(v.data);
-}
-
-void pushPose(CInterfaceStack* outStack, const C7Vector& v)
-{
-    double d[7];
-    v.getData(d);
-    outStack->pushPoseOntoStack(d);
-}
-
-void pushVector3(CInterfaceStack* outStack, const C3Vector& v)
-{
-    outStack->pushMatrixOntoStack(v.data, 3, 1);
-}
-
-void pushVector(CInterfaceStack* outStack, const double* v, size_t length)
-{
-    outStack->pushMatrixOntoStack(v, length, 1);
-}
-
-void pushMatrix(CInterfaceStack* outStack, const CMatrix& v)
-{
-    outStack->pushMatrixOntoStack(v.data.data(), v.rows, v.cols);
-}
-
-void pushIntArray(CInterfaceStack* outStack, const int* v, size_t length)
-{
-    outStack->pushInt32ArrayOntoStack(v, length);
-}
-
-void pushLongArray(CInterfaceStack* outStack, const long long int* v, size_t length)
-{
-    outStack->pushInt64ArrayOntoStack(v, length);
-}
-
-void pushHandleArray(CInterfaceStack* outStack, const long long int* v, size_t length)
-{
-    outStack->pushHandleArrayOntoStack(v, length);
-}
-
-void pushShortHandleArray(CInterfaceStack* outStack, const int* v, size_t length)
-{
-    outStack->pushShortHandleArrayOntoStack(v, length);
-}
-
-void pushFloatArray(CInterfaceStack* outStack, const float* v, size_t length)
-{
-    outStack->pushFloatArrayOntoStack(v, length);
-}
-
-void pushDoubleArray(CInterfaceStack* outStack, const double* v, size_t length)
-{
-    outStack->pushDoubleArrayOntoStack(v, length);
-}
-
-void pushTextArray(CInterfaceStack* outStack, const std::string* v, size_t length)
-{
-    outStack->pushTextArrayOntoStack(v, length);
-}
-
-void pushObject(CInterfaceStack* outStack, CInterfaceStackObject* obj)
-{
-    outStack->pushObjectOntoStack(obj);
-}
-
 CSceneObject* getSceneObject(int identifier, const char* method, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
 {
     CSceneObject* retVal = App::scene->sceneObjects->getObjectFromHandle(identifier);
@@ -1397,7 +1286,7 @@ std::string _method_getPosition(int targetObj, const char* method, CDetachedScri
                     }
                 }
             }
-            pushVector3(outStack, tr.X);
+            outStack->pushVector3OntoStack(tr.X);
         }
     }
     return errMsg;
@@ -1534,7 +1423,7 @@ std::string _method_getQuaternion(int targetObj, const char* method, CDetachedSc
             }
             if (inverse)
                 tr.Q.inverse();
-            pushQuaternion(outStack, tr.Q);
+            outStack->pushQuaternionOntoStack(tr.Q);
         }
     }
     return errMsg;
@@ -1670,7 +1559,7 @@ std::string _method_getPose(int targetObj, const char* method, CDetachedScript* 
             }
             if (inverse)
                 tr.inverse();
-            pushPose(outStack, tr);
+            outStack->pushPoseOntoStack(tr);
         }
     }
     return errMsg;
@@ -1831,7 +1720,7 @@ std::string _method_handleAddOnScripts(int targetObj, const char* method, CDetac
 #endif
             if (editMode == NO_EDIT_MODE)
                 calledCnt = App::scenes->addOnScriptContainer->callScripts(callType, nullptr, nullptr);
-            pushInt(outStack, calledCnt);
+            outStack->pushInt32OntoStack(calledCnt);
         }
         else
             errMsg = SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
@@ -1859,7 +1748,7 @@ std::string _method_handleSimulationScripts(int targetObj, const char* method, C
             calledCnt = App::scene->sceneObjects->callScripts_noMainScript(sim_scripttype_simulation, callType, stack, nullptr);
             if (stack != nullptr)
                 App::scenes->interfaceStackContainer->destroyStack(stack);
-            pushInt(outStack, calledCnt);
+            outStack->pushInt32OntoStack(calledCnt);
         }
         else
             errMsg = SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
@@ -1887,7 +1776,7 @@ std::string _method_handleCustomizationScripts(int targetObj, const char* method
             calledCnt = App::scene->sceneObjects->callScripts_noMainScript(sim_scripttype_customization, callType, stack, nullptr);
             if (stack != nullptr)
                 App::scenes->interfaceStackContainer->destroyStack(stack);
-            pushInt(outStack, calledCnt);
+            outStack->pushInt32OntoStack(calledCnt);
         }
         else
             errMsg = SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
@@ -1907,7 +1796,7 @@ std::string _method_loadModel(int targetObj, const char* method, CDetachedScript
             std::vector<int> sel = App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0];
             if (CFileOperations::loadModel(path.c_str(), false, false, nullptr, false, false, &infoStr, &errMsg))
             {
-                pushHandle(outStack, App::scene->sceneObjects->getLastSelectionHandle());
+                outStack->pushHandleOntoStack(App::scene->sceneObjects->getLastSelectionHandle());
                 App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
                 setLastInfo(infoStr.c_str());
 #ifdef SIM_WITH_GUI
@@ -1935,7 +1824,7 @@ std::string _method_loadModelFromBuffer(int targetObj, const char* method, CDeta
             std::vector<int> sel = App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0];
             if (CFileOperations::loadModel(nullptr, false, false, &buffer, false, false, &infoStr, &errMsg))
             {
-                pushHandle(outStack, App::scene->sceneObjects->getLastSelectionHandle());
+                outStack->pushHandleOntoStack(App::scene->sceneObjects->getLastSelectionHandle());
                 App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
                 setLastInfo(infoStr.c_str());
 #ifdef SIM_WITH_GUI
@@ -1971,7 +1860,7 @@ std::string _method_loadModelThumbnail(int targetObj, const char* method, CDetac
                 bool opRes = App::scene->environment->modelThumbnail_notSerializedHere.copyUncompressedImageToBuffer(buff);
                 if (opRes)
                 {
-                    pushBuffer(outStack, buff, 128 * 128 * 4);
+                    outStack->pushBufferOntoStack(buff, 128 * 128 * 4);
                     delete[] buff;
                     return errMsg;
                 }
@@ -2008,7 +1897,7 @@ std::string _method_loadModelThumbnailFromBuffer(int targetObj, const char* meth
                 bool opRes = App::scene->environment->modelThumbnail_notSerializedHere.copyUncompressedImageToBuffer(buff);
                 if (opRes)
                 {
-                    pushBuffer(outStack, buff, 128 * 128 * 4);
+                    outStack->pushBufferOntoStack(buff, 128 * 128 * 4);
                     delete[] buff;
                     return errMsg;
                 }
@@ -2064,7 +1953,7 @@ std::string _method_saveModelToBuffer(int targetObj, const char* method, CDetach
                 {
                     App::scene->sceneObjects->setSelectedObjectHandles(initSelection.data(), initSelection.size());
                     setLastInfo(infoStr.c_str());
-                    pushBuffer(outStack, buffer.data(), buffer.size());
+                    outStack->pushBufferOntoStack(buffer.data(), buffer.size());
                 }
             }
             else
@@ -2221,7 +2110,7 @@ std::string _method_saveToBuffer(int targetObj, const char* method, CDetachedScr
                             GuiApp::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
 #endif
                             setLastInfo(infoStr.c_str());
-                            pushBuffer(outStack, buffer.data(), buffer.size());
+                            outStack->pushBufferOntoStack(buffer.data(), buffer.size());
                         }
                         else
                             setLastInfo(infoStr.c_str());
@@ -2524,7 +2413,7 @@ std::string _method_duplicateObjects(int targetObj, const char* method, CDetache
                     }
                 }
             }
-            pushHandleArray(outStack, objectHandles.data(), objectHandles.size());
+            outStack->pushHandleArrayOntoStack(objectHandles.data(), objectHandles.size());
         }
     }
     return errMsg;
@@ -2637,8 +2526,8 @@ std::string _method_checkCollision(int targetObj, const char* method, CDetachedS
             int collidingIds[2] = {-1, -1};
             if (otherEntity == sim_handle_all)
                 otherEntity = -1;
-            pushBool(outStack, CCollisionRoutine::doEntitiesCollide(targetObj, otherEntity, nullptr, true, true, collidingIds));
-            pushShortHandleArray(outStack, collidingIds, 2);
+            outStack->pushBoolOntoStack( CCollisionRoutine::doEntitiesCollide(targetObj, otherEntity, nullptr, true, true, collidingIds));
+            outStack->pushShortHandleArrayOntoStack(collidingIds, 2);
         }
     }
     return errMsg;
@@ -2674,11 +2563,11 @@ std::string _method_checkDistance(int targetObj, const char* method, CDetachedSc
                     distIds[0] = buffer[0];
                     distIds[1] = buffer[2];
                 }
-                pushBool(outStack, result);
-                pushDouble(outStack, distanceData[6]);
-                pushVector3(outStack, C3Vector(distanceData));
-                pushVector3(outStack, C3Vector(distanceData + 3));
-                pushShortHandleArray(outStack, distIds, 2);
+                outStack->pushBoolOntoStack(result);
+                outStack->pushDoubleOntoStack(distanceData[6]);
+                outStack->pushVector3OntoStack(C3Vector(distanceData));
+                outStack->pushVector3OntoStack(C3Vector(distanceData + 3));
+                outStack->pushShortHandleArrayOntoStack(distIds, 2);
             }
         }
     }
@@ -2740,11 +2629,11 @@ std::string _method_checkSensor(int targetObj, const char* method, CDetachedScri
                         bool detected = CProxSensorRoutine::detectEntity(targetObj, entity, exact, maxNormal > 0.0, maxNormal, dPoint, dist, frontFaces, backFaces, detectedObj, minThreshold, normV, true);
                         if (!detected)
                             dist = 0.0;
-                        pushBool(outStack, detected);
-                        pushDouble(outStack, dist);
-                        pushVector3(outStack, dPoint);
-                        pushHandle(outStack, detectedObj);
-                        pushVector3(outStack, normV);
+                        outStack->pushBoolOntoStack(detected);
+                        outStack->pushDoubleOntoStack(dist);
+                        outStack->pushVector3OntoStack(dPoint);
+                        outStack->pushHandleOntoStack(detectedObj);
+                        outStack->pushVector3OntoStack(normV);
                     }
                 }
             }
@@ -2759,15 +2648,15 @@ std::string _method_checkSensor(int targetObj, const char* method, CDetachedScri
                     bool detection;
                     std::vector<std::vector<double>> packets;
                     visionSensor->checkSensor(entity, true, &detection, &packets);
-                    pushBool(outStack, detection);
+                    outStack->pushBoolOntoStack(detection);
                     if (packets.size() >= 1)
-                        pushDoubleArray(outStack, packets[0].data(), packets[0].size());
+                        outStack->pushDoubleArrayOntoStack(packets[0].data(), packets[0].size());
                     else
-                        pushDoubleArray(outStack, nullptr, 0);
+                        outStack->pushDoubleArrayOntoStack(nullptr, 0);
                     if (packets.size() >= 2)
-                        pushDoubleArray(outStack, packets[1].data(), packets[1].size());
+                        outStack->pushDoubleArrayOntoStack(packets[1].data(), packets[1].size());
                     else
-                        pushDoubleArray(outStack, nullptr, 0);
+                        outStack->pushDoubleArrayOntoStack(nullptr, 0);
                 }
             }
         }
@@ -2819,29 +2708,29 @@ std::string _method_handleSensor(int targetObj, const char* method, CDetachedScr
                 C3Vector detectedN;
                 detectedN.clear();
                 bool detected = proxSensor->handleSensor(false, detectedObj, detectedN);
-                pushBool(outStack, detected);
+                outStack->pushBoolOntoStack(detected);
                 if (detected)
                 {
                     smallest = proxSensor->getDetectedPoint();
                     smallestL = smallest.getLength();
                 }
-                pushDouble(outStack, smallestL);
-                pushVector3(outStack, smallest);
-                pushHandle(outStack, detectedObj);
-                pushVector3(outStack, detectedN);
+                outStack->pushDoubleOntoStack(smallestL);
+                outStack->pushVector3OntoStack(smallest);
+                outStack->pushHandleOntoStack(detectedObj);
+                outStack->pushVector3OntoStack(detectedN);
             }
             if (visionSensor != nullptr)
             {
                 bool detection = visionSensor->handleSensor();
-                pushBool(outStack, detection);
+                outStack->pushBoolOntoStack(detection);
                 if (visionSensor->sensorAuxiliaryResult.size() >= 1)
-                    pushDoubleArray(outStack, visionSensor->sensorAuxiliaryResult[0].data(), visionSensor->sensorAuxiliaryResult[0].size());
+                    outStack->pushDoubleArrayOntoStack(visionSensor->sensorAuxiliaryResult[0].data(), visionSensor->sensorAuxiliaryResult[0].size());
                 else
-                    pushDoubleArray(outStack, nullptr, 0);
+                    outStack->pushDoubleArrayOntoStack(nullptr, 0);
                 if (visionSensor->sensorAuxiliaryResult.size() >= 2)
-                    pushDoubleArray(outStack, visionSensor->sensorAuxiliaryResult[1].data(), visionSensor->sensorAuxiliaryResult[1].size());
+                    outStack->pushDoubleArrayOntoStack(visionSensor->sensorAuxiliaryResult[1].data(), visionSensor->sensorAuxiliaryResult[1].size());
                 else
-                    pushDoubleArray(outStack, nullptr, 0);
+                    outStack->pushDoubleArrayOntoStack(nullptr, 0);
             }
         }
     }
@@ -2987,7 +2876,7 @@ std::string _method_getObjects(int targetObj, const char* method, CDetachedScrip
                     }
                 }
                 if (errMsg == "")
-                    pushShortHandleArray(outStack, objects.data(), objects.size());
+                    outStack->pushShortHandleArrayOntoStack(objects.data(), objects.size());
             }
         }
     }
@@ -3024,7 +2913,7 @@ std::string _method_addItems(int targetObj, const char* method, CDetachedScript*
             }
             std::vector<long long int> newIds;
             target->addItems(&pts, &quats, &cols, &sizes, true, &newIds);
-            pushLongArray(outStack, newIds.data(), newIds.size());
+            outStack->pushInt64ArrayOntoStack(newIds.data(), newIds.size());
         }
     }
     return errMsg;
@@ -3174,7 +3063,7 @@ std::string _method_executeString(int targetObj, const char* method, CDetachedSc
     }
     return errMsg;
 }
-
+/*
 std::string _method_getApiInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
@@ -3223,7 +3112,7 @@ std::string _method_getApiFunc(int targetObj, const char* method, CDetachedScrip
     }
     return errMsg;
 }
-
+*/
 std::string _method_getStackTraceback(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
@@ -3381,7 +3270,7 @@ std::string _method_getName(int targetObj, const char* method, CDetachedScript* 
                 }
             }
             if (!nm.empty())
-                pushText(outStack, nm.c_str());
+                outStack->pushTextOntoStack(nm.c_str());
             else
                 errMsg = "invalid format.";
         }
@@ -3390,7 +3279,7 @@ std::string _method_getName(int targetObj, const char* method, CDetachedScript* 
     {
         std::string s("class ");
         s += targetTemplate->getObjectTypeStr();
-        pushText(outStack, s.c_str());
+        outStack->pushTextOntoStack(s.c_str());
     }
     return errMsg;
 }
@@ -3426,9 +3315,9 @@ std::string _method_loadImage(int targetObj, const char* method, CDetachedScript
             int b = 3;
             if (hasAlpha)
                 b = 4;
-            pushBuffer(outStack, (char*)img, b * res[0] * res [1]);
-            pushIntArray(outStack, res, 2);
-            pushInt(outStack, b);
+            outStack->pushBufferOntoStack((char*)img, b * res[0] * res [1]);
+            outStack->pushInt32ArrayOntoStack(res, 2);
+            outStack->pushInt32OntoStack(b);
             delete[]((char*)img);
         }
         else
@@ -3452,9 +3341,9 @@ std::string _method_loadImageFromBuffer(int targetObj, const char* method, CDeta
             int b = 3;
             if (hasAlpha)
                 b = 4;
-            pushBuffer(outStack, (char*)img, b * res[0] * res [1]);
-            pushIntArray(outStack, res, 2);
-            pushInt(outStack, b);
+            outStack->pushBufferOntoStack((char*)img, b * res[0] * res [1]);
+            outStack->pushInt32ArrayOntoStack(res, 2);
+            outStack->pushInt32OntoStack(b);
             delete[]((char*)img);
         }
         else
@@ -3542,7 +3431,7 @@ std::string _method_saveImageToBuffer(int targetObj, const char* method, CDetach
             {
                 std::string retBuff;
                 if (CImageLoaderSaver::save((unsigned char*)img.c_str(), res.data(), options, ext.c_str(), quality, &retBuff))
-                    pushBuffer(outStack, retBuff.data(), retBuff.size());
+                    outStack->pushBufferOntoStack(retBuff.data(), retBuff.size());
                 else
                     errMsg = SIM_ERROR_OPERATION_FAILED;
             }
@@ -3655,9 +3544,9 @@ std::string _method_transformImage(int targetObj, const char* method, CDetachedS
                         }
                     }
                 }
-                pushBuffer(outStack, (char*)imgOut.data(), channels * outRes[0] * outRes[1]);
-                pushIntArray(outStack, outRes.data(), 2);
-                pushInt(outStack, channels);
+                outStack->pushBufferOntoStack((char*)imgOut.data(), channels * outRes[0] * outRes[1]);
+                outStack->pushInt32ArrayOntoStack(outRes.data(), 2);
+                outStack->pushInt32OntoStack(channels);
             }
             else
                 errMsg = SIM_ERROR_INVALID_RESOLUTION;
@@ -3704,9 +3593,9 @@ std::string _method_getImage(int targetObj, const char* method, CDetachedScript*
                     s = 1; // greyscale
                 if (type == "rgba")
                     s = 4; // + alpha channel
-                pushBuffer(outStack, (char*)img, s * size[0] * size[1]);
+                outStack->pushBufferOntoStack((char*)img, s * size[0] * size[1]);
                 delete[]((char*)img);
-                pushIntArray(outStack, res, 2);
+                outStack->pushInt32ArrayOntoStack(res, 2);
             }
             else
                 errMsg = SIM_ERROR_INVALID_ARGUMENTS;
@@ -3796,9 +3685,9 @@ std::string _method_getDepth(int targetObj, const char* method, CDetachedScript*
                 float fmn = f - n;
                 for (int i = 0; i < size[0] * size[1]; i++)
                     buff[i] = n + fmn * buff[i];
-                pushFloatArray(outStack, buff, size[0] * size[1]);
+                outStack->pushMatrixOntoStack(buff, size[1], size[0]);
                 delete[]((char*)buff);
-                pushIntArray(outStack, res, 2);
+                outStack->pushInt32ArrayOntoStack(res, 2);
             }
             else
                 errMsg = SIM_ERROR_INVALID_ARGUMENTS;
@@ -4061,7 +3950,7 @@ std::string _method_getStepping(int targetObj, const char* method, CDetachedScri
     CDetachedScript* target = getDetachedScript(targetObj, method, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
     {
-        pushBool(outStack, target->getAutoYieldingForbidLevel() > 0);
+        outStack->pushBoolOntoStack(target->getAutoYieldingForbidLevel() > 0);
     }
     return errMsg;
 }
@@ -4101,7 +3990,7 @@ std::string _method_getObject(int targetObj, const char* method, CDetachedScript
         it = App::scene->sceneObjects->getObjectFromPath(prox, path.c_str(), index);
 
         if (it != nullptr)
-            pushHandle(outStack, it->getObjectHandle());
+            outStack->pushHandleOntoStack(it->getObjectHandle());
         else
         {
             // Check if we maybe have an object with such a persistent UID:
@@ -4116,14 +4005,14 @@ std::string _method_getObject(int targetObj, const char* method, CDetachedScript
                             it = nullptr;
                     }
                     if (it != nullptr)
-                        pushHandle(outStack, it->getObjectHandle());
+                        outStack->pushHandleOntoStack(it->getObjectHandle());
                 }
             }
         }
         if (it == nullptr)
         {
             if (noError)
-                pushHandle(outStack, -1);
+                outStack->pushHandleOntoStack(-1);
             else
             {
                 errMsg = "object was not found, or name/path ('";
@@ -4161,11 +4050,11 @@ std::string _method_getObjectFromUid(int targetObj, const char* method, CDetache
         }
         CSceneObject* it = App::scene->sceneObjects->getObjectFromUid(uid);
         if (it != nullptr)
-            pushHandle(outStack, it->getObjectHandle());
+            outStack->pushHandleOntoStack(it->getObjectHandle());
         else
         {
             if (noError)
-                pushHandle(outStack, -1);
+                outStack->pushHandleOntoStack(-1);
             else
                 errMsg = SIM_ERROR_OBJECT_INEXISTANT;
         }
@@ -4181,8 +4070,8 @@ std::string _method_getInertia(int targetObj, const char* method, CDetachedScrip
     {
         C3X3Matrix m(shape->getMesh()->getInertia());
         m *= shape->getMesh()->getMass();
-        pushMatrix(outStack, m);
-        pushVector3(outStack, shape->getMesh()->getCOM());
+        outStack->pushMatrixOntoStack(m);
+        outStack->pushVector3OntoStack(shape->getMesh()->getCOM());
     }
     return errMsg;
 }
@@ -4300,7 +4189,7 @@ std::string _method_ungroup(int targetObj, const char* method, CDetachedScript* 
             CSceneObjectOperations::ungroupSelection(&sel, true);
         if (sel.size() <= 1)
             sel.clear();
-        pushShortHandleArray(outStack, sel.data(), sel.size());
+        outStack->pushShortHandleArrayOntoStack(sel.data(), sel.size());
     }
     return errMsg;
 }
@@ -4318,7 +4207,7 @@ std::string _method_divide(int targetObj, const char* method, CDetachedScript* c
             CSceneObjectOperations::divideSelection(&sel);
             if (sel.size() <= 1)
                 sel.clear();
-            pushShortHandleArray(outStack, sel.data(), sel.size());
+            outStack->pushShortHandleArrayOntoStack(sel.data(), sel.size());
         }
         else
             errMsg = SIM_ERROR_CANNOT_DIVIDE_COMPOUND_SHAPE;
@@ -4343,7 +4232,7 @@ std::string _method_groupShapes(int targetObj, const char* method, CDetachedScri
         if ((shapeHandles.size() > 1) && (shapeHandles.size() == objectHandles.size()))
         {
             int h = CSceneObjectOperations::groupSelection(&shapeHandles);
-            pushHandle(outStack, h);
+            outStack->pushHandleOntoStack(h);
         }
         else
             errMsg = "invalid objects, or not enough shapes.";
@@ -4368,14 +4257,14 @@ std::string _method_mergeShapes(int targetObj, const char* method, CDetachedScri
         if ((shapeHandles.size() > 1) && (shapeHandles.size() == objectHandles.size()))
         {
             int h = CSceneObjectOperations::mergeSelection(&shapeHandles);
-            pushHandle(outStack, h);
+            outStack->pushHandleOntoStack(h);
         }
         else
             errMsg = "invalid objects, or not enough shapes.";
     }
     return errMsg;
 }
-
+/*
 std::string _method_packTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 { // use pack instead
     std::string errMsg;
@@ -4395,10 +4284,10 @@ std::string _method_packTable(int targetObj, const char* method, CDetachedScript
             // to keep backward compatible. The aux infos can be any byte value, except for 255. One aux. value
             // per string object:
             s += auxInfos + (char)255;
-            pushBuffer(outStack, s.c_str(), s.size());
+            outStack->pushBufferOntoStack(s.c_str(), s.size());
         }
         else
-            pushBuffer(outStack, "", 0);
+            outStack->pushBufferOntoStack("", 0);
     }
     return errMsg;
 }
@@ -4432,7 +4321,7 @@ std::string _method_unpackTable(int targetObj, const char* method, CDetachedScri
                             }
                         }
                     }
-                    pushObject(outStack, table);
+                    outStack->pushObjectOntoStack(table);
                 }
                 else
                     errMsg = SIM_ERROR_INVALID_DATA;
@@ -4441,11 +4330,11 @@ std::string _method_unpackTable(int targetObj, const char* method, CDetachedScri
                 errMsg = SIM_ERROR_INVALID_DATA;
         }
         else
-            pushIntArray(outStack, nullptr, 0); // empty buffer results in an empty table
+            outStack->pushInt32ArrayOntoStack(nullptr, 0); // empty buffer results in an empty table
     }
     return errMsg;
 }
-
+*/
 std::string _method_pack(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
@@ -4464,7 +4353,7 @@ std::string _method_pack(int targetObj, const char* method, CDetachedScript* cur
         // to keep backward compatible. The aux infos can be any byte value, except for 255. One aux. value
         // per string object:
         s += auxInfos + (char)255;
-        pushBuffer(outStack, s.c_str(), s.size());
+        outStack->pushBufferOntoStack(s.c_str(), s.size());
     }
     return errMsg;
 }
@@ -4498,7 +4387,7 @@ std::string _method_unpack(int targetObj, const char* method, CDetachedScript* c
                             }
                         }
                     }
-                    pushObject(outStack, table->getArrayItemAtIndex(0));
+                    outStack->pushObjectOntoStack(table->getArrayItemAtIndex(0));
                 }
                 else
                     errMsg = SIM_ERROR_INVALID_DATA;
@@ -4507,7 +4396,7 @@ std::string _method_unpack(int targetObj, const char* method, CDetachedScript* c
                 errMsg = SIM_ERROR_INVALID_DATA;
         }
         else
-            pushIntArray(outStack, nullptr, 0); // empty buffer results in an empty table
+            outStack->pushInt32ArrayOntoStack(nullptr, 0); // empty buffer results in an empty table
     }
     return errMsg;
 }
@@ -4558,7 +4447,7 @@ std::string _method_packDoubleArray(int targetObj, const char* method, CDetached
                     data[sizeof(double) * i + 7] = ((char*)&v)[7];
                 }
             }
-            pushBuffer(outStack, data.data(), data.size());
+            outStack->pushBufferOntoStack(data.data(), data.size());
         }
     }
     return errMsg;
@@ -4613,7 +4502,7 @@ std::string _method_packFloatArray(int targetObj, const char* method, CDetachedS
                     data[sizeof(float) * i + 3] = ((char*)&v)[3];
                 }
             }
-            pushBuffer(outStack, data.data(), data.size());
+            outStack->pushBufferOntoStack(data.data(), data.size());
         }
     }
     return errMsg;
@@ -4665,7 +4554,7 @@ std::string _method_packInt64Array(int targetObj, const char* method, CDetachedS
                     data[sizeof(int64_t) * i + 7] = ((char*)&v)[7];
                 }
             }
-            pushBuffer(outStack, data.data(), data.size());
+            outStack->pushBufferOntoStack(data.data(), data.size());
         }
     }
     return errMsg;
@@ -4720,7 +4609,7 @@ std::string _method_packInt32Array(int targetObj, const char* method, CDetachedS
                     data[sizeof(int32_t) * i + 3] = ((char*)&v)[3];
                 }
             }
-            pushBuffer(outStack, data.data(), data.size());
+            outStack->pushBufferOntoStack(data.data(), data.size());
         }
     }
     return errMsg;
@@ -4775,7 +4664,7 @@ std::string _method_packUInt32Array(int targetObj, const char* method, CDetached
                     data[sizeof(uint32_t) * i + 3] = ((char*)&v)[3];
                 }
             }
-            pushBuffer(outStack, data.data(), data.size());
+            outStack->pushBufferOntoStack(data.data(), data.size());
         }
     }
     return errMsg;
@@ -4828,7 +4717,7 @@ std::string _method_packInt16Array(int targetObj, const char* method, CDetachedS
                     data[sizeof(int16_t) * i + 1] = ((char*)&v)[1];
                 }
             }
-            pushBuffer(outStack, data.data(), data.size());
+            outStack->pushBufferOntoStack(data.data(), data.size());
         }
     }
     return errMsg;
@@ -4881,7 +4770,7 @@ std::string _method_packUInt16Array(int targetObj, const char* method, CDetached
                     data[sizeof(uint16_t) * i + 1] = ((char*)&v)[1];
                 }
             }
-            pushBuffer(outStack, data.data(), data.size());
+            outStack->pushBufferOntoStack(data.data(), data.size());
         }
     }
     return errMsg;
@@ -4933,7 +4822,7 @@ std::string _method_packInt8Array(int targetObj, const char* method, CDetachedSc
                     data[i] = ((char*)&v)[0];
                 }
             }
-            pushBuffer(outStack, data.data(), data.size());
+            outStack->pushBufferOntoStack(data.data(), data.size());
         }
     }
     return errMsg;
@@ -4985,7 +4874,7 @@ std::string _method_packUInt8Array(int targetObj, const char* method, CDetachedS
                     data[i] = ((char*)&v)[0];
                 }
             }
-            pushBuffer(outStack, data.data(), data.size());
+            outStack->pushBufferOntoStack(data.data(), data.size());
         }
     }
     return errMsg;
@@ -5047,7 +4936,7 @@ std::string _method_unpackDoubleArray(int targetObj, const char* method, CDetach
                     }
                 }
             }
-            pushDoubleArray(outStack, outData.data(), outData.size());
+            outStack->pushDoubleArrayOntoStack(outData.data(), outData.size());
         }
     }
     return errMsg;
@@ -5106,7 +4995,7 @@ std::string _method_unpackFloatArray(int targetObj, const char* method, CDetache
                     }
                 }
             }
-            pushFloatArray(outStack, outData.data(), outData.size());
+            outStack->pushFloatArrayOntoStack(outData.data(), outData.size());
         }
     }
     return errMsg;
@@ -5169,7 +5058,7 @@ std::string _method_unpackInt64Array(int targetObj, const char* method, CDetache
                     }
                 }
             }
-            pushLongArray(outStack, outData.data(), outData.size());
+            outStack->pushInt64ArrayOntoStack(outData.data(), outData.size());
         }
     }
     return errMsg;
@@ -5228,7 +5117,7 @@ std::string _method_unpackInt32Array(int targetObj, const char* method, CDetache
                     }
                 }
             }
-            pushIntArray(outStack, outData.data(), outData.size());
+            outStack->pushInt32ArrayOntoStack(outData.data(), outData.size());
         }
     }
     return errMsg;
@@ -5287,7 +5176,7 @@ std::string _method_unpackUInt32Array(int targetObj, const char* method, CDetach
                     }
                 }
             }
-            pushLongArray(outStack, outData.data(), outData.size());
+            outStack->pushInt64ArrayOntoStack(outData.data(), outData.size());
         }
     }
     return errMsg;
@@ -5344,7 +5233,7 @@ std::string _method_unpackInt16Array(int targetObj, const char* method, CDetache
                     }
                 }
             }
-            pushIntArray(outStack, outData.data(), outData.size());
+            outStack->pushInt32ArrayOntoStack(outData.data(), outData.size());
         }
     }
     return errMsg;
@@ -5401,7 +5290,7 @@ std::string _method_unpackUInt16Array(int targetObj, const char* method, CDetach
                     }
                 }
             }
-            pushIntArray(outStack, outData.data(), outData.size());
+            outStack->pushInt32ArrayOntoStack(outData.data(), outData.size());
         }
     }
     return errMsg;
@@ -5457,7 +5346,7 @@ std::string _method_unpackInt8Array(int targetObj, const char* method, CDetached
                     }
                 }
             }
-            pushIntArray(outStack, outData.data(), outData.size());
+            outStack->pushInt32ArrayOntoStack(outData.data(), outData.size());
         }
     }
     return errMsg;
@@ -5513,7 +5402,7 @@ std::string _method_unpackUInt8Array(int targetObj, const char* method, CDetache
                     }
                 }
             }
-            pushIntArray(outStack, outData.data(), outData.size());
+            outStack->pushInt32ArrayOntoStack(outData.data(), outData.size());
         }
     }
     return errMsg;
@@ -5539,7 +5428,7 @@ std::string _method_createCamera(int targetObj, const char* method, CDetachedScr
             it->setPerspective(perspective);
             it->setClippingPlanes(clipp[0], clipp[1]);
             App::scene->sceneObjects->addObjectToScene(it, false, true);
-            pushHandle(outStack, it->getObjectHandle());
+            outStack->pushHandleOntoStack(it->getObjectHandle());
         }
     }
     return errMsg;
@@ -5557,7 +5446,7 @@ std::string _method_createLight(int targetObj, const char* method, CDetachedScri
         {
             CLight* it = new CLight(lightType);
             App::scene->sceneObjects->addObjectToScene(it, false, true);
-            pushHandle(outStack, it->getObjectHandle());
+            outStack->pushHandleOntoStack(it->getObjectHandle());
         }
     }
     return errMsg;
@@ -5588,7 +5477,7 @@ std::string _method_createGraph(int targetObj, const char* method, CDetachedScri
             App::scene->sceneObjects->setObjectParent(script, it, true);
             it->setObjectProperty(it->getObjectProperty() | sim_objectproperty_collapsed);
             it->setModelBase(true);
-            pushHandle(outStack, it->getObjectHandle());
+            outStack->pushHandleOntoStack(it->getObjectHandle());
         }
     }
     return errMsg;
@@ -5601,7 +5490,7 @@ std::string _method_createCustomSceneObject(int targetObj, const char* method, C
     {
         CCustomSceneObject* it = new CCustomSceneObject();
         App::scene->sceneObjects->addObjectToScene(it, false, true);
-        pushHandle(outStack, it->getObjectHandle());
+        outStack->pushHandleOntoStack(it->getObjectHandle());
     }
     return errMsg;
 }
@@ -5621,13 +5510,13 @@ std::string _method_getBoolProperty(int targetObj, const char* method, CDetached
         {
             int pValue;
             if (CALL_C_API(simGetBoolProperty, targetObj, pName.c_str(), &pValue) > 0)
-                pushBool(outStack, pValue != 0);
+                outStack->pushBoolOntoStack(pValue != 0);
             else
             {
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -5653,7 +5542,7 @@ std::string _method_getBufferProperty(int targetObj, const char* method, CDetach
             int pLength;
             if (CALL_C_API(simGetBufferProperty, targetObj, pName.c_str(), &pValue, &pLength) > 0)
             {
-                pushBuffer(outStack, pValue, pLength);
+                outStack->pushBufferOntoStack(pValue, pLength);
                 delete[] pValue;
             }
             else
@@ -5661,7 +5550,7 @@ std::string _method_getBufferProperty(int targetObj, const char* method, CDetach
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -5685,13 +5574,13 @@ std::string _method_getColorProperty(int targetObj, const char* method, CDetache
         {
             float pValue[3];
             if (CALL_C_API(simGetColorProperty, targetObj, pName.c_str(), pValue) > 0)
-                pushColor(outStack, pValue);
+                outStack->pushColorOntoStack(pValue);
             else
             {
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -5717,7 +5606,7 @@ std::string _method_getFloatArrayProperty(int targetObj, const char* method, CDe
             int pLength;
             if (CALL_C_API(simGetFloatArrayProperty, targetObj, pName.c_str(), &pValue, &pLength) > 0)
             {
-                pushDoubleArray(outStack, pValue, pLength);
+                outStack->pushDoubleArrayOntoStack(pValue, pLength);
                 delete[] pValue;
             }
             else
@@ -5725,7 +5614,7 @@ std::string _method_getFloatArrayProperty(int targetObj, const char* method, CDe
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -5749,13 +5638,13 @@ std::string _method_getFloatProperty(int targetObj, const char* method, CDetache
         {
             double pValue;
             if (CALL_C_API(simGetFloatProperty, targetObj, pName.c_str(), &pValue) > 0)
-                pushDouble(outStack, pValue);
+                outStack->pushDoubleOntoStack(pValue);
             else
             {
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -5791,14 +5680,14 @@ std::string _method_getStringArrayProperty(int targetObj, const char* method, CD
                     ptr += len + 1;
                 }
                 delete[] pValue;
-                pushTextArray(outStack, vv.data(), vv.size());
+                outStack->pushTextArrayOntoStack(vv.data(), vv.size());
             }
             else
             {
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -5824,8 +5713,8 @@ std::string _method_getHandleArrayProperty(int targetObj, const char* method, CD
             int pLength;
             if (CALL_C_API(simGetHandleArrayProperty, targetObj, pName.c_str(), &pValue, &pLength) > 0)
             {
-                pushHandleArray(outStack, pValue, pLength);
-//                pushLongArray(outStack, pValue, pLength);
+                outStack->pushHandleArrayOntoStack(pValue, pLength);
+//                outStack->pushInt64ArrayOntoStack(pValue, pLength);
                 delete[] pValue;
             }
             else
@@ -5833,7 +5722,7 @@ std::string _method_getHandleArrayProperty(int targetObj, const char* method, CD
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -5857,13 +5746,13 @@ std::string _method_getHandleProperty(int targetObj, const char* method, CDetach
         {
             long long int pValue;
             if (CALL_C_API(simGetHandleProperty, targetObj, pName.c_str(), &pValue) > 0)
-                pushHandle(outStack, pValue);
+                outStack->pushHandleOntoStack(pValue);
             else
             {
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -5887,13 +5776,13 @@ std::string _method_getIntArray2Property(int targetObj, const char* method, CDet
         {
             int pValue[2];
             if (CALL_C_API(simGetIntArray2Property, targetObj, pName.c_str(), pValue) > 0)
-                pushIntArray(outStack, pValue, 2);
+                outStack->pushInt32ArrayOntoStack(pValue, 2);
             else
             {
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -5919,7 +5808,7 @@ std::string _method_getIntArrayProperty(int targetObj, const char* method, CDeta
             int pLength;
             if (CALL_C_API(simGetIntArrayProperty, targetObj, pName.c_str(), &pValue, &pLength) > 0)
             {
-                pushIntArray(outStack, pValue, pLength);
+                outStack->pushInt32ArrayOntoStack(pValue, pLength);
                 delete[] pValue;
             }
             else
@@ -5927,7 +5816,7 @@ std::string _method_getIntArrayProperty(int targetObj, const char* method, CDeta
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -5951,13 +5840,13 @@ std::string _method_getIntProperty(int targetObj, const char* method, CDetachedS
         {
             int pValue;
             if (CALL_C_API(simGetIntProperty, targetObj, pName.c_str(), &pValue) > 0)
-                pushInt(outStack, pValue);
+                outStack->pushInt32OntoStack(pValue);
             else
             {
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -5981,13 +5870,13 @@ std::string _method_getLongProperty(int targetObj, const char* method, CDetached
         {
             long long int pValue;
             if (CALL_C_API(simGetLongProperty, targetObj, pName.c_str(), &pValue) > 0)
-                pushLong(outStack, pValue);
+                outStack->pushInt64OntoStack(pValue);
             else
             {
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -6014,14 +5903,14 @@ std::string _method_getPoseProperty(int targetObj, const char* method, CDetached
             {
                 C7Vector p;
                 p.setData(pValue, true);
-                pushPose(outStack, p);
+                outStack->pushPoseOntoStack(p);
             }
             else
             {
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -6048,14 +5937,14 @@ std::string _method_getQuaternionProperty(int targetObj, const char* method, CDe
             {
                 C4Vector q;
                 q.setData(pValue, true);
-                pushQuaternion(outStack, q);
+                outStack->pushQuaternionOntoStack(q);
             }
             else
             {
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -6081,7 +5970,7 @@ std::string _method_getStringProperty(int targetObj, const char* method, CDetach
             int res = CALL_C_API(simGetStringProperty, targetObj, pName.c_str(), &pValue);
             if (res > 0)
             {
-                pushText(outStack, pValue);
+                outStack->pushTextOntoStack(pValue);
                 delete[] pValue;
             }
             else
@@ -6089,7 +5978,7 @@ std::string _method_getStringProperty(int targetObj, const char* method, CDetach
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -6113,13 +6002,13 @@ std::string _method_getVector3Property(int targetObj, const char* method, CDetac
         {
             double pValue[3];
             if (CALL_C_API(simGetVector3Property, targetObj, pName.c_str(), pValue) > 0)
-                pushVector3(outStack, C3Vector(pValue));
+                outStack->pushVector3OntoStack(C3Vector(pValue));
             else
             {
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -6756,7 +6645,7 @@ std::string _method_getMatrixProperty(int targetObj, const char* method, CDetach
             {
                 CMatrix m(r, c);
                 m.data.assign(pValue, pValue + r * c);
-                pushMatrix(outStack, m);
+                outStack->pushMatrixOntoStack(m);
                 delete[] pValue;
             }
             else
@@ -6764,7 +6653,7 @@ std::string _method_getMatrixProperty(int targetObj, const char* method, CDetach
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -6826,7 +6715,7 @@ std::string _method_getMethodProperty(int targetObj, const char* method, CDetach
             std::string byteCode;
             int res = App::getMethodProperty_t(targetObj, pName.c_str(), byteCode);
             if (res == sim_propertyret_ok)
-                pushBuffer(outStack, byteCode.data(), byteCode.size());
+                outStack->pushBufferOntoStack(byteCode.data(), byteCode.size());
             else
             {
                 if (!noError)
@@ -6911,7 +6800,7 @@ std::string _method_getTableProperty(int targetObj, const char* method, CDetache
             int res = CALL_C_API(simGetTableProperty, targetObj, pName.c_str(), &pValue, &pValueL);
             if (res > 0)
             {
-                pushBuffer(outStack, pValue, pValueL);
+                outStack->pushBufferOntoStack(pValue, pValueL);
                 delete[] pValue;
             }
             else
@@ -6919,7 +6808,7 @@ std::string _method_getTableProperty(int targetObj, const char* method, CDetache
                 errMsg = CApiErrors::getAndClearLastError();
                 if (noError)
                 {
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
                     errMsg.clear();
                 }
             }
@@ -7021,15 +6910,15 @@ std::string _method_getPropertyName(int targetObj, const char* method, CDetached
                 delete[] pValue;
                 std::string w2;
                 utils::extractCommaSeparatedWord(w1, w2);
-                pushText(outStack, w2.c_str());
-                pushText(outStack, w1.c_str());
+                outStack->pushTextOntoStack(w2.c_str());
+                outStack->pushTextOntoStack(w1.c_str());
             }
             else
             {
                 if (App::isTargetValid_t(targetObj))
                 {
-                    pushNull(outStack);
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
+                    outStack->pushNullOntoStack();
                 }
                 else
                     errMsg = SIM_ERROR_TARGET_DOES_NOT_EXIST;
@@ -7059,13 +6948,13 @@ std::string _method_getPropertyInfo(int targetObj, const char* method, CDetached
             int res = CALL_C_API(simGetPropertyInfo, targetObj, pName.c_str(), &infos, &opt);
             if (res == sim_propertyret_ok)
             {
-                pushInt(outStack, infos.type);
-                pushInt(outStack, infos.flags);
+                outStack->pushInt32OntoStack(infos.type);
+                outStack->pushInt32OntoStack(infos.flags);
                 if (infos.infoTxt == nullptr)
-                    pushText(outStack, "");
+                    outStack->pushTextOntoStack("");
                 else
                 {
-                    pushText(outStack, infos.infoTxt);
+                    outStack->pushTextOntoStack(infos.infoTxt);
                     delete[] infos.infoTxt;
                 }
             }
@@ -7075,9 +6964,9 @@ std::string _method_getPropertyInfo(int targetObj, const char* method, CDetached
                     errMsg = CApiErrors::getAndClearLastError();
                 else
                 {
-                    pushNull(outStack);
-                    pushNull(outStack);
-                    pushNull(outStack);
+                    outStack->pushNullOntoStack();
+                    outStack->pushNullOntoStack();
+                    outStack->pushNullOntoStack();
                 }
             }
         }
@@ -7129,7 +7018,7 @@ std::string _method_createCustomObjectClass(int targetObj, const char* method, C
                 superClass.push_back("object");
             long long int retVal = App::scenes->customObjects->makeClass(typeStr.c_str(), superClass, nameSpaces);
             if (retVal >= 0)
-                pushHandle(outStack, retVal);
+                outStack->pushHandleOntoStack(retVal);
             else
                 errMsg = "class already defined, or invalid metaInfo.";
         }
@@ -7140,7 +7029,7 @@ std::string _method_createCustomObjectClass(int targetObj, const char* method, C
 std::string _method_isValid(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    pushBool(outStack, App::isTargetValid_t(targetObj));
+    outStack->pushBoolOntoStack(App::isTargetValid_t(targetObj));
     return errMsg;
 }
 
@@ -7190,7 +7079,7 @@ std::string _method_addCurve(int targetObj, const char* method, CDetachedScript*
                 errMsg = SIM_ERROR_CANNOT_OVERWRITE_STATIC_CURVE;
             }
             else
-                pushInt(outStack, retVal);
+                outStack->pushInt32OntoStack(retVal);
         }
     }
     return errMsg;
@@ -7264,7 +7153,7 @@ std::string _method_addSignal(int targetObj, const char* method, CDetachedScript
                 else if (trType == "cumulative")
                     t = sim_stream_transf_cumulative;
                 target->setDataStreamTransformation(retVal, t, scale, offset, smoothing);
-                pushInt(outStack, retVal);
+                outStack->pushInt32OntoStack(retVal);
             }
         }
     }
@@ -7341,7 +7230,7 @@ std::string _method_snapshotTrace(int targetObj, const char* method, CDetachedSc
             tt::removeIllegalCharacters(name, false);
             int retVal = target->duplicateCurveToStatic(trace, name.c_str(), color);
             if (retVal != -1)
-                pushInt(outStack, retVal);
+                outStack->pushInt32OntoStack(retVal);
             else
                 errMsg = SIM_ERROR_INVALID_TRACE_ID;
         }
@@ -7372,7 +7261,7 @@ std::string _method_makeClass(int targetObj, const char* method, CDetachedScript
         {
             int retVal = App::scenes->customSceneObjectClasses->makeClass(target, className.c_str());
             if (retVal >= 0)
-                pushHandle(outStack, retVal);
+                outStack->pushHandleOntoStack(retVal);
             else
                 errMsg = "class exists already.";
         }
@@ -7393,7 +7282,7 @@ std::string _method_makeObject(int targetObj, const char* method, CDetachedScrip
         {
             int retVal = App::scenes->customSceneObjectClasses->makeObject(targetObj);
             if (retVal >= 0)
-                pushHandle(outStack, retVal);
+                outStack->pushHandleOntoStack(retVal);
             else
                 errMsg = "class does not exist.";
         }
@@ -7421,7 +7310,7 @@ std::string _method_makeObject(int targetObj, const char* method, CDetachedScrip
                     retVal = App::scenes->customObjects->makeObject(customObjectClass, isVolatile, h);
                 else
                     retVal = App::scene->customObjects->makeObject(customObjectClass, isVolatile, h);
-                pushLong(outStack, retVal);
+                outStack->pushInt64OntoStack(retVal);
             }
         }
     }
@@ -7840,10 +7729,10 @@ std::string _method_checkPoints(int targetObj, const char* method, CDetachedScri
             else
                 coll = App::scenes->pluginContainer->geomPlugin_getOctreePointsCollision(target->getOctreeInfo(), target->getFullCumulativeTransformation(), pts.data(), pts.size() / 3);
 
-            pushBool(outStack, coll);
-            pushLong(outStack, tag);
-            pushLong(outStack, locLow);
-            pushLong(outStack, locHigh);
+            outStack->pushBoolOntoStack(coll);
+            outStack->pushInt64OntoStack(tag);
+            outStack->pushInt64OntoStack(locLow);
+            outStack->pushInt64OntoStack(locHigh);
         }
     }
     return errMsg;
@@ -7892,10 +7781,10 @@ std::string _method_checkPackedPoints(int targetObj, const char* method, CDetach
             else
                 coll = App::scenes->pluginContainer->geomPlugin_getOctreePointsCollision(target->getOctreeInfo(), target->getFullCumulativeTransformation(), pts.data(), pts.size() / 3);
 
-            pushBool(outStack, coll);
-            pushLong(outStack, tag);
-            pushLong(outStack, locLow);
-            pushLong(outStack, locHigh);
+            outStack->pushBoolOntoStack(coll);
+            outStack->pushInt64OntoStack(tag);
+            outStack->pushInt64OntoStack(locLow);
+            outStack->pushInt64OntoStack(locHigh);
         }
     }
     return errMsg;
@@ -8339,9 +8228,9 @@ std::string _method_getContacts(int targetObj, const char* method, CDetachedScri
                 }
                 else
                 {
-                    outStack->pushNullOntoStack();
-                    outStack->pushNullOntoStack();
-                    outStack->pushNullOntoStack();
+                    outStack->pushMatrixOntoStack((float*)nullptr, 0, 3);
+                    outStack->pushMatrixOntoStack((float*)nullptr, 0, 3);
+                    outStack->pushMatrixOntoStack((float*)nullptr, 0, 3);
                 }
             }
         }
@@ -8361,3 +8250,82 @@ std::string _method_getGenesisEvents(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
+std::string _method_setEventFilters(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CDetachedScript* target = getDetachedScript(targetObj, method, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map}))
+    {
+        CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+        std::vector<long long int> intKeys;
+        map->getMapKeys(nullptr, &intKeys);
+        std::vector<std::string> textKeys;
+        map->getMapKeys(&textKeys, nullptr);
+        std::map<long long int, std::set<std::string>> targetFilters;
+        std::map<std::string, std::set<std::string>> typeFilters;
+        for (size_t i = 0; i < intKeys.size(); i++)
+        {
+            bool first = true;
+            CInterfaceStackObject* obj = map->getIntMapObject(intKeys[i]);
+            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_table))
+            {
+                CInterfaceStackTable* arr = ((CInterfaceStackTable*)obj);
+                if (arr->isTableArray())
+                {
+                    std::vector<std::string> fields;
+                    arr->getTextArray(fields);
+                    if (fields.size() != 0)
+                    {
+                        for (size_t j = 0; j < fields.size(); j++)
+                        {
+                            if (fields[j].size() > 0)
+                            {
+                                if (first)
+                                {
+                                    targetFilters[intKeys[i]] = std::set<std::string>();
+                                    first = false;
+                                }
+                                targetFilters[intKeys[i]].insert(fields[j]);
+                            }
+                        }
+                    }
+                    else
+                        targetFilters[intKeys[i]] = std::set<std::string>(); // empty table --> we want all events for that target object
+                }
+            }
+        }
+        for (size_t i = 0; i < textKeys.size(); i++)
+        {
+            bool first = true;
+            CInterfaceStackObject* obj = map->getMapObject(textKeys[i].c_str());
+            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_table))
+            {
+                CInterfaceStackTable* arr = ((CInterfaceStackTable*)obj);
+                if (arr->isTableArray())
+                {
+                    std::vector<std::string> fields;
+                    arr->getTextArray(fields);
+                    if (fields.size() != 0)
+                    {
+                        for (size_t j = 0; j < fields.size(); j++)
+                        {
+                            if (fields[j].size() > 0)
+                            {
+                                if (first)
+                                {
+                                    typeFilters[textKeys[i]] = std::set<std::string>();
+                                    first = false;
+                                }
+                                typeFilters[textKeys[i]].insert(fields[j]);
+                            }
+                        }
+                    }
+                    else
+                        typeFilters[textKeys[i]] = std::set<std::string>(); // empty table --> we want all events for that target object
+                }
+            }
+        }
+        target->setEventFilters(targetFilters, typeFilters);
+    }
+    return errMsg;
+}

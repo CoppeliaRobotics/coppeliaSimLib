@@ -142,7 +142,7 @@ class CDetachedScript : public Obj
     bool addCommandToOutsideCommandQueue(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4, const double aux2Vals[8], int aux2Count);
     int extractCommandFromOutsideCommandQueue(int auxVals[4], double aux2Vals[8], int& aux2Count);
 
-    void setEventFilters(const std::map<long long int, std::set<std::string>>& filters);
+    void setEventFilters(const std::map<long long int, std::set<std::string>>& targetFilters, const std::map<std::string, std::set<std::string>>& typeFilters);
     bool prepareFilteredEventsBuffer(const std::vector<unsigned char>& input, const std::vector<SEventInf>& inf, std::vector<unsigned char>& output) const;
 
     bool hasSystemFunction(int callType, bool returnTrueIfNotInitialized = true) const;
@@ -275,7 +275,8 @@ class CDetachedScript : public Obj
     int _autoStartAddOn;
     int _addOnUiMenuHandle;
     int _addOnExecPriority; // only for add-ons. Not saved
-    std::map<long long int, std::set<std::string>> _eventFilters;
+    std::map<long long int, std::set<std::string>> _eventFilters_target;
+    std::map<std::string, std::set<std::string>> _eventFilters_type;
 
     bool _calledInThisSimulationStep;
 

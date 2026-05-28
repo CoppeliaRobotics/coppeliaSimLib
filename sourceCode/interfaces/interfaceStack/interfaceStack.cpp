@@ -1481,6 +1481,29 @@ void CInterfaceStack::pushPoseOntoStack(const C7Vector& pose, bool toFront /*= f
     pushPoseOntoStack(p, toFront);
 }
 
+void CInterfaceStack::pushVector3OntoStack(const double* vector, bool toFront /*= false*/)
+{
+    pushMatrixOntoStack(vector, 3, 1, toFront);
+}
+
+void CInterfaceStack::pushVector3OntoStack(const C3Vector& vector, bool toFront /*= false*/)
+{
+    pushMatrixOntoStack(vector.data, 3, 1, toFront);
+}
+
+void CInterfaceStack::pushVectorOntoStack(const double* vector, size_t l, bool toFront /*= false*/)
+{
+    pushMatrixOntoStack(vector, l, 1, toFront);
+}
+
+void CInterfaceStack::pushMatrixOntoStack(const float* matrix, size_t rows, size_t cols, bool toFront /*= false*/)
+{
+    if (toFront)
+        _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackMatrix(matrix, rows, cols));
+    else
+        _stackObjects.push_back(new CInterfaceStackMatrix(matrix, rows, cols));
+}
+
 void CInterfaceStack::pushMatrixOntoStack(const double* matrix, size_t rows, size_t cols, bool toFront /*= false*/)
 {
     if (toFront)
