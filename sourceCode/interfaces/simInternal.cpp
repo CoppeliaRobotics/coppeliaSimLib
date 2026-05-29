@@ -895,8 +895,15 @@ int simSetIntProperty_internal(long long int target, const char* ppName, int pSt
                         }
                         else
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                            retVal = sim_propertyret_typemismatch;
+                            if (p == sim_propertytype_long)
+                                retVal = App::setLongProperty_t(target, pName.c_str(), pState);
+                            else if (p == sim_propertytype_float)
+                                retVal = App::setFloatProperty_t(target, pName.c_str(), (double)pState);
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                                retVal = sim_propertyret_typemismatch;
+                            }
                         }
                     }
                 }
@@ -1014,8 +1021,13 @@ int simSetHandleProperty_internal(long long int target, const char* ppName, long
                             }
                             else
                             {
-                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                                retVal = sim_propertyret_typemismatch;
+                                if (p == sim_propertytype_long)
+                                    retVal = App::setLongProperty_t(target, pName.c_str(), pState);
+                                if (retVal != sim_propertyret_ok)
+                                {
+                                    CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                                    retVal = sim_propertyret_typemismatch;
+                                }
                             }
                         }
                     }
@@ -1201,8 +1213,19 @@ int simGetLongProperty_internal(long long int target, const char* ppName, long l
                     }
                     else
                     {
-                        CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                        retVal = sim_propertyret_typemismatch;
+                        if (p == sim_propertytype_int)
+                        {
+                            int w;
+                            retVal = App::getIntProperty_t(target, pName.c_str(), w);
+                            pState[0] = (long)w;
+                        }
+                        else if (p == sim_propertytype_handle)
+                            retVal = App::getHandleProperty_t(target, pName.c_str(), pState[0]);
+                        if (retVal != sim_propertyret_ok)
+                        {
+                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                            retVal = sim_propertyret_typemismatch;
+                        }
                     }
                 }
             }
@@ -1317,8 +1340,17 @@ int simGetFloatProperty_internal(long long int target, const char* ppName, doubl
                     }
                     else
                     {
-                        CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                        retVal = sim_propertyret_typemismatch;
+                        if (p == sim_propertytype_int)
+                        {
+                            int w;
+                            retVal = App::getIntProperty_t(target, pName.c_str(), w);
+                            pState[0] = (float)w;
+                        }
+                        if (retVal != sim_propertyret_ok)
+                        {
+                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                            retVal = sim_propertyret_typemismatch;
+                        }
                     }
                 }
             }
@@ -1368,8 +1400,16 @@ int simSetStringProperty_internal(long long int target, const char* ppName, cons
                         }
                         else
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                            retVal = sim_propertyret_typemismatch;
+                            if ((p & 0xff) == sim_propertytype_buffer)
+                            {
+                                std::string w(pState);
+                                retVal = App::setBufferProperty_t(target, pName.c_str(), w);
+                            }
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                                retVal = sim_propertyret_typemismatch;
+                            }
                         }
                     }
                 }
@@ -1650,8 +1690,23 @@ int simGetBufferProperty_internal(long long int target, const char* ppName, char
             }
             else
             {
-                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                retVal = sim_propertyret_typemismatch;
+                if ((p & 0xff) == sim_propertytype_string)
+                {
+                    std::string w;
+                    retVal = App::getStringProperty_t(target, pName.c_str(), w);
+                    if (retVal == sim_propertyret_ok)
+                    {
+                        buffer[0] = new char[w.size()];
+                        for (size_t i = 0; i < w.size(); i++)
+                            buffer[0][i] = w[i];
+                        bufferL[0] = int(w.size());
+                    }
+                }
+                if (retVal != sim_propertyret_ok)
+                {
+                    CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                    retVal = sim_propertyret_typemismatch;
+                }
             }
         }
         return retVal;
@@ -1699,8 +1754,21 @@ int simSetIntArray2Property_internal(long long int target, const char* ppName, c
                         }
                         else
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                            retVal = sim_propertyret_typemismatch;
+                            if (p == sim_propertytype_intarray)
+                            {
+                                std::vector<int> w{pState[0], pState[1]};
+                                retVal = App::setIntArrayProperty_t(target, pName.c_str(), w);
+                            }
+                            else if (p == sim_propertytype_floatarray)
+                            {
+                                std::vector<double> w{(double)pState[0], (double)pState[1]};
+                                retVal = App::setFloatArrayProperty_t(target, pName.c_str(), w);
+                            }
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                                retVal = sim_propertyret_typemismatch;
+                            }
                         }
                     }
                 }
@@ -1819,8 +1887,16 @@ int simSetVector3Property_internal(long long int target, const char* ppName, con
                         }
                         else
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                            retVal = sim_propertyret_typemismatch;
+                            if (p == sim_propertytype_floatarray)
+                            {
+                                std::vector<double> w{pState[0], pState[1], pState[2]};
+                                retVal = App::setFloatArrayProperty_t(target, pName.c_str(), w);
+                            }
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                                retVal = sim_propertyret_typemismatch;
+                            }
                         }
                     }
                 }
@@ -1951,8 +2027,19 @@ int simSetMatrixProperty_internal(long long int target, const char* ppName, cons
                         }
                         else
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                            retVal = sim_propertyret_typemismatch;
+                            if (p == sim_propertytype_floatarray)
+                            {
+                                std::vector<double> w;
+                                w.resize(r * c);
+                                for (size_t i = 0; i < w.size(); i++)
+                                    w[i] = pState[i];
+                                retVal = App::setFloatArrayProperty_t(target, pName.c_str(), w);
+                            }
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                                retVal = sim_propertyret_typemismatch;
+                            }
                         }
                     }
                 }
@@ -2090,8 +2177,16 @@ int simSetQuaternionProperty_internal(long long int target, const char* ppName, 
                         }
                         else
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                            retVal = sim_propertyret_typemismatch;
+                            if (p == sim_propertytype_floatarray)
+                            {
+                                std::vector<double> w{pState[0], pState[1], pState[2], pState[3]};
+                                retVal = App::setFloatArrayProperty_t(target, pName.c_str(), w);
+                            }
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                                retVal = sim_propertyret_typemismatch;
+                            }
                         }
                     }
                 }
@@ -2211,8 +2306,19 @@ int simSetPoseProperty_internal(long long int target, const char* ppName, const 
                         }
                         else
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                            retVal = sim_propertyret_typemismatch;
+                            if (p == sim_propertytype_floatarray)
+                            {
+                                std::vector<double> w;
+                                w.resize(7);
+                                for (size_t i = 0; i < 7; i++)
+                                    w[i] = pState[i];
+                                retVal = App::setFloatArrayProperty_t(target, pName.c_str(), w);
+                            }
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                                retVal = sim_propertyret_typemismatch;
+                            }
                         }
                     }
                 }
@@ -2330,8 +2436,16 @@ int simSetColorProperty_internal(long long int target, const char* ppName, const
                         }
                         else
                         {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                            retVal = sim_propertyret_typemismatch;
+                            if (p == sim_propertytype_floatarray)
+                            {
+                                std::vector<double> w{(double)pState[0], (double)pState[1], (double)pState[2]};
+                                retVal = App::setFloatArrayProperty_t(target, pName.c_str(), w);
+                            }
+                            if (retVal != sim_propertyret_ok)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                                retVal = sim_propertyret_typemismatch;
+                            }
                         }
                     }
                 }
@@ -2520,8 +2634,92 @@ int simGetFloatArrayProperty_internal(long long int target, const char* ppName, 
                 }
                 else
                 {
-                    CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                    retVal = sim_propertyret_typemismatch;
+                    if ((p & 0xff) == sim_propertytype_intarray)
+                    {
+                        std::vector<int> w;
+                        retVal = App::getIntArrayProperty_t(target, pName.c_str(), w);
+                        if (retVal == sim_propertyret_ok)
+                        {
+                            v[0] = new double[w.size()];
+                            for (size_t i = 0; i < w.size(); i++)
+                                v[0][i] = (double)w[i];
+                            vL[0] = (int)w.size();
+                        }
+                    }
+                    else if ((p & 0xff) == sim_propertytype_intarray2)
+                    {
+                        int w[2];
+                        retVal = App::getIntArray2Property_t(target, pName.c_str(), w);
+                        if (retVal == sim_propertyret_ok)
+                        {
+                            v[0] = new double[2];
+                            for (size_t i = 0; i < 2; i++)
+                                v[0][i] = (double)w[i];
+                            vL[0] = 2;
+                        }
+                    }
+                    else if ((p & 0xff) == sim_propertytype_vector3)
+                    {
+                        C3Vector w;
+                        retVal = App::getVector3Property_t(target, pName.c_str(), w);
+                        if (retVal == sim_propertyret_ok)
+                        {
+                            v[0] = new double[3];
+                            w.getData(v[0]);
+                            vL[0] = 3;
+                        }
+                    }
+                    else if ((p & 0xff) == sim_propertytype_quaternion)
+                    {
+                        C4Vector w;
+                        retVal = App::getQuaternionProperty_t(target, pName.c_str(), w);
+                        if (retVal == sim_propertyret_ok)
+                        {
+                            v[0] = new double[4];
+                            w.getData(v[0], true);
+                            vL[0] = 4;
+                        }
+                    }
+                    else if ((p & 0xff) == sim_propertytype_pose)
+                    {
+                        C7Vector w;
+                        retVal = App::getPoseProperty_t(target, pName.c_str(), w);
+                        if (retVal == sim_propertyret_ok)
+                        {
+                            v[0] = new double[7];
+                            w.getData(v[0], true);
+                            vL[0] = 7;
+                        }
+                    }
+                    else if ((p & 0xff) == sim_propertytype_color)
+                    {
+                        float w[3];
+                        retVal = App::getColorProperty_t(target, pName.c_str(), w);
+                        if (retVal == sim_propertyret_ok)
+                        {
+                            v[0] = new double[3];
+                            for (size_t i = 0; i < 3; i++)
+                                v[0][i] = (double)w[i];
+                            vL[0] = 3;
+                        }
+                    }
+                    else if ((p & 0xff) == sim_propertytype_matrix)
+                    {
+                        CMatrix w;
+                        retVal = App::getMatrixProperty_t(target, pName.c_str(), w);
+                        if (retVal == sim_propertyret_ok)
+                        {
+                            v[0] = new double[w.rows * w.cols];
+                            for (size_t i = 0; i < w.rows * w.cols; i++)
+                                v[0][i] = w.data[i];
+                            vL[0] = w.rows * w.cols;
+                        }
+                    }
+                    if (retVal != sim_propertyret_ok)
+                    {
+                        CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                        retVal = sim_propertyret_typemismatch;
+                    }
                 }
             }
         }
@@ -2573,8 +2771,19 @@ int simSetIntArrayProperty_internal(long long int target, const char* ppName, co
                             }
                             else
                             {
-                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                                retVal = sim_propertyret_typemismatch;
+                                if ((p & 0xff) == sim_propertytype_floatarray)
+                                {
+                                    std::vector<double> w;
+                                    w.resize(pState.size());
+                                    for (size_t i = 0; i < pState.size(); i++)
+                                        w[i] = (double)pState[i];
+                                    retVal = App::setFloatArrayProperty_t(target, pName.c_str(), w);
+                                }
+                                if (retVal != sim_propertyret_ok)
+                                {
+                                    CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                                    retVal = sim_propertyret_typemismatch;
+                                }
                             }
                         }
                     }
@@ -2641,8 +2850,23 @@ int simGetIntArrayProperty_internal(long long int target, const char* ppName, in
                 }
                 else
                 {
-                    CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                    retVal = sim_propertyret_typemismatch;
+                    if ((p & 0xff) == sim_propertytype_intarray2)
+                    {
+                        int w[2];
+                        retVal = App::getIntArray2Property_t(target, pName.c_str(), w);
+                        if (retVal == sim_propertyret_ok)
+                        {
+                            v[0] = new int[2];
+                            for (size_t i = 0; i < 2; i++)
+                                v[0][i] = w[i];
+                            vL[0] = 2;
+                        }
+                    }
+                    if (retVal != sim_propertyret_ok)
+                    {
+                        CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                        retVal = sim_propertyret_typemismatch;
+                    }
                 }
             }
         }

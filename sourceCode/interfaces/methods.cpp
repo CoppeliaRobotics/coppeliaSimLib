@@ -229,6 +229,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["getGenesisEvents"] = _method_getGenesisEvents;
         funcTable["setEventFilters"] = _method_setEventFilters;
         funcTable["getPluginInfo"] = _method_getPluginInfo;
+        funcTable["setPluginInfo"] = _method_setPluginInfo;
     }
 
     std::string retVal("__notFound__");
@@ -8342,15 +8343,47 @@ std::string _method_getPluginInfo(int targetObj, const char* method, CDetachedSc
             plug = App::scenes->pluginContainer->getPluginFromName_old(pluginName.c_str(), true);
         if (plug != nullptr)
         {
-            CInterfaceStackTable* tbl = new CInterfaceStackTable();
-            tbl->appendMapObject_text("versionStr", plug->getExtendedVersionString().c_str());
-            tbl->appendMapObject_text("buildDate", plug->getBuildDateString().c_str());
-            tbl->appendMapObject_int32("version", plug->getExtendedVersionInt());
-            tbl->appendMapObject_int32("consoleVerbosity", App::getConsoleVerbosity(pluginName.c_str()));
-            tbl->appendMapObject_int32("statusbarVerbosity", App::getStatusbarVerbosity(pluginName.c_str()));
-            outStack->pushObjectOntoStack(tbl);
+            CInterfaceStackTable* map = new CInterfaceStackTable();
+            map->appendMapObject_text("versionStr", plug->getExtendedVersionString().c_str());
+            map->appendMapObject_text("buildDate", plug->getBuildDateString().c_str());
+            map->appendMapObject_int32("version", plug->getExtendedVersionInt());
+            map->appendMapObject_int32("consoleVerbosity", App::getConsoleVerbosity(pluginName.c_str()));
+            map->appendMapObject_int32("statusbarVerbosity", App::getStatusbarVerbosity(pluginName.c_str()));
+            outStack->pushObjectOntoStack(map);
+        }
+        else
+            errMsg = SIM_ERROR_INVALID_PLUGIN_NAME;
+    }
+    return errMsg;
+}
 
-            // printf("a %i, %s, %s\n", plug->getPluginVersion(), plug->getName().c_str(), plug->getNamespace().c_str());
+std::string _method_setPluginInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map}))
+    {
+        std::string pluginName = fetchText(inStack, 0);
+        CPlugin* plug = App::scenes->pluginContainer->getPluginFromName(pluginName.c_str());
+        if (plug == nullptr)
+            plug = App::scenes->pluginContainer->getPluginFromName_old(pluginName.c_str(), true);
+        if (plug != nullptr)
+        {
+            int consoleVerbosity;
+            int statusbarVerbosity;
+            bool hasConsoleVerbosity = false;
+            bool hasStatusbarVerbosity = false;
+            if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+            {
+                hasConsoleVerbosity = map->fetchInt32FromKey("consoleVerbosity", consoleVerbosity, &errMsg);
+                hasStatusbarVerbosity = map->fetchInt32FromKey("statusbarVerbosity", statusbarVerbosity, &errMsg);
+            }
+            if (errMsg.empty())
+            {
+                if (hasConsoleVerbosity)
+                    App::setConsoleVerbosity(consoleVerbosity, pluginName.c_str());
+                if (hasStatusbarVerbosity)
+                    App::setStatusbarVerbosity(statusbarVerbosity, pluginName.c_str());
+            }
         }
         else
             errMsg = SIM_ERROR_INVALID_PLUGIN_NAME;

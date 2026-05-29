@@ -224,6 +224,7 @@ extern std::string _method_getContacts(int targetObj, const char* method, CDetac
 extern std::string _method_getGenesisEvents(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_setEventFilters(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getPluginInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_setPluginInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 
 extern std::string _method_remove(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_removeObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
