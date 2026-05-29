@@ -1,6 +1,6 @@
 #include <bezierPathPoint_old.h>
 
-CBezierPathPoint_old::CBezierPathPoint_old(const C7Vector& transf)
+CBezierPathPoint_old::CBezierPathPoint_old(const CPose& transf)
 {
     _transformation = transf;
     cumulativeLength = 0.0;

@@ -750,7 +750,7 @@ bool CGraphingRoutines_old::getDataName(int dataIndex, std::string& dataName)
     return (dataName != std::string(IDS_ERROR));
 }
 
-bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& value, const C7Vector* graphCTM)
+bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& value, const CPose* graphCTM)
 { // If return value is true, value contains the asked value (used by graphs)
     // If return value is false, the value can't be found here. If it can't be
     // found anywhere, use the default value!
@@ -962,7 +962,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
                 return (validResult);
             if (graphCTM == nullptr)
                 return (false);
-            C7Vector graphInv(graphCTM->getInverse());
+            CPose graphInv(graphCTM->getInverse());
             C3Vector d0(dist);
             C3Vector d1(dist + 3);
             d0 *= graphInv;
@@ -1155,8 +1155,8 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
             C3Vector pt;
             if (sens->getSensedData(pt))
             {
-                C7Vector sensCTM(sens->getCumulativeTransformation());
-                C7Vector graphInv(graphCTM->getInverse());
+                CPose sensCTM(sens->getCumulativeTransformation());
+                CPose graphInv(graphCTM->getInverse());
                 sensCTM = graphInv * sensCTM;
                 pt = sensCTM * pt;
                 if (dataIndex == GRAPH_SCENEOBJECT_PROXSENSOR_X_REL)
@@ -1425,7 +1425,7 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
             (dataIndex == GRAPH_SCENEOBJECT_ALL_Z_ABS) || (dataIndex == GRAPH_SCENEOBJECT_ALL_ALPHA_ABS) ||
             (dataIndex == GRAPH_SCENEOBJECT_ALL_BETA_ABS) || (dataIndex == GRAPH_SCENEOBJECT_ALL_GAMMA_ABS))
         {
-            C7Vector itCTM(it->getCumulativeTransformation());
+            CPose itCTM(it->getCumulativeTransformation());
             C3Vector euler(itCTM.Q.getEulerAngles());
             if (dataIndex == GRAPH_SCENEOBJECT_ALL_X_ABS)
                 value = itCTM.X(0);
@@ -1445,10 +1445,10 @@ bool CGraphingRoutines_old::getDataValue(int dataIndex, int objectID, double& va
             (dataIndex == GRAPH_SCENEOBJECT_ALL_Z_REL) || (dataIndex == GRAPH_SCENEOBJECT_ALL_ALPHA_REL) ||
             (dataIndex == GRAPH_SCENEOBJECT_ALL_BETA_REL) || (dataIndex == GRAPH_SCENEOBJECT_ALL_GAMMA_REL))
         {
-            C7Vector itCTM(it->getCumulativeTransformation());
+            CPose itCTM(it->getCumulativeTransformation());
             if (graphCTM == nullptr)
                 return (false);
-            C7Vector graphInv(graphCTM->getInverse());
+            CPose graphInv(graphCTM->getInverse());
             itCTM = graphInv * itCTM;
             C3Vector euler(itCTM.Q.getEulerAngles());
             if (dataIndex == GRAPH_SCENEOBJECT_ALL_X_REL)
@@ -1696,7 +1696,7 @@ bool CGraphingRoutines_old::loopThroughAllAndGetDataName(int dataIndex, std::str
 }
 
 bool CGraphingRoutines_old::loopThroughAllAndGetDataValue(int dataIndex, int objectID, double& value,
-                                                          const C7Vector* graphCTM)
+                                                          const CPose* graphCTM)
 { // If return value is true, value contains the asked value (used by graphs)
     // If return value is false, the value couldn't be found and you have to use
     // the default value!

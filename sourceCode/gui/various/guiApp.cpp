@@ -1068,7 +1068,7 @@ CColorObject* GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
             if ((it != nullptr) && it->isCompound())
             {
                 std::vector<CMesh*> allGeometrics;
-                it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, allGeometrics);
+                it->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, allGeometrics);
                 if ((objID2 >= 0) && (objID2 < int(allGeometrics.size())))
                     return (&allGeometrics[objID2]->color);
             }
@@ -1122,7 +1122,7 @@ CTextureProperty* GuiApp::getTexturePropertyPointerFromItem(int objType, int obj
         if (it != nullptr)
         {
             std::vector<CMesh*> allGeometrics;
-            it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, allGeometrics);
+            it->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, allGeometrics);
             if ((objID2 >= 0) && (objID2 < int(allGeometrics.size())))
             {
                 _isValid[0] = true;

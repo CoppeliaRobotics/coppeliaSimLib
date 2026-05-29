@@ -16,9 +16,9 @@ class CInterfaceStackQuaternion : public CInterfaceStackObject
     unsigned int createFromData(const char* data, unsigned char version, std::vector<CInterfaceStackObject*>& allCreatedObjects) override;
     static bool checkCreateFromData(const char* data, unsigned int& w, unsigned int l, unsigned char version);
 
-    const C4Vector* getValue() const;
-    void setValue(const C4Vector* q);
+    const CQuaternion* getValue() const;
+    void setValue(const CQuaternion* q);
 
   protected:
-    C4Vector _quaternion;
+    CQuaternion _quaternion;
 };

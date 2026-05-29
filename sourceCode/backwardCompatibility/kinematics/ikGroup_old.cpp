@@ -957,8 +957,8 @@ int CIkGroup_old::generateIkPath(int jointCnt, const int* jointHandles, int ptCn
     }
     std::vector<CDummy*> tips;
     std::vector<CDummy*> targets;
-    std::vector<C7Vector> startTrs;
-    std::vector<C7Vector> goalTrs;
+    std::vector<CPose> startTrs;
+    std::vector<CPose> goalTrs;
     if (retVal == 0)
     {
         if (getIkElementCount() > 0)
@@ -1050,7 +1050,7 @@ int CIkGroup_old::generateIkPath(int jointCnt, const int* jointHandles, int ptCn
         {
             for (size_t el = 0; el < getIkElementCount(); el++)
             { // set all targets to an interpolated pose
-                C7Vector tr;
+                CPose tr;
                 tr.buildInterpolation(startTrs[el], goalTrs[el], t);
                 targets[el]->setAbsoluteTransformation(tr);
             }

@@ -257,7 +257,7 @@ void CInterfaceStackTable::getItemsAsConsecutiveFloats(std::vector<float>& array
             }
             else if (t == sim_stackitem_quaternion)
             { // as qx,qy,qz,qw
-                const C4Vector* v = ((CInterfaceStackQuaternion*)_tableObjects[i])->getValue();
+                const CQuaternion* v = ((CInterfaceStackQuaternion*)_tableObjects[i])->getValue();
                 array.push_back((float)v->data[1]);
                 array.push_back((float)v->data[2]);
                 array.push_back((float)v->data[3]);
@@ -265,7 +265,7 @@ void CInterfaceStackTable::getItemsAsConsecutiveFloats(std::vector<float>& array
             }
             else if (t == sim_stackitem_pose)
             { // as x, y, z, qx,qy,qz,qw
-                const C7Vector* v = ((CInterfaceStackPose*)_tableObjects[i])->getValue();
+                const CPose* v = ((CInterfaceStackPose*)_tableObjects[i])->getValue();
                 array.push_back((float)v->X(0));
                 array.push_back((float)v->X(1));
                 array.push_back((float)v->X(2));
@@ -319,7 +319,7 @@ void CInterfaceStackTable::getItemsAsConsecutiveDoubles(std::vector<double>& arr
             }
             else if (t == sim_stackitem_quaternion)
             { // as qx,qy,qz,qw
-                const C4Vector* v = ((CInterfaceStackQuaternion*)_tableObjects[i])->getValue();
+                const CQuaternion* v = ((CInterfaceStackQuaternion*)_tableObjects[i])->getValue();
                 array.push_back(v->data[1]);
                 array.push_back(v->data[2]);
                 array.push_back(v->data[3]);
@@ -327,7 +327,7 @@ void CInterfaceStackTable::getItemsAsConsecutiveDoubles(std::vector<double>& arr
             }
             else if (t == sim_stackitem_pose)
             { // as x, y, z, qx,qy,qz,qw
-                const C7Vector* v = ((CInterfaceStackPose*)_tableObjects[i])->getValue();
+                const CPose* v = ((CInterfaceStackPose*)_tableObjects[i])->getValue();
                 array.push_back(v->X(0));
                 array.push_back(v->X(1));
                 array.push_back(v->X(2));
@@ -617,14 +617,14 @@ bool CInterfaceStackTable::fetchDoubleArrayFromKey(const char* fieldName, double
         else if ((obj->getObjectType() == sim_stackitem_quaternion) && (cnt == 4))
         {
             const CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)obj;
-            const C4Vector* Q = q->getValue();
+            const CQuaternion* Q = q->getValue();
             Q->getData(arr, true);
             retVal = true;
         }
         else if ((obj->getObjectType() == sim_stackitem_pose) && (cnt == 7))
         {
             const CInterfaceStackPose* p = (CInterfaceStackPose*)obj;
-            const C7Vector* P = p->getValue();
+            const CPose* P = p->getValue();
             P->getData(arr, true);
             retVal = true;
         }
@@ -680,7 +680,7 @@ bool CInterfaceStackTable::fetchFloatArrayFromKey(const char* fieldName, float* 
         else if ((obj->getObjectType() == sim_stackitem_quaternion) && (cnt == 4))
         {
             const CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)obj;
-            const C4Vector* Q = q->getValue();
+            const CQuaternion* Q = q->getValue();
             double dat[4];
             Q->getData(dat, true);
             for (size_t i = 0; i < cnt; i++)
@@ -690,7 +690,7 @@ bool CInterfaceStackTable::fetchFloatArrayFromKey(const char* fieldName, float* 
         else if ((obj->getObjectType() == sim_stackitem_pose) && (cnt == 7))
         {
             const CInterfaceStackPose* p = (CInterfaceStackPose*)obj;
-            const C7Vector* P = p->getValue();
+            const CPose* P = p->getValue();
             double dat[7];
             P->getData(dat, true);
             for (size_t i = 0; i < cnt; i++)

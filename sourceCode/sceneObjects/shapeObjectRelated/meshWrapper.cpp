@@ -52,7 +52,7 @@ void CMeshWrapper::addItem(CMeshWrapper* m)
     childList.push_back(m);
     std::vector<double> vert;
     std::vector<int> ind;
-    getCumulativeMeshes(C7Vector::identityTransformation, vert, &ind, nullptr);
+    getCumulativeMeshes(CPose::identityTransformation, vert, &ind, nullptr);
     _bbFrame = CAlgos::getMeshBoundingBox(vert, ind, false, &_bbSize);
     _computeInertiaFromComposingInertias();
 }
@@ -74,7 +74,7 @@ void CMeshWrapper::_computeInertiaFromComposingInertias()
     for (size_t i = 0; i < childList.size(); i++)
     {
         CMeshWrapper* mesh = childList[i];
-        C3X3Matrix m(getInertiaInNewFrame(mesh->getIFrame().Q, mesh->getInertia(), C4Vector::identityRotation));
+        C3X3Matrix m(getInertiaInNewFrame(mesh->getIFrame().Q, mesh->getInertia(), CQuaternion::identityRotation));
         m = m * mesh->getMass();
         C3Vector d((mesh->getIFrame() * mesh->getCOM()) - _com);
         C3X3Matrix I;
@@ -93,7 +93,7 @@ void CMeshWrapper::_computeInertiaFromComposingInertias()
     setInertiaAndComputePMI(imatrix);
 }
 
-void CMeshWrapper::display(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib,
+void CMeshWrapper::display(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib,
                            CColorObject* collisionColor, int dynObjFlag_forVisualization, int transparencyHandling,
                            bool multishapeEditSelected)
 { // function has virtual/non-virtual counterpart!
@@ -102,21 +102,21 @@ void CMeshWrapper::display(const C7Vector& cumulIFrameTr, CShape* geomData, int 
                               dynObjFlag_forVisualization, transparencyHandling, multishapeEditSelected);
 }
 
-void CMeshWrapper::display_extRenderer(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib,
-                                       const C7Vector& tr, int shapeHandle, int& componentIndex)
+void CMeshWrapper::display_extRenderer(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib,
+                                       const CPose& tr, int shapeHandle, int& componentIndex)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->display_extRenderer(cumulIFrameTr * _iFrame, geomData, displayAttrib, tr, shapeHandle,
                                           componentIndex);
 }
 
-void CMeshWrapper::display_colorCoded(const C7Vector& cumulIFrameTr, CShape* geomData, int objectId, int displayAttrib)
+void CMeshWrapper::display_colorCoded(const CPose& cumulIFrameTr, CShape* geomData, int objectId, int displayAttrib)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->display_colorCoded(cumulIFrameTr * _iFrame, geomData, objectId, displayAttrib);
 }
 
-void CMeshWrapper::displayGhost(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib, bool originalColors,
+void CMeshWrapper::displayGhost(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib, bool originalColors,
                                 bool backfaceCulling, double transparency, const float* newColors)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
@@ -322,28 +322,28 @@ void CMeshWrapper::setDynMaterialId_old(int id)
     _dynMaterialId_old = id;
 }
 
-C7Vector CMeshWrapper::getDiagonalInertiaInfo(C3Vector& diagMasslessI) const
+CPose CMeshWrapper::getDiagonalInertiaInfo(C3Vector& diagMasslessI) const
 {
-    C7Vector retVal;
+    CPose retVal;
     retVal.X = _com;
     retVal.Q = _pmiRotFrame;
     diagMasslessI = _pmi;
     return (retVal);
 }
 
-C7Vector CMeshWrapper::getBB(C3Vector* optBBSize) const
+CPose CMeshWrapper::getBB(C3Vector* optBBSize) const
 {
     if (optBBSize != nullptr)
         optBBSize[0] = _bbSize;
     return (_bbFrame);
 }
 
-void CMeshWrapper::setBBFrame(const C7Vector& bbFrame)
+void CMeshWrapper::setBBFrame(const CPose& bbFrame)
 { // function has virtual/non-virtual counterpart!
     _bbFrame = bbFrame;
 }
 
-bool CMeshWrapper::reorientBB(const C4Vector* rot)
+bool CMeshWrapper::reorientBB(const CQuaternion* rot)
 { // function has virtual/non-virtual counterpart!
     bool retVal = false;
     if ((!isMesh()) || (!isPure()))
@@ -351,7 +351,7 @@ bool CMeshWrapper::reorientBB(const C4Vector* rot)
         std::vector<double> vertices;
         if (rot != nullptr)
         {
-            C7Vector tr;
+            CPose tr;
             tr.X.clear();
             tr.Q = rot[0];
             getCumulativeMeshes(tr.getInverse(), vertices, nullptr, nullptr);
@@ -364,7 +364,7 @@ bool CMeshWrapper::reorientBB(const C4Vector* rot)
                 mmax.keepMax(v);
             }
             _bbSize = mmax - mmin;
-            C7Vector bbc;
+            CPose bbc;
             bbc.Q.setIdentity();
             bbc.X = (mmax + mmin) * 0.5;
             _bbFrame = tr * bbc;
@@ -372,9 +372,9 @@ bool CMeshWrapper::reorientBB(const C4Vector* rot)
         else
         {
             std::vector<int> indices;
-            getCumulativeMeshes(C7Vector::identityTransformation, vertices, &indices, nullptr);
+            getCumulativeMeshes(CPose::identityTransformation, vertices, &indices, nullptr);
             _bbFrame = CAlgos::getMeshBoundingBox(vertices, indices, true);
-            C7Vector inv(_bbFrame.getInverse());
+            CPose inv(_bbFrame.getInverse());
 
             C3Vector mmin(DBL_MAX, DBL_MAX, DBL_MAX);
             C3Vector mmax(-DBL_MAX, -DBL_MAX, -DBL_MAX);
@@ -392,8 +392,8 @@ bool CMeshWrapper::reorientBB(const C4Vector* rot)
     return (retVal);
 }
 
-bool CMeshWrapper::getShapeRelIFrame(const C7Vector& parentCumulTr, const CMeshWrapper* wrapper,
-                                     C7Vector& shapeRelIFrame) const
+bool CMeshWrapper::getShapeRelIFrame(const CPose& parentCumulTr, const CMeshWrapper* wrapper,
+                                     CPose& shapeRelIFrame) const
 {
     bool retVal = false;
     if (wrapper == this)
@@ -415,10 +415,10 @@ bool CMeshWrapper::getShapeRelIFrame(const C7Vector& parentCumulTr, const CMeshW
     return (retVal);
 }
 
-bool CMeshWrapper::getShapeRelBB(const C7Vector& parentCumulTr, const CMeshWrapper* wrapper, C7Vector& shapeRelBB,
+bool CMeshWrapper::getShapeRelBB(const CPose& parentCumulTr, const CMeshWrapper* wrapper, CPose& shapeRelBB,
                                  C3Vector* optBBSize) const
 {
-    C7Vector ifr;
+    CPose ifr;
     bool retVal = getShapeRelIFrame(parentCumulTr, wrapper, ifr);
     if (retVal)
         shapeRelBB = ifr * wrapper->getBB(optBBSize);
@@ -430,12 +430,12 @@ C3Vector CMeshWrapper::getCOM() const
     return _com;
 }
 
-C7Vector CMeshWrapper::getIFrame() const
+CPose CMeshWrapper::getIFrame() const
 {
     return _iFrame;
 }
 
-void CMeshWrapper::setIFrame(const C7Vector& iframe)
+void CMeshWrapper::setIFrame(const CPose& iframe)
 {
     _iFrame = iframe;
 }
@@ -590,7 +590,7 @@ CMesh* CMeshWrapper::getFirstMesh()
     return (childList[0]->getFirstMesh());
 }
 
-CMesh* CMeshWrapper::getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr)
+CMesh* CMeshWrapper::getMeshFromUid(long long int meshUid, const CPose& parentCumulTr, CPose& shapeRelTr)
 {
     CMesh* retVal = nullptr;
     for (size_t i = 0; i < childList.size(); i++)
@@ -622,14 +622,14 @@ int CMeshWrapper::countTriangles() const
     return (retVal);
 }
 
-void CMeshWrapper::getCumulativeMeshes(const C7Vector& parentCumulTr, std::vector<double>& vertices,
+void CMeshWrapper::getCumulativeMeshes(const CPose& parentCumulTr, std::vector<double>& vertices,
                                        std::vector<int>* indices, std::vector<double>* normals)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->getCumulativeMeshes(parentCumulTr * _iFrame, vertices, indices, normals);
 }
 
-void CMeshWrapper::getCumulativeMeshes(const C7Vector& parentCumulTr, const CMeshWrapper* wrapper,
+void CMeshWrapper::getCumulativeMeshes(const CPose& parentCumulTr, const CMeshWrapper* wrapper,
                                        std::vector<double>& vertices, std::vector<int>* indices,
                                        std::vector<double>* normals)
 { // function has virtual/non-virtual counterpart!
@@ -661,17 +661,17 @@ bool CMeshWrapper::getColor(const char* colorName, int colorComponent, float* rg
     return (retVal);
 }
 
-void CMeshWrapper::getAllMeshComponentsCumulative(const C7Vector& parentCumulTr,
+void CMeshWrapper::getAllMeshComponentsCumulative(const CPose& parentCumulTr,
                                                   std::vector<CMesh*>& shapeComponentList,
-                                                  std::vector<C7Vector>* OptParentCumulTrList /*=nullptr*/)
+                                                  std::vector<CPose>* OptParentCumulTrList /*=nullptr*/)
 { // function has virtual/non-virtual counterpart!
     // needed by the dynamics routine. We return ALL shape components!
     for (size_t i = 0; i < childList.size(); i++)
         childList[i]->getAllMeshComponentsCumulative(parentCumulTr * _iFrame, shapeComponentList, OptParentCumulTrList);
 }
 
-CMesh* CMeshWrapper::getMeshComponentAtIndex(const C7Vector& parentCumulTr, int& index,
-                                             C7Vector* optParentCumulTrOut /*=nullptr*/)
+CMesh* CMeshWrapper::getMeshComponentAtIndex(const CPose& parentCumulTr, int& index,
+                                             CPose* optParentCumulTrOut /*=nullptr*/)
 { // function has virtual/non-virtual counterpart!
     CMesh* retVal = nullptr;
     if (index >= 0)
@@ -700,7 +700,7 @@ void CMeshWrapper::flipFaces()
         childList[i]->flipFaces();
 }
 
-bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const C7Vector& parentCumulIFrame, bool rootLevel)
+bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const CPose& parentCumulIFrame, bool rootLevel)
 { // function has virtual/non-virtual counterpart!
     bool isNewTypeOfShapeFormat = false;
     if (rootLevel)
@@ -722,7 +722,7 @@ bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const C7Vector& pa
             ar.flush();
 
             ar.storeDataName("_ne"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
-            C7Vector w(parentCumulIFrame * _iFrame);
+            CPose w(parentCumulIFrame * _iFrame);
             w.X += _com;
             w.Q = w.Q * _pmiRotFrame;
             ar << w(0) << w(1) << w(2);
@@ -788,7 +788,7 @@ bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const C7Vector& pa
             int byteQuantity;
             std::string theName = "";
             C3Vector principalMomentsOfInertia_OLD;
-            C7Vector localInertiaFrame_OLD;
+            CPose localInertiaFrame_OLD;
             while (theName.compare(SER_END_OF_OBJECT) != 0)
             {
                 theName = ar.readDataName();
@@ -860,7 +860,7 @@ bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const C7Vector& pa
                     {                                // for backward comp. (flt->dbl)
                         noHit = false;
                         ar >> byteQuantity;
-                        C7Vector transformationsSinceGrouping_OLD;
+                        CPose transformationsSinceGrouping_OLD;
                         float bla;
                         for (size_t i = 0; i < 7; i++)
                         {
@@ -872,7 +872,7 @@ bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const C7Vector& pa
                         if (rootLevel)
                             transformationsSinceGrouping_OLD.setIdentity();
                         _iFrame = parentCumulIFrame.getInverse() * transformationsSinceGrouping_OLD;
-                        C7Vector inf(transformationsSinceGrouping_OLD.getInverse() * localInertiaFrame_OLD);
+                        CPose inf(transformationsSinceGrouping_OLD.getInverse() * localInertiaFrame_OLD);
                         _com = inf.X;
                         inf.X.clear();
                         _iMatrix = getInertiaFromPMI(principalMomentsOfInertia_OLD, inf);
@@ -882,7 +882,7 @@ bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const C7Vector& pa
                     if (theName.compare("_tb") == 0) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                     {
                         noHit = false;
-                        C7Vector transformationsSinceGrouping_OLD;
+                        CPose transformationsSinceGrouping_OLD;
                         ar >> byteQuantity;
                         ar >> transformationsSinceGrouping_OLD(0) >> transformationsSinceGrouping_OLD(1) >>
                             transformationsSinceGrouping_OLD(2) >> transformationsSinceGrouping_OLD(3);
@@ -892,7 +892,7 @@ bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const C7Vector& pa
                         if (rootLevel)
                             transformationsSinceGrouping_OLD.setIdentity();
                         _iFrame = parentCumulIFrame.getInverse() * transformationsSinceGrouping_OLD;
-                        C7Vector inf(transformationsSinceGrouping_OLD.getInverse() * localInertiaFrame_OLD);
+                        CPose inf(transformationsSinceGrouping_OLD.getInverse() * localInertiaFrame_OLD);
                         _com = inf.X;
                         inf.X.clear();
                         _iMatrix = getInertiaFromPMI(principalMomentsOfInertia_OLD, inf);
@@ -972,7 +972,7 @@ bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const C7Vector& pa
             {
                 std::vector<double> vert;
                 std::vector<int> ind;
-                getCumulativeMeshes(C7Vector::identityTransformation, vert, &ind, nullptr);
+                getCumulativeMeshes(CPose::identityTransformation, vert, &ind, nullptr);
                 _bbFrame = CAlgos::getMeshBoundingBox(vert, ind, false, &_bbSize);
             }
         }
@@ -987,7 +987,7 @@ bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const C7Vector& pa
 
             ar.xmlAddNode_comment(" 'transformationSinceGrouping' tag: deprecated, for backward compatibility ", false);
             ar.xmlPushNewNode("transformationSinceGrouping"); // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
-            C7Vector w(parentCumulIFrame * _iFrame);
+            CPose w(parentCumulIFrame * _iFrame);
             ar.xmlAddNode_floats("position", w.X.data, 3);
             ar.xmlAddNode_floats("quaternion", w.Q.data, 4);
             ar.xmlPopNode();
@@ -1048,7 +1048,7 @@ bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const C7Vector& pa
             {
                 ar.xmlGetNode_string("name", _name);
 
-                C7Vector transformationsSinceGrouping_OLD;
+                CPose transformationsSinceGrouping_OLD;
                 if (ar.xmlPushChildNode("transformationSinceGrouping",
                                         false)) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                 {
@@ -1067,7 +1067,7 @@ bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const C7Vector& pa
                     if (ar.xmlPushChildNode("localInertiaFrame",
                                             false)) // deprecated, old shapes (prior to CoppeliaSim V4.5 rev2)
                     {
-                        C7Vector localInertiaFrame_OLD;
+                        CPose localInertiaFrame_OLD;
                         ar.xmlGetNode_floats("position", localInertiaFrame_OLD.X.data, 3);
                         ar.xmlGetNode_floats("quaternion", localInertiaFrame_OLD.Q.data, 4);
                         localInertiaFrame_OLD.Q.normalize(); // just in case
@@ -1075,7 +1075,7 @@ bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const C7Vector& pa
                         ar.xmlGetNode_floats("principalMomentsOfInertia", principalMomentsOfInertia_OLD.data, 3);
                         ar.xmlPopNode();
                         _iFrame = parentCumulIFrame.getInverse() * transformationsSinceGrouping_OLD;
-                        C7Vector inf(transformationsSinceGrouping_OLD.getInverse() * localInertiaFrame_OLD);
+                        CPose inf(transformationsSinceGrouping_OLD.getInverse() * localInertiaFrame_OLD);
                         _com = inf.X;
                         inf.X.clear();
                         _iMatrix = getInertiaFromPMI(principalMomentsOfInertia_OLD, inf);
@@ -1157,7 +1157,7 @@ bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const C7Vector& pa
             {
                 std::vector<double> vert;
                 std::vector<int> ind;
-                getCumulativeMeshes(C7Vector::identityTransformation, vert, &ind, nullptr);
+                getCumulativeMeshes(CPose::identityTransformation, vert, &ind, nullptr);
                 _bbFrame = CAlgos::getMeshBoundingBox(vert, ind, false, &_bbSize);
             }
         }
@@ -1165,7 +1165,7 @@ bool CMeshWrapper::serialize(CSer& ar, const char* shapeName, const C7Vector& pa
     return (isNewTypeOfShapeFormat);
 }
 
-bool CMeshWrapper::getPMIFromInertia(const C3X3Matrix& tensor, C4Vector& rotation, C3Vector& principalMoments)
+bool CMeshWrapper::getPMIFromInertia(const C3X3Matrix& tensor, CQuaternion& rotation, C3Vector& principalMoments)
 { // tensor --> PMI + rotation (tensor and PMI are mass-less)
     Eigen::Matrix3d m;
     for (size_t i = 0; i < 3; i++)
@@ -1192,7 +1192,7 @@ bool CMeshWrapper::getPMIFromInertia(const C3X3Matrix& tensor, C4Vector& rotatio
     return ((principalMoments(0) > 0.0) && (principalMoments(1) > 0.0) && (principalMoments(2) > 0.0));
 }
 
-C3X3Matrix CMeshWrapper::getInertiaFromPMI(const C3Vector& principalMoments, const C7Vector& newFrame)
+C3X3Matrix CMeshWrapper::getInertiaFromPMI(const C3Vector& principalMoments, const CPose& newFrame)
 { // PMI + transf --> tensor (tensor and PMI are mass-less)
     C3X3Matrix tensor;
     tensor.clear();
@@ -1200,7 +1200,7 @@ C3X3Matrix CMeshWrapper::getInertiaFromPMI(const C3Vector& principalMoments, con
     tensor.axis[1](1) = principalMoments(1);
     tensor.axis[2](2) = principalMoments(2);
     // 1. reorient the frame:
-    tensor = getInertiaInNewFrame(newFrame.Q, tensor, C4Vector::identityRotation);
+    tensor = getInertiaInNewFrame(newFrame.Q, tensor, CQuaternion::identityRotation);
     // 2. shift the frame:
     C3X3Matrix D;
     D.setIdentity();
@@ -1212,8 +1212,8 @@ C3X3Matrix CMeshWrapper::getInertiaFromPMI(const C3Vector& principalMoments, con
     return (tensor);
 }
 
-C3X3Matrix CMeshWrapper::getInertiaInNewFrame(const C4Vector& oldFrame, const C3X3Matrix& oldMatrix,
-                                              const C4Vector& newFrame)
+C3X3Matrix CMeshWrapper::getInertiaInNewFrame(const CQuaternion& oldFrame, const C3X3Matrix& oldMatrix,
+                                              const CQuaternion& newFrame)
 {
     C3X3Matrix rot(oldFrame.getMatrix().getTranspose() * newFrame.getMatrix());
     C3X3Matrix retVal(rot.getTranspose() * oldMatrix * rot);
@@ -1243,7 +1243,7 @@ std::string CMeshWrapper::getInertiaErrorString(const C3X3Matrix& matrix)
     {
         if ((matrix(0, 0) > 1e-8) && (matrix(1, 1) > 1e-8) && (matrix(2, 2) > 1e-8))
         {
-            C4Vector dummyRot;
+            CQuaternion dummyRot;
             C3Vector pmi;
             if (getPMIFromInertia(matrix, dummyRot, pmi))
             { // positive definite: eigenvals are positive
@@ -1385,14 +1385,14 @@ int CMeshWrapper::getMatrixProperty_wrapper(const char* pName, CMatrix& pState) 
     return retVal;
 }
 
-int CMeshWrapper::setQuaternionProperty_wrapper(const char* pName, const C4Vector& pState)
+int CMeshWrapper::setQuaternionProperty_wrapper(const char* pName, const CQuaternion& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
 
-int CMeshWrapper::getQuaternionProperty_wrapper(const char* pName, C4Vector& pState) const
+int CMeshWrapper::getQuaternionProperty_wrapper(const char* pName, CQuaternion& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 

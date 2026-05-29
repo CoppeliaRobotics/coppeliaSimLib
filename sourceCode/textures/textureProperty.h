@@ -24,15 +24,15 @@ class CTextureProperty
     bool getInterpolateColors();
     void setApplyMode(int dt);
     int getApplyMode();
-    void transformTexturePose(const C7Vector& mCorrection);
+    void transformTexturePose(const CPose& mCorrection);
 
     int getTextureObjectID() const;
     void setTextureObjectID(int id);
     CTextureObject* getTextureObject();
     std::vector<float>* getTextureCoordinates(int objectStateId, const std::vector<float>& vertices, const std::vector<int>& triangles);
     std::vector<float>* getFixedTextureCoordinates();
-    C7Vector getTextureRelativeConfig();
-    void setTextureRelativeConfig(const C7Vector& c);
+    CPose getTextureRelativeConfig();
+    void setTextureRelativeConfig(const CPose& c);
     void getTextureScaling(double& x, double& y);
     void setTextureScaling(double x, double y);
     void setRepeatU(bool r);
@@ -60,7 +60,7 @@ class CTextureProperty
     bool _repeatV;
     int _textureOrVisionSensorObjectID;
     int _textureCoordinateMode;
-    C7Vector _textureRelativeConfig;
+    CPose _textureRelativeConfig;
     double _textureScalingX;
     double _textureScalingY;
     std::vector<float> _fixedTextureCoordinates;

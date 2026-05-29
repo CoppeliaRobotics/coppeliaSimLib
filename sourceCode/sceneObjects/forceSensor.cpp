@@ -469,9 +469,9 @@ void CForceSensor::_handleSensorTriggering()
     }
 }
 
-C7Vector CForceSensor::getIntrinsicTransformation(bool includeDynErrorComponent, bool* available /*=nullptr*/) const
+CPose CForceSensor::getIntrinsicTransformation(bool includeDynErrorComponent, bool* available /*=nullptr*/) const
 { // Overridden from CSceneObject
-    C7Vector retVal;
+    CPose retVal;
     retVal.setIdentity();
     if (includeDynErrorComponent)
         retVal = _intrinsicTransformationError;
@@ -480,12 +480,12 @@ C7Vector CForceSensor::getIntrinsicTransformation(bool includeDynErrorComponent,
     return (retVal);
 }
 
-C7Vector CForceSensor::getFullLocalTransformation() const
+CPose CForceSensor::getFullLocalTransformation() const
 { // Overridden from CSceneObject
     return (_localTransformation * getIntrinsicTransformation(true));
 }
 
-void CForceSensor::setIntrinsicTransformationError(const C7Vector& tr)
+void CForceSensor::setIntrinsicTransformationError(const CPose& tr)
 {
     bool diff = (_intrinsicTransformationError != tr);
     if (diff)
@@ -521,7 +521,7 @@ double CForceSensor::getDynamicPositionError() const
 
 double CForceSensor::getDynamicOrientationError() const
 {
-    return _intrinsicTransformationError.Q.getAngleBetweenQuaternions(C4Vector::identityRotation);
+    return _intrinsicTransformationError.Q.getAngleBetweenQuaternions(CQuaternion::identityRotation);
 }
 
 void CForceSensor::initializeInitialValues(bool simulationAlreadyRunning)
@@ -532,7 +532,7 @@ void CForceSensor::initializeInitialValues(bool simulationAlreadyRunning)
     _setForceAndTorque(false);
     _cumulatedForces_forFilter.clear();
     _cumulatedTorques_forFilter.clear();
-    setIntrinsicTransformationError(C7Vector::identityTransformation);
+    setIntrinsicTransformationError(CPose::identityTransformation);
 }
 
 void CForceSensor::simulationAboutToStart()
@@ -554,7 +554,7 @@ void CForceSensor::simulationEnded()
     _setFilteredForceAndTorque(false);
     _cumulatedForces_forFilter.clear();
     _cumulatedTorques_forFilter.clear();
-    setIntrinsicTransformationError(C7Vector::identityTransformation);
+    setIntrinsicTransformationError(CPose::identityTransformation);
     CSceneObject::simulationEnded();
 }
 
@@ -593,7 +593,7 @@ bool CForceSensor::isPotentiallyRenderable() const
 
 void CForceSensor::computeBoundingBox()
 {
-    _setBB(C7Vector::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _forceSensorSize * 0.5);
+    _setBB(CPose::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _forceSensorSize * 0.5);
 }
 
 void CForceSensor::setIsInScene(bool s)
@@ -1230,7 +1230,7 @@ int CForceSensor::getVector3Property(const char* ppName, C3Vector& pState) const
     return retVal;
 }
 
-int CForceSensor::setPoseProperty(const char* ppName, const C7Vector& pState)
+int CForceSensor::setPoseProperty(const char* ppName, const CPose& pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setPoseProperty(ppName, pState);
@@ -1241,7 +1241,7 @@ int CForceSensor::setPoseProperty(const char* ppName, const C7Vector& pState)
     return retVal;
 }
 
-int CForceSensor::getPoseProperty(const char* ppName, C7Vector& pState) const
+int CForceSensor::getPoseProperty(const char* ppName, CPose& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getPoseProperty(ppName, pState);

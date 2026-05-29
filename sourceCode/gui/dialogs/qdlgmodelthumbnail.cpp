@@ -87,7 +87,7 @@ void CQDlgModelThumbnail::actualizeBitmap()
             (it->getVisibilityLayer() & App::scene->environment->getActiveLayers()) && display)
         {
             C3Vector hs;
-            C7Vector tr(it->getCumulativeTransformation() * it->getBB(&hs));
+            CPose tr(it->getCumulativeTransformation() * it->getBB(&hs));
             for (double x = -1.0; x < 2.0; x += 2.0)
             {
                 for (double y = -1.0; y < 2.0; y += 2.0)

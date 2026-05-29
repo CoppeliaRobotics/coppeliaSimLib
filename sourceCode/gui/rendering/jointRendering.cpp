@@ -93,9 +93,9 @@ void _displayJoint(CJoint* joint, int displayAttrib, bool partOne, double sizePa
         }
         else
         {
-            C7Vector tr(joint->getIntrinsicTransformation(true));
+            CPose tr(joint->getIntrinsicTransformation(true));
             glTranslated(tr.X(0), tr.X(1), tr.X(2));
-            C4Vector axis = tr.Q.getAngleAndAxis();
+            CQuaternion axis = tr.Q.getAngleAndAxis();
             glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
 
             ogl::drawSphere(joint->getDiameter() / 1.5, 16, 8, true);
@@ -107,9 +107,9 @@ void _displayJoint(CJoint* joint, int displayAttrib, bool partOne, double sizePa
             ogl::drawCylinder(joint->getDiameter(), joint->getLength(), 8, 0, true);
         else
         {
-            C7Vector tr(joint->getIntrinsicTransformation(true));
+            CPose tr(joint->getIntrinsicTransformation(true));
             glTranslated(tr.X(0), tr.X(1), tr.X(2));
-            C4Vector axis = tr.Q.getAngleAndAxis();
+            CQuaternion axis = tr.Q.getAngleAndAxis();
             glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
 
             ogl::drawCylinder(joint->getDiameter() / 2.0, joint->getLength() * 1.2, 8, 0, true);
@@ -121,9 +121,9 @@ void _displayJoint(CJoint* joint, int displayAttrib, bool partOne, double sizePa
             ogl::drawBox(joint->getDiameter(), joint->getDiameter(), joint->getLength(), true, nullptr);
         else
         {
-            C7Vector tr(joint->getIntrinsicTransformation(true));
+            CPose tr(joint->getIntrinsicTransformation(true));
             glTranslated(tr.X(0), tr.X(1), tr.X(2));
-            C4Vector axis = tr.Q.getAngleAndAxis();
+            CQuaternion axis = tr.Q.getAngleAndAxis();
             glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
 
             ogl::drawBox(joint->getDiameter() / 2.0, joint->getDiameter() / 2.0, joint->getLength() * 1.2, true,

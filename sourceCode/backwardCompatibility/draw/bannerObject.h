@@ -40,5 +40,5 @@ class CBannerObject
     bool _createdFromScript;
     double _height;
     bool _visible;
-    C7Vector _relativeConfig;
+    CPose _relativeConfig;
 };

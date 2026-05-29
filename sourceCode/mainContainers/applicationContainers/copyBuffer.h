@@ -22,7 +22,7 @@ class CCopyBuffer
     int pasteBuffer(bool intoLockedScene, int selectionMode);
     bool isBufferEmpty();
     void copyCurrentSelection(std::vector<int>& sel, bool fromLockedScene, int options);
-    void serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7Vector& modelTr, C3Vector& modelBBSize, double modelNonDefaultTranslationStepSize);
+    void serializeCurrentSelection(CSer& ar, std::vector<int>& sel, CPose& modelTr, C3Vector& modelBBSize, double modelNonDefaultTranslationStepSize);
     bool isCopyForPasting();
 
     void memorizeBuffer();

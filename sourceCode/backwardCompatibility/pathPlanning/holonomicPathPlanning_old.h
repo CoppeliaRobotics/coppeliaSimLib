@@ -42,7 +42,7 @@ class CHolonomicPathPlanning_old : public CPathPlanning_old
                                    bool connect, CXDummy* dummy);
     int getVector(CHolonomicPathNode_old* fromPoint, CHolonomicPathNode_old* toPoint, double vect[7], double e,
                   double& artificialLength, bool dontDivide);
-    bool addVector(C3Vector& pos, C4Vector& orient, double vect[7]);
+    bool addVector(C3Vector& pos, CQuaternion& orient, double vect[7]);
     bool areDirectionConstraintsRespected(double vect[7]);
     bool areSomeValuesForbidden(double values[7]);
 
@@ -56,13 +56,13 @@ class CHolonomicPathPlanning_old : public CPathPlanning_old
     int _directionConstraints[4];
     bool _directionConstraintsOn;
 
-    C4Vector _gammaAxisRotation;
-    C4Vector _gammaAxisRotationInv;
+    CQuaternion _gammaAxisRotation;
+    CQuaternion _gammaAxisRotationInv;
 
     double _startConfInterferenceState;
 
-    C7Vector _startDummyCTM;
-    C7Vector _startDummyLTM;
+    CPose _startDummyCTM;
+    CPose _startDummyLTM;
 
     int numberOfRandomConnectionTries_forSteppedSmoothing;
     int numberOfRandomConnectionTriesLeft_forSteppedSmoothing;

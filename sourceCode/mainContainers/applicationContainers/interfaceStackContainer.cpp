@@ -251,7 +251,7 @@ int CInterfaceStackContainer::getMatrixProperty_t(long long int target, const ch
     return retVal;
 }
 
-int CInterfaceStackContainer::setQuaternionProperty_t(long long int target, const char* ppName, const C4Vector& pState)
+int CInterfaceStackContainer::setQuaternionProperty_t(long long int target, const char* ppName, const CQuaternion& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -260,7 +260,7 @@ int CInterfaceStackContainer::setQuaternionProperty_t(long long int target, cons
     return retVal;
 }
 
-int CInterfaceStackContainer::getQuaternionProperty_t(long long int target, const char* ppName, C4Vector& pState) const
+int CInterfaceStackContainer::getQuaternionProperty_t(long long int target, const char* ppName, CQuaternion& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -269,7 +269,7 @@ int CInterfaceStackContainer::getQuaternionProperty_t(long long int target, cons
     return retVal;
 }
 
-int CInterfaceStackContainer::setPoseProperty_t(long long int target, const char* ppName, const C7Vector& pState)
+int CInterfaceStackContainer::setPoseProperty_t(long long int target, const char* ppName, const CPose& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -278,7 +278,7 @@ int CInterfaceStackContainer::setPoseProperty_t(long long int target, const char
     return retVal;
 }
 
-int CInterfaceStackContainer::getPoseProperty_t(long long int target, const char* ppName, C7Vector& pState) const
+int CInterfaceStackContainer::getPoseProperty_t(long long int target, const char* ppName, CPose& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);

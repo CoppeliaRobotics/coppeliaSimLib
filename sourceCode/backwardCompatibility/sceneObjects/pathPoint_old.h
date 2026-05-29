@@ -9,8 +9,8 @@ class CPathPoint_old
     CPathPoint_old();
     virtual ~CPathPoint_old();
 
-    void setTransformation(const C7Vector& tr, int attributes);
-    C7Vector getTransformation();
+    void setTransformation(const CPose& tr, int attributes);
+    CPose getTransformation();
     void setMaxRelAbsVelocity(double t);
     double getMaxRelAbsVelocity();
     void setOnSpotDistance(double d);
@@ -21,7 +21,7 @@ class CPathPoint_old
     void getAuxChannels(double c[4]);
 
   protected:
-    C7Vector _transformation;
+    CPose _transformation;
     double _maxRelAbsVelocity;
     double _onSpotDistance;
     unsigned short _auxFlags;

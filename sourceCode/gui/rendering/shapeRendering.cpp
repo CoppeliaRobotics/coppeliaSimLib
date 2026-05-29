@@ -111,17 +111,17 @@ void displayShape(CShape* shape, CViewableBase* renderingObject, int displayAttr
                 { // normal visualization
                     if (shape->getContainsTransparentComponent())
                     {
-                        shape->getMesh()->display(C7Vector::identityTransformation, shape, displayAttrib, nullptr,
+                        shape->getMesh()->display(CPose::identityTransformation, shape, displayAttrib, nullptr,
                                                   shape->getDynamicFlag(), 2, false);
-                        shape->getMesh()->display(C7Vector::identityTransformation, shape, displayAttrib, nullptr,
+                        shape->getMesh()->display(CPose::identityTransformation, shape, displayAttrib, nullptr,
                                                   shape->getDynamicFlag(), 1, false);
                     }
                     else
-                        shape->getMesh()->display(C7Vector::identityTransformation, shape, displayAttrib, nullptr,
+                        shape->getMesh()->display(CPose::identityTransformation, shape, displayAttrib, nullptr,
                                                   shape->getDynamicFlag(), 0, false);
                 }
                 else
-                    shape->getMesh()->display_colorCoded(C7Vector::identityTransformation, shape,
+                    shape->getMesh()->display_colorCoded(CPose::identityTransformation, shape,
                                                          shape->getObjectHandle(),
                                                          displayAttrib); // color-coded visualization
             }
@@ -133,12 +133,12 @@ void displayShape(CShape* shape, CViewableBase* renderingObject, int displayAttr
     _commonFinish(shape, renderingObject);
 }
 
-void _displayInertia(const C7Vector& tr, const C3Vector& pmi, double comFrameSize)
+void _displayInertia(const CPose& tr, const C3Vector& pmi, double comFrameSize)
 {
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
     glTranslated(tr.X(0), tr.X(1), tr.X(2));
-    C4Vector axis = tr.Q.getAngleAndAxis();
+    CQuaternion axis = tr.Q.getAngleAndAxis();
     glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
     ogl::setMaterialColor(ogl::colorRed, ogl::colorBlack, ogl::colorBlack);
     ogl::setAlpha(0.1);
@@ -158,7 +158,7 @@ void _displayInertia(const C7Vector& tr, const C3Vector& pmi, double comFrameSiz
     ogl::setAlpha(1.0);
     ogl::drawBox(hs(0), hs(1), hs(2), false, nullptr);
 
-    _displayFrame(C7Vector::identityTransformation, comFrameSize, 2);
+    _displayFrame(CPose::identityTransformation, comFrameSize, 2);
 
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -195,7 +195,7 @@ void _displayTriangles(CMesh* geometric, int geomModifCounter, CTextureProperty*
                        nullptr, geometric->getVertexBufferIdPtr(), geometric->getNormalBufferIdPtr(), nullptr);
 }
 
-void displayGeometric(const C7Vector& cumulIFrameTr, CMesh* geometric, CShape* geomData, int displayAttrib,
+void displayGeometric(const CPose& cumulIFrameTr, CMesh* geometric, CShape* geomData, int displayAttrib,
                       CColorObject* collisionColor, int dynObjFlag_forVisualization, int transparencyHandling,
                       bool multishapeEditSelected)
 {
@@ -210,11 +210,11 @@ void displayGeometric(const C7Vector& cumulIFrameTr, CMesh* geometric, CShape* g
         if ((transparencyHandling == 2) && (geometric->getContainsTransparentComponents()))
             return;
     }
-    C7Vector _verticeLocalFrame(cumulIFrameTr * geometric->getBB(nullptr));
+    CPose _verticeLocalFrame(cumulIFrameTr * geometric->getBB(nullptr));
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
     glTranslated(_verticeLocalFrame.X(0), _verticeLocalFrame.X(1), _verticeLocalFrame.X(2));
-    C4Vector axis = _verticeLocalFrame.Q.getAngleAndAxis();
+    CQuaternion axis = _verticeLocalFrame.Q.getAngleAndAxis();
     glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
     if (geometric->getDisplayInverted_DEPRECATED())
         glFrontFace(GL_CW);
@@ -439,14 +439,14 @@ void displayGeometric(const C7Vector& cumulIFrameTr, CMesh* geometric, CShape* g
     glPopMatrix();
 }
 
-void displayGeometric_colorCoded(const C7Vector& cumulIFrameTr, CMesh* geometric, CShape* geomData, int objectId,
+void displayGeometric_colorCoded(const CPose& cumulIFrameTr, CMesh* geometric, CShape* geomData, int objectId,
                                  int displayAttrib)
 {
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
-    C7Vector _verticeLocalFrame(cumulIFrameTr * geometric->getBB(nullptr));
+    CPose _verticeLocalFrame(cumulIFrameTr * geometric->getBB(nullptr));
     glTranslated(_verticeLocalFrame.X(0), _verticeLocalFrame.X(1), _verticeLocalFrame.X(2));
-    C4Vector axis = _verticeLocalFrame.Q.getAngleAndAxis();
+    CQuaternion axis = _verticeLocalFrame.Q.getAngleAndAxis();
     glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
     if (geometric->getDisplayInverted_DEPRECATED())
         glFrontFace(GL_CW);
@@ -475,7 +475,7 @@ void displayGeometric_colorCoded(const C7Vector& cumulIFrameTr, CMesh* geometric
     glPopMatrix();
 }
 
-void displayGeometricGhost(const C7Vector& cumulIFrameTr, CMesh* geometric, CShape* geomData, int displayAttrib,
+void displayGeometricGhost(const CPose& cumulIFrameTr, CMesh* geometric, CShape* geomData, int displayAttrib,
                            bool originalColors, bool backfaceCulling, double transparency, const float* newColors)
 {
     if (originalColors)
@@ -486,9 +486,9 @@ void displayGeometricGhost(const C7Vector& cumulIFrameTr, CMesh* geometric, CSha
 
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
-    C7Vector _verticeLocalFrame(cumulIFrameTr * geometric->getBB(nullptr));
+    CPose _verticeLocalFrame(cumulIFrameTr * geometric->getBB(nullptr));
     glTranslated(_verticeLocalFrame.X(0), _verticeLocalFrame.X(1), _verticeLocalFrame.X(2));
-    C4Vector axis = _verticeLocalFrame.Q.getAngleAndAxis();
+    CQuaternion axis = _verticeLocalFrame.Q.getAngleAndAxis();
     glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
     if (geometric->getDisplayInverted_DEPRECATED())
         glFrontFace(GL_CW);

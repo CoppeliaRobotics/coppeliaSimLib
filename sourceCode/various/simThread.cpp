@@ -556,14 +556,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                             if (!App::assemble(parent->getObjectHandle(), obj->getObjectHandle(), false, false))
                             { // failed to assemble. We just parent it and set its local pose to zero
                                 App::scene->sceneObjects->setObjectParent(obj, parent, true);
-                                obj->setLocalTransformation(C7Vector::identityTransformation);
+                                obj->setLocalTransformation(CPose::identityTransformation);
                             }
                             parent->setObjectProperty((parent->getObjectProperty() | sim_objectproperty_collapsed) - sim_objectproperty_collapsed);
                         }
                     }
                     else
                     {
-                        C7Vector tr(obj->getFullLocalTransformation());
+                        CPose tr(obj->getFullLocalTransformation());
                         double ss = obj->getObjectMovementStepSize(0);
                         if (ss == 0.0)
                             ss = App::userSettings->getTranslationStepSize();
@@ -2474,7 +2474,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (shape != nullptr)
             {
                 std::vector<CMesh*> components;
-                shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, components);
+                shape->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, components);
                 for (size_t j = 0; j < components.size(); j++)
                 {
                     CTextureProperty* tp = components[j]->getTextureProperty();
@@ -2507,7 +2507,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 shapeList.push_back(shape);
                 std::vector<CMesh*> components;
-                shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, components);
+                shape->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, components);
                 for (size_t j = 0; j < components.size(); j++)
                 {
                     CTextureProperty* tp = components[j]->getTextureProperty();
@@ -2531,7 +2531,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 CShape* shape = shapeList[i];
                 std::vector<CMesh*> components;
-                shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, components);
+                shape->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, components);
                 for (size_t j = 0; j < components.size(); j++)
                 {
                     CMesh* geom = components[j];
@@ -2548,7 +2548,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 C3Vector bbhs(shape->getBBHSize());
                 double s = std::max<double>(std::max<double>(bbhs(0), bbhs(1)), bbhs(2)) * 2.0;
                 std::vector<CMesh*> components;
-                shape->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, components);
+                shape->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, components);
                 for (size_t j = 0; j < components.size(); j++)
                 {
                     CMesh* geom = components[j];
@@ -2613,7 +2613,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             cmd.intParams[0], cmd.intParams[1], cmd.intParams[2], nullptr, nullptr, nullptr, nullptr);
         if (it != nullptr)
         {
-            C7Vector tr(it->getTextureRelativeConfig());
+            CPose tr(it->getTextureRelativeConfig());
             if (cmd.intParams[3] < 3)
             { // position
                 double newVal = tt::getLimitedFloat(-100.0, 100.0, cmd.doubleParams[0]);
@@ -2815,7 +2815,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (it != nullptr)
         {
             std::vector<CMesh*> geoms;
-            it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, geoms);
+            it->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, geoms);
             int index = cmd.intParams[1];
             if ((index >= 0) && (index < int(geoms.size())))
             {
@@ -2830,7 +2830,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (it != nullptr)
         {
             std::vector<CMesh*> geoms;
-            it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, geoms);
+            it->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, geoms);
             int index = cmd.intParams[1];
             if ((index >= 0) && (index < int(geoms.size())))
             {
@@ -2845,7 +2845,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (it != nullptr)
         {
             std::vector<CMesh*> geoms;
-            it->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, geoms);
+            it->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, geoms);
             int index = cmd.intParams[1];
             if ((index >= 0) && (index < int(geoms.size())))
             {
@@ -3924,7 +3924,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             int coordMode = cmd.intParams[cmd.intParams.size() - 2];
             int mask = cmd.intParams[cmd.intParams.size() - 1];
-            C7Vector tr;
+            CPose tr;
             if (coordMode == 0)
                 tr = last->getCumulativeTransformation();
             else
@@ -3932,7 +3932,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             for (size_t i = 1; i < cmd.intParams.size() - 2; i++)
             {
                 CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
-                C7Vector trIt;
+                CPose trIt;
                 if (coordMode == 0)
                     trIt = it->getCumulativeTransformation();
                 else
@@ -3993,9 +3993,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (masterObj != nullptr)
         {
-            C7Vector oldTr(masterObj->getCumulativeTransformation());
+            CPose oldTr(masterObj->getCumulativeTransformation());
             // Translate/Scale the master's position:
-            C7Vector tr;
+            CPose tr;
             if (transfMode == 0)
                 tr = masterObj->getCumulativeTransformation();
             else
@@ -4008,7 +4008,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             }
             else
             {
-                C7Vector m;
+                CPose m;
                 m.setIdentity();
                 if (t == 1)
                     m.X.setData(translationValues);
@@ -4024,13 +4024,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 CALL_C_API_CLEAR_ERRORS(simResetDynamicObject, masterObj->getObjectHandle() | sim_handleflag_model); // so that we can also manipulate dynamic objects
 
             // Now move the "slaves" appropriately:
-            C7Vector newTr(masterObj->getCumulativeTransformation());
-            C7Vector shift(newTr * oldTr.getInverse());
+            CPose newTr(masterObj->getCumulativeTransformation());
+            CPose shift(newTr * oldTr.getInverse());
             for (size_t i = 0; i < allSelObjects.size(); i++)
             {
                 CSceneObject* obj = allSelObjects[i];
-                C7Vector oldLTr = obj->getLocalTransformation();
-                C7Vector parentTr = obj->getFullParentCumulativeTransformation();
+                CPose oldLTr = obj->getLocalTransformation();
+                CPose parentTr = obj->getFullParentCumulativeTransformation();
                 obj->setLocalTransformation(parentTr.getInverse() * shift * parentTr * oldLTr);
                 if (!App::scene->simulation->isSimulationStopped())
                     CALL_C_API_CLEAR_ERRORS(simResetDynamicObject, obj->getObjectHandle() | sim_handleflag_model); // so that we can also manipulate dynamic objects
@@ -4044,7 +4044,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (last != nullptr)
         {
             int coordMode = cmd.intParams[cmd.intParams.size() - 1];
-            C7Vector tr;
+            CPose tr;
             if (coordMode == 0)
                 tr = last->getCumulativeTransformation();
             else
@@ -4052,7 +4052,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             for (size_t i = 1; i < cmd.intParams.size() - 1; i++)
             {
                 CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(cmd.intParams[i]);
-                C7Vector trIt;
+                CPose trIt;
                 if (coordMode == 0)
                     trIt = it->getCumulativeTransformation();
                 else
@@ -4102,14 +4102,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         }
         if (masterObj != nullptr)
         {
-            C7Vector oldTr(masterObj->getCumulativeTransformation());
+            CPose oldTr(masterObj->getCumulativeTransformation());
             // Rotate the master:
-            C7Vector tr;
+            CPose tr;
             if (transfMode == 0)
                 tr = masterObj->getCumulativeTransformation();
             else
                 tr = masterObj->getLocalTransformation();
-            C7Vector m;
+            CPose m;
             m.setIdentity();
             m.Q.setEulerAngles(rotAngles[0], rotAngles[1], rotAngles[2]);
             if (transfMode == 2)
@@ -4123,13 +4123,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 CALL_C_API_CLEAR_ERRORS(simResetDynamicObject, masterObj->getObjectHandle() | sim_handleflag_model); // so that we can also manipulate dynamic objects
 
             // Now rotate the "slaves":
-            C7Vector newTr(masterObj->getCumulativeTransformation());
-            C7Vector shift(newTr * oldTr.getInverse());
+            CPose newTr(masterObj->getCumulativeTransformation());
+            CPose shift(newTr * oldTr.getInverse());
             for (size_t i = 0; i < allSelObjects.size(); i++)
             {
                 CSceneObject* obj = allSelObjects[i];
-                C7Vector oldLTr = obj->getLocalTransformation();
-                C7Vector parentTr = obj->getFullParentCumulativeTransformation();
+                CPose oldLTr = obj->getLocalTransformation();
+                CPose parentTr = obj->getFullParentCumulativeTransformation();
                 obj->setLocalTransformation(parentTr.getInverse() * shift * parentTr * oldLTr);
                 if (!App::scene->simulation->isSimulationStopped())
                     CALL_C_API_CLEAR_ERRORS(simResetDynamicObject, obj->getObjectHandle() | sim_handleflag_model); // so that we can also manipulate dynamic objects
@@ -4427,10 +4427,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         int toid = cmd.intParams[0];
         CShape* newShape;
         if (toid != -1)
-            newShape = new CShape(C7Vector::identityTransformation, cmd.doubleVectorParams[0], cmd.intVectorParams[0],
+            newShape = new CShape(CPose::identityTransformation, cmd.doubleVectorParams[0], cmd.intVectorParams[0],
                                   nullptr, &cmd.floatVectorParams[0], 0);
         else
-            newShape = new CShape(C7Vector::identityTransformation, cmd.doubleVectorParams[0], cmd.intVectorParams[0],
+            newShape = new CShape(CPose::identityTransformation, cmd.doubleVectorParams[0], cmd.intVectorParams[0],
                                   nullptr, nullptr, 0);
         newShape->setVisibleEdges(false);
         newShape->getSingleMesh()->setShadingAngle(0.0);
@@ -4454,11 +4454,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SHAPEEDIT_MAKEPRIMITIVE_GUITRIGGEREDCMD)
     {
-        CShape* newShape = new CShape(C7Vector::identityTransformation, cmd.doubleVectorParams[0],
+        CShape* newShape = new CShape(CPose::identityTransformation, cmd.doubleVectorParams[0],
                                       cmd.intVectorParams[0], nullptr, nullptr, 0);
         newShape->alignBB("mesh");
         C3Vector size;
-        C7Vector conf(newShape->getLocalTransformation() * newShape->getBB(&size));
+        CPose conf(newShape->getLocalTransformation() * newShape->getBB(&size));
         size *= 2.0;
         delete newShape;
         CShape* shape = nullptr;
@@ -4524,7 +4524,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             shape = CAddOperations::addPrimitive_withDialog(ADD_COMMANDS_ADD_PRIMITIVE_CYLINDER_ACCMD, &size);
             if (shape != nullptr)
             {
-                C7Vector r;
+                CPose r;
                 r.setIdentity();
                 if (t == 1)
                     r.Q.setEulerAngles(C3Vector(piValD2, 0.0, 0.0));
@@ -4702,7 +4702,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
 void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
 {
     double nearClipp = cmd.doubleParams[0];
-    C7Vector transf = cmd.transfParams[0];
+    CPose transf = cmd.transfParams[0];
     bool mouseDown = cmd.boolParams[0];
     int cameraHandle = cmd.intParams[0];
 
@@ -4748,7 +4748,7 @@ void CSimThread::_handleClickRayIntersection_old(SSimulationThreadCommand cmd)
                     obj = theObj;
             }
         }
-        C7Vector sensTr(prox->getFullCumulativeTransformation());
+        CPose sensTr(prox->getFullCumulativeTransformation());
         pt *= sensTr;
         triNormal = sensTr.Q * triNormal;
         CALL_C_API_CLEAR_ERRORS(simRemoveObject, psh);

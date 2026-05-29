@@ -53,7 +53,7 @@ void CModelListWidget::clearAll()
 
 void CModelListWidget::addThumbnail(CThumbnail* thumbN, const char* filepath, const char* suffix,
                                     unsigned int creationTime, unsigned char modelOrFolder, bool validFileformat,
-                                    C7Vector* optionalModelTr, C3Vector* optionalModelBoundingBoxSize,
+                                    CPose* optionalModelTr, C3Vector* optionalModelBoundingBoxSize,
                                     double* optionalModelNonDefaultTranslationStepSize)
 {
     SModelThumbnailInfo info;
@@ -126,7 +126,7 @@ void CModelListWidget::_addThumbnailItemToList(int index)
     // sortItems();
 }
 
-CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename, int& result, C7Vector& modelTr,
+CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename, int& result, CPose& modelTr,
                                                  C3Vector& modelBoundingBoxSize,
                                                  double& modelNonDefaultTranslationStepSize)
 { // result: -1=model not recognized, 0=model has no thumbnail, 1=model has thumbnail
@@ -325,7 +325,7 @@ void CModelListWidget::setFolder(const char* folderPath)
                         else
                         { // we have a model here
                             int result;
-                            C7Vector modelTr;
+                            CPose modelTr;
                             C3Vector modelBBs;
                             double ndss;
                             CThumbnail* thumbnail =

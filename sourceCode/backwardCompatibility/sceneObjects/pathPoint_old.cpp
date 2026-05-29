@@ -10,14 +10,14 @@ CPathPoint_old::~CPathPoint_old()
 {
 }
 
-void CPathPoint_old::setTransformation(const C7Vector& tr, int attributes)
+void CPathPoint_old::setTransformation(const CPose& tr, int attributes)
 {
     _transformation = tr;
     if ((attributes & sim_pathproperty_flat_path) != 0)
         _transformation.X(2) = 0.0;
 }
 
-C7Vector CPathPoint_old::getTransformation()
+CPose CPathPoint_old::getTransformation()
 {
     return (_transformation);
 }

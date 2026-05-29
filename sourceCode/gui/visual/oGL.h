@@ -147,7 +147,7 @@ class ogl
     static void drawQuad(int posX, int posY, int sizeX, int sizeY, float col[3]);
     static void drawBorder(int posX, int posY, int sizeX, int sizeY, float col[3], int type, int borderSize = 3);
 
-    static void drawOutlineText(const char* txt, const C7Vector& trOrig, double textHeight,
+    static void drawOutlineText(const char* txt, const CPose& trOrig, double textHeight,
                                 const C4X4Matrix* cameraAbsConfig, bool overlay, bool left, bool right, bool culling,
                                 const float* textColor, const float* backColor = nullptr, bool sizeInPixels = false,
                                 int windowHeight = 0, double verticalViewSizeOrAngle = 0.0, bool perspective = true,

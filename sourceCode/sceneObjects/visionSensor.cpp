@@ -329,7 +329,7 @@ unsigned char* CVisionSensor::readPortionOfCharImage(int posX, int posY, int siz
 
 void CVisionSensor::computeBoundingBox()
 {
-    C7Vector fr;
+    CPose fr;
     fr.Q.setIdentity();
     fr.X = C3Vector(0.0, 0.0, -1.0) * _visionSensorSize;
     _setBB(fr, C3Vector(1.0, 1.0, 2.0) * _visionSensorSize * 0.5);
@@ -1230,7 +1230,7 @@ bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
         data[2] = App::scene->environment->fogBackgroundColor;
     else
         data[2] = _defaultBufferValues;
-    C7Vector tr(getFullCumulativeTransformation());
+    CPose tr(getFullCumulativeTransformation());
     float x[3] = {(float)tr.X(0), (float)tr.X(1), (float)tr.X(2)};
     data[3] = x;
     float q[4] = {(float)tr.Q(0), (float)tr.Q(1), (float)tr.Q(2), (float)tr.Q(3)};
@@ -1346,7 +1346,7 @@ void CVisionSensor::_extRenderer_prepareLights()
             data[5] = &linAttenuation;
             float quadAttenuation = (float)arr[2];
             data[6] = &quadAttenuation;
-            C7Vector tr(light->getFullCumulativeTransformation());
+            CPose tr(light->getFullCumulativeTransformation());
             float x[3] = {(float)tr.X(0), (float)tr.X(1), (float)tr.X(2)};
             data[7] = x;
             float q[4] = {(float)tr.Q(0), (float)tr.Q(1), (float)tr.Q(2), (float)tr.Q(3)};
@@ -1552,8 +1552,8 @@ void CVisionSensor::_drawObjects(int entityID, bool detectAll,
         // If the camera is in ortho view mode, we additionally shift it along the viewing axis
         // to be sure we don't cover anything visible with the far side of the box (the near side is clipped by model
         // settings)
-        C4Vector rel(viewBoxObject->getLocalTransformation().Q);
-        C7Vector cam(getFullCumulativeTransformation());
+        CQuaternion rel(viewBoxObject->getLocalTransformation().Q);
+        CPose cam(getFullCumulativeTransformation());
         if (!_currentPerspective)
         { // This doesn't work!!
             C3Vector minV(C3Vector::inf);
@@ -1562,7 +1562,7 @@ void CVisionSensor::_drawObjects(int entityID, bool detectAll,
             double shift = _farClippingPlane - 0.505 * (maxV(2) - minV(2)); // just a bit more than half!
             cam.X += cam.Q.getMatrix().axis[2] * shift;
         }
-        C7Vector newLocal(viewBoxObject->getFullParentCumulativeTransformation().getInverse() * cam);
+        CPose newLocal(viewBoxObject->getFullParentCumulativeTransformation().getInverse() * cam);
         newLocal.Q = rel;
         viewBoxObject->setLocalTransformation(newLocal);
     }
@@ -1681,7 +1681,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
     CCollection* collection = nullptr;
     std::vector<int> transparentObjects;
     std::vector<double> transparentObjectsDist;
-    C7Vector camTrInv(getCumulativeTransformation().getInverse());
+    CPose camTrInv(getCumulativeTransformation().getInverse());
     CSceneObject* viewBoxObject = nullptr;
 
     if (object == nullptr)
@@ -1706,7 +1706,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
                         CShape* sh = (CShape*)it;
                         if (sh->getContainsTransparentComponent())
                         {
-                            C7Vector obj(it->getCumulativeTransformation());
+                            CPose obj(it->getCumulativeTransformation());
                             transparentObjectsDist.push_back(-(camTrInv * obj).X(2) -
                                                              it->getTransparentObjectDistanceOffset());
                             transparentObjects.push_back(it->getObjectHandle());
@@ -1743,7 +1743,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
                             CShape* sh = (CShape*)it;
                             if (sh->getContainsTransparentComponent())
                             {
-                                C7Vector obj(it->getCumulativeTransformation());
+                                CPose obj(it->getCumulativeTransformation());
                                 transparentObjectsDist.push_back(-(camTrInv * obj).X(2) -
                                                                  it->getTransparentObjectDistanceOffset());
                                 transparentObjects.push_back(it->getObjectHandle());
@@ -1790,7 +1790,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
                         CShape* sh = (CShape*)it;
                         if (sh->getContainsTransparentComponent())
                         {
-                            C7Vector obj(it->getCumulativeTransformation());
+                            CPose obj(it->getCumulativeTransformation());
                             transparentObjectsDist.push_back(-(camTrInv * obj).X(2) -
                                                              it->getTransparentObjectDistanceOffset());
                             transparentObjects.push_back(it->getObjectHandle());
@@ -1805,7 +1805,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(
                             CMirror* mir = (CMirror*)it;
                             if (mir->getContainsTransparentComponent())
                             {
-                                C7Vector obj(it->getCumulativeTransformation());
+                                CPose obj(it->getCumulativeTransformation());
                                 transparentObjectsDist.push_back(-(camTrInv * obj).X(2) -
                                                                  it->getTransparentObjectDistanceOffset());
                                 transparentObjects.push_back(it->getObjectHandle());
@@ -1836,7 +1836,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
     CCollection* collection = nullptr;
     std::vector<int> transparentObjects;
     std::vector<double> transparentObjectsDist;
-    C7Vector camTrInv(getCumulativeTransformation().getInverse());
+    CPose camTrInv(getCumulativeTransformation().getInverse());
     CSceneObject* viewBoxObject = nullptr;
 
     if (object == nullptr)
@@ -1859,7 +1859,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
                             CShape* sh = (CShape*)it;
                             if (sh->getContainsTransparentComponent())
                             {
-                                C7Vector obj(it->getCumulativeTransformation());
+                                CPose obj(it->getCumulativeTransformation());
                                 transparentObjectsDist.push_back(-(camTrInv * obj).X(2) -
                                                                  it->getTransparentObjectDistanceOffset());
                                 transparentObjects.push_back(it->getObjectHandle());
@@ -1874,7 +1874,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
                                 CMirror* mir = (CMirror*)it;
                                 if (mir->getContainsTransparentComponent())
                                 {
-                                    C7Vector obj(it->getCumulativeTransformation());
+                                    CPose obj(it->getCumulativeTransformation());
                                     transparentObjectsDist.push_back(-(camTrInv * obj).X(2) -
                                                                      it->getTransparentObjectDistanceOffset());
                                     transparentObjects.push_back(it->getObjectHandle());
@@ -1912,7 +1912,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
                                 CShape* sh = (CShape*)it;
                                 if (sh->getContainsTransparentComponent())
                                 {
-                                    C7Vector obj(it->getCumulativeTransformation());
+                                    CPose obj(it->getCumulativeTransformation());
                                     transparentObjectsDist.push_back(-(camTrInv * obj).X(2) -
                                                                      it->getTransparentObjectDistanceOffset());
                                     transparentObjects.push_back(it->getObjectHandle());
@@ -1927,7 +1927,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
                                     CMirror* mir = (CMirror*)it;
                                     if (mir->getContainsTransparentComponent())
                                     {
-                                        C7Vector obj(it->getCumulativeTransformation());
+                                        CPose obj(it->getCumulativeTransformation());
                                         transparentObjectsDist.push_back(-(camTrInv * obj).X(2) -
                                                                          it->getTransparentObjectDistanceOffset());
                                         transparentObjects.push_back(it->getObjectHandle());
@@ -1980,7 +1980,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
                         CShape* sh = (CShape*)it;
                         if (sh->getContainsTransparentComponent())
                         {
-                            C7Vector obj(it->getCumulativeTransformation());
+                            CPose obj(it->getCumulativeTransformation());
                             transparentObjectsDist.push_back(-(camTrInv * obj).X(2) -
                                                              it->getTransparentObjectDistanceOffset());
                             transparentObjects.push_back(it->getObjectHandle());
@@ -1995,7 +1995,7 @@ CSceneObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered_old(
                             CMirror* mir = (CMirror*)it;
                             if (mir->getContainsTransparentComponent())
                             {
-                                C7Vector obj(it->getCumulativeTransformation());
+                                CPose obj(it->getCumulativeTransformation());
                                 transparentObjectsDist.push_back(-(camTrInv * obj).X(2) -
                                                                  it->getTransparentObjectDistanceOffset());
                                 transparentObjects.push_back(it->getObjectHandle());
@@ -3186,8 +3186,8 @@ void CVisionSensor::_handleMirrors(const std::vector<int>& activeMirrors, int en
     if (activeMirrors.size() == 0)
         return;
 
-    C7Vector camTr(getFullCumulativeTransformation());
-    C7Vector camTri(camTr.getInverse());
+    CPose camTr(getFullCumulativeTransformation());
+    CPose camTri(camTr.getInverse());
 
     setFrustumCullingTemporarilyDisabled(true);
     // Prep stencil buffer:
@@ -3201,7 +3201,7 @@ void CVisionSensor::_handleMirrors(const std::vector<int>& activeMirrors, int en
     for (int mir = 0; mir < int(activeMirrors.size()); mir++)
     {
         CMirror* myMirror = App::scene->sceneObjects->getMirrorFromHandle(activeMirrors[mir]);
-        C7Vector mmtr(myMirror->getFullCumulativeTransformation());
+        CPose mmtr(myMirror->getFullCumulativeTransformation());
         mmtr = camTri * mmtr;
         allMirrors.push_back(activeMirrors[mir]);
         allMirrorDist.push_back(mmtr.X(2));
@@ -3212,11 +3212,11 @@ void CVisionSensor::_handleMirrors(const std::vector<int>& activeMirrors, int en
     {
         CMirror* myMirror = App::scene->sceneObjects->getMirrorFromHandle(allMirrors[mir]);
 
-        C7Vector mtr(myMirror->getFullCumulativeTransformation());
-        C7Vector mtri(mtr.getInverse());
+        CPose mtr(myMirror->getFullCumulativeTransformation());
+        CPose mtri(mtr.getInverse());
         C3Vector mtrN(mtr.Q.getMatrix().axis[2]);
-        C4Vector mtrAxis = mtr.Q.getAngleAndAxis();
-        C4Vector mtriAxis = mtri.Q.getAngleAndAxis();
+        CQuaternion mtrAxis = mtr.Q.getAngleAndAxis();
+        CQuaternion mtriAxis = mtri.Q.getAngleAndAxis();
         double d = (mtrN * mtr.X);
         C3Vector v0(+myMirror->getMirrorWidth() * 0.5, -myMirror->getMirrorHeight() * 0.5, 0.0);
         C3Vector v1(+myMirror->getMirrorWidth() * 0.5, +myMirror->getMirrorHeight() * 0.5, 0.0);

@@ -820,7 +820,7 @@ int CPluginContainer::dyn_getDynamicStepDivider()
 }
 
 double CPluginContainer::dyn_computePMI(const std::vector<double>& vertices, const std::vector<int>& indices,
-                                        C7Vector& tr, C3Vector& diagI)
+                                        CPose& tr, C3Vector& diagI)
 { // returns the mass-less diagonal inertia. Returned mass is for a density of 1000
     if (mujocoEngine == nullptr)
         mujocoEngine = _tryToLoadPluginOnce(SIMMUJOCO_DEFAULT);
@@ -835,7 +835,7 @@ double CPluginContainer::dyn_computePMI(const std::vector<double>& vertices, con
     return (mass);
 }
 
-double CPluginContainer::dyn_computeInertia(int shapeHandle, C7Vector& tr, C3Vector& diagI)
+double CPluginContainer::dyn_computeInertia(int shapeHandle, CPose& tr, C3Vector& diagI)
 { // returns the mass-less diagonal inertia, relative to the shape's ref frame. Returned mass is for a density of 1000
     if (mujocoEngine == nullptr)
         mujocoEngine = _tryToLoadPluginOnce(SIMMUJOCO_DEFAULT);
@@ -853,14 +853,14 @@ double CPluginContainer::dyn_computeInertia(int shapeHandle, C7Vector& tr, C3Vec
         {
             std::vector<double> vert;
             std::vector<int> ind;
-            it->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation, vert, &ind, nullptr);
+            it->getMesh()->getCumulativeMeshes(CPose::identityTransformation, vert, &ind, nullptr);
             C3Vector com;
             C3X3Matrix tensor;
             mass = CVolInt::getMassCenterOfMassAndInertiaTensor(&vert[0], (int)vert.size() / 3, &ind[0],
                                                                 (int)ind.size() / 3, 1000.0, com, tensor);
-            C4Vector rot;
+            CQuaternion rot;
             CMeshWrapper::getPMIFromInertia(tensor, rot, diagI);
-            tr = C7Vector(rot, com);
+            tr = CPose(rot, com);
         }
     }
 
@@ -905,7 +905,7 @@ void CPluginContainer::geomPlugin_releaseBuffer(void* buffer)
 }
 
 void* CPluginContainer::geomPlugin_createMesh(const double* vertices, int verticesSize, const int* indices,
-                                              int indicesSize, const C7Vector* meshOrigin /*=nullptr*/,
+                                              int indicesSize, const CPose* meshOrigin /*=nullptr*/,
                                               double triangleEdgeMaxLength /*=0.3*/,
                                               int maxTrianglesInBoundingBox /*=8*/)
 {
@@ -1015,7 +1015,7 @@ double CPluginContainer::geomPlugin_getMeshRootObbVolume(const void* meshObbStru
     return (retVal);
 }
 void* CPluginContainer::geomPlugin_createOctreeFromPoints_rgb(const double* points, int pointCnt,
-                                                          const C7Vector* octreeOrigin /*=nullptr*/,
+                                                          const CPose* octreeOrigin /*=nullptr*/,
                                                           double cellS /*=0.05*/,
                                                           const unsigned char rgbData[3] /*=nullptr*/,
                                                           unsigned int usrData /*=0*/)
@@ -1050,7 +1050,7 @@ void* CPluginContainer::geomPlugin_createOctreeFromPoints_rgb(const double* poin
     return (retVal);
 }
 void* CPluginContainer::geomPlugin_createOctreeFromColorPoints_rgb(const double* points, int pointCnt,
-                                                               const C7Vector* octreeOrigin /*=nullptr*/,
+                                                               const CPose* octreeOrigin /*=nullptr*/,
                                                                double cellS /*=0.05*/,
                                                                const unsigned char* rgbData /*=nullptr*/,
                                                                const unsigned int* usrData /*=nullptr*/)
@@ -1088,8 +1088,8 @@ void* CPluginContainer::geomPlugin_createOctreeFromColorPoints_rgb(const double*
     }
     return (retVal);
 }
-void* CPluginContainer::geomPlugin_createOctreeFromMesh_rgb(const void* meshObbStruct, const C7Vector& meshTransformation,
-                                                        const C7Vector* octreeOrigin /*=nullptr*/,
+void* CPluginContainer::geomPlugin_createOctreeFromMesh_rgb(const void* meshObbStruct, const CPose& meshTransformation,
+                                                        const CPose* octreeOrigin /*=nullptr*/,
                                                         double cellS /*=0.05*/,
                                                         const unsigned char rgbData[3] /*=nullptr*/,
                                                         unsigned int usrData /*=0*/)
@@ -1126,8 +1126,8 @@ void* CPluginContainer::geomPlugin_createOctreeFromMesh_rgb(const void* meshObbS
     return (retVal);
 }
 void* CPluginContainer::geomPlugin_createOctreeFromOctree_rgb(const void* otherOctreeStruct,
-                                                          const C7Vector& otherOctreeTransformation,
-                                                          const C7Vector* newOctreeOrigin /*=nullptr*/,
+                                                          const CPose& otherOctreeTransformation,
+                                                          const CPose* newOctreeOrigin /*=nullptr*/,
                                                           double newOctreeCellS /*=0.05*/,
                                                           const unsigned char rgbData[3] /*=nullptr*/,
                                                           unsigned int usrData /*=0*/)
@@ -1165,7 +1165,7 @@ void* CPluginContainer::geomPlugin_createOctreeFromOctree_rgb(const void* otherO
 }
 
 void* CPluginContainer::geomPlugin_createOctreeFromPoints_rgba(const double* points, int pointCnt,
-                                                          const C7Vector* octreeOrigin /*=nullptr*/,
+                                                          const CPose* octreeOrigin /*=nullptr*/,
                                                           double cellS /*=0.05*/,
                                                           const unsigned char rgbaData[4] /*=nullptr*/,
                                                           unsigned int usrData /*=0*/)
@@ -1190,7 +1190,7 @@ void* CPluginContainer::geomPlugin_createOctreeFromPoints_rgba(const double* poi
     return (retVal);
 }
 void* CPluginContainer::geomPlugin_createOctreeFromColorPoints_rgba(const double* points, int pointCnt,
-                                                               const C7Vector* octreeOrigin /*=nullptr*/,
+                                                               const CPose* octreeOrigin /*=nullptr*/,
                                                                double cellS /*=0.05*/,
                                                                const unsigned char* rgbaData /*=nullptr*/,
                                                                const unsigned int* usrData /*=nullptr*/)
@@ -1215,8 +1215,8 @@ void* CPluginContainer::geomPlugin_createOctreeFromColorPoints_rgba(const double
     }
     return (retVal);
 }
-void* CPluginContainer::geomPlugin_createOctreeFromMesh_rgba(const void* meshObbStruct, const C7Vector& meshTransformation,
-                                                        const C7Vector* octreeOrigin /*=nullptr*/,
+void* CPluginContainer::geomPlugin_createOctreeFromMesh_rgba(const void* meshObbStruct, const CPose& meshTransformation,
+                                                        const CPose* octreeOrigin /*=nullptr*/,
                                                         double cellS /*=0.05*/,
                                                         const unsigned char rgbaData[4] /*=nullptr*/,
                                                         unsigned int usrData /*=0*/)
@@ -1243,8 +1243,8 @@ void* CPluginContainer::geomPlugin_createOctreeFromMesh_rgba(const void* meshObb
     return (retVal);
 }
 void* CPluginContainer::geomPlugin_createOctreeFromOctree_rgba(const void* otherOctreeStruct,
-                                                          const C7Vector& otherOctreeTransformation,
-                                                          const C7Vector* newOctreeOrigin /*=nullptr*/,
+                                                          const CPose& otherOctreeTransformation,
+                                                          const CPose* newOctreeOrigin /*=nullptr*/,
                                                           double newOctreeCellS /*=0.05*/,
                                                           const unsigned char rgbaData[4] /*=nullptr*/,
                                                           unsigned int usrData /*=0*/)
@@ -1495,7 +1495,7 @@ void CPluginContainer::geomPlugin_getOctreeCornersFromOctree(const void* ocStruc
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-void CPluginContainer::geomPlugin_insertPointsIntoOctree_rgb(void* ocStruct, const C7Vector& octreeTransformation,
+void CPluginContainer::geomPlugin_insertPointsIntoOctree_rgb(void* ocStruct, const CPose& octreeTransformation,
                                                          const double* points, int pointCnt,
                                                          const unsigned char rgbData[3] /*=nullptr*/,
                                                          unsigned int usrData /*=0*/)
@@ -1513,7 +1513,7 @@ void CPluginContainer::geomPlugin_insertPointsIntoOctree_rgb(void* ocStruct, con
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-void CPluginContainer::geomPlugin_insertColorPointsIntoOctree_rgb(void* ocStruct, const C7Vector& octreeTransformation,
+void CPluginContainer::geomPlugin_insertColorPointsIntoOctree_rgb(void* ocStruct, const CPose& octreeTransformation,
                                                               const double* points, int pointCnt,
                                                               const unsigned char* rgbData /*=nullptr*/,
                                                               const unsigned int* usrData /*=nullptr*/)
@@ -1544,8 +1544,8 @@ void CPluginContainer::geomPlugin_insertColorPointsIntoOctree_rgb(void* ocStruct
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-void CPluginContainer::geomPlugin_insertMeshIntoOctree_rgb(void* ocStruct, const C7Vector& octreeTransformation,
-                                                       const void* obbStruct, const C7Vector& meshTransformation,
+void CPluginContainer::geomPlugin_insertMeshIntoOctree_rgb(void* ocStruct, const CPose& octreeTransformation,
+                                                       const void* obbStruct, const CPose& meshTransformation,
                                                        const unsigned char rgbData[3] /*=nullptr*/,
                                                        unsigned int usrData /*=0*/)
 {
@@ -1564,8 +1564,8 @@ void CPluginContainer::geomPlugin_insertMeshIntoOctree_rgb(void* ocStruct, const
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-void CPluginContainer::geomPlugin_insertOctreeIntoOctree_rgb(void* oc1Struct, const C7Vector& octree1Transformation,
-                                                         const void* oc2Struct, const C7Vector& octree2Transformation,
+void CPluginContainer::geomPlugin_insertOctreeIntoOctree_rgb(void* oc1Struct, const CPose& octree1Transformation,
+                                                         const void* oc2Struct, const CPose& octree2Transformation,
                                                          const unsigned char rgbData[3] /*=nullptr*/,
                                                          unsigned int usrData /*=0*/)
 {
@@ -1585,7 +1585,7 @@ void CPluginContainer::geomPlugin_insertOctreeIntoOctree_rgb(void* oc1Struct, co
     }
 }
 
-void CPluginContainer::geomPlugin_insertPointsIntoOctree_rgba(void* ocStruct, const C7Vector& octreeTransformation,
+void CPluginContainer::geomPlugin_insertPointsIntoOctree_rgba(void* ocStruct, const CPose& octreeTransformation,
                                                          const double* points, int pointCnt,
                                                          const unsigned char rgbaData[4] /*=nullptr*/,
                                                          unsigned int usrData /*=0*/)
@@ -1602,7 +1602,7 @@ void CPluginContainer::geomPlugin_insertPointsIntoOctree_rgba(void* ocStruct, co
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-void CPluginContainer::geomPlugin_insertColorPointsIntoOctree_rgba(void* ocStruct, const C7Vector& octreeTransformation,
+void CPluginContainer::geomPlugin_insertColorPointsIntoOctree_rgba(void* ocStruct, const CPose& octreeTransformation,
                                                               const double* points, int pointCnt,
                                                               const unsigned char* rgbaData /*=nullptr*/,
                                                               const unsigned int* usrData /*=nullptr*/)
@@ -1619,8 +1619,8 @@ void CPluginContainer::geomPlugin_insertColorPointsIntoOctree_rgba(void* ocStruc
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-void CPluginContainer::geomPlugin_insertMeshIntoOctree_rgba(void* ocStruct, const C7Vector& octreeTransformation,
-                                                       const void* obbStruct, const C7Vector& meshTransformation,
+void CPluginContainer::geomPlugin_insertMeshIntoOctree_rgba(void* ocStruct, const CPose& octreeTransformation,
+                                                       const void* obbStruct, const CPose& meshTransformation,
                                                        const unsigned char rgbaData[4] /*=nullptr*/,
                                                        unsigned int usrData /*=0*/)
 {
@@ -1638,8 +1638,8 @@ void CPluginContainer::geomPlugin_insertMeshIntoOctree_rgba(void* ocStruct, cons
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-void CPluginContainer::geomPlugin_insertOctreeIntoOctree_rgba(void* oc1Struct, const C7Vector& octree1Transformation,
-                                                         const void* oc2Struct, const C7Vector& octree2Transformation,
+void CPluginContainer::geomPlugin_insertOctreeIntoOctree_rgba(void* oc1Struct, const CPose& octree1Transformation,
+                                                         const void* oc2Struct, const CPose& octree2Transformation,
                                                          const unsigned char rgbaData[4] /*=nullptr*/,
                                                          unsigned int usrData /*=0*/)
 {
@@ -1658,7 +1658,7 @@ void CPluginContainer::geomPlugin_insertOctreeIntoOctree_rgba(void* oc1Struct, c
     }
 }
 
-bool CPluginContainer::geomPlugin_removePointsFromOctree(void* ocStruct, const C7Vector& octreeTransformation,
+bool CPluginContainer::geomPlugin_removePointsFromOctree(void* ocStruct, const CPose& octreeTransformation,
                                                          const double* points, int pointCnt)
 {
     if (currentGeomPlugin == nullptr)
@@ -1675,8 +1675,8 @@ bool CPluginContainer::geomPlugin_removePointsFromOctree(void* ocStruct, const C
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_removeMeshFromOctree(void* ocStruct, const C7Vector& octreeTransformation,
-                                                       const void* obbStruct, const C7Vector& meshTransformation)
+bool CPluginContainer::geomPlugin_removeMeshFromOctree(void* ocStruct, const CPose& octreeTransformation,
+                                                       const void* obbStruct, const CPose& meshTransformation)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -1694,8 +1694,8 @@ bool CPluginContainer::geomPlugin_removeMeshFromOctree(void* ocStruct, const C7V
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_removeOctreeFromOctree(void* oc1Struct, const C7Vector& octree1Transformation,
-                                                         const void* oc2Struct, const C7Vector& octree2Transformation)
+bool CPluginContainer::geomPlugin_removeOctreeFromOctree(void* oc1Struct, const CPose& octree1Transformation,
+                                                         const void* oc2Struct, const CPose& octree2Transformation)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -1714,7 +1714,7 @@ bool CPluginContainer::geomPlugin_removeOctreeFromOctree(void* oc1Struct, const 
     return (retVal);
 }
 void* CPluginContainer::geomPlugin_createPtcloudFromPoints_rgb(const double* points, int pointCnt,
-                                                           const C7Vector* ptcloudOrigin /*=nullptr*/,
+                                                           const CPose* ptcloudOrigin /*=nullptr*/,
                                                            double cellS /*=0.05*/, int maxPointCnt /*=20*/,
                                                            const unsigned char rgbData[3] /*=nullptr*/,
                                                            double proximityTol /*=0.005*/)
@@ -1749,7 +1749,7 @@ void* CPluginContainer::geomPlugin_createPtcloudFromPoints_rgb(const double* poi
     return (retVal);
 }
 void* CPluginContainer::geomPlugin_createPtcloudFromPoints_rgba(const double* points, int pointCnt,
-                                                               const C7Vector* ptcloudOrigin /*=nullptr*/,
+                                                               const CPose* ptcloudOrigin /*=nullptr*/,
                                                                double cellS /*=0.05*/, int maxPointCnt /*=20*/,
                                                                const unsigned char rgbaData[4] /*=nullptr*/,
                                                                double proximityTol /*=0.005*/)
@@ -1775,7 +1775,7 @@ void* CPluginContainer::geomPlugin_createPtcloudFromPoints_rgba(const double* po
 }
 
 void* CPluginContainer::geomPlugin_createPtcloudFromColorPoints_rgb(const double* points, int pointCnt,
-                                                                const C7Vector* ptcloudOrigin /*=nullptr*/,
+                                                                const CPose* ptcloudOrigin /*=nullptr*/,
                                                                 double cellS /*=0.05*/, int maxPointCnt /*=20*/,
                                                                 const unsigned char* rgbData /*=nullptr*/,
                                                                 double proximityTol /*=0.005*/)
@@ -1815,7 +1815,7 @@ void* CPluginContainer::geomPlugin_createPtcloudFromColorPoints_rgb(const double
 }
 
 void* CPluginContainer::geomPlugin_createPtcloudFromColorPoints_rgba(const double* points, int pointCnt,
-                                                                    const C7Vector* ptcloudOrigin /*=nullptr*/,
+                                                                    const CPose* ptcloudOrigin /*=nullptr*/,
                                                                     double cellS /*=0.05*/, int maxPointCnt /*=20*/,
                                                                     const unsigned char* rgbaData /*=nullptr*/,
                                                                     double proximityTol /*=0.005*/)
@@ -2057,7 +2057,7 @@ int CPluginContainer::geomPlugin_getPtcloudNonEmptyCellCount(const void* pcStruc
     }
     return (retVal);
 }
-void CPluginContainer::geomPlugin_insertPointsIntoPtcloud_rgb(void* pcStruct, const C7Vector& ptcloudTransformation,
+void CPluginContainer::geomPlugin_insertPointsIntoPtcloud_rgb(void* pcStruct, const CPose& ptcloudTransformation,
                                                           const double* points, int pointCnt,
                                                           const unsigned char rgbData[3] /*=nullptr*/,
                                                           double proximityTol /*=0.001*/)
@@ -2084,7 +2084,7 @@ void CPluginContainer::geomPlugin_insertPointsIntoPtcloud_rgb(void* pcStruct, co
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud_rgb(void* pcStruct, const C7Vector& ptcloudTransformation,
+void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud_rgb(void* pcStruct, const CPose& ptcloudTransformation,
                                                                const double* points, int pointCnt,
                                                                const unsigned char* rgbData /*=nullptr*/,
                                                                double proximityTol /*=0.001*/)
@@ -2115,7 +2115,7 @@ void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud_rgb(void* pcStruc
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-void CPluginContainer::geomPlugin_insertPointsIntoPtcloud_rgba(void* pcStruct, const C7Vector& ptcloudTransformation,
+void CPluginContainer::geomPlugin_insertPointsIntoPtcloud_rgba(void* pcStruct, const CPose& ptcloudTransformation,
                                                           const double* points, int pointCnt,
                                                           const unsigned char rgbaData[4] /*=nullptr*/,
                                                           double proximityTol /*=0.001*/)
@@ -2132,7 +2132,7 @@ void CPluginContainer::geomPlugin_insertPointsIntoPtcloud_rgba(void* pcStruct, c
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud_rgba(void* pcStruct, const C7Vector& ptcloudTransformation,
+void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud_rgba(void* pcStruct, const CPose& ptcloudTransformation,
                                                                const double* points, int pointCnt,
                                                                const unsigned char* rgbaData /*=nullptr*/,
                                                                double proximityTol /*=0.001*/)
@@ -2149,7 +2149,7 @@ void CPluginContainer::geomPlugin_insertColorPointsIntoPtcloud_rgba(void* pcStru
         currentGeomPlugin->popCurrentPlugin();
     }
 }
-bool CPluginContainer::geomPlugin_removePointsFromPtcloud(void* pcStruct, const C7Vector& ptcloudTransformation,
+bool CPluginContainer::geomPlugin_removePointsFromPtcloud(void* pcStruct, const CPose& ptcloudTransformation,
                                                           const double* points, int pointCnt, double proximityTol,
                                                           int* countRemoved /*=nullptr*/)
 {
@@ -2167,8 +2167,8 @@ bool CPluginContainer::geomPlugin_removePointsFromPtcloud(void* pcStruct, const 
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_removeOctreeFromPtcloud(void* pcStruct, const C7Vector& ptcloudTransformation,
-                                                          const void* ocStruct, const C7Vector& octreeTransformation,
+bool CPluginContainer::geomPlugin_removeOctreeFromPtcloud(void* pcStruct, const CPose& ptcloudTransformation,
+                                                          const void* ocStruct, const CPose& octreeTransformation,
                                                           int* countRemoved /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
@@ -2187,7 +2187,7 @@ bool CPluginContainer::geomPlugin_removeOctreeFromPtcloud(void* pcStruct, const 
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_intersectPointsWithPtcloud(void* pcStruct, const C7Vector& ptcloudTransformation,
+bool CPluginContainer::geomPlugin_intersectPointsWithPtcloud(void* pcStruct, const CPose& ptcloudTransformation,
                                                              const double* points, int pointCnt,
                                                              double proximityTol /*=0.001*/)
 {
@@ -2206,8 +2206,8 @@ bool CPluginContainer::geomPlugin_intersectPointsWithPtcloud(void* pcStruct, con
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_getMeshMeshCollision(const void* mesh1ObbStruct, const C7Vector& mesh1Transformation,
-                                                       const void* mesh2ObbStruct, const C7Vector& mesh2Transformation,
+bool CPluginContainer::geomPlugin_getMeshMeshCollision(const void* mesh1ObbStruct, const CPose& mesh1Transformation,
+                                                       const void* mesh2ObbStruct, const CPose& mesh2Transformation,
                                                        std::vector<double>* intersections /*=nullptr*/,
                                                        int* mesh1Caching /*=nullptr*/, int* mesh2Caching /*=nullptr*/)
 {
@@ -2238,8 +2238,8 @@ bool CPluginContainer::geomPlugin_getMeshMeshCollision(const void* mesh1ObbStruc
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_getMeshOctreeCollision(const void* meshObbStruct, const C7Vector& meshTransformation,
-                                                         const void* ocStruct, const C7Vector& octreeTransformation,
+bool CPluginContainer::geomPlugin_getMeshOctreeCollision(const void* meshObbStruct, const CPose& meshTransformation,
+                                                         const void* ocStruct, const CPose& octreeTransformation,
                                                          int* meshCaching /*=nullptr*/,
                                                          unsigned long long int* ocCaching /*=nullptr*/)
 {
@@ -2261,7 +2261,7 @@ bool CPluginContainer::geomPlugin_getMeshOctreeCollision(const void* meshObbStru
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getMeshTriangleCollision(const void* meshObbStruct,
-                                                           const C7Vector& meshTransformation, const C3Vector& p,
+                                                           const CPose& meshTransformation, const C3Vector& p,
                                                            const C3Vector& v, const C3Vector& w,
                                                            std::vector<double>* intersections /*=nullptr*/,
                                                            int* caching /*=nullptr*/)
@@ -2291,7 +2291,7 @@ bool CPluginContainer::geomPlugin_getMeshTriangleCollision(const void* meshObbSt
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_getMeshSegmentCollision(const void* meshObbStruct, const C7Vector& meshTransformation,
+bool CPluginContainer::geomPlugin_getMeshSegmentCollision(const void* meshObbStruct, const CPose& meshTransformation,
                                                           const C3Vector& segmentExtremity,
                                                           const C3Vector& segmentVector,
                                                           std::vector<double>* intersections /*=nullptr*/,
@@ -2322,8 +2322,8 @@ bool CPluginContainer::geomPlugin_getMeshSegmentCollision(const void* meshObbStr
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_getOctreeOctreeCollision(const void* oc1Struct, const C7Vector& octree1Transformation,
-                                                           const void* oc2Struct, const C7Vector& octree2Transformation,
+bool CPluginContainer::geomPlugin_getOctreeOctreeCollision(const void* oc1Struct, const CPose& octree1Transformation,
+                                                           const void* oc2Struct, const CPose& octree2Transformation,
                                                            unsigned long long int* oc1Caching /*=nullptr*/,
                                                            unsigned long long int* oc2Caching /*=nullptr*/)
 {
@@ -2344,8 +2344,8 @@ bool CPluginContainer::geomPlugin_getOctreeOctreeCollision(const void* oc1Struct
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_getOctreePtcloudCollision(const void* ocStruct, const C7Vector& octreeTransformation,
-                                                            const void* pcStruct, const C7Vector& ptcloudTransformation,
+bool CPluginContainer::geomPlugin_getOctreePtcloudCollision(const void* ocStruct, const CPose& octreeTransformation,
+                                                            const void* pcStruct, const CPose& ptcloudTransformation,
                                                             unsigned long long int* ocCaching /*=nullptr*/,
                                                             unsigned long long int* pcCaching /*=nullptr*/)
 {
@@ -2366,7 +2366,7 @@ bool CPluginContainer::geomPlugin_getOctreePtcloudCollision(const void* ocStruct
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_getOctreeTriangleCollision(const void* ocStruct, const C7Vector& octreeTransformation,
+bool CPluginContainer::geomPlugin_getOctreeTriangleCollision(const void* ocStruct, const CPose& octreeTransformation,
                                                              const C3Vector& p, const C3Vector& v, const C3Vector& w,
                                                              unsigned long long int* caching /*=nullptr*/)
 {
@@ -2385,7 +2385,7 @@ bool CPluginContainer::geomPlugin_getOctreeTriangleCollision(const void* ocStruc
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_getOctreeSegmentCollision(const void* ocStruct, const C7Vector& octreeTransformation,
+bool CPluginContainer::geomPlugin_getOctreeSegmentCollision(const void* ocStruct, const CPose& octreeTransformation,
                                                             const C3Vector& segmentExtremity,
                                                             const C3Vector& segmentVector,
                                                             unsigned long long int* caching /*=nullptr*/)
@@ -2405,7 +2405,7 @@ bool CPluginContainer::geomPlugin_getOctreeSegmentCollision(const void* ocStruct
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_getOctreePointsCollision(const void* ocStruct, const C7Vector& octreeTransformation,
+bool CPluginContainer::geomPlugin_getOctreePointsCollision(const void* ocStruct, const CPose& octreeTransformation,
                                                            const double* points, int pointCount)
 {
     if (currentGeomPlugin == nullptr)
@@ -2422,7 +2422,7 @@ bool CPluginContainer::geomPlugin_getOctreePointsCollision(const void* ocStruct,
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_getOctreePointCollision(const void* ocStruct, const C7Vector& octreeTransformation,
+bool CPluginContainer::geomPlugin_getOctreePointCollision(const void* ocStruct, const CPose& octreeTransformation,
                                                           const C3Vector& point, unsigned int* usrData /*=nullptr*/,
                                                           unsigned long long int* caching /*=nullptr*/)
 {
@@ -2440,8 +2440,8 @@ bool CPluginContainer::geomPlugin_getOctreePointCollision(const void* ocStruct, 
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_getBoxBoxCollision(const C7Vector& box1Transformation, const C3Vector& box1HalfSize,
-                                                     const C7Vector& box2Transformation, const C3Vector& box2HalfSize,
+bool CPluginContainer::geomPlugin_getBoxBoxCollision(const CPose& box1Transformation, const C3Vector& box1HalfSize,
+                                                     const CPose& box2Transformation, const C3Vector& box2HalfSize,
                                                      bool boxesAreSolid)
 {
     if (currentGeomPlugin == nullptr)
@@ -2461,7 +2461,7 @@ bool CPluginContainer::geomPlugin_getBoxBoxCollision(const C7Vector& box1Transfo
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_getBoxTriangleCollision(const C7Vector& boxTransformation,
+bool CPluginContainer::geomPlugin_getBoxTriangleCollision(const CPose& boxTransformation,
                                                           const C3Vector& boxHalfSize, bool boxIsSolid,
                                                           const C3Vector& p, const C3Vector& v, const C3Vector& w)
 {
@@ -2480,7 +2480,7 @@ bool CPluginContainer::geomPlugin_getBoxTriangleCollision(const C7Vector& boxTra
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_getBoxSegmentCollision(const C7Vector& boxTransformation, const C3Vector& boxHalfSize,
+bool CPluginContainer::geomPlugin_getBoxSegmentCollision(const CPose& boxTransformation, const C3Vector& boxHalfSize,
                                                          bool boxIsSolid, const C3Vector& segmentEndPoint,
                                                          const C3Vector& segmentVector)
 {
@@ -2499,7 +2499,7 @@ bool CPluginContainer::geomPlugin_getBoxSegmentCollision(const C7Vector& boxTran
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_getBoxPointCollision(const C7Vector& boxTransformation, const C3Vector& boxHalfSize,
+bool CPluginContainer::geomPlugin_getBoxPointCollision(const CPose& boxTransformation, const C3Vector& boxHalfSize,
                                                        const C3Vector& point)
 {
     if (currentGeomPlugin == nullptr)
@@ -2573,8 +2573,8 @@ bool CPluginContainer::geomPlugin_getTriangleSegmentCollision(const C3Vector& p,
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(
-    const void* mesh1ObbStruct, const C7Vector& mesh1Transformation, const void* mesh2ObbStruct,
-    const C7Vector& mesh2Transformation, double& dist, C3Vector* minDistSegPt1 /*=nullptr*/,
+    const void* mesh1ObbStruct, const CPose& mesh1Transformation, const void* mesh2ObbStruct,
+    const CPose& mesh2Transformation, double& dist, C3Vector* minDistSegPt1 /*=nullptr*/,
     C3Vector* minDistSegPt2 /*=nullptr*/, int* mesh1Caching /*=nullptr*/, int* mesh2Caching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
@@ -2605,8 +2605,8 @@ bool CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(
-    const void* meshObbStruct, const C7Vector& meshTransformation, const void* ocStruct,
-    const C7Vector& octreeTransformation, double& dist, C3Vector* meshMinDistPt /*=nullptr*/,
+    const void* meshObbStruct, const CPose& meshTransformation, const void* ocStruct,
+    const CPose& octreeTransformation, double& dist, C3Vector* meshMinDistPt /*=nullptr*/,
     C3Vector* ocMinDistPt /*=nullptr*/, int* meshCaching /*=nullptr*/, unsigned long long int* ocCaching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
@@ -2636,8 +2636,8 @@ bool CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getMeshPtcloudDistanceIfSmaller(
-    const void* meshObbStruct, const C7Vector& meshTransformation, const void* pcStruct,
-    const C7Vector& pcTransformation, double& dist, C3Vector* meshMinDistPt /*=nullptr*/,
+    const void* meshObbStruct, const CPose& meshTransformation, const void* pcStruct,
+    const CPose& pcTransformation, double& dist, C3Vector* meshMinDistPt /*=nullptr*/,
     C3Vector* pcMinDistPt /*=nullptr*/, int* meshCaching /*=nullptr*/, unsigned long long int* pcCaching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
@@ -2667,7 +2667,7 @@ bool CPluginContainer::geomPlugin_getMeshPtcloudDistanceIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getMeshTriangleDistanceIfSmaller(
-    const void* meshObbStruct, const C7Vector& meshTransformation, const C3Vector& p, const C3Vector& v,
+    const void* meshObbStruct, const CPose& meshTransformation, const C3Vector& p, const C3Vector& v,
     const C3Vector& w, double& dist, C3Vector* minDistSegPt1 /*=nullptr*/, C3Vector* minDistSegPt2 /*=nullptr*/,
     int* caching /*=nullptr*/)
 {
@@ -2696,7 +2696,7 @@ bool CPluginContainer::geomPlugin_getMeshTriangleDistanceIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getMeshSegmentDistanceIfSmaller(
-    const void* meshObbStruct, const C7Vector& meshTransformation, const C3Vector& segmentEndPoint,
+    const void* meshObbStruct, const CPose& meshTransformation, const C3Vector& segmentEndPoint,
     const C3Vector& segmentVector, double& dist, C3Vector* minDistSegPt1 /*=nullptr*/,
     C3Vector* minDistSegPt2 /*=nullptr*/, int* caching /*=nullptr*/)
 {
@@ -2725,7 +2725,7 @@ bool CPluginContainer::geomPlugin_getMeshSegmentDistanceIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(const void* meshObbStruct,
-                                                                const C7Vector& meshTransformation,
+                                                                const CPose& meshTransformation,
                                                                 const C3Vector& point, double& dist,
                                                                 C3Vector* minDistSegPt /*=nullptr*/,
                                                                 int* caching /*=nullptr*/)
@@ -2752,8 +2752,8 @@ bool CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(const void* mesh
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getOctreeOctreeDistanceIfSmaller(
-    const void* oc1Struct, const C7Vector& octree1Transformation, const void* oc2Struct,
-    const C7Vector& octree2Transformation, double& dist, C3Vector* oc1MinDistPt /*=nullptr*/,
+    const void* oc1Struct, const CPose& octree1Transformation, const void* oc2Struct,
+    const CPose& octree2Transformation, double& dist, C3Vector* oc1MinDistPt /*=nullptr*/,
     C3Vector* oc2MinDistPt /*=nullptr*/, unsigned long long int* oc1Caching /*=nullptr*/,
     unsigned long long int* oc2Caching /*=nullptr*/)
 {
@@ -2784,7 +2784,7 @@ bool CPluginContainer::geomPlugin_getOctreeOctreeDistanceIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getOctreePtcloudDistanceIfSmaller(
-    const void* ocStruct, const C7Vector& octreeTransformation, const void* pcStruct, const C7Vector& pcTransformation,
+    const void* ocStruct, const CPose& octreeTransformation, const void* pcStruct, const CPose& pcTransformation,
     double& dist, C3Vector* ocMinDistPt /*=nullptr*/, C3Vector* pcMinDistPt /*=nullptr*/,
     unsigned long long int* ocCaching /*=nullptr*/, unsigned long long int* pcCaching /*=nullptr*/)
 {
@@ -2815,7 +2815,7 @@ bool CPluginContainer::geomPlugin_getOctreePtcloudDistanceIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getOctreeTriangleDistanceIfSmaller(
-    const void* ocStruct, const C7Vector& octreeTransformation, const C3Vector& p, const C3Vector& v, const C3Vector& w,
+    const void* ocStruct, const CPose& octreeTransformation, const C3Vector& p, const C3Vector& v, const C3Vector& w,
     double& dist, C3Vector* ocMinDistPt /*=nullptr*/, C3Vector* triMinDistPt /*=nullptr*/,
     unsigned long long int* ocCaching /*=nullptr*/)
 {
@@ -2844,7 +2844,7 @@ bool CPluginContainer::geomPlugin_getOctreeTriangleDistanceIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getOctreeSegmentDistanceIfSmaller(
-    const void* ocStruct, const C7Vector& octreeTransformation, const C3Vector& segmentEndPoint,
+    const void* ocStruct, const CPose& octreeTransformation, const C3Vector& segmentEndPoint,
     const C3Vector& segmentVector, double& dist, C3Vector* ocMinDistPt /*=nullptr*/,
     C3Vector* segMinDistPt /*=nullptr*/, unsigned long long int* ocCaching /*=nullptr*/)
 {
@@ -2873,7 +2873,7 @@ bool CPluginContainer::geomPlugin_getOctreeSegmentDistanceIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getOctreePointDistanceIfSmaller(const void* ocStruct,
-                                                                  const C7Vector& octreeTransformation,
+                                                                  const CPose& octreeTransformation,
                                                                   const C3Vector& point, double& dist,
                                                                   C3Vector* ocMinDistPt /*=nullptr*/,
                                                                   unsigned long long int* ocCaching /*=nullptr*/)
@@ -2900,7 +2900,7 @@ bool CPluginContainer::geomPlugin_getOctreePointDistanceIfSmaller(const void* oc
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getPtcloudPtcloudDistanceIfSmaller(
-    const void* pc1Struct, const C7Vector& pc1Transformation, const void* pc2Struct, const C7Vector& pc2Transformation,
+    const void* pc1Struct, const CPose& pc1Transformation, const void* pc2Struct, const CPose& pc2Transformation,
     double& dist, C3Vector* pc1MinDistPt /*=nullptr*/, C3Vector* pc2MinDistPt /*=nullptr*/,
     unsigned long long int* pc1Caching /*=nullptr*/, unsigned long long int* pc2Caching /*=nullptr*/)
 {
@@ -2931,7 +2931,7 @@ bool CPluginContainer::geomPlugin_getPtcloudPtcloudDistanceIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getPtcloudTriangleDistanceIfSmaller(
-    const void* pcStruct, const C7Vector& pcTransformation, const C3Vector& p, const C3Vector& v, const C3Vector& w,
+    const void* pcStruct, const CPose& pcTransformation, const C3Vector& p, const C3Vector& v, const C3Vector& w,
     double& dist, C3Vector* pcMinDistPt /*=nullptr*/, C3Vector* triMinDistPt /*=nullptr*/,
     unsigned long long int* pcCaching /*=nullptr*/)
 {
@@ -2960,7 +2960,7 @@ bool CPluginContainer::geomPlugin_getPtcloudTriangleDistanceIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getPtcloudSegmentDistanceIfSmaller(
-    const void* pcStruct, const C7Vector& pcTransformation, const C3Vector& segmentEndPoint,
+    const void* pcStruct, const CPose& pcTransformation, const C3Vector& segmentEndPoint,
     const C3Vector& segmentVector, double& dist, C3Vector* pcMinDistPt /*=nullptr*/,
     C3Vector* segMinDistPt /*=nullptr*/, unsigned long long int* pcCaching /*=nullptr*/)
 {
@@ -2989,7 +2989,7 @@ bool CPluginContainer::geomPlugin_getPtcloudSegmentDistanceIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getPtcloudPointDistanceIfSmaller(const void* pcStruct,
-                                                                   const C7Vector& pcTransformation,
+                                                                   const CPose& pcTransformation,
                                                                    const C3Vector& point, double& dist,
                                                                    C3Vector* pcMinDistPt /*=nullptr*/,
                                                                    unsigned long long int* pcCaching /*=nullptr*/)
@@ -3015,9 +3015,9 @@ bool CPluginContainer::geomPlugin_getPtcloudPointDistanceIfSmaller(const void* p
     }
     return (retVal);
 }
-double CPluginContainer::geomPlugin_getApproxBoxBoxDistance(const C7Vector& box1Transformation,
+double CPluginContainer::geomPlugin_getApproxBoxBoxDistance(const CPose& box1Transformation,
                                                             const C3Vector& box1HalfSize,
-                                                            const C7Vector& box2Transformation,
+                                                            const CPose& box2Transformation,
                                                             const C3Vector& box2HalfSize)
 {
     if (currentGeomPlugin == nullptr)
@@ -3038,7 +3038,7 @@ double CPluginContainer::geomPlugin_getApproxBoxBoxDistance(const C7Vector& box1
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getBoxBoxDistanceIfSmaller(
-    const C7Vector& box1Transformation, const C3Vector& box1HalfSize, const C7Vector& box2Transformation,
+    const CPose& box1Transformation, const C3Vector& box1HalfSize, const CPose& box2Transformation,
     const C3Vector& box2HalfSize, bool boxesAreSolid, double& dist, C3Vector* distSegPt1 /*=nullptr*/,
     C3Vector* distSegPt2 /*=nullptr*/, bool altRoutine /*=false*/)
 {
@@ -3069,7 +3069,7 @@ bool CPluginContainer::geomPlugin_getBoxBoxDistanceIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getBoxTriangleDistanceIfSmaller(
-    const C7Vector& boxTransformation, const C3Vector& boxHalfSize, bool boxIsSolid, const C3Vector& p,
+    const CPose& boxTransformation, const C3Vector& boxHalfSize, bool boxIsSolid, const C3Vector& p,
     const C3Vector& v, const C3Vector& w, double& dist, C3Vector* distSegPt1 /*=nullptr*/,
     C3Vector* distSegPt2 /*=nullptr*/, bool altRoutine /*=false*/)
 {
@@ -3098,7 +3098,7 @@ bool CPluginContainer::geomPlugin_getBoxTriangleDistanceIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_getBoxSegmentDistanceIfSmaller(
-    const C7Vector& boxTransformation, const C3Vector& boxHalfSize, bool boxIsSolid, const C3Vector& segmentEndPoint,
+    const CPose& boxTransformation, const C3Vector& boxHalfSize, bool boxIsSolid, const C3Vector& segmentEndPoint,
     const C3Vector& segmentVector, double& dist, C3Vector* distSegPt1 /*=nullptr*/, C3Vector* distSegPt2 /*=nullptr*/,
     bool altRoutine /*=false*/)
 {
@@ -3127,7 +3127,7 @@ bool CPluginContainer::geomPlugin_getBoxSegmentDistanceIfSmaller(
     }
     return (retVal);
 }
-bool CPluginContainer::geomPlugin_getBoxPointDistanceIfSmaller(const C7Vector& boxTransformation,
+bool CPluginContainer::geomPlugin_getBoxPointDistanceIfSmaller(const CPose& boxTransformation,
                                                                const C3Vector& boxHalfSize, bool boxIsSolid,
                                                                const C3Vector& point, double& dist,
                                                                C3Vector* distSegPt1 /*=nullptr*/)
@@ -3153,7 +3153,7 @@ bool CPluginContainer::geomPlugin_getBoxPointDistanceIfSmaller(const C7Vector& b
     }
     return (retVal);
 }
-double CPluginContainer::geomPlugin_getBoxPointDistance(const C7Vector& boxTransformation, const C3Vector& boxHalfSize,
+double CPluginContainer::geomPlugin_getBoxPointDistance(const CPose& boxTransformation, const C3Vector& boxHalfSize,
                                                         bool boxIsSolid, const C3Vector& point,
                                                         C3Vector* distSegPt1 /*=nullptr*/)
 {
@@ -3294,7 +3294,7 @@ bool CPluginContainer::geomPlugin_getSegmentPointDistanceIfSmaller(const C3Vecto
 }
 bool CPluginContainer::geomPlugin_volumeSensorDetectMeshIfSmaller(
     const std::vector<double>& planesIn, const std::vector<double>& planesOut, const void* obbStruct,
-    const C7Vector& meshTransformation, double& dist, bool fast /*=false*/, bool frontDetection /*=true*/,
+    const CPose& meshTransformation, double& dist, bool fast /*=false*/, bool frontDetection /*=true*/,
     bool backDetection /*=true*/, double maxAngle /*=0.0*/, C3Vector* detectPt /*=nullptr*/,
     C3Vector* triN /*=nullptr*/)
 {
@@ -3331,7 +3331,7 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectMeshIfSmaller(
 }
 bool CPluginContainer::geomPlugin_volumeSensorDetectOctreeIfSmaller(
     const std::vector<double>& planesIn, const std::vector<double>& planesOut, const void* ocStruct,
-    const C7Vector& octreeTransformation, double& dist, bool fast /*=false*/, bool frontDetection /*=true*/,
+    const CPose& octreeTransformation, double& dist, bool fast /*=false*/, bool frontDetection /*=true*/,
     bool backDetection /*=true*/, double maxAngle /*=0.0*/, C3Vector* detectPt /*=nullptr*/,
     C3Vector* triN /*=nullptr*/)
 {
@@ -3368,7 +3368,7 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectOctreeIfSmaller(
 }
 bool CPluginContainer::geomPlugin_volumeSensorDetectPtcloudIfSmaller(
     const std::vector<double>& planesIn, const std::vector<double>& planesOut, const void* pcStruct,
-    const C7Vector& ptcloudTransformation, double& dist, bool fast /*=false*/, C3Vector* detectPt /*=nullptr*/)
+    const CPose& ptcloudTransformation, double& dist, bool fast /*=false*/, C3Vector* detectPt /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -3462,7 +3462,7 @@ bool CPluginContainer::geomPlugin_volumeSensorDetectSegmentIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(
-    const C3Vector& rayStart, const C3Vector& rayVect, const void* obbStruct, const C7Vector& meshTransformation,
+    const C3Vector& rayStart, const C3Vector& rayVect, const void* obbStruct, const CPose& meshTransformation,
     double& dist, double forbiddenDist /*=0.0*/, bool fast /*=false*/, bool frontDetection /*=true*/,
     bool backDetection /*=true*/, double maxAngle /*=0.0*/, C3Vector* detectPt /*=nullptr*/,
     C3Vector* triN /*=nullptr*/, bool* forbiddenDistTouched /*=nullptr*/)
@@ -3493,7 +3493,7 @@ bool CPluginContainer::geomPlugin_raySensorDetectMeshIfSmaller(
     return (retVal);
 }
 bool CPluginContainer::geomPlugin_raySensorDetectOctreeIfSmaller(
-    const C3Vector& rayStart, const C3Vector& rayVect, const void* ocStruct, const C7Vector& octreeTransformation,
+    const C3Vector& rayStart, const C3Vector& rayVect, const void* ocStruct, const CPose& octreeTransformation,
     double& dist, double forbiddenDist /*=0.0*/, bool fast /*=false*/, bool frontDetection /*=true*/,
     bool backDetection /*=true*/, double maxAngle /*=0.0*/, C3Vector* detectPt /*=nullptr*/,
     C3Vector* triN /*=nullptr*/, bool* forbiddenDistTouched /*=nullptr*/)
@@ -3739,12 +3739,12 @@ void CPluginContainer::oldIkPlugin_setJointPosition(int jointHandle, double posi
         currentIKPlugin->popCurrentPlugin();
     }
 }
-C4Vector CPluginContainer::oldIkPlugin_getSphericalJointQuaternion(int jointHandle)
+CQuaternion CPluginContainer::oldIkPlugin_getSphericalJointQuaternion(int jointHandle)
 {
     if (currentIKPlugin == nullptr)
         currentIKPlugin = _tryToLoadPluginOnce(SIMIK0_DEFAULT);
 
-    C4Vector retVal;
+    CQuaternion retVal;
     if (currentIKPlugin != nullptr)
     {
         currentIKPlugin->pushCurrentPlugin();
@@ -3753,7 +3753,7 @@ C4Vector CPluginContainer::oldIkPlugin_getSphericalJointQuaternion(int jointHand
     }
     return (retVal);
 }
-void CPluginContainer::oldIkPlugin_setSphericalJointQuaternion(int jointHandle, const C4Vector& quaternion)
+void CPluginContainer::oldIkPlugin_setSphericalJointQuaternion(int jointHandle, const CQuaternion& quaternion)
 {
     if (currentIKPlugin == nullptr)
         currentIKPlugin = _tryToLoadPluginOnce(SIMIK0_DEFAULT);
@@ -4090,12 +4090,12 @@ int CPluginContainer::oldIkPlugin_getConfigForTipPose(int ikGroupHandle, int joi
         errString = SIM_ERROR_IK_PLUGIN_NOT_FOUND;
     return (retVal);
 }
-C7Vector CPluginContainer::oldIkPlugin_getObjectLocalTransformation(int objectHandle)
+CPose CPluginContainer::oldIkPlugin_getObjectLocalTransformation(int objectHandle)
 {
     if (currentIKPlugin == nullptr)
         currentIKPlugin = _tryToLoadPluginOnce(SIMIK0_DEFAULT);
 
-    C7Vector tr;
+    CPose tr;
     if (currentIKPlugin != nullptr)
     {
         currentIKPlugin->pushCurrentPlugin();
@@ -4104,7 +4104,7 @@ C7Vector CPluginContainer::oldIkPlugin_getObjectLocalTransformation(int objectHa
     }
     return (tr);
 }
-void CPluginContainer::oldIkPlugin_setObjectLocalTransformation(int objectHandle, const C7Vector& tr)
+void CPluginContainer::oldIkPlugin_setObjectLocalTransformation(int objectHandle, const CPose& tr)
 {
     if (currentIKPlugin == nullptr)
         currentIKPlugin = _tryToLoadPluginOnce(SIMIK0_DEFAULT);

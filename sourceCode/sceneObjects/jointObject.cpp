@@ -320,7 +320,7 @@ void CJoint::getDynamicJointErrors(double& linear, double& angular) const
     if (_jointType == sim_joint_prismatic)
     {
         linear = _intrinsicTransformationError.X.getLength();
-        angular = _intrinsicTransformationError.Q.getAngleBetweenQuaternions(C4Vector::identityRotation);
+        angular = _intrinsicTransformationError.Q.getAngleBetweenQuaternions(CQuaternion::identityRotation);
     }
     if (_jointType == sim_joint_spherical)
         linear = _intrinsicTransformationError.X.getLength();
@@ -781,7 +781,7 @@ void CJoint::initializeInitialValues(bool simulationAlreadyRunning)
 
     _initialPosition = _pos;
     _initialSphericalJointTransformation = _sphericalTransf;
-    setIntrinsicTransformationError(C7Vector::identityTransformation);
+    setIntrinsicTransformationError(CPose::identityTransformation);
     _initialTargetPosition = _targetPos;
     _initialTargetVelocity = _targetVel;
 
@@ -855,7 +855,7 @@ void CJoint::simulationEnded()
     _setFilteredForceOrTorque(false);
     _setForceOrTorque(false);
     _cumulativeForceOrTorqueTmp = 0.0;
-    setIntrinsicTransformationError(C7Vector::identityTransformation);
+    setIntrinsicTransformationError(CPose::identityTransformation);
     CSceneObject::simulationEnded();
 }
 
@@ -1104,7 +1104,7 @@ void CJoint::computeBoundingBox()
     {
         maxV(0) = maxV(1) = maxV(2) = _diameter;
     }
-    _setBB(C7Vector::identityTransformation, maxV);
+    _setBB(CPose::identityTransformation, maxV);
 }
 
 void CJoint::setIsInScene(bool s)
@@ -4052,7 +4052,7 @@ void CJoint::_setJointMode_sendOldIk(int theMode) const
     }
 }
 
-void CJoint::setSphericalTransformation(const C4Vector& tr)
+void CJoint::setSphericalTransformation(const CQuaternion& tr)
 { // spherical joints don't have a range anymore since 22.10.2022 (didn't really make sense)
     bool diff = (_sphericalTransf != tr);
     if (diff)
@@ -4082,7 +4082,7 @@ void CJoint::setSphericalTransformation(const C4Vector& tr)
     }
 }
 
-void CJoint::_setSphericalTransformation_sendOldIk(const C4Vector& tr) const
+void CJoint::_setSphericalTransformation_sendOldIk(const CQuaternion& tr) const
 { // Overridden from _CJoint_
     // Synchronize with IK plugin:
     if ((_ikPluginCounterpartHandle != -1) && (_jointType == sim_joint_spherical))
@@ -4510,9 +4510,9 @@ double CJoint::getTargetPosition() const
     return (_targetPos);
 }
 
-C7Vector CJoint::getIntrinsicTransformation(bool includeDynErrorComponent, bool* available /*=nullptr*/) const
+CPose CJoint::getIntrinsicTransformation(bool includeDynErrorComponent, bool* available /*=nullptr*/) const
 { // Overridden from CSceneObject
-    C7Vector jointTr;
+    CPose jointTr;
     if (getJointType() == sim_joint_revolute)
     {
         jointTr.Q.setAngleAndAxis(_pos, C3Vector(0.0, 0.0, 1.0));
@@ -4539,7 +4539,7 @@ C7Vector CJoint::getIntrinsicTransformation(bool includeDynErrorComponent, bool*
     return (jointTr);
 }
 
-C7Vector CJoint::getFullLocalTransformation() const
+CPose CJoint::getFullLocalTransformation() const
 { // Overridden from CSceneObject
     return (_localTransformation * getIntrinsicTransformation(true));
 }
@@ -4606,7 +4606,7 @@ double CJoint::getScrewLead() const
     return (_screwLead);
 }
 
-C4Vector CJoint::getSphericalTransformation() const
+CQuaternion CJoint::getSphericalTransformation() const
 {
     return (_sphericalTransf);
 }
@@ -4656,7 +4656,7 @@ void CJoint::setMotorLock(bool e)
         _motorLock = e;
 }
 
-void CJoint::setIntrinsicTransformationError(const C7Vector& tr)
+void CJoint::setIntrinsicTransformationError(const CPose& tr)
 {
     bool diff = (_intrinsicTransformationError != tr);
     if (diff)
@@ -5770,7 +5770,7 @@ int CJoint::getStringProperty(const char* ppName, std::string& pState) const
     return retVal;
 }
 
-int CJoint::setQuaternionProperty(const char* ppName, const C4Vector& pState)
+int CJoint::setQuaternionProperty(const char* ppName, const CQuaternion& pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setQuaternionProperty(ppName, pState);
@@ -5785,7 +5785,7 @@ int CJoint::setQuaternionProperty(const char* ppName, const C4Vector& pState)
     return retVal;
 }
 
-int CJoint::getQuaternionProperty(const char* ppName, C4Vector& pState) const
+int CJoint::getQuaternionProperty(const char* ppName, CQuaternion& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getQuaternionProperty(ppName, pState);
@@ -5801,7 +5801,7 @@ int CJoint::getQuaternionProperty(const char* ppName, C4Vector& pState) const
     return retVal;
 }
 
-int CJoint::getPoseProperty(const char* ppName, C7Vector& pState) const
+int CJoint::getPoseProperty(const char* ppName, CPose& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getPoseProperty(ppName, pState);

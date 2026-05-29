@@ -1266,7 +1266,7 @@ void ogl::freeOutlineFont()
     glDeleteLists(outlineFontBase + 32, 96);
 }
 
-void ogl::drawOutlineText(const char* txt, const C7Vector& trOrig, double textHeight, const C4X4Matrix* cameraAbsConfig,
+void ogl::drawOutlineText(const char* txt, const CPose& trOrig, double textHeight, const C4X4Matrix* cameraAbsConfig,
                           bool overlay, bool left, bool right, bool culling, const float* textColor,
                           const float* backColor /*=nullptr*/, bool sizeInPixels /*=false*/, int windowHeight /*=0*/,
                           double verticalViewSizeOrAngle /*=0.0*/, bool perspective /*=true*/,
@@ -1286,7 +1286,7 @@ void ogl::drawOutlineText(const char* txt, const C7Vector& trOrig, double textHe
         right = false;
     }
 
-    C7Vector tr(trOrig);
+    CPose tr(trOrig);
     if (cameraAbsConfig != nullptr)
     { // the banner has always to face the camera
         C3X3Matrix m;
@@ -1363,7 +1363,7 @@ void ogl::drawOutlineText(const char* txt, const C7Vector& trOrig, double textHe
         {
             glPushMatrix();
             glTranslated(tr.X(0), tr.X(1), tr.X(2));
-            C4Vector axis = tr.Q.getAngleAndAxis();
+            CQuaternion axis = tr.Q.getAngleAndAxis();
             glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
             setMaterialColor(backColor, backColor + 6, backColor + 9);
             glBegin(GL_QUADS);
@@ -1385,7 +1385,7 @@ void ogl::drawOutlineText(const char* txt, const C7Vector& trOrig, double textHe
             lq *= 2.0;
         C3Vector x(tr.X + m.axis[0] * (-lq / 2.0) * textHeight + m.axis[1] * (-outlineFontCenter) * textHeight);
         glTranslated(x(0), x(1), x(2));
-        C4Vector axis = tr.Q.getAngleAndAxis();
+        CQuaternion axis = tr.Q.getAngleAndAxis();
         glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
         glEnable(GL_NORMALIZE); // Might be important since normals are also scaled (bad lighting)
         glScaled(textHeight, textHeight, textHeight);

@@ -94,7 +94,7 @@ void CShape::replaceMesh(CMeshWrapper* newMesh, bool keepMeshAttributes)
     pushObjectRefreshEvent();
 }
 
-CShape::CShape(const C7Vector& transformation, const std::vector<double>& vertices, const std::vector<int>& indices,
+CShape::CShape(const CPose& transformation, const std::vector<double>& vertices, const std::vector<int>& indices,
                const std::vector<double>* optNormals, const std::vector<float>* optTexCoords, int options)
 { // all types of meshes, except heightfields
     commonInit();
@@ -134,7 +134,7 @@ CMesh* CShape::getSingleMesh() const
     return retVal;
 }
 
-CMesh* CShape::getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr) const
+CMesh* CShape::getMeshFromUid(long long int meshUid, const CPose& parentCumulTr, CPose& shapeRelTr) const
 {
     return _mesh->getMeshFromUid(meshUid, parentCumulTr, shapeRelTr);
 }
@@ -323,7 +323,7 @@ bool CShape::isPotentiallyRenderable() const
 void CShape::computeBoundingBox()
 {
     C3Vector s;
-    C7Vector fr(getMesh()->getBB(&s));
+    CPose fr(getMesh()->getBB(&s));
     s *= 0.5;
     _setBB(fr, s);
 }
@@ -583,9 +583,9 @@ void CShape::display_extRenderer(CViewableBase* renderingObject, int displayAttr
     {
         if (renderingObject->isObjectInsideView(getFullCumulativeTransformation() * getBB(nullptr), getBBHSize()))
         { // the bounding box is inside of the view (at least some part of it!)
-            C7Vector tr = getCumulativeTransformation();
+            CPose tr = getCumulativeTransformation();
             int componentIndex = 0;
-            getMesh()->display_extRenderer(C7Vector::identityTransformation, this, displayAttrib, tr, _objectHandle,
+            getMesh()->display_extRenderer(CPose::identityTransformation, this, displayAttrib, tr, _objectHandle,
                                            componentIndex);
         }
     }
@@ -1011,9 +1011,9 @@ void CShape::_serializeMesh(CSer& ar)
             else
                 ar.storeDataName("Gsg");
             ar.setCountingMode();
-            _mesh->serialize(ar, getObjectAliasAndHandle().c_str(), C7Vector::identityTransformation, true);
+            _mesh->serialize(ar, getObjectAliasAndHandle().c_str(), CPose::identityTransformation, true);
             if (ar.setWritingMode())
-                _mesh->serialize(ar, getObjectAliasAndHandle().c_str(), C7Vector::identityTransformation, true);
+                _mesh->serialize(ar, getObjectAliasAndHandle().c_str(), CPose::identityTransformation, true);
 
             // (if undo/redo under way, getSaveExistingCalculationStructuresTemp is false)
             if (App::scene->environment->getSaveExistingCalculationStructuresTemp() &&
@@ -1053,7 +1053,7 @@ void CShape::_serializeMesh(CSer& ar)
                         ar >> byteQuantity;
                         delete _mesh;
                         _mesh = new CMesh();
-                        ((CMesh*)_mesh)->serialize(ar, getObjectAliasAndHandle().c_str(), C7Vector::identityTransformation, true);
+                        ((CMesh*)_mesh)->serialize(ar, getObjectAliasAndHandle().c_str(), CPose::identityTransformation, true);
                     }
                     if (theName.compare("Gsg") == 0)
                     { // geomWrap
@@ -1061,7 +1061,7 @@ void CShape::_serializeMesh(CSer& ar)
                         ar >> byteQuantity;
                         delete _mesh;
                         _mesh = new CMeshWrapper();
-                        _mesh->serialize(ar, getObjectAliasAndHandle().c_str(), C7Vector::identityTransformation, true);
+                        _mesh->serialize(ar, getObjectAliasAndHandle().c_str(), CPose::identityTransformation, true);
                     }
 
                     if (theName.compare("Coj") == 0)
@@ -1115,7 +1115,7 @@ void CShape::_serializeMesh(CSer& ar)
                 ar.xmlPushNewNode("mesh");
             else
                 ar.xmlPushNewNode("compound");
-            _mesh->serialize(ar, getObjectAliasAndHandle().c_str(), C7Vector::identityTransformation, true);
+            _mesh->serialize(ar, getObjectAliasAndHandle().c_str(), CPose::identityTransformation, true);
             ar.xmlPopNode();
         }
         else
@@ -1130,7 +1130,7 @@ void CShape::_serializeMesh(CSer& ar)
 
                 std::vector<double> wvert;
                 std::vector<int> wind;
-                _mesh->getCumulativeMeshes(C7Vector::identityTransformation, wvert, &wind, nullptr);
+                _mesh->getCumulativeMeshes(CPose::identityTransformation, wvert, &wind, nullptr);
                 _meshCalculationStructure =
                     App::scenes->pluginContainer->geomPlugin_getMeshFromSerializationData(
                         (unsigned char*)str.c_str());
@@ -1141,7 +1141,7 @@ void CShape::_serializeMesh(CSer& ar)
                 delete _mesh;
                 _mesh = new CMesh();
                 ((CMesh*)_mesh)
-                    ->serialize(ar, getObjectAliasAndHandle().c_str(), C7Vector::identityTransformation, true);
+                    ->serialize(ar, getObjectAliasAndHandle().c_str(), CPose::identityTransformation, true);
                 ar.xmlPopNode();
             }
             else
@@ -1150,7 +1150,7 @@ void CShape::_serializeMesh(CSer& ar)
                 {
                     delete _mesh;
                     _mesh = new CMeshWrapper();
-                    _mesh->serialize(ar, getObjectAliasAndHandle().c_str(), C7Vector::identityTransformation, true);
+                    _mesh->serialize(ar, getObjectAliasAndHandle().c_str(), CPose::identityTransformation, true);
                     ar.xmlPopNode();
                 }
             }
@@ -1163,7 +1163,7 @@ bool CShape::computeMassAndInertia(double density)
 {
     bool retVal = false;
     double mass = 0.0;
-    C7Vector localTr;
+    CPose localTr;
     C3Vector diagI;
 
     if (_mesh->isPure())
@@ -1171,7 +1171,7 @@ bool CShape::computeMassAndInertia(double density)
     else
     { // we use the convex hull
         std::vector<double> vert;
-        _mesh->getCumulativeMeshes(C7Vector::identityTransformation, vert, nullptr, nullptr);
+        _mesh->getCumulativeMeshes(CPose::identityTransformation, vert, nullptr, nullptr);
         std::vector<double> hull;
         std::vector<int> indices;
         if (CMeshRoutines::getConvexHull(vert, hull, indices))
@@ -1185,7 +1185,7 @@ bool CShape::computeMassAndInertia(double density)
         im(0, 0) = diagI(0);
         im(1, 1) = diagI(1);
         im(2, 2) = diagI(2);
-        im = CMeshWrapper::getInertiaInNewFrame(localTr.Q, im, C4Vector::identityRotation);
+        im = CMeshWrapper::getInertiaInNewFrame(localTr.Q, im, CQuaternion::identityRotation);
         _mesh->setMass(density * mass / 1000.0);
         _mesh->setInertia(im);
         _mesh->setCOM(localTr.X);
@@ -1194,19 +1194,19 @@ bool CShape::computeMassAndInertia(double density)
     return (retVal);
 }
 
-bool CShape::alignBB(const char* mode, const C7Vector* tr /*=nullptr*/)
+bool CShape::alignBB(const char* mode, const CPose* tr /*=nullptr*/)
 {
     bool retVal = false;
     if (std::string(mode) == "world")
     {
-        C7Vector shapeCumulTrInv(getCumulativeTransformation().getInverse());
+        CPose shapeCumulTrInv(getCumulativeTransformation().getInverse());
         retVal = _mesh->reorientBB(&shapeCumulTrInv.Q);
     }
     if (std::string(mode) == "mesh")
         retVal = _mesh->reorientBB(nullptr);
     if ((std::string(mode) == "custom") && (tr != nullptr))
     {
-        C7Vector shapeCumulTrInv(getCumulativeTransformation().getInverse() * tr[0]);
+        CPose shapeCumulTrInv(getCumulativeTransformation().getInverse() * tr[0]);
         retVal = _mesh->reorientBB(&shapeCumulTrInv.Q);
     }
     if (retVal)
@@ -1218,7 +1218,7 @@ bool CShape::alignBB(const char* mode, const C7Vector* tr /*=nullptr*/)
     return (retVal);
 }
 
-bool CShape::relocateFrame(const char* mode, const C7Vector* tr /*=nullptr*/)
+bool CShape::relocateFrame(const char* mode, const CPose* tr /*=nullptr*/)
 {
     bool retVal = false;
     if ((!_mesh->isMesh()) || (!_mesh->isPure()))
@@ -1226,10 +1226,10 @@ bool CShape::relocateFrame(const char* mode, const C7Vector* tr /*=nullptr*/)
         retVal = true;
         if (std::string(mode) == "world")
         {
-            C7Vector shapeCumulTr(getCumulativeTransformation());
+            CPose shapeCumulTr(getCumulativeTransformation());
             _mesh->setCOM(shapeCumulTr * _mesh->getCOM());
             _mesh->setInertia(
-                CMeshWrapper::getInertiaInNewFrame(shapeCumulTr.Q, _mesh->getInertia(), C4Vector::identityRotation));
+                CMeshWrapper::getInertiaInNewFrame(shapeCumulTr.Q, _mesh->getInertia(), CQuaternion::identityRotation));
             _mesh->setBBFrame(shapeCumulTr * _mesh->getBB(nullptr));
             if (getSingleMesh() == nullptr)
             { // we have a compound
@@ -1245,10 +1245,10 @@ bool CShape::relocateFrame(const char* mode, const C7Vector* tr /*=nullptr*/)
         }
         if (std::string(mode) == "parent")
         {
-            C7Vector localOld(_localTransformation);
+            CPose localOld(_localTransformation);
             _mesh->setCOM(localOld * _mesh->getCOM());
             _mesh->setInertia(
-                CMeshWrapper::getInertiaInNewFrame(localOld.Q, _mesh->getInertia(), C4Vector::identityRotation));
+                CMeshWrapper::getInertiaInNewFrame(localOld.Q, _mesh->getInertia(), CQuaternion::identityRotation));
             _mesh->setBBFrame(localOld * _mesh->getBB(nullptr));
             if (getSingleMesh() == nullptr)
             { // we have a compound
@@ -1260,15 +1260,15 @@ bool CShape::relocateFrame(const char* mode, const C7Vector* tr /*=nullptr*/)
                 CSceneObject* child = getChildFromIndex(i);
                 child->setLocalTransformation(localOld * child->getLocalTransformation());
             }
-            setLocalTransformation(C7Vector::identityTransformation);
+            setLocalTransformation(CPose::identityTransformation);
         }
         if (std::string(mode) == "mesh")
         {
-            C7Vector oldBBFrame(_mesh->getBB(nullptr));
+            CPose oldBBFrame(_mesh->getBB(nullptr));
             _mesh->setCOM(oldBBFrame.getInverse() * _mesh->getCOM());
             _mesh->setInertia(CMeshWrapper::getInertiaInNewFrame(oldBBFrame.getInverse().Q, _mesh->getInertia(),
-                                                                 C4Vector::identityRotation));
-            _mesh->setBBFrame(C7Vector::identityTransformation);
+                                                                 CQuaternion::identityRotation));
+            _mesh->setBBFrame(CPose::identityTransformation);
             if (getSingleMesh() == nullptr)
             { // we have a compound
                 for (size_t i = 0; i < _mesh->childList.size(); i++)
@@ -1283,11 +1283,11 @@ bool CShape::relocateFrame(const char* mode, const C7Vector* tr /*=nullptr*/)
         }
         if ((std::string(mode) == "custom") && (tr != nullptr))
         {
-            C7Vector x(getCumulativeTransformation().getInverse() * tr[0]);
+            CPose x(getCumulativeTransformation().getInverse() * tr[0]);
             _mesh->setCOM(x.getInverse() * _mesh->getCOM());
             _mesh->setInertia(
-                CMeshWrapper::getInertiaInNewFrame(x.getInverse().Q, _mesh->getInertia(), C4Vector::identityRotation));
-            _mesh->setBBFrame(C7Vector::identityTransformation);
+                CMeshWrapper::getInertiaInNewFrame(x.getInverse().Q, _mesh->getInertia(), CQuaternion::identityRotation));
+            _mesh->setBBFrame(CPose::identityTransformation);
             if (getSingleMesh() == nullptr)
             { // we have a compound
                 for (size_t i = 0; i < _mesh->childList.size(); i++)
@@ -1322,7 +1322,7 @@ bool CShape::isMeshCalculationStructureInitialized()
     return (_meshCalculationStructure != nullptr);
 }
 
-C7Vector CShape::getCumulCenteredMeshFrame() const
+CPose CShape::getCumulCenteredMeshFrame() const
 {
     return (getCumulativeTransformation() * _mesh->getBB(nullptr));
 }
@@ -1487,8 +1487,8 @@ bool CShape::getShapeShapeDistance_IfSmaller(CShape* it, double& dist, double ra
 
     CShape* shapeA = this;
     CShape* shapeB = it;
-    C7Vector shapeATr = shapeA->getCumulCenteredMeshFrame();
-    C7Vector shapeBTr = shapeB->getCumulCenteredMeshFrame();
+    CPose shapeATr = shapeA->getCumulCenteredMeshFrame();
+    CPose shapeBTr = shapeB->getCumulCenteredMeshFrame();
     shapeA->initializeMeshCalculationStructureIfNeeded();
     shapeB->initializeMeshCalculationStructureIfNeeded();
     C3Vector ptOnShapeA;
@@ -1539,12 +1539,12 @@ void CShape::addObjectEventData(CCbor* ev)
     {
         ev->openKeyArray(propShape_meshes.name);
         std::vector<CMesh*> all;
-        std::vector<C7Vector> allTr;
-        getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
+        std::vector<CPose> allTr;
+        getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, all, &allTr);
         for (size_t i = 0; i < all.size(); i++)
         {
             CMesh* geom = all[i];
-            C7Vector tr(allTr[i]);
+            CPose tr(allTr[i]);
             ev->openMap();
 
             const std::vector<float>* wvert = geom->getVerticesForDisplayAndDisk();
@@ -1634,8 +1634,8 @@ void CShape::addObjectEventData(CCbor* ev)
     else
     {
         std::vector<CMesh*> all;
-        std::vector<C7Vector> allTr;
-        getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
+        std::vector<CPose> allTr;
+        getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, all, &allTr);
         std::vector<long long int> mmid;
         mmid.resize(all.size());
         for (size_t i = 0; i < all.size(); i++)
@@ -1759,11 +1759,11 @@ void CShape::displayInertia(CViewableBase* renderingObject, double size, bool pe
 {
     if (persp)
     {
-        C7Vector x(renderingObject->getCumulativeTransformation().getInverse() * getCumulativeTransformation());
+        CPose x(renderingObject->getCumulativeTransformation().getInverse() * getCumulativeTransformation());
         size *= x(2);
     }
     C3Vector diag;
-    C7Vector tr(getCumulativeTransformation() * getMesh()->getDiagonalInertiaInfo(diag));
+    CPose tr(getCumulativeTransformation() * getMesh()->getDiagonalInertiaInfo(diag));
     _displayInertia(tr, diag, size * 0.008);
 }
 
@@ -1777,10 +1777,10 @@ void CShape::displayFrames(CViewableBase* renderingObject, double size, bool per
     CSceneObject::displayFrames(renderingObject, size, persp);
     if (persp)
     {
-        C7Vector x(renderingObject->getCumulativeTransformation().getInverse() * getCumulativeTransformation());
+        CPose x(renderingObject->getCumulativeTransformation().getInverse() * getCumulativeTransformation());
         size *= x(2);
     }
-    C7Vector tr(getCumulativeTransformation());
+    CPose tr(getCumulativeTransformation());
     _displayFrame(tr * _bbFrame, size * 0.006, 1); // frame of the bounding box
 }
 #endif
@@ -1791,7 +1791,7 @@ void CShape::setIsInScene(bool s)
     if (getMesh() != nullptr)
     {
         std::vector<CMesh*> all;
-        getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
+        getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, all, nullptr);
         for (size_t i = 0; i < all.size(); i++)
         {
             if (s)
@@ -2088,7 +2088,7 @@ int CShape::getMatrixProperty(const char* ppName, CMatrix& pState) const
     return retVal;
 }
 
-int CShape::setQuaternionProperty(const char* ppName, const C4Vector& pState)
+int CShape::setQuaternionProperty(const char* ppName, const CQuaternion& pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setQuaternionProperty(ppName, pState);
@@ -2103,7 +2103,7 @@ int CShape::setQuaternionProperty(const char* ppName, const C4Vector& pState)
     return retVal;
 }
 
-int CShape::getQuaternionProperty(const char* ppName, C4Vector& pState) const
+int CShape::getQuaternionProperty(const char* ppName, CQuaternion& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getQuaternionProperty(ppName, pState);
@@ -2181,7 +2181,7 @@ int CShape::setFloatArrayProperty(const char* ppName, const std::vector<double>&
         else if (strcmp(propShape_compoundShadingAngles.name, ppName) == 0)
         {
             std::vector<CMesh*> meshes;
-            getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, meshes);
+            getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, meshes);
             if (meshes.size() == pState.size())
             {
                 for (size_t i = 0; i < meshes.size(); i++)
@@ -2234,7 +2234,7 @@ int CShape::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
         else if (strcmp(propShape_compoundShadingAngles.name, ppName) == 0)
         {
             std::vector<CMesh*> meshes;
-            getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, meshes);
+            getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, meshes);
             for (size_t i = 0; i < meshes.size(); i++)
                 pState.push_back(meshes[i]->getShadingAngle());
             retVal = sim_propertyret_ok;
@@ -2254,7 +2254,7 @@ int CShape::setIntArrayProperty(const char* ppName, const std::vector<int>& pSta
         if ((strcmp(propShape_compoundEdges.name, ppName) == 0) || (strcmp(propShape_compoundWireframe.name, ppName) == 0) || (strcmp(propShape_compoundCullings.name, ppName) == 0))
         {
             std::vector<CMesh*> meshes;
-            getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, meshes);
+            getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, meshes);
             if (meshes.size() == pState.size())
             {
                 for (size_t i = 0; i < meshes.size(); i++)
@@ -2283,7 +2283,7 @@ int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) co
         if (strcmp(ppName, "meshes") == 0)
         {
             std::vector<CMesh*> all;
-            getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
+            getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, all, nullptr);
             for (size_t i = 0; i < all.size(); i++)
                 pState.push_back(all[i]->getObjectHandle());
             retVal = sim_propertyret_ok;
@@ -2291,7 +2291,7 @@ int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) co
         else if ((strcmp(propShape_compoundEdges.name, ppName) == 0) || (strcmp(propShape_compoundWireframe.name, ppName) == 0) || (strcmp(propShape_compoundCullings.name, ppName) == 0))
         {
             std::vector<CMesh*> meshes;
-            getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, meshes);
+            getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, meshes);
             for (size_t i = 0; i < meshes.size(); i++)
             {
                 if (strcmp(propShape_compoundEdges.name, ppName) == 0)
@@ -2318,7 +2318,7 @@ int CShape::getHandleArrayProperty(const char* ppName, std::vector<long long int
         if (strcmp(ppName, propShape_meshes.name) == 0)
         {
             std::vector<CMesh*> all;
-            getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
+            getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, all, nullptr);
             for (size_t i = 0; i < all.size(); i++)
                 pState.push_back(all[i]->getObjectHandle());
             retVal = sim_propertyret_ok;

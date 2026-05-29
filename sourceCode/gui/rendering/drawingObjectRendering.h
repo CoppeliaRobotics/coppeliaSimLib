@@ -32,5 +32,5 @@ void _drawLines(CDrawingObject* drawingObject, int displayAttrib, const C4X4Matr
 void _drawLineStrip(CDrawingObject* drawingObject, int displayAttrib, const C4X4Matrix& cameraRTM,
                     const double normalVectorForLinesAndPoints[3]);
 void _drawTriangles(CDrawingObject* drawingObject, int displayAttrib);
-void displayDrawingObject(CDrawingObject* drawingObject, C7Vector& tr, bool overlay, bool transparentObject,
+void displayDrawingObject(CDrawingObject* drawingObject, CPose& tr, bool overlay, bool transparentObject,
                           int displayAttrib, const C4X4Matrix& cameraCTM);

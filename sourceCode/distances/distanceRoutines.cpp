@@ -42,9 +42,9 @@ bool CDistanceRoutine::getOctreesHaveCoherentMovement(COcTree* octree1, COcTree*
 {
     bool retVal = false;
     C3Vector hs1;
-    C7Vector tr1(octree1->getCumulativeTransformation() * octree1->getBB(&hs1));
+    CPose tr1(octree1->getCumulativeTransformation() * octree1->getBB(&hs1));
     C3Vector hs2;
-    C7Vector tr2(octree2->getCumulativeTransformation() * octree2->getBB(&hs2));
+    CPose tr2(octree2->getCumulativeTransformation() * octree2->getBB(&hs2));
     for (size_t i = 0; i < _objectCoherency.size(); i++)
     {
         if ((_objectCoherency[i].object1Id == octree1->getObjectHandle()) &&
@@ -55,8 +55,8 @@ bool CDistanceRoutine::getOctreesHaveCoherentMovement(COcTree* octree1, COcTree*
             if (((tr1.X - _objectCoherency[i].object1Tr.X).getLength() < s1) &&
                 ((tr2.X - _objectCoherency[i].object2Tr.X).getLength() < s2))
             { // we have positional coherency
-                C4Vector q1(tr1.Q.getInverse() * tr2.Q);
-                C4Vector q2(_objectCoherency[i].object1Tr.Q.getInverse() * _objectCoherency[i].object2Tr.Q);
+                CQuaternion q1(tr1.Q.getInverse() * tr2.Q);
+                CQuaternion q2(_objectCoherency[i].object1Tr.Q.getInverse() * _objectCoherency[i].object2Tr.Q);
                 retVal = q1.getAngleBetweenQuaternions(q2) < 20.0 * piValue / 180.0; // this is angular coherency
             }
             _objectCoherency.erase(_objectCoherency.begin() + i);
@@ -210,7 +210,7 @@ double CDistanceRoutine::_getApproxBoundingBoxDistance(CSceneObject* obj1, CScen
     bool isPt[2] = {false, false};
     CSceneObject* objs[2] = {obj1, obj2};
     C3Vector halfSizes[2];
-    C7Vector m[2];
+    CPose m[2];
     for (size_t cnt = 0; cnt < 2; cnt++)
     {
         CSceneObject* obj = objs[cnt];

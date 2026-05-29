@@ -362,7 +362,7 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                         if ((it->getObjectType() == sim_sceneobject_shape) && (((CShape*)it)->getMesh() != nullptr))
                         {
                             std::vector<CMesh*> all;
-                            ((CShape*)it)->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
+                            ((CShape*)it)->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, all, nullptr);
                             for (size_t j = 0; j < all.size(); j++)
                                 all[j]->pushObjectRemoveEvent();
                         }
@@ -1262,7 +1262,7 @@ void CSceneObjectContainer::writeSceneObject(CSer& ar, CSceneObject* it)
 }
 
 bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer& ar, CSceneObject* parentObject,
-                                                                   const C7Vector& localFramePreCorrection,
+                                                                   const CPose& localFramePreCorrection,
                                                                    std::vector<SSimpleXmlSceneObject>& simpleXmlObjects)
 {
     bool retVal = true;
@@ -1280,7 +1280,7 @@ bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer& ar, CSc
             "shape*joint*graph*camera*dummy*script*proximitySensor*visionSensor*forceSensor*path*light*ocTree*pointCloud");
         if (objNames.find(nm) != std::string::npos)
         {
-            C7Vector desiredLocalFrame;
+            CPose desiredLocalFrame;
             CSceneObject* obj = nullptr;
             if (nm.compare("shape") == 0)
                 obj = _readSimpleXmlShape(ar, desiredLocalFrame); // special, added to scene already. Can fail
@@ -1373,7 +1373,7 @@ bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer& ar, CSc
             {
                 if (obj->getObjectType() != sim_sceneobject_shape)
                     desiredLocalFrame = obj->getLocalTransformation();
-                C7Vector localFramePreCorrectionForChildren(obj->getLocalTransformation().getInverse() *
+                CPose localFramePreCorrectionForChildren(obj->getLocalTransformation().getInverse() *
                                                             desiredLocalFrame);
                 obj->setLocalTransformation(localFramePreCorrection * obj->getLocalTransformation());
 
@@ -1540,14 +1540,14 @@ bool CSceneObjectContainer::setObjectParent(CSceneObject* object, CSceneObject* 
         if (oldParent != newParent)
         {
             _hierarchyChangeCounter++;
-            C7Vector absTr(object->getCumulativeTransformation());
+            CPose absTr(object->getCumulativeTransformation());
             if (oldParent != nullptr)
             {
                 oldParent->removeChild(object);
                 if (oldParent->getObjectType() == sim_sceneobject_joint)
-                    ((CJoint*)oldParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
+                    ((CJoint*)oldParent)->setIntrinsicTransformationError(CPose::identityTransformation);
                 if (oldParent->getObjectType() == sim_sceneobject_forcesensor)
-                    ((CForceSensor*)oldParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
+                    ((CForceSensor*)oldParent)->setIntrinsicTransformationError(CPose::identityTransformation);
             }
             else
             {
@@ -1566,9 +1566,9 @@ bool CSceneObjectContainer::setObjectParent(CSceneObject* object, CSceneObject* 
             {
                 newParent->addChild(object);
                 if (newParent->getObjectType() == sim_sceneobject_joint)
-                    ((CJoint*)newParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
+                    ((CJoint*)newParent)->setIntrinsicTransformationError(CPose::identityTransformation);
                 if (newParent->getObjectType() == sim_sceneobject_forcesensor)
-                    ((CForceSensor*)newParent)->setIntrinsicTransformationError(C7Vector::identityTransformation);
+                    ((CForceSensor*)newParent)->setIntrinsicTransformationError(CPose::identityTransformation);
             }
             else
             {
@@ -1582,7 +1582,7 @@ bool CSceneObjectContainer::setObjectParent(CSceneObject* object, CSceneObject* 
 
             if (keepInPlace)
             {
-                C7Vector parentTr(object->getFullParentCumulativeTransformation());
+                CPose parentTr(object->getFullParentCumulativeTransformation());
                 object->setLocalTransformation(parentTr.getInverse() * absTr);
             }
 
@@ -1834,13 +1834,13 @@ void CSceneObjectContainer::_handleOrderIndexOfOrphans()
 #endif
 }
 
-void CSceneObjectContainer::setObjectAbsolutePose(int objectHandle, const C7Vector& v, bool keepChildrenInPlace)
+void CSceneObjectContainer::setObjectAbsolutePose(int objectHandle, const CPose& v, bool keepChildrenInPlace)
 {
     CSceneObject* it = getObjectFromHandle(objectHandle);
     if (it != nullptr)
     {
-        C7Vector childPreTr(it->getFullLocalTransformation());
-        C7Vector parentInverse(it->getFullParentCumulativeTransformation().getInverse());
+        CPose childPreTr(it->getFullLocalTransformation());
+        CPose parentInverse(it->getFullParentCumulativeTransformation().getInverse());
         it->setLocalTransformation(parentInverse * v);
         if (keepChildrenInPlace)
         {
@@ -1859,8 +1859,8 @@ void CSceneObjectContainer::setObjectAbsolutePosition(int objectHandle, const C3
     CSceneObject* it = getObjectFromHandle(objectHandle);
     if (it != nullptr)
     {
-        C7Vector cumul(it->getCumulativeTransformation());
-        C7Vector parentInverse(it->getFullParentCumulativeTransformation().getInverse());
+        CPose cumul(it->getCumulativeTransformation());
+        CPose parentInverse(it->getFullParentCumulativeTransformation().getInverse());
         cumul.X = p;
         it->setLocalTransformation(parentInverse * cumul);
     }
@@ -1871,8 +1871,8 @@ void CSceneObjectContainer::setObjectAbsoluteOrientation(int objectHandle, const
     CSceneObject* it = getObjectFromHandle(objectHandle);
     if (it != nullptr)
     {
-        C7Vector cumul(it->getCumulativeTransformation());
-        C7Vector parentInverse(it->getFullParentCumulativeTransformation().getInverse());
+        CPose cumul(it->getCumulativeTransformation());
+        CPose parentInverse(it->getFullParentCumulativeTransformation().getInverse());
         cumul.Q.setEulerAngles(euler);
         it->setLocalTransformation(parentInverse * cumul);
     }
@@ -2164,7 +2164,7 @@ void CSceneObjectContainer::removeFromSelectionAllExceptModelBase(bool keepObjec
     }
 }
 
-CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar, C7Vector& desiredLocalFrame)
+CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar, CPose& desiredLocalFrame)
 {
     CDummy* dummy = new CDummy();
     dummy->serialize(ar); // we later transfer the common data to the shape object
@@ -2275,7 +2275,7 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar, C7Vector& desiredLo
             }
             ar.xmlPopNode();
         }
-        C7Vector tr(shape->getFullCumulativeTransformation());
+        CPose tr(shape->getFullCumulativeTransformation());
         shape->acquireCommonPropertiesFromObject_simpleXMLLoading(dummy);
         setObjectAlias(shape, dummy->getObjectAlias().c_str(), true);
         setObjectName_old(shape, dummy->getObjectName_old().c_str(), true);
@@ -2287,13 +2287,13 @@ CShape* CSceneObjectContainer::_readSimpleXmlShape(CSer& ar, C7Vector& desiredLo
         // here (we simply reorient the shape's bounding box):
         if ((!shape->getMesh()->isPure()) || (shape->isCompound()))
         {
-            C7Vector oldAbsTr(shape->getCumulativeTransformation());
-            C7Vector oldAbsTr2(dummy->getCumulativeTransformation().getInverse() * oldAbsTr);
-            C7Vector x(oldAbsTr2 * oldAbsTr.getInverse());
+            CPose oldAbsTr(shape->getCumulativeTransformation());
+            CPose oldAbsTr2(dummy->getCumulativeTransformation().getInverse() * oldAbsTr);
+            CPose x(oldAbsTr2 * oldAbsTr.getInverse());
             shape->setLocalTransformation(oldAbsTr2);
             shape->alignBB("world");
-            C7Vector newAbsTr2(shape->getCumulativeTransformation());
-            C7Vector newAbsTr(x.getInverse() * newAbsTr2);
+            CPose newAbsTr2(shape->getCumulativeTransformation());
+            CPose newAbsTr(x.getInverse() * newAbsTr2);
             shape->setLocalTransformation(newAbsTr);
         }
     }
@@ -2331,7 +2331,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar, bool noHeightfiel
                            "disc", 5, "capsule", 6);
         double sizes[3] = {0.1, 0.1, 0.1};
         ar.xmlGetNode_floats("size", sizes, 3, false);
-        C7Vector tr;
+        CPose tr;
         tr.setIdentity();
         if (ar.xmlPushChildNode("localFrame", false))
         {
@@ -2493,7 +2493,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar, bool noHeightfiel
                     }
                     if (ok)
                     {
-                        retVal = new CShape(C7Vector::identityTransformation, vertices, indices, nullptr, nullptr, 0);
+                        retVal = new CShape(CPose::identityTransformation, vertices, indices, nullptr, nullptr, 0);
                         addObjectToScene(retVal, false, true);
                     }
                 }
@@ -2501,7 +2501,7 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar, bool noHeightfiel
         }
         if (retVal != nullptr)
         {
-            C7Vector tr;
+            CPose tr;
             tr.setIdentity();
             if (ar.xmlPushChildNode("localFrame", false))
             {
@@ -2675,7 +2675,7 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar, CShape* shape)
     // Deprecated:
     ar.xmlAddNode_comment(" 'localInertiaframe' tag: deprecated, for backward compatibility ", false);
     C3Vector diagI;
-    C7Vector tr(shape->getMesh()->getDiagonalInertiaInfo(diagI));
+    CPose tr(shape->getMesh()->getDiagonalInertiaInfo(diagI));
     ar.xmlPushNewNode("localInertiaFrame");
     ar.xmlAddNode_floats("position", tr.X.data, 3);
     C3Vector euler(tr.Q.getEulerAngles());
@@ -2710,15 +2710,15 @@ void CSceneObjectContainer::_writeSimpleXmlShape(CSer& ar, CShape* shape)
     ar.xmlPopNode();
 }
 
-void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar, const char* originalShapeName, CShape* shape, const C7Vector& frame)
+void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar, const char* originalShapeName, CShape* shape, const CPose& frame)
 {
     CMesh* geom = shape->getSingleMesh();
     if (geom->getPurePrimitiveType() == sim_primitiveshape_none)
     { // mesh
         ar.xmlPushNewNode("mesh");
-        C7Vector trOld(shape->getFullLocalTransformation());
-        C7Vector x(frame.getInverse() * trOld);
-        shape->setLocalTransformation(C7Vector::identityTransformation);
+        CPose trOld(shape->getFullLocalTransformation());
+        CPose x(frame.getInverse() * trOld);
+        shape->setLocalTransformation(CPose::identityTransformation);
         ar.xmlAddNode_comment(" one of following tags is required: 'fileName' or 'vertices' and 'indices' ", false);
         if (App::scenes->pluginContainer->isAssimpPluginAvailable() &&
             (!ar.xmlSaveDataInline(geom->getVerticesForDisplayAndDisk()->size() + geom->getIndices()->size() * 4)))
@@ -2741,7 +2741,7 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar, const char* ori
             /*
             std::vector<double> v;
             std::vector<int> ind;
-            geom->getCumulativeMeshes(C7Vector::identityTransformation,v,&ind,nullptr);
+            geom->getCumulativeMeshes(CPose::identityTransformation,v,&ind,nullptr);
             ar.xmlAddNode_floats("vertices",v);
             ar.xmlAddNode_ints("indices",geom->getIndices()[0]);
             */
@@ -2762,7 +2762,7 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar, const char* ori
 
         shape->setLocalTransformation(trOld); // restore it
         ar.xmlPushNewNode("localFrame");
-        C7Vector tr(x);
+        CPose tr(x);
         ar.xmlAddNode_floats("position", tr.X.data, 3);
         C3Vector euler(tr.Q.getEulerAngles() * 180.0 / piValue);
         ar.xmlAddNode_floats("euler", euler.data, 3);
@@ -2807,7 +2807,7 @@ void CSceneObjectContainer::_writeSimpleXmlSimpleShape(CSer& ar, const char* ori
         geom->getPurePrimitiveSizes(s);
         ar.xmlAddNode_floats("size", s.data, 3);
         ar.xmlPushNewNode("localFrame");
-        C7Vector tr(frame.getInverse() * shape->getFullCumulativeTransformation() * geom->getBB(nullptr));
+        CPose tr(frame.getInverse() * shape->getFullCumulativeTransformation() * geom->getBB(nullptr));
         ar.xmlAddNode_floats("position", tr.X.data, 3);
         C3Vector euler(tr.Q.getEulerAngles() * 180.0 / piValue);
         ar.xmlAddNode_floats("euler", euler.data, 3);
@@ -4526,7 +4526,7 @@ int CSceneObjectContainer::setBoolProperty_t(long long int target, const char* p
             return it->setBoolProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->setBoolProperty_mesh(pName, pState, shapeRelTr);
@@ -4549,7 +4549,7 @@ int CSceneObjectContainer::getBoolProperty_t(long long int target, const char* p
             return it->getBoolProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getBoolProperty_mesh(pName, pState, shapeRelTr);
@@ -4572,7 +4572,7 @@ int CSceneObjectContainer::setIntProperty_t(long long int target, const char* pN
             return it->setIntProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->setIntProperty_mesh(pName, pState, shapeRelTr);
@@ -4610,7 +4610,7 @@ int CSceneObjectContainer::getIntProperty_t(long long int target, const char* pN
             return it->getIntProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getIntProperty_mesh(pName, pState, shapeRelTr);
@@ -4633,7 +4633,7 @@ int CSceneObjectContainer::setLongProperty_t(long long int target, const char* p
             return it->setLongProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return sim_propertyret_unknownproperty;
@@ -4656,7 +4656,7 @@ int CSceneObjectContainer::getLongProperty_t(long long int target, const char* p
             return it->getLongProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getLongProperty_mesh(pName, pState, shapeRelTr);
@@ -4679,7 +4679,7 @@ int CSceneObjectContainer::setHandleProperty_t(long long int target, const char*
             return it->setHandleProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return sim_propertyret_unknownproperty;
@@ -4702,7 +4702,7 @@ int CSceneObjectContainer::getHandleProperty_t(long long int target, const char*
             return it->getHandleProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getHandleProperty_mesh(pName, pState, shapeRelTr);
@@ -4725,7 +4725,7 @@ int CSceneObjectContainer::setFloatProperty_t(long long int target, const char* 
             return it->setFloatProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->setFloatProperty_mesh(pName, pState, shapeRelTr);
@@ -4748,7 +4748,7 @@ int CSceneObjectContainer::getFloatProperty_t(long long int target, const char* 
             return it->getFloatProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getFloatProperty_mesh(pName, pState, shapeRelTr);
@@ -4771,7 +4771,7 @@ int CSceneObjectContainer::setStringProperty_t(long long int target, const char*
             return it->setStringProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->setStringProperty_mesh(pName, pState, shapeRelTr);
@@ -4794,7 +4794,7 @@ int CSceneObjectContainer::getStringProperty_t(long long int target, const char*
             return it->getStringProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getStringProperty_mesh(pName, pState, shapeRelTr);
@@ -4817,7 +4817,7 @@ int CSceneObjectContainer::setTableProperty_t(long long int target, const char* 
             return it->setTableProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return sim_propertyret_unknownproperty;
@@ -4840,7 +4840,7 @@ int CSceneObjectContainer::getTableProperty_t(long long int target, const char* 
             return it->getTableProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return sim_propertyret_unknownproperty;
@@ -4863,7 +4863,7 @@ int CSceneObjectContainer::setBufferProperty_t(long long int target, const char*
             return it->setBufferProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->setBufferProperty_mesh(pName, pState, shapeRelTr);
@@ -4886,7 +4886,7 @@ int CSceneObjectContainer::getBufferProperty_t(long long int target, const char*
             return it->getBufferProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getBufferProperty_mesh(pName, pState, shapeRelTr);
@@ -4909,7 +4909,7 @@ int CSceneObjectContainer::setIntArray2Property_t(long long int target, const ch
             return it->setIntArray2Property(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->setIntArray2Property_mesh(pName, pState, shapeRelTr);
@@ -4932,7 +4932,7 @@ int CSceneObjectContainer::getIntArray2Property_t(long long int target, const ch
             return it->getIntArray2Property(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getIntArray2Property_mesh(pName, pState, shapeRelTr);
@@ -4955,7 +4955,7 @@ int CSceneObjectContainer::setVector3Property_t(long long int target, const char
             return it->setVector3Property(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->setVector3Property_mesh(pName, pState, shapeRelTr);
@@ -4978,7 +4978,7 @@ int CSceneObjectContainer::getVector3Property_t(long long int target, const char
             return it->getVector3Property(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getVector3Property_mesh(pName, pState, shapeRelTr);
@@ -5001,7 +5001,7 @@ int CSceneObjectContainer::setMatrixProperty_t(long long int target, const char*
             return it->setMatrixProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return sim_propertyret_unknownproperty;
@@ -5024,7 +5024,7 @@ int CSceneObjectContainer::getMatrixProperty_t(long long int target, const char*
             return it->getMatrixProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getMatrixProperty_mesh(pName, pState, shapeRelTr);
@@ -5034,7 +5034,7 @@ int CSceneObjectContainer::getMatrixProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CSceneObjectContainer::setQuaternionProperty_t(long long int target, const char* pName, const C4Vector& pState)
+int CSceneObjectContainer::setQuaternionProperty_t(long long int target, const char* pName, const CQuaternion& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5047,7 +5047,7 @@ int CSceneObjectContainer::setQuaternionProperty_t(long long int target, const c
             return it->setQuaternionProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->setQuaternionProperty_mesh(pName, pState, shapeRelTr);
@@ -5057,7 +5057,7 @@ int CSceneObjectContainer::setQuaternionProperty_t(long long int target, const c
     return retVal;
 }
 
-int CSceneObjectContainer::getQuaternionProperty_t(long long int target, const char* pName, C4Vector& pState) const
+int CSceneObjectContainer::getQuaternionProperty_t(long long int target, const char* pName, CQuaternion& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5070,7 +5070,7 @@ int CSceneObjectContainer::getQuaternionProperty_t(long long int target, const c
             return it->getQuaternionProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getQuaternionProperty_mesh(pName, pState, shapeRelTr);
@@ -5080,7 +5080,7 @@ int CSceneObjectContainer::getQuaternionProperty_t(long long int target, const c
     return retVal;
 }
 
-int CSceneObjectContainer::setPoseProperty_t(long long int target, const char* pName, const C7Vector& pState)
+int CSceneObjectContainer::setPoseProperty_t(long long int target, const char* pName, const CPose& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5093,7 +5093,7 @@ int CSceneObjectContainer::setPoseProperty_t(long long int target, const char* p
             return it->setPoseProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->setPoseProperty_mesh(pName, pState, shapeRelTr);
@@ -5103,7 +5103,7 @@ int CSceneObjectContainer::setPoseProperty_t(long long int target, const char* p
     return retVal;
 }
 
-int CSceneObjectContainer::getPoseProperty_t(long long int target, const char* pName, C7Vector& pState) const
+int CSceneObjectContainer::getPoseProperty_t(long long int target, const char* pName, CPose& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5116,7 +5116,7 @@ int CSceneObjectContainer::getPoseProperty_t(long long int target, const char* p
             return it->getPoseProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getPoseProperty_mesh(pName, pState, shapeRelTr);
@@ -5139,7 +5139,7 @@ int CSceneObjectContainer::setColorProperty_t(long long int target, const char* 
             return it->setColorProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->setColorProperty_mesh(pName, pState, shapeRelTr);
@@ -5162,7 +5162,7 @@ int CSceneObjectContainer::getColorProperty_t(long long int target, const char* 
             return it->getColorProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getColorProperty_mesh(pName, pState, shapeRelTr);
@@ -5185,7 +5185,7 @@ int CSceneObjectContainer::setFloatArrayProperty_t(long long int target, const c
             return it->setFloatArrayProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->setFloatArrayProperty_mesh(pName, pState, shapeRelTr);
@@ -5209,7 +5209,7 @@ int CSceneObjectContainer::getFloatArrayProperty_t(long long int target, const c
             return it->getFloatArrayProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getFloatArrayProperty_mesh(pName, pState, shapeRelTr);
@@ -5239,7 +5239,7 @@ int CSceneObjectContainer::setIntArrayProperty_t(long long int target, const cha
             return it->setIntArrayProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->setIntArrayProperty_mesh(pName, pState, shapeRelTr);
@@ -5282,7 +5282,7 @@ int CSceneObjectContainer::getIntArrayProperty_t(long long int target, const cha
             return it->getIntArrayProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getIntArrayProperty_mesh(pName, pState, shapeRelTr);
@@ -5313,7 +5313,7 @@ int CSceneObjectContainer::setHandleArrayProperty_t(long long int target, const 
             return it->setHandleArrayProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return sim_propertyret_unknownproperty;
@@ -5355,7 +5355,7 @@ int CSceneObjectContainer::getHandleArrayProperty_t(long long int target, const 
             return it->getHandleArrayProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return sim_propertyret_unknownproperty;
@@ -5382,7 +5382,7 @@ int CSceneObjectContainer::setStringArrayProperty_t(long long int target, const 
             return it->setStringArrayProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return sim_propertyret_unknownproperty;
@@ -5410,7 +5410,7 @@ int CSceneObjectContainer::getStringArrayProperty_t(long long int target, const 
             return it->getStringArrayProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return mesh->getStringArrayProperty_mesh(pName, pState, shapeRelTr);
@@ -5433,7 +5433,7 @@ int CSceneObjectContainer::setMethodProperty_t(long long int target, const char*
             return it->setMethodProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return sim_propertyret_unknownproperty;
@@ -5460,7 +5460,7 @@ int CSceneObjectContainer::getMethodProperty_t(long long int target, const char*
             return it->getMethodProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return sim_propertyret_unknownproperty;
@@ -5483,7 +5483,7 @@ int CSceneObjectContainer::setMethodProperty_t(long long int target, const char*
             return it->setMethodProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return sim_propertyret_unknownproperty;
@@ -5510,7 +5510,7 @@ int CSceneObjectContainer::getMethodProperty_t(long long int target, const char*
             return it->getMethodProperty(pName, pState);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return sim_propertyret_unknownproperty;
@@ -5640,7 +5640,7 @@ int CSceneObjectContainer::setPropertyInfo_t(long long int target, const char* p
             return it->setPropertyInfo(pName, info, infoTxt);
         else
         {
-            C7Vector shapeRelTr;
+            CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
                 return sim_propertyret_unknownproperty;
@@ -5755,13 +5755,13 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                         break;
                     }
                     case sim_propertytype_quaternion: {
-                        C4Vector state;
+                        CQuaternion state;
                         result = obj->getQuaternionProperty(name.c_str(), state);
                         dnaString.append(reinterpret_cast<const char*>(state.data), sizeof(state.data));
                         break;
                     }
                     case sim_propertytype_pose: {
-                        C7Vector state;
+                        CPose state;
                         result = obj->getPoseProperty(name.c_str(), state);
                         dnaString.append(reinterpret_cast<const char*>(state.X.data), sizeof(state.X.data));
                         dnaString.append(reinterpret_cast<const char*>(state.Q.data), sizeof(state.Q.data));
@@ -5848,7 +5848,7 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
             if (obj->getObjectType() == sim_sceneobject_shape)
             {
                 std::vector<CMesh*> all;
-                ((CShape*)obj)->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, nullptr);
+                ((CShape*)obj)->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, all, nullptr);
                 for (size_t j = 0; j < all.size(); j++)
                     dnaString += all[j]->getMeshState();
             }
@@ -5902,14 +5902,14 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
     return dnaString;
 }
 
-CMesh* CSceneObjectContainer::getMeshFromUid(long long int meshUid, C7Vector* optShapeRelTr /*= nullptr*/) const
+CMesh* CSceneObjectContainer::getMeshFromUid(long long int meshUid, CPose* optShapeRelTr /*= nullptr*/) const
 {
     CMesh* mesh = nullptr;
     for (size_t i = 0; i < _shapeList.size(); i++)
     {
         CShape* shape = _shapeList[i];
-        C7Vector shapeRelTr;
-        mesh = shape->getMeshFromUid(meshUid, C7Vector::identityTransformation, shapeRelTr);
+        CPose shapeRelTr;
+        mesh = shape->getMeshFromUid(meshUid, CPose::identityTransformation, shapeRelTr);
         if (mesh != nullptr)
         {
             if (optShapeRelTr != nullptr)

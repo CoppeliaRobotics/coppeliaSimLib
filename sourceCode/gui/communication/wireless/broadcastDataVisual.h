@@ -6,7 +6,7 @@
 class CBroadcastDataVisual
 {
   public:
-    CBroadcastDataVisual(double timeOutSimulationTime, double actionRadius, const C7Vector& emitterConf,
+    CBroadcastDataVisual(double timeOutSimulationTime, double actionRadius, const CPose& emitterConf,
                          double emissionAngle1, double emissionAngle2);
     CBroadcastDataVisual(const C3Vector& emitterPos, const C3Vector& receiverPos);
     virtual ~CBroadcastDataVisual();
@@ -17,7 +17,7 @@ class CBroadcastDataVisual
 
     double _timeOutSimulationTime;
     double _actionRadius;
-    C7Vector _emitterConf;
+    CPose _emitterConf;
     C3Vector _receiverPos;
     double _emissionAngle1;
     double _emissionAngle2;

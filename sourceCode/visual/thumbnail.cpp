@@ -206,7 +206,7 @@ void CThumbnail::copyFrom(CThumbnail* it)
     _compressData = it->_compressData;
 }
 
-void CThumbnail::serializeAdditionalModelInfos(CSer& ar, C7Vector& modelTr, C3Vector& modelBBSize,
+void CThumbnail::serializeAdditionalModelInfos(CSer& ar, CPose& modelTr, C3Vector& modelBBSize,
                                                double& modelNonDefaultTranslationStepSize)
 {
     if (ar.isBinary())

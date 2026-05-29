@@ -21,13 +21,13 @@ class CMemorizedConf_old
     static int popIntFromBuffer(std::vector<char>& data);
 
     // General 3D objects:
-    C7Vector configuration;
+    CPose configuration;
     long long int uniqueID;
     long long int parentUniqueID;
     int objectType;
 
     // Joints:
-    C4Vector sphericalJointOrientation;
+    CQuaternion sphericalJointOrientation;
 
     // Joints and paths:
     double position;

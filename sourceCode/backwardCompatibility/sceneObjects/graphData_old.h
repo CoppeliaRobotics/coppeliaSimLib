@@ -35,7 +35,7 @@ class CGraphData_old
     void setDerivativeIntegralAndCumulative(int val);
     int getDerivativeIntegralAndCumulative() const;
 
-    void setValue(const C7Vector* graphCTM, int absIndex, bool firstValue, bool cyclic, double range,
+    void setValue(const CPose* graphCTM, int absIndex, bool firstValue, bool cyclic, double range,
                   const std::vector<double>& times);
     void setValueDirect(int absIndex, double theValue, bool firstValue, bool cyclic, double range,
                         const std::vector<double>& times);

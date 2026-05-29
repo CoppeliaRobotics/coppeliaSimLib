@@ -99,7 +99,7 @@ class CSceneObjectContainer
     CMill* getMillFromHandle(int objectHandle) const;
     CForceSensor* getForceSensorFromHandle(int objectHandle) const;
 
-    CMesh* getMeshFromUid(long long int meshUid, C7Vector* optShapeRelTr = nullptr) const;
+    CMesh* getMeshFromUid(long long int meshUid, CPose* optShapeRelTr = nullptr) const;
     void getAllMeshes(std::vector<CMesh*>& meshes) const;
 
     bool hasSelectionChanged();
@@ -209,10 +209,10 @@ class CSceneObjectContainer
     int getVector3Property_t(long long int target, const char* pName, C3Vector& pState) const;
     int setMatrixProperty_t(long long int target, const char* pName, const CMatrix& pState);
     int getMatrixProperty_t(long long int target, const char* pName, CMatrix& pState) const;
-    int setQuaternionProperty_t(long long int target, const char* pName, const C4Vector& pState);
-    int getQuaternionProperty_t(long long int target, const char* pName, C4Vector& pState) const;
-    int setPoseProperty_t(long long int target, const char* pName, const C7Vector& pState);
-    int getPoseProperty_t(long long int target, const char* pName, C7Vector& pState) const;
+    int setQuaternionProperty_t(long long int target, const char* pName, const CQuaternion& pState);
+    int getQuaternionProperty_t(long long int target, const char* pName, CQuaternion& pState) const;
+    int setPoseProperty_t(long long int target, const char* pName, const CPose& pState);
+    int getPoseProperty_t(long long int target, const char* pName, CPose& pState) const;
     int setColorProperty_t(long long int target, const char* pName, const float* pState);
     int getColorProperty_t(long long int target, const char* pName, float* pState) const;
     int setFloatArrayProperty_t(long long int target, const char* pName, const std::vector<double>& pState);
@@ -248,7 +248,7 @@ class CSceneObjectContainer
 
     CSceneObject* readSceneObject(CSer& ar, const char* name, bool& noHit);
     void writeSceneObject(CSer& ar, CSceneObject* it);
-    bool readAndAddToSceneSimpleXmlSceneObjects(CSer& ar, CSceneObject* parentObject, const C7Vector& localFramePreCorrection, std::vector<SSimpleXmlSceneObject>& simpleXmlObjects);
+    bool readAndAddToSceneSimpleXmlSceneObjects(CSer& ar, CSceneObject* parentObject, const CPose& localFramePreCorrection, std::vector<SSimpleXmlSceneObject>& simpleXmlObjects);
     void writeSimpleXmlSceneObjectTree(CSer& ar, const CSceneObject* object);
 
     bool setObjectAlias(CSceneObject* object, const char* newAlias, bool allowNameAdjustment);
@@ -259,7 +259,7 @@ class CSceneObjectContainer
     bool setObjectName_old(CSceneObject* object, const char* newName, bool allowNameAdjustment);
     bool setObjectAltName_old(CSceneObject* object, const char* newAltName, bool allowNameAdjustment);
 
-    void setObjectAbsolutePose(int objectHandle, const C7Vector& v, bool keepChildrenInPlace);
+    void setObjectAbsolutePose(int objectHandle, const CPose& v, bool keepChildrenInPlace);
     void setObjectAbsoluteOrientation(int objectHandle, const C3Vector& euler);
     void setObjectAbsolutePosition(int objectHandle, const C3Vector& p);
 
@@ -298,10 +298,10 @@ class CSceneObjectContainer
   private:
     void _getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse = false) const;
     int _callScripts(int scriptType, int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int scriptToExclude = -1);
-    CShape* _readSimpleXmlShape(CSer& ar, C7Vector& desiredLocalFrame);
+    CShape* _readSimpleXmlShape(CSer& ar, CPose& desiredLocalFrame);
     CShape* _createSimpleXmlShape(CSer& ar, bool noHeightfield, const char* itemType, bool checkSibling);
     void _writeSimpleXmlShape(CSer& ar, CShape* shape);
-    void _writeSimpleXmlSimpleShape(CSer& ar, const char* originalShapeName, CShape* shape, const C7Vector& frame);
+    void _writeSimpleXmlSimpleShape(CSer& ar, const char* originalShapeName, CShape* shape, const CPose& frame);
 
     bool _objectActualizationEnabled;
     int _nextObjectHandle;

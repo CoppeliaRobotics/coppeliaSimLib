@@ -1528,7 +1528,7 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
             App::logMsg(sim_verbosity_msgs, "Assembling items...");
         if (it1 != nullptr)
         { // new method (via dummies)
-            C7Vector newLocal(it1->getFullLocalTransformation() * it2->getFullLocalTransformation().getInverse());
+            CPose newLocal(it1->getFullLocalTransformation() * it2->getFullLocalTransformation().getInverse());
             App::scene->sceneObjects->setObjectParent(obj2, obj1, true);
             obj2->setLocalTransformation(newLocal);
         }
@@ -2968,7 +2968,7 @@ int App::getMatrixProperty_t(long long int target, const char* ppName, CMatrix& 
     return retVal;
 }
 
-int App::setQuaternionProperty_t(long long int target, const char* ppName, const C4Vector& pState)
+int App::setQuaternionProperty_t(long long int target, const char* ppName, const CQuaternion& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3002,7 +3002,7 @@ int App::setQuaternionProperty_t(long long int target, const char* ppName, const
     return retVal;
 }
 
-int App::getQuaternionProperty_t(long long int target, const char* ppName, C4Vector& pState)
+int App::getQuaternionProperty_t(long long int target, const char* ppName, CQuaternion& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3041,7 +3041,7 @@ int App::getQuaternionProperty_t(long long int target, const char* ppName, C4Vec
     return retVal;
 }
 
-int App::setPoseProperty_t(long long int target, const char* ppName, const C7Vector& pState)
+int App::setPoseProperty_t(long long int target, const char* ppName, const CPose& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3075,7 +3075,7 @@ int App::setPoseProperty_t(long long int target, const char* ppName, const C7Vec
     return retVal;
 }
 
-int App::getPoseProperty_t(long long int target, const char* ppName, C7Vector& pState)
+int App::getPoseProperty_t(long long int target, const char* ppName, CPose& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))

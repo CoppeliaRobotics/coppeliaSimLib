@@ -341,7 +341,7 @@ void CGraphData_old::setValueDirect(int absIndex, double theValue, bool firstVal
     }
 }
 
-void CGraphData_old::setValue(const C7Vector* graphCTM, int absIndex, bool firstValue, bool cyclic, double range,
+void CGraphData_old::setValue(const CPose* graphCTM, int absIndex, bool firstValue, bool cyclic, double range,
                               const std::vector<double>& times)
 {
     bool dataIsOkay = false;

@@ -329,7 +329,7 @@ void COcTree::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToO
     std::vector<double> __pts;
     if (!ptsAreRelativeToOctree)
     {
-        C7Vector tr(getFullCumulativeTransformation().getInverse());
+        CPose tr(getFullCumulativeTransformation().getInverse());
         for (int i = 0; i < ptsCnt; i++)
         {
             C3Vector p(pts + 3 * i);
@@ -368,16 +368,16 @@ void COcTree::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToO
                                      (unsigned char)(color.getColorsPtr()[1] * 255.1),
                                      (unsigned char)(color.getColorsPtr()[2] * 255.1)};
             App::scenes->pluginContainer->geomPlugin_insertPointsIntoOctree_rgb(
-                _octreeInfo, C7Vector::identityTransformation, _pts, ptsCnt, cols, theTagWhenOptionalTagsIsNull);
+                _octreeInfo, CPose::identityTransformation, _pts, ptsCnt, cols, theTagWhenOptionalTagsIsNull);
         }
         else
         {
             if (colorsAreIndividual)
                 App::scenes->pluginContainer->geomPlugin_insertColorPointsIntoOctree_rgb(
-                    _octreeInfo, C7Vector::identityTransformation, _pts, ptsCnt, optionalColors3, optionalTags);
+                    _octreeInfo, CPose::identityTransformation, _pts, ptsCnt, optionalColors3, optionalTags);
             else
                 App::scenes->pluginContainer->geomPlugin_insertPointsIntoOctree_rgb(
-                    _octreeInfo, C7Vector::identityTransformation, _pts, ptsCnt, optionalColors3, optionalTags[0]);
+                    _octreeInfo, CPose::identityTransformation, _pts, ptsCnt, optionalColors3, optionalTags[0]);
         }
     }
     _readPositionsAndColorsAndSetDimensions();
@@ -389,8 +389,8 @@ void COcTree::insertShape(CShape* shape, unsigned int theTag)
     TRACE_INTERNAL;
     shape->initializeMeshCalculationStructureIfNeeded();
 
-    C7Vector octreeTr(getCumulativeTransformation());
-    C7Vector shapeTr(((CShape*)shape)->getCumulCenteredMeshFrame());
+    CPose octreeTr(getCumulativeTransformation());
+    CPose shapeTr(((CShape*)shape)->getCumulCenteredMeshFrame());
     unsigned char cols[3] = {(unsigned char)(color.getColorsPtr()[0] * 255.1),
                              (unsigned char)(color.getColorsPtr()[1] * 255.1),
                              (unsigned char)(color.getColorsPtr()[2] * 255.1)};
@@ -423,7 +423,7 @@ void COcTree::insertPointCloud(const CPointCloud* pointCloud, unsigned int theTa
     if (pointCloud->getPointCloudInfo() != nullptr)
     {
         const std::vector<double>* _pts = pointCloud->getPoints();
-        C7Vector tr(pointCloud->getFullCumulativeTransformation());
+        CPose tr(pointCloud->getFullCumulativeTransformation());
         std::vector<double> pts;
         for (size_t i = 0; i < _pts->size() / 3; i++)
         {
@@ -437,7 +437,7 @@ void COcTree::insertPointCloud(const CPointCloud* pointCloud, unsigned int theTa
     }
 }
 
-void COcTree::insertOctree(const void* octree2Info, const C7Vector& octree2Tr, unsigned int theTag)
+void COcTree::insertOctree(const void* octree2Info, const CPose& octree2Tr, unsigned int theTag)
 {
     TRACE_INTERNAL;
 
@@ -446,7 +446,7 @@ void COcTree::insertOctree(const void* octree2Info, const C7Vector& octree2Tr, u
                              (unsigned char)(color.getColorsPtr()[2] * 255.1)};
     if (_octreeInfo == nullptr)
     {
-        const C7Vector tr(getFullCumulativeTransformation());
+        const CPose tr(getFullCumulativeTransformation());
         _octreeInfo = App::scenes->pluginContainer->geomPlugin_createOctreeFromOctree_rgb(
             octree2Info, octree2Tr, &tr, _cellSize, cols, theTag);
     }
@@ -487,7 +487,7 @@ void COcTree::subtractPoints(const double* pts, int ptsCnt, bool ptsAreRelativeT
     std::vector<double> __pts;
     if (!ptsAreRelativeToOctree)
     {
-        C7Vector tr(getFullCumulativeTransformation().getInverse());
+        CPose tr(getFullCumulativeTransformation().getInverse());
         for (int i = 0; i < ptsCnt; i++)
         {
             C3Vector p(pts + 3 * i);
@@ -501,7 +501,7 @@ void COcTree::subtractPoints(const double* pts, int ptsCnt, bool ptsAreRelativeT
     if (_octreeInfo != nullptr)
     {
         if (App::scenes->pluginContainer->geomPlugin_removePointsFromOctree(
-                _octreeInfo, C7Vector::identityTransformation, _pts, ptsCnt))
+                _octreeInfo, CPose::identityTransformation, _pts, ptsCnt))
         {
             App::scenes->pluginContainer->geomPlugin_destroyOctree(_octreeInfo);
             _octreeInfo = nullptr;
@@ -550,7 +550,7 @@ void COcTree::subtractPointCloud(const CPointCloud* pointCloud)
     if (pointCloud->getPointCloudInfo() != nullptr)
     {
         const std::vector<double>* _pts = pointCloud->getPoints();
-        C7Vector tr(pointCloud->getFullCumulativeTransformation());
+        CPose tr(pointCloud->getFullCumulativeTransformation());
         std::vector<double> pts;
         for (size_t i = 0; i < _pts->size() / 3; i++)
         {
@@ -564,7 +564,7 @@ void COcTree::subtractPointCloud(const CPointCloud* pointCloud)
     }
 }
 
-void COcTree::subtractOctree(const void* octree2Info, const C7Vector& octree2Tr)
+void COcTree::subtractOctree(const void* octree2Info, const CPose& octree2Tr)
 {
     TRACE_INTERNAL;
     if (_octreeInfo != nullptr)
@@ -738,7 +738,7 @@ void COcTree::computeBoundingBox()
         c(1) = (maxY + minY) * 0.5;
         c(2) = (maxZ + minZ) * 0.5;
     }
-    C7Vector tr;
+    CPose tr;
     tr.Q.setIdentity();
     tr.X = c;
     _setBB(tr, s * 0.5);
@@ -759,13 +759,13 @@ void COcTree::computeBoundingBox()
         maxDim(0) += _cellSize * 0.5;
         maxDim(1) += _cellSize * 0.5;
         maxDim(2) += _cellSize * 0.5;
-        C7Vector fr;
+        CPose fr;
         fr.setIdentity();
         fr.X = (maxDim + minDim) * 0.5;
         _setBB(fr, (maxDim - minDim) * 0.5);
     }
     else
-        _setBB(C7Vector::identityTransformation, C3Vector(0.1, 0.1, 0.1));
+        _setBB(CPose::identityTransformation, C3Vector(0.1, 0.1, 0.1));
     */
 }
 

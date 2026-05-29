@@ -11,12 +11,12 @@ CInterfaceStackQuaternion::~CInterfaceStackQuaternion()
 {
 }
 
-const C4Vector* CInterfaceStackQuaternion::getValue() const
+const CQuaternion* CInterfaceStackQuaternion::getValue() const
 {
     return &_quaternion;
 }
 
-void CInterfaceStackQuaternion::setValue(const C4Vector* q)
+void CInterfaceStackQuaternion::setValue(const CQuaternion* q)
 {
     _quaternion = q[0];
 }

@@ -22,7 +22,7 @@ class CThumbnail
     char* getPointerToUncompressedImage();
     bool copyUncompressedImageToBuffer(char* buffer);
     void serialize(CSer& ar, bool forceCompressedSaving = false);
-    void serializeAdditionalModelInfos(CSer& ar, C7Vector& modelTr, C3Vector& modelBBSize,
+    void serializeAdditionalModelInfos(CSer& ar, CPose& modelTr, C3Vector& modelBBSize,
                                        double& modelNonDefaultTranslationStepSize);
     CThumbnail* copyYourself();
     void copyFrom(CThumbnail* it);

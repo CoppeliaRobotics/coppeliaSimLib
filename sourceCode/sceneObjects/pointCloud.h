@@ -95,7 +95,7 @@ class CPointCloud : public CSceneObject
     void subtractOctree(const COcTree* octree);
     void subtractDummy(const CDummy* dummy, double distanceTolerance);
     void subtractPointCloud(const CPointCloud* pointCloud, double distanceTolerance);
-    void subtractOctree(const void* octree2Info, const C7Vector& octree2Tr);
+    void subtractOctree(const void* octree2Info, const CPose& octree2Tr);
     void subtractObjects(const std::vector<int>& sel);
     void subtractObject(const CSceneObject* obj, double distanceTolerance);
 

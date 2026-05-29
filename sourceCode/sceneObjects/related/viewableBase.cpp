@@ -267,16 +267,16 @@ void CViewableBase::computeViewFrustumIfNeeded()
     if (!_planesCalculated)
     {
         _planesCalculated = true;
-        C7Vector m;
-        C7Vector upperPlane;
-        C7Vector lowerPlane;
-        C7Vector rightPlane;
-        C7Vector leftPlane;
-        C7Vector nearPlane;
-        C7Vector farPlane;
+        CPose m;
+        CPose upperPlane;
+        CPose lowerPlane;
+        CPose rightPlane;
+        CPose leftPlane;
+        CPose nearPlane;
+        CPose farPlane;
         double winXSize = (double)_currentViewSize[0];
         double winYSize = (double)_currentViewSize[1];
-        C7Vector viewableCumulTransf;
+        CPose viewableCumulTransf;
 
         if (getObjectType() == sim_sceneobject_camera)
         {
@@ -284,7 +284,7 @@ void CViewableBase::computeViewFrustumIfNeeded()
 #ifdef SIM_WITH_GUI
             if (GuiApp::mainWindow->getHasStereo())
             { // handle stereo cameras correctly
-                C7Vector displ;
+                CPose displ;
                 displ.setIdentity();
                 if (GuiApp::mainWindow->getLeftEye())
                     displ.X(0) = GuiApp::mainWindow->getStereoDistance() / 2;
@@ -316,12 +316,12 @@ void CViewableBase::computeViewFrustumIfNeeded()
             lowerPlane.X = viewableCumulTransf.X;
             rightPlane.X = viewableCumulTransf.X;
             leftPlane.X = viewableCumulTransf.X;
-            upperPlane.Q = viewableCumulTransf.Q * C4Vector(-yAngle, C3Vector(1.0, 0.0, 0.0));
-            lowerPlane.Q = viewableCumulTransf.Q * C4Vector(+yAngle, C3Vector(1.0, 0.0, 0.0));
-            rightPlane.Q = viewableCumulTransf.Q * C4Vector(-xAngle, C3Vector(0.0, 1.0, 0.0));
-            leftPlane.Q = viewableCumulTransf.Q * C4Vector(+xAngle, C3Vector(0.0, 1.0, 0.0));
-            nearPlane.setMultResult(viewableCumulTransf, C7Vector(C3Vector(0.0, 0.0, _nearClippingPlane)));
-            farPlane.setMultResult(viewableCumulTransf, C7Vector(C3Vector(0.0, 0.0, _farClippingPlane)));
+            upperPlane.Q = viewableCumulTransf.Q * CQuaternion(-yAngle, C3Vector(1.0, 0.0, 0.0));
+            lowerPlane.Q = viewableCumulTransf.Q * CQuaternion(+yAngle, C3Vector(1.0, 0.0, 0.0));
+            rightPlane.Q = viewableCumulTransf.Q * CQuaternion(-xAngle, C3Vector(0.0, 1.0, 0.0));
+            leftPlane.Q = viewableCumulTransf.Q * CQuaternion(+xAngle, C3Vector(0.0, 1.0, 0.0));
+            nearPlane.setMultResult(viewableCumulTransf, CPose(C3Vector(0.0, 0.0, _nearClippingPlane)));
+            farPlane.setMultResult(viewableCumulTransf, CPose(C3Vector(0.0, 0.0, _farClippingPlane)));
         }
         else
         {
@@ -338,21 +338,21 @@ void CViewableBase::computeViewFrustumIfNeeded()
             }
             xSize *= 1.05; // a little bit of tolerance!
             ySize *= 1.05;
-            upperPlane.setMultResult(viewableCumulTransf, C7Vector(C3Vector(0.0, +ySize, 0.0)));
-            lowerPlane.setMultResult(viewableCumulTransf, C7Vector(C3Vector(0.0, -ySize, 0.0)));
-            rightPlane.setMultResult(viewableCumulTransf, C7Vector(C3Vector(-xSize, 0.0, 0.0)));
-            leftPlane.setMultResult(viewableCumulTransf, C7Vector(C3Vector(+xSize, 0.0, 0.0)));
+            upperPlane.setMultResult(viewableCumulTransf, CPose(C3Vector(0.0, +ySize, 0.0)));
+            lowerPlane.setMultResult(viewableCumulTransf, CPose(C3Vector(0.0, -ySize, 0.0)));
+            rightPlane.setMultResult(viewableCumulTransf, CPose(C3Vector(-xSize, 0.0, 0.0)));
+            leftPlane.setMultResult(viewableCumulTransf, CPose(C3Vector(+xSize, 0.0, 0.0)));
             if (getObjectType() == sim_sceneobject_camera)
             { // we are in othoview!
                 nearPlane.setMultResult(viewableCumulTransf,
-                                        C7Vector(C3Vector(0.0, 0.0, ORTHO_CAMERA_NEAR_CLIPPING_PLANE)));
+                                        CPose(C3Vector(0.0, 0.0, ORTHO_CAMERA_NEAR_CLIPPING_PLANE)));
                 farPlane.setMultResult(viewableCumulTransf,
-                                       C7Vector(C3Vector(0.0, 0.0, ORTHO_CAMERA_FAR_CLIPPING_PLANE)));
+                                       CPose(C3Vector(0.0, 0.0, ORTHO_CAMERA_FAR_CLIPPING_PLANE)));
             }
             else
             {
-                nearPlane.setMultResult(viewableCumulTransf, C7Vector(C3Vector(0.0, 0.0, _nearClippingPlane)));
-                farPlane.setMultResult(viewableCumulTransf, C7Vector(C3Vector(0.0, 0.0, _farClippingPlane)));
+                nearPlane.setMultResult(viewableCumulTransf, CPose(C3Vector(0.0, 0.0, _nearClippingPlane)));
+                farPlane.setMultResult(viewableCumulTransf, CPose(C3Vector(0.0, 0.0, _farClippingPlane)));
             }
         }
         viewFrustum.clear();
@@ -396,7 +396,7 @@ void CViewableBase::computeViewFrustumIfNeeded()
     }
 }
 
-bool CViewableBase::isObjectInsideView(const C7Vector& objectM, const C3Vector& maxBB)
+bool CViewableBase::isObjectInsideView(const CPose& objectM, const C3Vector& maxBB)
 { // This is to optimize display speed:
     // objects which we can't see are not rendered
     // We have to make distinction between perspective mode and orthogonal mode

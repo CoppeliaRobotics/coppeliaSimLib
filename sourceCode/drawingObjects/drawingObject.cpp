@@ -164,7 +164,7 @@ bool CDrawingObject::addItem(const double* itemData)
         return (false);
     }
 
-    C7Vector trInv;
+    CPose trInv;
     trInv.setIdentity();
     if ((_sceneObjectId >= 0) && ((_objectType & sim_drawing_local) == 0))
     {
@@ -249,7 +249,7 @@ bool CDrawingObject::addItem(const double* itemData)
                     m.axis[0] = (v ^ m.axis[2]).getNormalized();
                     m.axis[1] = m.axis[2] ^ m.axis[0];
                 }
-                C4Vector q(m.getQuaternion());
+                CQuaternion q(m.getQuaternion());
                 q = trInv.Q * q; // no translational part!
                 _data[newPos * floatsPerItem + off1 + 0] = q(0);
                 _data[newPos * floatsPerItem + off1 + 1] = q(1);
@@ -270,7 +270,7 @@ bool CDrawingObject::addItem(const double* itemData)
         {
             for (int i = 0; i < quaternionsPerItem; i++)
             {
-                C4Vector q(itemData + off2, true);
+                CQuaternion q(itemData + off2, true);
                 q = trInv.Q * q; // no translational part!
                 _data[newPos * floatsPerItem + off1 + 0] = q(0);
                 _data[newPos * floatsPerItem + off1 + 1] = q(1);
@@ -721,7 +721,7 @@ void CDrawingObject::draw(bool overlay, bool transparentObject, int displayAttri
         }
     }
 
-    C7Vector tr;
+    CPose tr;
     tr.setIdentity();
 
     if (_sceneObjectId >= 0)

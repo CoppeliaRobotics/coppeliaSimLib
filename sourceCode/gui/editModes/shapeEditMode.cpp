@@ -25,7 +25,7 @@ CShapeEditMode::CShapeEditMode(CShape* shape, int editModeType, CSceneObjectCont
     edgeMaxAngle = 135.0 * degToRad;
     edgeDirectionChangeMaxAngle = 45.0 * degToRad;
 
-    _shape->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation, _editionVertices, &_editionIndices,
+    _shape->getMesh()->getCumulativeMeshes(CPose::identityTransformation, _editionVertices, &_editionIndices,
                                            &_editionNormals);
     _editionTextureProperty = _shape->getSingleMesh()->getTextureProperty();
     if (_editionTextureProperty != nullptr)
@@ -72,7 +72,7 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
             {
                 // Following causes problems with fixed texture coordinates, so we do not clean up the mesh for now
                 // CMeshRoutines::removeDuplicateVerticesAndTriangles(_editionVertices,&_editionIndices,nullptr,_editionTextureCoords,App::userSettings->identicalVertexTolerance);
-                newMesh = new CMesh(C7Vector::identityTransformation, _editionVertices, _editionIndices, nullptr,
+                newMesh = new CMesh(CPose::identityTransformation, _editionVertices, _editionIndices, nullptr,
                                     &_editionTextureCoords, 0);
             }
             else
@@ -81,7 +81,7 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
                                                                    App::userSettings->identicalVertexTolerance);
                 CMeshRoutines::toDelaunayMesh(_editionVertices, _editionIndices, nullptr, nullptr);
                 newMesh =
-                    new CMesh(C7Vector::identityTransformation, _editionVertices, _editionIndices, nullptr, nullptr, 0);
+                    new CMesh(CPose::identityTransformation, _editionVertices, _editionIndices, nullptr, nullptr, 0);
             }
             _shape->replaceMesh(newMesh, true);
         }
@@ -1716,7 +1716,7 @@ void CShapeEditMode::makeShape()
     { // Now we have to transform all vertices with the cumulative transform
         // matrix of the shape beeing edited:
         CShape* it = _shape;
-        C7Vector m(it->getFullCumulativeTransformation());
+        CPose m(it->getFullCumulativeTransformation());
         C3Vector v;
         for (int i = 0; i < int(nVertices.size()) / 3; i++)
         {
@@ -1756,7 +1756,7 @@ void CShapeEditMode::makePrimitive(int what)
     { // Now we have to transform all vertices with the cumulative transform
         // matrix of the shape beeing edited:
         CShape* it = _shape;
-        C7Vector m(it->getFullCumulativeTransformation());
+        CPose m(it->getFullCumulativeTransformation());
         C3Vector v;
         for (int i = 0; i < int(nVertices.size()) / 3; i++)
         {
@@ -1836,7 +1836,7 @@ void CShapeEditMode::makeDummies()
     //    if (proceed)
     //    {
     CShape* it = _shape;
-    C7Vector tr(it->getFullCumulativeTransformation());
+    CPose tr(it->getFullCumulativeTransformation());
     std::vector<double> relPathPts;
     for (int i = 0; i < getEditModeBufferSize(); i++)
     {
@@ -1910,7 +1910,7 @@ void CShapeEditMode::makePath()
         verticeInd[1] = _edgeCont.allEdges[2 * sel[0] + 1];
         C3Vector v0(&_editionVertices[3 * verticeInd[0] + 0]);
         C3Vector v1(&_editionVertices[3 * verticeInd[1] + 0]);
-        C7Vector sctm(shape->getFullCumulativeTransformation());
+        CPose sctm(shape->getFullCumulativeTransformation());
         C3Vector lastAddedPoint;
         if (sel.size() == 1)
         { // We simply add the two points:

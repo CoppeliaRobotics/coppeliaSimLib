@@ -11,10 +11,10 @@ void displayMotionPlanningTask(CMotionPlanningTask* task)
     {
         float* p;
         int ind = 0;
-        C7Vector tr(basef->getCumulativeTransformationPart1());
+        CPose tr(basef->getCumulativeTransformationPart1());
         glPushMatrix();
         glTranslatef(tr.X(0), tr.X(1), tr.X(2));
-        C4Vector axis = tr.Q.getAngleAndAxis();
+        CQuaternion axis = tr.Q.getAngleAndAxis();
         glRotatef(axis(0) * radToDeg_f, axis(1), axis(2), axis(3));
         glLoadName(-1);
 

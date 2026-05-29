@@ -62,8 +62,8 @@ CPtCloud_old::CPtCloud_old(int pageMask, int layerMask, int parentHandle, int op
     if (it != nullptr)
     {
         _parentUniqueId = it->getObjectUid();
-        C7Vector tr(it->getCumulativeTransformation());
-        C7Vector trInv(tr.getInverse());
+        CPose tr(it->getCumulativeTransformation());
+        CPose trInv(tr.getInverse());
         for (int i = 0; i < ptCnt; i++)
         {
             C3Vector v(&_vertices[3 * i]);

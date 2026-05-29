@@ -56,8 +56,8 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
                                           bool includeModelObjects, double scalingFactor, CSView* optionalView)
 {
     std::vector<double> pts;
-    C7Vector camTr(getFullCumulativeTransformation());
-    C7Vector camTrInv(camTr.getInverse());
+    CPose camTr(getFullCumulativeTransformation());
+    CPose camTrInv(camTr.getInverse());
     int editMode = NO_EDIT_MODE;
     int displAttributes = 0;
     if (App::scene->simulation->getDynamicContentVisualizationOnly())
@@ -76,7 +76,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
                 CSceneObject* parentObj = GuiApp::mainWindow->editModeContainer->getEditModeShape();
                 if (parentObj != nullptr)
                 {
-                    C7Vector parentTr(parentObj->getFullCumulativeTransformation());
+                    CPose parentTr(parentObj->getFullCumulativeTransformation());
                     if (editMode == VERTEX_EDIT_MODE)
                     {
                         for (int i = 0;
@@ -135,7 +135,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
                 CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
                 if ((cnt != 0) && (path != nullptr))
                 {
-                    C7Vector parentTr(path->getFullCumulativeTransformation());
+                    CPose parentTr(path->getFullCumulativeTransformation());
                     for (int i = 0; i < cnt; i++)
                     {
                         CSimplePathPoint_old* pp =
@@ -254,7 +254,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
                 int cnt = path->pathContainer->getSimplePathPointCount();
                 if ((cnt != 0) && (path != nullptr))
                 {
-                    C7Vector parentTr(path->getFullCumulativeTransformation());
+                    CPose parentTr(path->getFullCumulativeTransformation());
                     for (int i = 0; i < cnt; i++)
                     {
                         CSimplePathPoint_old* pp = path->pathContainer->getSimplePathPoint(i);
@@ -269,9 +269,9 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
             {
                 done = true;
                 CShape* shape = (CShape*)it;
-                C7Vector trr(camTrInv * shape->getFullCumulativeTransformation());
+                CPose trr(camTrInv * shape->getFullCumulativeTransformation());
                 std::vector<double> wvert;
-                shape->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation, wvert, nullptr, nullptr);
+                shape->getMesh()->getCumulativeMeshes(CPose::identityTransformation, wvert, nullptr, nullptr);
                 for (int j = 0; j < int(wvert.size()) / 3; j++)
                 {
                     C3Vector vq(&wvert[3 * j + 0]);
@@ -285,7 +285,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
             {
                 done = true;
                 CPointCloud* ptCloud = (CPointCloud*)it;
-                C7Vector trr(camTrInv * ptCloud->getCumulativeTransformation());
+                CPose trr(camTrInv * ptCloud->getCumulativeTransformation());
                 std::vector<double>* wvert = ptCloud->getPoints();
                 for (int j = 0; j < int(wvert->size()) / 3; j++)
                 {
@@ -300,7 +300,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
             {
                 done = true;
                 COcTree* octree = (COcTree*)it;
-                C7Vector trr(camTrInv * octree->getCumulativeTransformation());
+                CPose trr(camTrInv * octree->getCumulativeTransformation());
                 std::vector<double>* wvert = octree->getCubePositions();
                 for (int j = 0; j < int(wvert->size()) / 3; j++)
                 {
@@ -316,7 +316,7 @@ void CCamera::frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPe
                 C3Vector minV(C3Vector::inf);
                 C3Vector maxV(C3Vector::ninf);
                 C3Vector bbs;
-                C7Vector tr(camTrInv * it->getCumulativeTransformation() * it->getBB(&bbs));
+                CPose tr(camTrInv * it->getCumulativeTransformation() * it->getBB(&bbs));
                 bbs *= 2.0;
                 C3Vector v;
                 for (double k = -1.0; k < 2.0; k = k + 2.0)
@@ -774,7 +774,7 @@ void CCamera::shiftCameraInCameraManipulationMode(const C3Vector& newLocalPos)
         tr.X.clear();
     setLocalTransformation(oldLocal * tr);
 }
-void CCamera::rotateCameraInCameraManipulationMode(const C7Vector& newLocalConf)
+void CCamera::rotateCameraInCameraManipulationMode(const CPose& newLocalConf)
 {
     if (_allowRotation)
         setLocalTransformation(newLocalConf);
@@ -782,7 +782,7 @@ void CCamera::rotateCameraInCameraManipulationMode(const C7Vector& newLocalConf)
 
 void CCamera::computeBoundingBox()
 {
-    C7Vector fr;
+    CPose fr;
     fr.Q.setIdentity();
     fr.X = C3Vector(0.0, 0.9, -0.9) * _cameraSize;
     _setBB(fr, C3Vector(1.0, 2.8, 3.8) * _cameraSize * 0.5);
@@ -820,24 +820,24 @@ void CCamera::handleCameraTracking()
         setTrackedObjectHandle(-1);
     else
     {
-        C7Vector tracked(tr->getFullCumulativeTransformation());
-        C7Vector self(getFullCumulativeTransformation());
-        C4Vector rot1(self.Q.getAxis(2), tracked.X - self.X);
+        CPose tracked(tr->getFullCumulativeTransformation());
+        CPose self(getFullCumulativeTransformation());
+        CQuaternion rot1(self.Q.getAxis(2), tracked.X - self.X);
         self.Q = rot1 * self.Q;
         // We check if the camera looks to +Z or -Z:
         C3Vector zAxis(self.Q.getAxis(2));
         if ((fabs(zAxis(0)) > 0.00001) || (fabs(zAxis(1)) > 0.00001))
         { // Camera does not look to +Z or -Z:
             C3Vector rotAxis(zAxis ^ C3Vector(0.0, 0.0, 1.0));
-            C4Vector rot(piValue / 2.0, rotAxis);
+            CQuaternion rot(piValue / 2.0, rotAxis);
             zAxis = rot * zAxis;
-            C4Vector rot2(self.Q.getAxis(1), zAxis);
+            CQuaternion rot2(self.Q.getAxis(1), zAxis);
             self.Q = rot2 * self.Q;
-            C7Vector parentInv(getFullParentCumulativeTransformation().getInverse());
+            CPose parentInv(getFullParentCumulativeTransformation().getInverse());
             setLocalTransformation(parentInv * self);
 
             // Keep head up:
-            C7Vector cameraCTM(getCumulativeTransformation());
+            CPose cameraCTM(getCumulativeTransformation());
             C3X3Matrix trM2(cameraCTM.Q);
             if ((fabs(trM2.axis[2](0)) > 0.00001) || (fabs(trM2.axis[2](1)) > 0.00001))
             { // We have to do it:
@@ -845,8 +845,8 @@ void CCamera::handleCameraTracking()
                 if (trM2.axis[1](2) < 0.0)
                     val = -1.0;
                 C3Vector rotAx(trM2.axis[2] ^ C3Vector(0.0, 0.0, val));
-                C3Vector target(C4Vector(piValue / 2.0, rotAx) * trM2.axis[2]);
-                C4Vector rot(trM2.axis[1], target);
+                C3Vector target(CQuaternion(piValue / 2.0, rotAx) * trM2.axis[2]);
+                CQuaternion rot(trM2.axis[1], target);
                 cameraCTM.Q = rot * cameraCTM.Q;
                 setLocalTransformation(getFullParentCumulativeTransformation().getInverse() * cameraCTM);
             }
@@ -1186,11 +1186,11 @@ void CCamera::setViewOrientation(int ori, bool setPositionAlso)
     }
     if (done)
     {
-        C7Vector tot(getFullCumulativeTransformation());
+        CPose tot(getFullCumulativeTransformation());
         tot.Q.setEulerAngles(C3Vector(alpha * degToRad, beta * degToRad, gamma * degToRad));
         if (setPositionAlso)
             tot.X.setData(x, y, z);
-        C7Vector parentInv(getFullParentCumulativeTransformation().getInverse());
+        CPose parentInv(getFullParentCumulativeTransformation().getInverse());
         setLocalTransformation(parentInv * tot);
     }
 }
@@ -1992,8 +1992,8 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
                         clippNear = ORTHO_CAMERA_NEAR_CLIPPING_PLANE;
                     if (mousePosDepth == clippNear)
                     { // We should display a differentiated thing here (kind of half-error!)
-                        C7Vector cct(getCumulativeTransformation());
-                        C7Vector icct(cct.getInverse());
+                        CPose cct(getCumulativeTransformation());
+                        CPose icct(cct.getInverse());
                         C3Vector c(centerPos);
                         C3Vector rc(icct * c);
                         double di = 2.0;
@@ -2182,8 +2182,8 @@ void CCamera::_handleMirrors(int renderingMode, bool noSelection, int pass, int 
     if (App::scene->sceneObjects->getObjectCount(sim_sceneobject_mirror) == 0)
         return;
 
-    C7Vector camTr(getFullCumulativeTransformation());
-    C7Vector camTri(camTr.getInverse());
+    CPose camTr(getFullCumulativeTransformation());
+    CPose camTri(camTr.getInverse());
     setFrustumCullingTemporarilyDisabled(true);
     // Prep stencil buffer:
     glEnable(GL_STENCIL_TEST);
@@ -2196,7 +2196,7 @@ void CCamera::_handleMirrors(int renderingMode, bool noSelection, int pass, int 
     for (size_t mir = 0; mir < App::scene->sceneObjects->getObjectCount(sim_sceneobject_mirror); mir++)
     {
         CMirror* myMirror = App::scene->sceneObjects->getMirrorFromIndex(mir);
-        C7Vector mmtr(myMirror->getFullCumulativeTransformation());
+        CPose mmtr(myMirror->getFullCumulativeTransformation());
         mmtr = camTri * mmtr;
 
         if ((!myMirror->isObjectPartOfInvisibleModel()) &&
@@ -2213,11 +2213,11 @@ void CCamera::_handleMirrors(int renderingMode, bool noSelection, int pass, int 
     {
         CMirror* myMirror = App::scene->sceneObjects->getMirrorFromHandle(allMirrors[mir]);
 
-        C7Vector mtr(myMirror->getFullCumulativeTransformation());
-        C7Vector mtri(mtr.getInverse());
+        CPose mtr(myMirror->getFullCumulativeTransformation());
+        CPose mtri(mtr.getInverse());
         C3Vector mtrN(mtr.Q.getMatrix().axis[2]);
-        C4Vector mtrAxis = mtr.Q.getAngleAndAxis();
-        C4Vector mtriAxis = mtri.Q.getAngleAndAxis();
+        CQuaternion mtrAxis = mtr.Q.getAngleAndAxis();
+        CQuaternion mtriAxis = mtri.Q.getAngleAndAxis();
         double d = (mtrN * mtr.X);
         C3Vector v0(+myMirror->getMirrorWidth() * 0.5, -myMirror->getMirrorHeight() * 0.5, 0.0);
         C3Vector v1(+myMirror->getMirrorWidth() * 0.5, +myMirror->getMirrorHeight() * 0.5, 0.0);
@@ -2310,7 +2310,7 @@ bool CCamera::_extRenderer_prepareView(int extRendererIndex, int resolution[2], 
     data[0] = resolution + 0;
     data[1] = resolution + 1;
     data[2] = App::scene->environment->fogBackgroundColor;
-    C7Vector tr(getFullCumulativeTransformation());
+    CPose tr(getFullCumulativeTransformation());
     float x[3] = {(float)tr.X(0), (float)tr.X(1), (float)tr.X(2)};
     data[3] = x;
     float q[4] = {(float)tr.Q(0), (float)tr.Q(1), (float)tr.Q(2), (float)tr.Q(3)};
@@ -2428,7 +2428,7 @@ void CCamera::_extRenderer_prepareLights()
             data[5] = &linAttenuation;
             float quadAttenuation = (float)arr[2];
             data[6] = &quadAttenuation;
-            C7Vector tr(light->getFullCumulativeTransformation());
+            CPose tr(light->getFullCumulativeTransformation());
             float x[3] = {(float)tr.X(0), (float)tr.X(1), (float)tr.X(2)};
             data[7] = x;
             float q[4] = {(float)tr.Q(0), (float)tr.Q(1), (float)tr.Q(2), (float)tr.Q(3)};
@@ -2521,8 +2521,8 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
         // If the camera is in ortho view mode, we additionally shift it along the viewing axis
         // to be sure we don't cover anything visible with the far side of the box (the near side is clipped by model
         // settings)
-        C4Vector rel(viewBoxObject->getLocalTransformation().Q);
-        C7Vector cam(getFullCumulativeTransformation());
+        CQuaternion rel(viewBoxObject->getLocalTransformation().Q);
+        CPose cam(getFullCumulativeTransformation());
         if (!_currentPerspective)
         {
             C3Vector minV(C3Vector::inf);
@@ -2531,7 +2531,7 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
             double shift = ORTHO_CAMERA_FAR_CLIPPING_PLANE - 0.505 * (maxV(2) - minV(2)); // just a bit more than half!
             cam.X += cam.Q.getMatrix().axis[2] * shift;
         }
-        C7Vector newLocal(viewBoxObject->getFullParentCumulativeTransformation().getInverse() * cam);
+        CPose newLocal(viewBoxObject->getFullParentCumulativeTransformation().getInverse() * cam);
         newLocal.Q = rel;
         viewBoxObject->setLocalTransformation(newLocal);
     }
@@ -2747,7 +2747,7 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
         ogl::setBlending(false);
         glPushMatrix();
         glTranslated(x + info->modelTr.X(0), y + info->modelTr.X(1), info->modelTr.X(2));
-        C4Vector axis = info->modelTr.Q.getAngleAndAxis();
+        CQuaternion axis = info->modelTr.Q.getAngleAndAxis();
         glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
         ogl::drawBox(info->modelBoundingBoxSize(0), info->modelBoundingBoxSize(1), info->modelBoundingBoxSize(2), true,
                      nullptr);
@@ -2777,7 +2777,7 @@ CSceneObject* CCamera::_getInfoOfWhatNeedsToBeRendered(std::vector<CSceneObject*
 {
     std::vector<int> transparentObjects;
     std::vector<double> transparentObjectDist;
-    C7Vector camTrInv(getCumulativeTransformation().getInverse());
+    CPose camTrInv(getCumulativeTransformation().getInverse());
     CSceneObject* viewBoxObject = nullptr;
     for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
     {
@@ -2787,7 +2787,7 @@ CSceneObject* CCamera::_getInfoOfWhatNeedsToBeRendered(std::vector<CSceneObject*
             CShape* sh = (CShape*)it;
             if (sh->getContainsTransparentComponent())
             {
-                C7Vector obj(it->getCumulativeTransformation());
+                CPose obj(it->getCumulativeTransformation());
                 transparentObjectDist.push_back(-(camTrInv * obj).X(2) - it->getTransparentObjectDistanceOffset());
                 transparentObjects.push_back(it->getObjectHandle());
             }
@@ -2801,7 +2801,7 @@ CSceneObject* CCamera::_getInfoOfWhatNeedsToBeRendered(std::vector<CSceneObject*
                 CMirror* mir = (CMirror*)it;
                 if (mir->getContainsTransparentComponent())
                 {
-                    C7Vector obj(it->getCumulativeTransformation());
+                    CPose obj(it->getCumulativeTransformation());
                     transparentObjectDist.push_back(-(camTrInv * obj).X(2) - it->getTransparentObjectDistanceOffset());
                     transparentObjects.push_back(it->getObjectHandle());
                 }
@@ -2967,11 +2967,11 @@ void CCamera::_drawOverlay(bool passiveView, bool drawText, bool displ_ref, int 
     if (App::userSettings->displayWorldReference && displ_ref)
     {
         glTranslated(double(windowSize[0] - 60.0 * GuiApp::sc), 40.0 * GuiApp::sc, 0.0);
-        C7Vector tr2(getFullCumulativeTransformation());
+        CPose tr2(getFullCumulativeTransformation());
         tr2.inverse();
         C4X4Matrix m1;
         m1.buildYRotation(piValue);
-        C7Vector tr0(m1.getTransformation() * tr2);
+        CPose tr0(m1.getTransformation() * tr2);
         double refSize = 30.0 * GuiApp::sc;
 
         C3Vector euler(tr0.Q.getEulerAngles());

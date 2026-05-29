@@ -2,7 +2,7 @@
 #include <pathPlanningInterface.h>
 #include <simInternal.h>
 
-CHolonomicPathNode_old::CHolonomicPathNode_old(const C4Vector& rotAxisRot, const C4Vector& rotAxisRotInv)
+CHolonomicPathNode_old::CHolonomicPathNode_old(const CQuaternion& rotAxisRot, const CQuaternion& rotAxisRotInv)
 {
     _rotAxisRot = rotAxisRot;
     _rotAxisRotInv = rotAxisRotInv;
@@ -11,8 +11,8 @@ CHolonomicPathNode_old::CHolonomicPathNode_old(const C4Vector& rotAxisRot, const
     values = nullptr;
 }
 
-CHolonomicPathNode_old::CHolonomicPathNode_old(int theType, const C7Vector& conf, const C4Vector& rotAxisRot,
-                                               const C4Vector& rotAxisRotInv)
+CHolonomicPathNode_old::CHolonomicPathNode_old(int theType, const CPose& conf, const CQuaternion& rotAxisRot,
+                                               const CQuaternion& rotAxisRotInv)
 {
     _rotAxisRot = rotAxisRot;
     _rotAxisRotInv = rotAxisRotInv;
@@ -25,7 +25,7 @@ CHolonomicPathNode_old::CHolonomicPathNode_old(int theType, const C7Vector& conf
 }
 
 CHolonomicPathNode_old::CHolonomicPathNode_old(int theType, double searchMin[4], double searchRange[4],
-                                               const C4Vector& rotAxisRot, const C4Vector& rotAxisRotInv)
+                                               const CQuaternion& rotAxisRot, const CQuaternion& rotAxisRotInv)
 {
     _rotAxisRot = rotAxisRot;
     _rotAxisRotInv = rotAxisRotInv;
@@ -61,7 +61,7 @@ CHolonomicPathNode_old::CHolonomicPathNode_old(int theType, double searchMin[4],
     if (theType == sim_holonomicpathplanning_abg)
     {
         values = new double[4];
-        C4Vector d;
+        CQuaternion d;
         d.buildRandomOrientation();
         values[0] = d(0);
         values[1] = d(1);
@@ -80,7 +80,7 @@ CHolonomicPathNode_old::CHolonomicPathNode_old(int theType, double searchMin[4],
     {
         values = new double[5];
         values[0] = searchMin[0] + searchRange[0] * SIM_RAND_FLOAT;
-        C4Vector d;
+        CQuaternion d;
         d.buildRandomOrientation();
         values[1] = d(0);
         values[2] = d(1);
@@ -92,7 +92,7 @@ CHolonomicPathNode_old::CHolonomicPathNode_old(int theType, double searchMin[4],
         values = new double[6];
         values[0] = searchMin[0] + searchRange[0] * SIM_RAND_FLOAT;
         values[1] = searchMin[1] + searchRange[1] * SIM_RAND_FLOAT;
-        C4Vector d;
+        CQuaternion d;
         d.buildRandomOrientation();
         values[2] = d(0);
         values[3] = d(1);
@@ -105,7 +105,7 @@ CHolonomicPathNode_old::CHolonomicPathNode_old(int theType, double searchMin[4],
         values[0] = searchMin[0] + searchRange[0] * SIM_RAND_FLOAT;
         values[1] = searchMin[1] + searchRange[1] * SIM_RAND_FLOAT;
         values[2] = searchMin[2] + searchRange[2] * SIM_RAND_FLOAT;
-        C4Vector d;
+        CQuaternion d;
         d.buildRandomOrientation();
         values[3] = d(0);
         values[4] = d(1);
@@ -119,7 +119,7 @@ CHolonomicPathNode_old::~CHolonomicPathNode_old()
     delete[] values;
 }
 
-void CHolonomicPathNode_old::setAllValues(const C3Vector& pos, const C4Vector& orient)
+void CHolonomicPathNode_old::setAllValues(const C3Vector& pos, const CQuaternion& orient)
 {
     if (_nodeType == sim_holonomicpathplanning_xy)
     {
@@ -129,7 +129,7 @@ void CHolonomicPathNode_old::setAllValues(const C3Vector& pos, const C4Vector& o
     if (_nodeType == sim_holonomicpathplanning_xg)
     {
         values[0] = pos(0);
-        C4Vector o(_rotAxisRotInv * orient * _rotAxisRot);
+        CQuaternion o(_rotAxisRotInv * orient * _rotAxisRot);
         values[1] = o.getEulerAngles()(2);
     }
     if (_nodeType == sim_holonomicpathplanning_xyz)
@@ -142,7 +142,7 @@ void CHolonomicPathNode_old::setAllValues(const C3Vector& pos, const C4Vector& o
     {
         values[0] = pos(0);
         values[1] = pos(1);
-        C4Vector o(_rotAxisRotInv * orient * _rotAxisRot);
+        CQuaternion o(_rotAxisRotInv * orient * _rotAxisRot);
         values[2] = o.getEulerAngles()(2);
     }
     if (_nodeType == sim_holonomicpathplanning_abg)
@@ -157,7 +157,7 @@ void CHolonomicPathNode_old::setAllValues(const C3Vector& pos, const C4Vector& o
         values[0] = pos(0);
         values[1] = pos(1);
         values[2] = pos(2);
-        C4Vector o(_rotAxisRotInv * orient * _rotAxisRot);
+        CQuaternion o(_rotAxisRotInv * orient * _rotAxisRot);
         values[3] = o.getEulerAngles()(2);
     }
     if (_nodeType == sim_holonomicpathplanning_xabg)
@@ -189,7 +189,7 @@ void CHolonomicPathNode_old::setAllValues(const C3Vector& pos, const C4Vector& o
     }
 }
 
-void CHolonomicPathNode_old::getAllValues(C3Vector& pos, C4Vector& orient)
+void CHolonomicPathNode_old::getAllValues(C3Vector& pos, CQuaternion& orient)
 {
     pos.clear();
     orient.setIdentity();
@@ -201,7 +201,7 @@ void CHolonomicPathNode_old::getAllValues(C3Vector& pos, C4Vector& orient)
     if (_nodeType == sim_holonomicpathplanning_xg)
     {
         pos(0) = values[0];
-        orient = _rotAxisRot * (C4Vector(C3Vector(0.0, 0.0, values[1])) * _rotAxisRotInv);
+        orient = _rotAxisRot * (CQuaternion(C3Vector(0.0, 0.0, values[1])) * _rotAxisRotInv);
     }
     if (_nodeType == sim_holonomicpathplanning_xyz)
     {
@@ -213,7 +213,7 @@ void CHolonomicPathNode_old::getAllValues(C3Vector& pos, C4Vector& orient)
     {
         pos(0) = values[0];
         pos(1) = values[1];
-        orient = _rotAxisRot * (C4Vector(C3Vector(0.0, 0.0, values[2])) * _rotAxisRotInv);
+        orient = _rotAxisRot * (CQuaternion(C3Vector(0.0, 0.0, values[2])) * _rotAxisRotInv);
     }
     if (_nodeType == sim_holonomicpathplanning_abg)
     {
@@ -227,7 +227,7 @@ void CHolonomicPathNode_old::getAllValues(C3Vector& pos, C4Vector& orient)
         pos(0) = values[0];
         pos(1) = values[1];
         pos(2) = values[2];
-        orient = _rotAxisRot * (C4Vector(C3Vector(0.0, 0.0, values[3])) * _rotAxisRotInv);
+        orient = _rotAxisRot * (CQuaternion(C3Vector(0.0, 0.0, values[3])) * _rotAxisRotInv);
     }
     if (_nodeType == sim_holonomicpathplanning_xabg)
     {

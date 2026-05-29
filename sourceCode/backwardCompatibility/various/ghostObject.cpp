@@ -9,7 +9,7 @@ CGhostObject::CGhostObject()
     transparencyFactor = 0;
 }
 
-CGhostObject::CGhostObject(int theGroupId, int theObjectHandle, C7Vector theTr, int theOptions, double theStartTime,
+CGhostObject::CGhostObject(int theGroupId, int theObjectHandle, CPose theTr, int theOptions, double theStartTime,
                            double theEndTime, const float theColor[12])
 {
     // options: bit0 set (1): model instead of object

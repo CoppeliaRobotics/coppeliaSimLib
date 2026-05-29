@@ -53,8 +53,8 @@ class CNonHolonomicPathPlanning_old : public CPathPlanning_old
     int DoF;
     double searchMinVal[2];
     double searchRange[2];
-    C7Vector _startDummyCTM;
-    C7Vector _startDummyLTM;
+    CPose _startDummyCTM;
+    CPose _startDummyLTM;
 
     int numberOfRandomConnectionTries_forSteppedSmoothing;
     int numberOfRandomConnectionTriesLeft_forSteppedSmoothing;

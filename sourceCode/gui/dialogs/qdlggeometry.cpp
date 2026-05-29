@@ -138,7 +138,7 @@ void CQDlgGeometry::_initialize(int shapeHandle)
         titleText += "'";
         std::vector<double> wvert;
         std::vector<int> wind;
-        shape->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation, wvert, &wind, nullptr);
+        shape->getMesh()->getCumulativeMeshes(CPose::identityTransformation, wvert, &wind, nullptr);
         vertexCount = (int)wvert.size() / 3;
         triangleCount = (int)wind.size() / 3;
         isPureShape = shape->getMesh()->isPure();

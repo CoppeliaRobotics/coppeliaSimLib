@@ -41,12 +41,12 @@ CHolonomicPathPlanning_old::CHolonomicPathPlanning_old(
     _simGetObjectCumulativeTransformation_internal(startDummy, _startDummyCTM.X.data, _startDummyCTM.Q.data, false);
     _simGetObjectLocalTransformation_internal(startDummy, _startDummyLTM.X.data, _startDummyLTM.Q.data, false);
 
-    C7Vector goalDummyCumulTransf;
+    CPose goalDummyCumulTransf;
     _simGetObjectCumulativeTransformation_internal(goalDummy, goalDummyCumulTransf.X.data, goalDummyCumulTransf.Q.data,
                                                    false);
-    C7Vector goalDummyLocalConf(_startDummyCTM.getInverse() * goalDummyCumulTransf);
+    CPose goalDummyLocalConf(_startDummyCTM.getInverse() * goalDummyCumulTransf);
 
-    C7Vector sConf;
+    CPose sConf;
     sConf.setIdentity();
     fromStart.push_back(new CHolonomicPathNode_old(planningType, sConf, _gammaAxisRotation, _gammaAxisRotationInv));
     fromGoal.push_back(
@@ -166,7 +166,7 @@ int CHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
     if (startDummy == nullptr)
         return (0);
     // Following since 2010/08/19 so that we can move the "robot" while we search:
-    C7Vector dumSavedConf;
+    CPose dumSavedConf;
     _simGetObjectLocalTransformation_internal(startDummy, dumSavedConf.X.data, dumSavedConf.Q.data, false);
 
     int dirConstrSave[4];
@@ -366,11 +366,11 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
         for (int i = 0; i < int(nodes.size()); i++)
         {
             double vect[4];
-            C4Vector toP, fromP;
+            CQuaternion toP, fromP;
             C3Vector dum;
             sample->getAllValues(dum, toP);
             nodes[i]->getAllValues(dum, fromP);
-            C4Vector diff(fromP.getInverse() * toP);
+            CQuaternion diff(fromP.getInverse() * toP);
             vect[0] = diff(0);
             vect[1] = diff(1);
             vect[2] = diff(2);
@@ -414,11 +414,11 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
         {
             double vect[5];
             vect[0] = sample->values[0] - nodes[i]->values[0];
-            C4Vector toP, fromP;
+            CQuaternion toP, fromP;
             C3Vector dum;
             sample->getAllValues(dum, toP);
             nodes[i]->getAllValues(dum, fromP);
-            C4Vector diff(fromP.getInverse() * toP);
+            CQuaternion diff(fromP.getInverse() * toP);
             vect[1] = diff(0);
             vect[2] = diff(1);
             vect[3] = diff(2);
@@ -442,11 +442,11 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
             double vect[6];
             vect[0] = sample->values[0] - nodes[i]->values[0];
             vect[1] = sample->values[1] - nodes[i]->values[1];
-            C4Vector toP, fromP;
+            CQuaternion toP, fromP;
             C3Vector dum;
             sample->getAllValues(dum, toP);
             nodes[i]->getAllValues(dum, fromP);
-            C4Vector diff(fromP.getInverse() * toP);
+            CQuaternion diff(fromP.getInverse() * toP);
             vect[2] = diff(0);
             vect[3] = diff(1);
             vect[4] = diff(2);
@@ -471,11 +471,11 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::getClosestNode(std::vector<C
             vect[0] = sample->values[0] - nodes[i]->values[0];
             vect[1] = sample->values[1] - nodes[i]->values[1];
             vect[2] = sample->values[2] - nodes[i]->values[2];
-            C4Vector toP, fromP;
+            CQuaternion toP, fromP;
             C3Vector dum;
             sample->getAllValues(dum, toP);
             nodes[i]->getAllValues(dum, fromP);
-            C4Vector diff(fromP.getInverse() * toP);
+            CQuaternion diff(fromP.getInverse() * toP);
             vect[3] = diff(0);
             vect[4] = diff(1);
             vect[5] = diff(2);
@@ -522,7 +522,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::extend(std::vector<CHolonomi
         }
         C3Vector pos;
         pos.clear();
-        C4Vector orient;
+        CQuaternion orient;
         orient.setIdentity();
         bool forbiddenValues;
         if (planningType == sim_holonomicpathplanning_xy)
@@ -535,7 +535,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::extend(std::vector<CHolonomi
         {
             totalVect[0] = pos(0) = toBeExtended->values[0] + theVect[0];
             totalVect[1] = toBeExtended->values[1] + theVect[1];
-            orient = _gammaAxisRotation * (C4Vector(C3Vector(0.0, 0.0, totalVect[1])) * _gammaAxisRotationInv);
+            orient = _gammaAxisRotation * (CQuaternion(C3Vector(0.0, 0.0, totalVect[1])) * _gammaAxisRotationInv);
             forbiddenValues = areSomeValuesForbidden(totalVect);
         }
         if (planningType == sim_holonomicpathplanning_xyz)
@@ -550,13 +550,13 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::extend(std::vector<CHolonomi
             totalVect[0] = pos(0) = toBeExtended->values[0] + theVect[0];
             totalVect[1] = pos(1) = toBeExtended->values[1] + theVect[1];
             totalVect[2] = toBeExtended->values[2] + theVect[2];
-            orient = _gammaAxisRotation * (C4Vector(C3Vector(0.0, 0.0, totalVect[2])) * _gammaAxisRotationInv);
+            orient = _gammaAxisRotation * (CQuaternion(C3Vector(0.0, 0.0, totalVect[2])) * _gammaAxisRotationInv);
             forbiddenValues = areSomeValuesForbidden(totalVect);
         }
         if (planningType == sim_holonomicpathplanning_abg)
         {
             toBeExtended->getAllValues(pos, orient);
-            C4Vector q(theVect);
+            CQuaternion q(theVect);
             orient = orient * q;
             totalVect[0] = orient(0);
             totalVect[1] = orient(1);
@@ -570,14 +570,14 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::extend(std::vector<CHolonomi
             totalVect[1] = pos(1) = toBeExtended->values[1] + theVect[1];
             totalVect[2] = pos(2) = toBeExtended->values[2] + theVect[2];
             totalVect[3] = toBeExtended->values[3] + theVect[3];
-            orient = _gammaAxisRotation * (C4Vector(C3Vector(0.0, 0.0, totalVect[3])) * _gammaAxisRotationInv);
+            orient = _gammaAxisRotation * (CQuaternion(C3Vector(0.0, 0.0, totalVect[3])) * _gammaAxisRotationInv);
             forbiddenValues = areSomeValuesForbidden(totalVect);
         }
         if (planningType == sim_holonomicpathplanning_xabg)
         {
             toBeExtended->getAllValues(pos, orient);
             totalVect[0] = pos(0) = toBeExtended->values[0] + theVect[0];
-            C4Vector q(theVect + 1);
+            CQuaternion q(theVect + 1);
             orient = orient * q;
             totalVect[1] = orient(0);
             totalVect[2] = orient(1);
@@ -590,7 +590,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::extend(std::vector<CHolonomi
             toBeExtended->getAllValues(pos, orient);
             totalVect[0] = pos(0) = toBeExtended->values[0] + theVect[0];
             totalVect[1] = pos(1) = toBeExtended->values[1] + theVect[1];
-            C4Vector q(theVect + 2);
+            CQuaternion q(theVect + 2);
             orient = orient * q;
             totalVect[2] = orient(0);
             totalVect[3] = orient(1);
@@ -604,7 +604,7 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::extend(std::vector<CHolonomi
             totalVect[0] = pos(0) = toBeExtended->values[0] + theVect[0];
             totalVect[1] = pos(1) = toBeExtended->values[1] + theVect[1];
             totalVect[2] = pos(2) = toBeExtended->values[2] + theVect[2];
-            C4Vector q(theVect + 3);
+            CQuaternion q(theVect + 3);
             orient = orient * q;
             totalVect[3] = orient(0);
             totalVect[4] = orient(1);
@@ -620,8 +620,8 @@ CHolonomicPathNode_old* CHolonomicPathPlanning_old::extend(std::vector<CHolonomi
                 return (toBeExtended);
             return (nullptr);
         }
-        C7Vector transf(C4Vector(orient), pos);
-        C7Vector tmpTr(_startDummyLTM * transf);
+        CPose transf(CQuaternion(orient), pos);
+        CPose tmpTr(_startDummyLTM * transf);
         _simSetObjectLocalTransformation_internal(dummy, tmpTr.X.data, tmpTr.Q.data, 0.0);
         if (specialCase)
         {
@@ -739,11 +739,11 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint, CHo
     }
     if (planningType == sim_holonomicpathplanning_abg)
     {
-        C4Vector toP, fromP;
+        CQuaternion toP, fromP;
         C3Vector dum;
         toPoint->getAllValues(dum, toP);
         fromPoint->getAllValues(dum, fromP);
-        C4Vector diff(fromP.getInverse() * toP);
+        CQuaternion diff(fromP.getInverse() * toP);
         vect[0] = diff(0);
         vect[1] = diff(1);
         vect[2] = diff(2);
@@ -755,7 +755,7 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint, CHo
                 return (1);
             retVal = (int)(artificialLength / e) + 1;
             double l = (double)retVal;
-            C4Vector q;
+            CQuaternion q;
             q.setIdentity();
             fromP.buildInterpolation(q, diff, 1.0 / l);
             vect[0] = fromP(0);
@@ -787,11 +787,11 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint, CHo
     if (planningType == sim_holonomicpathplanning_xabg)
     {
         vect[0] = toPoint->values[0] - fromPoint->values[0];
-        C4Vector toP, fromP;
+        CQuaternion toP, fromP;
         C3Vector dum;
         toPoint->getAllValues(dum, toP);
         fromPoint->getAllValues(dum, fromP);
-        C4Vector diff(fromP.getInverse() * toP);
+        CQuaternion diff(fromP.getInverse() * toP);
         vect[1] = diff(0);
         vect[2] = diff(1);
         vect[3] = diff(2);
@@ -807,7 +807,7 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint, CHo
             retVal = (int)(artificialLength / e) + 1;
             double l = (double)retVal;
             vect[0] /= l;
-            C4Vector q;
+            CQuaternion q;
             q.setIdentity();
             fromP.buildInterpolation(q, diff, 1.0 / l);
             vect[1] = fromP(0);
@@ -820,11 +820,11 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint, CHo
     {
         vect[0] = toPoint->values[0] - fromPoint->values[0];
         vect[1] = toPoint->values[1] - fromPoint->values[1];
-        C4Vector toP, fromP;
+        CQuaternion toP, fromP;
         C3Vector dum;
         toPoint->getAllValues(dum, toP);
         fromPoint->getAllValues(dum, fromP);
-        C4Vector diff(fromP.getInverse() * toP);
+        CQuaternion diff(fromP.getInverse() * toP);
         vect[2] = diff(0);
         vect[3] = diff(1);
         vect[4] = diff(2);
@@ -841,7 +841,7 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint, CHo
             double l = (double)retVal;
             vect[0] /= l;
             vect[1] /= l;
-            C4Vector q;
+            CQuaternion q;
             q.setIdentity();
             fromP.buildInterpolation(q, diff, 1.0 / l);
             vect[2] = fromP(0);
@@ -855,11 +855,11 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint, CHo
         vect[0] = toPoint->values[0] - fromPoint->values[0];
         vect[1] = toPoint->values[1] - fromPoint->values[1];
         vect[2] = toPoint->values[2] - fromPoint->values[2];
-        C4Vector toP, fromP;
+        CQuaternion toP, fromP;
         C3Vector dum;
         toPoint->getAllValues(dum, toP);
         fromPoint->getAllValues(dum, fromP);
-        C4Vector diff(fromP.getInverse() * toP);
+        CQuaternion diff(fromP.getInverse() * toP);
         vect[3] = diff(0);
         vect[4] = diff(1);
         vect[5] = diff(2);
@@ -877,7 +877,7 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint, CHo
             vect[0] /= l;
             vect[1] /= l;
             vect[2] /= l;
-            C4Vector q;
+            CQuaternion q;
             q.setIdentity();
             fromP.buildInterpolation(q, diff, 1.0 / l);
             vect[3] = fromP(0);
@@ -889,7 +889,7 @@ int CHolonomicPathPlanning_old::getVector(CHolonomicPathNode_old* fromPoint, CHo
     return (retVal);
 }
 
-bool CHolonomicPathPlanning_old::addVector(C3Vector& pos, C4Vector& orient, double vect[7])
+bool CHolonomicPathPlanning_old::addVector(C3Vector& pos, CQuaternion& orient, double vect[7])
 { // return value true means values are not forbidden!
     double auxVect[7];
     if (planningType == sim_holonomicpathplanning_xy)
@@ -902,7 +902,7 @@ bool CHolonomicPathPlanning_old::addVector(C3Vector& pos, C4Vector& orient, doub
     else if (planningType == sim_holonomicpathplanning_xg)
     {
         pos(0) += vect[0];
-        orient = orient * _gammaAxisRotation * (C4Vector(C3Vector(0.0, 0.0, vect[1])) * _gammaAxisRotationInv);
+        orient = orient * _gammaAxisRotation * (CQuaternion(C3Vector(0.0, 0.0, vect[1])) * _gammaAxisRotationInv);
         auxVect[0] = pos(0);
         auxVect[1] = (_gammaAxisRotationInv * orient * _gammaAxisRotation).getEulerAngles()(2);
     }
@@ -919,14 +919,14 @@ bool CHolonomicPathPlanning_old::addVector(C3Vector& pos, C4Vector& orient, doub
     {
         pos(0) += vect[0];
         pos(1) += vect[1];
-        orient = orient * _gammaAxisRotation * (C4Vector(C3Vector(0.0, 0.0, vect[2])) * _gammaAxisRotationInv);
+        orient = orient * _gammaAxisRotation * (CQuaternion(C3Vector(0.0, 0.0, vect[2])) * _gammaAxisRotationInv);
         auxVect[0] = pos(0);
         auxVect[1] = pos(1);
         auxVect[2] = (_gammaAxisRotationInv * orient * _gammaAxisRotation).getEulerAngles()(2);
     }
     else if (planningType == sim_holonomicpathplanning_abg)
     {
-        orient = orient * C4Vector(vect);
+        orient = orient * CQuaternion(vect);
         auxVect[0] = orient(0);
         auxVect[1] = orient(1);
         auxVect[2] = orient(2);
@@ -937,7 +937,7 @@ bool CHolonomicPathPlanning_old::addVector(C3Vector& pos, C4Vector& orient, doub
         pos(0) += vect[0];
         pos(1) += vect[1];
         pos(2) += vect[2];
-        orient = orient * _gammaAxisRotation * (C4Vector(C3Vector(0.0, 0.0, vect[3])) * _gammaAxisRotationInv);
+        orient = orient * _gammaAxisRotation * (CQuaternion(C3Vector(0.0, 0.0, vect[3])) * _gammaAxisRotationInv);
         auxVect[0] = pos(0);
         auxVect[1] = pos(1);
         auxVect[2] = pos(2);
@@ -946,7 +946,7 @@ bool CHolonomicPathPlanning_old::addVector(C3Vector& pos, C4Vector& orient, doub
     else if (planningType == sim_holonomicpathplanning_xabg)
     {
         pos(0) += vect[0];
-        orient = orient * C4Vector(vect + 1);
+        orient = orient * CQuaternion(vect + 1);
         auxVect[0] = pos(0);
         auxVect[1] = orient(0);
         auxVect[2] = orient(1);
@@ -957,7 +957,7 @@ bool CHolonomicPathPlanning_old::addVector(C3Vector& pos, C4Vector& orient, doub
     {
         pos(0) += vect[0];
         pos(1) += vect[1];
-        orient = orient * C4Vector(vect + 2);
+        orient = orient * CQuaternion(vect + 2);
         auxVect[0] = pos(0);
         auxVect[1] = pos(1);
         auxVect[2] = orient(0);
@@ -970,7 +970,7 @@ bool CHolonomicPathPlanning_old::addVector(C3Vector& pos, C4Vector& orient, doub
         pos(0) += vect[0];
         pos(1) += vect[1];
         pos(2) += vect[2];
-        orient = orient * C4Vector(vect + 3);
+        orient = orient * CQuaternion(vect + 3);
         auxVect[0] = pos(0);
         auxVect[1] = pos(1);
         auxVect[2] = pos(2);
@@ -1071,13 +1071,13 @@ int CHolonomicPathPlanning_old::smoothFoundPath(int steps, int maxTimePerPass)
                 if ((passes != -1) && (highIndex - (lowIndex + 1) > passes - 1))
                 { // no forbidden direction, and the number of nodes is reduced!
                     C3Vector pos;
-                    C4Vector orient;
+                    CQuaternion orient;
                     startP->getAllValues(pos, orient);
 
                     C3Vector posCop(pos);
-                    C4Vector orientCop(orient);
+                    CQuaternion orientCop(orient);
                     bool impossible = false;
-                    C7Vector originalLocal;
+                    CPose originalLocal;
                     _simGetObjectLocalTransformation_internal(startDummy, originalLocal.X.data, originalLocal.Q.data,
                                                               true);
                     for (int currentPass = 0; currentPass < passes - 1; currentPass++)
@@ -1087,8 +1087,8 @@ int CHolonomicPathPlanning_old::smoothFoundPath(int steps, int maxTimePerPass)
                             impossible = true;
                             break; // We are in forbidden values!
                         }
-                        C7Vector transf(orient, pos);
-                        C7Vector tmpTr(_startDummyLTM * transf);
+                        CPose transf(orient, pos);
+                        CPose tmpTr(_startDummyLTM * transf);
                         _simSetObjectLocalTransformation_internal(startDummy, tmpTr.X.data, tmpTr.Q.data, 0.0);
                         if (doCollide(nullptr))
                         {
@@ -1140,10 +1140,10 @@ void CHolonomicPathPlanning_old::getPathData(std::vector<double>& data)
     {
         CHolonomicPathNode_old* theNode = foundPath[i];
         C3Vector p;
-        C4Vector o;
+        CQuaternion o;
         theNode->getAllValues(p, o);
 
-        C7Vector conf(o, p);
+        CPose conf(o, p);
         conf = _startDummyCTM * conf;
         data.push_back(conf(0));
         data.push_back(conf(1));

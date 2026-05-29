@@ -275,8 +275,8 @@ void CCalculationInfo::printInformation()
                 {
                     CSceneObject* it2 = App::scene->sceneObjects->getObjectFromHandle(
                         App::scene->sceneObjects->getObjectHandleFromSelectionIndex(0));
-                    C7Vector v0(it->getFullCumulativeTransformation());
-                    C7Vector v1(it2->getFullCumulativeTransformation());
+                    CPose v0(it->getFullCumulativeTransformation());
+                    CPose v1(it2->getFullCumulativeTransformation());
                     tmp = "2 (frame-frame distance=" + utils::getSizeString(false, (v0.X - v1.X).getLength()) + ")";
                 }
                 App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
@@ -290,7 +290,7 @@ void CCalculationInfo::printInformation()
                 tmp = it->getObjectTypeInfoExtended();
                 App::scene->buttonBlockContainer_old->getInfoBoxButton(pos++, 1)->label = tmp;
 
-                C7Vector m(it->getCumulativeTransformation());
+                CPose m(it->getCumulativeTransformation());
                 C3Vector euler(m.Q.getEulerAngles());
                 App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
                     "Last selected object position:";
@@ -334,7 +334,7 @@ void CCalculationInfo::printInformation()
                 CSceneObject* it = GuiApp::mainWindow->editModeContainer->getEditModeObject();
                 if (it != nullptr)
                 {
-                    C7Vector m(it->getCumulativeTransformation());
+                    CPose m(it->getCumulativeTransformation());
                     int lastV = GuiApp::mainWindow->editModeContainer->getLastEditModeBufferValue();
                     C3Vector v(GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(lastV));
                     v *= m;
@@ -412,7 +412,7 @@ void CCalculationInfo::printInformation()
                             GuiApp::mainWindow->editModeContainer->getEditModeBufferSize() - 1));
                     //                  CSimplePathPoint_old*
                     //                  pt(pc->getSimplePathPoint(App::scene->objCont->editModeBuffer[App::scene->objCont->editModeBuffer.size()-1]));
-                    C7Vector tr(path->getCumulativeTransformation());
+                    CPose tr(path->getCumulativeTransformation());
                     C3Vector v(tr * pt->getTransformation().X);
                     App::scene->buttonBlockContainer_old->getInfoBoxButton(pos, 0)->label =
                         "Last selected path point position:";

@@ -736,7 +736,7 @@ int CCustomProperties::getMatrixProperty(const char* pName, CMatrix& pState) con
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setQuaternionProperty(const char* pName, const C4Vector& pState, bool& valueChange)
+int CCustomProperties::setQuaternionProperty(const char* pName, const CQuaternion& pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
@@ -763,7 +763,7 @@ int CCustomProperties::setQuaternionProperty(const char* pName, const C4Vector& 
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::getQuaternionProperty(const char* pName, C4Vector& pState) const
+int CCustomProperties::getQuaternionProperty(const char* pName, CQuaternion& pState) const
 {
     int propType, propInfo;
     std::string infoTxt;
@@ -782,7 +782,7 @@ int CCustomProperties::getQuaternionProperty(const char* pName, C4Vector& pState
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setPoseProperty(const char* pName, const C7Vector& pState, bool& valueChange)
+int CCustomProperties::setPoseProperty(const char* pName, const CPose& pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
@@ -809,7 +809,7 @@ int CCustomProperties::setPoseProperty(const char* pName, const C7Vector& pState
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::getPoseProperty(const char* pName, C7Vector& pState) const
+int CCustomProperties::getPoseProperty(const char* pName, CPose& pState) const
 {
     int propType, propInfo;
     std::string infoTxt;

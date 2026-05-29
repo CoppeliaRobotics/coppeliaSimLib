@@ -106,7 +106,7 @@ class CCamera : public CViewableBase
     std::string getTrackedObjectLoadName_old() const;
 
     void shiftCameraInCameraManipulationMode(const C3Vector& newLocalPos);
-    void rotateCameraInCameraManipulationMode(const C7Vector& newLocalConf);
+    void rotateCameraInCameraManipulationMode(const CPose& newLocalConf);
 
     void frameSceneOrSelectedObjects(double windowWidthByHeight, bool forPerspectiveProjection,
                                      std::vector<int>* selectedObjects, bool useSystemSelection,

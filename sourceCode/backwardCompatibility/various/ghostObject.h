@@ -6,7 +6,7 @@ class CGhostObject
 {
   public:
     CGhostObject(); // only for serialization
-    CGhostObject(int theGroupId, int theObjectHandle, C7Vector theTr, int theOptions, double theStartTime,
+    CGhostObject(int theGroupId, int theObjectHandle, CPose theTr, int theOptions, double theStartTime,
                  double theEndTime, const float theColor[12]);
     virtual ~CGhostObject();
 
@@ -21,7 +21,7 @@ class CGhostObject
     double endTime;
     unsigned char transparencyFactor; // 0=opaque, 255=totally transparent
     float color[12];
-    C7Vector tr;
+    CPose tr;
 
 #ifdef SIM_WITH_GUI
     void render(int displayAttributes, double simulationTime, double realTime);

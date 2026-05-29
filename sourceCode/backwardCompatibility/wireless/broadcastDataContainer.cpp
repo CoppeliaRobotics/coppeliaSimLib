@@ -56,7 +56,7 @@ void CBroadcastDataContainer::broadcastData(int emitterID, int targetID, int dat
     if (App::scene->environment->getVisualizeWirelessEmitters() || _wirelessForceShow_emission)
     {
         bool err = false;
-        C7Vector antennaConf;
+        CPose antennaConf;
         antennaConf.setIdentity();
         if (antennaHandle != sim_handle_default)
         {

@@ -94,7 +94,7 @@ int CGhostObjectContainer::modifyGhost(int groupId, int ghostId, int operation, 
     }
     if ((operation >= 11) && (operation <= 13) && (colorOrTransformation == nullptr))
         return (-1);
-    C7Vector transf;
+    CPose transf;
     if ((operation >= 11) && (operation <= 12))
     {
         transf.X.setData(colorOrTransformation);

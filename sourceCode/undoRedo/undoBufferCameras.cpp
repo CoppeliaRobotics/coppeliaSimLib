@@ -127,7 +127,7 @@ void CUndoBufferCameras::storeCameras()
             buff.localTr=cam->getFullLocalTransformation();
             buff.orthoViewSize=cam->getOrthoViewSize();
             _cameraBuffers[cam->getObjectName()]=buff;
-            C7Vector tr;
+            CPose tr;
             tr.setIdentity();
             cam->setLocalTransformation(tr);
             cam->setOrthoViewSize(1.0);
@@ -156,7 +156,7 @@ void CUndoBufferCameras::storeCameras()
             SCamBuff buff;
             buff.localTr=cameraProxies[cnt]->getFullLocalTransformation();
             _cameraProxyBuffers[cameraProxies[cnt]->getObjectName()]=buff;
-            C7Vector tr;
+            CPose tr;
             tr.setIdentity();
             cameraProxies[cnt]->setLocalTransformation(tr);
             */

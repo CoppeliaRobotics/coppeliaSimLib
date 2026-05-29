@@ -106,8 +106,8 @@ class CSceneObject : public Obj
     virtual bool isPotentiallyDetectable() const;
     virtual bool isPotentiallyRenderable() const;
 
-    virtual C7Vector getIntrinsicTransformation(bool includeDynErrorComponent, bool* available = nullptr) const;
-    virtual C7Vector getFullLocalTransformation() const;
+    virtual CPose getIntrinsicTransformation(bool includeDynErrorComponent, bool* available = nullptr) const;
+    virtual CPose getFullLocalTransformation() const;
     virtual bool setParent(CSceneObject* parent);
     virtual void setObjectHandle(int newObjectHandle);
     virtual bool canDestroyNow();
@@ -135,10 +135,10 @@ class CSceneObject : public Obj
     virtual int getVector3Property(const char* pName, C3Vector& pState) const  override;
     virtual int setMatrixProperty(const char* pName, const CMatrix& pState) override;
     virtual int getMatrixProperty(const char* pName, CMatrix& pState) const  override;
-    virtual int setQuaternionProperty(const char* pName, const C4Vector& pState) override;
-    virtual int getQuaternionProperty(const char* pName, C4Vector& pState) const  override;
-    virtual int setPoseProperty(const char* pName, const C7Vector& pState) override;
-    virtual int getPoseProperty(const char* pName, C7Vector& pState) const  override;
+    virtual int setQuaternionProperty(const char* pName, const CQuaternion& pState) override;
+    virtual int getQuaternionProperty(const char* pName, CQuaternion& pState) const  override;
+    virtual int setPoseProperty(const char* pName, const CPose& pState) override;
+    virtual int getPoseProperty(const char* pName, CPose& pState) const  override;
     virtual int setColorProperty(const char* pName, const float* pState) override;
     virtual int getColorProperty(const char* pName, float* pState) const  override;
     virtual int setFloatArrayProperty(const char* pName, const std::vector<double>& pState) override;
@@ -184,10 +184,10 @@ class CSceneObject : public Obj
     std::string getObjectName_old() const;
     std::string getObjectAltName_old() const;
 
-    C7Vector getLocalTransformation() const;
-    C7Vector getFullParentCumulativeTransformation() const;
-    C7Vector getCumulativeTransformation() const;
-    C7Vector getFullCumulativeTransformation() const;
+    CPose getLocalTransformation() const;
+    CPose getFullParentCumulativeTransformation() const;
+    CPose getCumulativeTransformation() const;
+    CPose getFullCumulativeTransformation() const;
 
     void setChildOrder(int order);
     void setExtensionString(const char* str);
@@ -195,8 +195,8 @@ class CSceneObject : public Obj
     void setObjectAlias_direct(const char* newAlias);
     void setObjectName_direct_old(const char* newName);
     void setObjectAltName_direct_old(const char* newAltName);
-    void setLocalTransformation(const C7Vector& tr);
-    void setLocalTransformation(const C4Vector& q);
+    void setLocalTransformation(const CPose& tr);
+    void setLocalTransformation(const CQuaternion& q);
     void setLocalTransformation(const C3Vector& x);
 
     void recomputeModelInfluencedValues(int overrideFlags = -1);
@@ -232,7 +232,7 @@ class CSceneObject : public Obj
     int getSpecificLight() const;
     bool setBeforeDeleteCallbackSent();
 
-    bool getModelBB(const C7Vector& baseCoordInv, C3Vector& minV, C3Vector& maxV, bool first) const;
+    bool getModelBB(const CPose& baseCoordInv, C3Vector& minV, C3Vector& maxV, bool first) const;
 
     int getModelSelectionHandle(bool firstObject = true);
 
@@ -309,8 +309,8 @@ class CSceneObject : public Obj
 
     bool getShouldObjectBeDisplayed(int viewableHandle, int displayAttrib);
 
-    void setAssemblingLocalTransformation(const C7Vector& tr);
-    C7Vector getAssemblingLocalTransformation() const;
+    void setAssemblingLocalTransformation(const CPose& tr);
+    CPose getAssemblingLocalTransformation() const;
     void setAssemblingLocalTransformationIsUsed(bool u);
     bool getAssemblingLocalTransformationIsUsed();
     void setAssemblyMatchValues(bool asChild, const char* str);
@@ -350,8 +350,8 @@ class CSceneObject : public Obj
 
     void setForceAlwaysVisible_tmp(bool force);
 
-    void setAbsoluteTransformation(const C7Vector& v);
-    void setAbsoluteTransformation(const C4Vector& q);
+    void setAbsoluteTransformation(const CPose& v);
+    void setAbsoluteTransformation(const CQuaternion& q);
     void setAbsoluteTransformation(const C3Vector& x);
 
     int getIkPluginCounterpartHandle() const;
@@ -374,7 +374,7 @@ class CSceneObject : public Obj
 
     void pushObjectCreationEvent();
     void pushObjectRefreshEvent();
-    C7Vector getBB(C3Vector* bbHalfSize) const;
+    CPose getBB(C3Vector* bbHalfSize) const;
     C3Vector getBBHSize() const;
 
     CCustomData customObjectData;
@@ -384,7 +384,7 @@ class CSceneObject : public Obj
     bool _setChildren(std::vector<CSceneObject*>* children);
     void _setMeasuredVelocity(const C3Vector& lin, const C3Vector& ang, const C3Vector& rotAxis, double angle);
     void _setModelInvisible(bool inv);
-    void _setBB(const C7Vector& bbFrame, const C3Vector& bbHalfSize);
+    void _setBB(const CPose& bbFrame, const C3Vector& bbHalfSize);
 
     long long int _objectUid; // valid for a given session (non-persistent)
     std::string _extensionString;
@@ -394,10 +394,10 @@ class CSceneObject : public Obj
     bool _modelInvisible; // derived from parent model's modelProperty
     int _childOrder;
     std::string _objectAlias;
-    C7Vector _localTransformation;
+    CPose _localTransformation;
 
     std::vector<CSceneObject*> _childList;
-    C7Vector _assemblingLocalTransformation; // When assembling this object
+    CPose _assemblingLocalTransformation; // When assembling this object
     bool _assemblingLocalTransformationIsUsed;
     std::vector<std::string> _assemblyMatchValuesChild;
     std::vector<std::string> _assemblyMatchValuesParent;
@@ -449,7 +449,7 @@ class CSceneObject : public Obj
                                        // bit2&bit3: same but for rotations, bit4: alt dir transl forbidden, bit5: alt dir rot forbidden
     double _objectMovementStepSize[2]; // 0.0= use app default
     int _objectMovementRelativity[2];  // 0=world, 1=parent, 2=own frame
-    C7Vector _bbFrame;
+    CPose _bbFrame;
     C3Vector _bbHalfSize;
 
     double _sizeFactor; // just used so that scripts can also adjust for scaling
@@ -482,8 +482,8 @@ class CSceneObject : public Obj
     bool _initialConfigurationMemorized;
     long long int _initialParentUniqueId;
     int _initialMainPropertyOverride;
-    C7Vector _initialLocalPose;
-    C7Vector _initialAbsPose;
+    CPose _initialLocalPose;
+    CPose _initialAbsPose;
     int _initialVisibilityLayer;
 
     int _dynamicFlag; // 1=respondableShape, 2=nonStaticShape, 4=dynJoint, 32=dynForceSensor, 64=dynDummy
@@ -492,7 +492,7 @@ class CSceneObject : public Obj
     C3Vector _measuredAngularVelocity3_velocityMeasurement;
     C3Vector _measuredAngularVelocityAxis_velocityMeasurement;
     C3Vector _measuredLinearVelocity_velocityMeasurement;
-    C7Vector _previousAbsTransf_velocityMeasurement;
+    CPose _previousAbsTransf_velocityMeasurement;
     bool _previousPositionOrientationIsValid;
 
 #ifdef SIM_WITH_GUI
@@ -510,6 +510,6 @@ class CSceneObject : public Obj
 #endif
 
   private:
-    void _setLocalTransformation_send(const C7Vector& tr) const;
+    void _setLocalTransformation_send(const CPose& tr) const;
     void _setParent_send(int parentHandle) const;
 };

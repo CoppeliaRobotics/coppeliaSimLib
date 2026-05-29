@@ -15,7 +15,7 @@ class CMesh : public CMeshWrapper
 {
   public:
     CMesh();
-    CMesh(const C7Vector& meshFrame, const std::vector<double>& vertices, const std::vector<int>& indices,
+    CMesh(const CPose& meshFrame, const std::vector<double>& vertices, const std::vector<int>& indices,
           const std::vector<double>* optNormals, const std::vector<float>* optTexCoords, int options);
     virtual ~CMesh();
 
@@ -36,21 +36,21 @@ class CMesh : public CMeshWrapper
     void setConvex_raw(bool c);
     bool checkIfConvex();
     CMesh* getFirstMesh() override;
-    CMesh* getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr) override;
+    CMesh* getMeshFromUid(long long int meshUid, const CPose& parentCumulTr, CPose& shapeRelTr) override;
     void appendMeshes(std::vector<CMesh*>& meshes) override;
-    void pushObjectCreationEvent(int shapeHandle, int shapeUid, const C7Vector& shapeRelTr);
+    void pushObjectCreationEvent(int shapeHandle, int shapeUid, const CPose& shapeRelTr);
     void pushObjectRemoveEvent();
 
     int countTriangles() const override;
-    void getCumulativeMeshes(const C7Vector& parentCumulTr, std::vector<double>& vertices, std::vector<int>* indices, std::vector<double>* normals) override;
-    void getCumulativeMeshes(const C7Vector& parentCumulTr, const CMeshWrapper* wrapper, std::vector<double>& vertices, std::vector<int>* indices, std::vector<double>* normals) override;
+    void getCumulativeMeshes(const CPose& parentCumulTr, std::vector<double>& vertices, std::vector<int>* indices, std::vector<double>* normals) override;
+    void getCumulativeMeshes(const CPose& parentCumulTr, const CMeshWrapper* wrapper, std::vector<double>& vertices, std::vector<int>* indices, std::vector<double>* normals) override;
     void setColor(int colorComponent, const float* rgbData) override;
     void setColor(const CShape* shape, int& elementIndex, const char* colorName, int colorComponent, const float* rgbData, int& rgbDataOffset) override;
     bool getColor(const char* colorName, int colorComponent, float* rgbData, int& rgbDataOffset) const override;
-    void getAllMeshComponentsCumulative(const C7Vector& parentCumulTr, std::vector<CMesh*>& shapeComponentList, std::vector<C7Vector>* OptParentCumulTrList = nullptr) override;
-    CMesh* getMeshComponentAtIndex(const C7Vector& parentCumulTr, int& index, C7Vector* optParentCumulTrOut = nullptr) override;
+    void getAllMeshComponentsCumulative(const CPose& parentCumulTr, std::vector<CMesh*>& shapeComponentList, std::vector<CPose>* OptParentCumulTrList = nullptr) override;
+    CMesh* getMeshComponentAtIndex(const CPose& parentCumulTr, int& index, CPose* optParentCumulTrOut = nullptr) override;
     int getComponentCount() const override;
-    bool serialize(CSer& ar, const char* shapeName, const C7Vector& parentCumulIFrame, bool rootLevel) override;
+    bool serialize(CSer& ar, const char* shapeName, const CPose& parentCumulIFrame, bool rootLevel) override;
     void flipFaces() override;
     void setHideEdgeBorders_OLD(bool v) override;
     bool getHideEdgeBorders_OLD() const override;
@@ -111,37 +111,37 @@ class CMesh : public CMeshWrapper
     void copyVisualAttributesTo(CMeshWrapper* target);
     void takeVisualAttributesFrom(CMesh* origin) override;
 
-    bool reorientBB(const C4Vector* rot) override;
-    void setBBFrame(const C7Vector& bbFrame) override;
+    bool reorientBB(const CQuaternion* rot) override;
+    void setBBFrame(const CPose& bbFrame) override;
 
-    int setBoolProperty_mesh(const char* pName, bool pState, const C7Vector& shapeRelTr);
-    int getBoolProperty_mesh(const char* pName, bool& pState, const C7Vector& shapeRelTr) const;
-    int setIntProperty_mesh(const char* pName, int pState, const C7Vector& shapeRelTr);
-    int getIntProperty_mesh(const char* pName, int& pState, const C7Vector& shapeRelTr) const;
-    int getLongProperty_mesh(const char* pName, long long int& pState, const C7Vector& shapeRelTr) const;
-    int getHandleProperty_mesh(const char* pName, long long int& pState, const C7Vector& shapeRelTr) const;
-    int setFloatProperty_mesh(const char* pName, double pState, const C7Vector& shapeRelTr);
-    int getFloatProperty_mesh(const char* pName, double& pState, const C7Vector& shapeRelTr) const;
-    int setStringProperty_mesh(const char* pName, const std::string& pState, const C7Vector& shapeRelTr);
-    int getStringProperty_mesh(const char* pName, std::string& pState, const C7Vector& shapeRelTr) const;
-    int setBufferProperty_mesh(const char* pName, const std::string& pState, const C7Vector& shapeRelTr);
-    int getBufferProperty_mesh(const char* pName, std::string& pState, const C7Vector& shapeRelTr) const;
-    int setIntArray2Property_mesh(const char* pName, const int* pState, const C7Vector& shapeRelTr);
-    int getIntArray2Property_mesh(const char* pName, int* pState, const C7Vector& shapeRelTr) const;
-    int setVector3Property_mesh(const char* pName, const C3Vector& pState, const C7Vector& shapeRelTr);
-    int getVector3Property_mesh(const char* pName, C3Vector& pState, const C7Vector& shapeRelTr) const;
-    int getMatrixProperty_mesh(const char* pName, CMatrix& pState, const C7Vector& shapeRelTr) const;
-    int setQuaternionProperty_mesh(const char* pName, const C4Vector& pState, const C7Vector& shapeRelTr);
-    int getQuaternionProperty_mesh(const char* pName, C4Vector& pState, const C7Vector& shapeRelTr) const;
-    int setPoseProperty_mesh(const char* pName, const C7Vector& pState, const C7Vector& shapeRelTr);
-    int getPoseProperty_mesh(const char* pName, C7Vector& pState, const C7Vector& shapeRelTr) const;
-    int setColorProperty_mesh(const char* pName, const float* pState, const C7Vector& shapeRelTr);
-    int getColorProperty_mesh(const char* pName, float* pState, const C7Vector& shapeRelTr) const;
-    int setFloatArrayProperty_mesh(const char* pName, const std::vector<double>& pState, const C7Vector& shapeRelTr);
-    int getFloatArrayProperty_mesh(const char* pName, std::vector<double>& pState, const C7Vector& shapeRelTr) const;
-    int setIntArrayProperty_mesh(const char* pName, const std::vector<int>& pState, const C7Vector& shapeRelTr);
-    int getIntArrayProperty_mesh(const char* pName, std::vector<int>& pState, const C7Vector& shapeRelTr) const;
-    int getStringArrayProperty_mesh(const char* pName, std::vector<std::string>& pState, const C7Vector& shapeRelTr) const;
+    int setBoolProperty_mesh(const char* pName, bool pState, const CPose& shapeRelTr);
+    int getBoolProperty_mesh(const char* pName, bool& pState, const CPose& shapeRelTr) const;
+    int setIntProperty_mesh(const char* pName, int pState, const CPose& shapeRelTr);
+    int getIntProperty_mesh(const char* pName, int& pState, const CPose& shapeRelTr) const;
+    int getLongProperty_mesh(const char* pName, long long int& pState, const CPose& shapeRelTr) const;
+    int getHandleProperty_mesh(const char* pName, long long int& pState, const CPose& shapeRelTr) const;
+    int setFloatProperty_mesh(const char* pName, double pState, const CPose& shapeRelTr);
+    int getFloatProperty_mesh(const char* pName, double& pState, const CPose& shapeRelTr) const;
+    int setStringProperty_mesh(const char* pName, const std::string& pState, const CPose& shapeRelTr);
+    int getStringProperty_mesh(const char* pName, std::string& pState, const CPose& shapeRelTr) const;
+    int setBufferProperty_mesh(const char* pName, const std::string& pState, const CPose& shapeRelTr);
+    int getBufferProperty_mesh(const char* pName, std::string& pState, const CPose& shapeRelTr) const;
+    int setIntArray2Property_mesh(const char* pName, const int* pState, const CPose& shapeRelTr);
+    int getIntArray2Property_mesh(const char* pName, int* pState, const CPose& shapeRelTr) const;
+    int setVector3Property_mesh(const char* pName, const C3Vector& pState, const CPose& shapeRelTr);
+    int getVector3Property_mesh(const char* pName, C3Vector& pState, const CPose& shapeRelTr) const;
+    int getMatrixProperty_mesh(const char* pName, CMatrix& pState, const CPose& shapeRelTr) const;
+    int setQuaternionProperty_mesh(const char* pName, const CQuaternion& pState, const CPose& shapeRelTr);
+    int getQuaternionProperty_mesh(const char* pName, CQuaternion& pState, const CPose& shapeRelTr) const;
+    int setPoseProperty_mesh(const char* pName, const CPose& pState, const CPose& shapeRelTr);
+    int getPoseProperty_mesh(const char* pName, CPose& pState, const CPose& shapeRelTr) const;
+    int setColorProperty_mesh(const char* pName, const float* pState, const CPose& shapeRelTr);
+    int getColorProperty_mesh(const char* pName, float* pState, const CPose& shapeRelTr) const;
+    int setFloatArrayProperty_mesh(const char* pName, const std::vector<double>& pState, const CPose& shapeRelTr);
+    int getFloatArrayProperty_mesh(const char* pName, std::vector<double>& pState, const CPose& shapeRelTr) const;
+    int setIntArrayProperty_mesh(const char* pName, const std::vector<int>& pState, const CPose& shapeRelTr);
+    int getIntArrayProperty_mesh(const char* pName, std::vector<int>& pState, const CPose& shapeRelTr) const;
+    int getStringArrayProperty_mesh(const char* pName, std::vector<std::string>& pState, const CPose& shapeRelTr) const;
     int removeProperty(const char* pName) override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
@@ -175,7 +175,7 @@ class CMesh : public CMeshWrapper
   protected:
     void _updateNonDisplayAndNonDiskValues();
     void _updateDisplayAndDiskValues();
-    void _transformMesh(const C7Vector& tr);
+    void _transformMesh(const CPose& tr);
     void _commonInit();
     void _recomputeNormals();
     void _computeVisibleEdges();
@@ -239,11 +239,11 @@ class CMesh : public CMeshWrapper
 
 #ifdef SIM_WITH_GUI
   public:
-    void display(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib, CColorObject* collisionColor, int dynObjFlag_forVisualization, int transparencyHandling, bool multishapeEditSelected) override;
-    void display_colorCoded(const C7Vector& cumulIFrameTr, CShape* geomData, int objectId, int displayAttrib) override;
-    void displayGhost(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib, bool originalColors, bool backfaceCulling, double transparency, const float* newColors) override;
+    void display(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib, CColorObject* collisionColor, int dynObjFlag_forVisualization, int transparencyHandling, bool multishapeEditSelected) override;
+    void display_colorCoded(const CPose& cumulIFrameTr, CShape* geomData, int objectId, int displayAttrib) override;
+    void displayGhost(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib, bool originalColors, bool backfaceCulling, double transparency, const float* newColors) override;
 
-    void display_extRenderer(const C7Vector& cumulIFrameTr, CShape* geomData, int displayAttrib, const C7Vector& tr, int shapeHandle, int& componentIndex) override;
+    void display_extRenderer(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib, const CPose& tr, int shapeHandle, int& componentIndex) override;
     bool getNonCalculatedTextureCoordinates(std::vector<float>& texCoords);
     int* getVertexBufferIdPtr();
     int* getNormalBufferIdPtr();

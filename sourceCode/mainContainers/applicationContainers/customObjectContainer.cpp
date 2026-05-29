@@ -586,7 +586,7 @@ int CustomObjectContainer::getMatrixProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CustomObjectContainer::setQuaternionProperty_t(long long int target, const char* ppName, const C4Vector& pState)
+int CustomObjectContainer::setQuaternionProperty_t(long long int target, const char* ppName, const CQuaternion& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -595,7 +595,7 @@ int CustomObjectContainer::setQuaternionProperty_t(long long int target, const c
     return retVal;
 }
 
-int CustomObjectContainer::getQuaternionProperty_t(long long int target, const char* ppName, C4Vector& pState) const
+int CustomObjectContainer::getQuaternionProperty_t(long long int target, const char* ppName, CQuaternion& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -604,7 +604,7 @@ int CustomObjectContainer::getQuaternionProperty_t(long long int target, const c
     return retVal;
 }
 
-int CustomObjectContainer::setPoseProperty_t(long long int target, const char* ppName, const C7Vector& pState)
+int CustomObjectContainer::setPoseProperty_t(long long int target, const char* ppName, const CPose& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -613,7 +613,7 @@ int CustomObjectContainer::setPoseProperty_t(long long int target, const char* p
     return retVal;
 }
 
-int CustomObjectContainer::getPoseProperty_t(long long int target, const char* ppName, C7Vector& pState) const
+int CustomObjectContainer::getPoseProperty_t(long long int target, const char* ppName, CPose& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);

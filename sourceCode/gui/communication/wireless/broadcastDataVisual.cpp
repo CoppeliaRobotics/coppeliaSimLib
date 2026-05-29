@@ -5,7 +5,7 @@
 #include <broadcastDataVisualRendering.h>
 
 CBroadcastDataVisual::CBroadcastDataVisual(double timeOutSimulationTime, double actionRadius,
-                                           const C7Vector& emitterConf, double emissionAngle1, double emissionAngle2)
+                                           const CPose& emitterConf, double emissionAngle1, double emissionAngle2)
 { // displayed if not timed out
     _timeOutSimulationTime = timeOutSimulationTime;
     _actionRadius = actionRadius;

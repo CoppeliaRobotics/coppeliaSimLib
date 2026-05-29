@@ -136,7 +136,7 @@ bool CScript::isPotentiallyDetectable() const
 
 void CScript::computeBoundingBox()
 {
-    _setBB(C7Vector::identityTransformation, C3Vector(1.05, 1.05, 1.05) * _scriptSize * 0.5);
+    _setBB(CPose::identityTransformation, C3Vector(1.05, 1.05, 1.05) * _scriptSize * 0.5);
 }
 
 void CScript::scaleObject(double scalingFactor)

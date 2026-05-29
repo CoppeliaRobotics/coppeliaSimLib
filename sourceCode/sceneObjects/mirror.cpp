@@ -82,7 +82,7 @@ CColorObject* CMirror::getClipPlaneColor()
 
 void CMirror::computeBoundingBox()
 {
-    _setBB(C7Vector::identityTransformation, C3Vector(_mirrorWidth, _mirrorHeight, 0.001) * 0.5);
+    _setBB(CPose::identityTransformation, C3Vector(_mirrorWidth, _mirrorHeight, 0.001) * 0.5);
 }
 
 void CMirror::setIsInScene(bool s)

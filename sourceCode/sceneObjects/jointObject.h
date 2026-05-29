@@ -216,9 +216,9 @@ class CJoint : public CSceneObject
     int getVector3Property(const char* pName, C3Vector& pState) const override;
     int setStringProperty(const char* pName, const std::string& pState) override;
     int getStringProperty(const char* pName, std::string& pState) const override;
-    int setQuaternionProperty(const char* pName, const C4Vector& pState) override;
-    int getQuaternionProperty(const char* pName, C4Vector& pState) const override;
-    int getPoseProperty(const char* pName, C7Vector& pState) const override;
+    int setQuaternionProperty(const char* pName, const CQuaternion& pState) override;
+    int getQuaternionProperty(const char* pName, CQuaternion& pState) const override;
+    int getPoseProperty(const char* pName, CPose& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;
     int getColorProperty(const char* pName, float* pState) const override;
     int setFloatArrayProperty(const char* pName, const std::vector<double>& pState) override;
@@ -233,8 +233,8 @@ class CJoint : public CSceneObject
     double getFloatPropertyValue(const char* pName) const;
 
     // Overridden from CSceneObject:
-    virtual C7Vector getIntrinsicTransformation(bool includeDynErrorComponent, bool* available = nullptr) const override;
-    virtual C7Vector getFullLocalTransformation() const override;
+    virtual CPose getIntrinsicTransformation(bool includeDynErrorComponent, bool* available = nullptr) const override;
+    virtual CPose getFullLocalTransformation() const override;
 
     std::string getObjectTypeInfoExtended() const override;
 
@@ -261,7 +261,7 @@ class CJoint : public CSceneObject
     void getMaxVelAccelJerk(double maxVelAccelJerk[3]) const;
     double getScrewLead() const;
     int getJointType() const;
-    C4Vector getSphericalTransformation() const;
+    CQuaternion getSphericalTransformation() const;
     bool getIsCyclic() const;
     bool getEnforceLimits() const;
     void getInterval(double& minV, double& maxV) const;
@@ -288,10 +288,10 @@ class CJoint : public CSceneObject
     void setDependencyParams(double off, double mult);
     void setVelocity(double vel, const CJoint* masterJoint = nullptr);
     void setPosition(double pos, const CJoint* masterJoint = nullptr, bool setDirect = false);
-    void setSphericalTransformation(const C4Vector& tr);
+    void setSphericalTransformation(const CQuaternion& tr);
     void setJointMode(int theMode);
 
-    void setIntrinsicTransformationError(const C7Vector& tr);
+    void setIntrinsicTransformationError(const CPose& tr);
 
     void setTargetVelocity(double v);
     void setTargetPosition(double pos);
@@ -367,7 +367,7 @@ class CJoint : public CSceneObject
     double _initialPosition;
     double _initialTargetPosition;
     double _initialTargetVelocity;
-    C4Vector _initialSphericalJointTransformation;
+    CQuaternion _initialSphericalJointTransformation;
     int _initialJointMode;
 
     int _initialDynCtrlMode;
@@ -399,7 +399,7 @@ class CJoint : public CSceneObject
     int _jointType;
     double _length;
     double _diameter;
-    C4Vector _sphericalTransf; // spherical joints don't have a range anymore since 22.10.2022
+    CQuaternion _sphericalTransf; // spherical joints don't have a range anymore since 22.10.2022
     bool _isCyclic;
     bool _enforceLimits; // enforces joint limits when the physics engine sets the joint position
     double _screwLead;   // distance along the screw's axis for one complete rotation of the screw
@@ -444,7 +444,7 @@ class CJoint : public CSceneObject
     std::vector<double> _mujocoFloatParams;
     std::vector<int> _mujocoIntParams;
 
-    C7Vector _intrinsicTransformationError; // from physics engine
+    CPose _intrinsicTransformationError; // from physics engine
 
     bool warningAboutMujocoLoopClosureProblemsIssued;
 
@@ -464,7 +464,7 @@ class CJoint : public CSceneObject
     void _setIkWeight_sendOldIk(double newWeight) const;
     void _setMaxStepSize_sendOldIk(double stepS) const;
     void _setPosition_sendOldIk(double pos) const;
-    void _setSphericalTransformation_sendOldIk(const C4Vector& tr) const;
+    void _setSphericalTransformation_sendOldIk(const CQuaternion& tr) const;
     void _setJointMode_sendOldIk(int theMode) const;
     double _maxStepSize_old;
     double _ikWeight_old;

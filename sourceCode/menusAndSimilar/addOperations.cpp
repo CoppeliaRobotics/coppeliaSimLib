@@ -71,7 +71,7 @@ CShape* CAddOperations::addPrimitiveShape(int type, const C3Vector& psizes, int 
         for (int i = 0; i < divX * divY * 6; i++)
             tt::addToFloatArray(&normals, 0.0, 0.0, 1.0);
 
-        shape = new CShape(C7Vector::identityTransformation, vertices, indices, nullptr, nullptr, 0);
+        shape = new CShape(CPose::identityTransformation, vertices, indices, nullptr, nullptr, 0);
         shape->setObjectAlias_direct(IDSOGL_PLANE);
         shape->setObjectName_direct_old(IDSOGL_PLANE);
         shape->setLocalTransformation(C3Vector(0.0, 0.0, 0.002));         // we shift the plane so that it is above the floor
@@ -94,7 +94,7 @@ CShape* CAddOperations::addPrimitiveShape(int type, const C3Vector& psizes, int 
 
         CMeshRoutines::createCube(vertices, indices, C3Vector(xhSize * 2.0, yhSize * 2.0, zhSize * 2.0), theDiv);
 
-        shape = new CShape(C7Vector::identityTransformation, vertices, indices, nullptr, nullptr, 0);
+        shape = new CShape(CPose::identityTransformation, vertices, indices, nullptr, nullptr, 0);
         shape->setObjectAlias_direct(IDSOGL_RECTANGLE);
         shape->setObjectName_direct_old(IDSOGL_RECTANGLE);
         shape->setLocalTransformation(
@@ -128,7 +128,7 @@ CShape* CAddOperations::addPrimitiveShape(int type, const C3Vector& psizes, int 
         CMeshRoutines::createSphere(vertices, indices, C3Vector(xhSize * 2.0, yhSize * 2.0, zhSize * 2.0), sides,
                                     faceSubdiv);
 
-        shape = new CShape(C7Vector::identityTransformation, vertices, indices, nullptr, nullptr, 0);
+        shape = new CShape(CPose::identityTransformation, vertices, indices, nullptr, nullptr, 0);
         shape->setObjectAlias_direct(IDSOGL_SPHERE);
         shape->setObjectName_direct_old(IDSOGL_SPHERE);
         shape->setLocalTransformation(C3Vector(0.0, 0.0, zhSize)); // we shift the sphere so that it sits on the floor
@@ -160,7 +160,7 @@ CShape* CAddOperations::addPrimitiveShape(int type, const C3Vector& psizes, int 
         CMeshRoutines::createCylinder(vertices, indices, C3Vector(xhSize * 2.0, yhSize * 2.0, zhSize * 2.0), sides,
                                       faceSubdiv + 1, discDiv, (options & 4) != 0, type == sim_primitiveshape_cone);
 
-        shape = new CShape(C7Vector::identityTransformation, vertices, indices, nullptr, nullptr, 0);
+        shape = new CShape(CPose::identityTransformation, vertices, indices, nullptr, nullptr, 0);
         if (type == sim_primitiveshape_cone)
         {
             shape->setObjectAlias_direct("Cone");
@@ -211,7 +211,7 @@ CShape* CAddOperations::addPrimitiveShape(int type, const C3Vector& psizes, int 
 
         CMeshRoutines::createCapsule(vertices, indices, C3Vector(sizes(0), sizes(1), cylLength), sides, faceSubdiv);
 
-        shape = new CShape(C7Vector::identityTransformation, vertices, indices, nullptr, nullptr, 0);
+        shape = new CShape(CPose::identityTransformation, vertices, indices, nullptr, nullptr, 0);
         shape->setObjectAlias_direct(IDSOGL_CAPSULE);
         shape->setObjectName_direct_old(IDSOGL_CAPSULE);
         shape->setLocalTransformation(C3Vector(0.0, 0.0, sizes(2) * 0.5));
@@ -305,7 +305,7 @@ CShape* CAddOperations::addPrimitiveShape(int type, const C3Vector& psizes, int 
             vertices[3 * i + 1] = p(1);
         }
 
-        shape = new CShape(C7Vector::identityTransformation, vertices, indices, nullptr, nullptr, 0);
+        shape = new CShape(CPose::identityTransformation, vertices, indices, nullptr, nullptr, 0);
         shape->setObjectAlias_direct(IDSOGL_DISC);
         shape->setObjectName_direct_old(IDSOGL_DISC);
         shape->setLocalTransformation(
@@ -686,7 +686,7 @@ bool CAddOperations::processCommand(int commandID, CSView* subView)
             if (addedObject == nullptr)
                 addedObject = myNewLight;
             addedObject->setLocalTransformation(C3Vector(0.0, 0.0, 1.0));
-            addedObject->setLocalTransformation(C4Vector(piValue * 0.5, 0.0, 0.0));
+            addedObject->setLocalTransformation(CQuaternion(piValue * 0.5, 0.0, 0.0));
             if (sel != nullptr)
             {
                 App::scene->sceneObjects->setObjectParent(addedObject, sel, true);
@@ -698,7 +698,7 @@ bool CAddOperations::processCommand(int commandID, CSView* subView)
                 if (myNewCamera != nullptr)
                 {
                     App::scene->sceneObjects->selectObject(myNewCamera->getObjectHandle());
-                    C7Vector m(camera->getFullCumulativeTransformation());
+                    CPose m(camera->getFullCumulativeTransformation());
                     myNewCamera->setLocalTransformation(m);
                     myNewCamera->scaleObject(camera->getCameraSize() / myNewCamera->getCameraSize());
                     C3Vector hs(myNewCamera->getBBHSize());
@@ -715,7 +715,7 @@ bool CAddOperations::processCommand(int commandID, CSView* subView)
             { // When we want to add a camera to an empty window
                 if (myNewCamera != nullptr)
                 {
-                    C7Vector m;
+                    CPose m;
                     m.X = C3Vector(-1.12, 1.9, 1.08);
                     m.Q.setEulerAngles(C3Vector(110.933 * degToRad, 28.703 * degToRad, -10.41 * degToRad));
                     myNewCamera->setLocalTransformation(m);
@@ -1073,7 +1073,7 @@ bool CAddOperations::processCommand(int commandID, CSView* subView)
                 bool isSet = false;
                 if (subView != nullptr)
                 {
-                    C7Vector m;
+                    CPose m;
                     int lo = subView->getLinkedObjectID();
                     CCamera* camera = App::scene->sceneObjects->getCameraFromHandle(lo);
                     CVisionSensor* sens = App::scene->sceneObjects->getVisionSensorFromHandle(lo);

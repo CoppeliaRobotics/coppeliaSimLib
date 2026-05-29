@@ -60,8 +60,8 @@ void displayDummy(CDummy* dummy, CViewableBase* renderingObject, int displayAttr
         glDisable(GL_CULL_FACE);
         if (linkedDummy != nullptr)
         {
-            C7Vector cumulBase(dummy->getFullCumulativeTransformation());
-            C7Vector cumulMobile(linkedDummy->getFullCumulativeTransformation());
+            CPose cumulBase(dummy->getFullCumulativeTransformation());
+            CPose cumulMobile(linkedDummy->getFullCumulativeTransformation());
             cumulMobile = cumulBase.getInverse() * cumulMobile;
             ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack);
             int _linkType = dummy->getDummyType();

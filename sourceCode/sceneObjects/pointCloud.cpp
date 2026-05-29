@@ -156,7 +156,7 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
             centered) minDim(1)-=_cellSize; minDim(2)-=_cellSize; maxDim(0)+=_cellSize; maxDim(1)+=_cellSize;
             maxDim(2)+=_cellSize;
             */
-            C7Vector fr;
+            CPose fr;
             fr.setIdentity();
             fr.X = (maxDim + minDim) * 0.5;
             _setBB(fr, (maxDim - minDim) * 0.5);
@@ -384,7 +384,7 @@ int CPointCloud::removePoints(const double* pts, int ptsCnt, bool ptsAreRelative
         std::vector<double> __pts;
         if (!ptsAreRelativeToPointCloud)
         {
-            C7Vector tr(getFullCumulativeTransformation().getInverse());
+            CPose tr(getFullCumulativeTransformation().getInverse());
             for (int i = 0; i < ptsCnt; i++)
             {
                 C3Vector p(pts + 3 * i);
@@ -396,7 +396,7 @@ int CPointCloud::removePoints(const double* pts, int ptsCnt, bool ptsAreRelative
             _pts = &__pts[0];
         }
         if (App::scenes->pluginContainer->geomPlugin_removePointsFromPtcloud(
-                _pointCloudInfo, C7Vector::identityTransformation, _pts, ptsCnt, distanceTolerance, &pointCntRemoved))
+                _pointCloudInfo, CPose::identityTransformation, _pts, ptsCnt, distanceTolerance, &pointCntRemoved))
         {
             App::scenes->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
             _pointCloudInfo = nullptr;
@@ -426,7 +426,7 @@ void CPointCloud::subtractPointCloud(const CPointCloud* pointCloud, double dista
     if (pointCloud->getPointCloudInfo() != nullptr)
     {
         const std::vector<double>* _pts = pointCloud->getPoints();
-        C7Vector tr(pointCloud->getFullCumulativeTransformation());
+        CPose tr(pointCloud->getFullCumulativeTransformation());
         std::vector<double> pts;
         for (size_t i = 0; i < _pts->size() / 3; i++)
         {
@@ -440,7 +440,7 @@ void CPointCloud::subtractPointCloud(const CPointCloud* pointCloud, double dista
     }
 }
 
-void CPointCloud::subtractOctree(const void* octree2Info, const C7Vector& octree2Tr)
+void CPointCloud::subtractOctree(const void* octree2Info, const CPose& octree2Tr)
 {
     TRACE_INTERNAL;
     if (_pointCloudInfo != nullptr)
@@ -487,7 +487,7 @@ int CPointCloud::intersectPoints(const double* pts, int ptsCnt, bool ptsAreRelat
         std::vector<double> __pts;
         if (!ptsAreRelativeToPointCloud)
         {
-            C7Vector tr(getFullCumulativeTransformation().getInverse());
+            CPose tr(getFullCumulativeTransformation().getInverse());
             for (int i = 0; i < ptsCnt; i++)
             {
                 C3Vector p(pts + 3 * i);
@@ -499,7 +499,7 @@ int CPointCloud::intersectPoints(const double* pts, int ptsCnt, bool ptsAreRelat
             _pts = &__pts[0];
         }
         if (App::scenes->pluginContainer->geomPlugin_intersectPointsWithPtcloud(
-                _pointCloudInfo, C7Vector::identityTransformation, _pts, ptsCnt, distanceTolerance))
+                _pointCloudInfo, CPose::identityTransformation, _pts, ptsCnt, distanceTolerance))
         {
             App::scenes->pluginContainer->geomPlugin_destroyPtcloud(_pointCloudInfo);
             _pointCloudInfo = nullptr;
@@ -521,7 +521,7 @@ void CPointCloud::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativ
     if (!ptsAreRelativeToPointCloud)
     {
         __pts.resize(ptsCnt * 3);
-        C7Vector tr(getFullCumulativeTransformation().getInverse());
+        CPose tr(getFullCumulativeTransformation().getInverse());
         for (int i = 0; i < ptsCnt; i++)
         {
             C3Vector p(pts + 3 * i);
@@ -597,14 +597,14 @@ void CPointCloud::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativ
                 unsigned char cols[3] = {(unsigned char)(color.getColorsPtr()[0] * 255.1),
                                          (unsigned char)(color.getColorsPtr()[1] * 255.1),
                                          (unsigned char)(color.getColorsPtr()[2] * 255.1)};
-                App::scenes->pluginContainer->geomPlugin_insertPointsIntoPtcloud_rgb(_pointCloudInfo, C7Vector::identityTransformation, _pts, ptsCnt, cols, _insertionDistanceTolerance);
+                App::scenes->pluginContainer->geomPlugin_insertPointsIntoPtcloud_rgb(_pointCloudInfo, CPose::identityTransformation, _pts, ptsCnt, cols, _insertionDistanceTolerance);
             }
             else
             {
                 if (colorsAreIndividual)
-                    App::scenes->pluginContainer->geomPlugin_insertColorPointsIntoPtcloud_rgb(_pointCloudInfo, C7Vector::identityTransformation, _pts, ptsCnt, optionalColors3, _insertionDistanceTolerance);
+                    App::scenes->pluginContainer->geomPlugin_insertColorPointsIntoPtcloud_rgb(_pointCloudInfo, CPose::identityTransformation, _pts, ptsCnt, optionalColors3, _insertionDistanceTolerance);
                 else
-                    App::scenes->pluginContainer->geomPlugin_insertPointsIntoPtcloud_rgb(_pointCloudInfo, C7Vector::identityTransformation, _pts, ptsCnt, optionalColors3, _insertionDistanceTolerance);
+                    App::scenes->pluginContainer->geomPlugin_insertPointsIntoPtcloud_rgb(_pointCloudInfo, CPose::identityTransformation, _pts, ptsCnt, optionalColors3, _insertionDistanceTolerance);
             }
         }
     }
@@ -619,7 +619,7 @@ void CPointCloud::insertShape(CShape* shape)
     shape->initializeMeshCalculationStructureIfNeeded();
     C4X4Matrix m(getCumulativeTransformation().getMatrix());
     unsigned char dummyColor[3];
-    const C7Vector tr(getCumulativeTransformation());
+    const CPose tr(getCumulativeTransformation());
     void* octree = App::scenes->pluginContainer->geomPlugin_createOctreeFromMesh_rgb(
         shape->_meshCalculationStructure, shape->getCumulCenteredMeshFrame(), &tr, _buildResolution, dummyColor, 0);
     std::vector<double> pts;
@@ -634,7 +634,7 @@ void CPointCloud::insertOctree(const COcTree* octree)
     if (octree->getOctreeInfo() != nullptr)
     {
         const std::vector<double>* _pts = octree->getCubePositions();
-        C7Vector tr(octree->getFullCumulativeTransformation());
+        CPose tr(octree->getFullCumulativeTransformation());
         std::vector<double> pts;
         for (size_t i = 0; i < _pts->size() / 3; i++)
         {
@@ -661,7 +661,7 @@ void CPointCloud::insertPointCloud(const CPointCloud* pointCloud)
     std::vector<unsigned char> _cols;
     _cols.resize(_pts->size());
 
-    C7Vector tr(pointCloud->getFullCumulativeTransformation());
+    CPose tr(pointCloud->getFullCumulativeTransformation());
     std::vector<double> pts;
     for (size_t i = 0; i < _pts->size() / 3; i++)
     {
@@ -788,7 +788,7 @@ void CPointCloud::computeBoundingBox()
         c(1) = (maxY + minY) * 0.5;
         c(2) = (maxZ + minZ) * 0.5;
     }
-    C7Vector tr;
+    CPose tr;
     tr.Q.setIdentity();
     tr.X = c;
     _setBB(tr, s * 0.5);

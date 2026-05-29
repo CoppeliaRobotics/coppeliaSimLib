@@ -52,20 +52,20 @@ class CForceSensor : public CSceneObject
     int getStringProperty(const char* ppName, std::string& pState) const override;
     int setVector3Property(const char* pName, const C3Vector& pState) override;
     int getVector3Property(const char* pName, C3Vector& pState) const override;
-    int setPoseProperty(const char* pName, const C7Vector& pState) override;
-    int getPoseProperty(const char* pName, C7Vector& pState) const override;
+    int setPoseProperty(const char* pName, const CPose& pState) override;
+    int getPoseProperty(const char* pName, CPose& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;
     int getColorProperty(const char* pName, float* pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
 
     // Overridden from CSceneObject:
-    virtual C7Vector getIntrinsicTransformation(bool includeDynErrorComponent, bool* available = nullptr) const override;
-    virtual C7Vector getFullLocalTransformation() const override;
+    virtual CPose getIntrinsicTransformation(bool includeDynErrorComponent, bool* available = nullptr) const override;
+    virtual CPose getFullLocalTransformation() const override;
 
     void commonInit();
 
-    void setIntrinsicTransformationError(const C7Vector& tr);
+    void setIntrinsicTransformationError(const CPose& tr);
 
     void addCumulativeForcesAndTorques(const C3Vector& f, const C3Vector& t, int countForAverage);
     void setForceAndTorqueNotValid();
@@ -118,7 +118,7 @@ class CForceSensor : public CSceneObject
     int _consecutiveViolationsToTrigger;
     int _currentThresholdViolationCount;
 
-    C7Vector _intrinsicTransformationError; // from physics engine
+    CPose _intrinsicTransformationError; // from physics engine
 
     // Variables which need to be serialized & copied
     // Visual attributes:

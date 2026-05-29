@@ -181,7 +181,7 @@ void CPathEditMode_old::_insertNewPoint(int insertPosition)
     if (it == nullptr)
     {
         it = new CSimplePathPoint_old();
-        C7Vector tr(it->getTransformation());
+        CPose tr(it->getTransformation());
         tr.X(2) = 0.1;
         it->setTransformation(tr, _editionPathCont->getAttributes());
     }
@@ -227,7 +227,7 @@ void CPathEditMode_old::_keepXAxisAndAlignZAxis(std::vector<int>* selection)
 {
     if (selection->size() > 1)
     {
-        C7Vector ctm(_path->getCumulativeTransformation());
+        CPose ctm(_path->getCumulativeTransformation());
         CSimplePathPoint_old* last = _editionPathCont->getSimplePathPoint((*selection)[selection->size() - 1]);
         C3Vector zVect(last->getTransformation().getMatrix().M.axis[2]);
         C3X3Matrix posRot, negRot;
@@ -382,7 +382,7 @@ bool CPathEditMode_old::processCommand(int commandID, CSceneObject* viewableObje
     {
         deselectEditModeBuffer();
         CSimplePathPoint_old* it = new CSimplePathPoint_old();
-        C7Vector pathInv(_path->getFullCumulativeTransformation().getInverse());
+        CPose pathInv(_path->getFullCumulativeTransformation().getInverse());
         it->setTransformation(pathInv * viewableObject->getCumulativeTransformation(),
                               _editionPathCont->getAttributes());
         _editionPathCont->insertSimplePathPoint(it, _editionPathCont->getSimplePathPointCount());

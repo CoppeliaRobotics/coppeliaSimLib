@@ -130,7 +130,7 @@ void CBannerObject::draw3DStuff(bool overlay, bool transparentObject, int displa
             }
         }
 
-        C7Vector tr;
+        CPose tr;
         tr.setIdentity();
         if (_sceneObjectID >= 0)
         {

@@ -5,7 +5,7 @@
 
 struct SCamBuff
 {
-    C7Vector localTr;
+    CPose localTr;
     double orthoViewSize;
 };
 

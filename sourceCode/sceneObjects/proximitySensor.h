@@ -69,7 +69,7 @@ class CProxSensor : public CSceneObject
 
     // Various
     bool getSensingVolumeBoundingBox(C3Vector& minV, C3Vector& maxV) const;
-    void getSensingVolumeOBB(C7Vector& tr, C3Vector& halfSizes);
+    void getSensingVolumeOBB(CPose& tr, C3Vector& halfSizes);
     void setSensableObject(int objectID);
     int getSensableObject();
 

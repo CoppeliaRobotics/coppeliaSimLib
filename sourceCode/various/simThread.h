@@ -20,8 +20,8 @@ struct SSimulationThreadCommand
     std::vector<void*> objectParams;
     std::vector<std::string> stringParams;
     std::vector<C3Vector> posParams;
-    std::vector<C4Vector> quatParams;
-    std::vector<C7Vector> transfParams;
+    std::vector<CQuaternion> quatParams;
+    std::vector<CPose> transfParams;
     std::vector<std::vector<int>> intVectorParams;
     std::vector<std::vector<float>> floatVectorParams;
     std::vector<std::vector<double>> doubleVectorParams;

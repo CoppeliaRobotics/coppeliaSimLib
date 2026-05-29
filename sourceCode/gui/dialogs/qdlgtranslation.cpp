@@ -229,7 +229,7 @@ void CQDlgTranslation::refresh()
                     if (sel && (path != nullptr) && (pp != nullptr))
                     {
                         // Coordinate part:
-                        C7Vector tr(pp->getTransformation());
+                        CPose tr(pp->getTransformation());
                         if (coordMode == 0)
                             tr = path->getFullCumulativeTransformation() * tr;
                         C3Vector euler(tr.Q.getEulerAngles());
@@ -379,7 +379,7 @@ bool CQDlgTranslation::_setCoord_userUnit(double newValueInUserUnit, int index)
     CSceneObject* object = App::scene->sceneObjects->getLastSelectionObject();
     if ((editMode == NO_EDIT_MODE) && (object != nullptr))
     {
-        C7Vector tr;
+        CPose tr;
         if (coordMode == 0)
             tr = object->getCumulativeTransformation();
         else
@@ -404,7 +404,7 @@ bool CQDlgTranslation::_setCoord_userUnit(double newValueInUserUnit, int index)
         CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
         if ((pp != nullptr) && (path != nullptr))
         {
-            C7Vector tr(pp->getTransformation());
+            CPose tr(pp->getTransformation());
             if (coordMode == 0)
                 tr = path->getCumulativeTransformation() * tr;
             tr = _getNewTransf(tr, newValueInUserUnit, index);
@@ -424,7 +424,7 @@ bool CQDlgTranslation::_setCoord_userUnit(double newValueInUserUnit, int index)
         CShape* shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
         if (shape != nullptr)
         {
-            C7Vector tr;
+            CPose tr;
             tr.setIdentity();
             tr.X = v;
             if (coordMode == 0)
@@ -439,9 +439,9 @@ bool CQDlgTranslation::_setCoord_userUnit(double newValueInUserUnit, int index)
     return (retVal);
 }
 
-C7Vector CQDlgTranslation::_getNewTransf(const C7Vector& transf, double newValueInUserUnit, int index)
+CPose CQDlgTranslation::_getNewTransf(const CPose& transf, double newValueInUserUnit, int index)
 {
-    C7Vector retVal(transf);
+    CPose retVal(transf);
     retVal.X(index) = newValueInUserUnit;
     return (retVal);
 }
@@ -475,7 +475,7 @@ bool CQDlgTranslation::_applyCoord(int mask)
         CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
         if ((pp != nullptr) && (path != nullptr))
         {
-            C7Vector tr(pp->getTransformation());
+            CPose tr(pp->getTransformation());
             if (coordMode == 0)
                 tr = path->getCumulativeTransformation() * tr;
             for (int i = 0; i < editObjSelSize - 1; i++)
@@ -484,7 +484,7 @@ bool CQDlgTranslation::_applyCoord(int mask)
                     GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
                 if (ppIt != nullptr)
                 {
-                    C7Vector trIt(ppIt->getTransformation());
+                    CPose trIt(ppIt->getTransformation());
                     if (coordMode == 0)
                         trIt = path->getCumulativeTransformation() * trIt;
                     _copyTransf(tr, trIt, mask);
@@ -504,7 +504,7 @@ bool CQDlgTranslation::_applyCoord(int mask)
         CShape* shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
         if (shape != nullptr)
         {
-            C7Vector tr;
+            CPose tr;
             tr.setIdentity();
             tr.X = v;
             if (coordMode == 0)
@@ -512,7 +512,7 @@ bool CQDlgTranslation::_applyCoord(int mask)
             for (int i = 0; i < editObjSelSize - 1; i++)
             {
                 ind = GuiApp::mainWindow->editModeContainer->getEditModeBufferValue(i);
-                C7Vector trIt;
+                CPose trIt;
                 trIt.setIdentity();
                 trIt.X = GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind);
                 if (coordMode == 0)
@@ -528,7 +528,7 @@ bool CQDlgTranslation::_applyCoord(int mask)
     return (retVal);
 }
 
-void CQDlgTranslation::_copyTransf(const C7Vector& tr, C7Vector& trIt, int mask)
+void CQDlgTranslation::_copyTransf(const CPose& tr, CPose& trIt, int mask)
 {
     if (mask & 1)
         trIt.X(0) = tr.X(0);
@@ -581,7 +581,7 @@ bool CQDlgTranslation::_applyTranslation(int axis)
             CSimplePathPoint_old* pp = GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
             if ((pp != nullptr) && (path != nullptr))
             {
-                C7Vector tr(pp->getTransformation());
+                CPose tr(pp->getTransformation());
                 if (translateMode == 0)
                     tr = path->getCumulativeTransformation() * tr;
                 _transformTranslation(tr, translateMode == 2, axis);
@@ -600,7 +600,7 @@ bool CQDlgTranslation::_applyTranslation(int axis)
         {
             for (int i = 0; i < editObjSelSize; i++)
             {
-                C7Vector tr;
+                CPose tr;
                 tr.setIdentity();
                 int ind = GuiApp::mainWindow->editModeContainer->getEditModeBufferValue(i);
                 tr.X = GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind);
@@ -660,7 +660,7 @@ bool CQDlgTranslation::_applyScaling(int axis)
             CSimplePathPoint_old* pp = GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
             if ((pp != nullptr) && (path != nullptr))
             {
-                C7Vector tr(pp->getTransformation());
+                CPose tr(pp->getTransformation());
                 if (scaleMode == 0)
                     tr = path->getCumulativeTransformation() * tr;
                 _transformScaling(tr, axis);
@@ -679,7 +679,7 @@ bool CQDlgTranslation::_applyScaling(int axis)
         {
             for (int i = 0; i < editObjSelSize; i++)
             {
-                C7Vector tr;
+                CPose tr;
                 tr.setIdentity();
                 int ind = GuiApp::mainWindow->editModeContainer->getEditModeBufferValue(i);
                 tr.X = GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind);
@@ -696,7 +696,7 @@ bool CQDlgTranslation::_applyScaling(int axis)
     return (retVal);
 }
 
-void CQDlgTranslation::_transformTranslation(C7Vector& tr, bool self, int axis)
+void CQDlgTranslation::_transformTranslation(CPose& tr, bool self, int axis)
 {
     double TX[3] = {0.0, 0.0, 0.0};
     if (axis == -1)
@@ -707,7 +707,7 @@ void CQDlgTranslation::_transformTranslation(C7Vector& tr, bool self, int axis)
     }
     else
         TX[axis] = translationValues[axis];
-    C7Vector m;
+    CPose m;
     m.setIdentity();
     m.X.setData(TX);
     if (self)
@@ -716,7 +716,7 @@ void CQDlgTranslation::_transformTranslation(C7Vector& tr, bool self, int axis)
         tr = m * tr;
 }
 
-void CQDlgTranslation::_transformScaling(C7Vector& tr, int axis)
+void CQDlgTranslation::_transformScaling(CPose& tr, int axis)
 {
     double TX[3] = {1.0, 1.0, 1.0};
     if (axis == -1)

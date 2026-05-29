@@ -11,12 +11,12 @@ CInterfaceStackPose::~CInterfaceStackPose()
 {
 }
 
-const C7Vector* CInterfaceStackPose::getValue() const
+const CPose* CInterfaceStackPose::getValue() const
 {
     return &_pose;
 }
 
-void CInterfaceStackPose::setValue(const C7Vector* p)
+void CInterfaceStackPose::setValue(const CPose* p)
 {
     _pose = p[0];
 }

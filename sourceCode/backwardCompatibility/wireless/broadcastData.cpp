@@ -50,7 +50,7 @@ char* CBroadcastData::receiveData(int receiverID, double simulationTime, int dat
                                   int antennaHandle, int& dataLength, int& senderID, int& dataHeaderR,
                                   std::string& dataNameR, bool removeMessageForThisReceiver)
 {
-    C7Vector antennaConf1;
+    CPose antennaConf1;
     antennaConf1.setIdentity();
     if (_antennaHandle != sim_handle_default)
     {

@@ -46,10 +46,10 @@ class CSceneObjectCustomizationPart
     int getVector3Property(const char* pName, C3Vector& pState) const;
     int setMatrixProperty(const char* pName, const CMatrix& pState);
     int getMatrixProperty(const char* pName, CMatrix& pState) const;
-    int setQuaternionProperty(const char* pName, const C4Vector& pState);
-    int getQuaternionProperty(const char* pName, C4Vector& pState) const;
-    int setPoseProperty(const char* pName, const C7Vector& pState);
-    int getPoseProperty(const char* pName, C7Vector& pState) const;
+    int setQuaternionProperty(const char* pName, const CQuaternion& pState);
+    int getQuaternionProperty(const char* pName, CQuaternion& pState) const;
+    int setPoseProperty(const char* pName, const CPose& pState);
+    int getPoseProperty(const char* pName, CPose& pState) const;
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;
     int setFloatArrayProperty(const char* pName, const std::vector<double>& pState);

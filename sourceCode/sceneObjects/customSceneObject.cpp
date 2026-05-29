@@ -55,7 +55,7 @@ bool CCustomSceneObject::isPotentiallyDetectable() const
 
 void CCustomSceneObject::computeBoundingBox()
 {
-    _setBB(C7Vector::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _objectSize * 0.25);
+    _setBB(CPose::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _objectSize * 0.25);
 }
 
 void CCustomSceneObject::setIsInScene(bool s)

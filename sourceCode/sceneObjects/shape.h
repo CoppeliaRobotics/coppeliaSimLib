@@ -16,7 +16,7 @@ class CShape : public CSceneObject
   public:
     CShape();
     CShape(const std::vector<double>& allHeights, int xSize, int ySize, double dx, double minH, double maxH); // heightfield
-    CShape(const C7Vector& transformation, const std::vector<double>& vertices, const std::vector<int>& indices,
+    CShape(const CPose& transformation, const std::vector<double>& vertices, const std::vector<int>& indices,
            const std::vector<double>* optNormals, const std::vector<float>* optTexCoords, int options); // mesh
     virtual ~CShape();
 
@@ -29,7 +29,7 @@ class CShape : public CSceneObject
     int getMeshModificationCounter();
     CMeshWrapper* getMesh() const;
     CMesh* getSingleMesh() const;
-    CMesh* getMeshFromUid(long long int meshUid, const C7Vector& parentCumulTr, C7Vector& shapeRelTr) const;
+    CMesh* getMeshFromUid(long long int meshUid, const CPose& parentCumulTr, CPose& shapeRelTr) const;
     void appendMeshes(std::vector<CMesh*>& meshes) const;
 
     void* _meshCalculationStructure;
@@ -77,8 +77,8 @@ class CShape : public CSceneObject
     int getVector3Property(const char* pName, C3Vector& pState) const override;
     int setMatrixProperty(const char* pName, const CMatrix& pState) override;
     int getMatrixProperty(const char* pName, CMatrix& pState) const override;
-    int setQuaternionProperty(const char* pName, const C4Vector& pState) override;
-    int getQuaternionProperty(const char* pName, C4Vector& pState) const override;
+    int setQuaternionProperty(const char* pName, const CQuaternion& pState) override;
+    int getQuaternionProperty(const char* pName, CQuaternion& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;
     int setFloatArrayProperty(const char* pName, const std::vector<double>& pState) override;
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
@@ -163,9 +163,9 @@ class CShape : public CSceneObject
     void removeMeshCalculationStructure();
     bool doesShapeCollideWithShape(CShape* collidee, std::vector<double>* intersections);
 
-    bool relocateFrame(const char* mode, const C7Vector* tr = nullptr);
-    bool alignBB(const char* mode, const C7Vector* tr = nullptr);
-    C7Vector getCumulCenteredMeshFrame() const;
+    bool relocateFrame(const char* mode, const CPose* tr = nullptr);
+    bool alignBB(const char* mode, const CPose* tr = nullptr);
+    CPose getCumulCenteredMeshFrame() const;
 
     void setInsideAndOutsideFacesSameColor_DEPRECATED(bool s);
     bool getInsideAndOutsideFacesSameColor_DEPRECATED();

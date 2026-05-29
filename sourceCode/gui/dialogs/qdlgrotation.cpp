@@ -205,7 +205,7 @@ void CQDlgRotation::refresh()
                     if (sel && (path != nullptr) && (pp != nullptr))
                     {
                         // Coordinate part:
-                        C7Vector tr(pp->getTransformation());
+                        CPose tr(pp->getTransformation());
                         if (coordMode == 0)
                             tr = path->getFullCumulativeTransformation() * tr;
                         C3Vector euler(tr.Q.getEulerAngles());
@@ -306,7 +306,7 @@ bool CQDlgRotation::_setCoord_userUnit(double newValueInUserUnit, int index)
     CSceneObject* object = App::scene->sceneObjects->getLastSelectionObject();
     if ((editMode == NO_EDIT_MODE) && (object != nullptr))
     {
-        C7Vector tr;
+        CPose tr;
         if (coordMode == 0)
             tr = object->getCumulativeTransformation();
         else
@@ -330,7 +330,7 @@ bool CQDlgRotation::_setCoord_userUnit(double newValueInUserUnit, int index)
         CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
         if ((pp != nullptr) && (path != nullptr))
         {
-            C7Vector tr(pp->getTransformation());
+            CPose tr(pp->getTransformation());
             if (coordMode == 0)
                 tr = path->getCumulativeTransformation() * tr;
             tr = _getNewTransf(tr, newValueInUserUnit, index);
@@ -350,7 +350,7 @@ bool CQDlgRotation::_setCoord_userUnit(double newValueInUserUnit, int index)
         CShape* shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
         if (shape != nullptr)
         {
-            C7Vector tr;
+            CPose tr;
             tr.setIdentity();
             tr.X = v;
             if (coordMode == 0)
@@ -365,9 +365,9 @@ bool CQDlgRotation::_setCoord_userUnit(double newValueInUserUnit, int index)
     return (retVal);
 }
 
-C7Vector CQDlgRotation::_getNewTransf(const C7Vector& transf, double newValueInUserUnit, int index)
+CPose CQDlgRotation::_getNewTransf(const CPose& transf, double newValueInUserUnit, int index)
 {
-    C7Vector retVal(transf);
+    CPose retVal(transf);
     C3Vector euler(retVal.Q.getEulerAngles());
     euler(index) = newValueInUserUnit * degToRad;
     retVal.Q.setEulerAngles(euler(0), euler(1), euler(2));
@@ -402,7 +402,7 @@ bool CQDlgRotation::_applyCoord()
         CPath_old* path = GuiApp::mainWindow->editModeContainer->getEditModePath_old();
         if ((pp != nullptr) && (path != nullptr))
         {
-            C7Vector tr(pp->getTransformation());
+            CPose tr(pp->getTransformation());
             if (coordMode == 0)
                 tr = path->getCumulativeTransformation() * tr;
             for (int i = 0; i < editObjSelSize - 1; i++)
@@ -411,7 +411,7 @@ bool CQDlgRotation::_applyCoord()
                     GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
                 if (ppIt != nullptr)
                 {
-                    C7Vector trIt(ppIt->getTransformation());
+                    CPose trIt(ppIt->getTransformation());
                     if (coordMode == 0)
                         trIt = path->getCumulativeTransformation() * trIt;
                     trIt.Q = tr.Q;
@@ -431,7 +431,7 @@ bool CQDlgRotation::_applyCoord()
         CShape* shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
         if (shape != nullptr)
         {
-            C7Vector tr;
+            CPose tr;
             tr.setIdentity();
             tr.X = v;
             if (coordMode == 0)
@@ -439,7 +439,7 @@ bool CQDlgRotation::_applyCoord()
             for (int i = 0; i < editObjSelSize - 1; i++)
             {
                 ind = GuiApp::mainWindow->editModeContainer->getEditModeBufferValue(i);
-                C7Vector trIt;
+                CPose trIt;
                 trIt.setIdentity();
                 trIt.X = GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind);
                 if (coordMode == 0)
@@ -494,7 +494,7 @@ bool CQDlgRotation::_applyTransformation(int axis)
             CSimplePathPoint_old* pp = GuiApp::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
             if ((pp != nullptr) && (path != nullptr))
             {
-                C7Vector tr(pp->getTransformation());
+                CPose tr(pp->getTransformation());
                 if (transfMode == 0)
                     tr = path->getCumulativeTransformation() * tr;
                 _transform(tr, transfMode == 2, axis);
@@ -513,7 +513,7 @@ bool CQDlgRotation::_applyTransformation(int axis)
         {
             for (int i = 0; i < editObjSelSize; i++)
             {
-                C7Vector tr;
+                CPose tr;
                 tr.setIdentity();
                 int ind = GuiApp::mainWindow->editModeContainer->getEditModeBufferValue(i);
                 tr.X = GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind);
@@ -530,7 +530,7 @@ bool CQDlgRotation::_applyTransformation(int axis)
     return (retVal);
 }
 
-void CQDlgRotation::_transform(C7Vector& tr, bool self, int axis)
+void CQDlgRotation::_transform(CPose& tr, bool self, int axis)
 { // axis: 0-2, or -1 for all axes
     double TX[3] = {0.0, 0.0, 0.0};
     if (axis == -1)
@@ -541,7 +541,7 @@ void CQDlgRotation::_transform(C7Vector& tr, bool self, int axis)
     }
     else
         TX[axis] = rotAngles[axis];
-    C7Vector m;
+    CPose m;
     m.setIdentity();
     m.Q.setEulerAngles(TX[0], TX[1], TX[2]);
     if (self)

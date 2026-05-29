@@ -326,7 +326,7 @@ int CustomSceneObjectClassContainer::getMatrixProperty_t(long long int target, c
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setQuaternionProperty_t(long long int target, const char* ppName, const C4Vector& pState)
+int CustomSceneObjectClassContainer::setQuaternionProperty_t(long long int target, const char* ppName, const CQuaternion& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -335,7 +335,7 @@ int CustomSceneObjectClassContainer::setQuaternionProperty_t(long long int targe
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getQuaternionProperty_t(long long int target, const char* ppName, C4Vector& pState) const
+int CustomSceneObjectClassContainer::getQuaternionProperty_t(long long int target, const char* ppName, CQuaternion& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -344,7 +344,7 @@ int CustomSceneObjectClassContainer::getQuaternionProperty_t(long long int targe
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setPoseProperty_t(long long int target, const char* ppName, const C7Vector& pState)
+int CustomSceneObjectClassContainer::setPoseProperty_t(long long int target, const char* ppName, const CPose& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);
@@ -353,7 +353,7 @@ int CustomSceneObjectClassContainer::setPoseProperty_t(long long int target, con
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::getPoseProperty_t(long long int target, const char* ppName, C7Vector& pState) const
+int CustomSceneObjectClassContainer::getPoseProperty_t(long long int target, const char* ppName, CPose& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CSceneObject* obj = getClass(target);

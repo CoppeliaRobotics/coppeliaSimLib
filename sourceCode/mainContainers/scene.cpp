@@ -626,7 +626,7 @@ void CScene::saveScene(CSer& ar, bool regularSave /*= true*/)
     App::scenes->interfaceStackContainer->destroyStack(stackForSaveCallback);
 }
 
-bool CScene::loadModel(CSer& ar, bool justLoadThumbnail, bool forceModelAsCopy, C7Vector* optionalModelTr, C3Vector* optionalModelBoundingBoxSize, double* optionalModelNonDefaultTranslationStepSize)
+bool CScene::loadModel(CSer& ar, bool justLoadThumbnail, bool forceModelAsCopy, CPose* optionalModelTr, C3Vector* optionalModelBoundingBoxSize, double* optionalModelNonDefaultTranslationStepSize)
 {
     bool retVal;
     if (ar.getFileType() == CSer::filetype_csim_xml_simplemodel_file)
@@ -1308,7 +1308,7 @@ void CScene::announce2DElementButtonWillBeErased(int elementID, int buttonID)
 }
 // -----------
 
-bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool justLoadThumbnail, bool forceModelAsCopy, C7Vector* optionalModelTr, C3Vector* optionalModelBoundingBoxSize, double* optionalModelNonDefaultTranslationStepSize)
+bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool justLoadThumbnail, bool forceModelAsCopy, CPose* optionalModelTr, C3Vector* optionalModelBoundingBoxSize, double* optionalModelNonDefaultTranslationStepSize)
 {
     appendLoadOperationIssue(-1, nullptr, -1); // clear
 
@@ -1340,7 +1340,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
                 if (theName.compare(SER_MODEL_THUMBNAIL_INFO) == 0)
                 {
                     ar >> byteQuantity;
-                    C7Vector tr;
+                    CPose tr;
                     C3Vector bbs;
                     double ndss;
                     environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(ar, tr, bbs, ndss);
@@ -1963,7 +1963,7 @@ bool CScene::_loadSimpleXmlSceneOrModel(CSer& ar)
 
     CCamera* mainCam = nullptr;
 
-    C7Vector ident;
+    CPose ident;
     ident.setIdentity();
     std::vector<SSimpleXmlSceneObject> simpleXmlObjects;
     sceneObjects->readAndAddToSceneSimpleXmlSceneObjects(ar, nullptr, ident, simpleXmlObjects);
@@ -3424,7 +3424,7 @@ int CScene::getMatrixProperty_t(long long int target, const char* ppName, CMatri
     return retVal;
 }
 
-int CScene::setQuaternionProperty_t(long long int target, const char* ppName, const C4Vector& pState)
+int CScene::setQuaternionProperty_t(long long int target, const char* ppName, const CQuaternion& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
@@ -3451,7 +3451,7 @@ int CScene::setQuaternionProperty_t(long long int target, const char* ppName, co
     return retVal;
 }
 
-int CScene::getQuaternionProperty_t(long long int target, const char* ppName, C4Vector& pState) const
+int CScene::getQuaternionProperty_t(long long int target, const char* ppName, CQuaternion& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
@@ -3482,7 +3482,7 @@ int CScene::getQuaternionProperty_t(long long int target, const char* ppName, C4
     return retVal;
 }
 
-int CScene::setPoseProperty_t(long long int target, const char* ppName, const C7Vector& pState)
+int CScene::setPoseProperty_t(long long int target, const char* ppName, const CPose& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
@@ -3513,7 +3513,7 @@ int CScene::setPoseProperty_t(long long int target, const char* ppName, const C7
     return retVal;
 }
 
-int CScene::getPoseProperty_t(long long int target, const char* ppName, C7Vector& pState) const
+int CScene::getPoseProperty_t(long long int target, const char* ppName, CPose& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 

@@ -52,10 +52,10 @@ class CustomObject: public Obj
     int getVector3Property(const char* pName, C3Vector& pState) const override;
     int setMatrixProperty(const char* pName, const CMatrix& pState) override;
     int getMatrixProperty(const char* pName, CMatrix& pState) const override;
-    int setQuaternionProperty(const char* pName, const C4Vector& pState) override;
-    int getQuaternionProperty(const char* pName, C4Vector& pState) const override;
-    int setPoseProperty(const char* pName, const C7Vector& pState) override;
-    int getPoseProperty(const char* pName, C7Vector& pState) const override;
+    int setQuaternionProperty(const char* pName, const CQuaternion& pState) override;
+    int getQuaternionProperty(const char* pName, CQuaternion& pState) const override;
+    int setPoseProperty(const char* pName, const CPose& pState) override;
+    int getPoseProperty(const char* pName, CPose& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;
     int getColorProperty(const char* pName, float* pState) const override;
     int setFloatArrayProperty(const char* pName, const std::vector<double>& pState) override;

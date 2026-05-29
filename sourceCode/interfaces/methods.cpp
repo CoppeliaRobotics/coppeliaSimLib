@@ -799,7 +799,7 @@ void fetchColor(const CInterfaceStack* inStack, int index, float outArr[3], cons
     }
 }
 
-C4Vector fetchQuaternion(const CInterfaceStack* inStack, int index, std::initializer_list<double> wxyz /*= {}*/)
+CQuaternion fetchQuaternion(const CInterfaceStack* inStack, int index, std::initializer_list<double> wxyz /*= {}*/)
 {
     double def[4] = {1.0, 0.0, 0.0, 0.0};
     int i = 0;
@@ -811,7 +811,7 @@ C4Vector fetchQuaternion(const CInterfaceStack* inStack, int index, std::initial
     return fetchQuaternion(inStack, index, def);
 }
 
-C4Vector fetchQuaternion(const CInterfaceStack* inStack, int index, const double wxyz[4])
+CQuaternion fetchQuaternion(const CInterfaceStack* inStack, int index, const double wxyz[4])
 {
     double d[4] = {1.0, 0.0, 0.0, 0.0};
     if (wxyz)
@@ -826,19 +826,19 @@ C4Vector fetchQuaternion(const CInterfaceStack* inStack, int index, const double
         if (obj->getObjectType() == sim_stackitem_quaternion)
         {
             const CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)obj;
-            return C4Vector(q->getValue()[0]);
+            return CQuaternion(q->getValue()[0]);
         }
         else if (obj->getObjectType() == sim_stackitem_table)
         {
             const CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
             tbl->getDoubleArray(d, 4);
-            return C4Vector(d, true);
+            return CQuaternion(d, true);
         }
     }
-    return C4Vector(d, false);
+    return CQuaternion(d, false);
 }
 
-C7Vector fetchPose(const CInterfaceStack* inStack, int index, std::initializer_list<double> xyzqwqxqyqz /*= {}*/)
+CPose fetchPose(const CInterfaceStack* inStack, int index, std::initializer_list<double> xyzqwqxqyqz /*= {}*/)
 {
     double def[7] = {0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0};
     int i = 0;
@@ -850,7 +850,7 @@ C7Vector fetchPose(const CInterfaceStack* inStack, int index, std::initializer_l
     return fetchPose(inStack, index, def);
 }
 
-C7Vector fetchPose(const CInterfaceStack* inStack, int index, const double xyzqwqxqyqz[7])
+CPose fetchPose(const CInterfaceStack* inStack, int index, const double xyzqwqxqyqz[7])
 {
     double d[7] = {0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0};
     if (xyzqwqxqyqz)
@@ -865,16 +865,16 @@ C7Vector fetchPose(const CInterfaceStack* inStack, int index, const double xyzqw
         if (obj->getObjectType() == sim_stackitem_pose)
         {
             const CInterfaceStackPose* p = (CInterfaceStackPose*)obj;
-            return C7Vector(p->getValue()[0]);
+            return CPose(p->getValue()[0]);
         }
         else if (obj->getObjectType() == sim_stackitem_table)
         {
             const CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
             tbl->getDoubleArray(d, 7);
-            return C7Vector(C4Vector(d + 3, true), C3Vector(d));
+            return CPose(CQuaternion(d + 3, true), C3Vector(d));
         }
     }
-    return C7Vector(C4Vector(d + 3, false), C3Vector(d));
+    return CPose(CQuaternion(d + 3, false), C3Vector(d));
 }
 
 C3Vector fetchVector3(const CInterfaceStack* inStack, int index, std::initializer_list<double> xyz /*= {}*/)
@@ -1267,14 +1267,14 @@ std::string _method_getPosition(int targetObj, const char* method, CDetachedScri
                     return errMsg;
             }
             CSceneObject* relObj = getSceneObject(relativeToObjectHandle, method);
-            C7Vector tr;
+            CPose tr;
             if (relObj == nullptr)
                 tr = target->getCumulativeTransformation();
             else
             {
                 if (relToJointBase)
                 {
-                    C7Vector relTr(relObj->getCumulativeTransformation());
+                    CPose relTr(relObj->getCumulativeTransformation());
                     tr = relTr.getInverse() * target->getCumulativeTransformation();
                 }
                 else
@@ -1283,7 +1283,7 @@ std::string _method_getPosition(int targetObj, const char* method, CDetachedScri
                         tr = target->getLocalTransformation(); // in case of a series of get/set, not losing precision
                     else
                     {
-                        C7Vector relTr(relObj->getFullCumulativeTransformation());
+                        CPose relTr(relObj->getFullCumulativeTransformation());
                         tr = relTr.getInverse() * target->getCumulativeTransformation();
                     }
                 }
@@ -1334,9 +1334,9 @@ std::string _method_setPosition(int targetObj, const char* method, CDetachedScri
                 {
                     if (relToJointBase)
                     {
-                        C7Vector absTr(target->getCumulativeTransformation());
-                        C7Vector relTr(relObj->getCumulativeTransformation());
-                        C7Vector x(relTr.getInverse() * absTr);
+                        CPose absTr(target->getCumulativeTransformation());
+                        CPose relTr(relObj->getCumulativeTransformation());
+                        CPose x(relTr.getInverse() * absTr);
                         x.X = position;
                         absTr = relTr * x;
                         App::scene->sceneObjects->setObjectAbsolutePosition(target->getObjectHandle(), absTr.X);
@@ -1345,15 +1345,15 @@ std::string _method_setPosition(int targetObj, const char* method, CDetachedScri
                     {
                         if (target->getParent() == relObj)
                         { // special here, in order to not lose precision in a series of get/set
-                            C7Vector tr(target->getLocalTransformation());
+                            CPose tr(target->getLocalTransformation());
                             tr.X = position;
                             target->setLocalTransformation(tr);
                         }
                         else
                         {
-                            C7Vector absTr(target->getCumulativeTransformation());
-                            C7Vector relTr(relObj->getFullCumulativeTransformation());
-                            C7Vector x(relTr.getInverse() * absTr);
+                            CPose absTr(target->getCumulativeTransformation());
+                            CPose relTr(relObj->getFullCumulativeTransformation());
+                            CPose x(relTr.getInverse() * absTr);
                             x.X = position;
                             absTr = relTr * x;
                             App::scene->sceneObjects->setObjectAbsolutePosition(target->getObjectHandle(), absTr.X);
@@ -1402,14 +1402,14 @@ std::string _method_getQuaternion(int targetObj, const char* method, CDetachedSc
                     return errMsg;
             }
             CSceneObject* relObj = getSceneObject(relativeToObjectHandle, method);
-            C7Vector tr;
+            CPose tr;
             if (relObj == nullptr)
                 tr = target->getCumulativeTransformation();
             else
             {
                 if (relToJointBase)
                 {
-                    C7Vector relTr(relObj->getCumulativeTransformation());
+                    CPose relTr(relObj->getCumulativeTransformation());
                     tr = relTr.getInverse() * target->getCumulativeTransformation();
                 }
                 else
@@ -1418,7 +1418,7 @@ std::string _method_getQuaternion(int targetObj, const char* method, CDetachedSc
                         tr = target->getLocalTransformation(); // in case of a series get/set, not to lose precision
                     else
                     {
-                        C7Vector relTr(relObj->getFullCumulativeTransformation());
+                        CPose relTr(relObj->getFullCumulativeTransformation());
                         tr = relTr.getInverse() * target->getCumulativeTransformation();
                     }
                 }
@@ -1437,7 +1437,7 @@ std::string _method_setQuaternion(int targetObj, const char* method, CDetachedSc
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_quaternion, arg_map | arg_optional}))
     {
-        C4Vector quaternion = fetchQuaternion(inStack, 0);
+        CQuaternion quaternion = fetchQuaternion(inStack, 0);
         long long int relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
@@ -1481,7 +1481,7 @@ std::string _method_setQuaternion(int targetObj, const char* method, CDetachedSc
                 {
                     if ((target->getParent() == relObj) && (!relToJointBase))
                     { // special here, in order to not lose precision in a series of get/set
-                        C7Vector tr(target->getLocalTransformation());
+                        CPose tr(target->getLocalTransformation());
                         tr.Q = quaternion;
                         tr.Q.normalize();
                         if (inverse)
@@ -1490,13 +1490,13 @@ std::string _method_setQuaternion(int targetObj, const char* method, CDetachedSc
                     }
                     else
                     {
-                        C7Vector absTr(target->getCumulativeTransformation());
-                        C7Vector relTr;
+                        CPose absTr(target->getCumulativeTransformation());
+                        CPose relTr;
                         if (relToJointBase)
                             relTr = relObj->getCumulativeTransformation();
                         else
                             relTr = relObj->getFullCumulativeTransformation();
-                        C7Vector x(relTr.getInverse() * absTr);
+                        CPose x(relTr.getInverse() * absTr);
                         x.Q = quaternion;
                         x.Q.normalize();
                         if (inverse)
@@ -1547,12 +1547,12 @@ std::string _method_getPose(int targetObj, const char* method, CDetachedScript* 
                     return errMsg;
             }
             CSceneObject* relObj = getSceneObject(relativeToObjectHandle, method);
-            C7Vector tr;
+            CPose tr;
             if (relObj == nullptr)
                 tr = target->getCumulativeTransformation();
             else
             {
-                C7Vector relTr;
+                CPose relTr;
                 if (relToJointBase)
                     relTr = relObj->getCumulativeTransformation();
                 else
@@ -1573,7 +1573,7 @@ std::string _method_setPose(int targetObj, const char* method, CDetachedScript* 
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_pose, arg_map | arg_optional}))
     {
-        C7Vector tr = fetchPose(inStack, 0);
+        CPose tr = fetchPose(inStack, 0);
         long long int relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
@@ -1613,7 +1613,7 @@ std::string _method_setPose(int targetObj, const char* method, CDetachedScript* 
                     App::scene->sceneObjects->setObjectAbsolutePose(target->getObjectHandle(), tr, false);
                 else
                 {
-                    C7Vector relTr;
+                    CPose relTr;
                     if (relToJointBase)
                         relTr = objRel->getCumulativeTransformation();
                     else
@@ -3704,7 +3704,7 @@ std::string _method_relocateFrame(int targetObj, const char* method, CDetachedSc
     CShape* target = (CShape*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_shape, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_pose | arg_optional}))
     {
-        C7Vector tr = fetchPose(inStack, 0);
+        CPose tr = fetchPose(inStack, 0);
         if ((!target->getMesh()->isPure()) || (target->isCompound()))
         { // We can reorient all shapes, except for pure simple shapes (i.e. pure non-compound shapes)
             if (hasNonNullArg(inStack, 0))
@@ -3714,7 +3714,7 @@ std::string _method_relocateFrame(int targetObj, const char* method, CDetachedSc
                 else
                 {
                     tr.Q.normalize();
-                    C7Vector x(tr.getInverse() * target->getCumulativeTransformation());
+                    CPose x(tr.getInverse() * target->getCumulativeTransformation());
                     target->setLocalTransformation(target->getFullParentCumulativeTransformation().getInverse() * x);
                     target->relocateFrame("world");
                     target->setLocalTransformation(target->getLocalTransformation() * tr);
@@ -3733,12 +3733,12 @@ std::string _method_alignBoundingBox(int targetObj, const char* method, CDetache
     CShape* target = (CShape*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_shape, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_quaternion | arg_optional}))
     {
-        C4Vector q = fetchQuaternion(inStack, 0);
+        CQuaternion q = fetchQuaternion(inStack, 0);
         if ((!target->getMesh()->isPure()) || (target->isCompound()))
         { // We can reorient all shapes, except for pure simple shapes (i.e. pure non-compound shapes)
             if (hasNonNullArg(inStack, 0))
             {
-                C7Vector tr;
+                CPose tr;
                 tr.X = C3Vector::zeroVector;
                 tr.Q = q;
                 if ((tr.Q(0) == 0.0) && (tr.Q(1) == 0.0) && (tr.Q(2) == 0.0) && (tr.Q(3) == 0.0))
@@ -4091,10 +4091,10 @@ std::string _method_setInertia(int targetObj, const char* method, CDetachedScrip
         m.axis[0](2) = m.axis[2](0);
         m.axis[1](2) = m.axis[2](1);
         m /= shape->getMesh()->getMass(); // in CoppeliaSim we work with the "massless inertia"
-        C7Vector tr = fetchPose(inStack, 1);
+        CPose tr = fetchPose(inStack, 1);
 
         shape->getMesh()->setCOM(tr.X);
-        m = CMeshWrapper::getInertiaInNewFrame(tr.Q, m, C4Vector::identityRotation);
+        m = CMeshWrapper::getInertiaInNewFrame(tr.Q, m, CQuaternion::identityRotation);
         shape->getMesh()->setInertia(m);
         shape->setDynamicsResetFlag(true, false);
     }
@@ -4139,7 +4139,7 @@ std::string _method_addForce(int targetObj, const char* method, CDetachedScript*
         // force & t are relative to the shape's frame now
         if (relative)
         {
-            C4Vector q(shape->getCumulativeTransformation().Q);
+            CQuaternion q(shape->getCumulativeTransformation().Q);
             force = q * force;
             t = q * t;
         }
@@ -5903,7 +5903,7 @@ std::string _method_getPoseProperty(int targetObj, const char* method, CDetached
             double pValue[7];
             if (CALL_C_API(simGetPoseProperty, targetObj, pName.c_str(), pValue) > 0)
             {
-                C7Vector p;
+                CPose p;
                 p.setData(pValue, true);
                 outStack->pushPoseOntoStack(p);
             }
@@ -5937,7 +5937,7 @@ std::string _method_getQuaternionProperty(int targetObj, const char* method, CDe
             double pValue[4];
             if (CALL_C_API(simGetQuaternionProperty, targetObj, pName.c_str(), pValue) > 0)
             {
-                C4Vector q;
+                CQuaternion q;
                 q.setData(pValue, true);
                 outStack->pushQuaternionOntoStack(q);
             }
@@ -6482,7 +6482,7 @@ std::string _method_setPoseProperty(int targetObj, const char* method, CDetached
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_pose, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
-        C7Vector pState = fetchPose(inStack, 1);
+        CPose pState = fetchPose(inStack, 1);
         bool noError = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
@@ -6521,7 +6521,7 @@ std::string _method_setQuaternionProperty(int targetObj, const char* method, CDe
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_quaternion, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
-        C4Vector pState = fetchQuaternion(inStack, 1);
+        CQuaternion pState = fetchQuaternion(inStack, 1);
         bool noError = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
@@ -7714,7 +7714,7 @@ std::string _method_checkPoints(int targetObj, const char* method, CDetachedScri
 
             if (relative)
             {
-                C7Vector tr(target->getFullCumulativeTransformation());
+                CPose tr(target->getFullCumulativeTransformation());
                 for (size_t i = 0; i < pts.size() / 3; i++)
                 {
                     C3Vector v(pts.data() + 3 * i);
@@ -7766,7 +7766,7 @@ std::string _method_checkPackedPoints(int targetObj, const char* method, CDetach
 
             if (relative)
             {
-                C7Vector tr(target->getFullCumulativeTransformation());
+                CPose tr(target->getFullCumulativeTransformation());
                 for (size_t i = 0; i < pts.size() / 3; i++)
                 {
                     C3Vector v(pts.data() + 3 * i);

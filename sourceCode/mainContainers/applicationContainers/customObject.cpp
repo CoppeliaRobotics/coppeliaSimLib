@@ -144,13 +144,13 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/)
                 }
                 else if (t == sim_propertytype_quaternion)
                 {
-                    C4Vector v;
+                    CQuaternion v;
                     if (getQuaternionProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyQuaternion(pName, v);
                 }
                 else if (t == sim_propertytype_pose)
                 {
-                    C7Vector v;
+                    CPose v;
                     if (getPoseProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyPose(pName, v);
                 }
@@ -727,16 +727,16 @@ int CustomObject::getMatrixProperty(const char* pName, CMatrix& pState) const
     return retVal;
 }
 
-int CustomObject::setQuaternionProperty(const char* pName, const C4Vector& pState)
+int CustomObject::setQuaternionProperty(const char* pName, const CQuaternion& pState)
 {
     int retVal = Obj::setQuaternionProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_quaternion))
         { // property already exists (with correct type), or we want to set it to a class
-            C4Vector pp(pState);
+            CQuaternion pp(pState);
             if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const C4Vector& v) { s->pushQuaternionOntoStack(v); }, [](CInterfaceStack* s, C4Vector& v) { return s->getStackQuaternion(v); });
+                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const CQuaternion& v) { s->pushQuaternionOntoStack(v); }, [](CInterfaceStack* s, CQuaternion& v) { return s->getStackQuaternion(v); });
             bool changed = false;
             retVal = _customProperties.setQuaternionProperty(pName, pp, changed);
             if (changed)
@@ -746,28 +746,28 @@ int CustomObject::setQuaternionProperty(const char* pName, const C4Vector& pStat
     return retVal;
 }
 
-int CustomObject::getQuaternionProperty(const char* pName, C4Vector& pState) const
+int CustomObject::getQuaternionProperty(const char* pName, CQuaternion& pState) const
 {
     int retVal = Obj::getQuaternionProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getQuaternionProperty(pName, pState);
         if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const C4Vector& v) { s->pushQuaternionOntoStack(v); }, [](CInterfaceStack* s, C4Vector& v) { return s->getStackQuaternion(v); });
+            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const CQuaternion& v) { s->pushQuaternionOntoStack(v); }, [](CInterfaceStack* s, CQuaternion& v) { return s->getStackQuaternion(v); });
     }
     return retVal;
 }
 
-int CustomObject::setPoseProperty(const char* pName, const C7Vector& pState)
+int CustomObject::setPoseProperty(const char* pName, const CPose& pState)
 {
     int retVal = Obj::setPoseProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_pose))
         { // property already exists (with correct type), or we want to set it to a class
-            C7Vector pp(pState);
+            CPose pp(pState);
             if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const C7Vector& v) { s->pushPoseOntoStack(v); }, [](CInterfaceStack* s, C7Vector& v) { return s->getStackPose(v); });
+                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const CPose& v) { s->pushPoseOntoStack(v); }, [](CInterfaceStack* s, CPose& v) { return s->getStackPose(v); });
             bool changed = false;
             retVal = _customProperties.setPoseProperty(pName, pp, changed);
             if (changed)
@@ -777,14 +777,14 @@ int CustomObject::setPoseProperty(const char* pName, const C7Vector& pState)
     return retVal;
 }
 
-int CustomObject::getPoseProperty(const char* pName, C7Vector& pState) const
+int CustomObject::getPoseProperty(const char* pName, CPose& pState) const
 {
     int retVal = Obj::getPoseProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getPoseProperty(pName, pState);
         if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const C7Vector& v) { s->pushPoseOntoStack(v); }, [](CInterfaceStack* s, C7Vector& v) { return s->getStackPose(v); });
+            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const CPose& v) { s->pushPoseOntoStack(v); }, [](CInterfaceStack* s, CPose& v) { return s->getStackPose(v); });
     }
     return retVal;
 }

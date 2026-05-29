@@ -1043,7 +1043,7 @@ bool CSView::mouseWheel(int deltaZ, int x, int y)
                 ((CCamera*)it)->shiftCameraInCameraManipulationMode(localNew.X);
                 if (cameraParentProxy != nullptr)
                 { // We manipulate the parent object instead:
-                    C7Vector local1(((CCamera*)it)->getFullLocalTransformation());
+                    CPose local1(((CCamera*)it)->getFullLocalTransformation());
                     ((CCamera*)it)->setLocalTransformation(local.getTransformation()); // we reset to initial
                     cameraParentProxy->setLocalTransformation(cameraParentProxy->getFullLocalTransformation() * local1 *
                                                               (local.getInverse()).getTransformation());
@@ -1109,7 +1109,7 @@ void CSView::_handleClickRayIntersection_old(int x, int y, bool mouseDown)
             return;
     }
 
-    C7Vector tr;
+    CPose tr;
     tr.X.clear();
     double t[2] = {(1.0 - double(x) / double(_viewSize[0])) - 0.5, (1.0 - double(y) / double(_viewSize[1])) - 0.5};
     double ratio = (double)(_viewSize[0] / (double)_viewSize[1]);
@@ -1129,7 +1129,7 @@ void CSView::_handleClickRayIntersection_old(int x, int y, bool mouseDown)
         double a0 = atan(2.0 * t[0] * tan(va[0] * 0.5));
         double a1 = atan(2.0 * t[1] * tan(va[1] * 0.5));
 
-        C4Vector q(C3Vector(0.0, 0.0, 1.0), C3Vector(tan(a0), -tan(a1), 1.0));
+        CQuaternion q(C3Vector(0.0, 0.0, 1.0), C3Vector(tan(a0), -tan(a1), 1.0));
         tr.Q = q;
     }
     else
@@ -1289,7 +1289,7 @@ void CSView::mouseMove(int x, int y, bool passiveAndFocused)
                     double a0 = atan(2.0 * t[0] * tan(va[0] * 0.5));
                     double a1 = atan(2.0 * t[1] * tan(va[1] * 0.5));
 
-                    C4Vector q(C3Vector(0.0, 0.0, 1.0), C3Vector(tan(a0), -tan(a1), 1.0));
+                    CQuaternion q(C3Vector(0.0, 0.0, 1.0), C3Vector(tan(a0), -tan(a1), 1.0));
                     tr.M = q.getMatrix();
                 }
                 else
@@ -1830,10 +1830,10 @@ void CSView::cameraAndObjectMotion()
         double aroundX = (previousMousePosition.y - mousePosition.y) * 0.005;
         double aroundY = (previousMousePosition.x - mousePosition.x) * 0.005;
         C3Vector cp(centerPosition[0], centerPosition[1], centerPosition[2]);
-        C7Vector cameraCTM = camera->getCumulativeTransformation();
+        CPose cameraCTM = camera->getCumulativeTransformation();
         if ((navigationMode == sim_navigation_camerarotate) && (mousePositionDepth > 0.0))
         {
-            C7Vector parentCTMI(camera->getFullParentCumulativeTransformation().getInverse());
+            CPose parentCTMI(camera->getFullParentCumulativeTransformation().getInverse());
             { // We have to keep head up
                 C3X3Matrix cameraCumulTr = cameraCTM.Q.getMatrix();
                 bool headUp = cameraCumulTr(2, 1) >= 0.0;
@@ -1844,17 +1844,17 @@ void CSView::cameraAndObjectMotion()
                 cameraCTM.Q.setEulerAngles(euler);
                 if (!headUp)
                     aroundY = -aroundY;
-                C7Vector rot1(aroundY, cp, C3Vector(0.0, 0.0, 1.0));
+                CPose rot1(aroundY, cp, C3Vector(0.0, 0.0, 1.0));
                 cameraCTM = rot1 * cameraCTM;
-                C7Vector rot2(aroundX, cp, cameraCTM.getAxis(0));
+                CPose rot2(aroundX, cp, cameraCTM.getAxis(0));
                 cameraCTM = rot2 * cameraCTM;
             }
-            C7Vector local(camera->getFullLocalTransformation());
+            CPose local(camera->getFullLocalTransformation());
             camera->rotateCameraInCameraManipulationMode(parentCTMI * cameraCTM);
 
             if (cameraParentProxy != nullptr)
             { // We manipulate the parent object instead:
-                C7Vector local1(camera->getFullLocalTransformation());
+                CPose local1(camera->getFullLocalTransformation());
                 camera->setLocalTransformation(local); // we reset to initial
                 if ((cameraParentProxy->getObjectMovementPreferredAxes() & 0x1f) == 0x1f)
                     cameraParentProxy->setLocalTransformation(cameraParentProxy->getFullLocalTransformation() * local1 *
@@ -1900,19 +1900,19 @@ void CSView::cameraAndObjectMotion()
                 if (masterObj != nullptr)
                 {
                     bool rotatedMaster = false;
-                    C7Vector oldTr(masterObj->getCumulativeTransformation());
+                    CPose oldTr(masterObj->getCumulativeTransformation());
                     if (masterObj->setLocalTransformationFromObjectRotationMode(
                             camera->getFullCumulativeTransformation().getMatrix(), dX * 0.5, perspective, eventID))
                         rotatedMaster = true;
                     if (rotatedMaster)
                     {
-                        C7Vector newTr(masterObj->getCumulativeTransformation());
-                        C7Vector shift(newTr * oldTr.getInverse());
+                        CPose newTr(masterObj->getCumulativeTransformation());
+                        CPose shift(newTr * oldTr.getInverse());
                         for (size_t i = 0; i < allSelObjects.size(); i++)
                         {
                             CSceneObject* obj = allSelObjects[i];
-                            C7Vector oldLTr = obj->getLocalTransformation();
-                            C7Vector parentTr = obj->getFullParentCumulativeTransformation();
+                            CPose oldLTr = obj->getLocalTransformation();
+                            CPose parentTr = obj->getFullParentCumulativeTransformation();
                             obj->setLocalTransformation(parentTr.getInverse() * shift * parentTr * oldLTr);
                         }
                     }
@@ -1928,8 +1928,8 @@ void CSView::cameraAndObjectMotion()
          (navigationMode == sim_navigation_camerazoom)) &&
         (!mouseJustWentUpFlag))
     {
-        C7Vector cameraLTM(camera->getLocalTransformation());
-        C7Vector cameraCTM(camera->getCumulativeTransformation());
+        CPose cameraLTM(camera->getLocalTransformation());
+        CPose cameraCTM(camera->getCumulativeTransformation());
         double ratio = (double)(activeWinSize.x / (double)activeWinSize.y);
         double scaleFactor = 2.0 * mousePositionDepth * tan((camera->getViewAngle() * 180.0 / piValT2) * degToRad) /
                              (double)activeWinSize.y;
@@ -1966,11 +1966,11 @@ void CSView::cameraAndObjectMotion()
 
         if (((navigationMode == sim_navigation_camerashift) || (navigationMode == sim_navigation_camerazoom)))
         { // Camera shifting/zooming
-            C7Vector local(camera->getFullLocalTransformation());
+            CPose local(camera->getFullLocalTransformation());
             camera->shiftCameraInCameraManipulationMode(cameraLTM.X + relativeTransl);
             if (cameraParentProxy != nullptr)
             { // We manipulate the parent object instead:
-                C7Vector local1(camera->getFullLocalTransformation());
+                CPose local1(camera->getFullLocalTransformation());
                 camera->setLocalTransformation(local); // we reset to initial
                 cameraParentProxy->setLocalTransformation(cameraParentProxy->getFullLocalTransformation() * local1 *
                                                           local.getInverse());
@@ -2018,7 +2018,7 @@ void CSView::cameraAndObjectMotion()
                 if (masterObj != nullptr)
                 {
                     bool shiftedMaster = false;
-                    C7Vector oldTr(masterObj->getCumulativeTransformation());
+                    CPose oldTr(masterObj->getCumulativeTransformation());
                     double prevPos[2] = {double(previousMousePosition.x), double(previousMousePosition.y)};
                     double pos[2] = {double(mousePosition.x), double(mousePosition.y)};
                     double screenHalfSizes[2] = {double(activeWinSize.x) / 2.0, double(activeWinSize.y) / 2.0};
@@ -2086,13 +2086,13 @@ void CSView::cameraAndObjectMotion()
 
                     if (shiftedMaster)
                     {
-                        C7Vector newTr(masterObj->getCumulativeTransformation());
-                        C7Vector shift(newTr * oldTr.getInverse());
+                        CPose newTr(masterObj->getCumulativeTransformation());
+                        CPose shift(newTr * oldTr.getInverse());
                         for (size_t i = 0; i < allSelObjects.size(); i++)
                         {
                             CSceneObject* obj = allSelObjects[i];
-                            C7Vector oldLTr = obj->getLocalTransformation();
-                            C7Vector parentTr = obj->getFullParentCumulativeTransformation();
+                            CPose oldLTr = obj->getLocalTransformation();
+                            CPose parentTr = obj->getFullParentCumulativeTransformation();
                             obj->setLocalTransformation(parentTr.getInverse() * shift * parentTr * oldLTr);
                         }
                     }
@@ -2101,8 +2101,8 @@ void CSView::cameraAndObjectMotion()
             if (GuiApp::getEditModeType() & SHAPE_EDIT_MODE)
             { // Vertice shifting/zooming
                 CShape* shape = GuiApp::mainWindow->editModeContainer->getEditModeShape();
-                C7Vector objCTM(shape->getCumulativeTransformation());
-                C7Vector objCTMI(objCTM.getInverse());
+                CPose objCTM(shape->getCumulativeTransformation());
+                CPose objCTMI(objCTM.getInverse());
                 objCTM.X += absoluteTransl;
                 objCTM = objCTMI * objCTM;
                 for (int i = 0; i < int(vertexSel.size()); i++)

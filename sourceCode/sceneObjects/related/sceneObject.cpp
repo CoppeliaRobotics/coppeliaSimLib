@@ -126,7 +126,7 @@ void CSceneObject::setForceAlwaysVisible_tmp(bool force)
 
 void CSceneObject::measureVelocity(double dt)
 {
-    C7Vector abs(getCumulativeTransformation());
+    CPose abs(getCumulativeTransformation());
     if (_previousPositionOrientationIsValid)
     {
         C3Vector lin, rot, rotAxis;
@@ -134,11 +134,11 @@ void CSceneObject::measureVelocity(double dt)
         double angle = abs.Q.getAngleBetweenQuaternions(_previousAbsTransf_velocityMeasurement.Q) / dt;
         rot = (_previousAbsTransf_velocityMeasurement.getInverse() * abs).Q.getEulerAngles() * (1.0 / dt);
 
-        C4Vector AA(_previousAbsTransf_velocityMeasurement.Q);
-        C4Vector BB(abs.Q);
+        CQuaternion AA(_previousAbsTransf_velocityMeasurement.Q);
+        CQuaternion BB(abs.Q);
         if (AA(0) * BB(0) + AA(1) * BB(1) + AA(2) * BB(2) + AA(3) * BB(3) < 0.0)
             AA = AA * -1.0;
-        C4Vector r((AA.getInverse() * BB).getAngleAndAxis());
+        CQuaternion r((AA.getInverse() * BB).getAngleAndAxis());
         rotAxis.setData(r(1), r(2), r(3));
         rotAxis = AA * rotAxis;
         rotAxis.normalize();
@@ -528,26 +528,26 @@ std::string CSceneObject::getObjectPathAndIndex(size_t modelCnt) const
     return (retVal);
 }
 
-C7Vector CSceneObject::getIntrinsicTransformation(bool includeDynErrorComponent, bool* available /*=nullptr*/) const
+CPose CSceneObject::getIntrinsicTransformation(bool includeDynErrorComponent, bool* available /*=nullptr*/) const
 {
     if (available != nullptr)
         available[0] = false;
-    return (C7Vector::identityTransformation);
+    return (CPose::identityTransformation);
 }
 
-C7Vector CSceneObject::getLocalTransformation() const
+CPose CSceneObject::getLocalTransformation() const
 {
     return (_localTransformation);
 }
 
-C7Vector CSceneObject::getFullLocalTransformation() const
+CPose CSceneObject::getFullLocalTransformation() const
 {
     return (_localTransformation);
 }
 
-C7Vector CSceneObject::getFullParentCumulativeTransformation() const
+CPose CSceneObject::getFullParentCumulativeTransformation() const
 {
-    C7Vector retVal;
+    CPose retVal;
     if (_parentObject == nullptr)
         retVal.setIdentity();
     else
@@ -555,9 +555,9 @@ C7Vector CSceneObject::getFullParentCumulativeTransformation() const
     return (retVal);
 }
 
-C7Vector CSceneObject::getCumulativeTransformation() const
+CPose CSceneObject::getCumulativeTransformation() const
 {
-    C7Vector retVal;
+    CPose retVal;
     if (_parentObject == nullptr)
         retVal = getLocalTransformation();
     else
@@ -565,7 +565,7 @@ C7Vector CSceneObject::getCumulativeTransformation() const
     return (retVal);
 }
 
-C7Vector CSceneObject::getFullCumulativeTransformation() const
+CPose CSceneObject::getFullCumulativeTransformation() const
 {
     return (getFullParentCumulativeTransformation() * getFullLocalTransformation());
 }
@@ -734,13 +734,13 @@ void CSceneObject::setDynamicsResetFlag(bool reset, bool fullHierarchyTree)
         {
             CJoint* joint = (CJoint*)this;
             joint->setForceOrTorqueNotValid();
-            joint->setIntrinsicTransformationError(C7Vector::identityTransformation);
+            joint->setIntrinsicTransformationError(CPose::identityTransformation);
         }
         if (_objectType == sim_sceneobject_forcesensor)
         {
             CForceSensor* sensor = (CForceSensor*)this;
             sensor->setForceAndTorqueNotValid();
-            sensor->setIntrinsicTransformationError(C7Vector::identityTransformation);
+            sensor->setIntrinsicTransformationError(CPose::identityTransformation);
         }
     }
     if (fullHierarchyTree)
@@ -1117,7 +1117,7 @@ bool CSceneObject::scaleObjectNonIsometrically(double x, double y, double z)
 
 void CSceneObject::scalePosition(double scalingFactor)
 { // This routine will scale an object's position. The object itself keeps the same size.
-    C7Vector local(getLocalTransformation());
+    CPose local(getLocalTransformation());
     setLocalTransformation(local.X * scalingFactor);
     _assemblingLocalTransformation.X = _assemblingLocalTransformation.X * scalingFactor;
     _dynamicsResetFlag = true;
@@ -1140,7 +1140,7 @@ bool CSceneObject::setBeforeDeleteCallbackSent()
     return (retVal);
 }
 
-bool CSceneObject::getModelBB(const C7Vector& baseCoordInv, C3Vector& minV, C3Vector& maxV, bool first) const
+bool CSceneObject::getModelBB(const CPose& baseCoordInv, C3Vector& minV, C3Vector& maxV, bool first) const
 { // For model selection display! Return value false means there is no model BB
     bool retVal = false;
     int objProp = getObjectProperty();
@@ -1154,9 +1154,9 @@ bool CSceneObject::getModelBB(const C7Vector& baseCoordInv, C3Vector& minV, C3Ve
     {
         retVal = true;
         C3Vector bbs;
-        C7Vector bbf(getBB(&bbs));
+        CPose bbf(getBB(&bbs));
         bbs *= 2.0;
-        C7Vector tr(baseCoordInv * getCumulativeTransformation() * bbf);
+        CPose tr(baseCoordInv * getCumulativeTransformation() * bbf);
         C3Vector v;
         for (double i = -1.0; i < 2.0; i = i + 2.0)
         {
@@ -1662,8 +1662,8 @@ void CSceneObject::pushObjectCreationEvent()
         if (_objectType == sim_sceneobject_shape)
         {
             std::vector<CMesh*> all;
-            std::vector<C7Vector> allTr;
-            ((CShape*)this)->getMesh()->getAllMeshComponentsCumulative(C7Vector::identityTransformation, all, &allTr);
+            std::vector<CPose> allTr;
+            ((CShape*)this)->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, all, &allTr);
             for (size_t i = 0; i < all.size(); i++)
                 all[i]->pushObjectCreationEvent(_objectHandle, _objectUid, allTr[i]);
         }
@@ -2139,7 +2139,7 @@ void CSceneObject::computeBoundingBox()
 { // overridden
 }
 
-void CSceneObject::_setBB(const C7Vector& bbFrame, const C3Vector& bbHalfSize)
+void CSceneObject::_setBB(const CPose& bbFrame, const C3Vector& bbHalfSize)
 {
     if (((bbHalfSize - _bbHalfSize).getLength() > 0.0001) || ((bbFrame.X - _bbFrame.X).getLength() > 0.0001) ||
         (bbFrame.Q.getAngleBetweenQuaternions(_bbFrame.Q) > 0.001))
@@ -2176,7 +2176,7 @@ void CSceneObject::_setBB(const C7Vector& bbFrame, const C3Vector& bbHalfSize)
     }
 }
 
-C7Vector CSceneObject::getBB(C3Vector* bbHalfSize) const
+CPose CSceneObject::getBB(C3Vector* bbHalfSize) const
 {
     if (bbHalfSize != nullptr)
         bbHalfSize[0] = _bbHalfSize;
@@ -2219,11 +2219,11 @@ int CSceneObject::getDynamicSimulationIconCode() const
     return _dynamicSimulationIconCode;
 }
 
-void CSceneObject::setAssemblingLocalTransformation(const C7Vector& tr)
+void CSceneObject::setAssemblingLocalTransformation(const CPose& tr)
 {
     _assemblingLocalTransformation = tr;
 }
-C7Vector CSceneObject::getAssemblingLocalTransformation() const
+CPose CSceneObject::getAssemblingLocalTransformation() const
 {
     return (_assemblingLocalTransformation);
 }
@@ -2537,7 +2537,7 @@ void CSceneObject::getScriptsInChain(std::vector<int>& scripts, int scriptType, 
     }
 }
 
-void CSceneObject::_setLocalTransformation_send(const C7Vector& tr) const
+void CSceneObject::_setLocalTransformation_send(const CPose& tr) const
 {
     // Synchronize with IK plugin:
     if (_ikPluginCounterpartHandle != -1)
@@ -2610,7 +2610,7 @@ void CSceneObject::serialize(CSer& ar)
             ar << getMetaInfo();
             ar.flush();
 
-            C7Vector tr = getLocalTransformation();
+            CPose tr = getLocalTransformation();
             ar.storeDataName("_fq");
             if (_ignorePosAndCameraOrthoviewSize_forUndoRedo)
                 tr.setIdentity();
@@ -2920,7 +2920,7 @@ void CSceneObject::serialize(CSer& ar)
                     { // for backward comp. (flt->dbl)
                         noHit = false;
                         ar >> byteQuantity;
-                        C7Vector tr;
+                        CPose tr;
                         float a[7];
                         for (size_t ai = 0; ai < 7; ai++)
                             ar >> a[ai];
@@ -2939,7 +2939,7 @@ void CSceneObject::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        C7Vector tr;
+                        CPose tr;
                         ar >> tr.Q(0) >> tr.Q(1) >> tr.Q(2) >> tr.Q(3) >> tr.X(0) >> tr.X(1) >> tr.X(2);
                         tr.Q.normalize();
                         setLocalTransformation(tr);
@@ -3490,7 +3490,7 @@ void CSceneObject::serialize(CSer& ar)
             }
 
             ar.xmlPushNewNode("localFrame");
-            C7Vector tr = getLocalTransformation();
+            CPose tr = getLocalTransformation();
             if (getObjectType() == sim_sceneobject_shape)
             {
                 ar.xmlAddNode_comment(" 'position' tag (in case of a shape): the value of this tag will be used to "
@@ -3810,7 +3810,7 @@ void CSceneObject::serialize(CSer& ar)
 
                 if (ar.xmlPushChildNode("localFrame", exhaustiveXml))
                 {
-                    C7Vector tr;
+                    CPose tr;
                     tr.setIdentity();
                     ar.xmlGetNode_floats("position", tr.X.data, 3, exhaustiveXml);
                     if (exhaustiveXml)
@@ -4588,19 +4588,19 @@ void CSceneObject::checkReferencesToOriginal(const std::map<std::string, int>& a
     }
 }
 
-void CSceneObject::setAbsoluteTransformation(const C7Vector& v)
+void CSceneObject::setAbsoluteTransformation(const CPose& v)
 {
     setLocalTransformation(getFullParentCumulativeTransformation().getInverse() * v);
 }
 
-void CSceneObject::setAbsoluteTransformation(const C4Vector& q)
+void CSceneObject::setAbsoluteTransformation(const CQuaternion& q)
 {
     setLocalTransformation(getFullParentCumulativeTransformation().getInverse().Q * q);
 }
 
 void CSceneObject::setAbsoluteTransformation(const C3Vector& x)
 {
-    C7Vector tr(getLocalTransformation());
+    CPose tr(getLocalTransformation());
     tr.X = getFullParentCumulativeTransformation().getInverse() * x;
     setLocalTransformation(tr);
 }
@@ -4726,13 +4726,13 @@ void CSceneObject::displayFrames(CViewableBase* renderingObject, double size, bo
 {
     if (persp)
     {
-        C7Vector x(renderingObject->getCumulativeTransformation().getInverse() * getCumulativeTransformation());
+        CPose x(renderingObject->getCumulativeTransformation().getInverse() * getCumulativeTransformation());
         size *= x(2);
     }
-    C7Vector tr(getCumulativeTransformation());
+    CPose tr(getCumulativeTransformation());
     _displayFrame(tr, size * 0.0125);
     bool available = false;
-    C7Vector localFrame(getIntrinsicTransformation(true, &available));
+    CPose localFrame(getIntrinsicTransformation(true, &available));
     if (available)
         _displayFrame(tr * localFrame, size * 0.0125);
 }
@@ -4871,7 +4871,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(CViewableBase* renderingOb
             rrot.buildZRotation(_objectManipulationModeTotalRotation);
             rrot = tr.M * rrot;
         }
-        C4Vector axis = rrot.getQuaternion().getAngleAndAxis();
+        CQuaternion axis = rrot.getQuaternion().getAngleAndAxis();
         glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
 
         double a = 5.0 * piValue / 180.0 - _objectManipulationModeTotalRotation;
@@ -4972,7 +4972,7 @@ void CSceneObject::displayManipulationModeOverlayGrid(CViewableBase* renderingOb
         tr.M *= rot;
         C3Vector totTransl(rot.getTranspose() * _objectManipulationModeTotalTranslation);
         glTranslated(tr.X(0), tr.X(1), tr.X(2));
-        C4Vector axis = tr.M.getQuaternion().getAngleAndAxis();
+        CQuaternion axis = tr.M.getQuaternion().getAngleAndAxis();
         glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
 
         glTranslated(-totTransl(0), -totTransl(1), -totTransl(2));
@@ -5174,17 +5174,17 @@ bool CSceneObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix
     C3Vector euler;
     euler.clear();
     euler(_objectManipulationModeAxisIndex) = axisEffectiveRotationAmount;
-    C4Vector rot(euler);
-    C7Vector tr(_localTransformation);
+    CQuaternion rot(euler);
+    CPose tr(_localTransformation);
     if (getObjectMovementRelativity(1) == 2)
         tr.Q *= rot; // relative to own frame
     if (getObjectMovementRelativity(1) == 1)
         tr.Q = rot * tr.Q; // relative to parent frame
     if (getObjectMovementRelativity(1) == 0)
     { // relative to world frame
-        C4Vector trq(getCumulativeTransformation().Q);
+        CQuaternion trq(getCumulativeTransformation().Q);
         trq = rot * trq;
-        C4Vector pinv(getFullParentCumulativeTransformation().Q.getInverse());
+        CQuaternion pinv(getFullParentCumulativeTransformation().Q.getInverse());
         tr.Q = pinv * trq;
     }
     setLocalTransformation(tr);
@@ -5550,7 +5550,7 @@ void CSceneObject::setObjectAltName_direct_old(const char* newAltName)
     _objectAltName_old = newAltName;
 }
 
-void CSceneObject::setLocalTransformation(const C7Vector& tr)
+void CSceneObject::setLocalTransformation(const CPose& tr)
 {
     bool diff = (_localTransformation != tr);
     if (diff)
@@ -5579,7 +5579,7 @@ void CSceneObject::setLocalTransformation(const C7Vector& tr)
     }
 }
 
-void CSceneObject::setLocalTransformation(const C4Vector& q)
+void CSceneObject::setLocalTransformation(const CQuaternion& q)
 {
     bool diff = (_localTransformation.Q != q);
     if (diff)
@@ -5604,7 +5604,7 @@ void CSceneObject::setLocalTransformation(const C4Vector& q)
             }
             App::scenes->pushEvent();
         }
-        C7Vector tr(_localTransformation);
+        CPose tr(_localTransformation);
         tr.Q = q;
         _setLocalTransformation_send(tr);
     }
@@ -5635,7 +5635,7 @@ void CSceneObject::setLocalTransformation(const C3Vector& x)
             }
             App::scenes->pushEvent();
         }
-        C7Vector tr(_localTransformation);
+        CPose tr(_localTransformation);
         tr.X = x;
         _setLocalTransformation_send(tr);
     }
@@ -6622,29 +6622,29 @@ int CSceneObject::setVector3Property(const char* ppName, const C3Vector& pState)
         if (strcmp(ppName, propSceneObject_position.name) == 0)
         {
             retVal = sim_propertyret_ok;
-            C7Vector tr(_localTransformation);
+            CPose tr(_localTransformation);
             tr.X = pState;
             setLocalTransformation(tr);
         }
         else if (strcmp(ppName, propSceneObject_eulerAngles.name) == 0)
         {
             retVal = sim_propertyret_ok;
-            C7Vector tr(_localTransformation);
-            tr.Q = C4Vector(pState);
+            CPose tr(_localTransformation);
+            tr.Q = CQuaternion(pState);
             setLocalTransformation(tr);
         }
         else if (strcmp(ppName, propSceneObject_absPosition.name) == 0)
         {
             retVal = sim_propertyret_ok;
-            C7Vector tr(getCumulativeTransformation());
+            CPose tr(getCumulativeTransformation());
             tr.X = pState;
             setAbsoluteTransformation(tr);
         }
         else if (strcmp(ppName, propSceneObject_absEulerAngles.name) == 0)
         {
             retVal = sim_propertyret_ok;
-            C7Vector tr(getCumulativeTransformation());
-            tr.Q = C4Vector(pState);
+            CPose tr(getCumulativeTransformation());
+            tr.Q = CQuaternion(pState);
             setAbsoluteTransformation(tr);
         }
         else if (strcmp(ppName, propSceneObject_size.name) == 0)
@@ -6752,7 +6752,7 @@ int CSceneObject::getMatrixProperty(const char* ppName, CMatrix& pState) const
     return retVal;
 }
 
-int CSceneObject::setQuaternionProperty(const char* ppName, const C4Vector& pState)
+int CSceneObject::setQuaternionProperty(const char* ppName, const CQuaternion& pState)
 {
     int retVal = Obj::setQuaternionProperty(ppName, pState);
     if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
@@ -6763,14 +6763,14 @@ int CSceneObject::setQuaternionProperty(const char* ppName, const C4Vector& pSta
         if (strcmp(ppName, propSceneObject_quaternion.name) == 0)
         {
             retVal = sim_propertyret_ok;
-            C7Vector tr(_localTransformation);
+            CPose tr(_localTransformation);
             tr.Q = pState;
             setLocalTransformation(tr);
         }
         else if (strcmp(ppName, propSceneObject_absQuaternion.name) == 0)
         {
             retVal = sim_propertyret_ok;
-            C7Vector tr(getCumulativeTransformation());
+            CPose tr(getCumulativeTransformation());
             tr.Q = pState;
             setAbsoluteTransformation(tr);
         }
@@ -6778,7 +6778,7 @@ int CSceneObject::setQuaternionProperty(const char* ppName, const C4Vector& pSta
     return retVal;
 }
 
-int CSceneObject::getQuaternionProperty(const char* ppName, C4Vector& pState) const
+int CSceneObject::getQuaternionProperty(const char* ppName, CQuaternion& pState) const
 {
     int retVal = Obj::getQuaternionProperty(ppName, pState);
     if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
@@ -6800,7 +6800,7 @@ int CSceneObject::getQuaternionProperty(const char* ppName, C4Vector& pState) co
     return retVal;
 }
 
-int CSceneObject::setPoseProperty(const char* ppName, const C7Vector& pState)
+int CSceneObject::setPoseProperty(const char* ppName, const CPose& pState)
 {
     int retVal = Obj::setPoseProperty(ppName, pState);
     if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
@@ -6822,7 +6822,7 @@ int CSceneObject::setPoseProperty(const char* ppName, const C7Vector& pState)
     return retVal;
 }
 
-int CSceneObject::getPoseProperty(const char* ppName, C7Vector& pState) const
+int CSceneObject::getPoseProperty(const char* ppName, CPose& pState) const
 {
     int retVal = Obj::getPoseProperty(ppName, pState);
     if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))

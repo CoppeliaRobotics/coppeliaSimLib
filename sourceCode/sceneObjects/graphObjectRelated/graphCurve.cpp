@@ -344,7 +344,7 @@ bool CGraphCurve::getCurveData_xyz(CGraphDataStream* streams[3], int* index, int
                     if (absIndex >= bufferSize) // i.e. bufferSize
                         absIndex -= bufferSize;
                     bool validPt = true;
-                    C7Vector xyz;
+                    CPose xyz;
                     xyz(0) = _defaultVals[0];
                     if (streams[0] != nullptr)
                     {

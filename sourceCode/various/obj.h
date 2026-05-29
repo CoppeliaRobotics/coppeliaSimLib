@@ -113,10 +113,10 @@ class Obj
     virtual int getVector3Property(const char* pName, C3Vector& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setMatrixProperty(const char* pName, const CMatrix& pState) { return sim_propertyret_unknownproperty; }
     virtual int getMatrixProperty(const char* pName, CMatrix& pState) const { return sim_propertyret_unknownproperty; }
-    virtual int setQuaternionProperty(const char* pName, const C4Vector& pState) { return sim_propertyret_unknownproperty; }
-    virtual int getQuaternionProperty(const char* pName, C4Vector& pState) const { return sim_propertyret_unknownproperty; }
-    virtual int setPoseProperty(const char* pName, const C7Vector& pState) { return sim_propertyret_unknownproperty; }
-    virtual int getPoseProperty(const char* pName, C7Vector& pState) const { return sim_propertyret_unknownproperty; }
+    virtual int setQuaternionProperty(const char* pName, const CQuaternion& pState) { return sim_propertyret_unknownproperty; }
+    virtual int getQuaternionProperty(const char* pName, CQuaternion& pState) const { return sim_propertyret_unknownproperty; }
+    virtual int setPoseProperty(const char* pName, const CPose& pState) { return sim_propertyret_unknownproperty; }
+    virtual int getPoseProperty(const char* pName, CPose& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setColorProperty(const char* pName, const float* pState) { return sim_propertyret_unknownproperty; }
     virtual int getColorProperty(const char* pName, float* pState) const { return sim_propertyret_unknownproperty; }
     virtual int setFloatArrayProperty(const char* pName, const std::vector<double>& pState) { return sim_propertyret_unknownproperty; }

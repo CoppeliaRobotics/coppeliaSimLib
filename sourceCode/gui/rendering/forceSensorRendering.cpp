@@ -68,9 +68,9 @@ void _displayForceSensor(CForceSensor* forceSensor, int displayAttrib, bool part
         ogl::drawCylinder(forceSensor->getForceSensorSize(), forceSensor->getForceSensorSize() * 0.5, 16, 0, true);
     else
     {
-        C7Vector tr(forceSensor->getIntrinsicTransformation(true));
+        CPose tr(forceSensor->getIntrinsicTransformation(true));
         glTranslated(tr.X(0), tr.X(1), tr.X(2));
-        C4Vector axis = tr.Q.getAngleAndAxis();
+        CQuaternion axis = tr.Q.getAngleAndAxis();
         glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
 
         ogl::drawCylinder(forceSensor->getForceSensorSize() / 5.0, forceSensor->getForceSensorSize(), 16, 0, true);

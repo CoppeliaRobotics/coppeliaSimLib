@@ -12,8 +12,8 @@ struct SMovementCoherency
 {
     int object1Id;
     int object2Id;
-    C7Vector object1Tr;
-    C7Vector object2Tr;
+    CPose object1Tr;
+    CPose object2Tr;
 };
 
 class COcTree;

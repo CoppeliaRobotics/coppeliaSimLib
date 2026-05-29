@@ -443,7 +443,7 @@ bool CInterfaceStack::getStackUCharArray(unsigned char* array, int count) const
         else if (obj->getObjectType() == sim_stackitem_quaternion)
         { // can also be seen as an array
             CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)obj;
-            const C4Vector* Q = q->getValue();
+            const CQuaternion* Q = q->getValue();
             double dat[4];
             Q->getData(dat, true);
             size_t ml = std::min<size_t>(4, size_t(count));
@@ -456,7 +456,7 @@ bool CInterfaceStack::getStackUCharArray(unsigned char* array, int count) const
         else if (obj->getObjectType() == sim_stackitem_pose)
         { // can also be seen as an array
             CInterfaceStackPose* p = (CInterfaceStackPose*)obj;
-            const C7Vector* P = p->getValue();
+            const CPose* P = p->getValue();
             double dat[7];
             P->getData(dat, true);
             size_t ml = std::min<size_t>(7, size_t(count));
@@ -534,7 +534,7 @@ bool CInterfaceStack::getStackInt32Array(int* array, int count) const
         else if (obj->getObjectType() == sim_stackitem_quaternion)
         { // can also be seen as an array
             CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)obj;
-            const C4Vector* Q = q->getValue();
+            const CQuaternion* Q = q->getValue();
             double dat[4];
             Q->getData(dat, true);
             size_t ml = std::min<size_t>(4, size_t(count));
@@ -547,7 +547,7 @@ bool CInterfaceStack::getStackInt32Array(int* array, int count) const
         else if (obj->getObjectType() == sim_stackitem_pose)
         { // can also be seen as an array
             CInterfaceStackPose* p = (CInterfaceStackPose*)obj;
-            const C7Vector* P = p->getValue();
+            const CPose* P = p->getValue();
             double dat[7];
             P->getData(dat, true);
             size_t ml = std::min<size_t>(7, size_t(count));
@@ -625,7 +625,7 @@ bool CInterfaceStack::getStackInt64Array(long long int* array, int count) const
         else if (obj->getObjectType() == sim_stackitem_quaternion)
         { // can also be seen as an array
             CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)obj;
-            const C4Vector* Q = q->getValue();
+            const CQuaternion* Q = q->getValue();
             double dat[4];
             Q->getData(dat, true);
             size_t ml = std::min<size_t>(4, size_t(count));
@@ -638,7 +638,7 @@ bool CInterfaceStack::getStackInt64Array(long long int* array, int count) const
         else if (obj->getObjectType() == sim_stackitem_pose)
         { // can also be seen as an array
             CInterfaceStackPose* p = (CInterfaceStackPose*)obj;
-            const C7Vector* P = p->getValue();
+            const CPose* P = p->getValue();
             double dat[7];
             P->getData(dat, true);
             size_t ml = std::min<size_t>(7, size_t(count));
@@ -762,7 +762,7 @@ bool CInterfaceStack::getStackFloatArray(float* array, int count) const
         else if (obj->getObjectType() == sim_stackitem_quaternion)
         { // can also be seen as an array
             CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)obj;
-            const C4Vector* Q = q->getValue();
+            const CQuaternion* Q = q->getValue();
             double dat[4];
             Q->getData(dat, true);
             size_t ml = std::min<size_t>(4, size_t(count));
@@ -775,7 +775,7 @@ bool CInterfaceStack::getStackFloatArray(float* array, int count) const
         else if (obj->getObjectType() == sim_stackitem_pose)
         { // can also be seen as an array
             CInterfaceStackPose* p = (CInterfaceStackPose*)obj;
-            const C7Vector* P = p->getValue();
+            const CPose* P = p->getValue();
             double dat[7];
             P->getData(dat, true);
             size_t ml = std::min<size_t>(7, size_t(count));
@@ -853,7 +853,7 @@ bool CInterfaceStack::getStackDoubleArray(double* array, int count) const
         else if (obj->getObjectType() == sim_stackitem_quaternion)
         { // can also be seen as an array
             CInterfaceStackQuaternion* q = (CInterfaceStackQuaternion*)obj;
-            const C4Vector* Q = q->getValue();
+            const CQuaternion* Q = q->getValue();
             double dat[4];
             Q->getData(dat, true);
             size_t ml = std::min<size_t>(4, size_t(count));
@@ -866,7 +866,7 @@ bool CInterfaceStack::getStackDoubleArray(double* array, int count) const
         else if (obj->getObjectType() == sim_stackitem_pose)
         { // can also be seen as an array
             CInterfaceStackPose* p = (CInterfaceStackPose*)obj;
-            const C7Vector* P = p->getValue();
+            const CPose* P = p->getValue();
             double dat[7];
             P->getData(dat, true);
             size_t ml = std::min<size_t>(7, size_t(count));
@@ -938,7 +938,7 @@ bool CInterfaceStack::getStackMatrix(CMatrix& m) const
     return retVal;
 }
 
-bool CInterfaceStack::getStackQuaternion(C4Vector& q) const
+bool CInterfaceStack::getStackQuaternion(CQuaternion& q) const
 {
     bool retVal = false;
     if (_stackObjects.size() > 0)
@@ -953,7 +953,7 @@ bool CInterfaceStack::getStackQuaternion(C4Vector& q) const
     return retVal;
 }
 
-bool CInterfaceStack::getStackPose(C7Vector& p) const
+bool CInterfaceStack::getStackPose(CPose& p) const
 {
     bool retVal = false;
     if (_stackObjects.size() > 0)
@@ -980,9 +980,9 @@ const CMatrix* CInterfaceStack::getStackMatrix() const
     return retVal;
 }
 
-const C4Vector* CInterfaceStack::getStackQuaternion() const
+const CQuaternion* CInterfaceStack::getStackQuaternion() const
 {
-    const C4Vector* retVal = nullptr;
+    const CQuaternion* retVal = nullptr;
     if (_stackObjects.size() > 0)
     {
         CInterfaceStackObject* obj = _stackObjects[_stackObjects.size() - 1];
@@ -992,9 +992,9 @@ const C4Vector* CInterfaceStack::getStackQuaternion() const
     return retVal;
 }
 
-const C7Vector* CInterfaceStack::getStackPose() const
+const CPose* CInterfaceStack::getStackPose() const
 {
-    const C7Vector* retVal = nullptr;
+    const CPose* retVal = nullptr;
     if (_stackObjects.size() > 0)
     {
         CInterfaceStackObject* obj = _stackObjects[_stackObjects.size() - 1];
@@ -1068,9 +1068,9 @@ const CMatrix* CInterfaceStack::getStackMapMatrix(const char* fieldName) const
     return retVal;
 }
 
-const C4Vector* CInterfaceStack::getStackMapQuaternion(const char* fieldName) const
+const CQuaternion* CInterfaceStack::getStackMapQuaternion(const char* fieldName) const
 {
-    const C4Vector* retVal = nullptr;
+    const CQuaternion* retVal = nullptr;
     const CInterfaceStackObject* obj = getStackMapObject(fieldName);
     if (obj != nullptr)
     {
@@ -1083,9 +1083,9 @@ const C4Vector* CInterfaceStack::getStackMapQuaternion(const char* fieldName) co
     return retVal;
 }
 
-const C7Vector* CInterfaceStack::getStackMapPose(const char* fieldName) const
+const CPose* CInterfaceStack::getStackMapPose(const char* fieldName) const
 {
-    const C7Vector* retVal = nullptr;
+    const CPose* retVal = nullptr;
     const CInterfaceStackObject* obj = getStackMapObject(fieldName);
     if (obj != nullptr)
     {
@@ -1469,12 +1469,12 @@ void CInterfaceStack::pushMatrixOntoStack(const CMatrix& matrix, bool toFront /*
     pushMatrixOntoStack(matrix.data.data(), matrix.rows, matrix.cols, toFront);
 }
 
-void CInterfaceStack::pushQuaternionOntoStack(const C4Vector& quaternion, bool toFront /*= false*/)
+void CInterfaceStack::pushQuaternionOntoStack(const CQuaternion& quaternion, bool toFront /*= false*/)
 {
     pushQuaternionOntoStack(quaternion.data, toFront);
 }
 
-void CInterfaceStack::pushPoseOntoStack(const C7Vector& pose, bool toFront /*= false*/)
+void CInterfaceStack::pushPoseOntoStack(const CPose& pose, bool toFront /*= false*/)
 {
     double p[7];
     pose.getData(p);
@@ -2657,7 +2657,7 @@ int CInterfaceStack::getMatrixProperty(const char*ppName, CMatrix& pState) const
     return retVal;
 }
 
-int CInterfaceStack::setQuaternionProperty(const char*ppName, const C4Vector& pState)
+int CInterfaceStack::setQuaternionProperty(const char*ppName, const CQuaternion& pState)
 {
     std::string key;
     int stackIndex;
@@ -2701,7 +2701,7 @@ int CInterfaceStack::setQuaternionProperty(const char*ppName, const C4Vector& pS
     return retVal;
 }
 
-int CInterfaceStack::getQuaternionProperty(const char*ppName, C4Vector& pState) const
+int CInterfaceStack::getQuaternionProperty(const char*ppName, CQuaternion& pState) const
 {
     std::string key;
     int arrIndex;
@@ -2749,7 +2749,7 @@ int CInterfaceStack::getQuaternionProperty(const char*ppName, C4Vector& pState) 
     return retVal;
 }
 
-int CInterfaceStack::setPoseProperty(const char*ppName, const C7Vector& pState)
+int CInterfaceStack::setPoseProperty(const char*ppName, const CPose& pState)
 {
     std::string key;
     int stackIndex;
@@ -2795,7 +2795,7 @@ int CInterfaceStack::setPoseProperty(const char*ppName, const C7Vector& pState)
     return retVal;
 }
 
-int CInterfaceStack::getPoseProperty(const char*ppName, C7Vector& pState) const
+int CInterfaceStack::getPoseProperty(const char*ppName, CPose& pState) const
 {
     std::string key;
     int arrIndex;

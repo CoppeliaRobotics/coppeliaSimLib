@@ -585,8 +585,8 @@ typedef struct
     double lastTime;
     double maxVelocity;
     double currentVel;
-    C7Vector startTr;
-    C7Vector targetTr;
+    CPose startTr;
+    CPose targetTr;
     int objID;
     CSceneObject* object;
     int relativeToObjID;
@@ -712,14 +712,14 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
         }
         if (!foundError)
         { // do the job here!
-            C7Vector startTr(object->getCumulativeTransformation());
-            C7Vector relTr;
+            CPose startTr(object->getCumulativeTransformation());
+            CPose relTr;
             relTr.setIdentity();
             if (relToObject != nullptr)
                 relTr = relToObject->getFullCumulativeTransformation();
             startTr = relTr.getInverse() * startTr;
 
-            C7Vector targetTr(startTr);
+            CPose targetTr(startTr);
             if (posAndOrient & 1)
                 targetTr.X.setData(posTarget);
             if (posAndOrient & 2)
@@ -763,7 +763,7 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
                 {
                     if (relToObject == nullptr)
                     { // absolute
-                        C7Vector parentInv(object->getFullParentCumulativeTransformation().getInverse());
+                        CPose parentInv(object->getFullParentCumulativeTransformation().getInverse());
                         object->setLocalTransformation(parentInv * targetTr);
                     }
                     else
@@ -771,9 +771,9 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
                         if (App::scene->sceneObjects->getObjectFromHandle(relativeToObjID) ==
                             relToObject) // make sure the object is still valid (running in a thread)
                         {                // ok
-                            C7Vector relToTr(relToObject->getFullCumulativeTransformation());
+                            CPose relToTr(relToObject->getFullCumulativeTransformation());
                             targetTr = relToTr * targetTr;
-                            C7Vector parentInv(object->getFullParentCumulativeTransformation().getInverse());
+                            CPose parentInv(object->getFullParentCumulativeTransformation().getInverse());
                             object->setLocalTransformation(parentInv * targetTr);
                         }
                     }
@@ -873,7 +873,7 @@ int _sim_moveToPos_2(luaWrap_lua_State* L)
             double ll = mem->currentPos / mem->vdl;
             if (ll > 1.0)
                 ll = 1.0;
-            C7Vector newAbs;
+            CPose newAbs;
             newAbs.buildInterpolation(mem->startTr, mem->targetTr, ll);
             if (App::scene->sceneObjects->getObjectFromHandle(mem->objID) ==
                 mem->object) // make sure the object is still valid (running in a thread)
@@ -883,9 +883,9 @@ int _sim_moveToPos_2(luaWrap_lua_State* L)
                     movementFinished = true; // the object was destroyed during execution of the command!
                 else
                 {
-                    C7Vector parentInv(mem->object->getFullParentCumulativeTransformation().getInverse());
-                    C7Vector currAbs(mem->object->getCumulativeTransformation());
-                    C7Vector relToTr;
+                    CPose parentInv(mem->object->getFullParentCumulativeTransformation().getInverse());
+                    CPose currAbs(mem->object->getCumulativeTransformation());
+                    CPose relToTr;
                     relToTr.setIdentity();
                     if (mem->relToObject != nullptr)
                         relToTr = mem->relToObject->getFullCumulativeTransformation();
@@ -2635,7 +2635,7 @@ typedef struct
     CSceneObject* targetObject;
     double relativeDistanceOnPath;
     double previousLL;
-    C7Vector startTr;
+    CPose startTr;
     int positionAndOrOrientation;
 } simMoveToObjData_old;
 
@@ -2713,7 +2713,7 @@ int _sim_moveToObj_1(luaWrap_lua_State* L)
         }
         if (!foundError)
         { // do the job here!
-            C7Vector startTr(object->getCumulativeTransformation());
+            CPose startTr(object->getCumulativeTransformation());
             double currentVel = 0.0;
             double lastTime = App::scene->simulation->getSimulationTime();
             double vdl = 1.0;
@@ -2812,13 +2812,13 @@ int _sim_moveToObj_2(luaWrap_lua_State* L)
                 (App::scene->sceneObjects->getObjectFromHandle(mem->targetObjID) ==
                  mem->targetObject)) // make sure the objects are still valid (running in a thread)
             {
-                C7Vector targetTr(mem->targetObject->getCumulativeTransformation());
+                CPose targetTr(mem->targetObject->getCumulativeTransformation());
                 bool goOn = true;
                 if (mem->relativeDistanceOnPath >= 0.0)
                 { // we should have a path here
                     if (mem->targetObject->getObjectType() == sim_sceneobject_path)
                     {
-                        C7Vector pathLoc;
+                        CPose pathLoc;
                         if (((CPath_old*)mem->targetObject)
                                 ->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(
                                     mem->relativeDistanceOnPath, pathLoc))
@@ -2831,11 +2831,11 @@ int _sim_moveToObj_2(luaWrap_lua_State* L)
                 }
                 if (goOn)
                 {
-                    C7Vector newAbs;
+                    CPose newAbs;
                     newAbs.buildInterpolation(mem->startTr, targetTr, (ll - mem->previousLL) / (1.0 - mem->previousLL));
                     mem->startTr = newAbs;
-                    C7Vector parentInv(mem->object->getFullParentCumulativeTransformation().getInverse());
-                    C7Vector currentTr(mem->object->getCumulativeTransformation());
+                    CPose parentInv(mem->object->getFullParentCumulativeTransformation().getInverse());
+                    CPose currentTr(mem->object->getCumulativeTransformation());
                     if ((mem->positionAndOrOrientation & 1) == 0)
                         newAbs.X = currentTr.X;
                     if ((mem->positionAndOrOrientation & 2) == 0)
@@ -3772,12 +3772,12 @@ int _sim_followPath_2(luaWrap_lua_State* L)
 
                 // Set the new configuration of the object:
                 double ll = double(mem->pos / mem->bezierPathLength);
-                C7Vector newAbs;
+                CPose newAbs;
                 if (mem->path->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(ll, newAbs))
                 {
                     newAbs = mem->path->getCumulativeTransformation() * newAbs;
-                    C7Vector parentInv(mem->object->getFullParentCumulativeTransformation().getInverse());
-                    C7Vector currAbs(mem->object->getCumulativeTransformation());
+                    CPose parentInv(mem->object->getFullParentCumulativeTransformation().getInverse());
+                    CPose currAbs(mem->object->getCumulativeTransformation());
                     if ((mem->positionAndOrOrientation & 1) == 0)
                         newAbs.X = currAbs.X;
                     if ((mem->positionAndOrOrientation & 2) == 0)
@@ -8336,7 +8336,7 @@ int _simGetRotationAxis(luaWrap_lua_State* L)
         { // we have a pose
             getDoublesFromTable(L, 1, 7, inM0);
             getDoublesFromTable(L, 2, 7, inM1);
-            C7Vector p;
+            CPose p;
             p.setData(inM0, true);
             mStart = p.getMatrix();
             p.setData(inM1, true);
@@ -8344,11 +8344,11 @@ int _simGetRotationAxis(luaWrap_lua_State* L)
         }
 
         // Following few lines taken from the quaternion interpolation part:
-        C4Vector AA(mStart.M.getQuaternion());
-        C4Vector BB(mGoal.M.getQuaternion());
+        CQuaternion AA(mStart.M.getQuaternion());
+        CQuaternion BB(mGoal.M.getQuaternion());
         if (AA(0) * BB(0) + AA(1) * BB(1) + AA(2) * BB(2) + AA(3) * BB(3) < 0.0)
             AA = AA * -1.0;
-        C4Vector r((AA.getInverse() * BB).getAngleAndAxis());
+        CQuaternion r((AA.getInverse() * BB).getAngleAndAxis());
 
         C3Vector v(r(1), r(2), r(3));
         v = AA * v;
@@ -8389,7 +8389,7 @@ int _simRotateAroundAxis(luaWrap_lua_State* L)
         getDoublesFromTable(L, 2, 3, axis);
         getDoublesFromTable(L, 3, 3, ppos);
 
-        C7Vector tr;
+        CPose tr;
         if (luaWrap_lua_rawlen(L, 1) >= 12)
         { // we have a matrix
             getDoublesFromTable(L, 1, 12, inM);
@@ -8408,7 +8408,7 @@ int _simRotateAroundAxis(luaWrap_lua_State* L)
         double alpha = -atan2(ax(1), ax(0));
         double beta = atan2(-sqrt(ax(0) * ax(0) + ax(1) * ax(1)), ax(2));
         tr.X -= pos;
-        C7Vector r;
+        CPose r;
         r.X.clear();
         r.Q.setEulerAngles(0.0, 0.0, alpha);
         tr = r * tr;
@@ -8795,7 +8795,7 @@ int _simMultiplyVector(luaWrap_lua_State* L)
         else if (luaWrap_lua_rawlen(L, 1) == 7)
         { // we have a pose
             getDoublesFromTable(L, 1, 7, matr);
-            C7Vector tr;
+            CPose tr;
             tr.X.setData(matr);
             tr.Q.setData(matr + 3, true);
             for (size_t i = 0; i < cnt; i++)
@@ -8807,7 +8807,7 @@ int _simMultiplyVector(luaWrap_lua_State* L)
         else if (luaWrap_lua_rawlen(L, 1) == 4)
         { // we have a quaternion
             getDoublesFromTable(L, 1, 4, matr);
-            C4Vector q;
+            CQuaternion q;
             q.setData(matr, true);
             for (size_t i = 0; i < cnt; i++)
             {

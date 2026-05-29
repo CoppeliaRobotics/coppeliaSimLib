@@ -28,9 +28,9 @@ void displayPtCloud_old(CPtCloud_old* ptCloud, CSceneObject* it)
 
     if (it != nullptr)
     {
-        C7Vector tr = it->getCumulativeTransformation();
+        CPose tr = it->getCumulativeTransformation();
         glTranslated(tr.X(0), tr.X(1), tr.X(2));
-        C4Vector axis = tr.Q.getAngleAndAxis();
+        CQuaternion axis = tr.Q.getAngleAndAxis();
         glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
         normalVectorForLinesAndPoints = (tr.Q.getInverse() * C3Vector::unitZVector);
     }

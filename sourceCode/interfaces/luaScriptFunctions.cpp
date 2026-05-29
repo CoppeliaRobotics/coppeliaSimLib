@@ -2549,9 +2549,9 @@ void fetchVectorArg(luaWrap_lua_State* L, int index, std::vector<double>& outArr
         luaWrap_lua_isvector(L, index, &outArr, false);
 }
 
-C4Vector fetchQuaternionArg(luaWrap_lua_State* L, int index)
+CQuaternion fetchQuaternionArg(luaWrap_lua_State* L, int index)
 {
-    C4Vector retVal;
+    CQuaternion retVal;
     retVal.setIdentity();
     int argCnt = luaWrap_lua_gettop(L);
     if (argCnt >= index)
@@ -2563,9 +2563,9 @@ C4Vector fetchQuaternionArg(luaWrap_lua_State* L, int index)
     return retVal;
 }
 
-C7Vector fetchPoseArg(luaWrap_lua_State* L, int index)
+CPose fetchPoseArg(luaWrap_lua_State* L, int index)
 {
-    C7Vector retVal;
+    CPose retVal;
     retVal.setIdentity();
     int argCnt = luaWrap_lua_gettop(L);
     if (argCnt >= index)
@@ -11199,7 +11199,7 @@ int _simGetShapeBB(luaWrap_lua_State* L)
             {
                 CShape* shape = (CShape*)it;
                 C3Vector hs;
-                C7Vector ltr = shape->getBB(&hs);
+                CPose ltr = shape->getBB(&hs);
                 hs *= 2.0;
                 double p[7];
                 ltr.getData(p, true);

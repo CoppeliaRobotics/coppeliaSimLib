@@ -55,9 +55,9 @@ class CInterfaceStack : public Obj
     void pushMatrixOntoStack(const float* matrix, size_t rows, size_t cols, bool toFront = false);
     void pushMatrixOntoStack(const double* matrix, size_t rows, size_t cols, bool toFront = false);
     void pushMatrixOntoStack(const CMatrix& matrix, bool toFront = false);
-    void pushQuaternionOntoStack(const C4Vector& quaternion, bool toFront = false);
+    void pushQuaternionOntoStack(const CQuaternion& quaternion, bool toFront = false);
     void pushQuaternionOntoStack(const double* q, bool toFront = false, bool xyzwLayout = false);
-    void pushPoseOntoStack(const C7Vector& pose, bool toFront = false);
+    void pushPoseOntoStack(const CPose& pose, bool toFront = false);
     void pushPoseOntoStack(const double* q, bool toFront = false, bool xyzqxqyqzqwLayout = false);
     void pushColorOntoStack(const float c[3], bool toFront = false);
 
@@ -116,11 +116,11 @@ class CInterfaceStack : public Obj
     bool getStackTextArray(std::vector<std::string>& array) const;
     bool getStackColor(float array[3]) const;
     bool getStackMatrix(CMatrix& m) const;
-    bool getStackQuaternion(C4Vector& q) const;
-    bool getStackPose(C7Vector& p) const;
+    bool getStackQuaternion(CQuaternion& q) const;
+    bool getStackPose(CPose& p) const;
     const CMatrix* getStackMatrix() const;
-    const C4Vector* getStackQuaternion() const;
-    const C7Vector* getStackPose() const;
+    const CQuaternion* getStackQuaternion() const;
+    const CPose* getStackPose() const;
     bool unfoldStackTable();
     CInterfaceStackObject* getStackMapObject(const char* fieldName) const;
     CInterfaceStackObject* getStackIntMapObject(long long int key) const;
@@ -138,8 +138,8 @@ class CInterfaceStack : public Obj
     bool getStackMapDoubleArray(const char* fieldName, double* array, int count) const;
     bool getStackMapColor(const char* fieldName, float array[3]) const;
     const CMatrix* getStackMapMatrix(const char* fieldName) const;
-    const C4Vector* getStackMapQuaternion(const char* fieldName) const;
-    const C7Vector* getStackMapPose(const char* fieldName) const;
+    const CQuaternion* getStackMapQuaternion(const char* fieldName) const;
+    const CPose* getStackMapPose(const char* fieldName) const;
     std::string getBufferFromTable() const;
     std::string getCborEncodedBuffer(int index, int options) const;
 
@@ -165,10 +165,10 @@ class CInterfaceStack : public Obj
     int getVector3Property(const char* pName, C3Vector& pState) const override;
     int setMatrixProperty(const char* pName, const CMatrix& pState) override;
     int getMatrixProperty(const char* pName, CMatrix& pState) const override;
-    int setQuaternionProperty(const char* pName, const C4Vector& pState) override;
-    int getQuaternionProperty(const char* pName, C4Vector& pState) const override;
-    int setPoseProperty(const char* pName, const C7Vector& pState) override;
-    int getPoseProperty(const char* pName, C7Vector& pState) const override;
+    int setQuaternionProperty(const char* pName, const CQuaternion& pState) override;
+    int getQuaternionProperty(const char* pName, CQuaternion& pState) const override;
+    int setPoseProperty(const char* pName, const CPose& pState) override;
+    int getPoseProperty(const char* pName, CPose& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;
     int getColorProperty(const char* pName, float* pState) const override;
     int setFloatArrayProperty(const char* pName, const std::vector<double>& pState) override;

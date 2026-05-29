@@ -896,10 +896,10 @@ int CPathPlanningTask::performSteppedSearch()
                     int at = sim_pathproperty_automatic_orientation | sim_pathproperty_closed_path;
                     it->pathContainer->setAttributes((it->pathContainer->getAttributes() | at) - at);
                     it->pathContainer->setSquareSize(stepSize * 0.25);
-                    C7Vector pathInv(it->getFullCumulativeTransformation().getInverse());
+                    CPose pathInv(it->getFullCumulativeTransformation().getInverse());
                     for (int i = 0; i < nodeCount; i++)
                     {
-                        C7Vector conf;
+                        CPose conf;
                         conf.X.setData(pathData + 0 + 7 * i);
                         conf.Q.setData(pathData + 3 + 7 * i);
                         conf = pathInv * conf;
@@ -972,10 +972,10 @@ int CPathPlanningTask::performSteppedSearch()
                     int at = sim_pathproperty_automatic_orientation | sim_pathproperty_closed_path;
                     it->pathContainer->setAttributes((it->pathContainer->getAttributes() | at) - at);
                     it->pathContainer->setSquareSize(stepSize * 0.25);
-                    C7Vector pathInv(it->getFullCumulativeTransformation().getInverse());
+                    CPose pathInv(it->getFullCumulativeTransformation().getInverse());
                     for (int i = 0; i < nodeCount; i++)
                     {
-                        C7Vector conf;
+                        CPose conf;
                         conf.X.setData(pathData + 0 + 7 * i);
                         conf.Q.setData(pathData + 3 + 7 * i);
                         conf = pathInv * conf;

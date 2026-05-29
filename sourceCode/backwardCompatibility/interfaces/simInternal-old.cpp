@@ -2171,8 +2171,8 @@ double* simGenerateIkPath_internal(int ikGroupHandle, int jointCnt, const int* j
             CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLES);
         std::vector<CDummy*> tips;
         std::vector<CDummy*> targets;
-        std::vector<C7Vector> startTrs;
-        std::vector<C7Vector> goalTrs;
+        std::vector<CPose> startTrs;
+        std::vector<CPose> goalTrs;
         if (!err)
         {
             if (ikGroup->getIkElementCount() > 0)
@@ -2270,7 +2270,7 @@ double* simGenerateIkPath_internal(int ikGroupHandle, int jointCnt, const int* j
             {
                 for (size_t el = 0; el < ikGroup->getIkElementCount(); el++)
                 { // set all targets to an interpolated pose
-                    C7Vector tr;
+                    CPose tr;
                     tr.buildInterpolation(startTrs[el], goalTrs[el], t);
                     targets[el]->setAbsoluteTransformation(tr);
                 }
@@ -2790,7 +2790,7 @@ int simGetPositionOnPath_internal(int pathHandle, double relativeDistance, doubl
         if (!isPath(__func__, pathHandle))
             return (-1);
         CPath_old* it = App::scene->sceneObjects->getPathFromHandle(pathHandle);
-        C7Vector tr;
+        CPose tr;
 
         if (relativeDistance > -0.5)
         { // regular use of the function
@@ -2838,7 +2838,7 @@ int simGetOrientationOnPath_internal(int pathHandle, double relativeDistance, do
         if (!isPath(__func__, pathHandle))
             return (-1);
         CPath_old* it = App::scene->sceneObjects->getPathFromHandle(pathHandle);
-        C7Vector tr;
+        CPose tr;
         if (relativeDistance > -0.5)
         { // regular use of the function
             if (it->pathContainer->getTransformationOnBezierCurveAtNormalizedVirtualDistance(relativeDistance, tr))
@@ -3006,7 +3006,7 @@ int simInsertPathCtrlPoints_internal(int pathHandle, int options, int startIndex
         for (int i = 0; i < ptCnt; i++)
         {
             CSimplePathPoint_old* pt = new CSimplePathPoint_old();
-            C7Vector tr(C4Vector(((double*)ptData)[fiCnt * i + 3], ((double*)ptData)[fiCnt * i + 4],
+            CPose tr(CQuaternion(((double*)ptData)[fiCnt * i + 3], ((double*)ptData)[fiCnt * i + 4],
                                  ((double*)ptData)[fiCnt * i + 5]),
                         C3Vector(((double*)ptData) + fiCnt * i + 0));
             pt->setTransformation(tr, path->pathContainer->getAttributes());
@@ -4868,7 +4868,7 @@ bool _simIsForceSensorBroken_internal(const void* forceSensor)
 void _simGetDynamicForceSensorLocalTransformationPart2_internal(const void* forceSensor, double* pos, double* quat)
 { // deprecated on 08.11.2021
     C_API_START;
-    C7Vector tr;
+    CPose tr;
     tr.setIdentity();
     tr.X.getData(pos);
     tr.Q.getData(quat);
@@ -4885,9 +4885,9 @@ int simGetJointMatrix_internal(int objectHandle, double* matrix)
         if (!isJoint(__func__, objectHandle))
             return (-1);
         CJoint* it = App::scene->sceneObjects->getJointFromHandle(objectHandle);
-        C7Vector trFull(it->getFullLocalTransformation());
-        C7Vector trPart1(it->getLocalTransformation());
-        C7Vector tr(trPart1.getInverse() * trFull);
+        CPose trFull(it->getFullLocalTransformation());
+        CPose trPart1(it->getLocalTransformation());
+        CPose tr(trPart1.getInverse() * trFull);
         tr.getMatrix().getData(matrix);
         return (1);
     }
@@ -4913,7 +4913,7 @@ int simSetSphericalJointMatrix_internal(int objectHandle, const double* matrix)
         }
         C4X4Matrix m;
         m.setData(matrix);
-        it->setSphericalTransformation(C4Vector(m.M.getQuaternion()));
+        it->setSphericalTransformation(CQuaternion(m.M.getQuaternion()));
         return (1);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5534,7 +5534,7 @@ int simCreatePureShape_internal(int primitiveType, int options, const double* si
             op |= 4;
         CShape* shape =
             CAddOperations::addPrimitiveShape(pType, s, op, nullptr, 0, sides, 0, (options & 16) == 0, true);
-        shape->setLocalTransformation(C7Vector::identityTransformation);
+        shape->setLocalTransformation(CPose::identityTransformation);
         shape->setVisibleEdges((options & 2) != 0);
         shape->setRespondable((options & 8) != 0);
         shape->getMesh()->setMass(tt::getLimitedFloat(0.000001, 10000.0, mass));
@@ -5577,7 +5577,7 @@ int simBuildMatrixQ_internal(const double* position, const double* quaternion, d
     C_API_START;
 
     C4X4Matrix m;
-    C4Vector q(quaternion[3], quaternion[0], quaternion[1], quaternion[2]);
+    CQuaternion q(quaternion[3], quaternion[0], quaternion[1], quaternion[2]);
     m.M = q.getMatrix();
     m.X.setData(position);
     m.getData(matrix);
@@ -5590,7 +5590,7 @@ int simGetQuaternionFromMatrix_internal(const double* matrix, double* quaternion
 
     C4X4Matrix m;
     m.setData(matrix);
-    C4Vector q(m.M.getQuaternion());
+    CQuaternion q(m.M.getQuaternion());
     quaternion[0] = q(1);
     quaternion[1] = q(2);
     quaternion[2] = q(3);
@@ -5602,7 +5602,7 @@ void _simGetLocalInertiaFrame_internal(const void* geomInfo, double* pos, double
 { // deprecated on 19.08.2022
     C_API_START;
     C3Vector diag;
-    C7Vector tr(((CMeshWrapper*)geomInfo)->getDiagonalInertiaInfo(diag));
+    CPose tr(((CMeshWrapper*)geomInfo)->getDiagonalInertiaInfo(diag));
     tr.Q.getData(quat);
     tr.X.getData(pos);
 }
@@ -5712,8 +5712,8 @@ int simGetShapeVertex_internal(int shapeHandle, int groupElementIndex, int verte
             return (-1);
         }
         CShape* it = App::scene->sceneObjects->getShapeFromHandle(shapeHandle);
-        C7Vector ptr;
-        CMesh* cc = it->getMesh()->getMeshComponentAtIndex(C7Vector::identityTransformation, groupElementIndex, &ptr);
+        CPose ptr;
+        CMesh* cc = it->getMesh()->getMeshComponentAtIndex(CPose::identityTransformation, groupElementIndex, &ptr);
         if (cc == nullptr)
             return (0);
         std::vector<double> wvert;
@@ -5746,8 +5746,8 @@ int simGetShapeTriangle_internal(int shapeHandle, int groupElementIndex, int tri
             return (-1);
         }
         CShape* it = App::scene->sceneObjects->getShapeFromHandle(shapeHandle);
-        C7Vector ptr;
-        CMesh* cc = it->getMesh()->getMeshComponentAtIndex(C7Vector::identityTransformation, groupElementIndex, &ptr);
+        CPose ptr;
+        CMesh* cc = it->getMesh()->getMeshComponentAtIndex(CPose::identityTransformation, groupElementIndex, &ptr);
         if (cc == nullptr)
             return (0);
         std::vector<double> wvert;
@@ -5819,14 +5819,14 @@ int simReorientShapeBoundingBox_internal(int shapeHandle, int relativeToHandle, 
             }
             else
             {
-                C7Vector oldAbsTr(theShape->getCumulativeTransformation());
-                C7Vector oldAbsTr2(theObjectRelativeTo->getCumulativeTransformation().getInverse() * oldAbsTr);
-                C7Vector x(oldAbsTr2 * oldAbsTr.getInverse());
+                CPose oldAbsTr(theShape->getCumulativeTransformation());
+                CPose oldAbsTr2(theObjectRelativeTo->getCumulativeTransformation().getInverse() * oldAbsTr);
+                CPose x(oldAbsTr2 * oldAbsTr.getInverse());
                 theShape->setLocalTransformation(theShape->getFullParentCumulativeTransformation().getInverse() *
                                                  oldAbsTr2);
                 theShape->alignBB("world");
-                C7Vector newAbsTr2(theShape->getCumulativeTransformation());
-                C7Vector newAbsTr(x.getInverse() * newAbsTr2);
+                CPose newAbsTr2(theShape->getCumulativeTransformation());
+                CPose newAbsTr(x.getInverse() * newAbsTr2);
                 theShape->setLocalTransformation(theShape->getFullParentCumulativeTransformation().getInverse() *
                                                  newAbsTr);
                 theShape->relocateFrame(
@@ -7705,7 +7705,7 @@ int simGetArrayParam_internal(int parameter, double* arrayOfValues)
         }
         if (parameter == sim_arrayparam_random_euler)
         {
-            C4Vector r;
+            CQuaternion r;
             r.buildRandomOrientation();
             C3Vector euler(r.getEulerAngles());
             arrayOfValues[0] = euler(0);
@@ -10346,9 +10346,9 @@ int simGetObjectFloatParam_internal(int objectHandle, int parameterID, double* p
             }
             if ((parameterID >= sim_jointfloatparam_intrinsic_x) && (parameterID <= sim_jointfloatparam_intrinsic_qw))
             {
-                C7Vector trFull(joint->getFullLocalTransformation());
-                C7Vector trPart1(joint->getLocalTransformation());
-                C7Vector tr(trPart1.getInverse() * trFull);
+                CPose trFull(joint->getFullLocalTransformation());
+                CPose trPart1(joint->getLocalTransformation());
+                CPose tr(trPart1.getInverse() * trFull);
                 if (parameterID == sim_jointfloatparam_intrinsic_x)
                     parameter[0] = tr.X(0);
                 if (parameterID == sim_jointfloatparam_intrinsic_y)
@@ -10783,7 +10783,7 @@ int simSetObjectFloatParam_internal(int objectHandle, int parameterID, double pa
                         buff[2] = parameter;
                     if (parameterID == sim_jointfloatparam_spherical_qw)
                     {
-                        C4Vector q(parameter, buff[0], buff[1], buff[2]);
+                        CQuaternion q(parameter, buff[0], buff[1], buff[2]);
                         joint->setSphericalTransformation(q);
                     }
                     retVal = 1;
@@ -10896,7 +10896,7 @@ int simSetObjectFloatParam_internal(int objectHandle, int parameterID, double pa
                             scalingX = parameter;
                         if (parameterID == sim_shapefloatparam_texture_scaling_y)
                             scalingY = parameter;
-                        tp->setTextureRelativeConfig(C7Vector(C4Vector(euler), pos));
+                        tp->setTextureRelativeConfig(CPose(CQuaternion(euler), pos));
                         tp->setTextureScaling(scalingX, scalingY);
                         retVal = 1;
                     }

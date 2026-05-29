@@ -370,7 +370,7 @@ void CCbor::appendQuaternion(const double* v, bool xyzwLayout /*= false*/)
     });
 }
 
-void CCbor::appendQuaternion(const C4Vector& q)
+void CCbor::appendQuaternion(const CQuaternion& q)
 {
     appendQuaternion(q.data, false);
 }
@@ -414,7 +414,7 @@ void CCbor::appendPose(const double* v, bool xyzqxqyqzqwLayout /*= false*/)
     });
 }
 
-void CCbor::appendPose(const C7Vector& p)
+void CCbor::appendPose(const CPose& p)
 {
     double w[7] = {p.X(0), p.X(1), p.X(2), p.Q(1), p.Q(2), p.Q(3), p.Q(0)};
     appendPose(w, true);
@@ -880,7 +880,7 @@ void CCbor::appendKeyQuaternion(const char* key, const double* v, bool xyzwLayou
     appendQuaternion(v, xyzwLayout);
 }
 
-void CCbor::appendKeyQuaternion(const char* key, const C4Vector& q)
+void CCbor::appendKeyQuaternion(const char* key, const CQuaternion& q)
 {
     appendText(key);
     appendQuaternion(q);
@@ -892,7 +892,7 @@ void CCbor::appendKeyPose(const char* key, const double* v, bool xyzqxqyqzqwLayo
     appendPose(v, xyzqxqyqzqwLayout);
 }
 
-void CCbor::appendKeyPose(const char* key, const C7Vector& p)
+void CCbor::appendKeyPose(const char* key, const CPose& p)
 {
     appendText(key);
     appendPose(p);

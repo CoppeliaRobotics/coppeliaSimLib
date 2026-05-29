@@ -31,10 +31,10 @@ CNonHolonomicPathPlanning_old::CNonHolonomicPathPlanning_old(
     _simGetObjectCumulativeTransformation_internal(startDummy, _startDummyCTM.X.data, _startDummyCTM.Q.data, false);
     _simGetObjectLocalTransformation_internal(startDummy, _startDummyLTM.X.data, _startDummyLTM.Q.data, false);
 
-    C7Vector startDummyCTMInv(_startDummyCTM.getInverse());
-    C7Vector tmpTr;
+    CPose startDummyCTMInv(_startDummyCTM.getInverse());
+    CPose tmpTr;
     _simGetObjectCumulativeTransformation_internal(goalDummy, tmpTr.X.data, tmpTr.Q.data, false);
-    C7Vector gd(startDummyCTMInv * tmpTr);
+    CPose gd(startDummyCTMInv * tmpTr);
     C3Vector gdEuler(gd.Q.getEulerAngles());
     gdEuler(0) = 0.0;
     gdEuler(1) = 0.0;
@@ -111,7 +111,7 @@ int CNonHolonomicPathPlanning_old::searchPath(int maxTimePerPass)
     CXDummy* startDummy = (CXDummy*)_simGetObject_internal(_startDummyID);
     if (startDummy == nullptr)
         return (0);
-    C7Vector dumSavedConf;
+    CPose dumSavedConf;
     _simGetObjectLocalTransformation_internal(startDummy, dumSavedConf.X.data, dumSavedConf.Q.data, false);
 
     std::vector<CNonHolonomicPathNode_old*>* current = &fromStart;
@@ -316,10 +316,10 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::extend(std::vector<CNo
             (y < searchMinVal[1] + searchRange[1]))
         { // new values are valid
             C3Vector trEuler(0.0, 0.0, t);
-            C7Vector tr(C4Vector(trEuler), C3Vector(0.0, 0.0, 0.0));
+            CPose tr(CQuaternion(trEuler), C3Vector(0.0, 0.0, 0.0));
             tr.X(0) = x;
             tr.X(1) = y;
-            C7Vector tmpTr(_startDummyLTM * tr);
+            CPose tmpTr(_startDummyLTM * tr);
             _simSetObjectLocalTransformation_internal(startDummy, tmpTr.X.data, tmpTr.Q.data, 0.0);
             if (!specialCase)
             {
@@ -460,10 +460,10 @@ CNonHolonomicPathNode_old* CNonHolonomicPathPlanning_old::connect(std::vector<CN
             (y < searchMinVal[1] + searchRange[1]))
         { // new values are valid
             C3Vector trEuler(0.0, 0.0, t);
-            C7Vector tr(C4Vector(trEuler), C3Vector(0.0, 0.0, 0.0));
+            CPose tr(CQuaternion(trEuler), C3Vector(0.0, 0.0, 0.0));
             tr.X(0) = x;
             tr.X(1) = y;
-            C7Vector tmpTr(_startDummyLTM * tr);
+            CPose tmpTr(_startDummyLTM * tr);
             _simSetObjectLocalTransformation_internal(startDummy, tmpTr.X.data, tmpTr.Q.data, 0.0);
             if (!doCollide(nullptr))
             {
@@ -660,7 +660,7 @@ int CNonHolonomicPathPlanning_old::smoothFoundPath(int steps, int maxTimePerPass
             { // Now let's try to link highIndex from lowIndex with a "straight" line:
                 std::vector<CNonHolonomicPathNode_old*> newPathElementsBetweenAndIncludingLowAndHigh;
                 newPathElementsBetweenAndIncludingLowAndHigh.push_back(new CNonHolonomicPathNode_old(startP));
-                C7Vector startDummyOriginalLocalTr;
+                CPose startDummyOriginalLocalTr;
                 _simGetObjectLocalTransformation_internal(
                     startDummy, startDummyOriginalLocalTr.X.data, startDummyOriginalLocalTr.Q.data,
                     true); // save the local transformation ("connect" modifies it)
@@ -720,7 +720,7 @@ void CNonHolonomicPathPlanning_old::getPathData(std::vector<double>& data)
         p(0) = theNode->values[0];
         p(1) = theNode->values[1];
         euler(2) = theNode->values[2];
-        C7Vector conf(C4Vector(euler), p);
+        CPose conf(CQuaternion(euler), p);
         conf = _startDummyCTM * conf;
         data.push_back(conf(0));
         data.push_back(conf(1));

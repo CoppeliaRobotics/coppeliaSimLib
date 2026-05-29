@@ -330,7 +330,7 @@ void CPathCont_old::_handleAttachedDummies(CPath_old* it)
                 { // The dummy is free. We search for the closest position on the path and then assign the dummy to that
                     // position:
                     C3Vector dp(dum->getLocalTransformation().X);
-                    C7Vector conf;
+                    CPose conf;
                     if (getConfigurationOnBezierCurveClosestTo(dp, conf))
                         dum->setLocalTransformation(conf);
                 }
@@ -348,8 +348,8 @@ void CPathCont_old::_handleAttachedDummies(CPath_old* it)
     }
     // Here we handle all dummies that are children (but not direct children) of this path and that follow the
     // orientation on the path:
-    C7Vector pctr(it->getFullCumulativeTransformation());
-    C7Vector pctrInv(pctr.getInverse());
+    CPose pctr(it->getFullCumulativeTransformation());
+    CPose pctrInv(pctr.getInverse());
     for (int i = 0; i < int(childrensChildren.size()); i++)
     {
         if (childrensChildren[i]->getObjectType() == sim_sceneobject_dummy)
@@ -357,8 +357,8 @@ void CPathCont_old::_handleAttachedDummies(CPath_old* it)
             CDummy* d = (CDummy*)childrensChildren[i];
             if (d->getAssignedToParentPathOrientation())
             {
-                C7Vector dctr(pctrInv * d->getFullCumulativeTransformation());
-                C7Vector conf;
+                CPose dctr(pctrInv * d->getFullCumulativeTransformation());
+                CPose conf;
                 if (getConfigurationOnBezierCurveClosestTo(dctr.X, conf))
                 {
                     dctr.Q = pctr.Q * conf.Q;
@@ -688,7 +688,7 @@ void CPathCont_old::_computeAutomaticOrientation(const std::vector<CPathPoint_ol
     _applyDistinctConsecutivePoints(pc, tr, ptIndices);
 }
 
-bool CPathCont_old::getConfigurationOnBezierCurveClosestTo(C3Vector& pt, C7Vector& conf)
+bool CPathCont_old::getConfigurationOnBezierCurveClosestTo(C3Vector& pt, CPose& conf)
 {
     // 1. Handling of special cases:
     if (_bezierPathPoints.size() == 0)
@@ -875,7 +875,7 @@ void CPathCont_old::copyPointsToClipboard()
     std::string txt = "ctrlPts={";
     for (size_t i = 0; i < _simplePathPoints.size(); i++)
     {
-        C7Vector tr(_simplePathPoints[i]->getTransformation());
+        CPose tr(_simplePathPoints[i]->getTransformation());
         for (size_t j = 0; j < 3; j++)
             txt += utils::getDoubleEString(false, tr(j)) + ",";
         double q[4];
@@ -893,7 +893,7 @@ void CPathCont_old::copyPointsToClipboard()
     txt = "path={";
     for (size_t i = 0; i < _bezierPathPoints.size(); i++)
     {
-        C7Vector tr(_bezierPathPoints[i]->getTransformation());
+        CPose tr(_bezierPathPoints[i]->getTransformation());
         for (size_t j = 0; j < 3; j++)
             txt += utils::getDoubleEString(false, tr(j)) + ",";
         double q[4];
@@ -955,7 +955,7 @@ void CPathCont_old::createEquivalent(int pathHandle)
     txt += "\nlocal pathData={";
     for (size_t i = 0; i < _simplePathPoints.size(); i++)
     {
-        C7Vector tr(_simplePathPoints[i]->getTransformation());
+        CPose tr(_simplePathPoints[i]->getTransformation());
         for (size_t j = 0; j < 3; j++)
             txt += utils::getDoubleEString(false, tr(j)) + ",";
         double q[4];
@@ -976,7 +976,7 @@ void CPathCont_old::createEquivalent(int pathHandle)
     App::scenes->sandboxScript->executeScriptString(txt.c_str(), nullptr);
 }
 
-CBezierPathPoint_old* CPathCont_old::_addBezierPathPoint(const C7Vector& transf, double maxRelAbsVelocity,
+CBezierPathPoint_old* CPathCont_old::_addBezierPathPoint(const CPose& transf, double maxRelAbsVelocity,
                                                          double onSpotDistance, unsigned short auxFlags,
                                                          const double auxChannels[4])
 {
@@ -1022,8 +1022,8 @@ int CPathCont_old::_removeDoubleBezierPoints(double linTol, double angTol)
     {
         CBezierPathPoint_old* it0 = _bezierPathPoints[i + 0];
         CBezierPathPoint_old* it1 = _bezierPathPoints[i + 1];
-        C7Vector tr0(it0->getTransformation());
-        C7Vector tr1(it1->getTransformation());
+        CPose tr0(it0->getTransformation());
+        CPose tr1(it1->getTransformation());
         if ((tr0.X - tr1.X).getLength() < linTol)
         { // same position!
             if (tr0.Q.getAngleBetweenQuaternions(tr1.Q) < angTol)
@@ -1057,8 +1057,8 @@ void CPathCont_old::_recomputeBezierPathElementLengths()
             it1 = _bezierPathPoints[0];
         else
             it1 = _bezierPathPoints[i + 1];
-        C7Vector tr0(it0->getTransformation());
-        C7Vector tr1(it1->getTransformation());
+        CPose tr0(it0->getTransformation());
+        CPose tr1(it1->getTransformation());
         double dl = (tr0.X - tr1.X).getLength();
         double da = tr0.Q.getAngleBetweenQuaternions(tr1.Q) * _angleVarToDistanceCoeff;
         double onSpotDl = fabs(it0->getOnSpotDistance() - it1->getOnSpotDistance()) * _onSpotDistanceToDistanceCoeff;
@@ -1151,7 +1151,7 @@ void CPathCont_old::_recomputeBezierPathMaxVelocities()
         C3Vector prevVector(C3Vector::zeroVector);
         std::vector<C3Vector> previousVectors(_bezierPathPoints.size(), prevVector);
         std::vector<C3Vector> nextVectors(_bezierPathPoints.size(), prevVector);
-        C7Vector prevTransf, currTransf;
+        CPose prevTransf, currTransf;
         for (int i = 0; i < int(_bezierPathPoints.size()) * 2; i++)
         {
             if (((_attributes & sim_pathproperty_closed_path) == 0) && (i == int(_bezierPathPoints.size())))
@@ -1216,9 +1216,9 @@ void CPathCont_old::_recomputeBezierPathMaxVelocities()
                     bp_a = _bezierPathPoints[0];
                 else
                     bp_a = _bezierPathPoints[i + 1];
-                C7Vector tb(bp_b->getTransformation());
-                C7Vector t0(bp_0->getTransformation());
-                C7Vector ta(bp_a->getTransformation());
+                CPose tb(bp_b->getTransformation());
+                CPose t0(bp_0->getTransformation());
+                CPose ta(bp_a->getTransformation());
                 C3Vector v0(t0.X - tb.X);
                 C3Vector v1(ta.X - t0.X);
                 if ((v0.getLength() != 0.0) || (v1.getLength() != 0.0))
@@ -1262,14 +1262,14 @@ void CPathCont_old::_recomputeBezierPathMaxVelocities()
                     bp_a = _bezierPathPoints[0];
                 else
                     bp_a = _bezierPathPoints[i + 1];
-                C7Vector tb(bp_b->getTransformation());
-                C7Vector t0(bp_0->getTransformation());
-                C7Vector ta(bp_a->getTransformation());
+                CPose tb(bp_b->getTransformation());
+                CPose t0(bp_0->getTransformation());
+                CPose ta(bp_a->getTransformation());
                 if ((tb.Q.getAngleBetweenQuaternions(t0.Q) > 0.0) || (t0.Q.getAngleBetweenQuaternions(ta.Q) > 0.0))
                 { // A point that is coincident with its previous AND next orientations is not handled
-                    C4Vector v0(tb.Q.getInverse() * t0.Q);
-                    C4Vector v1(t0.Q.getInverse() * ta.Q);
-                    C4Vector tmpQ(v0.getAngleAndAxis());
+                    CQuaternion v0(tb.Q.getInverse() * t0.Q);
+                    CQuaternion v1(t0.Q.getInverse() * ta.Q);
+                    CQuaternion tmpQ(v0.getAngleAndAxis());
                     C3Vector axisA(tmpQ(1), tmpQ(2), tmpQ(3)); // tmpQ(0) is the angle!
                     tmpQ = v1.getAngleAndAxis();
                     C3Vector axisB(tmpQ(1), tmpQ(2), tmpQ(3)); // tmpQ(0) is the angle!
@@ -1404,9 +1404,9 @@ void CPathCont_old::_getInterpolatedBezierCurveData(int index0, double t, int& a
         auxChannels[i] = ac0[i] * (1.0 - t) + ac1[i] * t;
 }
 
-C7Vector CPathCont_old::_getInterpolatedBezierCurvePoint(int index0, double t)
+CPose CPathCont_old::_getInterpolatedBezierCurvePoint(int index0, double t)
 {
-    C7Vector retVal;
+    CPose retVal;
     int index1 = index0 + 1;
     if (index1 >= int(_bezierPathPoints.size()))
         index1 = 0;
@@ -1483,7 +1483,7 @@ bool CPathCont_old::getAuxDataOnBezierCurveAtNormalizedVirtualDistance(double l,
     return (true);
 }
 
-bool CPathCont_old::getTransformationOnBezierCurveAtNormalizedVirtualDistance(double l, C7Vector& tr)
+bool CPathCont_old::getTransformationOnBezierCurveAtNormalizedVirtualDistance(double l, CPose& tr)
 { // l is between 0 and 1!
     double ll = l * getBezierVirtualPathLength();
     int index;
@@ -1711,9 +1711,9 @@ void CPathCont_old::_recomputeBezierPoints()
         }
         else
         {
-            C7Vector tr0(itb->getTransformation());
-            C7Vector tr1(itm->getTransformation());
-            C7Vector tr2(ita->getTransformation());
+            CPose tr0(itb->getTransformation());
+            CPose tr1(itm->getTransformation());
+            CPose tr2(ita->getTransformation());
 
             double auxChannels0[4];
             double auxChannels1[4];
@@ -1737,7 +1737,7 @@ void CPathCont_old::_recomputeBezierPoints()
                 if ((tr0.Q.getAngleBetweenQuaternions(tr1.Q) > 1.0 * degToRad) &&
                     (tr1.Q.getAngleBetweenQuaternions(tr2.Q) > 1.0 * degToRad))
                 { // We have two pairs of non-identical orientations
-                    C4Vector tmpQ((tr0.Q.getInverse() * tr1.Q).getAngleAndAxis());
+                    CQuaternion tmpQ((tr0.Q.getInverse() * tr1.Q).getAngleAndAxis());
                     C3Vector axisA(tmpQ(1), tmpQ(2), tmpQ(3)); // tmpQ(0) is the angle!
                     tmpQ = (tr1.Q.getInverse() * tr2.Q).getAngleAndAxis();
                     C3Vector axisB(tmpQ(1), tmpQ(2), tmpQ(3)); // tmpQ(0) is the angle!
@@ -1755,7 +1755,7 @@ void CPathCont_old::_recomputeBezierPoints()
                 }
                 if (linOk || angOk || onSpotDist)
                 {
-                    C7Vector trm, trn;
+                    CPose trm, trn;
                     trm.buildInterpolation(tr0, tr1, 0.5);
                     trn.buildInterpolation(tr1, tr2, 0.5);
 
@@ -1765,7 +1765,7 @@ void CPathCont_old::_recomputeBezierPoints()
                     double onSpot_n = (itm->getOnSpotDistance() + ita->getOnSpotDistance()) * 0.5;
                     double bf[2];
                     itm->getBezierFactors(bf[0], bf[1]);
-                    C7Vector tri, trj;
+                    CPose tri, trj;
                     tri.buildInterpolation(trm, tr1, 1.0 - bf[0]);
                     trj.buildInterpolation(trn, tr1, 1.0 - bf[1]);
 
@@ -1790,7 +1790,7 @@ void CPathCont_old::_recomputeBezierPoints()
                     for (int k = 1; k < divCount; k++)
                     {
                         double t = double(k) * (1.0 / double(divCount));
-                        C7Vector x0, x1, trpt;
+                        CPose x0, x1, trpt;
                         x0.buildInterpolation(tri, tr1, t);
                         x1.buildInterpolation(tr1, trj, t);
 
@@ -1843,10 +1843,10 @@ C3Vector CPathCont_old::_getPointOnBezierCubic(const C3Vector& ptBefore, const C
     return (retVal);
 }
 
-C4Vector CPathCont_old::_getOrientationOnBezierCubic(const C4Vector& orBefore, const C4Vector& orMiddle,
-                                                     const C4Vector& orAfter, double t)
+CQuaternion CPathCont_old::_getOrientationOnBezierCubic(const CQuaternion& orBefore, const CQuaternion& orMiddle,
+                                                     const CQuaternion& orAfter, double t)
 {
-    C4Vector x0, x1, retVal;
+    CQuaternion x0, x1, retVal;
     x0.buildInterpolation(orBefore, orMiddle, t);
     x1.buildInterpolation(orMiddle, orAfter, t);
     retVal.buildInterpolation(x0, x1, t);
@@ -2396,7 +2396,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont, bool pathEditMod
                 glPushMatrix();
                 C3Vector trx(ptCont[i]->getTransformation().X);
                 glTranslated(trx(0), trx(1), trx(2));
-                C4Vector axis = ptCont[i]->getTransformation().Q.getAngleAndAxis();
+                CQuaternion axis = ptCont[i]->getTransformation().Q.getAngleAndAxis();
                 glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
                 glLoadName(i);
                 if (i == 0)
@@ -2414,7 +2414,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont, bool pathEditMod
                     glPushMatrix();
                     C3Vector trx(ptCont[i]->getTransformation().X);
                     glTranslated(trx(0), trx(1), trx(2));
-                    C4Vector axis = ptCont[i]->getTransformation().Q.getAngleAndAxis();
+                    CQuaternion axis = ptCont[i]->getTransformation().Q.getAngleAndAxis();
                     glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
                     glLoadName(i);
                     ogl::drawReference(squareSize * 2.0);
@@ -2454,7 +2454,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont, bool pathEditMod
                 glPushMatrix();
                 C3Vector trx(ptCont[i]->getTransformation().X);
                 glTranslated(trx(0), trx(1), trx(2));
-                C4Vector axis = ptCont[i]->getTransformation().Q.getAngleAndAxis();
+                CQuaternion axis = ptCont[i]->getTransformation().Q.getAngleAndAxis();
                 glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
                 if (i == 0)
                     ogl::drawSphere(squareSize, 6, 4, false);
@@ -2476,7 +2476,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont, bool pathEditMod
                     glPushMatrix();
                     C3Vector trx(ptCont[i]->getTransformation().X);
                     glTranslated(trx(0), trx(1), trx(2));
-                    C4Vector axis = ptCont[i]->getTransformation().Q.getAngleAndAxis();
+                    CQuaternion axis = ptCont[i]->getTransformation().Q.getAngleAndAxis();
                     glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
                     ogl::drawReference(squareSize * 2.0);
                     glPopMatrix();
@@ -2495,7 +2495,7 @@ void CPathCont_old::_draw(std::vector<CPathPoint_old*>& ptCont, bool pathEditMod
             glPushMatrix();
             C3Vector trx(ptCont[i]->getTransformation().X);
             glTranslated(trx(0), trx(1), trx(2));
-            C4Vector axis = ptCont[i]->getTransformation().Q.getAngleAndAxis();
+            CQuaternion axis = ptCont[i]->getTransformation().Q.getAngleAndAxis();
             glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
             ogl::drawReference(squareSize * 0.5);
             glPopMatrix();

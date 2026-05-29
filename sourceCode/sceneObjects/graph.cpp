@@ -152,7 +152,7 @@ void CGraph::setIsInScene(bool s)
 
 void CGraph::computeBoundingBox()
 {
-    _setBB(C7Vector::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _graphSize * 0.5);
+    _setBB(CPose::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _graphSize * 0.5);
 }
 
 void CGraph::setJustDrawCurves(bool justCurves)
@@ -575,7 +575,7 @@ void CGraph::addNextPoint(double time)
         _dataStreams[i]->insertNextValue(nextEntryPosition, nextEntryPosition == startingPoint, times);
 
     // Old:
-    C7Vector m(getCumulativeTransformation());
+    CPose m(getCumulativeTransformation());
     for (size_t i = 0; i < dataStreams_old.size(); i++)
     {
         bool cycl;

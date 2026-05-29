@@ -68,7 +68,7 @@ class CViewableBase : public CSceneObject
     void setHideFog(bool hideFog);
     bool getHideFog() const;
 
-    bool isObjectInsideView(const C7Vector& objectM, const C3Vector& maxBB);
+    bool isObjectInsideView(const CPose& objectM, const C3Vector& maxBB);
     void computeViewFrustumIfNeeded();
 
     void setFrustumCullingTemporarilyDisabled(bool d);

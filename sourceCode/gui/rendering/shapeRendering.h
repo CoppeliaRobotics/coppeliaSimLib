@@ -22,12 +22,12 @@ See the GNU General Public License for more details.
 #include <rendering.h>
 
 void _displayTriangles(CMesh* geometric, int geomModifCounter, CTextureProperty* tp);
-void _displayInertia(const C7Vector& tr, const C3Vector& pmi, double comFrameSize);
+void _displayInertia(const CPose& tr, const C3Vector& pmi, double comFrameSize);
 void displayShape(CShape* shape, CViewableBase* renderingObject, int displayAttrib);
-void displayGeometric(const C7Vector& cumulIFrameTr, CMesh* geometric, CShape* geomData, int displayAttrib,
+void displayGeometric(const CPose& cumulIFrameTr, CMesh* geometric, CShape* geomData, int displayAttrib,
                       CColorObject* collisionColor, int dynObjFlag_forVisualization, int transparencyHandling,
                       bool multishapeEditSelected);
-void displayGeometric_colorCoded(const C7Vector& cumulIFrameTr, CMesh* geometric, CShape* geomData, int objectId,
+void displayGeometric_colorCoded(const CPose& cumulIFrameTr, CMesh* geometric, CShape* geomData, int objectId,
                                  int displayAttrib);
-void displayGeometricGhost(const C7Vector& cumulIFrameTr, CMesh* geometric, CShape* geomData, int displayAttrib,
+void displayGeometricGhost(const CPose& cumulIFrameTr, CMesh* geometric, CShape* geomData, int displayAttrib,
                            bool originalColors, bool backfaceCulling, double transparency, const float* newColors);

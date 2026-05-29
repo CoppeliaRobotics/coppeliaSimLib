@@ -873,7 +873,7 @@ bool CProxSensor::getSensingVolumeBoundingBox(C3Vector& minV, C3Vector& maxV) co
     return (convexVolume->getVolumeBoundingBox(minV, maxV));
 }
 
-void CProxSensor::getSensingVolumeOBB(C7Vector& tr, C3Vector& halfSizes)
+void CProxSensor::getSensingVolumeOBB(CPose& tr, C3Vector& halfSizes)
 {
     C3Vector minV, maxV, center;
     convexVolume->getVolumeBoundingBox(minV, maxV);
@@ -887,7 +887,7 @@ void CProxSensor::getSensingVolumeOBB(C7Vector& tr, C3Vector& halfSizes)
 
 void CProxSensor::computeBoundingBox()
 {
-    _setBB(C7Vector::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _proxSensorSize * 0.5);
+    _setBB(CPose::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _proxSensorSize * 0.5);
 }
 
 void CProxSensor::setIsInScene(bool s)

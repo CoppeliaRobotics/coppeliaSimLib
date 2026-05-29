@@ -91,7 +91,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID, double* vertexPointer, in
     App::scenes->calcInfo->proximitySensorSimulationStart();
 
     // Now prepare for detection
-    C7Vector sensInv(sens->getCumulativeTransformation().getInverse());
+    CPose sensInv(sens->getCumulativeTransformation().getInverse());
 
     if (sens->getRandomizedDetection())
     {
@@ -266,7 +266,7 @@ int CProxSensorRoutine::_detectDummy(CProxSensor* sensor, CDummy* dummy, C3Vecto
     if (d > dist)
         return (-1);
 
-    C7Vector inv(sensor->getFullCumulativeTransformation().getInverse());
+    CPose inv(sensor->getFullCumulativeTransformation().getInverse());
     C4X4Matrix dummyCTM((inv * dummy->getFullCumulativeTransformation()).getMatrix());
     double theDistance = dummyCTM.X.getLength();
     if (App::scenes->pluginContainer->geomPlugin_isPointInVolume1AndOutVolume2(
@@ -305,9 +305,9 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor, CShape* shape, C3Vecto
 
     int retVal = -1;
 
-    C7Vector inv(sensor->getFullCumulativeTransformation().getInverse());
+    CPose inv(sensor->getFullCumulativeTransformation().getInverse());
 
-    C7Vector shapeITr(inv * shape->getCumulCenteredMeshFrame());
+    CPose shapeITr(inv * shape->getCumulCenteredMeshFrame());
 
     if (sensor->getRandomizedDetection())
     {
@@ -434,9 +434,9 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor, COcTree* octree, C3Ve
 
     int retVal = -1;
 
-    C7Vector sensTr(sensor->getFullCumulativeTransformation());
-    C7Vector sensTrInv(sensTr.getInverse());
-    C7Vector octreeITr(sensTrInv * octree->getFullCumulativeTransformation());
+    CPose sensTr(sensor->getFullCumulativeTransformation());
+    CPose sensTrInv(sensTr.getInverse());
+    CPose octreeITr(sensTrInv * octree->getFullCumulativeTransformation());
 
     double cosAngle = (double)cos(maxAngle);
     if (!angleLimitation)
@@ -569,9 +569,9 @@ int CProxSensorRoutine::_detectPointCloud(CProxSensor* sensor, CPointCloud* poin
 
     int retVal = -1;
 
-    C7Vector sensTr(sensor->getFullCumulativeTransformation());
-    C7Vector sensTrInv(sensTr.getInverse());
-    C7Vector pointCloudITr(sensTrInv * pointCloud->getFullCumulativeTransformation());
+    CPose sensTr(sensor->getFullCumulativeTransformation());
+    CPose sensTrInv(sensTr.getInverse());
+    CPose pointCloudITr(sensTrInv * pointCloud->getFullCumulativeTransformation());
 
     if (App::scenes->pluginContainer->geomPlugin_volumeSensorDetectPtcloudIfSmaller(
             sensor->convexVolume->planesInside, sensor->convexVolume->planesOutside, pointCloud->getPointCloudInfo(),
@@ -618,7 +618,7 @@ void CProxSensorRoutine::_orderGroupAccordingToApproxDistanceToSensingPoint(cons
 double CProxSensorRoutine::_getApproxPointObjectBoundingBoxDistance(const C3Vector& point, CSceneObject* obj)
 { // the returned distance is always same or smaller than the real distance!
     C3Vector halfSize;
-    C7Vector tr(obj->getCumulativeTransformation() * obj->getBB(&halfSize));
+    CPose tr(obj->getCumulativeTransformation() * obj->getBB(&halfSize));
     bool isPointToo = false;
 
     if (obj->getObjectType() == sim_sceneobject_dummy)
@@ -633,11 +633,11 @@ double CProxSensorRoutine::_getApproxPointObjectBoundingBoxDistance(const C3Vect
 bool CProxSensorRoutine::_doesSensorVolumeOverlapWithObjectBoundingBox(CProxSensor* sensor, CSceneObject* obj)
 {
     C3Vector sensorHalfSize;
-    C7Vector sensorTr;
+    CPose sensorTr;
     sensor->getSensingVolumeOBB(sensorTr, sensorHalfSize);
 
     C3Vector objectHalfSize;
-    C7Vector objectTr(obj->getCumulativeTransformation() * obj->getBB(&objectHalfSize));
+    CPose objectTr(obj->getCumulativeTransformation() * obj->getBB(&objectHalfSize));
     bool objectIsPoint = false;
 
     if (obj->getObjectType() == sim_sceneobject_dummy)

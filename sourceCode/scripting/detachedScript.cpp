@@ -4478,7 +4478,7 @@ void CDetachedScript::_pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObj
     }
     else if (t == sim_stackitem_quaternion)
     {
-        const C4Vector* q = ((CInterfaceStackQuaternion*)obj)->getValue();
+        const CQuaternion* q = ((CInterfaceStackQuaternion*)obj)->getValue();
         double quat[4];
         q->getData(quat, true);
         if (pushOnlySimpleTypes)
@@ -4488,7 +4488,7 @@ void CDetachedScript::_pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObj
     }
     else if (t == sim_stackitem_pose)
     {
-        const C7Vector* p = ((CInterfaceStackPose*)obj)->getValue();
+        const CPose* p = ((CInterfaceStackPose*)obj)->getValue();
         double pose[7];
         p->getData(pose, true);
         if (pushOnlySimpleTypes)

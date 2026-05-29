@@ -11,7 +11,7 @@ struct SModelThumbnailInfo
     unsigned int creationTime;
     unsigned char validFileFormat;
     unsigned char modelOrFolder; // 0=folder, 1=file
-    C7Vector modelTr;
+    CPose modelTr;
     C3Vector modelBoundingBoxSize;
     double modelNonDefaultTranslationStepSize;
     C3Vector desiredDropPos; // set during a drag-and-drop motion
@@ -30,9 +30,9 @@ class CModelListWidget : public CModelListWidgetBase
 
     SModelThumbnailInfo* getThumbnailInfoFromModelName(const char* name, int* index);
     void addThumbnail(CThumbnail* thumbN, const char* filepath, const char* suffix, unsigned int creationTime,
-                      unsigned char modelOrFolder, bool validFileformat, C7Vector* optionalModelTr,
+                      unsigned char modelOrFolder, bool validFileformat, CPose* optionalModelTr,
                       C3Vector* optionalModelBoundingBoxSize, double* optionalModelNonDefaultTranslationStepSize);
-    static CThumbnail* loadModelThumbnail(const char* pathAndFilename, int& result, C7Vector& modelTr,
+    static CThumbnail* loadModelThumbnail(const char* pathAndFilename, int& result, CPose& modelTr,
                                           C3Vector& modelBoundingBoxSize, double& modelNonDefaultTranslationStepSize);
     void serializePart1(CSer& ar);
     void serializePart2(CSer& ar);

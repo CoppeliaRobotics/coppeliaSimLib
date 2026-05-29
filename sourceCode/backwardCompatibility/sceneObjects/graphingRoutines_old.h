@@ -13,14 +13,14 @@ class CGraphingRoutines_old
     static void getCyclicAndRangeValues(const CGraphData_old* it, bool& cyclic, double& range);
 
     static bool getDataName(int dataIndex, std::string& dataName);
-    static bool getDataValue(int dataIndex, int objectID, double& value, const C7Vector* graphCTM = nullptr);
+    static bool getDataValue(int dataIndex, int objectID, double& value, const CPose* graphCTM = nullptr);
     static bool getGraphObjectName(int dataIndex, int objectID, std::string& objName);
     static bool getObjectsFromGraphCategory(int index, int dataIndex, int& objectID);
 
     // general:
     static bool loopThroughAllAndGetDataName(int dataIndex, std::string& dataName);
     static bool loopThroughAllAndGetDataValue(int dataIndex, int objectID, double& value,
-                                              const C7Vector* graphCTM = nullptr);
+                                              const CPose* graphCTM = nullptr);
 
     static bool loopThroughAllAndGetGraphObjectName(int dataIndex, int objectID, std::string& objName);
     static bool loopThroughAllAndGetObjectsFromGraphCategory(int index, int dataIndex, int& objectID);

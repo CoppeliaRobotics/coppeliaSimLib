@@ -84,7 +84,7 @@ const double SPHERETRIANGLENORMALS[8 * 3] = {
     -0.5773,
 };
 
-void displayDrawingObject(CDrawingObject* drawingObject, C7Vector& tr, bool overlay, bool transparentObject,
+void displayDrawingObject(CDrawingObject* drawingObject, CPose& tr, bool overlay, bool transparentObject,
                           int displayAttrib, const C4X4Matrix& cameraCTM)
 {
     int _objectType = drawingObject->getObjectType();
@@ -98,7 +98,7 @@ void displayDrawingObject(CDrawingObject* drawingObject, C7Vector& tr, bool over
     if (drawingObject->getSceneObjectId() >= 0)
     {
         glTranslated(tr.X(0), tr.X(1), tr.X(2));
-        C4Vector axis = tr.Q.getAngleAndAxis();
+        CQuaternion axis = tr.Q.getAngleAndAxis();
         glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
         cameraRTM.setMultResult(tr.getInverse().getMatrix(), cameraCTM);
     }
@@ -332,7 +332,7 @@ void _drawTrianglePoints(CDrawingObject* drawingObject, int displayAttrib, const
         }
         else
         {
-            C4Vector q(&_data[0] + drawingObject->floatsPerItem * p + off);
+            CQuaternion q(&_data[0] + drawingObject->floatsPerItem * p + off);
             C3X3Matrix m = q.getMatrix();
             x = m.axis[0];
             y = m.axis[1];
@@ -409,7 +409,7 @@ void _drawQuadPoints(CDrawingObject* drawingObject, int displayAttrib, const C4X
         }
         else
         {
-            C4Vector q(&_data[0] + drawingObject->floatsPerItem * p + off);
+            CQuaternion q(&_data[0] + drawingObject->floatsPerItem * p + off);
             C3X3Matrix m = q.getMatrix();
             x = m.axis[0];
             y = m.axis[1];
@@ -488,7 +488,7 @@ void _drawDiscPoints(CDrawingObject* drawingObject, int displayAttrib, const C4X
         }
         else
         {
-            C4Vector q(&_data[0] + drawingObject->floatsPerItem * p + off);
+            CQuaternion q(&_data[0] + drawingObject->floatsPerItem * p + off);
             C3X3Matrix m = q.getMatrix();
             x = m.axis[0];
             y = m.axis[1];
@@ -570,7 +570,7 @@ void _drawCubePoints(CDrawingObject* drawingObject, int displayAttrib, const C4X
         }
         else
         {
-            C4Vector q(&_data[0] + drawingObject->floatsPerItem * p + off);
+            CQuaternion q(&_data[0] + drawingObject->floatsPerItem * p + off);
             C3X3Matrix m = q.getMatrix();
             x = m.axis[0];
             y = m.axis[1];

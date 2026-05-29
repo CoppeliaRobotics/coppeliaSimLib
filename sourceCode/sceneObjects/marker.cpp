@@ -146,7 +146,7 @@ void CMarker::_rebuildMarkerBoundingBox()
             if (_itemType != sim_markertype_custom)
             {
                 const float* q = _quats.data() + i * 4;
-                C3X3Matrix m(C4Vector(q[3], q[0], q[1], q[2]));
+                C3X3Matrix m(CQuaternion(q[3], q[0], q[1], q[2]));
                 C3Vector p(_pts.data() + i * 3);
                 CMultiSIt it;
                 double s[3] = {_sizes[i * 3 + 0] * 0.5, _sizes[i * 3 + 1] * 0.5, _sizes[i * 3 + 2] * 0.5};
@@ -164,7 +164,7 @@ void CMarker::_rebuildMarkerBoundingBox()
             else
             { // custom, non-symmetrical items
                 const float* q = _quats.data() + i * 4;
-                C3X3Matrix m(C4Vector(q[3], q[0], q[1], q[2]));
+                C3X3Matrix m(CQuaternion(q[3], q[0], q[1], q[2]));
                 C3Vector p(_pts.data() + i * 3);
                 CMultiSIt it;
                 double s[3] = {_sizes[i * 3 + 0], _sizes[i * 3 + 1], _sizes[i * 3 + 2]};
@@ -356,8 +356,8 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
         itemCnt = _itemMaxCnt - totItemCnt;
 
     // handle coords
-    C7Vector tr(getFullCumulativeTransformation());
-    C7Vector trInv(tr.getInverse());
+    CPose tr(getFullCumulativeTransformation());
+    CPose trInv(tr.getInverse());
     std::vector<C4X4Matrix> trs;
     if (transform && ((_itemOptions & sim_markeropts_local) == 0))
     {
@@ -366,7 +366,7 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
             C4X4Matrix t;
             t.X.setData(pts->data() + i * 3);
             if (quats != nullptr)
-                t.M = C4Vector(quats->at(i * 4 + 3), quats->at(i * 4 + 0), quats->at(i * 4 + 1), quats->at(i * 4 + 2)).getMatrix();
+                t.M = CQuaternion(quats->at(i * 4 + 3), quats->at(i * 4 + 0), quats->at(i * 4 + 1), quats->at(i * 4 + 2)).getMatrix();
             else
                 t.M.setIdentity();
             trs.push_back(trInv * t);
@@ -379,7 +379,7 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
             C4X4Matrix t;
             t.X.setData(pts->data() + i * 3);
             if (quats != nullptr)
-                t.M = C4Vector(quats->at(i * 4 + 3), quats->at(i * 4 + 0), quats->at(i * 4 + 1), quats->at(i * 4 + 2)).getMatrix();
+                t.M = CQuaternion(quats->at(i * 4 + 3), quats->at(i * 4 + 0), quats->at(i * 4 + 1), quats->at(i * 4 + 2)).getMatrix();
             else
                 t.M.setIdentity();
             trs.push_back(t);
@@ -540,7 +540,7 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
             }
             if (hasDim)
             {
-                C4Vector q(trs[i].M.getQuaternion());
+                CQuaternion q(trs[i].M.getQuaternion());
                 _quats.push_back((float)q(1));
                 _quats.push_back((float)q(2));
                 _quats.push_back((float)q(3));
@@ -609,7 +609,7 @@ void CMarker::computeBoundingBox()
     s(0) += 0.002;
     s(1) += 0.002;
     s(2) += 0.002;
-    C7Vector tr;
+    CPose tr;
     tr.Q.setIdentity();
     tr.X = c;
     _setBB(tr, s * 0.5);

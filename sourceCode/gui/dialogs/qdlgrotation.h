@@ -33,12 +33,12 @@ class CQDlgRotation : public CDlgEx
 
     // Coord part
     bool _setCoord_userUnit(double newValueInUserUnit, int index);
-    C7Vector _getNewTransf(const C7Vector& transf, double newValueInUserUnit, int index);
+    CPose _getNewTransf(const CPose& transf, double newValueInUserUnit, int index);
     bool _applyCoord();
 
     // Transf part
     bool _applyTransformation(int axis);
-    void _transform(C7Vector& tr, bool self, int axis);
+    void _transform(CPose& tr, bool self, int axis);
 
     static int coordMode; // 0=abs,1=rel to parent
     static double rotAngles[3];

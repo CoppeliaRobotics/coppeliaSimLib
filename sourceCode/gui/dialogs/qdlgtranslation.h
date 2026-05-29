@@ -37,15 +37,15 @@ class CQDlgTranslation : public CDlgEx
 
     // Coord part
     bool _setCoord_userUnit(double newValueInUserUnit, int index);
-    C7Vector _getNewTransf(const C7Vector& transf, double newValueInUserUnit, int index);
+    CPose _getNewTransf(const CPose& transf, double newValueInUserUnit, int index);
     bool _applyCoord(int mask);
-    void _copyTransf(const C7Vector& tr, C7Vector& trIt, int mask);
+    void _copyTransf(const CPose& tr, CPose& trIt, int mask);
 
     // Transf part
     bool _applyTranslation(int axis);
     bool _applyScaling(int axis);
-    void _transformTranslation(C7Vector& tr, bool self, int axis);
-    void _transformScaling(C7Vector& tr, int axis);
+    void _transformTranslation(CPose& tr, bool self, int axis);
+    void _transformScaling(CPose& tr, int axis);
 
     static int coordMode; // 0=abs,1=rel to parent
     static double translationValues[3];

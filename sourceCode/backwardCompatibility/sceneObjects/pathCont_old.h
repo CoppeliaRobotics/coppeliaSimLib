@@ -72,17 +72,17 @@ class CPathCont_old
     double getBezierVirtualPathLength();
     double getBezierNormalPathLength();
     double getBezierAngularPathLength();
-    bool getConfigurationOnBezierCurveClosestTo(C3Vector& pt, C7Vector& conf);
+    bool getConfigurationOnBezierCurveClosestTo(C3Vector& pt, CPose& conf);
 
     bool getPositionOnPathClosestTo(const C3Vector& pt, double& distOnPath);
 
     unsigned short getPathModifID();
 
     bool getPointOnBezierCurveAtNormalDistance(double& l, int& index0, double& t);
-    C7Vector _getInterpolatedBezierCurvePoint(int index0, double t);
+    CPose _getInterpolatedBezierCurvePoint(int index0, double t);
     void _getInterpolatedBezierCurveData(int index0, double t, int& auxFlags, double auxChannels[4]);
 
-    bool getTransformationOnBezierCurveAtNormalizedVirtualDistance(double l, C7Vector& tr);
+    bool getTransformationOnBezierCurveAtNormalizedVirtualDistance(double l, CPose& tr);
     bool getAuxDataOnBezierCurveAtNormalizedVirtualDistance(double l, int& auxFlags, double auxChannels[4]);
 
     bool invertSimplePathPointOrder(const std::vector<int>& selectedPoints);
@@ -114,7 +114,7 @@ class CPathCont_old
 
     C3Vector _getPointOnBezierCubic(const C3Vector& ptBefore, const C3Vector& ptMiddle, const C3Vector& ptAfter,
                                     C3Vector& dir, double t);
-    C4Vector _getOrientationOnBezierCubic(const C4Vector& orBefore, const C4Vector& orMiddle, const C4Vector& orAfter,
+    CQuaternion _getOrientationOnBezierCubic(const CQuaternion& orBefore, const CQuaternion& orMiddle, const CQuaternion& orAfter,
                                           double t);
     void _getDistinctConsecutivePoints(const std::vector<CPathPoint_old*>& ptCont, std::vector<C4X4Matrix>& tr,
                                        std::vector<std::vector<int>>& ptIndices);
@@ -122,7 +122,7 @@ class CPathCont_old
                                          std::vector<std::vector<int>>& ptIndices);
     void _recomputeBezierPoints();
     void _removeAllBezierPathPoints();
-    CBezierPathPoint_old* _addBezierPathPoint(const C7Vector& transf, double maxRelAbsVelocity, double onSpotDistance,
+    CBezierPathPoint_old* _addBezierPathPoint(const CPose& transf, double maxRelAbsVelocity, double onSpotDistance,
                                               unsigned short auxFlags, const double auxChannels[4]);
 
     std::vector<CSimplePathPoint_old*> _simplePathPoints;

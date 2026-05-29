@@ -48,7 +48,7 @@ class CScene : public Obj
 
     bool loadScene(CSer& ar, bool forUndoRedoOperation);
     void saveScene(CSer& ar, bool regularSave = true);
-    bool loadModel(CSer& ar, bool justLoadThumbnail, bool forceModelAsCopy, C7Vector* optionalModelTr,
+    bool loadModel(CSer& ar, bool justLoadThumbnail, bool forceModelAsCopy, CPose* optionalModelTr,
                    C3Vector* optionalModelBoundingBoxSize, double* optionalModelNonDefaultTranslationStepSize);
 
     void instancePass();
@@ -106,10 +106,10 @@ class CScene : public Obj
     int getVector3Property_t(long long int target, const char* pName, C3Vector& pState) const;
     int setMatrixProperty_t(long long int target, const char* pName, const CMatrix& pState);
     int getMatrixProperty_t(long long int target, const char* pName, CMatrix& pState) const;
-    int setQuaternionProperty_t(long long int target, const char* pName, const C4Vector& pState);
-    int getQuaternionProperty_t(long long int target, const char* pName, C4Vector& pState) const;
-    int setPoseProperty_t(long long int target, const char* pName, const C7Vector& pState);
-    int getPoseProperty_t(long long int target, const char* pName, C7Vector& pState) const;
+    int setQuaternionProperty_t(long long int target, const char* pName, const CQuaternion& pState);
+    int getQuaternionProperty_t(long long int target, const char* pName, CQuaternion& pState) const;
+    int setPoseProperty_t(long long int target, const char* pName, const CPose& pState);
+    int getPoseProperty_t(long long int target, const char* pName, CPose& pState) const;
     int setColorProperty_t(long long int target, const char* pName, const float* pState);
     int getColorProperty_t(long long int target, const char* pName, float* pState) const;
     int setFloatArrayProperty_t(long long int target, const char* pName, const std::vector<double>& pState);
@@ -176,7 +176,7 @@ class CScene : public Obj
 
   private:
     bool _loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool justLoadThumbnail, bool forceModelAsCopy,
-                           C7Vector* optionalModelTr, C3Vector* optionalModelBoundingBoxSize,
+                           CPose* optionalModelTr, C3Vector* optionalModelBoundingBoxSize,
                            double* optionalModelNonDefaultTranslationStepSize);
     bool _loadSimpleXmlSceneOrModel(CSer& ar);
     bool _saveSimpleXmlScene(CSer& ar);

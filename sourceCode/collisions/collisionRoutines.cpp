@@ -265,7 +265,7 @@ bool CCollisionRoutine::_areObjectBoundingBoxesOverlapping(CSceneObject* obj1, C
 {
     CSceneObject* objs[2] = {obj1, obj2};
     C3Vector halfSizes[2];
-    C7Vector m[2];
+    CPose m[2];
     for (size_t cnt = 0; cnt < 2; cnt++)
     {
         CSceneObject* obj = objs[cnt];

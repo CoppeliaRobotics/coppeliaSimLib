@@ -26,7 +26,7 @@ void displayEmitterOrReceiver(CBroadcastDataVisual* it)
     {
         glPushMatrix();
         glTranslated(it->_emitterConf.X(0), it->_emitterConf.X(1), it->_emitterConf.X(2));
-        C4Vector axis = it->_emitterConf.Q.getAngleAndAxis();
+        CQuaternion axis = it->_emitterConf.Q.getAngleAndAxis();
         glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
         double distances[11] = {0.0,
                                 0.001 * it->_actionRadius,

@@ -88,7 +88,7 @@ class COcTree : public CSceneObject
     void insertOctree(const COcTree* octree, unsigned int theTag);
     void insertDummy(const CDummy* dummy, unsigned int theTag);
     void insertPointCloud(const CPointCloud* pointCloud, unsigned int theTag);
-    void insertOctree(const void* octree2Info, const C7Vector& octree2Tr, unsigned int theTag);
+    void insertOctree(const void* octree2Info, const CPose& octree2Tr, unsigned int theTag);
     void insertObjects(const std::vector<int>& sel);
     void insertObject(const CSceneObject* obj, unsigned int theTag);
 
@@ -97,7 +97,7 @@ class COcTree : public CSceneObject
     void subtractOctree(const COcTree* octree);
     void subtractDummy(const CDummy* dummy);
     void subtractPointCloud(const CPointCloud* pointCloud);
-    void subtractOctree(const void* octree2Info, const C7Vector& octree2Tr);
+    void subtractOctree(const void* octree2Info, const CPose& octree2Tr);
     void subtractObjects(const std::vector<int>& sel);
     void subtractObject(const CSceneObject* obj);
 

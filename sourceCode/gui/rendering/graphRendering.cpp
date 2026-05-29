@@ -86,7 +86,7 @@ void displayGraph(CGraph* graph, CViewableBase* renderingObject, int displayAttr
 
         // Display the trajectories..
         ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack);
-        C7Vector thisInv(graph->getFullCumulativeTransformation().getInverse());
+        CPose thisInv(graph->getFullCumulativeTransformation().getInverse());
 
         for (int i = 0; i < int(graph->curves3d_old.size()); i++)
         {

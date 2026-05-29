@@ -115,7 +115,7 @@ bool CSceneObjectOperations::processCommand(int commandID)
                         std::vector<int> objs;
                         objs.push_back(clones[i]->getObjectHandle());
                         App::scene->sceneObjects->addModelObjects(objs);
-                        C7Vector tr(clones[i]->getLocalTransformation());
+                        CPose tr(clones[i]->getLocalTransformation());
                         CSceneObject* parent(clones[i]->getParent());
                         int order = App::scene->sceneObjects->getObjectSequence(clones[i]);
                         App::scene->sceneObjects->eraseObjects(&objs, true);
@@ -927,14 +927,14 @@ void CSceneObjectOperations::CSceneObjectOperations::_ungroupShape(CShape* it, s
         it->getMesh()->setPurePrimitiveType(sim_primitiveshape_none, 1.0, 1.0, 1.0);
 
     CMeshWrapper* wrapper = it->getMesh();
-    C7Vector oldTransf(it->getCumulativeTransformation());
-    C7Vector oldParentTransf(it->getFullParentCumulativeTransformation());
+    CPose oldTransf(it->getCumulativeTransformation());
+    CPose oldParentTransf(it->getFullParentCumulativeTransformation());
     std::vector<CMeshWrapper*> meshes;
     for (size_t i = 0; i < wrapper->childList.size(); i++)
     {
         CMeshWrapper* mesh = wrapper->childList[i]->copyYourself();
-        C7Vector newTransf(oldTransf * mesh->getIFrame());
-        mesh->setIFrame(C7Vector::identityTransformation);
+        CPose newTransf(oldTransf * mesh->getIFrame());
+        mesh->setIFrame(CPose::identityTransformation);
         CShape* shape = nullptr;
         if (i == wrapper->childList.size() - 1)
         {
@@ -1178,10 +1178,10 @@ CShape* CSceneObjectOperations::_morphToConvexDecomposed(
     bool voxelBased_VHACD, int maxVerticesPerCH_VHACD, double minVolumePerCH_VHACD)
 {
     CShape* morphedShape = nullptr;
-    C7Vector obbTr(it->getCumulativeTransformation() * it->getBB(nullptr));
+    CPose obbTr(it->getCumulativeTransformation() * it->getBB(nullptr));
     if (it->isCompound())
     { // ungroup, then group again
-        C7Vector tr(it->getCumulativeTransformation());
+        CPose tr(it->getCumulativeTransformation());
         double mass = it->getMesh()->getMass();
         C3Vector com(it->getMesh()->getCOM());
         C3X3Matrix inertia(it->getMesh()->getInertia());
@@ -1194,7 +1194,7 @@ CShape* CSceneObjectOperations::_morphToConvexDecomposed(
             CShape* it2 = newShapes[j];
             std::vector<double> vert;
             std::vector<int> ind;
-            it2->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation, vert, &ind, nullptr);
+            it2->getMesh()->getCumulativeMeshes(CPose::identityTransformation, vert, &ind, nullptr);
             std::vector<std::vector<double>*> outputVert;
             std::vector<std::vector<int>*> outputInd;
             CMeshRoutines::convexDecompose(&vert[0], (int)vert.size(), &ind[0], (int)ind.size(), outputVert, outputInd,
@@ -1211,7 +1211,7 @@ CShape* CSceneObjectOperations::_morphToConvexDecomposed(
                     addMesh = CMeshRoutines::getConvexHull(outputVert[i][0], outputVert[i][0], outputInd[i][0]);
                 if (addMesh)
                 {
-                    CMesh* mesh = new CMesh(C7Vector::identityTransformation, outputVert[i][0], outputInd[i][0],
+                    CMesh* mesh = new CMesh(CPose::identityTransformation, outputVert[i][0], outputInd[i][0],
                                             nullptr, nullptr, 0);
                     allMeshes.push_back(mesh);
                 }
@@ -1244,7 +1244,7 @@ CShape* CSceneObjectOperations::_morphToConvexDecomposed(
     {
         std::vector<double> vert;
         std::vector<int> ind;
-        it->getMesh()->getCumulativeMeshes(C7Vector::identityTransformation, vert, &ind, nullptr);
+        it->getMesh()->getCumulativeMeshes(CPose::identityTransformation, vert, &ind, nullptr);
         std::vector<std::vector<double>*> outputVert;
         std::vector<std::vector<int>*> outputInd;
         CMeshRoutines::convexDecompose(&vert[0], (int)vert.size(), &ind[0], (int)ind.size(), outputVert, outputInd,
@@ -1262,7 +1262,7 @@ CShape* CSceneObjectOperations::_morphToConvexDecomposed(
             if (addMesh)
             {
                 CMesh* mesh =
-                    new CMesh(C7Vector::identityTransformation, outputVert[i][0], outputInd[i][0], nullptr, nullptr, 0);
+                    new CMesh(CPose::identityTransformation, outputVert[i][0], outputInd[i][0], nullptr, nullptr, 0);
                 allMeshes.push_back(mesh);
             }
             delete outputVert[i];

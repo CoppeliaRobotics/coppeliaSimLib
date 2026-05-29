@@ -64,7 +64,7 @@ void CQDlgAssembly::on_qqSetLocalMatrix_clicked()
         VMESSAGEBOX_YES_NO, VMESSAGEBOX_REPLY_YES);
     if (res == VMESSAGEBOX_REPLY_YES)
     {
-        C7Vector transform(obj->getLocalTransformation());
+        CPose transform(obj->getLocalTransformation());
         obj->setAssemblingLocalTransformation(transform);
         refresh();
     }

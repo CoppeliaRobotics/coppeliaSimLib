@@ -1,17 +1,17 @@
 #include <vector>
 #include <algos.h>
 
-C7Vector CAlgos::getMeshBoundingBox(const std::vector<double>& vert, const std::vector<int>& ind,
+CPose CAlgos::getMeshBoundingBox(const std::vector<double>& vert, const std::vector<int>& ind,
                                     bool findNewBBFrameOrientation, C3Vector* bbSize /*=nullptr*/)
 {
-    C7Vector tr;
+    CPose tr;
     tr.setIdentity();
     std::vector<double> vertices(vert);
 
     if (findNewBBFrameOrientation)
     { // find a new frame
         tr = getMainAxis(vertices, ind);
-        C7Vector transfInverse(tr.getInverse());
+        CPose transfInverse(tr.getInverse());
 
         for (int i = 0; i < vertices.size() / 3; i++)
         {
@@ -32,7 +32,7 @@ C7Vector CAlgos::getMeshBoundingBox(const std::vector<double>& vert, const std::
         bbMin.keepMin(curr);
         bbMax.keepMax(curr);
     }
-    C7Vector translation;
+    CPose translation;
     translation.setIdentity();
     translation.X = (bbMin + bbMax) * 0.5;
     tr = tr * translation;
@@ -56,16 +56,16 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
     {
         firstPass=false;
         ogl::setColor(1.0,1.0,0.0,GL_EMISSION);
-        C4Vector v;
+        CQuaternion v;
         v.setIdentity();
         const int divNb[4]={1,6,13,19};//,25,31,38,44,50,57};
         for (int i=0;i<div;i++)
         {
-            C4Vector savedV(v);
-            C4Vector rot(piValT2/double(divNb[i]),C3Vector::unitZVector);
+            CQuaternion savedV(v);
+            CQuaternion rot(piValT2/double(divNb[i]),C3Vector::unitZVector);
             for (int j=0;j<divNb[i];j++)
             {
-                C4Vector vi(v.getInverse());
+                CQuaternion vi(v.getInverse());
                 printf("%ff,%ff,%ff,%ff,\n",vi(0),vi(1),vi(2),vi(3));
                 C3Vector w(v*C3Vector::unitZVector);
                 v=rot*v;
@@ -75,7 +75,7 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
             double aV2=aV*0.5/(double(div)-0.5);
             double aV3=aV2*0.5/(double(div)-0.5);
             double aV4=aV3*0.5/(double(div)-0.5);
-            C4Vector rot2(aV,C3Vector::unitXVector); // use aV, aV2, aV3 or aV4 depending on the desired spacing
+            CQuaternion rot2(aV,C3Vector::unitXVector); // use aV, aV2, aV3 or aV4 depending on the desired spacing
             v=rot2*v;
         }
     }
@@ -90,7 +90,7 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
         {
             firstPass=false;
             ogl::setColor(1.0,1.0,0.0,GL_EMISSION);
-            C4Vector v;
+            CQuaternion v;
             v.setIdentity();
             double aV=piValue*0.5/double(div+1);
             double aV2=aV/double(div+1);
@@ -99,12 +99,12 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
             double aV5=aV4/double(div+1);
             double aV6=aV5/double(div+1);
             double usedAv=aV;// use aV, aV2, aV3, aV4, aV5 or aV6 depending on the desired spacing
-            C4Vector rot(usedAv,C3Vector::unitZVector);
-            C4Vector rotNeg(-usedAv*double(div)*0.5,C3Vector::unitZVector);
-            C4Vector or(rotNeg);
+            CQuaternion rot(usedAv,C3Vector::unitZVector);
+            CQuaternion rotNeg(-usedAv*double(div)*0.5,C3Vector::unitZVector);
+            CQuaternion or(rotNeg);
             for (int i=0;i<div+1;i++)
             {
-                C4Vector vi(or.getInverse());
+                CQuaternion vi(or.getInverse());
                 printf("%ff,%ff,%ff,%ff,\n",vi(0),vi(1),vi(2),vi(3));
                 C3Vector w(or*C3Vector::unitXVector);
                 or=rot*or;
@@ -118,16 +118,16 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
             ogl::setColor(1.0,1.0,0.0,GL_EMISSION);
             for (int i=0;i<39;i++)
             {
-                C3Vector w(((C4Vector*)orientationDataPrecision0)[i].getInverse()*C3Vector::unitZVector);
+                C3Vector w(((CQuaternion*)orientationDataPrecision0)[i].getInverse()*C3Vector::unitZVector);
                 ogl::setColor(1.0,1.0,0.0,GL_DIFFUSE);
 
-                C3Vector w2(((C4Vector*)orientationDataPrecision1)[i].getInverse()*C3Vector::unitZVector);
+                C3Vector w2(((CQuaternion*)orientationDataPrecision1)[i].getInverse()*C3Vector::unitZVector);
                 ogl::setColor(0.0,1.0,1.0,GL_DIFFUSE);
 
-                C3Vector w3(((C4Vector*)orientationDataPrecision2)[i].getInverse()*C3Vector::unitZVector);
+                C3Vector w3(((CQuaternion*)orientationDataPrecision2)[i].getInverse()*C3Vector::unitZVector);
                 ogl::setColor(0.1,0.0,1.0,GL_DIFFUSE);
 
-                C3Vector w4(((C4Vector*)orientationDataPrecision3)[i].getInverse()*C3Vector::unitZVector);
+                C3Vector w4(((CQuaternion*)orientationDataPrecision3)[i].getInverse()*C3Vector::unitZVector);
                 ogl::setColor(0.1,0.0,1.0,GL_DIFFUSE);
 
             }
@@ -140,19 +140,19 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
             ogl::setColor(1.0,1.0,0.0,GL_EMISSION);
             for (int i=0;i<5;i++)
             {
-                C3Vector w(((C4Vector*)orientation2DataPrecision0)[i].getInverse()*C3Vector::unitXVector*2.0);
+                C3Vector w(((CQuaternion*)orientation2DataPrecision0)[i].getInverse()*C3Vector::unitXVector*2.0);
                 ogl::setColor(1.0,1.0,0.0,GL_DIFFUSE);
 
-                C3Vector w2(((C4Vector*)orientation2DataPrecision1)[i].getInverse()*C3Vector::unitXVector*1.5);
+                C3Vector w2(((CQuaternion*)orientation2DataPrecision1)[i].getInverse()*C3Vector::unitXVector*1.5);
                 ogl::setColor(0.0,1.0,1.0,GL_DIFFUSE);
 
-                C3Vector w3(((C4Vector*)orientation2DataPrecision2)[i].getInverse()*C3Vector::unitXVector*1.25);
+                C3Vector w3(((CQuaternion*)orientation2DataPrecision2)[i].getInverse()*C3Vector::unitXVector*1.25);
                 ogl::setColor(0.1,0.0,1.0,GL_DIFFUSE);
 
-                C3Vector w4(((C4Vector*)orientation2DataPrecision3)[i].getInverse()*C3Vector::unitXVector);
+                C3Vector w4(((CQuaternion*)orientation2DataPrecision3)[i].getInverse()*C3Vector::unitXVector);
                 ogl::setColor(0.1,0.0,1.0,GL_DIFFUSE);
 
-                C3Vector w5(((C4Vector*)orientation2DataPrecision4)[i].getInverse()*C3Vector::unitXVector);
+                C3Vector w5(((CQuaternion*)orientation2DataPrecision4)[i].getInverse()*C3Vector::unitXVector);
                 ogl::setColor(0.1,0.0,1.0,GL_DIFFUSE);
 
             }
@@ -262,14 +262,14 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
         0.000000, 0.000000, 1.000000, 0.000000, 0.000000, -0.000251, 1.000000, 0.000000, 0.000000, -0.000503};
 
     // First pass (roughest) (spherical):
-    C4Vector bestSmallestDirection;
+    CQuaternion bestSmallestDirection;
     double smallestDimension = 999999999.0;
     for (int i = 0; i < 39; i++)
     {
         double minMax[2] = {+999999999.0, -999999999.0};
         for (size_t j = 0; j < vert.size(); j++)
         {
-            C3Vector w(((C4Vector*)orientationDataPrecision0)[i] * vert[j]);
+            C3Vector w(((CQuaternion*)orientationDataPrecision0)[i] * vert[j]);
             if (w(2) < minMax[0])
                 minMax[0] = w(2);
             if (w(2) > minMax[1])
@@ -281,18 +281,18 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
         if (currSmallest < smallestDimension)
         {
             smallestDimension = currSmallest;
-            bestSmallestDirection = ((C4Vector*)orientationDataPrecision0)[i].getInverse();
+            bestSmallestDirection = ((CQuaternion*)orientationDataPrecision0)[i].getInverse();
         }
     }
 
     // Second pass (spherical):
-    C4Vector bestSmallestDirectionPrevious(bestSmallestDirection);
+    CQuaternion bestSmallestDirectionPrevious(bestSmallestDirection);
     smallestDimension = 999999999.0;
     for (int i = 0; i < 39; i++)
     {
         double minMax[2] = {+999999999.0, -999999999.0};
-        C4Vector currentOrientation(
-            (bestSmallestDirectionPrevious * ((C4Vector*)orientationDataPrecision1)[i].getInverse()).getInverse());
+        CQuaternion currentOrientation(
+            (bestSmallestDirectionPrevious * ((CQuaternion*)orientationDataPrecision1)[i].getInverse()).getInverse());
         for (size_t j = 0; j < vert.size(); j++)
         {
             C3Vector w(currentOrientation * vert[j]);
@@ -317,8 +317,8 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
     for (int i = 0; i < 39; i++)
     {
         double minMax[2] = {+999999999.0, -999999999.0};
-        C4Vector currentOrientation(
-            (bestSmallestDirectionPrevious * ((C4Vector*)orientationDataPrecision2)[i].getInverse()).getInverse());
+        CQuaternion currentOrientation(
+            (bestSmallestDirectionPrevious * ((CQuaternion*)orientationDataPrecision2)[i].getInverse()).getInverse());
         for (size_t j = 0; j < vert.size(); j++)
         {
             C3Vector w(currentOrientation * vert[j]);
@@ -343,8 +343,8 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
     for (int i = 0; i < 39; i++)
     {
         double minMax[2] = {+999999999.0, -999999999.0};
-        C4Vector currentOrientation(
-            (bestSmallestDirectionPrevious * ((C4Vector*)orientationDataPrecision3)[i].getInverse()).getInverse());
+        CQuaternion currentOrientation(
+            (bestSmallestDirectionPrevious * ((CQuaternion*)orientationDataPrecision3)[i].getInverse()).getInverse());
         for (size_t j = 0; j < vert.size(); j++)
         {
             C3Vector w(currentOrientation * vert[j]);
@@ -374,8 +374,8 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
     {
         double minMaxX[2] = {+999999999.0, -999999999.0};
         double minMaxY[2] = {+999999999.0, -999999999.0};
-        C4Vector currentOrientation(
-            (bestSmallestDirectionPrevious * ((C4Vector*)orientation2DataPrecision0)[i].getInverse()).getInverse());
+        CQuaternion currentOrientation(
+            (bestSmallestDirectionPrevious * ((CQuaternion*)orientation2DataPrecision0)[i].getInverse()).getInverse());
         for (size_t j = 0; j < vert.size(); j++)
         {
             C3Vector w(currentOrientation * vert[j]);
@@ -404,8 +404,8 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
     {
         double minMaxX[2] = {+999999999.0, -999999999.0};
         double minMaxY[2] = {+999999999.0, -999999999.0};
-        C4Vector currentOrientation(
-            (bestSmallestDirectionPrevious * ((C4Vector*)orientation2DataPrecision1)[i].getInverse()).getInverse());
+        CQuaternion currentOrientation(
+            (bestSmallestDirectionPrevious * ((CQuaternion*)orientation2DataPrecision1)[i].getInverse()).getInverse());
         for (size_t j = 0; j < vert.size(); j++)
         {
             C3Vector w(currentOrientation * vert[j]);
@@ -434,8 +434,8 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
     {
         double minMaxX[2] = {+999999999.0, -999999999.0};
         double minMaxY[2] = {+999999999.0, -999999999.0};
-        C4Vector currentOrientation(
-            (bestSmallestDirectionPrevious * ((C4Vector*)orientation2DataPrecision2)[i].getInverse()).getInverse());
+        CQuaternion currentOrientation(
+            (bestSmallestDirectionPrevious * ((CQuaternion*)orientation2DataPrecision2)[i].getInverse()).getInverse());
         for (size_t j = 0; j < vert.size(); j++)
         {
             C3Vector w(currentOrientation * vert[j]);
@@ -464,8 +464,8 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
     {
         double minMaxX[2] = {+999999999.0, -999999999.0};
         double minMaxY[2] = {+999999999.0, -999999999.0};
-        C4Vector currentOrientation(
-            (bestSmallestDirectionPrevious * ((C4Vector*)orientation2DataPrecision3)[i].getInverse()).getInverse());
+        CQuaternion currentOrientation(
+            (bestSmallestDirectionPrevious * ((CQuaternion*)orientation2DataPrecision3)[i].getInverse()).getInverse());
         for (size_t j = 0; j < vert.size(); j++)
         {
             C3Vector w(currentOrientation * vert[j]);
@@ -494,8 +494,8 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
     {
         double minMaxX[2] = {+999999999.0, -999999999.0};
         double minMaxY[2] = {+999999999.0, -999999999.0};
-        C4Vector currentOrientation(
-            (bestSmallestDirectionPrevious * ((C4Vector*)orientation2DataPrecision4)[i].getInverse()).getInverse());
+        CQuaternion currentOrientation(
+            (bestSmallestDirectionPrevious * ((CQuaternion*)orientation2DataPrecision4)[i].getInverse()).getInverse());
         for (size_t j = 0; j < vert.size(); j++)
         {
             C3Vector w(currentOrientation * vert[j]);
@@ -519,7 +519,7 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
 
     C3Vector alternateCenter;
     double alternateSize = DBL_MAX;
-    C4Vector bestSmallestDirectionAlternative;
+    CQuaternion bestSmallestDirectionAlternative;
 
     C3X3Matrix alternativeFrame(bestSmallestDirection);
     std::vector<int> tris;
@@ -560,7 +560,7 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
         ltn *= -1.0; // take care of direction
     if (mostSimilar * ltn != 1.0)
     {                                 // make sure they are not already colinear!
-        C4Vector q(mostSimilar, ltn); // We build the transformation from mostSimilar to ltn
+        CQuaternion q(mostSimilar, ltn); // We build the transformation from mostSimilar to ltn
         alternativeFrame = (q * alternativeFrame.getQuaternion()).getMatrix();
     }
 
@@ -612,7 +612,7 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<double>& vertices, const std::v
             ltnp.normalize();
             if (mostSimilar * ltnp != 1.0)
             {                                  // make sure they are not already colinear again!
-                C4Vector q(mostSimilar, ltnp); // We build the transformation from mostSimilar to ltnp
+                CQuaternion q(mostSimilar, ltnp); // We build the transformation from mostSimilar to ltnp
                 alternativeFrame = (q * alternativeFrame.getQuaternion()).getMatrix();
             }
         }

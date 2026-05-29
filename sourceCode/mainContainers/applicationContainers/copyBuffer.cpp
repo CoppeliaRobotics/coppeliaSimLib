@@ -391,8 +391,8 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
         CSceneObject* newParent = original->getFirstParentInSelection(&selObj);
         if (originalParent != newParent)
         { // We have to change position/orientation
-            C7Vector cumul(original->getCumulativeTransformation());
-            C7Vector nParentInv;
+            CPose cumul(original->getCumulativeTransformation());
+            CPose nParentInv;
             if (newParent == nullptr)
                 nParentInv.setIdentity();
             else
@@ -638,7 +638,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     //*/
 }
 
-void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, C7Vector& modelTr, C3Vector& modelBBSize, double modelNonDefaultTranslationStepSize)
+void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, CPose& modelTr, C3Vector& modelBBSize, double modelNonDefaultTranslationStepSize)
 {
     // This is used when saving a model. When saving a model, we basically perform
     // the same operations as for copying a selection. Since we will make use of the

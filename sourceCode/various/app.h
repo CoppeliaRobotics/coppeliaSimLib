@@ -139,10 +139,10 @@ class App
     static int getVector3Property_t(long long int target, const char* pName, C3Vector& pState);
     static int setMatrixProperty_t(long long int target, const char* pName, const CMatrix& pState);
     static int getMatrixProperty_t(long long int target, const char* pName, CMatrix& pState);
-    static int setQuaternionProperty_t(long long int target, const char* pName, const C4Vector& pState);
-    static int getQuaternionProperty_t(long long int target, const char* pName, C4Vector& pState);
-    static int setPoseProperty_t(long long int target, const char* pName, const C7Vector& pState);
-    static int getPoseProperty_t(long long int target, const char* pName, C7Vector& pState);
+    static int setQuaternionProperty_t(long long int target, const char* pName, const CQuaternion& pState);
+    static int getQuaternionProperty_t(long long int target, const char* pName, CQuaternion& pState);
+    static int setPoseProperty_t(long long int target, const char* pName, const CPose& pState);
+    static int getPoseProperty_t(long long int target, const char* pName, CPose& pState);
     static int setColorProperty_t(long long int target, const char* pName, const float* pState);
     static int getColorProperty_t(long long int target, const char* pName, float* pState);
     static int setFloatArrayProperty_t(long long int target, const char* pName, const std::vector<double>& pState);

@@ -5,7 +5,7 @@
 class CBezierPathPoint_old : public CPathPoint_old
 {
   public:
-    CBezierPathPoint_old(const C7Vector& transf);
+    CBezierPathPoint_old(const CPose& transf);
     virtual ~CBezierPathPoint_old();
 
     CBezierPathPoint_old* copyYourself();

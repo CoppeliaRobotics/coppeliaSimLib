@@ -126,7 +126,7 @@ void CTextureProperty::scaleObject(double scalingFactor)
     }
 }
 
-void CTextureProperty::transformTexturePose(const C7Vector& mCorrection)
+void CTextureProperty::transformTexturePose(const CPose& mCorrection)
 {
     _textureRelativeConfig = mCorrection * _textureRelativeConfig;
 }
@@ -174,7 +174,7 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId, c
 #endif
 
     _calculatedTextureCoordinates.clear();
-    C7Vector tr(_textureRelativeConfig.getInverse());
+    CPose tr(_textureRelativeConfig.getInverse());
     CTextureObject* it = nullptr;
     if (_textureOrVisionSensorObjectID > sim_object_sceneobjectend)
         it = App::scene->textureContainer->getObject(_textureOrVisionSensorObjectID);
@@ -478,12 +478,12 @@ void CTextureProperty::performTextureObjectLoadingMapping(const std::map<int, in
         _textureOrVisionSensorObjectID = CScene::getLoadingMapping(map, _textureOrVisionSensorObjectID); // texture is a regular texture object
 }
 
-C7Vector CTextureProperty::getTextureRelativeConfig()
+CPose CTextureProperty::getTextureRelativeConfig()
 {
     return (_textureRelativeConfig);
 }
 
-void CTextureProperty::setTextureRelativeConfig(const C7Vector& c)
+void CTextureProperty::setTextureRelativeConfig(const CPose& c)
 {
     _textureRelativeConfig = c;
     _objectStateId = -1; // Force a new calculation of texture coordinates

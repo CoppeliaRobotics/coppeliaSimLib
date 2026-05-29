@@ -364,7 +364,7 @@ void _activateNonAmbientLights(int lightHandle, CViewableBase* viewable)
             {
                 if ((light->getLightActive()) && (activeLightCounter < CLight::getMaxAvailableOglLights()))
                 {
-                    C7Vector tr(light->getFullCumulativeTransformation());
+                    CPose tr(light->getFullCumulativeTransformation());
                     C4X4Matrix m(tr.getMatrix());
                     if (light->getLightType() == sim_light_directional)
                     {
@@ -460,7 +460,7 @@ void _prepareOrEnableAuxClippingPlanes(bool prepare, int objID)
             {
                 if (prepare)
                 {
-                    C7Vector mtr(it->getFullCumulativeTransformation());
+                    CPose mtr(it->getFullCumulativeTransformation());
                     C3Vector mtrN(mtr.Q.getMatrix().axis[2]);
                     double d = (mtrN * mtr.X);
                     double cpv[4] = {-mtrN(0), -mtrN(1), -mtrN(2), d};
@@ -511,13 +511,13 @@ void _restoreDefaultLights(CSceneObject* object, CViewableBase* viewable)
         _activateNonAmbientLights(-1, viewable);
 }
 
-void _displayFrame(const C7Vector& tr, double frameSize, int color /*=0*/)
+void _displayFrame(const CPose& tr, double frameSize, int color /*=0*/)
 {
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
     glDisable(GL_DEPTH_TEST);
     glTranslated(tr.X(0), tr.X(1), tr.X(2));
-    C4Vector axis = tr.Q.getAngleAndAxis();
+    CQuaternion axis = tr.Q.getAngleAndAxis();
     glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
     ogl::drawReference(frameSize, color);
     glEnable(GL_DEPTH_TEST);
@@ -530,12 +530,12 @@ void _displayBoundingBox(CSceneObject* object, CViewableBase* viewable, bool mai
     glPushMatrix();
     glPushAttrib(GL_POLYGON_BIT);
     C3Vector bbs;
-    C7Vector bb(object->getBB(&bbs));
+    CPose bb(object->getBB(&bbs));
     bbs *= 2.0;
-    C7Vector bbInv(bb.getInverse());
-    C7Vector tr = object->getCumulativeTransformation() * bb;
+    CPose bbInv(bb.getInverse());
+    CPose tr = object->getCumulativeTransformation() * bb;
     glTranslated(tr.X(0), tr.X(1), tr.X(2));
-    C4Vector axis = tr.Q.getAngleAndAxis();
+    CQuaternion axis = tr.Q.getAngleAndAxis();
     glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
     glDisable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -548,7 +548,7 @@ void _displayBoundingBox(CSceneObject* object, CViewableBase* viewable, bool mai
     glPopMatrix();
 }
 
-void _displayBoundingBox(const C3Vector* objectFrame, const C7Vector& absBBFrame, const C3Vector& bbSize,
+void _displayBoundingBox(const C3Vector* objectFrame, const CPose& absBBFrame, const C3Vector& bbSize,
                          CSceneObject* object, bool mainSelection)
 {
     C3Vector bbMin(C3Vector::inf);
@@ -601,7 +601,7 @@ void _displayBoundingBox(const C3Vector* objectFrame, const C7Vector& absBBFrame
     ogl::buffer.clear();
     App::scene->environment->reactivateFogThatWasTemporarilyDisabled();
 
-    C4Vector r(absBBFrame.Q);
+    CQuaternion r(absBBFrame.Q);
     C3Vector absV;
     double maxH = 0.0;
     int highestIndex[3];
@@ -669,9 +669,9 @@ void _commonStart(CSceneObject* object, CViewableBase* viewable, bool transf /*=
 
     if (transf)
     {
-        C7Vector tr = object->getCumulativeTransformation();
+        CPose tr = object->getCumulativeTransformation();
         glTranslated(tr.X(0), tr.X(1), tr.X(2));
-        C4Vector axis = tr.Q.getAngleAndAxis();
+        CQuaternion axis = tr.Q.getAngleAndAxis();
         glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
     }
 }

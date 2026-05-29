@@ -31,8 +31,8 @@ void _restoreDefaultLights(CSceneObject* object, CViewableBase* viewable);
 void _commonStart(CSceneObject* object, CViewableBase* viewable, bool transf = true);
 void _commonFinish(CSceneObject* object, CViewableBase* viewable);
 void _displayBoundingBox(CSceneObject* object, CViewableBase* viewable, bool mainSelection);
-void _displayFrame(const C7Vector& tr, double frameSize, int color = 0);
-void _displayBoundingBox(const C3Vector* objectFrame, const C7Vector& absBBFrame, const C3Vector& bbSize,
+void _displayFrame(const CPose& tr, double frameSize, int color = 0);
+void _displayBoundingBox(const C3Vector* objectFrame, const CPose& absBBFrame, const C3Vector& bbSize,
                          CSceneObject* object, bool mainSelection);
 
 void _drawTriangles(const float* vertices, int verticesCnt, const int* indices, int indicesCnt, const float* normals,

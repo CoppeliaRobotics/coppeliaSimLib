@@ -221,7 +221,7 @@ bool CDummy::isPotentiallyDetectable() const
 
 void CDummy::computeBoundingBox()
 {
-    _setBB(C7Vector::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _dummySize * 0.5);
+    _setBB(CPose::identityTransformation, C3Vector(1.0, 1.0, 1.0) * _dummySize * 0.5);
 }
 
 void CDummy::setIsInScene(bool s)

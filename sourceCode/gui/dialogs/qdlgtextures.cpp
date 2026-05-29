@@ -82,7 +82,7 @@ void CQDlgTextures::refresh()
 
     if (tp != nullptr)
     {
-        C7Vector v(tp->getTextureRelativeConfig());
+        CPose v(tp->getTextureRelativeConfig());
         C3Vector euler(v.Q.getEulerAngles());
         double scalingX, scalingY;
         tp->getTextureScaling(scalingX, scalingY);
