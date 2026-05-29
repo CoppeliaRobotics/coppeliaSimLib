@@ -277,6 +277,7 @@ struct SJointProperty
     FUNCX(propApp_METHOD_quit, "quit", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_pushEvent, "pushEvent", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_getGenesisEvents, "getGenesisEvents", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propApp_METHOD_getPluginInfo, "getPluginInfo", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
     FUNCX(propApp_DEPRECATED_appDir, "appPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \
     FUNCX(propApp_DEPRECATED_tempDir, "tempPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable, "", "") \

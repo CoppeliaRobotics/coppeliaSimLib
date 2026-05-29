@@ -228,6 +228,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["getContacts"] = _method_getContacts;
         funcTable["getGenesisEvents"] = _method_getGenesisEvents;
         funcTable["setEventFilters"] = _method_setEventFilters;
+        funcTable["getPluginInfo"] = _method_getPluginInfo;
     }
 
     std::string retVal("__notFound__");
@@ -8326,6 +8327,33 @@ std::string _method_setEventFilters(int targetObj, const char* method, CDetached
             }
         }
         target->setEventFilters(targetFilters, typeFilters);
+    }
+    return errMsg;
+}
+
+std::string _method_getPluginInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    {
+        std::string pluginName = fetchText(inStack, 0);
+        CPlugin* plug = App::scenes->pluginContainer->getPluginFromName(pluginName.c_str());
+        if (plug == nullptr)
+            plug = App::scenes->pluginContainer->getPluginFromName_old(pluginName.c_str(), true);
+        if (plug != nullptr)
+        {
+            CInterfaceStackTable* tbl = new CInterfaceStackTable();
+            tbl->appendMapObject_text("versionStr", plug->getExtendedVersionString().c_str());
+            tbl->appendMapObject_text("buildDate", plug->getBuildDateString().c_str());
+            tbl->appendMapObject_int32("version", plug->getExtendedVersionInt());
+            tbl->appendMapObject_int32("consoleVerbosity", App::getConsoleVerbosity(pluginName.c_str()));
+            tbl->appendMapObject_int32("statusbarVerbosity", App::getStatusbarVerbosity(pluginName.c_str()));
+            outStack->pushObjectOntoStack(tbl);
+
+            // printf("a %i, %s, %s\n", plug->getPluginVersion(), plug->getName().c_str(), plug->getNamespace().c_str());
+        }
+        else
+            errMsg = SIM_ERROR_INVALID_PLUGIN_NAME;
     }
     return errMsg;
 }
