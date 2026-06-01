@@ -1061,6 +1061,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertytype_handle", sim_propertytype_handle},
     {"sim.propertytype_handlearray", sim_propertytype_handlearray},
     {"sim.propertytype_stringarray", sim_propertytype_stringarray},
+    {"sim.propertytype_group", sim_propertytype_group},
     {"sim.propertytype_method", sim_propertytype_method},
     // stack types
     {"sim.stackitem_null", sim_stackitem_null},

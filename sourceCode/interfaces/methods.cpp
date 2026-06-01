@@ -230,6 +230,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["setEventFilters"] = _method_setEventFilters;
         funcTable["getPluginInfo"] = _method_getPluginInfo;
         funcTable["setPluginInfo"] = _method_setPluginInfo;
+        funcTable["dynamics.step"] = _method_dynamicsStep;
     }
 
     std::string retVal("__notFound__");
@@ -8406,6 +8407,28 @@ std::string _method_setPluginInfo(int targetObj, const char* method, CDetachedSc
         }
         else
             errMsg = SIM_ERROR_INVALID_PLUGIN_NAME;
+    }
+    return errMsg;
+}
+
+std::string _method_dynamicsStep(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_double | arg_optional}))
+    {
+        if ((currentScript != nullptr) && (currentScript->getScriptType() == sim_scripttype_main))
+        {
+            if (App::scene->dynamicsContainer->getDynamicsEnabled())
+            {
+                double stepSize = fetchDouble(inStack, 0, App::scene->simulation->getTimeStep());
+                App::scene->dynamicsContainer->handleDynamics(stepSize);
+                CApiErrors::getAndClearLastError();
+                if (!App::scene->dynamicsContainer->isWorldThere())
+                    App::scene->dynamicsContainer->markForWarningDisplay_physicsEngineNotSupported();
+            }
+        }
+        else
+            errMsg = SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
     }
     return errMsg;
 }

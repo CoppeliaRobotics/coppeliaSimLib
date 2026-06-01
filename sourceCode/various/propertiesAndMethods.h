@@ -97,9 +97,11 @@ struct SJointProperty
 #define proptypetag_handle "&han&."
 #define proptypetag_handlearray "&hanvect&."
 #define proptypetag_stringarray "&strvect&."
+#define proptypetag_group "&grp&."
 
 #define SIM_PROPERTYINFO_DEPRECATED (sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude)
 #define SIM_PROPERTYINFO_METHOD (sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude)
+#define SIM_PROPERTYINFO_GROUP (sim_propertyinfo_silent | sim_propertyinfo_constant | sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude)
 
 #define OBJECT_PROPERTIES \
     FUNCX(propObject_objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, jsonStr({{"label", "Object type"}, {"description", ""}}), "") \
@@ -108,6 +110,7 @@ struct SJointProperty
     FUNCX(propObject_metaInfoNameSpaces, "metaInfo.namespaces", sim_propertytype_stringarray, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, jsonStr({{"label", "object name spaces"}, {"description", ""}}), "") \
     FUNCX(propObject_metaInfoIsClass, "metaInfo.isClass", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, jsonStr({{"label", "class flag"}, {"description", ""}}), "") \
     FUNCX(propObject_metaInfoIsSceneObject, "metaInfo.isSceneObject", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, jsonStr({{"label", "sceneObject flag"}, {"description", ""}}), "") \
+    FUNCX(propObject_GROUP_metaInfo, "metaInfo", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
     FUNCX(propObject_METHOD_getBoolProperty, "getBoolProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_getBufferProperty, "getBufferProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_getColorProperty, "getColorProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
@@ -225,6 +228,7 @@ struct SJointProperty
     FUNCX(propApp_machineID3, "machineID3", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propApp_pid, "pid", sim_propertytype_long, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "PID"}, {"description", ""}}), "") \
     FUNCX(propApp_systemTime, "systemTime", sim_propertytype_float, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "System time"}, {"description", ""}}), "") \
+    FUNCX(propApp_GROUP_paths, "paths", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
     FUNCX(propApp_METHOD_handleAddOnScripts, "handleAddOnScripts", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_handleSandboxScript, "handleSandboxScript", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_loadModelThumbnail, "loadModelThumbnail", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
@@ -386,6 +390,7 @@ struct SJointProperty
     FUNCX(propConvexVolume_subdivisions, "volume.subdivisions", sim_propertytype_intarray, 0,  jsonStr({{"label", "Subdivisions"}, {"description", "Number of subdivisions (near and far) for cone-type volumes"}}), "") \
     FUNCX(propConvexVolume_edges, "volume.edges", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Volume edges"}, {"description", "List of segments (defined by pairs of end-point coordinates) visualizing the volume"}}), "") \
     FUNCX(propConvexVolume_closeEdges, "volume.closeEdges", sim_propertytype_floatarray, sim_propertyinfo_notwritable,  jsonStr({{"label", "Volume close edges"}, {"description", "List of segments (defined by pairs of end-point coordinates) visualizing the close threshold of the volume"}}), "") \
+    FUNCX(propConvexVolume_GROUP_volume, "volume", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
     /* Following for backward compatibility: */ \
     FUNCX(propConvexVolume_DEPRECATED_offset, "volume_offset", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED,  "", "") \
     FUNCX(propConvexVolume_DEPRECATED_range, "volume_range", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED,  "", "") \
@@ -490,6 +495,12 @@ struct SJointProperty
     FUNCX(propDynCont_mujocoKinematicWeldSolref, "dynamics.mujoco.kinematicWeldSolref", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propDynCont_mujocoKinematicWeldSolimp, "dynamics.mujoco.kinematicWeldSolimp", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propDynCont_mujocoKinematicWeldTorqueScale, "dynamics.mujoco.kinematicWeldTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDynCont_GROUP_dynamics, "dynamics", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDynCont_GROUP_dynamicsBullet, "dynamics.bullet", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDynCont_GROUP_dynamicsOde, "dynamics.ode", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDynCont_GROUP_dynamicsNewton, "dynamics.newton", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDynCont_GROUP_dynamicsVortex, "dynamics.vortex", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDynCont_GROUP_dynamicsMujoco, "dynamics.mujoco", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
     /* Following for backward compatibility: */ \
     FUNCX(propDynCont_DEPRECATED_dynamicsEnabled, "dynamicsEnabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED, -1, -1, -1, -1, -1,  jsonStr({{"label", "Dynamics enabled"}, {"description", ""}}), "") \
     FUNCX(propDynCont_DEPRECATED_showContactPoints, "showContactPoints", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED, -1, -1, -1, -1, -1,  jsonStr({{"label", "Show contact points"}, {"description", ""}}), "") \
@@ -616,6 +627,7 @@ struct SJointProperty
     FUNCX(propScene_METHOD_groupShapes, "groupShapes", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_mergeShapes, "mergeShapes", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_getContacts, "getContacts", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propScene_METHOD_stepDynamics, "dynamics.step", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
     FUNCX(propScene_DEPRECATED_sceneIsLocked, "sceneIsLocked", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_notwritable,  "", "") \
     FUNCX(propScene_DEPRECATED_sceneUid, "sceneUid", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable,  "", "") \
@@ -635,6 +647,7 @@ struct SJointProperty
     FUNCX(propSimulation_simulationState, "simulation.state", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Simulation state"}, {"description", ""}}), "") \
     FUNCX(propSimulation_stepsPerRendering, "simulation.stepsPerRendering", sim_propertytype_int, 0,  jsonStr({{"label", "Steps per frame"}, {"description", "Simulation steps per frame"}}), "") \
     FUNCX(propSimulation_speedModifier, "simulation.speedModifier", sim_propertytype_int, sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Speed modifier"}, {"description", ""}}), "") \
+    FUNCX(propSimulation_GROUP_simulation, "simulation", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
     /* Following for backward compatibility: */ \
     FUNCX(propSimulation_DEPRECATED_removeNewObjectsAtEnd, "removeNewObjectsAtEnd", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED, "", "") \
     FUNCX(propSimulation_DEPRECATED_realtimeSimulation, "realtimeSimulation", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED, "", "") \
@@ -681,6 +694,7 @@ struct SJointProperty
     FUNCX(propMesh_primitiveType, "primitiveType", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Primitive type"}, {"description", ""}}), "") \
     FUNCX(propMesh_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable,  jsonStr({{"label", "Convex"}, {"description", "Whether mesh is convex or not"}}), "") \
     FUNCX(propMesh_colorName, "colorName", sim_propertytype_string, 0,  jsonStr({{"label", "Color name"}, {"description", ""}}), "") \
+    FUNCX(propMesh_GROUP_texture, "texture", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
     /* Following for backward compatibility: */ \
     FUNCX(propMesh_DEPRECATED_textureResolution, "textureResolution", sim_propertytype_intarray2, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_notwritable, "", "") \
     FUNCX(propMesh_DEPRECATED_textureCoordinates, "textureCoordinates", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_notwritable, "", "") \
@@ -803,6 +817,12 @@ struct SJointProperty
     FUNCX(propMaterial_mujocoAdhesionForcerange, "dynamics.mujoco.adhesionforcerange", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propMaterial_mujocoAdhesionCtrl, "dynamics.mujoco.adhesionctrl", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propMaterial_mujocoGravcomp, "dynamics.mujoco.gravcomp", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propMaterial_GROUP_dynamics, "dynamics", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propMaterial_GROUP_dynamicsBullet, "dynamics.bullet", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propMaterial_GROUP_dynamicsOde, "dynamics.ode", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propMaterial_GROUP_dynamicsNewton, "dynamics.newton", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propMaterial_GROUP_dynamicsVortex, "dynamics.vortex", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propMaterial_GROUP_dynamicsMujoco, "dynamics.mujoco", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
     /* Following for backward compatibility: */ \
     FUNCX(propMaterial_DEPRECATED_engineProperties, "engineProperties", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED, -1, -1, -1, -1, -1,  jsonStr({{"label", "Engine properties"}, {"description", "Engine properties as JSON text"}}), "") \
     FUNCX(propMaterial_DEPRECATED_bulletRestitution, "bullet.restitution", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED, sim_bullet_body_restitution, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
@@ -998,6 +1018,8 @@ struct SJointProperty
     FUNCX(propSceneObject_METHOD_makeClass, "makeClass", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propSceneObject_METHOD_makeObject, "makeObject", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propSceneObject_METHOD_getObject, "getObject", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propSceneObject_GROUP_model, "model", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
+    FUNCX(propSceneObject_GROUP_mov, "mov", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
     /* Following for backward compatibility: */ \
     FUNCX(propSceneObject_DEPRECATED_parentHandle, "parentHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED, "", "") \
     FUNCX(propSceneObject_DEPRECATED_modelProperty, "modelPropertyFlags", /*redund.*/ sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED, "", "") \
@@ -1061,6 +1083,8 @@ struct SJointProperty
     FUNCX(propShape_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable,  jsonStr({{"label", "Convex"}, {"description", "Whether the shape's components are all convex or not"}}), "") \
     FUNCX(propShape_primitive, "primitive", sim_propertytype_bool, sim_propertyinfo_notwritable,  jsonStr({{"label", "Primitive"}, {"description", "Whether the shape's components are all primitives"}}), "") \
     FUNCX(propShape_compound, "compound", sim_propertytype_bool, sim_propertyinfo_notwritable,  jsonStr({{"label", "Compound"}, {"description", "Whether the shape is a compound"}}), "") \
+    FUNCX(propShape_GROUP_applyColor, "applyColor", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
+    FUNCX(propShape_GROUP_compoundColors, "compoundColors", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
     FUNCX(propShape_METHOD_addForce, "addForce", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propShape_METHOD_addTorque, "addTorque", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propShape_METHOD_relocateFrame, "relocateFrame", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
@@ -1101,6 +1125,8 @@ struct SJointProperty
     FUNCX(propDummy_mujocoOverlapConstrSolref, "dynamics.mujoco.overlapConstrSolref", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propDummy_mujocoOverlapConstrSolimp, "dynamics.mujoco.overlapConstrSolimp", sim_propertytype_floatarray, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propDummy_mujocoOverlapConstrTorqueScale, "dynamics.mujoco.overlapConstrTorquescale", sim_propertytype_float, 0, -1, -1, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propDummy_GROUP_dynamics, "dynamics", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propDummy_GROUP_dynamicsMujoco, "dynamics.mujoco", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
     /* Following for backward compatibility: */ \
     FUNCX(propDummy_DEPRECATED_dummyType, "dummyType", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED, -1, -1, -1, -1, -1, "", "") \
     FUNCX(propDummy_DEPRECATED_engineProperties, "engineProperties", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED, -1, -1, -1, -1, -1, "", "") \
@@ -1256,6 +1282,12 @@ struct SJointProperty
     FUNCX(propJoint_mujocoFrictionSolImp, "dynamics.mujoco.frictionSolimp", sim_propertytype_floatarray, 0, sim_mujoco_joint_solimpfriction1, sim_mujoco_joint_solimpfriction2, sim_mujoco_joint_solimpfriction3, sim_mujoco_joint_solimpfriction4, sim_mujoco_joint_solimpfriction5,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propJoint_mujocoSpringDamper, "dynamics.mujoco.springSpringDamper", sim_propertytype_floatarray, 0, sim_mujoco_joint_springdamper1, sim_mujoco_joint_springdamper2, -1, -1, -1,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propJoint_mujocoDependencyPolyCoef, "dynamics.mujoco.dependencyPolyCoeff", sim_propertytype_floatarray, 0, sim_mujoco_joint_polycoef1, sim_mujoco_joint_polycoef2, sim_mujoco_joint_polycoef3, sim_mujoco_joint_polycoef4, sim_mujoco_joint_polycoef5,  jsonStr({{"label", ""}, {"description", ""}}), "") \
+    FUNCX(propJoint_GROUP_dynamics, "dynamics", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_GROUP_dynamicsBullet, "dynamics.bullet", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_GROUP_dynamicsOde, "dynamics.ode", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_GROUP_dynamicsNewton, "dynamics.newton", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_GROUP_dynamicsVortex, "dynamics.vortex", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
+    FUNCX(propJoint_GROUP_dynamicsMujoco, "dynamics.mujoco", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, -1, -1, -1, -1, -1, "", "") \
     FUNCX(propJoint_METHOD_setTargetPosition, "setTargetPosition", sim_propertytype_method, SIM_PROPERTYINFO_METHOD, -1, -1, -1, -1, -1, jsonStr({}), "") \
     FUNCX(propJoint_METHOD_setTargetVelocity, "setTargetVelocity", sim_propertytype_method, SIM_PROPERTYINFO_METHOD, -1, -1, -1, -1, -1, jsonStr({}), "") \
     /* Following for backward compatibility: */ \
@@ -1447,6 +1479,7 @@ struct SJointProperty
     FUNCX(propVisionSensor_povBlurSamples, "povray.blurSamples", sim_propertytype_int, sim_propertyinfo_silent,  jsonStr({{"label", "POV-Ray: blur samples"}, {"description", "Focal blur samples (with the POV-Ray renderer plugin)"}}), "") \
     FUNCX(propVisionSensor_povBlurDistance, "povray.blurDistance", sim_propertytype_float, sim_propertyinfo_silent,  jsonStr({{"label", "POV-Ray: blur distance"}, {"description", "Focal blur distance (with the POV-Ray renderer plugin)"}}), "") \
     FUNCX(propVisionSensor_povAperture, "povray.aperture", sim_propertytype_float, sim_propertyinfo_silent,  jsonStr({{"label", "POV-Ray: aperture"}, {"description", "Aperture (with the POV-Ray renderer plugin)"}}), "") \
+    FUNCX(propVisionSensor_GROUP_povray, "povray", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
     FUNCX(propVisionSensor_METHOD_handleSensor, "handleSensor", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propVisionSensor_METHOD_resetSensor, "resetSensor", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propVisionSensor_METHOD_checkSensor, "checkSensor", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
