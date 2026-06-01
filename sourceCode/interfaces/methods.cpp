@@ -8362,23 +8362,42 @@ std::string _method_setPluginInfo(int targetObj, const char* method, CDetachedSc
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map}))
     {
+        CPlugin* plug = nullptr;
         std::string pluginName = fetchText(inStack, 0);
-        CPlugin* plug = App::scenes->pluginContainer->getPluginFromName(pluginName.c_str());
-        if (plug == nullptr)
-            plug = App::scenes->pluginContainer->getPluginFromName_old(pluginName.c_str(), true);
+        if (pluginName.empty())
+            plug = App::scenes->pluginContainer->getCurrentPlugin();
+        else
+        {
+            plug = App::scenes->pluginContainer->getPluginFromName(pluginName.c_str());
+            if (plug == nullptr)
+                plug = App::scenes->pluginContainer->getPluginFromName_old(pluginName.c_str(), true);
+        }
         if (plug != nullptr)
         {
+            std::string versionStr;
+            std::string buildDate;
+            int version;
             int consoleVerbosity;
             int statusbarVerbosity;
+            bool hasVersion = false;
             bool hasConsoleVerbosity = false;
             bool hasStatusbarVerbosity = false;
             if (CInterfaceStackTable* map = fetchMap(inStack, 1))
             {
+                map->fetchStringFromKey("versionStr", versionStr, &errMsg);
+                map->fetchStringFromKey("buildDate", buildDate, &errMsg);
+                hasVersion = map->fetchInt32FromKey("version", version, &errMsg);
                 hasConsoleVerbosity = map->fetchInt32FromKey("consoleVerbosity", consoleVerbosity, &errMsg);
                 hasStatusbarVerbosity = map->fetchInt32FromKey("statusbarVerbosity", statusbarVerbosity, &errMsg);
             }
             if (errMsg.empty())
             {
+                if (hasVersion)
+                    plug->setExtendedVersionInt(version);
+                if (!versionStr.empty())
+                    plug->setExtendedVersionString(versionStr.c_str());
+                if (!buildDate.empty())
+                    plug->setBuildDateString(buildDate.c_str());
                 if (hasConsoleVerbosity)
                     App::setConsoleVerbosity(consoleVerbosity, pluginName.c_str());
                 if (hasStatusbarVerbosity)
