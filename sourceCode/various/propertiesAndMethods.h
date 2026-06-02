@@ -205,6 +205,7 @@ struct SJointProperty
     FUNCX(propObject_METHOD_getMethodProperty, "getMethodProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_removeProperty, "removeProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_getPropertyInfo, "getPropertyInfo", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propObject_METHOD_getPropertyInfos, "getPropertyInfos", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_getPropertyName, "getPropertyName", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_getProperties, "getProperties", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propObject_METHOD_setProperties, "setProperties", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
