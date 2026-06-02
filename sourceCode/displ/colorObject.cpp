@@ -982,16 +982,24 @@ int CColorObject::getPropertyName(int& index, std::string& pName, int excludeFla
     int retVal = sim_propertyret_unknownproperty;
     for (size_t i = 0; i < allProps_col.size(); i++)
     {
-        if (((i == 0) && (_eventFlags & (1 | 2))) || ((i == 1) && (_eventFlags & 4)) || ((i == 2) && (_eventFlags & 8)) || ((i == 3) && (_eventFlags & 16)))
-        {
-            if ((pName.size() == 0) || utils::startsWith((_eventPrefix + allProps_col[i].name).c_str(), pName.c_str()))
+        if ((i == 4) || ((i == 0) && (_eventFlags & (1 | 2))) || ((i == 1) && (_eventFlags & 4)) || ((i == 2) && (_eventFlags & 8)) || ((i == 3) && (_eventFlags & 16)))
+        { // i == 4 for the COLORPREFIXTAG
+            std::string nm = allProps_col[i].name;
+            if (nm == COLORPREFIXTAG)
+            {
+                nm = _eventPrefix;
+                nm.pop_back();
+            }
+            else
+                nm = _eventPrefix + nm;
+            if ((pName.size() == 0) || utils::startsWith(nm.c_str(), pName.c_str()))
             {
                 if ((allProps_col[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
                     {
-                        pName = _eventPrefix + allProps_col[i].name;
+                        pName = nm;
                         retVal = sim_propertyret_ok;
                         break;
                     }
@@ -1005,32 +1013,36 @@ int CColorObject::getPropertyName(int& index, std::string& pName, int excludeFla
 int CColorObject::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (boost::algorithm::starts_with(ppName, _eventPrefix))
+    std::string pName(ppName);
+    for (size_t i = 0; i < allProps_col.size(); i++)
     {
-        std::string pName(ppName);
-        pName.erase(0, _eventPrefix.size());
-        for (size_t i = 0; i < allProps_col.size(); i++)
-        {
-            if (((i == 0) && (_eventFlags & (1 | 2))) || ((i == 1) && (_eventFlags & 4)) || ((i == 2) && (_eventFlags & 8)) || ((i == 3) && (_eventFlags & 16)))
+        if ((i == 4) || ((i == 0) && (_eventFlags & (1 | 2))) || ((i == 1) && (_eventFlags & 4)) || ((i == 2) && (_eventFlags & 8)) || ((i == 3) && (_eventFlags & 16)))
+        { // i == 4 for the COLORPREFIXTAG
+            std::string nm = allProps_col[i].name;
+            if (nm == COLORPREFIXTAG)
             {
-                if (pName == allProps_col[i].name)
+                nm = _eventPrefix;
+                nm.pop_back();
+            }
+            else
+                nm = _eventPrefix + nm;
+            if (pName == nm)
+            {
+                retVal = allProps_col[i].type;
+                info = allProps_col[i].flags;
+                if (infoTxt == "j")
+                    infoTxt = allProps_col[i].shortInfoTxt;
+                else
                 {
-                    retVal = allProps_col[i].type;
-                    info = allProps_col[i].flags;
-                    if (infoTxt == "j")
-                        infoTxt = allProps_col[i].shortInfoTxt;
+                    auto w = QJsonDocument::fromJson(allProps_col[i].shortInfoTxt.c_str()).object();
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
                     else
-                    {
-                        auto w = QJsonDocument::fromJson(allProps_col[i].shortInfoTxt.c_str()).object();
-                        std::string descr = w["description"].toString().toStdString();
-                        std::string label = w["label"].toString().toStdString();
-                        if ( (infoTxt == "s") || (descr == "") )
-                            infoTxt = label;
-                        else
-                            infoTxt = descr;
-                    }
-                    break;
+                        infoTxt = descr;
                 }
+                break;
             }
         }
     }
