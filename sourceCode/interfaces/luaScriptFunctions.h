@@ -54,7 +54,7 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L, const char* functionName, con
 void _raiseErrorIfNeeded(luaWrap_lua_State* L, const char* functionName, const char* errorString, bool cSideErrorReporting);
 bool doesEntityExist(std::string* errStr, int identifier);
 int fetchBoolArg(luaWrap_lua_State* L, int index, bool defaultValue = false);
-long long int fetchLongArg(luaWrap_lua_State* L, int index, long long int defaultValue = -1);
+int64_t fetchInt64Arg(luaWrap_lua_State* L, int index, int64_t defaultValue = -1);
 int fetchIntArg(luaWrap_lua_State* L, int index, int defaultValue = -1);
 int fetchHandleArg(luaWrap_lua_State* L, int index, int defaultValue = -1);
 C3Vector fetchVector3Arg(luaWrap_lua_State* L, int index);

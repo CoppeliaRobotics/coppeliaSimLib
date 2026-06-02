@@ -11,7 +11,7 @@
 #include <guiApp.h>
 #endif
 
-long long int CSceneContainer::_eventSeq = 0;
+int64_t CSceneContainer::_eventSeq = 0;
 
 CSceneContainer::CSceneContainer()
 {
@@ -69,7 +69,7 @@ int CSceneContainer::getModificationFlags(bool clearTheFlagsAfter)
     if (GuiApp::getEditModeType() != NO_EDIT_MODE)
         _modificationFlags |= 128;
 #endif
-    std::vector<long long int> currentUniqueIdsOfSel;
+    std::vector<int64_t> currentUniqueIdsOfSel;
     for (size_t i = 0; i < scene->sceneObjects->getSelectionCount(); i++)
     {
         CSceneObject* it = scene->sceneObjects->getObjectFromHandle(
@@ -542,13 +542,13 @@ CCbor* CSceneContainer::createSceneObjectAddEvent(const CSceneObject* object)
                                 nullptr, false));
 }
 
-CCbor* CSceneContainer::createSceneObjectChangedEvent(long long int sceneObjectHandle, bool isCommonObjectData, const char* fieldName, bool mergeable)
+CCbor* CSceneContainer::createSceneObjectChangedEvent(int64_t sceneObjectHandle, bool isCommonObjectData, const char* fieldName, bool mergeable)
 {
     CSceneObject* object = scene->sceneObjects->getObjectFromHandle(sceneObjectHandle);
     return (createSceneObjectChangedEvent(object, isCommonObjectData, fieldName, mergeable));
 }
 
-CCbor* CSceneContainer::createObjectChangedEvent(long long int objectHandle, const char* fieldName, bool mergeable)
+CCbor* CSceneContainer::createObjectChangedEvent(int64_t objectHandle, const char* fieldName, bool mergeable)
 {
     return _createGeneralEvent(EVENTTYPE_OBJECTCHANGED, objectHandle, objectHandle, nullptr, fieldName, mergeable);
 }
@@ -610,12 +610,12 @@ CCbor* CSceneContainer::createSceneObjectChangedEvent(const CSceneObject* object
     return (_createGeneralEvent(EVENTTYPE_OBJECTCHANGED, object->getObjectHandle(), object->getObjectUid(), ot, fieldName, mergeable));
 }
 
-CCbor* CSceneContainer::createNakedEvent(const char* event, long long int handle, long long int uid, bool mergeable)
+CCbor* CSceneContainer::createNakedEvent(const char* event, int64_t handle, int64_t uid, bool mergeable)
 { // has no 'data' field
     return (_createGeneralEvent(event, handle, uid, nullptr, nullptr, mergeable, false));
 }
 
-CCbor* CSceneContainer::createEvent(const char* event, long long int handle, long long int uid, const char* fieldName, bool mergeable)
+CCbor* CSceneContainer::createEvent(const char* event, int64_t handle, int64_t uid, const char* fieldName, bool mergeable)
 {
     return (_createGeneralEvent(event, handle, uid, nullptr, fieldName, mergeable));
 }
@@ -626,7 +626,7 @@ void CSceneContainer::pushEvent()
     _eventMutex.unlock();
 }
 
-CCbor* CSceneContainer::_createGeneralEvent(const char* event, long long int objectHandle, long long int uid, const char* objType, const char* fieldName, bool mergeable, bool openDataField /*=true*/)
+CCbor* CSceneContainer::_createGeneralEvent(const char* event, int64_t objectHandle, int64_t uid, const char* objType, const char* fieldName, bool mergeable, bool openDataField /*=true*/)
 {
     CCbor* retVal = nullptr;
     if (getEventsEnabled())
@@ -843,7 +843,7 @@ void CSceneContainer::announceObjectWillBeErased(const CSceneObject* object)
     scene->announceObjectWillBeErased(object);
 }
 
-void CSceneContainer::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
+void CSceneContainer::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     // Inform plugins about this event:
     int pluginData[4] = {scriptOrDetachedScriptHandle, int(scriptUid & 0xffffffff), int((scriptUid >> 32) & 0xffffffff), 0};
@@ -852,7 +852,7 @@ void CSceneContainer::announceScriptWillBeErased(int scriptOrDetachedScriptHandl
     scene->announceScriptWillBeErased(scriptOrDetachedScriptHandle, simulationScript, sceneSwitchPersistentScript);
 }
 
-void CSceneContainer::announceScriptStateWillBeErased(int detachedScriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
+void CSceneContainer::announceScriptStateWillBeErased(int detachedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     pluginContainer->announceScriptStateWillBeErased(detachedScriptHandle, scriptUid);
     moduleMenuItemContainer->announceScriptStateWillBeErased(detachedScriptHandle);

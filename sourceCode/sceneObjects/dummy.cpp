@@ -1353,12 +1353,12 @@ int CDummy::getIntProperty(const char* ppName, int& pState) const
     return retVal;
 }
 
-int CDummy::setHandleProperty(const char* ppName, long long int pState)
+int CDummy::setHandleProperty(const char* ppName, int64_t pState)
 {
     return setHandleProperty(ppName, pState, nullptr);
 }
 
-int CDummy::setHandleProperty(const char* ppName, long long int pState, CCbor* eev)
+int CDummy::setHandleProperty(const char* ppName, int64_t pState, CCbor* eev)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -1422,7 +1422,7 @@ int CDummy::setHandleProperty(const char* ppName, long long int pState, CCbor* e
     return retVal;
 }
 
-int CDummy::getHandleProperty(const char* ppName, long long int& pState) const
+int CDummy::getHandleProperty(const char* ppName, int64_t& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getHandleProperty(ppName, pState);

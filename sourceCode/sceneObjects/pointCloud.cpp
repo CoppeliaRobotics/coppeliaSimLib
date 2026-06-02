@@ -174,8 +174,8 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
         {
             unsigned char* v = (unsigned char*)_displayPoints.data();
             unsigned char* w = (unsigned char*)displayPoints_old.data();
-            unsigned long long vv = 0;
-            unsigned long long ww = 0;
+            uint64_t vv = 0;
+            uint64_t ww = 0;
             for (size_t i = 0; i < displayPoints_old.size() * 4; i++)
             {
                 vv += v[i];
@@ -2015,9 +2015,9 @@ int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& inf
 
 std::string CPointCloud::getObjectState() const
 {
-    long long int h = 0;
+    int64_t h = 0;
     for (size_t i = 0; i < _displayPoints.size(); i++)
-        h += ((long long int*)&_displayPoints[i])[0];
+        h += ((int64_t*)&_displayPoints[i])[0];
     for (size_t i = 0; i < _displayColorsByte.size(); i++)
         h += _displayColorsByte[i];
     return std::string(reinterpret_cast<const char*>(&h), sizeof(h));

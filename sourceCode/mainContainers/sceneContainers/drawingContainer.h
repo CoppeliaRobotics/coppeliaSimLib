@@ -29,14 +29,14 @@ class CDrawingContainer
     void removeObject(int objectId);
 
 
-    int getBoolProperty_t(long long int target, const char* pName, bool& pState) const;
-    int getLongProperty_t(long long int target, const char* pName, long long int& pState) const;
-    int getHandleProperty_t(long long int target, const char* pName, long long int& pState) const;
-    int getStringProperty_t(long long int target, const char* pName, std::string& pState) const;
-    int getHandleArrayProperty_t(long long int target, const char* pName, std::vector<long long int>& pState) const;
-    int getStringArrayProperty_t(long long int target, const char* pName, std::vector<std::string>& pState) const;
-    int getPropertyName_t(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
-    int getPropertyInfo_t(long long int target, const char* pName, int& info, std::string& infoTxt) const;
+    int getBoolProperty_t(int64_t target, const char* pName, bool& pState) const;
+    int getLongProperty_t(int64_t target, const char* pName, int64_t& pState) const;
+    int getHandleProperty_t(int64_t target, const char* pName, int64_t& pState) const;
+    int getStringProperty_t(int64_t target, const char* pName, std::string& pState) const;
+    int getHandleArrayProperty_t(int64_t target, const char* pName, std::vector<int64_t>& pState) const;
+    int getStringArrayProperty_t(int64_t target, const char* pName, std::vector<std::string>& pState) const;
+    int getPropertyName_t(int64_t target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
+    int getPropertyInfo_t(int64_t target, const char* pName, int& info, std::string& infoTxt) const;
 
     void pushGenesisEvents();
     void pushAppendNewPointEvents();

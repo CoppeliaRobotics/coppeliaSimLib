@@ -275,7 +275,7 @@ int CCustomProperties::getIntProperty(const char* pName, int& pState) const
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setLongProperty(const char* pName, long long int pState, bool& valueChange)
+int CCustomProperties::setLongProperty(const char* pName, int64_t pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
@@ -290,17 +290,17 @@ int CCustomProperties::setLongProperty(const char* pName, long long int pState, 
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_long)
             return sim_propertyret_unavailable;
-        valueChange = _updatePropertyData(pName, (const char*)&pState, sizeof(long long int));
+        valueChange = _updatePropertyData(pName, (const char*)&pState, sizeof(int64_t));
     }
     else
     {
-        _setPropertyRaw(pName, sim_propertytype_long, sim_propertyinfo_removable, "", (const char*)&pState, sizeof(long long int));
+        _setPropertyRaw(pName, sim_propertytype_long, sim_propertyinfo_removable, "", (const char*)&pState, sizeof(int64_t));
         valueChange = true;
     }
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::getLongProperty(const char* pName, long long int& pState) const
+int CCustomProperties::getLongProperty(const char* pName, int64_t& pState) const
 {
     int propType, propInfo;
     std::string infoTxt;
@@ -314,8 +314,8 @@ int CCustomProperties::getLongProperty(const char* pName, long long int& pState)
         return sim_propertyret_unavailable;
     if (propType != sim_propertytype_long)
         return sim_propertyret_unavailable;
-    if (dataLen >= sizeof(long long int))
-        std::memcpy(&pState, dataPtr, sizeof(long long int));
+    if (dataLen >= sizeof(int64_t))
+        std::memcpy(&pState, dataPtr, sizeof(int64_t));
     return sim_propertyret_ok;
 }
 
@@ -363,7 +363,7 @@ int CCustomProperties::getFloatProperty(const char* pName, double& pState) const
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setHandleProperty(const char* pName, long long int pState, bool& valueChange)
+int CCustomProperties::setHandleProperty(const char* pName, int64_t pState, bool& valueChange)
 {
     int propType, propInfo;
     std::string infoTxt;
@@ -378,17 +378,17 @@ int CCustomProperties::setHandleProperty(const char* pName, long long int pState
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_handle)
             return sim_propertyret_unavailable;
-        valueChange = _updatePropertyData(pName, (const char*)&pState, sizeof(long long int));
+        valueChange = _updatePropertyData(pName, (const char*)&pState, sizeof(int64_t));
     }
     else
     {
-        _setPropertyRaw(pName, sim_propertytype_handle, sim_propertyinfo_removable, "", (const char*)&pState, sizeof(long long int));
+        _setPropertyRaw(pName, sim_propertytype_handle, sim_propertyinfo_removable, "", (const char*)&pState, sizeof(int64_t));
         valueChange = true;
     }
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::getHandleProperty(const char* pName, long long int& pState) const
+int CCustomProperties::getHandleProperty(const char* pName, int64_t& pState) const
 {
     int propType, propInfo;
     std::string infoTxt;
@@ -402,8 +402,8 @@ int CCustomProperties::getHandleProperty(const char* pName, long long int& pStat
         return sim_propertyret_unavailable;
     if (propType != sim_propertytype_handle)
         return sim_propertyret_unavailable;
-    if (dataLen >= sizeof(long long int))
-        std::memcpy(&pState, dataPtr, sizeof(long long int));
+    if (dataLen >= sizeof(int64_t))
+        std::memcpy(&pState, dataPtr, sizeof(int64_t));
     return sim_propertyret_ok;
 }
 
@@ -995,13 +995,13 @@ int CCustomProperties::getIntArrayProperty(const char* pName, std::vector<int>& 
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState, bool& valueChange)
+int CCustomProperties::setHandleArrayProperty(const char* pName, const std::vector<int64_t>& pState, bool& valueChange)
 {
-    std::string packed(4 + (size_t)pState.size() * sizeof(long long int), '\0');
+    std::string packed(4 + (size_t)pState.size() * sizeof(int64_t), '\0');
     int32_t count = (int32_t)pState.size();
     std::memcpy(&packed[0], &count, 4);
     if (pState.size() > 0)
-        std::memcpy(&packed[4], pState.data(), pState.size() * sizeof(long long int));
+        std::memcpy(&packed[4], pState.data(), pState.size() * sizeof(int64_t));
 
     int propType, propInfo;
     std::string infoTxt;
@@ -1026,7 +1026,7 @@ int CCustomProperties::setHandleArrayProperty(const char* pName, const std::vect
     return sim_propertyret_ok;
 }
 
-int CCustomProperties::getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const
+int CCustomProperties::getHandleArrayProperty(const char* pName, std::vector<int64_t>& pState) const
 {
     pState.clear();
     int propType, propInfo;
@@ -1045,10 +1045,10 @@ int CCustomProperties::getHandleArrayProperty(const char* pName, std::vector<lon
     {
         int32_t count;
         std::memcpy(&count, dataPtr, 4);
-        if (count > 0 && dataLen >= 4 + (size_t)count * sizeof(long long int))
+        if (count > 0 && dataLen >= 4 + (size_t)count * sizeof(int64_t))
         {
             pState.resize((size_t)count);
-            std::memcpy(pState.data(), dataPtr + 4, (size_t)count * sizeof(long long int));
+            std::memcpy(pState.data(), dataPtr + 4, (size_t)count * sizeof(int64_t));
         }
     }
     return sim_propertyret_ok;

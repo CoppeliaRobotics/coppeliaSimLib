@@ -15,12 +15,12 @@ class CPluginContainer
     virtual ~CPluginContainer();
 
     CPlugin* getCurrentPlugin();
-    CPlugin* loadAndInitPlugin(const char* namespaceAndVersion, long long int loadOrigin);
-    bool deinitAndUnloadPlugin(int handle, long long int unloadOrigin, bool force = false);
+    CPlugin* loadAndInitPlugin(const char* namespaceAndVersion, int64_t loadOrigin);
+    bool deinitAndUnloadPlugin(int handle, int64_t unloadOrigin, bool force = false);
     void unloadNewPlugins();
     void unloadLegacyPlugins();
 
-    void announceScriptStateWillBeErased(int detachedScriptHandle, long long int scriptUid);
+    void announceScriptStateWillBeErased(int detachedScriptHandle, int64_t scriptUid);
 
     void uiCallAllPlugins(int msg, int* auxData = nullptr, void* auxPointer = nullptr);
     void sendEventCallbackMessageToAllPlugins(int msg, int* auxData = nullptr, void* auxPointer = nullptr, bool onlyToNewPlugins = false);
@@ -154,16 +154,16 @@ class CPluginContainer
 
            // Collision detection
     bool geomPlugin_getMeshMeshCollision(const void* mesh1ObbStruct, const CPose& mesh1Transformation, const void* mesh2ObbStruct, const CPose& mesh2Transformation, std::vector<double>* intersections = nullptr, int* mesh1Caching = nullptr, int* mesh2Caching = nullptr);
-    bool geomPlugin_getMeshOctreeCollision(const void* meshObbStruct, const CPose& meshTransformation, const void* ocStruct, const CPose& octreeTransformation, int* meshCaching = nullptr, unsigned long long int* ocCaching = nullptr);
+    bool geomPlugin_getMeshOctreeCollision(const void* meshObbStruct, const CPose& meshTransformation, const void* ocStruct, const CPose& octreeTransformation, int* meshCaching = nullptr, uint64_t* ocCaching = nullptr);
     bool geomPlugin_getMeshTriangleCollision(const void* meshObbStruct, const CPose& meshTransformation, const C3Vector& p, const C3Vector& v, const C3Vector& w, std::vector<double>* intersections = nullptr, int* caching = nullptr);
     bool geomPlugin_getMeshSegmentCollision(const void* meshObbStruct, const CPose& meshTransformation, const C3Vector& segmentExtremity, const C3Vector& segmentVector, std::vector<double>* intersections = nullptr, int* caching = nullptr);
 
-    bool geomPlugin_getOctreeOctreeCollision(const void* oc1Struct, const CPose& octree1Transformation, const void* oc2Struct, const CPose& octree2Transformation, unsigned long long int* oc1Caching = nullptr, unsigned long long int* oc2Caching = nullptr);
-    bool geomPlugin_getOctreePtcloudCollision(const void* ocStruct, const CPose& octreeTransformation, const void* pcStruct, const CPose& ptcloudTransformation, unsigned long long int* ocCaching = nullptr, unsigned long long int* pcCaching = nullptr);
-    bool geomPlugin_getOctreeTriangleCollision(const void* ocStruct, const CPose& octreeTransformation, const C3Vector& p, const C3Vector& v, const C3Vector& w, unsigned long long int* caching = nullptr);
-    bool geomPlugin_getOctreeSegmentCollision(const void* ocStruct, const CPose& octreeTransformation, const C3Vector& segmentExtremity, const C3Vector& segmentVector, unsigned long long int* caching = nullptr);
+    bool geomPlugin_getOctreeOctreeCollision(const void* oc1Struct, const CPose& octree1Transformation, const void* oc2Struct, const CPose& octree2Transformation, uint64_t* oc1Caching = nullptr, uint64_t* oc2Caching = nullptr);
+    bool geomPlugin_getOctreePtcloudCollision(const void* ocStruct, const CPose& octreeTransformation, const void* pcStruct, const CPose& ptcloudTransformation, uint64_t* ocCaching = nullptr, uint64_t* pcCaching = nullptr);
+    bool geomPlugin_getOctreeTriangleCollision(const void* ocStruct, const CPose& octreeTransformation, const C3Vector& p, const C3Vector& v, const C3Vector& w, uint64_t* caching = nullptr);
+    bool geomPlugin_getOctreeSegmentCollision(const void* ocStruct, const CPose& octreeTransformation, const C3Vector& segmentExtremity, const C3Vector& segmentVector, uint64_t* caching = nullptr);
     bool geomPlugin_getOctreePointsCollision(const void* ocStruct, const CPose& octreeTransformation, const double* points, int pointCount);
-    bool geomPlugin_getOctreePointCollision(const void* ocStruct, const CPose& octreeTransformation, const C3Vector& point, unsigned int* usrData = nullptr, unsigned long long int* caching = nullptr);
+    bool geomPlugin_getOctreePointCollision(const void* ocStruct, const CPose& octreeTransformation, const C3Vector& point, unsigned int* usrData = nullptr, uint64_t* caching = nullptr);
 
     bool geomPlugin_getBoxBoxCollision(const CPose& box1Transformation, const C3Vector& box1HalfSize, const CPose& box2Transformation, const C3Vector& box2HalfSize, bool boxesAreSolid);
     bool geomPlugin_getBoxTriangleCollision(const CPose& boxTransformation, const C3Vector& boxHalfSize, bool boxIsSolid, const C3Vector& p, const C3Vector& v, const C3Vector& w);
@@ -175,22 +175,22 @@ class CPluginContainer
 
            // Distance calculation
     bool geomPlugin_getMeshMeshDistanceIfSmaller(const void* mesh1ObbStruct, const CPose& mesh1Transformation, const void* mesh2ObbStruct, const CPose& mesh2Transformation, double& dist, C3Vector* minDistSegPt1 = nullptr, C3Vector* minDistSegPt2 = nullptr, int* mesh1Caching = nullptr, int* mesh2Caching = nullptr);
-    bool geomPlugin_getMeshOctreeDistanceIfSmaller(const void* meshObbStruct, const CPose& meshTransformation, const void* ocStruct, const CPose& octreeTransformation, double& dist, C3Vector* meshMinDistPt = nullptr, C3Vector* ocMinDistPt = nullptr, int* meshCaching = nullptr, unsigned long long int* ocCaching = nullptr);
-    bool geomPlugin_getMeshPtcloudDistanceIfSmaller(const void* meshObbStruct, const CPose& meshTransformation, const void* pcStruct, const CPose& pcTransformation, double& dist, C3Vector* meshMinDistPt = nullptr, C3Vector* pcMinDistPt = nullptr, int* meshCaching = nullptr, unsigned long long int* pcCaching = nullptr);
+    bool geomPlugin_getMeshOctreeDistanceIfSmaller(const void* meshObbStruct, const CPose& meshTransformation, const void* ocStruct, const CPose& octreeTransformation, double& dist, C3Vector* meshMinDistPt = nullptr, C3Vector* ocMinDistPt = nullptr, int* meshCaching = nullptr, uint64_t* ocCaching = nullptr);
+    bool geomPlugin_getMeshPtcloudDistanceIfSmaller(const void* meshObbStruct, const CPose& meshTransformation, const void* pcStruct, const CPose& pcTransformation, double& dist, C3Vector* meshMinDistPt = nullptr, C3Vector* pcMinDistPt = nullptr, int* meshCaching = nullptr, uint64_t* pcCaching = nullptr);
     bool geomPlugin_getMeshTriangleDistanceIfSmaller(const void* meshObbStruct, const CPose& meshTransformation, const C3Vector& p, const C3Vector& v, const C3Vector& w, double& dist, C3Vector* minDistSegPt1 = nullptr, C3Vector* minDistSegPt2 = nullptr, int* caching = nullptr);
     bool geomPlugin_getMeshSegmentDistanceIfSmaller(const void* meshObbStruct, const CPose& meshTransformation, const C3Vector& segmentEndPoint, const C3Vector& segmentVector, double& dist, C3Vector* minDistSegPt1 = nullptr, C3Vector* minDistSegPt2 = nullptr, int* caching = nullptr);
     bool geomPlugin_getMeshPointDistanceIfSmaller(const void* meshObbStruct, const CPose& meshTransformation, const C3Vector& point, double& dist, C3Vector* minDistSegPt = nullptr, int* caching = nullptr);
 
-    bool geomPlugin_getOctreeOctreeDistanceIfSmaller(const void* oc1Struct, const CPose& octree1Transformation, const void* oc2Struct, const CPose& octree2Transformation, double& dist, C3Vector* oc1MinDistPt = nullptr, C3Vector* oc2MinDistPt = nullptr, unsigned long long int* oc1Caching = nullptr, unsigned long long int* oc2Caching = nullptr);
-    bool geomPlugin_getOctreePtcloudDistanceIfSmaller(const void* ocStruct, const CPose& octreeTransformation, const void* pcStruct, const CPose& pcTransformation, double& dist, C3Vector* ocMinDistPt = nullptr, C3Vector* pcMinDistPt = nullptr, unsigned long long int* ocCaching = nullptr, unsigned long long int* pcCaching = nullptr);
-    bool geomPlugin_getOctreeTriangleDistanceIfSmaller(const void* ocStruct, const CPose& octreeTransformation, const C3Vector& p, const C3Vector& v, const C3Vector& w, double& dist, C3Vector* ocMinDistPt = nullptr, C3Vector* triMinDistPt = nullptr, unsigned long long int* ocCaching = nullptr);
-    bool geomPlugin_getOctreeSegmentDistanceIfSmaller(const void* ocStruct, const CPose& octreeTransformation, const C3Vector& segmentEndPoint, const C3Vector& segmentVector, double& dist, C3Vector* ocMinDistPt = nullptr, C3Vector* segMinDistPt = nullptr, unsigned long long int* ocCaching = nullptr);
-    bool geomPlugin_getOctreePointDistanceIfSmaller(const void* ocStruct, const CPose& octreeTransformation, const C3Vector& point, double& dist, C3Vector* ocMinDistPt = nullptr, unsigned long long int* ocCaching = nullptr);
+    bool geomPlugin_getOctreeOctreeDistanceIfSmaller(const void* oc1Struct, const CPose& octree1Transformation, const void* oc2Struct, const CPose& octree2Transformation, double& dist, C3Vector* oc1MinDistPt = nullptr, C3Vector* oc2MinDistPt = nullptr, uint64_t* oc1Caching = nullptr, uint64_t* oc2Caching = nullptr);
+    bool geomPlugin_getOctreePtcloudDistanceIfSmaller(const void* ocStruct, const CPose& octreeTransformation, const void* pcStruct, const CPose& pcTransformation, double& dist, C3Vector* ocMinDistPt = nullptr, C3Vector* pcMinDistPt = nullptr, uint64_t* ocCaching = nullptr, uint64_t* pcCaching = nullptr);
+    bool geomPlugin_getOctreeTriangleDistanceIfSmaller(const void* ocStruct, const CPose& octreeTransformation, const C3Vector& p, const C3Vector& v, const C3Vector& w, double& dist, C3Vector* ocMinDistPt = nullptr, C3Vector* triMinDistPt = nullptr, uint64_t* ocCaching = nullptr);
+    bool geomPlugin_getOctreeSegmentDistanceIfSmaller(const void* ocStruct, const CPose& octreeTransformation, const C3Vector& segmentEndPoint, const C3Vector& segmentVector, double& dist, C3Vector* ocMinDistPt = nullptr, C3Vector* segMinDistPt = nullptr, uint64_t* ocCaching = nullptr);
+    bool geomPlugin_getOctreePointDistanceIfSmaller(const void* ocStruct, const CPose& octreeTransformation, const C3Vector& point, double& dist, C3Vector* ocMinDistPt = nullptr, uint64_t* ocCaching = nullptr);
 
-    bool geomPlugin_getPtcloudPtcloudDistanceIfSmaller(const void* pc1Struct, const CPose& pc1Transformation, const void* pc2Struct, const CPose& pc2Transformation, double& dist, C3Vector* pc1MinDistPt = nullptr, C3Vector* pc2MinDistPt = nullptr, unsigned long long int* pc1Caching = nullptr, unsigned long long int* pc2Caching = nullptr);
-    bool geomPlugin_getPtcloudTriangleDistanceIfSmaller(const void* pcStruct, const CPose& pcTransformation, const C3Vector& p, const C3Vector& v, const C3Vector& w, double& dist, C3Vector* pcMinDistPt = nullptr, C3Vector* triMinDistPt = nullptr, unsigned long long int* pcCaching = nullptr);
-    bool geomPlugin_getPtcloudSegmentDistanceIfSmaller(const void* pcStruct, const CPose& pcTransformation, const C3Vector& segmentEndPoint, const C3Vector& segmentVector, double& dist, C3Vector* pcMinDistPt = nullptr, C3Vector* segMinDistPt = nullptr, unsigned long long int* pcCaching = nullptr);
-    bool geomPlugin_getPtcloudPointDistanceIfSmaller(const void* pcStruct, const CPose& pcTransformation, const C3Vector& point, double& dist, C3Vector* pcMinDistPt = nullptr, unsigned long long int* pcCaching = nullptr);
+    bool geomPlugin_getPtcloudPtcloudDistanceIfSmaller(const void* pc1Struct, const CPose& pc1Transformation, const void* pc2Struct, const CPose& pc2Transformation, double& dist, C3Vector* pc1MinDistPt = nullptr, C3Vector* pc2MinDistPt = nullptr, uint64_t* pc1Caching = nullptr, uint64_t* pc2Caching = nullptr);
+    bool geomPlugin_getPtcloudTriangleDistanceIfSmaller(const void* pcStruct, const CPose& pcTransformation, const C3Vector& p, const C3Vector& v, const C3Vector& w, double& dist, C3Vector* pcMinDistPt = nullptr, C3Vector* triMinDistPt = nullptr, uint64_t* pcCaching = nullptr);
+    bool geomPlugin_getPtcloudSegmentDistanceIfSmaller(const void* pcStruct, const CPose& pcTransformation, const C3Vector& segmentEndPoint, const C3Vector& segmentVector, double& dist, C3Vector* pcMinDistPt = nullptr, C3Vector* segMinDistPt = nullptr, uint64_t* pcCaching = nullptr);
+    bool geomPlugin_getPtcloudPointDistanceIfSmaller(const void* pcStruct, const CPose& pcTransformation, const C3Vector& point, double& dist, C3Vector* pcMinDistPt = nullptr, uint64_t* pcCaching = nullptr);
 
     double geomPlugin_getApproxBoxBoxDistance(const CPose& box1Transformation, const C3Vector& box1HalfSize, const CPose& box2Transformation, const C3Vector& box2HalfSize);
     bool geomPlugin_getBoxBoxDistanceIfSmaller(const CPose& box1Transformation, const C3Vector& box1HalfSize, const CPose& box2Transformation, const C3Vector& box2HalfSize, bool boxesAreSolid, double& dist, C3Vector* distSegPt1 = nullptr, C3Vector* distSegPt2 = nullptr, bool altRoutine = false);

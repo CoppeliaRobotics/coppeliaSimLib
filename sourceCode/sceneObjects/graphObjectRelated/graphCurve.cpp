@@ -120,7 +120,7 @@ int CGraphCurve::getId() const
     return _id;
 }
 
-long long int CGraphCurve::getUid() const
+int64_t CGraphCurve::getUid() const
 {
     return _uid;
 }

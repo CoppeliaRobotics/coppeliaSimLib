@@ -24,9 +24,9 @@ double VDateTime::getTime()
     return (double(getTimeInMs()) / 1000.0);
 }
 
-long long int VDateTime::getTimeInMs()
+int64_t VDateTime::getTimeInMs()
 {
-    long long int retVal = 0;
+    int64_t retVal = 0;
 #ifdef WIN_SIM
     bool ok;
     retVal = _getTimeWithStartInMs_viaPerformanceCounter(ok);
@@ -52,7 +52,7 @@ int VDateTime::getTimeDiffInMs(int oldTime, int newTime)
     return (newTime - oldTime);
 }
 
-unsigned long long int VDateTime::getSecondsSince1970()
+uint64_t VDateTime::getSecondsSince1970()
 {
     QDateTime now = QDateTime::currentDateTime();
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
@@ -62,7 +62,7 @@ unsigned long long int VDateTime::getSecondsSince1970()
 #endif
 }
 
-unsigned long long int VDateTime::getUnixTimeInMs()
+uint64_t VDateTime::getUnixTimeInMs()
 {
     QDateTime currentDateTime = QDateTime::currentDateTimeUtc();
     return currentDateTime.toMSecsSinceEpoch();
@@ -94,12 +94,12 @@ int VDateTime::getDaysTo(int year_before, int month_before, int day_before, int 
 }
 
 #ifdef WIN_SIM
-long long int VDateTime::_getTimeWithStartInMs_viaPerformanceCounter(bool& success)
+int64_t VDateTime::_getTimeWithStartInMs_viaPerformanceCounter(bool& success)
 {
     static bool works = true;
     static bool first = true;
     static double pcFreq = 0.0;
-    static long long int cntStart = 0;
+    static int64_t cntStart = 0;
     LARGE_INTEGER highResFreq;
     if (first && works)
     {
@@ -116,6 +116,6 @@ long long int VDateTime::_getTimeWithStartInMs_viaPerformanceCounter(bool& succe
     }
     success = true;
     QueryPerformanceCounter(&highResFreq);
-    return ((long long int)(double(highResFreq.QuadPart - cntStart) / pcFreq));
+    return ((int64_t)(double(highResFreq.QuadPart - cntStart) / pcFreq));
 }
 #endif

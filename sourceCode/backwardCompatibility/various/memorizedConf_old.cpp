@@ -46,7 +46,7 @@ void CMemorizedConf_old::restore()
     if (it == nullptr)
         return;
     it->setDynamicsResetFlag(true, false); // dynamically enabled objects have to be reset first!
-    long long int puid = -1;
+    int64_t puid = -1;
     if (it->getParent() != nullptr)
         puid = it->getParent()->getObjectUid();
     if (parentUniqueID == puid)

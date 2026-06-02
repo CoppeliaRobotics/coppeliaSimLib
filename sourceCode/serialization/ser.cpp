@@ -1006,7 +1006,7 @@ CSer& CSer::operator<<(const long& v)
     return (*this);
 }
 
-CSer& CSer::operator<<(const long long int& v)
+CSer& CSer::operator<<(const int64_t& v)
 {
     unsigned char* tmp = (unsigned char*)(&v);
     for (int i = 0; i < int(sizeof(v)); i++)
@@ -1105,7 +1105,7 @@ CSer& CSer::operator>>(long& v)
     return (*this);
 }
 
-CSer& CSer::operator>>(long long int& v)
+CSer& CSer::operator>>(int64_t& v)
 {
     unsigned char* tmp = (unsigned char*)(&v);
     for (int i = 0; i < int(sizeof(v)); i++)
@@ -1630,7 +1630,7 @@ void CSer::xmlAddNode_uint(const char* name, unsigned int val)
     node->InsertEndChild(txt);
 }
 
-void CSer::xmlAddNode_longlong(const char* name, long long val)
+void CSer::xmlAddNode_int64(const char* name, int64_t val)
 {
     xmlNode* node = _xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
@@ -1638,7 +1638,7 @@ void CSer::xmlAddNode_longlong(const char* name, long long val)
     node->InsertEndChild(txt);
 }
 
-void CSer::xmlAddNode_ulonglong(const char* name, unsigned long long val)
+void CSer::xmlAddNode_uint64(const char* name, uint64_t val)
 {
     xmlNode* node = _xmlDocument.NewElement(name);
     _xmlCurrentNode->InsertEndChild(node);
@@ -2513,10 +2513,10 @@ bool CSer::xmlGetNode_uint(const char* name, unsigned int& val, bool required /*
     return (false);
 }
 
-bool CSer::xmlGetNode_longlong(const char* name, long long& val, bool required /*=true*/)
+bool CSer::xmlGetNode_int64(const char* name, int64_t& val, bool required /*=true*/)
 {
     if (xmlDebug)
-        App::logMsg(sim_verbosity_debug, "XML read: xmlGetNode_longlong, name: %s", name);
+        App::logMsg(sim_verbosity_debug, "XML read: xmlGetNode_int64, name: %s", name);
     const xmlNode* node = _xmlCurrentNode->FirstChildElement(name);
     if (node != nullptr)
     {
@@ -2527,7 +2527,7 @@ bool CSer::xmlGetNode_longlong(const char* name, long long& val, bool required /
         {
             try
             {
-                val = boost::lexical_cast<long long>(buff);
+                val = boost::lexical_cast<int64_t>(buff);
             }
             catch (boost::bad_lexical_cast&)
             {
@@ -2549,10 +2549,10 @@ bool CSer::xmlGetNode_longlong(const char* name, long long& val, bool required /
     return (false);
 }
 
-bool CSer::xmlGetNode_ulonglong(const char* name, unsigned long long& val, bool required /*=true*/)
+bool CSer::xmlGetNode_uint64(const char* name, uint64_t& val, bool required /*=true*/)
 {
     if (xmlDebug)
-        App::logMsg(sim_verbosity_debug, "XML read: xmlGetNode_ulonglong, name: %s", name);
+        App::logMsg(sim_verbosity_debug, "XML read: xmlGetNode_uint64, name: %s", name);
     const xmlNode* node = _xmlCurrentNode->FirstChildElement(name);
     if (node != nullptr)
     {
@@ -2563,7 +2563,7 @@ bool CSer::xmlGetNode_ulonglong(const char* name, unsigned long long& val, bool 
         {
             try
             {
-                val = boost::lexical_cast<unsigned long long>(buff);
+                val = boost::lexical_cast<uint64_t>(buff);
             }
             catch (boost::bad_lexical_cast&)
             {

@@ -23,7 +23,7 @@ class CGraphCurve
 
     void setId(int id);
     int getId() const;
-    long long int getUid() const;
+    int64_t getUid() const;
     void setCurveName(const char* nm);
     std::string getCurveName() const;
     std::string getUnitStr() const;
@@ -50,7 +50,7 @@ class CGraphCurve
     double _defaultVals[3];
     int _curveWidth;
     int _id;
-    long long int _uid;
+    int64_t _uid;
     int _scriptHandle;
     int _dim;
 };

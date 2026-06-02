@@ -136,7 +136,7 @@ void CTextureObject::setImage(bool rgba, bool horizFlip, bool vertFlip, const un
     _currentTextureContentUniqueId = _textureContentUniqueId++;
 }
 
-bool CTextureObject::announceGeneralObjectWillBeErased(long long int objectID, long long int subObjectID)
+bool CTextureObject::announceGeneralObjectWillBeErased(int64_t objectID, int64_t subObjectID)
 { // return value true means this object needs destruction!
     for (int i = 0; i < int(_dependentObjects.size()); i++)
     {
@@ -162,7 +162,7 @@ void CTextureObject::transferDependenciesToThere(CTextureObject* receivingObject
     clearAllDependencies();
 }
 
-void CTextureObject::addDependentObject(long long int objectID, long long int subObjectID)
+void CTextureObject::addDependentObject(int64_t objectID, int64_t subObjectID)
 {
     _dependentObjects.push_back(objectID);
     _dependentSubObjects.push_back(subObjectID);

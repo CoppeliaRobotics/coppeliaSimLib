@@ -10,9 +10,9 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
 
 bool hasNonNullArg(const CInterfaceStack* inStack, int index);
 bool fetchBool(const CInterfaceStack* inStack, int index, bool defaultValue = false);
-long long int fetchLong(const CInterfaceStack* inStack, int index, long long int defaultValue = -1);
+int64_t fetchInt64(const CInterfaceStack* inStack, int index, int64_t defaultValue = -1);
 int fetchInt(const CInterfaceStack* inStack, int index, int defaultValue = -1);
-long long int fetchHandle(const CInterfaceStack* inStack, int index, long long int defaultValue = -1);
+int64_t fetchHandle(const CInterfaceStack* inStack, int index, int64_t defaultValue = -1);
 double fetchDouble(const CInterfaceStack* inStack, int index, double defaultValue = 0.0);
 std::string fetchText(const CInterfaceStack* inStack, int index, const char* txt = "");
 std::string fetchBuffer(const CInterfaceStack* inStack, int index);
@@ -30,10 +30,10 @@ void fetchMatrixData(const CInterfaceStack* inStack, int index, std::vector<doub
 void fetchMatrixData(const CInterfaceStack* inStack, int index, std::vector<float>& data, bool rowByRow);
 void fetchIntArray(const CInterfaceStack* inStack, int index, std::vector<int>& outArr, std::initializer_list<int> arr = {});
 void fetchIntArray(const CInterfaceStack* inStack, int index, std::vector<int>& outArr, std::vector<int>& arr);
-void fetchLongArray(const CInterfaceStack* inStack, int index, std::vector<long long int>& outArr);
+void fetchInt64Array(const CInterfaceStack* inStack, int index, std::vector<int64_t>& outArr);
 void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<int>& outArr);
-void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<long long int>& outArr, std::initializer_list<long long int> arr = {});
-void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<long long int>& outArr, std::vector<long long int>& arr);
+void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<int64_t>& outArr, std::initializer_list<int64_t> arr = {});
+void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<int64_t>& outArr, std::vector<int64_t>& arr);
 void fetchDoubleArray(const CInterfaceStack* inStack, int index, std::vector<double>& outArr, std::initializer_list<double> arr = {});
 void fetchDoubleArray(const CInterfaceStack* inStack, int index, std::vector<double>& outArr, std::vector<double>& arr);
 void fetchVector(const CInterfaceStack* inStack, int index, std::vector<double>& outArr, std::initializer_list<double> arr = {});

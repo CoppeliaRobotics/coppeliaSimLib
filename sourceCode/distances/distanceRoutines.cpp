@@ -17,7 +17,7 @@ void CDistanceRoutine::setDistanceCachingEnabled(bool e)
     _distanceCachingOff = !e;
 }
 
-unsigned long long int CDistanceRoutine::getExtendedCacheValue(int id)
+uint64_t CDistanceRoutine::getExtendedCacheValue(int id)
 {
     for (size_t i = 0; i < _extendedCacheBuffer.size(); i++)
     {
@@ -27,7 +27,7 @@ unsigned long long int CDistanceRoutine::getExtendedCacheValue(int id)
     return (0);
 }
 
-int CDistanceRoutine::insertExtendedCacheValue(unsigned long long int value)
+int CDistanceRoutine::insertExtendedCacheValue(uint64_t value)
 {
     if (_extendedCacheBuffer.size() > 100)
         _extendedCacheBuffer.pop_back();
@@ -406,7 +406,7 @@ bool CDistanceRoutine::_getOctreeDummyDistanceIfSmaller(COcTree* octree, CDummy*
     if (bbDist >= dist)
         return (false);
 
-    unsigned long long int cacheV = getExtendedCacheValue(cache1[1]);
+    uint64_t cacheV = getExtendedCacheValue(cache1[1]);
     C3Vector dummyPos(dummy->getFullCumulativeTransformation().X);
     C3Vector minDistPt;
     if (App::scenes->pluginContainer->geomPlugin_getOctreePointDistanceIfSmaller(
@@ -464,7 +464,7 @@ bool CDistanceRoutine::_getOctreeShapeDistanceIfSmaller(COcTree* octree, CShape*
 
     shape->initializeMeshCalculationStructureIfNeeded();
 
-    unsigned long long int cache1V = getExtendedCacheValue(cache1[1]);
+    uint64_t cache1V = getExtendedCacheValue(cache1[1]);
     C3Vector distPt1;
     C3Vector distPt2;
     if (App::scenes->pluginContainer->geomPlugin_getMeshOctreeDistanceIfSmaller(
@@ -525,8 +525,8 @@ bool CDistanceRoutine::_getOctreeOctreeDistanceIfSmaller(COcTree* octree1, COcTr
     if (bbDist >= dist)
         return (false);
 
-    unsigned long long int cache1V = getExtendedCacheValue(cache1[1]);
-    unsigned long long int cache2V = getExtendedCacheValue(cache2[1]);
+    uint64_t cache1V = getExtendedCacheValue(cache1[1]);
+    uint64_t cache2V = getExtendedCacheValue(cache2[1]);
     if (_distanceCachingOff)
     {
         cache1V = 0;
@@ -573,7 +573,7 @@ bool CDistanceRoutine::_getPointCloudDummyDistanceIfSmaller(CPointCloud* pointCl
     if (bbDist >= dist)
         return (false);
 
-    unsigned long long int cacheV = getExtendedCacheValue(cache1[1]);
+    uint64_t cacheV = getExtendedCacheValue(cache1[1]);
     C3Vector dummyPos(dummy->getFullCumulativeTransformation().X);
     C3Vector distPt;
     if (App::scenes->pluginContainer->geomPlugin_getPtcloudPointDistanceIfSmaller(
@@ -634,7 +634,7 @@ bool CDistanceRoutine::_getPointCloudShapeDistanceIfSmaller(CPointCloud* pointCl
 
     shape->initializeMeshCalculationStructureIfNeeded();
 
-    unsigned long long int cache1V = getExtendedCacheValue(cache1[1]);
+    uint64_t cache1V = getExtendedCacheValue(cache1[1]);
     C3Vector distPt1;
     C3Vector distPt2;
     if (App::scenes->pluginContainer->geomPlugin_getMeshPtcloudDistanceIfSmaller(
@@ -694,8 +694,8 @@ bool CDistanceRoutine::_getOctreePointCloudDistanceIfSmaller(COcTree* octree, CP
     if (bbDist >= dist)
         return (false);
 
-    unsigned long long int cache1V = getExtendedCacheValue(cache1[1]);
-    unsigned long long int cache2V = getExtendedCacheValue(cache2[1]);
+    uint64_t cache1V = getExtendedCacheValue(cache1[1]);
+    uint64_t cache2V = getExtendedCacheValue(cache2[1]);
     C3Vector distPt1;
     C3Vector distPt2;
     if (App::scenes->pluginContainer->geomPlugin_getOctreePtcloudDistanceIfSmaller(
@@ -758,8 +758,8 @@ bool CDistanceRoutine::_getPointCloudPointCloudDistanceIfSmaller(CPointCloud* po
     if (bbDist >= dist)
         return (false);
 
-    unsigned long long int cache1V = getExtendedCacheValue(cache1[1]);
-    unsigned long long int cache2V = getExtendedCacheValue(cache2[1]);
+    uint64_t cache1V = getExtendedCacheValue(cache1[1]);
+    uint64_t cache2V = getExtendedCacheValue(cache2[1]);
     C3Vector distPt1;
     C3Vector distPt2;
     if (App::scenes->pluginContainer->geomPlugin_getPtcloudPtcloudDistanceIfSmaller(

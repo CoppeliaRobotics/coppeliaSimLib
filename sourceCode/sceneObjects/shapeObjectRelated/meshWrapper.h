@@ -81,7 +81,7 @@ class CMeshWrapper : public Obj
     virtual void removeAllTextures();
     virtual void getColorStrings(std::string& colorStrings, bool onlyNamed) const;
     virtual CMesh* getFirstMesh();
-    virtual CMesh* getMeshFromUid(long long int meshUid, const CPose& parentCumulTr, CPose& shapeRelTr);
+    virtual CMesh* getMeshFromUid(int64_t meshUid, const CPose& parentCumulTr, CPose& shapeRelTr);
     virtual void appendMeshes(std::vector<CMesh*>& meshes);
 
     void addObjectEventData(int parentObjectHandle, CCbor* ev);

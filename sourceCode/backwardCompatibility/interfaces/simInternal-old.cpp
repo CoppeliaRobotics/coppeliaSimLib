@@ -7918,7 +7918,7 @@ int simSetInt32Param_internal(int parameter, int intState)
     return (-1);
 }
 
-int simGetUInt64Param_internal(int parameter, unsigned long long int* intState)
+int simGetUInt64Param_internal(int parameter, uint64_t* intState)
 {
     C_API_START;
 

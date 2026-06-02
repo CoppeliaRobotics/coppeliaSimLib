@@ -1254,7 +1254,7 @@ SIM_DLLEXPORT int simSubtractObjectFromPointCloud(int pointCloudHandle, int obje
         simSubtractObjectFromPointCloud_internal(pointCloudHandle, objectHandle, options, (double)tolerance, reserved));
 }
 SIM_DLLEXPORT int simCheckOctreePointOccupancy(int octreeHandle, int options, const float* points, int ptCnt,
-                                               unsigned int* tag, unsigned long long int* location, void* reserved)
+                                               unsigned int* tag, uint64_t* location, void* reserved)
 {
     std::vector<double> p;
     p.resize(ptCnt * 3);
@@ -2124,7 +2124,7 @@ SIM_DLLEXPORT int simGetInt32Parameter(int parameter, int* intState)
 {
     return (simGetInt32Param_internal(parameter, intState));
 }
-SIM_DLLEXPORT int simGetUInt64Parameter(int parameter, unsigned long long int* intState)
+SIM_DLLEXPORT int simGetUInt64Parameter(int parameter, uint64_t* intState)
 {
     return (simGetUInt64Param_internal(parameter, intState));
 }
@@ -3657,7 +3657,7 @@ SIM_DLLEXPORT int simGetInt32Param(int parameter, int* intState)
 {
     return (simGetInt32Param_internal(parameter, intState));
 }
-SIM_DLLEXPORT int simGetUInt64Param(int parameter, unsigned long long int* intState)
+SIM_DLLEXPORT int simGetUInt64Param(int parameter, uint64_t* intState)
 {
     return (simGetUInt64Param_internal(parameter, intState));
 }
@@ -3851,31 +3851,31 @@ SIM_DLLEXPORT int simGetObjectSpecialProperty(int objectHandle)
 {
     return (simGetObjectSpecialProperty_internal(objectHandle));
 }
-SIM_DLLEXPORT char* simGetStringProperty(long long int target, const char* pName)
+SIM_DLLEXPORT char* simGetStringProperty(int64_t target, const char* pName)
 {
     char* retVal = nullptr;
     simGetStringProperty_internal(target, pName, &retVal);
     return retVal;
 }
-SIM_DLLEXPORT char* simGetTableProperty(long long int target, const char* pName, int* bufferL)
+SIM_DLLEXPORT char* simGetTableProperty(int64_t target, const char* pName, int* bufferL)
 {
     char* retVal = nullptr;
     simGetTableProperty_internal(target, pName, &retVal, bufferL);
     return retVal;
 }
-SIM_DLLEXPORT char* simGetBufferProperty(long long int target, const char* pName, int* bufferL)
+SIM_DLLEXPORT char* simGetBufferProperty(int64_t target, const char* pName, int* bufferL)
 {
     char* retVal = nullptr;
     simGetBufferProperty_internal(target, pName, &retVal, bufferL);
     return retVal;
 }
-SIM_DLLEXPORT double* simGetFloatArrayProperty(long long int target, const char* pName, int* vL)
+SIM_DLLEXPORT double* simGetFloatArrayProperty(int64_t target, const char* pName, int* vL)
 {
     double* retVal = nullptr;
     simGetFloatArrayProperty_internal(target, pName, &retVal, vL);
     return retVal;
 }
-SIM_DLLEXPORT int* simGetIntArrayProperty(long long int target, const char* pName, int* vL)
+SIM_DLLEXPORT int* simGetIntArrayProperty(int64_t target, const char* pName, int* vL)
 {
     int* retVal = nullptr;
     simGetIntArrayProperty_internal(target, pName, &retVal, vL);
@@ -3886,7 +3886,7 @@ SIM_DLLEXPORT char* simGetPluginName(int index)
     return (simGetPluginName_internal(index, nullptr));
 }
 
-SIM_DLLEXPORT int simGetPropertyInfo_lib1(long long int target, const char* pName, SPropertyInfo* infos, SPropertyOptions* options)
+SIM_DLLEXPORT int simGetPropertyInfo_lib1(int64_t target, const char* pName, SPropertyInfo* infos, SPropertyOptions* options)
 { // original function returned 0 when property was unknown. Since 13.04.2026 it returns however -1 in that case, and generates an error
     int retVal = simGetPropertyInfo_internal(target, pName, infos, options);
     if (retVal == -1)

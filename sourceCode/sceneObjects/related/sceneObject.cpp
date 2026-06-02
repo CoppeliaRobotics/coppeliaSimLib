@@ -301,7 +301,7 @@ int CSceneObject::getObjectType() const
     return (_objectType);
 }
 
-long long int CSceneObject::getObjectUid() const
+int64_t CSceneObject::getObjectUid() const
 {
     return (_objectUid);
 }
@@ -1518,7 +1518,7 @@ void CSceneObject::addObjectEventData(CCbor* ev)
     ev->appendKeyBool(propSceneObject_modelScriptsNotActive.name, _modelProperty & sim_modelproperty_scripts_inactive);
     ev->appendKeyBool(propSceneObject_modelNotInParentBB.name, _modelProperty & sim_modelproperty_not_showasinsidemodel);
 
-    long long int pUid = -1;
+    int64_t pUid = -1;
     int pH = -1;
     if (_parentObject != nullptr)
     {
@@ -2089,7 +2089,7 @@ void CSceneObject::simulationEnded_restoreHierarchy()
     {
         if ((getCumulativeModelProperty() & sim_modelproperty_not_reset) == 0)
         {
-            long long int puid = -1;
+            int64_t puid = -1;
             CSceneObject* p = getParent();
             if (p != nullptr)
                 puid = p->getObjectUid();
@@ -2116,7 +2116,7 @@ void CSceneObject::simulationEnded()
         {
             if (_initialConfigurationMemorized)
             { // this section is special and reserved to local configuration restoration!
-                long long int puid = -1;
+                int64_t puid = -1;
                 CSceneObject* p = getParent();
                 if (p != nullptr)
                     puid = p->getObjectUid();
@@ -2563,7 +2563,7 @@ bool CSceneObject::setParent(CSceneObject* parent)
     if (diff)
     {
         _parentObject = parent;
-        long long int pUid = -1;
+        int64_t pUid = -1;
         int pH = -1;
         if (_parentObject != nullptr)
         {
@@ -3804,7 +3804,7 @@ void CSceneObject::serialize(CSer& ar)
 
                 if (exhaustiveXml)
                 {
-                    ar.xmlGetNode_longlong("handle", _objectHandle);
+                    ar.xmlGetNode_int64("handle", _objectHandle);
                     ar.xmlGetNode_int("parentHandle", _parentObjectHandle_forSerializationOnly);
                 }
 
@@ -6320,7 +6320,7 @@ int CSceneObject::getIntProperty(const char* ppName, int& pState) const
     return retVal;
 }
 
-int CSceneObject::setLongProperty(const char* ppName, long long int pState)
+int CSceneObject::setLongProperty(const char* ppName, int64_t pState)
 {
     int retVal = Obj::setLongProperty(ppName, pState);
     if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
@@ -6331,7 +6331,7 @@ int CSceneObject::setLongProperty(const char* ppName, long long int pState)
     return retVal;
 }
 
-int CSceneObject::getLongProperty(const char* ppName, long long int& pState) const
+int CSceneObject::getLongProperty(const char* ppName, int64_t& pState) const
 {
     int retVal = Obj::getLongProperty(ppName, pState);
     if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
@@ -6354,7 +6354,7 @@ int CSceneObject::getLongProperty(const char* ppName, long long int& pState) con
     return retVal;
 }
 
-int CSceneObject::setHandleProperty(const char* ppName, long long int pState)
+int CSceneObject::setHandleProperty(const char* ppName, int64_t pState)
 {
     int retVal = Obj::setHandleProperty(ppName, pState);
     if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
@@ -6376,7 +6376,7 @@ int CSceneObject::setHandleProperty(const char* ppName, long long int pState)
     return retVal;
 }
 
-int CSceneObject::getHandleProperty(const char* ppName, long long int& pState) const
+int CSceneObject::getHandleProperty(const char* ppName, int64_t& pState) const
 {
     int retVal = Obj::getHandleProperty(ppName, pState);
     if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
@@ -6955,7 +6955,7 @@ int CSceneObject::getIntArrayProperty(const char* ppName, std::vector<int>& pSta
     return retVal;
 }
 
-int CSceneObject::setHandleArrayProperty(const char* ppName, const std::vector<long long int>& pState)
+int CSceneObject::setHandleArrayProperty(const char* ppName, const std::vector<int64_t>& pState)
 {
     int retVal = Obj::setHandleArrayProperty(ppName, pState);
     if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
@@ -6984,7 +6984,7 @@ int CSceneObject::setHandleArrayProperty(const char* ppName, const std::vector<l
     return retVal;
 }
 
-int CSceneObject::getHandleArrayProperty(const char* ppName, std::vector<long long int>& pState) const
+int CSceneObject::getHandleArrayProperty(const char* ppName, std::vector<int64_t>& pState) const
 {
     pState.clear();
     int retVal = Obj::getHandleArrayProperty(ppName, pState);

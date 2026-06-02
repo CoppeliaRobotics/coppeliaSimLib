@@ -1338,7 +1338,7 @@ int CProxSensor::getIntProperty(const char* ppName, int& pState) const
     return retVal;
 }
 
-int CProxSensor::getHandleProperty(const char* ppName, long long int& pState) const
+int CProxSensor::getHandleProperty(const char* ppName, int64_t& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getHandleProperty(ppName, pState);

@@ -2505,9 +2505,9 @@ int fetchBoolArg(luaWrap_lua_State* L, int index, bool defaultValue /*= false*/)
     return retVal;
 }
 
-long long int fetchLongArg(luaWrap_lua_State* L, int index, long long int defaultValue /*= -1*/)
+int64_t fetchInt64Arg(luaWrap_lua_State* L, int index, int64_t defaultValue /*= -1*/)
 { // make sure you have verified for correct args with checkInputArguments previously
-    long long int retVal = defaultValue;
+    int64_t retVal = defaultValue;
     int argCnt = luaWrap_lua_gettop(L);
     if (argCnt >= index)
         retVal = luaWrap_lua_tointeger(L, index);
@@ -2516,7 +2516,7 @@ long long int fetchLongArg(luaWrap_lua_State* L, int index, long long int defaul
 
 int fetchIntArg(luaWrap_lua_State* L, int index, int defaultValue /*= -1*/)
 { // make sure you have verified for correct args with checkInputArguments previously
-    return int(fetchLongArg(L, index, defaultValue));
+    return int(fetchInt64Arg(L, index, defaultValue));
 }
 
 int fetchHandleArg(luaWrap_lua_State* L, int index, int defaultValue /*= -1*/)
@@ -2644,7 +2644,7 @@ void fetchIntArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outArr,
     {
         int cnt = int(luaWrap_lua_rawlen(L, index));
         outArr.resize(cnt);
-        getIntsFromTable(L, index, cnt, outArr.data());
+        getInt32ArrayFromTable(L, index, cnt, outArr.data());
     }
 }
 
@@ -2666,7 +2666,7 @@ void fetchHandleArrayArg(luaWrap_lua_State* L, int index, std::vector<int>& outA
     {
         int cnt = int(luaWrap_lua_rawlen(L, index));
         outArr.resize(cnt);
-        getHandlesFromTable(L, index, cnt, outArr.data());
+        getHandleArrayFromTable(L, index, cnt, outArr.data());
     }
 }
 
@@ -2688,7 +2688,7 @@ void fetchFloatArrayArg(luaWrap_lua_State* L, int index, std::vector<float>& out
     {
         int cnt = int(luaWrap_lua_rawlen(L, index));
         outArr.resize(cnt);
-        getFloatsFromTable(L, index, cnt, outArr.data());
+        getFloatArrayFromTable(L, index, cnt, outArr.data());
     }
 }
 
@@ -2710,7 +2710,7 @@ void fetchDoubleArrayArg(luaWrap_lua_State* L, int index, std::vector<double>& o
     {
         int cnt = int(luaWrap_lua_rawlen(L, index));
         outArr.resize(cnt);
-        getDoublesFromTable(L, index, cnt, outArr.data());
+        getDoubleArrayFromTable(L, index, cnt, outArr.data());
     }
 }
 
@@ -2731,7 +2731,7 @@ void fetchTextArrayArg(luaWrap_lua_State* L, int index, std::vector<std::string>
     if ( (argCnt >= index) && (luaWrap_lua_isnonbuffertable(L, index)) )
     {
         int cnt = int(luaWrap_lua_rawlen(L, index));
-        getStringsFromTable(L, index, cnt, outArr);
+        getStringArrayFromTable(L, index, cnt, outArr);
     }
 }
 
@@ -3200,7 +3200,7 @@ int _auxFunc(luaWrap_lua_State* L)
                 }
 #endif
                 luaWrap_lua_pushbuffer(L, (const char*)buff.data(), res[0] * res[1] * 3);
-                pushIntTableOntoStack(L, 2, res);
+                pushInt32ArrayAsTable(L, 2, res);
                 LUA_END(2);
             }
         }
@@ -3226,8 +3226,8 @@ int _auxFunc(luaWrap_lua_State* L)
                     cnt++;
                     foundItem = finder.getFoundItem(cnt);
                 }
-                pushStringTableOntoStack(L, nstrs);
-                pushStringTableOntoStack(L, pstrs);
+                pushStringArrayAsTable(L, nstrs);
+                pushStringArrayAsTable(L, pstrs);
                 LUA_END(2);
             }
         }
@@ -3365,9 +3365,9 @@ int _simHandleProximitySensor(luaWrap_lua_State* L)
         {
             luaWrap_lua_pushinteger(L, retVal);
             luaWrap_lua_pushnumber(L, detPt[3]);
-            pushDoubleTableOntoStack(L, 3, detPt);
+            pushDoubleArrayAsTable(L, 3, detPt);
             luaWrap_lua_pushinteger(L, detectedObjectID);
-            pushDoubleTableOntoStack(L, 3, surfaceNormal);
+            pushDoubleArrayAsTable(L, 3, surfaceNormal);
             LUA_END(5);
         }
     }
@@ -3376,9 +3376,9 @@ int _simHandleProximitySensor(luaWrap_lua_State* L)
     luaWrap_lua_pushinteger(L, retVal);
     double dummy[3] = {0.0, 0.0, 0.0};
     luaWrap_lua_pushnumber(L, 0.0);
-    pushDoubleTableOntoStack(L, 3, dummy);
+    pushDoubleArrayAsTable(L, 3, dummy);
     luaWrap_lua_pushinteger(L, -1);
-    pushDoubleTableOntoStack(L, 3, dummy);
+    pushDoubleArrayAsTable(L, 3, dummy);
     LUA_END(5);
 }
 
@@ -3393,15 +3393,15 @@ int _sim_qhull(luaWrap_lua_State* L)
         if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, vl))
         {
             double* vertices = new double[vl];
-            getDoublesFromTable(L, 1, vl, vertices);
+            getDoubleArrayFromTable(L, 1, vl, vertices);
             double* vertOut;
             int vertOutL;
             int* indOut;
             int indOutL;
             if (CALL_C_API(simGetQHull, vertices, vl, &vertOut, &vertOutL, &indOut, &indOutL, 0, nullptr))
             {
-                pushDoubleTableOntoStack(L, vertOutL, vertOut);
-                pushIntTableOntoStack(L, indOutL, indOut);
+                pushDoubleArrayAsTable(L, vertOutL, vertOut);
+                pushInt32ArrayAsTable(L, indOutL, indOut);
                 delete[] vertOut;
                 delete[] indOut;
                 LUA_END(2);
@@ -3435,7 +3435,7 @@ int _simHandleVisionSensor(luaWrap_lua_State* L)
                 int off = 0;
                 for (int i = 0; i < tableCount; i++)
                 {
-                    pushDoubleTableOntoStack(L, auxValsCount[i + 1], auxVals + off);
+                    pushDoubleArrayAsTable(L, auxValsCount[i + 1], auxVals + off);
                     off += auxValsCount[i + 1];
                 }
                 delete[] auxValsCount;
@@ -3443,7 +3443,7 @@ int _simHandleVisionSensor(luaWrap_lua_State* L)
             }
             for (int i = tableCount; i < 2; i++)
             {
-                pushIntTableOntoStack(L, 0, nullptr); // return at least 2 aux packets, even empty
+                pushInt32ArrayAsTable(L, 0, nullptr); // return at least 2 aux packets, even empty
                 tableCount++;
             }
             LUA_END(1 + tableCount);
@@ -3510,12 +3510,12 @@ int _simGetVisionSensorImg(luaWrap_lua_State* L)
                 if ((res == 0) || (res == 2))
                 {
                     if (res == 2)
-                        getIntsFromTable(L, 4, 2, pos);
+                        getInt32ArrayFromTable(L, 4, 2, pos);
                     res = checkOneGeneralInputArgument(L, 5, lua_arg_integer, 2, true, false, &errorString, argOffset); // size
                     if ((res == 0) || (res == 2))
                     {
                         if (res == 2)
-                            getIntsFromTable(L, 5, 2, size);
+                            getInt32ArrayFromTable(L, 5, 2, size);
                         int resolution[2];
                         unsigned char* img = CALL_C_API(simGetVisionSensorImg, sensorHandle, options, rgbaCutOff, pos, size, resolution);
                         if (img != nullptr)
@@ -3531,7 +3531,7 @@ int _simGetVisionSensorImg(luaWrap_lua_State* L)
                                 size[1] = resolution[1];
                             luaWrap_lua_pushbuffer(L, (const char*)img, s * size[0] * size[1]);
                             delete[]((char*)img);
-                            pushIntTableOntoStack(L, 2, resolution);
+                            pushInt32ArrayAsTable(L, 2, resolution);
                             LUA_END(2);
                         }
                     }
@@ -3578,12 +3578,12 @@ int _simSetVisionSensorImg(luaWrap_lua_State* L)
                         if ((res == 0) || (res == 2))
                         {
                             if (res == 2)
-                                getIntsFromTable(L, 4, 2, pos);
+                                getInt32ArrayFromTable(L, 4, 2, pos);
                             res = checkOneGeneralInputArgument(L, 5, lua_arg_integer, 2, true, false, &errorString, argOffset); // size
                             if ((res == 0) || (res == 2))
                             {
                                 if (res == 2)
-                                    getIntsFromTable(L, 5, 2, size);
+                                    getInt32ArrayFromTable(L, 5, 2, size);
                                 int s = 3;
                                 if ((options & 1) != 0)
                                     s = 1; // greyscale
@@ -3633,12 +3633,12 @@ int _simGetVisionSensorDepth(luaWrap_lua_State* L)
             if ((res == 0) || (res == 2))
             {
                 if (res == 2)
-                    getIntsFromTable(L, 3, 2, pos);
+                    getInt32ArrayFromTable(L, 3, 2, pos);
                 res = checkOneGeneralInputArgument(L, 4, lua_arg_integer, 2, true, false, &errorString, argOffset); // size
                 if ((res == 0) || (res == 2))
                 {
                     if (res == 2)
-                        getIntsFromTable(L, 4, 2, size);
+                        getInt32ArrayFromTable(L, 4, 2, size);
                     int resolution[2];
                     float* depth = CALL_C_API(simGetVisionSensorDepth, sensorHandle, options, pos, size, resolution);
                     if (depth != nullptr)
@@ -3649,7 +3649,7 @@ int _simGetVisionSensorDepth(luaWrap_lua_State* L)
                             size[1] = resolution[1];
                         luaWrap_lua_pushbuffer(L, (const char*)depth, size[0] * size[1] * sizeof(float));
                         delete[]((char*)depth);
-                        pushIntTableOntoStack(L, 2, resolution);
+                        pushInt32ArrayAsTable(L, 2, resolution);
                         LUA_END(2);
                     }
                 }
@@ -3719,9 +3719,9 @@ int _simCheckProximitySensor(luaWrap_lua_State* L)
                         {
                             luaWrap_lua_pushinteger(L, retVal);
                             luaWrap_lua_pushnumber(L, detPt[3]);
-                            pushDoubleTableOntoStack(L, 3, detPt);
+                            pushDoubleArrayAsTable(L, 3, detPt);
                             luaWrap_lua_pushinteger(L, detectedObjectHandle);
-                            pushDoubleTableOntoStack(L, 3, n);
+                            pushDoubleArrayAsTable(L, 3, n);
                             LUA_END(5);
                         }
                     }
@@ -3736,9 +3736,9 @@ int _simCheckProximitySensor(luaWrap_lua_State* L)
     luaWrap_lua_pushinteger(L, retVal);
     double dummy[3] = {0.0, 0.0, 0.0};
     luaWrap_lua_pushnumber(L, 0.0);
-    pushDoubleTableOntoStack(L, 3, dummy);
+    pushDoubleArrayAsTable(L, 3, dummy);
     luaWrap_lua_pushinteger(L, -1);
-    pushDoubleTableOntoStack(L, 3, dummy);
+    pushDoubleArrayAsTable(L, 3, dummy);
     LUA_END(5);
 }
 
@@ -3763,7 +3763,7 @@ int _simCheckVisionSensor(luaWrap_lua_State* L)
                 int off = 0;
                 for (int i = 0; i < tableCount; i++)
                 {
-                    pushDoubleTableOntoStack(L, auxValsCount[i + 1], auxVals + off);
+                    pushDoubleArrayAsTable(L, auxValsCount[i + 1], auxVals + off);
                     off += auxValsCount[i + 1];
                 }
                 delete[] auxValsCount;
@@ -3771,7 +3771,7 @@ int _simCheckVisionSensor(luaWrap_lua_State* L)
             }
             for (int i = tableCount; i < 2; i++)
             {
-                pushIntTableOntoStack(L, 0, nullptr); // return at least 2 aux packets, even empty
+                pushInt32ArrayAsTable(L, 0, nullptr); // return at least 2 aux packets, even empty
                 tableCount++;
             }
             LUA_END(1 + tableCount);
@@ -3810,7 +3810,7 @@ int _simGetObjectUid(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.getObjectUid");
 
-    long long int retVal = -1; // means error
+    int64_t retVal = -1; // means error
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0))
         retVal = CALL_C_API(simGetObjectUid, luaToInt(L, 1));
@@ -3828,7 +3828,7 @@ int _simGetObjectFromUid(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_integer, 0))
     {
-        long long int uid = fetchLongArg(L, 1);
+        int64_t uid = fetchInt64Arg(L, 1);
         int options = fetchIntArg(L, 2, 0);
         retVal = CALL_C_API(simGetObjectFromUid, uid, options);
     }
@@ -3898,7 +3898,7 @@ int _simGetObjectPosition(luaWrap_lua_State* L)
             rel = luaToInt(L, 2);
         if (CALL_C_API(simGetObjectPosition, luaToInt(L, 1), rel, coord) == 1)
         {
-            pushDoubleTableOntoStack(L, 3, coord);
+            pushDoubleArrayAsTable(L, 3, coord);
             LUA_END(1);
         }
     }
@@ -3918,7 +3918,7 @@ int _simSetObjectPosition(luaWrap_lua_State* L)
                                 lua_arg_integer | lua_arg_optional, 0))
         {
             double coord[3];
-            getDoublesFromTable(L, 2, 3, coord);
+            getDoubleArrayFromTable(L, 2, 3, coord);
             int rel = sim_handle_world;
             if (luaWrap_lua_isinteger(L, 3))
                 rel = luaToInt(L, 3);
@@ -3930,7 +3930,7 @@ int _simSetObjectPosition(luaWrap_lua_State* L)
         if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 3))
         {
             double coord[3];
-            getDoublesFromTable(L, 3, 3, coord);
+            getDoubleArrayFromTable(L, 3, 3, coord);
             CALL_C_API(simSetObjectPosition, luaToInt(L, 1), luaToInt(L, 2), coord);
         }
     }
@@ -3997,7 +3997,7 @@ int _simSetJointTargetPosition(luaWrap_lua_State* L)
                         int cnt = 1; // only max. vel. with primitive, built-in controller
                         if ((joint->getJointMode() == sim_jointmode_kinematic) || (joint->getDynPosCtrlType() == 1))
                             cnt = 3; // Motion profile (max. vel, max. accel and max. jerk)
-                        getDoublesFromTable(L, 3, std::min<size_t>(luaWrap_lua_rawlen(L, 3), cnt), maxVelAccelJerk);
+                        getDoubleArrayFromTable(L, 3, std::min<size_t>(luaWrap_lua_rawlen(L, 3), cnt), maxVelAccelJerk);
                         joint->setMaxVelAccelJerk(maxVelAccelJerk);
                     }
                 }
@@ -4096,7 +4096,7 @@ int _simSetJointTargetVelocity(luaWrap_lua_State* L)
                         {
                             double maxVelAccelJerk[3];
                             joint->getMaxVelAccelJerk(maxVelAccelJerk);
-                            getDoublesFromTable(L, 3, std::min<size_t>(luaWrap_lua_rawlen(L, 3), 2),
+                            getDoubleArrayFromTable(L, 3, std::min<size_t>(luaWrap_lua_rawlen(L, 3), 2),
                                                 maxVelAccelJerk + 1);
                             joint->setMaxVelAccelJerk(maxVelAccelJerk);
                         }
@@ -4222,7 +4222,7 @@ int _simCheckCollision(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
-    pushIntTableOntoStack(L, 2, collidingIds);
+    pushInt32ArrayAsTable(L, 2, collidingIds);
     LUA_END(2);
 }
 
@@ -4266,8 +4266,8 @@ int _simCheckDistance(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
-    pushDoubleTableOntoStack(L, 7, distanceData);
-    pushIntTableOntoStack(L, 2, tb);
+    pushDoubleArrayAsTable(L, 7, distanceData);
+    pushInt32ArrayAsTable(L, 2, tb);
     LUA_END(3);
 }
 
@@ -4294,8 +4294,8 @@ int _simGetSimulatorMessage(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, commandID);
-    pushIntTableOntoStack(L, 4, auxVals);
-    pushDoubleTableOntoStack(L, aux2Cnt, aux2Vals);
+    pushInt32ArrayAsTable(L, 4, auxVals);
+    pushDoubleArrayAsTable(L, aux2Cnt, aux2Vals);
     LUA_END(3);
 }
 
@@ -4348,7 +4348,7 @@ int _simAddGraphStream(luaWrap_lua_State* L)
                 float col[3] = {1.0, 0.0, 0.0};
                 res = checkOneGeneralInputArgument(L, 5, lua_arg_number, 3, true, false, &errorString, argOffset);
                 if (res == 2)
-                    getFloatsFromTable(L, 5, 3, col);
+                    getFloatArrayFromTable(L, 5, 3, col);
                 if ((res == 0) || (res == 2))
                 {
                     double cyclicRange = piValue;
@@ -4460,12 +4460,12 @@ int _simAddGraphCurve(luaWrap_lua_State* L)
         if (res == 2)
         {
             int streamIds[3];
-            getIntsFromTable(L, 4, dim, streamIds);
+            getInt32ArrayFromTable(L, 4, dim, streamIds);
             int res = checkOneGeneralInputArgument(L, 5, lua_arg_number, dim, false, false, &errorString, argOffset);
             if (res == 2)
             {
                 double defaultVals[3];
-                getDoublesFromTable(L, 5, dim, defaultVals);
+                getDoubleArrayFromTable(L, 5, dim, defaultVals);
                 if (curveName.size() != 0)
                 {
                     std::string unitStr;
@@ -4488,7 +4488,7 @@ int _simAddGraphCurve(luaWrap_lua_State* L)
                             float col[3] = {1.0, 1.0, 0.0};
                             res = checkOneGeneralInputArgument(L, 8, lua_arg_number, 3, true, false, &errorString, argOffset);
                             if (res == 2)
-                                getFloatsFromTable(L, 8, 3, col);
+                                getFloatArrayFromTable(L, 8, 3, col);
                             if ((res == 0) || (res == 2))
                             {
                                 int curveWidth = 2;
@@ -4617,7 +4617,7 @@ int _simGetObjectPose(luaWrap_lua_State* L)
             rel = luaToInt(L, 2);
         if (CALL_C_API(simGetObjectPose, luaToInt(L, 1), rel, arr) == 1)
         {
-            pushDoubleTableOntoStack(L, 7, arr); // Success
+            pushDoubleArrayAsTable(L, 7, arr); // Success
             LUA_END(1);
         }
     }
@@ -4637,7 +4637,7 @@ int _simSetObjectPose(luaWrap_lua_State* L)
                                 lua_arg_integer | lua_arg_optional, 0))
         {
             double coord[7];
-            getDoublesFromTable(L, 2, 7, coord);
+            getDoubleArrayFromTable(L, 2, 7, coord);
             int rel = sim_handle_world;
             if (luaWrap_lua_isinteger(L, 3))
                 rel = luaToInt(L, 3);
@@ -4649,7 +4649,7 @@ int _simSetObjectPose(luaWrap_lua_State* L)
         if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 7))
         {
             double arr[7];
-            getDoublesFromTable(L, 3, 7, arr);
+            getDoubleArrayFromTable(L, 3, 7, arr);
             CALL_C_API(simSetObjectPose, luaToInt(L, 1), luaToInt(L, 2), arr);
         }
     }
@@ -4668,7 +4668,7 @@ int _simGetObjectChildPose(luaWrap_lua_State* L)
         double arr[7];
         if (CALL_C_API(simGetObjectChildPose, luaToInt(L, 1), arr) == 1)
         {
-            pushDoubleTableOntoStack(L, 7, arr); // Success
+            pushDoubleArrayAsTable(L, 7, arr); // Success
             LUA_END(1);
         }
     }
@@ -4685,7 +4685,7 @@ int _simSetObjectChildPose(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0, lua_arg_number, 7))
     {
         double arr[7];
-        getDoublesFromTable(L, 2, 7, arr);
+        getDoubleArrayFromTable(L, 2, 7, arr);
         CALL_C_API(simSetObjectChildPose, luaToInt(L, 1), arr);
     }
 
@@ -4751,7 +4751,7 @@ int _simSetBoolProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_bool, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -4793,7 +4793,7 @@ int _simGetBoolProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -4829,7 +4829,7 @@ int _simSetIntProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -4871,7 +4871,7 @@ int _simGetIntProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -4907,11 +4907,11 @@ int _simSetLongProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
-        long long int pValue = luaWrap_lua_tointeger(L, 3);
+        int64_t pValue = luaWrap_lua_tointeger(L, 3);
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 4))
         {
@@ -4949,11 +4949,11 @@ int _simGetLongProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
-        long long int pValue;
+        int64_t pValue;
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
         {
@@ -4985,11 +4985,11 @@ int _simSetHandleProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
-        long long int pValue = luaWrap_lua_tointeger(L, 3);
+        int64_t pValue = luaWrap_lua_tointeger(L, 3);
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 4))
         {
@@ -5027,11 +5027,11 @@ int _simGetHandleProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
-        long long int pValue;
+        int64_t pValue;
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 3))
         {
@@ -5063,7 +5063,7 @@ int _simSetFloatProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5105,7 +5105,7 @@ int _simGetFloatProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5141,7 +5141,7 @@ int _simSetStringProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5183,7 +5183,7 @@ int _simGetStringProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5221,7 +5221,7 @@ int _simSetTableProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_buffer, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5264,7 +5264,7 @@ int _simGetTableProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5303,7 +5303,7 @@ int _simSetBufferProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_buffer, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5346,7 +5346,7 @@ int _simGetBufferProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5385,12 +5385,12 @@ int _simSetIntArray2Property(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 2))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int pValue[2];
-        getIntsFromTable(L, 3, 2, pValue);
+        getInt32ArrayFromTable(L, 3, 2, pValue);
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 4))
         {
@@ -5428,7 +5428,7 @@ int _simGetIntArray2Property(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5443,7 +5443,7 @@ int _simGetIntArray2Property(luaWrap_lua_State* L)
         int pValue[2];
         if (CALL_C_API(simGetIntArray2Property, target, pName.c_str(), pValue) > 0)
         {
-            pushIntTableOntoStack(L, 2, pValue);
+            pushInt32ArrayAsTable(L, 2, pValue);
             LUA_END(1);
         }
         if (noError)
@@ -5464,12 +5464,12 @@ int _simSetVector3Property(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 3))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         double pValue[3];
-        getDoublesFromTable(L, 3, 3, pValue);
+        getDoubleArrayFromTable(L, 3, 3, pValue);
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 4))
         {
@@ -5507,7 +5507,7 @@ int _simGetVector3Property(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5522,7 +5522,7 @@ int _simGetVector3Property(luaWrap_lua_State* L)
         double pValue[3];
         if (CALL_C_API(simGetVector3Property, target, pName.c_str(), pValue) > 0)
         {
-            pushDoubleTableOntoStack(L, 3, pValue);
+            pushDoubleArrayAsTable(L, 3, pValue);
             LUA_END(1);
         }
         if (noError)
@@ -5543,7 +5543,7 @@ int _simSetMatrixProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_matrix, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5585,7 +5585,7 @@ int _simGetMatrixProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5623,12 +5623,12 @@ int _simSetQuaternionProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 4))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         double pValue[4];
-        getDoublesFromTable(L, 3, 4, pValue);
+        getDoubleArrayFromTable(L, 3, 4, pValue);
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 4))
         {
@@ -5666,7 +5666,7 @@ int _simGetQuaternionProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5681,7 +5681,7 @@ int _simGetQuaternionProperty(luaWrap_lua_State* L)
         double pValue[4];
         if (CALL_C_API(simGetQuaternionProperty, target, pName.c_str(), pValue) > 0)
         {
-            pushDoubleTableOntoStack(L, 4, pValue);
+            pushDoubleArrayAsTable(L, 4, pValue);
             LUA_END(1);
         }
         if (noError)
@@ -5702,12 +5702,12 @@ int _simSetPoseProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 7))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         double pValue[7];
-        getDoublesFromTable(L, 3, 7, pValue);
+        getDoubleArrayFromTable(L, 3, 7, pValue);
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 4))
         {
@@ -5745,7 +5745,7 @@ int _simGetPoseProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5760,7 +5760,7 @@ int _simGetPoseProperty(luaWrap_lua_State* L)
         double pValue[7];
         if (CALL_C_API(simGetPoseProperty, target, pName.c_str(), pValue) > 0)
         {
-            pushDoubleTableOntoStack(L, 7, pValue);
+            pushDoubleArrayAsTable(L, 7, pValue);
             LUA_END(1);
         }
         if (noError)
@@ -5781,12 +5781,12 @@ int _simSetColorProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, 3))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         float pValue[3];
-        getFloatsFromTable(L, 3, 3, pValue);
+        getFloatArrayFromTable(L, 3, 3, pValue);
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 4))
         {
@@ -5824,7 +5824,7 @@ int _simGetColorProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5839,7 +5839,7 @@ int _simGetColorProperty(luaWrap_lua_State* L)
         float pValue[3];
         if (CALL_C_API(simGetColorProperty, target, pName.c_str(), pValue) > 0)
         {
-            pushFloatTableOntoStack(L, 3, pValue);
+            pushFloatArrayAsTable(L, 3, pValue);
             LUA_END(1);
         }
         if (noError)
@@ -5860,14 +5860,14 @@ int _simSetFloatArrayProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_number, -1))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int cnt = int(luaWrap_lua_rawlen(L, 3));
         std::vector<double> v;
         v.resize(cnt);
-        getDoublesFromTable(L, 3, cnt, v.data());
+        getDoubleArrayFromTable(L, 3, cnt, v.data());
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 4))
         {
@@ -5905,7 +5905,7 @@ int _simGetFloatArrayProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -5922,7 +5922,7 @@ int _simGetFloatArrayProperty(luaWrap_lua_State* L)
         int res = CALL_C_API(simGetFloatArrayProperty, target, pName.c_str(), &pValue, &pValueL);
         if (res > 0)
         {
-            pushDoubleTableOntoStack(L, pValueL, pValue);
+            pushDoubleArrayAsTable(L, pValueL, pValue);
             delete[] pValue;
             LUA_END(1);
         }
@@ -5944,14 +5944,14 @@ int _simSetIntArrayProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, -1))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int cnt = int(luaWrap_lua_rawlen(L, 3));
         std::vector<int> v;
         v.resize(cnt);
-        getIntsFromTable(L, 3, cnt, v.data());
+        getInt32ArrayFromTable(L, 3, cnt, v.data());
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 4))
         {
@@ -5989,7 +5989,7 @@ int _simGetIntArrayProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6006,7 +6006,7 @@ int _simGetIntArrayProperty(luaWrap_lua_State* L)
         int res = CALL_C_API(simGetIntArrayProperty, target, pName.c_str(), &pValue, &pValueL);
         if (res > 0)
         {
-            pushIntTableOntoStack(L, pValueL, pValue);
+            pushInt32ArrayAsTable(L, pValueL, pValue);
             delete[] pValue;
             LUA_END(1);
         }
@@ -6028,14 +6028,14 @@ int _simSetHandleArrayProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, -1))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
         int cnt = int(luaWrap_lua_rawlen(L, 3));
-        std::vector<long long int> v;
+        std::vector<int64_t> v;
         v.resize(cnt);
-        getLongsFromTable(L, 3, cnt, v.data());
+        getInt64ArrayFromTable(L, 3, cnt, v.data());
         bool noError = false;
         if (luaWrap_lua_isnonbuffertable(L, 4))
         {
@@ -6073,7 +6073,7 @@ int _simGetHandleArrayProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6086,11 +6086,11 @@ int _simGetHandleArrayProperty(luaWrap_lua_State* L)
             App::scenes->interfaceStackContainer->destroyStack(stack);
         }
         int pValueL;
-        long long int* pValue = nullptr;
+        int64_t* pValue = nullptr;
         int res = CALL_C_API(simGetHandleArrayProperty, target, pName.c_str(), &pValue, &pValueL);
         if (res > 0)
         {
-            pushLongTableOntoStack(L, pValueL, pValue);
+            pushInt64ArrayAsTable(L, pValueL, pValue);
             delete[] pValue;
             LUA_END(1);
         }
@@ -6112,7 +6112,7 @@ int _simSetStringArrayProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_string, -1))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6163,7 +6163,7 @@ int _simGetStringArrayProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6188,7 +6188,7 @@ int _simGetStringArrayProperty(luaWrap_lua_State* L)
                 vv.push_back(ptr);
                 ptr += len + 1;
             }
-            pushStringTableOntoStack(L, vv);
+            pushStringArrayAsTable(L, vv);
             delete[] pValue;
             LUA_END(1);
         }
@@ -6210,7 +6210,7 @@ int _simRemoveProperty(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6251,7 +6251,7 @@ int _simGetPropertyName(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_integer, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         int index = luaWrap_lua_tointeger(L, 2);
@@ -6294,7 +6294,7 @@ int _simGetPropertyInfo(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6346,7 +6346,7 @@ int _simSetPropertyInfo(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_integer, 0, lua_arg_string, 0))
     {
-        long long int target = luaWrap_lua_tointeger(L, 1);
+        int64_t target = luaWrap_lua_tointeger(L, 1);
         if (target == sim_handle_self)
             target = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
         std::string pName(luaWrap_lua_tostring(L, 2));
@@ -6371,9 +6371,9 @@ int _simSetEventFilters(luaWrap_lua_State* L)
         CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
         CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
         CDetachedScript::buildFromInterpreterStack_lua(L, stack, 1, 1);
-        std::vector<long long int> intKeys;
+        std::vector<int64_t> intKeys;
         stack->getStackMapKeys(nullptr, &intKeys);
-        std::map<long long int, std::set<std::string>> filters;
+        std::map<int64_t, std::set<std::string>> filters;
         for (size_t i = 0; i < intKeys.size(); i++)
         {
             bool first = true;
@@ -6423,7 +6423,7 @@ int _callMethod(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_handle, 0, lua_arg_string, 0))
     {
-        long long int target = fetchHandleArg(L, 1);
+        int64_t target = fetchHandleArg(L, 1);
         std::string methodName = fetchTextArg(L, 2);
         methodName = "@" + methodName;
         int currentScriptId = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
@@ -6506,7 +6506,7 @@ int _simRemoveObjects(luaWrap_lua_State* L)
         if (cnt > 0)
         {
             handles.resize(cnt);
-            getIntsFromTable(L, 1, cnt, &handles[0]);
+            getInt32ArrayFromTable(L, 1, cnt, &handles[0]);
             bool delayed = false;
             int res = checkOneGeneralInputArgument(L, 2, lua_arg_bool, 0, true, true, &errorString, argOffset);
             if (res >= 0)
@@ -6601,7 +6601,7 @@ int _simGetJointInterval(luaWrap_lua_State* L)
         if (CALL_C_API(simGetJointInterval, luaToInt(L, 1), &cyclic, interval) == 1)
         {
             luaWrap_lua_pushboolean(L, cyclic != 0);
-            pushDoubleTableOntoStack(L, 2, interval);
+            pushDoubleArrayAsTable(L, 2, interval);
             LUA_END(2);
         }
     }
@@ -6619,7 +6619,7 @@ int _simSetJointInterval(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0, lua_arg_bool, 0, lua_arg_number, 2))
     {
         double interval[2];
-        getDoublesFromTable(L, 3, 2, interval);
+        getDoubleArrayFromTable(L, 3, 2, interval);
         retVal = CALL_C_API(simSetJointInterval, luaToInt(L, 1), luaToBool(L, 2), interval);
     }
 
@@ -6871,7 +6871,7 @@ int _simGetObjectSel(luaWrap_lua_State* L)
     int* sel = CALL_C_API(simGetObjectSel, &selSize);
     if (sel != nullptr)
     {
-        pushIntTableOntoStack(L, selSize, sel);
+        pushInt32ArrayAsTable(L, selSize, sel);
         delete[] sel;
         LUA_END(1);
     }
@@ -6895,7 +6895,7 @@ int _simSetObjectSel(luaWrap_lua_State* L)
             {
                 std::vector<int> objectHandles;
                 objectHandles.resize(objCnt, 0);
-                getIntsFromTable(L, 1, objCnt, &objectHandles[0]);
+                getInt32ArrayFromTable(L, 1, objCnt, &objectHandles[0]);
                 CALL_C_API(simSetObjectSel, &objectHandles[0], objCnt);
             }
         }
@@ -7025,16 +7025,16 @@ int _simTest(luaWrap_lua_State* L)
         if (cmd.compare("sim.getGeodesicInfo") == 0)
         { // pt1,pt2,vertices,indices(can be {}),maxEdge,debugShape
             C3Vector pt1, pt2;
-            getDoublesFromTable(L, 2, 3, pt1.data);
-            getDoublesFromTable(L, 3, 3, pt2.data);
+            getDoubleArrayFromTable(L, 2, 3, pt1.data);
+            getDoubleArrayFromTable(L, 3, 3, pt2.data);
             int vl = 3 * ((int)luaWrap_lua_rawlen(L, 4) / 3);
             std::vector<double> vertices;
             vertices.resize(vl);
-            getDoublesFromTable(L, 4, vl, vertices.data());
+            getDoubleArrayFromTable(L, 4, vl, vertices.data());
             int il = 3 * ((int)luaWrap_lua_rawlen(L, 5) / 3);
             std::vector<int> indices;
             indices.resize(il);
-            getIntsFromTable(L, 5, il, indices.data());
+            getInt32ArrayFromTable(L, 5, il, indices.data());
             std::vector<double> path;
             int debugShape = -1;
             int* _debugShape = nullptr;
@@ -7043,7 +7043,7 @@ int _simTest(luaWrap_lua_State* L)
             double dist = CMeshRoutines::getGeodesicDistanceOnConvexMesh(pt1, pt2, vertices, &indices, &path,
                                                                          luaToDouble(L, 6), _debugShape);
             luaWrap_lua_pushnumber(L, dist);
-            pushDoubleTableOntoStack(L, path.size(), path.data());
+            pushDoubleArrayAsTable(L, path.size(), path.data());
             luaWrap_lua_pushinteger(L, debugShape);
             LUA_END(3);
         }
@@ -7171,8 +7171,8 @@ int _simTextEditorClose(luaWrap_lua_State* L)
             if (GuiApp::mainWindow->codeEditorContainer->close(handle, posAndSize, &txt, nullptr))
             {
                 luaWrap_lua_pushtext(L, txt.c_str());
-                pushIntTableOntoStack(L, 2, posAndSize + 0);
-                pushIntTableOntoStack(L, 2, posAndSize + 2);
+                pushInt32ArrayAsTable(L, 2, posAndSize + 0);
+                pushInt32ArrayAsTable(L, 2, posAndSize + 2);
                 LUA_END(3);
             }
         }
@@ -7229,8 +7229,8 @@ int _simTextEditorGetInfo(luaWrap_lua_State* L)
                 int posAndSize[4];
                 std::string txt = GuiApp::mainWindow->codeEditorContainer->getText(handle, posAndSize);
                 luaWrap_lua_pushtext(L, txt.c_str());
-                pushIntTableOntoStack(L, 2, posAndSize + 0);
-                pushIntTableOntoStack(L, 2, posAndSize + 2);
+                pushInt32ArrayAsTable(L, 2, posAndSize + 0);
+                pushInt32ArrayAsTable(L, 2, posAndSize + 2);
                 luaWrap_lua_pushboolean(L, state != 0);
                 LUA_END(4);
             }
@@ -7384,7 +7384,7 @@ int _simCopyPasteObjects(luaWrap_lua_State* L)
         int options = fetchIntArg(L, 2, 0);
         if (CALL_C_API(simCopyPasteObjects, &objectHandles[0], objectHandles.size(), options) > 0)
         {
-            pushIntTableOntoStack(L, objectHandles.size(), &objectHandles[0]);
+            pushInt32ArrayAsTable(L, objectHandles.size(), &objectHandles[0]);
             LUA_END(1);
         }
     }
@@ -7406,7 +7406,7 @@ int _simScaleObjects(luaWrap_lua_State* L)
         {
             std::vector<int> objectHandles;
             objectHandles.resize(objCnt, 0);
-            getIntsFromTable(L, 1, objCnt, &objectHandles[0]);
+            getInt32ArrayFromTable(L, 1, objCnt, &objectHandles[0]);
             retVal = CALL_C_API(simScaleObjects, &objectHandles[0], objCnt, luaToDouble(L, 2), luaToBool(L, 3));
         }
     }
@@ -7594,7 +7594,7 @@ int _simSaveImage(luaWrap_lua_State* L)
         char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength));
         std::string img(data, dataLength);
         int res[2];
-        getIntsFromTable(L, 2, 2, res);
+        getInt32ArrayFromTable(L, 2, 2, res);
         std::string filename(fetchTextArg(L, 3));
         int options = fetchIntArg(L, 4, 0);
         int quality = fetchIntArg(L, 5, -1);
@@ -7657,7 +7657,7 @@ int _simLoadImage(luaWrap_lua_State* L)
                 s = resol[0] * resol[1] * 4;
             luaWrap_lua_pushbuffer(L, (const char*)img, s);
             delete[]((char*)img);
-            pushIntTableOntoStack(L, 2, resol);
+            pushInt32ArrayAsTable(L, 2, resol);
             LUA_END(2);
         }
     }
@@ -7678,9 +7678,9 @@ int _simGetScaledImage(luaWrap_lua_State* L)
         char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength));
         std::string imgIn(data, dataLength);
         int resIn[2];
-        getIntsFromTable(L, 2, 2, resIn);
+        getInt32ArrayFromTable(L, 2, 2, resIn);
         int resOut[2];
-        getIntsFromTable(L, 3, 2, resOut);
+        getInt32ArrayFromTable(L, 3, 2, resOut);
         int options = luaToInt(L, 4);
         int channelsIn = 3;
         if (options & 1)
@@ -7698,7 +7698,7 @@ int _simGetScaledImage(luaWrap_lua_State* L)
                         s = resOut[0] * resOut[1] * 4;
                     luaWrap_lua_pushbuffer(L, (const char*)imgOut, s);
                     delete[]((char*)imgOut);
-                    pushIntTableOntoStack(L, 2, resOut);
+                    pushInt32ArrayAsTable(L, 2, resOut);
                     LUA_END(2);
                 }
             }
@@ -7724,7 +7724,7 @@ int _simTransformImage(luaWrap_lua_State* L)
         size_t dataLength;
         char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength));
         int resol[2];
-        getIntsFromTable(L, 2, 2, resol);
+        getInt32ArrayFromTable(L, 2, 2, resol);
         int options = luaToInt(L, 3);
         int channels = 3;
         if (options & 1)
@@ -7840,11 +7840,11 @@ int _simPackInt64Table(luaWrap_lua_State* L)
                         count = tableSize - startIndex;
                     if (count > 0)
                     {
-                        char* data = new char[sizeof(long long int) * count];
+                        char* data = new char[sizeof(int64_t) * count];
                         for (int i = 0; i < count; i++)
                         {
                             luaWrap_lua_rawgeti(L, 1, i + 1 + startIndex);
-                            long long int v = luaWrap_lua_tointeger(L, -1);
+                            int64_t v = luaWrap_lua_tointeger(L, -1);
                             data[8 * i + 0] = ((char*)&v)[0];
                             data[8 * i + 1] = ((char*)&v)[1];
                             data[8 * i + 2] = ((char*)&v)[2];
@@ -7855,7 +7855,7 @@ int _simPackInt64Table(luaWrap_lua_State* L)
                             data[8 * i + 7] = ((char*)&v)[7];
                             luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
-                        luaWrap_lua_pushbuffer(L, (const char*)data, count * sizeof(long long int));
+                        luaWrap_lua_pushbuffer(L, (const char*)data, count * sizeof(int64_t));
                         delete[] data;
                         LUA_END(1);
                     }
@@ -8223,7 +8223,7 @@ int _simUnpackInt32Table(luaWrap_lua_State* L)
                                 ((char*)&v)[3] = data[sizeof(int) * (i + startIndex) + 3];
                                 theInts[i] = v;
                             }
-                            pushIntTableOntoStack(L, count, theInts);
+                            pushInt32ArrayAsTable(L, count, theInts);
                             delete[] theInts;
                             LUA_END(1);
                         }
@@ -8267,8 +8267,8 @@ int _simUnpackInt64Table(luaWrap_lua_State* L)
 
                     size_t dataLength;
                     char* data = ((char*)luaWrap_lua_tobuffer(L, 1, &dataLength)) + additionalCharOffset;
-                    dataLength = sizeof(long long int) * ((dataLength - additionalCharOffset) / sizeof(long long int));
-                    int packetCount = int(dataLength / sizeof(long long int));
+                    dataLength = sizeof(int64_t) * ((dataLength - additionalCharOffset) / sizeof(int64_t));
+                    int packetCount = int(dataLength / sizeof(int64_t));
                     if (count == 0)
                         count = int(1999999999);
 
@@ -8284,21 +8284,21 @@ int _simUnpackInt64Table(luaWrap_lua_State* L)
                             if (startIndex + count > packetCount)
                                 count = packetCount - startIndex;
 
-                            long long int* theInts = new long long int[count];
+                            int64_t* theInts = new int64_t[count];
                             for (int i = 0; i < int(count); i++)
                             {
-                                long long int v;
-                                ((char*)&v)[0] = data[sizeof(long long int) * (i + startIndex) + 0];
-                                ((char*)&v)[1] = data[sizeof(long long int) * (i + startIndex) + 1];
-                                ((char*)&v)[2] = data[sizeof(long long int) * (i + startIndex) + 2];
-                                ((char*)&v)[3] = data[sizeof(long long int) * (i + startIndex) + 3];
-                                ((char*)&v)[4] = data[sizeof(long long int) * (i + startIndex) + 4];
-                                ((char*)&v)[5] = data[sizeof(long long int) * (i + startIndex) + 5];
-                                ((char*)&v)[6] = data[sizeof(long long int) * (i + startIndex) + 6];
-                                ((char*)&v)[7] = data[sizeof(long long int) * (i + startIndex) + 7];
+                                int64_t v;
+                                ((char*)&v)[0] = data[sizeof(int64_t) * (i + startIndex) + 0];
+                                ((char*)&v)[1] = data[sizeof(int64_t) * (i + startIndex) + 1];
+                                ((char*)&v)[2] = data[sizeof(int64_t) * (i + startIndex) + 2];
+                                ((char*)&v)[3] = data[sizeof(int64_t) * (i + startIndex) + 3];
+                                ((char*)&v)[4] = data[sizeof(int64_t) * (i + startIndex) + 4];
+                                ((char*)&v)[5] = data[sizeof(int64_t) * (i + startIndex) + 5];
+                                ((char*)&v)[6] = data[sizeof(int64_t) * (i + startIndex) + 6];
+                                ((char*)&v)[7] = data[sizeof(int64_t) * (i + startIndex) + 7];
                                 theInts[i] = v;
                             }
-                            pushLongTableOntoStack(L, count, theInts);
+                            pushInt64ArrayAsTable(L, count, theInts);
                             delete[] theInts;
                             LUA_END(1);
                         }
@@ -8369,7 +8369,7 @@ int _simUnpackUInt32Table(luaWrap_lua_State* L)
                                 ((char*)&v)[3] = data[sizeof(unsigned int) * (i + startIndex) + 3];
                                 theInts[i] = v;
                             }
-                            pushUIntTableOntoStack(L, count, theInts);
+                            pushUInt32ArrayAsTable(L, count, theInts);
                             delete[] theInts;
                             LUA_END(1);
                         }
@@ -8440,7 +8440,7 @@ int _simUnpackFloatTable(luaWrap_lua_State* L)
                                 ((char*)&v)[3] = data[sizeof(float) * (i + startIndex) + 3];
                                 theFloats[i] = v;
                             }
-                            pushFloatTableOntoStack(L, count, theFloats);
+                            pushFloatArrayAsTable(L, count, theFloats);
                             delete[] theFloats;
                             LUA_END(1);
                         }
@@ -8515,7 +8515,7 @@ int _simUnpackDoubleTable(luaWrap_lua_State* L)
                                 ((char*)&v)[7] = data[sizeof(double) * (i + startIndex) + 7];
                                 theDoubles[i] = v;
                             }
-                            pushDoubleTableOntoStack(L, count, theDoubles);
+                            pushDoubleArrayAsTable(L, count, theDoubles);
                             delete[] theDoubles;
                             LUA_END(1);
                         }
@@ -8575,7 +8575,7 @@ int _simUnpackUInt8Table(luaWrap_lua_State* L)
                             ((char*)&v)[0] = data[i + startIndex];
                             theBytes[i] = v;
                         }
-                        pushIntTableOntoStack(L, count, theBytes);
+                        pushInt32ArrayAsTable(L, count, theBytes);
                         delete[] theBytes;
                         LUA_END(1);
                     }
@@ -8643,7 +8643,7 @@ int _simUnpackUInt16Table(luaWrap_lua_State* L)
                                 ((char*)&v)[1] = data[2 * (i + startIndex) + 1];
                                 theWords[i] = v;
                             }
-                            pushIntTableOntoStack(L, count, theWords);
+                            pushInt32ArrayAsTable(L, count, theWords);
                             delete[] theWords;
                             LUA_END(1);
                         }
@@ -9690,7 +9690,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                             stringTable.push_back(astr);
                             of += splitSize;
                         }
-                        pushBufferTableOntoStack(L, stringTable);
+                        pushBufferArrayAsTable(L, stringTable);
                         LUA_END(1);
                     }
                 }
@@ -9863,8 +9863,8 @@ int _simCombineRgbImages(luaWrap_lua_State* L)
         char* img2 = (char*)luaWrap_lua_tobuffer(L, 3, &img2Length);
         int res1[2];
         int res2[2];
-        getIntsFromTable(L, 2, 2, res1);
-        getIntsFromTable(L, 4, 2, res2);
+        getInt32ArrayFromTable(L, 2, 2, res1);
+        getInt32ArrayFromTable(L, 4, 2, res2);
         int op = luaToInt(L, 5);
         if ((img1Length >= size_t(res1[0] * res1[1] * 3)) && (img2Length >= size_t(res2[0] * res2[1] * 3)))
         {
@@ -10134,8 +10134,8 @@ int _simAddParticleObject(luaWrap_lua_State* L)
                     {
                         int intParams[30];
                         double floatParams[30];
-                        getIntsFromTable(L, 4, paramLen, intParams);
-                        getDoublesFromTable(L, 4, paramLen, floatParams);
+                        getInt32ArrayFromTable(L, 4, paramLen, intParams);
+                        getDoubleArrayFromTable(L, 4, paramLen, floatParams);
                         params = new char[paramLen * sizeof(int)];
                         ((int*)params)[0] = std::min<int>(intParams[0], (paramLen - 1) / 2);
                         for (int i = 0; i < (paramLen - 1) / 2; i++)
@@ -10160,7 +10160,7 @@ int _simAddParticleObject(luaWrap_lua_State* L)
                         {
                             if (res == 2)
                             {
-                                getFloatsFromTable(L, 7, 3, ambientC);
+                                getFloatArrayFromTable(L, 7, 3, ambientC);
                                 ambient = ambientC;
                             }
                             res = checkOneGeneralInputArgument(L, 8, lua_arg_number, 3, true, true, &errorString, argOffset);
@@ -10178,7 +10178,7 @@ int _simAddParticleObject(luaWrap_lua_State* L)
                                         {
                                             if (res == 2)
                                             {
-                                                getFloatsFromTable(L, 9, 3, specularC);
+                                                getFloatArrayFromTable(L, 9, 3, specularC);
                                                 specular = specularC;
                                             }
                                             res = checkOneGeneralInputArgument(L, 10, lua_arg_number, 3, true, true, &errorString, argOffset);
@@ -10189,7 +10189,7 @@ int _simAddParticleObject(luaWrap_lua_State* L)
                                                 {
                                                     if (res == 2)
                                                     {
-                                                        getFloatsFromTable(L, 10, 3, emissionC);
+                                                        getFloatArrayFromTable(L, 10, 3, emissionC);
                                                         emission = emissionC;
                                                     }
                                                 }
@@ -10251,7 +10251,7 @@ int _simAddParticleObjectItem(luaWrap_lua_State* L)
         if (res == 2)
         {
             double vertex[20]; // we should have enough here!
-            getDoublesFromTable(L, 2, d, vertex);
+            getDoubleArrayFromTable(L, 2, d, vertex);
 
             if (App::scenes->pluginContainer->dyn_addParticleObjectItem(
                     particleObjHandle, vertex, App::scene->simulation->getSimulationTime()) != 0)
@@ -10288,8 +10288,8 @@ int _simGetVelocity(luaWrap_lua_State* L)
         CALL_C_API(simGetVelocity, luaToInt(L, 1), linVel, angVel);
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    pushDoubleTableOntoStack(L, 3, linVel);
-    pushDoubleTableOntoStack(L, 3, angVel);
+    pushDoubleArrayAsTable(L, 3, linVel);
+    pushDoubleArrayAsTable(L, 3, angVel);
     LUA_END(2);
 }
 
@@ -10304,8 +10304,8 @@ int _simGetObjectVelocity(luaWrap_lua_State* L)
         CALL_C_API(simGetObjectVelocity, luaToInt(L, 1), linVel, angVel);
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    pushDoubleTableOntoStack(L, 3, linVel);
-    pushDoubleTableOntoStack(L, 3, angVel);
+    pushDoubleArrayAsTable(L, 3, linVel);
+    pushDoubleArrayAsTable(L, 3, angVel);
     LUA_END(2);
 }
 
@@ -10342,13 +10342,13 @@ int _simAddForceAndTorque(luaWrap_lua_State* L)
         bool err = false;
         int res = checkOneGeneralInputArgument(L, 2, lua_arg_number, 3, true, true, &errorString, argOffset);
         if (res == 2)
-            getDoublesFromTable(L, 2, 3, f);
+            getDoubleArrayFromTable(L, 2, 3, f);
         err = err || (res < 0);
         if (!err)
         {
             int res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 3, true, true, &errorString, argOffset);
             if (res == 2)
-                getDoublesFromTable(L, 3, 3, t);
+                getDoubleArrayFromTable(L, 3, 3, t);
             err = err || (res < 0);
             if (!err)
                 retVal = CALL_C_API(simAddForceAndTorque, luaToInt(L, 1), f, t);
@@ -10370,8 +10370,8 @@ int _simAddForce(luaWrap_lua_State* L)
     {
         double r[3];
         double f[3];
-        getDoublesFromTable(L, 2, 3, r);
-        getDoublesFromTable(L, 3, 3, f);
+        getDoubleArrayFromTable(L, 2, 3, r);
+        getDoubleArrayFromTable(L, 3, 3, f);
         retVal = CALL_C_API(simAddForce, luaToInt(L, 1), r, f);
     }
 
@@ -10509,7 +10509,7 @@ int _simSetShapeColor(luaWrap_lua_State* L)
                     }
                     std::vector<float> rgbData;
                     rgbData.resize(floatsInTableExpected);
-                    getFloatsFromTable(L, 4, floatsInTableExpected, &rgbData[0]);
+                    getFloatArrayFromTable(L, 4, floatsInTableExpected, &rgbData[0]);
                     if (correctColors && (colorComponent == 0) && (!transformColor))
                     {
                         rgbData[0] = (rgbData[0] + 0.25) / 0.85;
@@ -10577,7 +10577,7 @@ int _simGetShapeColor(luaWrap_lua_State* L)
                 if (retVal > 0)
                 {
                     luaWrap_lua_pushinteger(L, retVal);
-                    pushFloatTableOntoStack(L, res, &rgbData[0]);
+                    pushFloatArrayAsTable(L, res, &rgbData[0]);
                     LUA_END(2);
                 }
             }
@@ -10587,7 +10587,7 @@ int _simGetShapeColor(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
     double dummy[3] = {0.0, 0.0, 0.0};
-    pushDoubleTableOntoStack(L, 3, dummy);
+    pushDoubleArrayAsTable(L, 3, dummy);
     LUA_END(2);
 }
 
@@ -10600,7 +10600,7 @@ int _simSetObjectColor(luaWrap_lua_State* L)
                             3))
     {
         float col[3];
-        getFloatsFromTable(L, 4, 3, col);
+        getFloatArrayFromTable(L, 4, 3, col);
         int res = CALL_C_API(simSetObjectColor, luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3), col);
         if (res >= 0)
         {
@@ -10624,7 +10624,7 @@ int _simGetObjectColor(luaWrap_lua_State* L)
         int res = CALL_C_API(simGetObjectColor, luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3), col);
         if (res > 0)
         {
-            pushFloatTableOntoStack(L, 3, col);
+            pushFloatArrayAsTable(L, 3, col);
             LUA_END(1);
         }
     }
@@ -10785,17 +10785,17 @@ int _simGetContactInfo(luaWrap_lua_State* L)
         int res = CALL_C_API(simGetContactInfo, luaToInt(L, 1), luaToInt(L, 2), index, collidingObjects, contactInfo);
         if (res == 1)
         {
-            pushIntTableOntoStack(L, 2, collidingObjects);
-            pushDoubleTableOntoStack(L, 3, contactInfo);
-            pushDoubleTableOntoStack(L, 3, contactInfo + 3);
-            pushDoubleTableOntoStack(L, 3, contactInfo + 6);
+            pushInt32ArrayAsTable(L, 2, collidingObjects);
+            pushDoubleArrayAsTable(L, 3, contactInfo);
+            pushDoubleArrayAsTable(L, 3, contactInfo + 3);
+            pushDoubleArrayAsTable(L, 3, contactInfo + 6);
         }
         else
         {
-            pushIntTableOntoStack(L, 0, nullptr);
-            pushDoubleTableOntoStack(L, 0, nullptr);
-            pushDoubleTableOntoStack(L, 0, nullptr);
-            pushDoubleTableOntoStack(L, 0, nullptr);
+            pushInt32ArrayAsTable(L, 0, nullptr);
+            pushDoubleArrayAsTable(L, 0, nullptr);
+            pushDoubleArrayAsTable(L, 0, nullptr);
+            pushDoubleArrayAsTable(L, 0, nullptr);
         }
         LUA_END(4);
     }
@@ -11034,7 +11034,7 @@ int _simExportMesh(luaWrap_lua_State* L)
                         {
                             verticesSizes[i] = vl;
                             vertices[i] = new double[vl];
-                            getDoublesFromTable(L, luaWrap_lua_gettop(L), vl, vertices[i]);
+                            getDoubleArrayFromTable(L, luaWrap_lua_gettop(L), vl, vertices[i]);
                         }
                         else
                             error = true;
@@ -11053,7 +11053,7 @@ int _simExportMesh(luaWrap_lua_State* L)
                         {
                             indicesSizes[i] = vl;
                             indices[i] = new int[vl];
-                            getIntsFromTable(L, luaWrap_lua_gettop(L), vl, indices[i]);
+                            getInt32ArrayFromTable(L, luaWrap_lua_gettop(L), vl, indices[i]);
                         }
                         else
                             error = true;
@@ -11114,8 +11114,8 @@ int _simCreateShape(luaWrap_lua_State* L)
                 vertices.resize(vl);
                 std::vector<int> indices;
                 indices.resize(il);
-                getDoublesFromTable(L, 3, vl, vertices.data());
-                getIntsFromTable(L, 4, il, indices.data());
+                getDoubleArrayFromTable(L, 3, vl, vertices.data());
+                getInt32ArrayFromTable(L, 4, il, indices.data());
 
                 std::vector<double> normals;
                 normals.resize(il * 3);
@@ -11129,13 +11129,13 @@ int _simCreateShape(luaWrap_lua_State* L)
                 res = checkOneGeneralInputArgument(L, 5, lua_arg_number, il * 3, true, true, &errorString, argOffset);
                 if (res == 2)
                 {
-                    getDoublesFromTable(L, 5, il * 3, normals.data());
+                    getDoubleArrayFromTable(L, 5, il * 3, normals.data());
                     _normals = normals.data();
                 }
                 res = checkOneGeneralInputArgument(L, 6, lua_arg_number, il * 2, true, true, &errorString, argOffset);
                 if (res == 2)
                 {
-                    getFloatsFromTable(L, 6, il * 2, texCoords.data());
+                    getFloatArrayFromTable(L, 6, il * 2, texCoords.data());
                     _texCoords = texCoords.data();
                 }
                 res = checkOneGeneralInputArgument(L, 7, lua_arg_string, 0, true, true, &errorString, argOffset);
@@ -11144,7 +11144,7 @@ int _simCreateShape(luaWrap_lua_State* L)
                     img = (unsigned char*)luaWrap_lua_tobuffer(L, 7, &l);
                 res = checkOneGeneralInputArgument(L, 8, lua_arg_integer, 2, true, true, &errorString, argOffset);
                 if (res == 2)
-                    getIntsFromTable(L, 8, 2, resol);
+                    getInt32ArrayFromTable(L, 8, 2, resol);
                 retVal = CALL_C_API(simCreateShape, options, shadingAngle, vertices.data(), vl, indices.data(), il,
                                                  _normals, _texCoords, img, resol);
             }
@@ -11172,9 +11172,9 @@ int _simGetShapeMesh(luaWrap_lua_State* L)
             CALL_C_API(simGetShapeMesh, luaToInt(L, 1), &vertices, &verticesSize, &indices, &indicesSize, &normals);
         if (result > 0)
         {
-            pushDoubleTableOntoStack(L, verticesSize, vertices);
-            pushIntTableOntoStack(L, indicesSize, indices);
-            pushDoubleTableOntoStack(L, indicesSize * 3, normals);
+            pushDoubleArrayAsTable(L, verticesSize, vertices);
+            pushInt32ArrayAsTable(L, indicesSize, indices);
+            pushDoubleArrayAsTable(L, indicesSize * 3, normals);
             delete[] vertices;
             delete[] indices;
             delete[] normals;
@@ -11204,8 +11204,8 @@ int _simGetShapeBB(luaWrap_lua_State* L)
                 hs *= 2.0;
                 double p[7];
                 ltr.getData(p, true);
-                pushDoubleTableOntoStack(L, 3, hs.data);
-                pushDoubleTableOntoStack(L, 7, p);
+                pushDoubleArrayAsTable(L, 3, hs.data);
+                pushDoubleArrayAsTable(L, 7, p);
                 LUA_END(2);
             }
             else
@@ -11229,7 +11229,7 @@ int _simCreatePrimitiveShape(luaWrap_lua_State* L)
     {
         int primitiveType = luaToInt(L, 1);
         double sizes[3];
-        getDoublesFromTable(L, 2, 3, sizes);
+        getDoubleArrayFromTable(L, 2, 3, sizes);
         int res = checkOneGeneralInputArgument(L, 3, lua_arg_integer, 0, true, false, &errorString, argOffset);
         if (res >= 0)
         {
@@ -11264,7 +11264,7 @@ int _simCreateHeightfieldShape(luaWrap_lua_State* L)
         if (res == 2)
         {
             double* heights = new double[xPointCount * yPointCount];
-            getDoublesFromTable(L, 6, xPointCount * yPointCount, heights);
+            getDoubleArrayFromTable(L, 6, xPointCount * yPointCount, heights);
             retVal =
                 CALL_C_API(simCreateHeightfieldShape, options, shadingAngle, xPointCount, yPointCount, xSize, heights);
             delete[] heights;
@@ -11358,7 +11358,7 @@ int _simCreateDetachedScript(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("sim.createDetachedScript");
 
-    long long int retVal = -1; // means error
+    int64_t retVal = -1; // means error
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0, lua_arg_string, 0, lua_arg_string | lua_arg_optional, 0, lua_arg_integer | lua_arg_optional, 0))
     {
         int scriptType = fetchIntArg(L, 1);
@@ -11383,7 +11383,7 @@ int _simRemoveDetachedScript(luaWrap_lua_State* L)
 
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_integer, 0))
     {
-        long long int scriptHandle = fetchLongArg(L, 1);
+        int64_t scriptHandle = fetchInt64Arg(L, 1);
         if (!App::scenes->addOnScriptContainer->removeAddOn(scriptHandle))
             errorString = SIM_ERROR_INVALID_SCRIPT_TYPE_OR_DOES_NOT_EXIST;
     }
@@ -11658,11 +11658,11 @@ int _simRuckigPos(luaWrap_lua_State* L)
         {
             std::vector<double> currentPosVelAccel;
             currentPosVelAccel.resize(dofs * 3);
-            getDoublesFromTable(L, 4, dofs * 3, &currentPosVelAccel[0]);
+            getDoubleArrayFromTable(L, 4, dofs * 3, &currentPosVelAccel[0]);
 
             std::vector<double> maxVelAccelJerk;
             maxVelAccelJerk.resize(maxVelAccelJerkCnt);
-            getDoublesFromTable(L, 5, maxVelAccelJerkCnt, &maxVelAccelJerk[0]);
+            getDoubleArrayFromTable(L, 5, maxVelAccelJerkCnt, &maxVelAccelJerk[0]);
 
             std::vector<double> minMaxVel;
             std::vector<double> minMaxAccel;
@@ -11689,11 +11689,11 @@ int _simRuckigPos(luaWrap_lua_State* L)
 
             std::vector<char> selection;
             selection.resize(dofs);
-            getCharBoolsFromTable(L, 6, dofs, &selection[0]);
+            getCharArrayFromTable(L, 6, dofs, &selection[0]);
 
             std::vector<double> targetPosVel;
             targetPosVel.resize(dofs * 2);
-            getDoublesFromTable(L, 7, dofs * 2, &targetPosVel[0]);
+            getDoubleArrayFromTable(L, 7, dofs * 2, &targetPosVel[0]);
 
             setCurrentScriptInfo_cSide(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
             int retVal = CALL_C_API(simRuckigPos, dofs, timeStep, flags, &currentPosVelAccel[0], &currentPosVelAccel[dofs], &currentPosVelAccel[dofs * 2], &minMaxVel[0], &minMaxAccel[0], &maxJerk[0], (bool*)selection.data(), &targetPosVel[0], &targetPosVel[dofs], nullptr, nullptr);
@@ -11730,11 +11730,11 @@ int _simRuckigVel(luaWrap_lua_State* L)
         {
             std::vector<double> currentPosVelAccel;
             currentPosVelAccel.resize(dofs * 3);
-            getDoublesFromTable(L, 4, dofs * 3, &currentPosVelAccel[0]);
+            getDoubleArrayFromTable(L, 4, dofs * 3, &currentPosVelAccel[0]);
 
             std::vector<double> maxAccelJerk;
             maxAccelJerk.resize(maxAccelJerkCnt);
-            getDoublesFromTable(L, 5, maxAccelJerkCnt, &maxAccelJerk[0]);
+            getDoubleArrayFromTable(L, 5, maxAccelJerkCnt, &maxAccelJerk[0]);
 
             std::vector<double> minMaxAccel;
             std::vector<double> maxJerk;
@@ -11753,11 +11753,11 @@ int _simRuckigVel(luaWrap_lua_State* L)
 
             std::vector<char> selection;
             selection.resize(dofs);
-            getCharBoolsFromTable(L, 6, dofs, &selection[0]);
+            getCharArrayFromTable(L, 6, dofs, &selection[0]);
 
             std::vector<double> targetVel;
             targetVel.resize(dofs);
-            getDoublesFromTable(L, 7, dofs, &targetVel[0]);
+            getDoubleArrayFromTable(L, 7, dofs, &targetVel[0]);
 
             setCurrentScriptInfo_cSide(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L), CDetachedScript::getScriptNameIndexFromInterpreterState_lua_old(L)); // for transmitting to the master function additional info (e.g.for autom. name adjustment, or for autom. object deletion when script ends)
             int retVal = CALL_C_API(simRuckigVel, dofs, timeStep, flags, &currentPosVelAccel[0], &currentPosVelAccel[dofs], &currentPosVelAccel[dofs * 2], &minMaxAccel[0], &maxJerk[0], (bool*)selection.data(), &targetVel[0], nullptr, nullptr);
@@ -11797,9 +11797,9 @@ int _simRuckigStep(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
     if (newPosVelAccel.size() > 0)
-        pushDoubleTableOntoStack(L, newPosVelAccel.size(), &newPosVelAccel[0]);
+        pushDoubleArrayAsTable(L, newPosVelAccel.size(), &newPosVelAccel[0]);
     else
-        pushIntTableOntoStack(L, 0, nullptr); // empty table
+        pushInt32ArrayAsTable(L, 0, nullptr); // empty table
     luaWrap_lua_pushnumber(L, syncTime);
     LUA_END(3);
 }
@@ -11837,7 +11837,7 @@ int _simGetObjectQuaternion(luaWrap_lua_State* L)
             rel = luaToInt(L, 2);
         if (CALL_C_API(simGetObjectQuaternion, luaToInt(L, 1), rel, coord) == 1)
         {
-            pushDoubleTableOntoStack(L, 4, coord);
+            pushDoubleArrayAsTable(L, 4, coord);
             LUA_END(1);
         }
     }
@@ -11857,7 +11857,7 @@ int _simSetObjectQuaternion(luaWrap_lua_State* L)
                                 lua_arg_integer | lua_arg_optional, 0))
         {
             double coord[4];
-            getDoublesFromTable(L, 2, 4, coord);
+            getDoubleArrayFromTable(L, 2, 4, coord);
             int rel = sim_handle_world;
             if (luaWrap_lua_isinteger(L, 3))
                 rel = luaToInt(L, 3);
@@ -11869,7 +11869,7 @@ int _simSetObjectQuaternion(luaWrap_lua_State* L)
         if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 4))
         {
             double coord[4];
-            getDoublesFromTable(L, 3, 4, coord);
+            getDoubleArrayFromTable(L, 3, 4, coord);
             CALL_C_API(simSetObjectQuaternion, luaToInt(L, 1), luaToInt(L, 2), coord);
         }
     }
@@ -11887,10 +11887,10 @@ int _simGetQuaternionFromMatrix(luaWrap_lua_State* L)
     {
         double arr[12];
         double quaternion[4];
-        getDoublesFromTable(L, 1, 12, arr);
+        getDoubleArrayFromTable(L, 1, 12, arr);
         if (CALL_C_API(simGetQuaternionFromMatrix, arr, quaternion) == 1)
         {
-            pushDoubleTableOntoStack(L, 4, quaternion);
+            pushDoubleArrayAsTable(L, 4, quaternion);
             LUA_END(1);
         }
     }
@@ -12008,8 +12008,8 @@ int _simGetShapeInertia(luaWrap_lua_State* L)
         int result = CALL_C_API(simGetShapeInertia, handle, inertiaMatrix, transformation);
         if (result != -1)
         {
-            pushDoubleTableOntoStack(L, 9, inertiaMatrix);
-            pushDoubleTableOntoStack(L, 12, transformation);
+            pushDoubleArrayAsTable(L, 9, inertiaMatrix);
+            pushDoubleArrayAsTable(L, 12, transformation);
             LUA_END(2);
         }
     }
@@ -12027,9 +12027,9 @@ int _simSetShapeInertia(luaWrap_lua_State* L)
     {
         int handle = luaToInt(L, 1);
         double inertiaMatrix[9];
-        getDoublesFromTable(L, 2, 9, inertiaMatrix);
+        getDoubleArrayFromTable(L, 2, 9, inertiaMatrix);
         double transformation[12];
-        getDoublesFromTable(L, 3, 12, transformation);
+        getDoubleArrayFromTable(L, 3, 12, transformation);
         CALL_C_API(simSetShapeInertia, handle, inertiaMatrix, transformation);
     }
 
@@ -12068,8 +12068,8 @@ int _simGenerateShapeFromPath(luaWrap_lua_State* L)
         std::vector<double> section;
         ppath.resize(luaWrap_lua_rawlen(L, 1));
         section.resize(luaWrap_lua_rawlen(L, 2));
-        getDoublesFromTable(L, 1, luaWrap_lua_rawlen(L, 1), &ppath[0]);
-        getDoublesFromTable(L, 2, luaWrap_lua_rawlen(L, 2), &section[0]);
+        getDoubleArrayFromTable(L, 1, luaWrap_lua_rawlen(L, 1), &ppath[0]);
+        getDoubleArrayFromTable(L, 2, luaWrap_lua_rawlen(L, 2), &section[0]);
         int options = 0;
         double* zvect = nullptr;
         int res = checkOneGeneralInputArgument(L, 3, lua_arg_integer, 0, true, true, &errorString, argOffset);
@@ -12083,7 +12083,7 @@ int _simGenerateShapeFromPath(luaWrap_lua_State* L)
                 double tmp[3];
                 if (res == 2)
                 {
-                    getDoublesFromTable(L, 4, 3, tmp);
+                    getDoubleArrayFromTable(L, 4, 3, tmp);
                     zvect = tmp;
                 }
                 int h = CALL_C_API(simGenerateShapeFromPath, &ppath[0], int(ppath.size()), &section[0],
@@ -12117,9 +12117,9 @@ int _simGetClosestPosOnPath(luaWrap_lua_State* L)
             double absPt[3];
             ppath.resize(pathS);
             pathLengths.resize(pathLS);
-            getDoublesFromTable(L, 1, pathS, &ppath[0]);
-            getDoublesFromTable(L, 2, pathLS, &pathLengths[0]);
-            getDoublesFromTable(L, 3, 3, absPt);
+            getDoubleArrayFromTable(L, 1, pathS, &ppath[0]);
+            getDoubleArrayFromTable(L, 2, pathLS, &pathLengths[0]);
+            getDoubleArrayFromTable(L, 3, 3, absPt);
             double p = CALL_C_API(simGetClosestPosOnPath, &ppath[0], int(pathLS * 3), &pathLengths[0], absPt);
             luaWrap_lua_pushnumber(L, p);
             LUA_END(1);
@@ -12201,7 +12201,7 @@ int _simPushUserEvent(luaWrap_lua_State* L)
     {
         std::string eventStr(luaWrap_lua_tostring(L, 1));
         int handle = luaToInt(L, 2);
-        long long int uid = luaWrap_lua_tointeger(L, 3);
+        int64_t uid = luaWrap_lua_tointeger(L, 3);
         if (luaWrap_lua_isnonbuffertable(L, 4))
         {
             int options = 0; // bit0: mergeable
@@ -12267,7 +12267,7 @@ int _simGetVisionSensorRes(luaWrap_lua_State* L)
         int resolution[2];
         if (CALL_C_API(simGetVisionSensorRes, luaToInt(L, 1), resolution) == 1)
         {
-            pushIntTableOntoStack(L, 2, resolution);
+            pushInt32ArrayAsTable(L, 2, resolution);
             LUA_END(1);
         }
     }
@@ -12334,7 +12334,7 @@ int _simGroupShapes(luaWrap_lua_State* L)
                 mergeShapes = luaToBool(L, 2);
             int tableSize = int(luaWrap_lua_rawlen(L, 1));
             int* theTable = new int[tableSize];
-            getIntsFromTable(L, 1, tableSize, theTable);
+            getInt32ArrayFromTable(L, 1, tableSize, theTable);
             if (mergeShapes)
                 tableSize = -tableSize;
             retVal = CALL_C_API(simGroupShapes, theTable, tableSize);
@@ -12359,7 +12359,7 @@ int _simUngroupShape(luaWrap_lua_State* L)
         int* handles = CALL_C_API(simUngroupShape, shapeHandle, &count);
         if (handles != nullptr)
         {
-            pushIntTableOntoStack(L, count, handles);
+            pushInt32ArrayAsTable(L, count, handles);
             delete[] handles;
             LUA_END(1);
         }
@@ -12400,7 +12400,7 @@ int _simGetTextureId(luaWrap_lua_State* L)
         if (retVal >= 0)
         {
             luaWrap_lua_pushinteger(L, retVal);
-            pushIntTableOntoStack(L, 2, resolution);
+            pushInt32ArrayAsTable(L, 2, resolution);
             LUA_END(2);
         }
     }
@@ -12611,7 +12611,7 @@ int _simCreateTexture(luaWrap_lua_State* L)
         {
             luaWrap_lua_pushinteger(L, shapeHandle);
             luaWrap_lua_pushinteger(L, textureId);
-            pushIntTableOntoStack(L, 2, resolution.data());
+            pushInt32ArrayAsTable(L, 2, resolution.data());
             LUA_END(3);
         }
     }
@@ -12637,7 +12637,7 @@ int _simGetShapeGeomInfo(luaWrap_lua_State* L)
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
     luaWrap_lua_pushinteger(L, intData[0]);
-    pushDoubleTableOntoStack(L, 4, floatData);
+    pushDoubleArrayAsTable(L, 4, floatData);
     LUA_END(3);
 }
 
@@ -12683,7 +12683,7 @@ int _simSetShapeTexture(luaWrap_lua_State* L)
         int mapMode = luaToInt(L, 3);
         int options = luaToInt(L, 4);
         double uvScaling[2];
-        getDoublesFromTable(L, 5, 2, uvScaling);
+        getDoubleArrayFromTable(L, 5, 2, uvScaling);
         double* posP = nullptr;
         double* orP = nullptr;
         double _pos[3];
@@ -12693,7 +12693,7 @@ int _simSetShapeTexture(luaWrap_lua_State* L)
         {
             if (res == 2)
             {
-                getDoublesFromTable(L, 6, 3, _pos);
+                getDoubleArrayFromTable(L, 6, 3, _pos);
                 posP = _pos;
             }
             res = checkOneGeneralInputArgument(L, 7, lua_arg_number, 3, true, true, &errorString, argOffset);
@@ -12701,7 +12701,7 @@ int _simSetShapeTexture(luaWrap_lua_State* L)
             {
                 if (res == 2)
                 {
-                    getDoublesFromTable(L, 7, 3, _or);
+                    getDoubleArrayFromTable(L, 7, 3, _or);
                     orP = _or;
                 }
                 retVal = CALL_C_API(simSetShapeTexture, handle, textureId, mapMode, options, uvScaling, posP, orP);
@@ -12850,7 +12850,7 @@ int _simAlignShapeBB(luaWrap_lua_State* L)
     {
         int shapeHandle = luaToInt(L, 1);
         double pose[7];
-        getDoublesFromTable(L, 2, 7, pose);
+        getDoubleArrayFromTable(L, 2, 7, pose);
         retVal = CALL_C_API(simAlignShapeBB, shapeHandle, pose);
     }
 
@@ -12869,7 +12869,7 @@ int _simRelocateShapeFrame(luaWrap_lua_State* L)
     {
         int shapeHandle = luaToInt(L, 1);
         double pose[7];
-        getDoublesFromTable(L, 2, 7, pose);
+        getDoubleArrayFromTable(L, 2, 7, pose);
         retVal = CALL_C_API(simRelocateShapeFrame, shapeHandle, pose);
     }
 
@@ -13042,11 +13042,11 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State* L)
                 int res = checkOneGeneralInputArgument(L, 4, lua_arg_number, v, true, true, &errorString, argOffset);
                 if (res >= 0)
                 {
-                    getDoublesFromTable(L, 3, ptCnt * 3, &pts[0]);
+                    getDoubleArrayFromTable(L, 3, ptCnt * 3, &pts[0]);
                     if (res == 2)
                     {
                         _cols.resize(v);
-                        getUCharsFromTable(L, 4, v, &_cols[0]);
+                        getUInt8ArrayFromTable(L, 4, v, &_cols[0]);
                         cols = &_cols[0];
                     }
                     res = checkOneGeneralInputArgument(L, 5, lua_arg_number, v / 3, true, true, &errorString, argOffset);
@@ -13062,7 +13062,7 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State* L)
                             if (res == 2)
                             {
                                 _tags.resize(v / 3);
-                                getUIntsFromTable(L, 5, v / 3, &_tags[0]);
+                                getUInt32ArrayFromTable(L, 5, v / 3, &_tags[0]);
                                 tags = &_tags[0];
                             }
                             retVal = CALL_C_API(simInsertVoxelsIntoOctree, handle, options, &pts[0], ptCnt, cols, tags,
@@ -13097,7 +13097,7 @@ int _simRemoveVoxelsFromOctree(luaWrap_lua_State* L)
                 int ptCnt = int(luaWrap_lua_rawlen(L, 3)) / 3;
                 std::vector<double> pts;
                 pts.resize(ptCnt * 3);
-                getDoublesFromTable(L, 3, ptCnt * 3, &pts[0]);
+                getDoubleArrayFromTable(L, 3, ptCnt * 3, &pts[0]);
                 retVal = CALL_C_API(simRemoveVoxelsFromOctree, handle, options, &pts[0], ptCnt, nullptr);
             }
             else
@@ -13179,11 +13179,11 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State* L)
                 int res = checkOneGeneralInputArgument(L, 4, lua_arg_number, v, true, true, &errorString, argOffset);
                 if (res >= 0)
                 {
-                    getDoublesFromTable(L, 3, ptCnt * 3, &pts[0]);
+                    getDoubleArrayFromTable(L, 3, ptCnt * 3, &pts[0]);
                     if (res == 2)
                     {
                         _cols.resize(v);
-                        getUCharsFromTable(L, 4, v, &_cols[0]);
+                        getUInt8ArrayFromTable(L, 4, v, &_cols[0]);
                         cols = &_cols[0];
                     }
                     res = checkOneGeneralInputArgument(L, 5, lua_arg_number, 0, true, true, &errorString, argOffset);
@@ -13231,7 +13231,7 @@ int _simRemovePointsFromPointCloud(luaWrap_lua_State* L)
                     int ptCnt = int(luaWrap_lua_rawlen(L, 3)) / 3;
                     std::vector<double> pts;
                     pts.resize(ptCnt * 3);
-                    getDoublesFromTable(L, 3, ptCnt * 3, &pts[0]);
+                    getDoubleArrayFromTable(L, 3, ptCnt * 3, &pts[0]);
                     retVal =
                         CALL_C_API(simRemovePointsFromPointCloud, handle, options, &pts[0], ptCnt, tolerance, nullptr);
                 }
@@ -13269,7 +13269,7 @@ int _simIntersectPointsWithPointCloud(luaWrap_lua_State* L)
                     int ptCnt = int(luaWrap_lua_rawlen(L, 3)) / 3;
                     std::vector<double> pts;
                     pts.resize(ptCnt * 3);
-                    getDoublesFromTable(L, 3, ptCnt * 3, &pts[0]);
+                    getDoubleArrayFromTable(L, 3, ptCnt * 3, &pts[0]);
                     retVal =
                         CALL_C_API(simIntersectPointsWithPointCloud, handle, options, &pts[0], ptCnt, tolerance, nullptr);
                 }
@@ -13297,7 +13297,7 @@ int _simGetOctreeVoxels(luaWrap_lua_State* L)
         const double* p = CALL_C_API(simGetOctreeVoxels, handle, &ptCnt, nullptr);
         if (ptCnt >= 0)
         {
-            pushDoubleTableOntoStack(L, ptCnt * 3, p);
+            pushDoubleArrayAsTable(L, ptCnt * 3, p);
             LUA_END(1);
         }
     }
@@ -13318,7 +13318,7 @@ int _simGetPointCloudPoints(luaWrap_lua_State* L)
         const double* p = CALL_C_API(simGetPointCloudPoints, handle, &ptCnt, nullptr);
         if (ptCnt >= 0)
         {
-            pushDoubleTableOntoStack(L, ptCnt * 3, p);
+            pushDoubleArrayAsTable(L, ptCnt * 3, p);
             LUA_END(1);
         }
     }
@@ -13346,7 +13346,7 @@ int _simInsertObjectIntoOctree(luaWrap_lua_State* L)
         {
             if (res == 2)
             {
-                getUCharsFromTable(L, 4, 3, col);
+                getUInt8ArrayFromTable(L, 4, 3, col);
                 c = col;
             }
             res = checkOneGeneralInputArgument(L, 5, lua_arg_number, 0, true, true, &errorString, argOffset);
@@ -13403,7 +13403,7 @@ int _simInsertObjectIntoPointCloud(luaWrap_lua_State* L)
         {
             if (res == 2)
             {
-                getUCharsFromTable(L, 5, 3, col);
+                getUInt8ArrayFromTable(L, 5, 3, col);
                 c = col;
             }
             res = checkOneGeneralInputArgument(L, 6, lua_arg_number, 0, true, true, &errorString, argOffset);
@@ -13460,9 +13460,9 @@ int _simCheckOctreePointOccupancy(luaWrap_lua_State* L)
         int ptCnt = int(luaWrap_lua_rawlen(L, 3)) / 3;
         std::vector<double> points;
         points.resize(ptCnt * 3);
-        getDoublesFromTable(L, 3, ptCnt * 3, &points[0]);
+        getDoubleArrayFromTable(L, 3, ptCnt * 3, &points[0]);
         unsigned int tag = 0;
-        unsigned long long int location = 0;
+        uint64_t location = 0;
         unsigned int locLow = location & 0xffffffff;
         unsigned int locHigh = (location >> 32) & 0xffffffff;
         retVal = CALL_C_API(simCheckOctreePointOccupancy, handle, options, &points[0], ptCnt, &tag, &location, nullptr);
@@ -13612,7 +13612,7 @@ int _simAuxFunc(luaWrap_lua_State* L)
             if (checkInputArguments(L, &errorString, argOffset, lua_arg_string, 0, lua_arg_number, 2))
             {
                 double s[2];
-                getDoublesFromTable(L, 2, 2, s);
+                getDoubleArrayFromTable(L, 2, 2, s);
                 CMirror* m = new CMirror();
                 m->setMirrorWidth(s[0]);
                 m->setMirrorHeight(s[1]);
@@ -13737,7 +13737,7 @@ int _simAuxFunc(luaWrap_lua_State* L)
                                     lua_arg_number, 4, lua_arg_number, 3, lua_arg_number, 0))
             {
                 int res[2];
-                getIntsFromTable(L, 3, 2, res);
+                getInt32ArrayFromTable(L, 3, 2, res);
                 size_t imgLen;
                 const char* img = luaWrap_lua_tobuffer(L, 2, &imgLen);
                 if (imgLen == size_t(3 * res[0] * res[1]))
@@ -13746,9 +13746,9 @@ int _simAuxFunc(luaWrap_lua_State* L)
                     int vc = int(luaWrap_lua_rawlen(L, 4));
                     vc = 2 * (vc / 2);
                     lines.resize(vc);
-                    getIntsFromTable(L, 4, vc, &lines[0]);
+                    getInt32ArrayFromTable(L, 4, vc, &lines[0]);
                     int col[3];
-                    getIntsFromTable(L, 5, 3, col);
+                    getInt32ArrayFromTable(L, 5, 3, col);
                     int lineWidth = luaToInt(L, 6);
                     QImage qimg((const unsigned char*)img, res[0], res[1], res[0] * 3, QImage::Format_RGB888);
                     QPixmap pix(QPixmap::fromImage(qimg));
@@ -13783,7 +13783,7 @@ int _simAuxFunc(luaWrap_lua_State* L)
                                     lua_arg_number, 2, lua_arg_number, 3, lua_arg_number, 0))
             {
                 int res[2];
-                getIntsFromTable(L, 3, 2, res);
+                getInt32ArrayFromTable(L, 3, 2, res);
                 size_t imgLen;
                 const char* img = luaWrap_lua_tobuffer(L, 2, &imgLen);
                 if (imgLen == size_t(3 * res[0] * res[1]))
@@ -13792,9 +13792,9 @@ int _simAuxFunc(luaWrap_lua_State* L)
                     int vc = int(luaWrap_lua_rawlen(L, 4));
                     vc = 4 * (vc / 4);
                     rects.resize(vc);
-                    getIntsFromTable(L, 4, vc, &rects[0]);
+                    getInt32ArrayFromTable(L, 4, vc, &rects[0]);
                     int col[3];
-                    getIntsFromTable(L, 5, 3, col);
+                    getInt32ArrayFromTable(L, 5, 3, col);
                     int lineWidth = luaToInt(L, 6);
                     QImage qimg((const unsigned char*)img, res[0], res[1], res[0] * 3, QImage::Format_RGB888);
                     QPixmap pix(QPixmap::fromImage(qimg));
@@ -13852,7 +13852,7 @@ int _simSetReferencedHandles(luaWrap_lua_State* L)
                 {
                     std::vector<int> handles;
                     handles.resize(cnt);
-                    getIntsFromTable(L, 2, cnt, &handles[0]);
+                    getInt32ArrayFromTable(L, 2, cnt, &handles[0]);
                     retVal = CALL_C_API(simSetReferencedHandles, objHandle, cnt, &handles[0], tag.c_str(), nullptr);
                 }
             }
@@ -13883,7 +13883,7 @@ int _simGetReferencedHandles(luaWrap_lua_State* L)
         int cnt = CALL_C_API(simGetReferencedHandles, objHandle, &handles, tag.c_str(), nullptr);
         if (cnt >= 0)
         {
-            pushIntTableOntoStack(L, cnt, handles);
+            pushInt32ArrayAsTable(L, cnt, handles);
             delete[] handles;
             LUA_END(1);
         }
@@ -13910,7 +13910,7 @@ int _simGetReferencedHandlesTags(luaWrap_lua_State* L)
                 it->getReferencedHandlesTags(tags);
             else
                 it->getReferencedOriginalHandlesTags(tags);
-            pushStringTableOntoStack(L, tags);
+            pushStringArrayAsTable(L, tags);
             LUA_END(1);
         }
         else
@@ -13938,7 +13938,7 @@ int _simGetGraphCurve(luaWrap_lua_State* L)
             std::string label;
             int curveType;
             int curveId;
-            long long int curveUid;
+            int64_t curveUid;
             int curveWidth;
             float col[3];
             double minMax[6];
@@ -13946,16 +13946,16 @@ int _simGetGraphCurve(luaWrap_lua_State* L)
             {
                 luaWrap_lua_pushtext(L, label.c_str());
                 luaWrap_lua_pushinteger(L, curveType);
-                pushFloatTableOntoStack(L, 3, col);
+                pushFloatArrayAsTable(L, 3, col);
                 if (xVals.size() > 0)
-                    pushDoubleTableOntoStack(L, (int)xVals.size(), &xVals[0]);
+                    pushDoubleArrayAsTable(L, (int)xVals.size(), &xVals[0]);
                 else
-                    pushIntTableOntoStack(L, 0, nullptr); // empty table
+                    pushInt32ArrayAsTable(L, 0, nullptr); // empty table
                 if (yVals.size() > 0)
-                    pushDoubleTableOntoStack(L, (int)yVals.size(), &yVals[0]);
+                    pushDoubleArrayAsTable(L, (int)yVals.size(), &yVals[0]);
                 else
-                    pushIntTableOntoStack(L, 0, nullptr); // empty table
-                pushDoubleTableOntoStack(L, 6, minMax);
+                    pushInt32ArrayAsTable(L, 0, nullptr); // empty table
+                pushDoubleArrayAsTable(L, 6, minMax);
                 luaWrap_lua_pushinteger(L, curveId);
                 luaWrap_lua_pushinteger(L, curveWidth);
                 luaWrap_lua_pushinteger(L, curveUid);
@@ -13982,8 +13982,8 @@ int _simGetGraphInfo(luaWrap_lua_State* L)
         {
             int bitCoded = 0;
             luaWrap_lua_pushinteger(L, bitCoded);
-            pushFloatTableOntoStack(L, 3, graph->backgroundColor);
-            pushFloatTableOntoStack(L, 3, graph->foregroundColor);
+            pushFloatArrayAsTable(L, 3, graph->backgroundColor);
+            pushFloatArrayAsTable(L, 3, graph->foregroundColor);
             LUA_END(3);
         }
         else
@@ -14072,7 +14072,7 @@ int _simExecuteScriptString(luaWrap_lua_State* L)
             App::scenes->interfaceStackContainer->destroyStack(stack);
             if (s == 1)
             {
-                pushIntTableOntoStack(L, 0, nullptr);
+                pushInt32ArrayAsTable(L, 0, nullptr);
                 s++;
             }
             LUA_END(s);
@@ -14109,7 +14109,7 @@ int _simGetApiFunc(luaWrap_lua_State* L)
             }
             strTable.push_back(std::string(sstr.begin() + prevPos, sstr.end()));
         }
-        pushStringTableOntoStack(L, strTable);
+        pushStringArrayAsTable(L, strTable);
         LUA_END(1);
     }
 

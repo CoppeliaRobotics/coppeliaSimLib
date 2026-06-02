@@ -15,7 +15,7 @@ double CInterfaceStackNumber::getValue() const
     return (_value);
 }
 
-void CInterfaceStackNumber::setValue(long long int v)
+void CInterfaceStackNumber::setValue(int64_t v)
 {
     _value = (double)v;
 }

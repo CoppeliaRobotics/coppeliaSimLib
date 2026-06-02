@@ -68,7 +68,7 @@ CInterfaceStackObject* CInterfaceStackObject::createFromDataStatic(const char* d
         if (version == 0)
         { // when Lua didn't have an int type yet
             double v = ((CInterfaceStackNumber*)obj)->getValue();
-            long long int w = (long long int)v;
+            int64_t w = (int64_t)v;
             if (v == (double)w)
             {
                 delete obj;

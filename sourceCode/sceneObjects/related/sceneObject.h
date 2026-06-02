@@ -117,10 +117,10 @@ class CSceneObject : public Obj
     virtual int getBoolProperty(const char* pName, bool& pState) const  override;
     virtual int setIntProperty(const char* pName, int pState) override;
     virtual int getIntProperty(const char* pName, int& pState) const  override;
-    virtual int setLongProperty(const char* pName, long long int pState) override;
-    virtual int getLongProperty(const char* pName, long long int& pState) const override;
-    virtual int setHandleProperty(const char* pName, long long int pState) override;
-    virtual int getHandleProperty(const char* pName, long long int& pState) const  override;
+    virtual int setLongProperty(const char* pName, int64_t pState) override;
+    virtual int getLongProperty(const char* pName, int64_t& pState) const override;
+    virtual int setHandleProperty(const char* pName, int64_t pState) override;
+    virtual int getHandleProperty(const char* pName, int64_t& pState) const  override;
     virtual int setFloatProperty(const char* pName, double pState) override;
     virtual int getFloatProperty(const char* pName, double& pState) const  override;
     virtual int setStringProperty(const char* pName, const std::string& pState) override;
@@ -145,8 +145,8 @@ class CSceneObject : public Obj
     virtual int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const  override;
     virtual int setIntArrayProperty(const char* pName, const std::vector<int>& pState) override;
     virtual int getIntArrayProperty(const char* pName, std::vector<int>& pState) const  override;
-    virtual int setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState) override;
-    virtual int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const  override;
+    virtual int setHandleArrayProperty(const char* pName, const std::vector<int64_t>& pState) override;
+    virtual int getHandleArrayProperty(const char* pName, std::vector<int64_t>& pState) const  override;
     virtual int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState) override;
     virtual int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const  override;
     virtual int setMethodProperty(const char* pName, const void* pState) override;
@@ -166,7 +166,7 @@ class CSceneObject : public Obj
     CSceneObjectCustomizationPart* getCustomizationPart() const;
     int getObjectType() const;
     CSceneObject* getParent() const;
-    long long int getObjectUid() const;
+    int64_t getObjectUid() const;
     bool getSelected() const;
     bool getIsInScene() const;
     bool getModelBase() const;
@@ -386,7 +386,7 @@ class CSceneObject : public Obj
     void _setModelInvisible(bool inv);
     void _setBB(const CPose& bbFrame, const C3Vector& bbHalfSize);
 
-    long long int _objectUid; // valid for a given session (non-persistent)
+    int64_t _objectUid; // valid for a given session (non-persistent)
     std::string _extensionString;
     int _visibilityLayer;
     bool _selected;
@@ -480,7 +480,7 @@ class CSceneObject : public Obj
     bool _beforeDeleteCallbackSent;
     bool _initialValuesInitialized;
     bool _initialConfigurationMemorized;
-    long long int _initialParentUniqueId;
+    int64_t _initialParentUniqueId;
     int _initialMainPropertyOverride;
     CPose _initialLocalPose;
     CPose _initialAbsPose;

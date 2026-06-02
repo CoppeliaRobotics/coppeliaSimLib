@@ -602,7 +602,7 @@ int CScript::getIntProperty(const char* ppName, int& pState) const
     return retVal;
 }
 
-int CScript::setLongProperty(const char* ppName, long long int pState)
+int CScript::setLongProperty(const char* ppName, int64_t pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setLongProperty(ppName, pState);
@@ -613,7 +613,7 @@ int CScript::setLongProperty(const char* ppName, long long int pState)
     return retVal;
 }
 
-int CScript::getLongProperty(const char* ppName, long long int& pState) const
+int CScript::getLongProperty(const char* ppName, int64_t& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getLongProperty(ppName, pState);
@@ -624,7 +624,7 @@ int CScript::getLongProperty(const char* ppName, long long int& pState) const
     return retVal;
 }
 
-int CScript::getHandleProperty(const char* ppName, long long int& pState) const
+int CScript::getHandleProperty(const char* ppName, int64_t& pState) const
 {
     int retVal = CSceneObject::getHandleProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)

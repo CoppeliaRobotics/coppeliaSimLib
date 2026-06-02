@@ -52,9 +52,9 @@ class CScript : public CSceneObject
     int getBoolProperty(const char* pName, bool& pState) const override;
     int setIntProperty(const char* pName, int pState) override;
     int getIntProperty(const char* pName, int& pState) const override;
-    int setLongProperty(const char* pName, long long int pState) override;
-    int getLongProperty(const char* pName, long long int& pState) const override;
-    int getHandleProperty(const char* pName, long long int& pState) const override;
+    int setLongProperty(const char* pName, int64_t pState) override;
+    int getLongProperty(const char* pName, int64_t& pState) const override;
+    int getHandleProperty(const char* pName, int64_t& pState) const override;
     int setFloatProperty(const char* pName, double pState) override;
     int getFloatProperty(const char* pName, double& pState) const override;
     int setStringProperty(const char* pName, const std::string& pState) override;

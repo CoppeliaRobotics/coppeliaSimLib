@@ -12,7 +12,7 @@
 #include <guiApp.h>
 #endif
 
-CPlugin::CPlugin(const char* filename, const char* pluginnamespaceAndVersion, long long int loadOrigin)
+CPlugin::CPlugin(const char* filename, const char* pluginnamespaceAndVersion, int64_t loadOrigin)
 {
     _initAddress = nullptr;
     _cleanupAddress = nullptr;
@@ -218,17 +218,17 @@ CPluginVariableContainer* CPlugin::getPluginVariableContainer()
     return (&_pluginVariableContainer);
 }
 
-void CPlugin::addDependency(long long int loadOrigin)
+void CPlugin::addDependency(int64_t loadOrigin)
 {
     _dependencies.insert(loadOrigin);
 }
 
-void CPlugin::removeDependency(long long int loadOrigin)
+void CPlugin::removeDependency(int64_t loadOrigin)
 {
     _dependencies.erase(loadOrigin);
 }
 
-bool CPlugin::hasDependency(long long int loadOrigin) const
+bool CPlugin::hasDependency(int64_t loadOrigin) const
 {
     return (_dependencies.find(loadOrigin) != _dependencies.end());
 }

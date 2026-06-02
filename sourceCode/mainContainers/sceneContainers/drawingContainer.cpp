@@ -159,7 +159,7 @@ void CDrawingContainer::pushAppendNewPointEvents()
         _allObjects[i]->pushAppendNewPointEvent();
 }
 
-int CDrawingContainer::getBoolProperty_t(long long int target, const char* pName, bool& pState) const
+int CDrawingContainer::getBoolProperty_t(int64_t target, const char* pName, bool& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -175,7 +175,7 @@ int CDrawingContainer::getBoolProperty_t(long long int target, const char* pName
     return retVal;
 }
 
-int CDrawingContainer::getLongProperty_t(long long int target, const char* pName, long long int& pState) const
+int CDrawingContainer::getLongProperty_t(int64_t target, const char* pName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -191,7 +191,7 @@ int CDrawingContainer::getLongProperty_t(long long int target, const char* pName
     return retVal;
 }
 
-int CDrawingContainer::getHandleProperty_t(long long int target, const char* pName, long long int& pState) const
+int CDrawingContainer::getHandleProperty_t(int64_t target, const char* pName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -207,7 +207,7 @@ int CDrawingContainer::getHandleProperty_t(long long int target, const char* pNa
     return retVal;
 }
 
-int CDrawingContainer::getStringProperty_t(long long int target, const char* pName, std::string& pState) const
+int CDrawingContainer::getStringProperty_t(int64_t target, const char* pName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -223,7 +223,7 @@ int CDrawingContainer::getStringProperty_t(long long int target, const char* pNa
     return retVal;
 }
 
-int CDrawingContainer::getHandleArrayProperty_t(long long int target, const char* pName, std::vector<long long int>& pState) const
+int CDrawingContainer::getHandleArrayProperty_t(int64_t target, const char* pName, std::vector<int64_t>& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     pState.clear();
@@ -239,7 +239,7 @@ int CDrawingContainer::getHandleArrayProperty_t(long long int target, const char
     return retVal;
 }
 
-int CDrawingContainer::getStringArrayProperty_t(long long int target, const char* pName, std::vector<std::string>& pState) const
+int CDrawingContainer::getStringArrayProperty_t(int64_t target, const char* pName, std::vector<std::string>& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -255,7 +255,7 @@ int CDrawingContainer::getStringArrayProperty_t(long long int target, const char
     return retVal;
 }
 
-int CDrawingContainer::getPropertyName_t(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+int CDrawingContainer::getPropertyName_t(int64_t target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -290,7 +290,7 @@ int CDrawingContainer::getPropertyName_t(long long int target, int& index, std::
     return retVal;
 }
 
-int CDrawingContainer::getPropertyInfo_t(long long int target, const char* pName, int& info, std::string& infoTxt) const
+int CDrawingContainer::getPropertyInfo_t(int64_t target, const char* pName, int& info, std::string& infoTxt) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)

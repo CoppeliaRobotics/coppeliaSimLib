@@ -95,7 +95,7 @@ int CGraphDataStream::getId() const
     return _id;
 }
 
-long long int CGraphDataStream::getUid() const
+int64_t CGraphDataStream::getUid() const
 {
     return _uid;
 }

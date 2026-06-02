@@ -159,9 +159,9 @@ void CustomObjectContainer::_loadFromAppFolder()
     }
 }
 
-long long int CustomObjectContainer::getFreshHandle(bool forObject) const
+int64_t CustomObjectContainer::getFreshHandle(bool forObject) const
 {
-    long long int retVal = sim_object_customappstart;
+    int64_t retVal = sim_object_customappstart;
     if (forObject)
     {
         if (_target == sim_handle_scene)
@@ -178,7 +178,7 @@ long long int CustomObjectContainer::getFreshHandle(bool forObject) const
     return retVal;
 }
 
-CustomObject* CustomObjectContainer::getItem(long long int objectHandle) const
+CustomObject* CustomObjectContainer::getItem(int64_t objectHandle) const
 {
     CustomObject* retVal = getObject(objectHandle);
     if (retVal == nullptr)
@@ -186,7 +186,7 @@ CustomObject* CustomObjectContainer::getItem(long long int objectHandle) const
     return retVal;
 }
 
-bool CustomObjectContainer::removeItem(long long int objectHandle)
+bool CustomObjectContainer::removeItem(int64_t objectHandle)
 {
     bool retVal = removeClass(objectHandle);
     if (!retVal)
@@ -194,9 +194,9 @@ bool CustomObjectContainer::removeItem(long long int objectHandle)
     return retVal;
 }
 
-long long int CustomObjectContainer::makeClass(const char* typeString, const std::vector<std::string>& superClass, const std::vector<std::string>& nameSpaces)
+int64_t CustomObjectContainer::makeClass(const char* typeString, const std::vector<std::string>& superClass, const std::vector<std::string>& nameSpaces)
 {
-    long long int retVal = -1;
+    int64_t retVal = -1;
     if (getClass(typeString) == nullptr)
     {
         retVal = getFreshHandle(false);
@@ -223,7 +223,7 @@ bool CustomObjectContainer::removeClass(const char* typeString)
     return retVal;
 }
 
-bool CustomObjectContainer::removeClass(long long int objectHandle)
+bool CustomObjectContainer::removeClass(int64_t objectHandle)
 {
     bool retVal = false;
     for (auto it = _customClasses.begin(); it != _customClasses.end(); ++it)
@@ -249,7 +249,7 @@ CustomObject* CustomObjectContainer::getClass(const char* typeString) const
     return retVal;
 }
 
-CustomObject* CustomObjectContainer::getClass(long long int objectHandle) const
+CustomObject* CustomObjectContainer::getClass(int64_t objectHandle) const
 {
     CustomObject* retVal = nullptr;
     for (auto it = _customClasses.begin(); it != _customClasses.end(); ++it)
@@ -263,9 +263,9 @@ CustomObject* CustomObjectContainer::getClass(long long int objectHandle) const
     return retVal;
 }
 
-long long int CustomObjectContainer::makeObject(const CustomObject* classObject, bool isVolatile, int originDetachedScriptHandle)
+int64_t CustomObjectContainer::makeObject(const CustomObject* classObject, bool isVolatile, int originDetachedScriptHandle)
 {
-    long long int retVal = getFreshHandle(true);
+    int64_t retVal = getFreshHandle(true);
     CustomObject* obj = classObject->createObject(retVal, originDetachedScriptHandle);
     obj->setVolatile(isVolatile);
     _customObjects.insert({retVal, obj});
@@ -274,7 +274,7 @@ long long int CustomObjectContainer::makeObject(const CustomObject* classObject,
     return retVal;
 }
 
-CustomObject* CustomObjectContainer::getObject(long long int objectHandle) const
+CustomObject* CustomObjectContainer::getObject(int64_t objectHandle) const
 {
     CustomObject* retVal = nullptr;
     auto it = _customObjects.find(objectHandle);
@@ -283,7 +283,7 @@ CustomObject* CustomObjectContainer::getObject(long long int objectHandle) const
     return retVal;
 }
 
-bool CustomObjectContainer::removeObject(long long int objectHandle)
+bool CustomObjectContainer::removeObject(int64_t objectHandle)
 {
     bool retVal = false;
     auto it = _customObjects.find(objectHandle);
@@ -297,14 +297,14 @@ bool CustomObjectContainer::removeObject(long long int objectHandle)
     return retVal;
 }
 
-void CustomObjectContainer::getAllObjectHandles(std::vector<long long int>& objects) const
+void CustomObjectContainer::getAllObjectHandles(std::vector<int64_t>& objects) const
 {
     objects.clear();
     for (auto it = _customObjects.begin(); it != _customObjects.end(); ++it)
         objects.push_back(it->first);
 }
 
-void CustomObjectContainer::getAllClassHandles(std::vector<long long int>& classes) const
+void CustomObjectContainer::getAllClassHandles(std::vector<int64_t>& classes) const
 {
     classes.clear();
     for (auto it = _customClasses.begin(); it != _customClasses.end(); ++it)
@@ -315,7 +315,7 @@ void CustomObjectContainer::_notifyObjectListChanged() const
 {
     if ((App::scenes != nullptr) && App::scenes->getEventsEnabled())
     {
-        std::vector<long long int> customObjectList;
+        std::vector<int64_t> customObjectList;
         getAllObjectHandles(customObjectList);
         CCbor* ev = App::scenes->createObjectChangedEvent(_target, nullptr, true);
         if (_target == sim_handle_app)
@@ -330,7 +330,7 @@ void CustomObjectContainer::_notifyClassListChanged() const
 {
     if ((App::scenes != nullptr) && App::scenes->getEventsEnabled() && (_target == sim_handle_app))
     {
-        std::vector<long long int> customClassList;
+        std::vector<int64_t> customClassList;
         getAllClassHandles(customClassList);
         CCbor* ev = App::scenes->createObjectChangedEvent(_target, nullptr, true);
         ev->appendKeyHandleArray(propApp_customClasses.name, customClassList.data(), customClassList.size());
@@ -388,7 +388,7 @@ void CustomObjectContainer::clear()
         _notifyObjectListChanged();
 }
 
-int CustomObjectContainer::setBoolProperty_t(long long int target, const char* ppName, bool pState)
+int CustomObjectContainer::setBoolProperty_t(int64_t target, const char* ppName, bool pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -397,7 +397,7 @@ int CustomObjectContainer::setBoolProperty_t(long long int target, const char* p
     return retVal;
 }
 
-int CustomObjectContainer::getBoolProperty_t(long long int target, const char* ppName, bool& pState) const
+int CustomObjectContainer::getBoolProperty_t(int64_t target, const char* ppName, bool& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -406,7 +406,7 @@ int CustomObjectContainer::getBoolProperty_t(long long int target, const char* p
     return retVal;
 }
 
-int CustomObjectContainer::setIntProperty_t(long long int target, const char* ppName, int pState)
+int CustomObjectContainer::setIntProperty_t(int64_t target, const char* ppName, int pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -415,7 +415,7 @@ int CustomObjectContainer::setIntProperty_t(long long int target, const char* pp
     return retVal;
 }
 
-int CustomObjectContainer::getIntProperty_t(long long int target, const char* ppName, int& pState) const
+int CustomObjectContainer::getIntProperty_t(int64_t target, const char* ppName, int& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -424,7 +424,7 @@ int CustomObjectContainer::getIntProperty_t(long long int target, const char* pp
     return retVal;
 }
 
-int CustomObjectContainer::setLongProperty_t(long long int target, const char* ppName, long long int pState)
+int CustomObjectContainer::setLongProperty_t(int64_t target, const char* ppName, int64_t pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -433,7 +433,7 @@ int CustomObjectContainer::setLongProperty_t(long long int target, const char* p
     return retVal;
 }
 
-int CustomObjectContainer::getLongProperty_t(long long int target, const char* ppName, long long int& pState) const
+int CustomObjectContainer::getLongProperty_t(int64_t target, const char* ppName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -442,7 +442,7 @@ int CustomObjectContainer::getLongProperty_t(long long int target, const char* p
     return retVal;
 }
 
-int CustomObjectContainer::setHandleProperty_t(long long int target, const char* ppName, long long int pState)
+int CustomObjectContainer::setHandleProperty_t(int64_t target, const char* ppName, int64_t pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -451,7 +451,7 @@ int CustomObjectContainer::setHandleProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CustomObjectContainer::getHandleProperty_t(long long int target, const char* ppName, long long int& pState) const
+int CustomObjectContainer::getHandleProperty_t(int64_t target, const char* ppName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -460,7 +460,7 @@ int CustomObjectContainer::getHandleProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CustomObjectContainer::setFloatProperty_t(long long int target, const char* ppName, double pState)
+int CustomObjectContainer::setFloatProperty_t(int64_t target, const char* ppName, double pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -469,7 +469,7 @@ int CustomObjectContainer::setFloatProperty_t(long long int target, const char* 
     return retVal;
 }
 
-int CustomObjectContainer::getFloatProperty_t(long long int target, const char* ppName, double& pState) const
+int CustomObjectContainer::getFloatProperty_t(int64_t target, const char* ppName, double& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -478,7 +478,7 @@ int CustomObjectContainer::getFloatProperty_t(long long int target, const char* 
     return retVal;
 }
 
-int CustomObjectContainer::setStringProperty_t(long long int target, const char* ppName, const std::string& pState)
+int CustomObjectContainer::setStringProperty_t(int64_t target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -487,7 +487,7 @@ int CustomObjectContainer::setStringProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CustomObjectContainer::getStringProperty_t(long long int target, const char* ppName, std::string& pState) const
+int CustomObjectContainer::getStringProperty_t(int64_t target, const char* ppName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -496,7 +496,7 @@ int CustomObjectContainer::getStringProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CustomObjectContainer::setTableProperty_t(long long int target, const char* ppName, const std::string& pState)
+int CustomObjectContainer::setTableProperty_t(int64_t target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -505,7 +505,7 @@ int CustomObjectContainer::setTableProperty_t(long long int target, const char* 
     return retVal;
 }
 
-int CustomObjectContainer::getTableProperty_t(long long int target, const char* ppName, std::string& pState) const
+int CustomObjectContainer::getTableProperty_t(int64_t target, const char* ppName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -514,7 +514,7 @@ int CustomObjectContainer::getTableProperty_t(long long int target, const char* 
     return retVal;
 }
 
-int CustomObjectContainer::setBufferProperty_t(long long int target, const char* ppName, const std::string& pState)
+int CustomObjectContainer::setBufferProperty_t(int64_t target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -523,7 +523,7 @@ int CustomObjectContainer::setBufferProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CustomObjectContainer::getBufferProperty_t(long long int target, const char* ppName, std::string& pState) const
+int CustomObjectContainer::getBufferProperty_t(int64_t target, const char* ppName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -532,7 +532,7 @@ int CustomObjectContainer::getBufferProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CustomObjectContainer::setIntArray2Property_t(long long int target, const char* ppName, const int* pState)
+int CustomObjectContainer::setIntArray2Property_t(int64_t target, const char* ppName, const int* pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -541,7 +541,7 @@ int CustomObjectContainer::setIntArray2Property_t(long long int target, const ch
     return retVal;
 }
 
-int CustomObjectContainer::getIntArray2Property_t(long long int target, const char* ppName, int* pState) const
+int CustomObjectContainer::getIntArray2Property_t(int64_t target, const char* ppName, int* pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -550,7 +550,7 @@ int CustomObjectContainer::getIntArray2Property_t(long long int target, const ch
     return retVal;
 }
 
-int CustomObjectContainer::setVector3Property_t(long long int target, const char* ppName, const C3Vector& pState)
+int CustomObjectContainer::setVector3Property_t(int64_t target, const char* ppName, const C3Vector& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -559,7 +559,7 @@ int CustomObjectContainer::setVector3Property_t(long long int target, const char
     return retVal;
 }
 
-int CustomObjectContainer::getVector3Property_t(long long int target, const char* ppName, C3Vector& pState) const
+int CustomObjectContainer::getVector3Property_t(int64_t target, const char* ppName, C3Vector& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -568,7 +568,7 @@ int CustomObjectContainer::getVector3Property_t(long long int target, const char
     return retVal;
 }
 
-int CustomObjectContainer::setMatrixProperty_t(long long int target, const char* ppName, const CMatrix& pState)
+int CustomObjectContainer::setMatrixProperty_t(int64_t target, const char* ppName, const CMatrix& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -577,7 +577,7 @@ int CustomObjectContainer::setMatrixProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CustomObjectContainer::getMatrixProperty_t(long long int target, const char* ppName, CMatrix& pState) const
+int CustomObjectContainer::getMatrixProperty_t(int64_t target, const char* ppName, CMatrix& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -586,7 +586,7 @@ int CustomObjectContainer::getMatrixProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CustomObjectContainer::setQuaternionProperty_t(long long int target, const char* ppName, const CQuaternion& pState)
+int CustomObjectContainer::setQuaternionProperty_t(int64_t target, const char* ppName, const CQuaternion& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -595,7 +595,7 @@ int CustomObjectContainer::setQuaternionProperty_t(long long int target, const c
     return retVal;
 }
 
-int CustomObjectContainer::getQuaternionProperty_t(long long int target, const char* ppName, CQuaternion& pState) const
+int CustomObjectContainer::getQuaternionProperty_t(int64_t target, const char* ppName, CQuaternion& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -604,7 +604,7 @@ int CustomObjectContainer::getQuaternionProperty_t(long long int target, const c
     return retVal;
 }
 
-int CustomObjectContainer::setPoseProperty_t(long long int target, const char* ppName, const CPose& pState)
+int CustomObjectContainer::setPoseProperty_t(int64_t target, const char* ppName, const CPose& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -613,7 +613,7 @@ int CustomObjectContainer::setPoseProperty_t(long long int target, const char* p
     return retVal;
 }
 
-int CustomObjectContainer::getPoseProperty_t(long long int target, const char* ppName, CPose& pState) const
+int CustomObjectContainer::getPoseProperty_t(int64_t target, const char* ppName, CPose& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -622,7 +622,7 @@ int CustomObjectContainer::getPoseProperty_t(long long int target, const char* p
     return retVal;
 }
 
-int CustomObjectContainer::setColorProperty_t(long long int target, const char* ppName, const float* pState)
+int CustomObjectContainer::setColorProperty_t(int64_t target, const char* ppName, const float* pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -631,7 +631,7 @@ int CustomObjectContainer::setColorProperty_t(long long int target, const char* 
     return retVal;
 }
 
-int CustomObjectContainer::getColorProperty_t(long long int target, const char* ppName, float* pState) const
+int CustomObjectContainer::getColorProperty_t(int64_t target, const char* ppName, float* pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -640,7 +640,7 @@ int CustomObjectContainer::getColorProperty_t(long long int target, const char* 
     return retVal;
 }
 
-int CustomObjectContainer::setFloatArrayProperty_t(long long int target, const char* ppName, const std::vector<double>& pState)
+int CustomObjectContainer::setFloatArrayProperty_t(int64_t target, const char* ppName, const std::vector<double>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -649,7 +649,7 @@ int CustomObjectContainer::setFloatArrayProperty_t(long long int target, const c
     return retVal;
 }
 
-int CustomObjectContainer::getFloatArrayProperty_t(long long int target, const char* ppName, std::vector<double>& pState) const
+int CustomObjectContainer::getFloatArrayProperty_t(int64_t target, const char* ppName, std::vector<double>& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -658,7 +658,7 @@ int CustomObjectContainer::getFloatArrayProperty_t(long long int target, const c
     return retVal;
 }
 
-int CustomObjectContainer::setIntArrayProperty_t(long long int target, const char* ppName, const std::vector<int>& pState)
+int CustomObjectContainer::setIntArrayProperty_t(int64_t target, const char* ppName, const std::vector<int>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -667,7 +667,7 @@ int CustomObjectContainer::setIntArrayProperty_t(long long int target, const cha
     return retVal;
 }
 
-int CustomObjectContainer::getIntArrayProperty_t(long long int target, const char* ppName, std::vector<int>& pState) const
+int CustomObjectContainer::getIntArrayProperty_t(int64_t target, const char* ppName, std::vector<int>& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -676,7 +676,7 @@ int CustomObjectContainer::getIntArrayProperty_t(long long int target, const cha
     return retVal;
 }
 
-int CustomObjectContainer::setHandleArrayProperty_t(long long int target, const char* ppName, const std::vector<long long int>& pState)
+int CustomObjectContainer::setHandleArrayProperty_t(int64_t target, const char* ppName, const std::vector<int64_t>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -685,7 +685,7 @@ int CustomObjectContainer::setHandleArrayProperty_t(long long int target, const 
     return retVal;
 }
 
-int CustomObjectContainer::getHandleArrayProperty_t(long long int target, const char* ppName, std::vector<long long int>& pState) const
+int CustomObjectContainer::getHandleArrayProperty_t(int64_t target, const char* ppName, std::vector<int64_t>& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -694,7 +694,7 @@ int CustomObjectContainer::getHandleArrayProperty_t(long long int target, const 
     return retVal;
 }
 
-int CustomObjectContainer::setStringArrayProperty_t(long long int target, const char* ppName, const std::vector<std::string>& pState)
+int CustomObjectContainer::setStringArrayProperty_t(int64_t target, const char* ppName, const std::vector<std::string>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -703,7 +703,7 @@ int CustomObjectContainer::setStringArrayProperty_t(long long int target, const 
     return retVal;
 }
 
-int CustomObjectContainer::getStringArrayProperty_t(long long int target, const char* ppName, std::vector<std::string>& pState) const
+int CustomObjectContainer::getStringArrayProperty_t(int64_t target, const char* ppName, std::vector<std::string>& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -712,7 +712,7 @@ int CustomObjectContainer::getStringArrayProperty_t(long long int target, const 
     return retVal;
 }
 
-int CustomObjectContainer::setMethodProperty_t(long long int target, const char* ppName, const void* pState)
+int CustomObjectContainer::setMethodProperty_t(int64_t target, const char* ppName, const void* pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -721,7 +721,7 @@ int CustomObjectContainer::setMethodProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CustomObjectContainer::getMethodProperty_t(long long int target, const char* ppName, void*& pState) const
+int CustomObjectContainer::getMethodProperty_t(int64_t target, const char* ppName, void*& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -730,7 +730,7 @@ int CustomObjectContainer::getMethodProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CustomObjectContainer::setMethodProperty_t(long long int target, const char* ppName, const std::string& pState)
+int CustomObjectContainer::setMethodProperty_t(int64_t target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -739,7 +739,7 @@ int CustomObjectContainer::setMethodProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CustomObjectContainer::getMethodProperty_t(long long int target, const char* ppName, std::string& pState) const
+int CustomObjectContainer::getMethodProperty_t(int64_t target, const char* ppName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -748,7 +748,7 @@ int CustomObjectContainer::getMethodProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CustomObjectContainer::removeProperty_t(long long int target, const char* ppName)
+int CustomObjectContainer::removeProperty_t(int64_t target, const char* ppName)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -757,7 +757,7 @@ int CustomObjectContainer::removeProperty_t(long long int target, const char* pp
     return retVal;
 }
 
-int CustomObjectContainer::getPropertyName_t(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+int CustomObjectContainer::getPropertyName_t(int64_t target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -766,7 +766,7 @@ int CustomObjectContainer::getPropertyName_t(long long int target, int& index, s
     return retVal;
 }
 
-int CustomObjectContainer::getPropertyInfo_t(long long int target, const char* ppName, int& info, std::string& infoTxt) const
+int CustomObjectContainer::getPropertyInfo_t(int64_t target, const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getItem(target);
@@ -775,7 +775,7 @@ int CustomObjectContainer::getPropertyInfo_t(long long int target, const char* p
     return retVal;
 }
 
-int CustomObjectContainer::setPropertyInfo_t(long long int target, const char* ppName, int info, const char* infoTxt)
+int CustomObjectContainer::setPropertyInfo_t(int64_t target, const char* ppName, int info, const char* infoTxt)
 {
     int retVal = sim_propertyret_unknowntarget;
     CustomObject* obj = getClass(target);

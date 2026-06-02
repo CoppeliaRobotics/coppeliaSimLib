@@ -202,9 +202,9 @@ class CJoint : public CSceneObject
     int setIntProperty(const char* pName, int pState) override;
     int setIntProperty(const char* pName, int pState, CCbor* eev);
     int getIntProperty(const char* pName, int& pState) const override;
-    int setHandleProperty(const char* pName, long long int pState) override;
-    int setHandleProperty(const char* pName, long long int pState, CCbor* eev);
-    int getHandleProperty(const char* pName, long long int& pState) const override;
+    int setHandleProperty(const char* pName, int64_t pState) override;
+    int setHandleProperty(const char* pName, int64_t pState, CCbor* eev);
+    int getHandleProperty(const char* pName, int64_t& pState) const override;
     int setFloatProperty(const char* pName, double pState) override;
     int setFloatProperty(const char* pName, double pState, CCbor* eev);
     int getFloatProperty(const char* pName, double& pState) const override;

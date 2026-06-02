@@ -75,13 +75,13 @@ class Obj
 {
   public:
     Obj();
-    Obj(long long int objectHandle, const char* objectTypeStr, const char* metaInfo);
+    Obj(int64_t objectHandle, const char* objectTypeStr, const char* metaInfo);
     virtual ~Obj();
 
     virtual void addObjectEventData(CCbor* ev);
 
     void copyYourselfInto(Obj* it) const;
-    long long int getObjectHandle() const;
+    int64_t getObjectHandle() const;
     void setOriginalObjectTypeStr(const char* originalObjectTypeStr);
     std::string getOriginalObjectTypeStr() const;
     void setObjectTypeStr(const char* objectTypeStr);
@@ -97,12 +97,12 @@ class Obj
     virtual int getBoolProperty(const char* pName, bool& pState) const;
     virtual int setIntProperty(const char* pName, int pState) { return sim_propertyret_unknownproperty; }
     virtual int getIntProperty(const char* pName, int& pState) const { return sim_propertyret_unknownproperty; }
-    virtual int setLongProperty(const char* pName, long long int pState);
-    virtual int getLongProperty(const char* pName, long long int& pState) const;
+    virtual int setLongProperty(const char* pName, int64_t pState);
+    virtual int getLongProperty(const char* pName, int64_t& pState) const;
     virtual int setFloatProperty(const char* pName, double pState) { return sim_propertyret_unknownproperty; }
     virtual int getFloatProperty(const char* pName, double& pState) const { return sim_propertyret_unknownproperty; }
-    virtual int setHandleProperty(const char* pName, long long int pState) { return sim_propertyret_unknownproperty; }
-    virtual int getHandleProperty(const char* pName, long long int& pState) const { return sim_propertyret_unknownproperty; }
+    virtual int setHandleProperty(const char* pName, int64_t pState) { return sim_propertyret_unknownproperty; }
+    virtual int getHandleProperty(const char* pName, int64_t& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setStringProperty(const char* pName, const std::string& pState) { return sim_propertyret_unknownproperty; }
     virtual int getStringProperty(const char* pName, std::string& pState) const;
     virtual int setTableProperty(const char* pName, const std::string& pState) { return sim_propertyret_unknownproperty; }
@@ -125,8 +125,8 @@ class Obj
     virtual int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setIntArrayProperty(const char* pName, const std::vector<int>& pState) { return sim_propertyret_unknownproperty; }
     virtual int getIntArrayProperty(const char* pName, std::vector<int>& pState) const { return sim_propertyret_unknownproperty; }
-    virtual int setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState) { return sim_propertyret_unknownproperty; }
-    virtual int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const { return sim_propertyret_unknownproperty; }
+    virtual int setHandleArrayProperty(const char* pName, const std::vector<int64_t>& pState) { return sim_propertyret_unknownproperty; }
+    virtual int getHandleArrayProperty(const char* pName, std::vector<int64_t>& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState) { return sim_propertyret_unknownproperty; }
     virtual int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const;
     virtual int setMethodProperty(const char* pName, const void* pState) { return sim_propertyret_unknownproperty; }
@@ -140,7 +140,7 @@ class Obj
     virtual int setPropertyInfo(const char* pName, int info, const char* infoTxt) { return sim_propertyret_unknownproperty; };
 
   protected:
-    long long int _objectHandle;
+    int64_t _objectHandle;
     std::string _objectTypeStr;
     std::vector<std::string> _superClass;
     std::vector<std::string> _nameSpaces;

@@ -740,7 +740,7 @@ std::string checkForDeprecation(const char* funcName, const char* pName, int tar
     return pName;
 }
 
-int simSetBoolProperty_internal(long long int target, const char* ppName, int pState)
+int simSetBoolProperty_internal(int64_t target, const char* ppName, int pState)
 {
     C_API_START;
 
@@ -792,7 +792,7 @@ int simSetBoolProperty_internal(long long int target, const char* ppName, int pS
     return -1;
 }
 
-int simGetBoolProperty_internal(long long int target, const char* ppName, int* pState)
+int simGetBoolProperty_internal(int64_t target, const char* ppName, int* pState)
 {
     C_API_START;
 
@@ -856,7 +856,7 @@ int simGetBoolProperty_internal(long long int target, const char* ppName, int* p
     return -1;
 }
 
-int simSetIntProperty_internal(long long int target, const char* ppName, int pState)
+int simSetIntProperty_internal(int64_t target, const char* ppName, int pState)
 {
     C_API_START;
 
@@ -915,7 +915,7 @@ int simSetIntProperty_internal(long long int target, const char* ppName, int pSt
     return -1;
 }
 
-int simGetIntProperty_internal(long long int target, const char* ppName, int* pState)
+int simGetIntProperty_internal(int64_t target, const char* ppName, int* pState)
 {
     C_API_START;
 
@@ -979,7 +979,7 @@ int simGetIntProperty_internal(long long int target, const char* ppName, int* pS
     return -1;
 }
 
-int simSetHandleProperty_internal(long long int target, const char* ppName, long long int pState)
+int simSetHandleProperty_internal(int64_t target, const char* ppName, int64_t pState)
 {
     C_API_START;
 
@@ -1040,7 +1040,7 @@ int simSetHandleProperty_internal(long long int target, const char* ppName, long
     return -1;
 }
 
-int simGetHandleProperty_internal(long long int target, const char* ppName, long long int* pState)
+int simGetHandleProperty_internal(int64_t target, const char* ppName, int64_t* pState)
 {
     C_API_START;
 
@@ -1055,8 +1055,8 @@ int simGetHandleProperty_internal(long long int target, const char* ppName, long
             retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
             if (retVal > 0)
             {
-                if (l == sizeof(long long int))
-                    pState[0] = ((long long int*)data)[0];
+                if (l == sizeof(int64_t))
+                    pState[0] = ((int64_t*)data)[0];
                 else
                 {
                     CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
@@ -1104,7 +1104,7 @@ int simGetHandleProperty_internal(long long int target, const char* ppName, long
     return -1;
 }
 
-int simSetLongProperty_internal(long long int target, const char* ppName, long long int pState)
+int simSetLongProperty_internal(int64_t target, const char* ppName, int64_t pState)
 {
     C_API_START;
 
@@ -1163,7 +1163,7 @@ int simSetLongProperty_internal(long long int target, const char* ppName, long l
     return -1;
 }
 
-int simGetLongProperty_internal(long long int target, const char* ppName, long long int* pState)
+int simGetLongProperty_internal(int64_t target, const char* ppName, int64_t* pState)
 {
     C_API_START;
 
@@ -1178,8 +1178,8 @@ int simGetLongProperty_internal(long long int target, const char* ppName, long l
             retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
             if (retVal > 0)
             {
-                if (l == sizeof(long long int))
-                    pState[0] = ((long long int*)data)[0];
+                if (l == sizeof(int64_t))
+                    pState[0] = ((int64_t*)data)[0];
                 else
                 {
                     CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
@@ -1238,7 +1238,7 @@ int simGetLongProperty_internal(long long int target, const char* ppName, long l
     return -1;
 }
 
-int simSetFloatProperty_internal(long long int target, const char* ppName, double pState)
+int simSetFloatProperty_internal(int64_t target, const char* ppName, double pState)
 {
     C_API_START;
 
@@ -1290,7 +1290,7 @@ int simSetFloatProperty_internal(long long int target, const char* ppName, doubl
     return -1;
 }
 
-int simGetFloatProperty_internal(long long int target, const char* ppName, double* pState)
+int simGetFloatProperty_internal(int64_t target, const char* ppName, double* pState)
 {
     C_API_START;
 
@@ -1363,7 +1363,7 @@ int simGetFloatProperty_internal(long long int target, const char* ppName, doubl
     return -1;
 }
 
-int simSetStringProperty_internal(long long int target, const char* ppName, const char* pState)
+int simSetStringProperty_internal(int64_t target, const char* ppName, const char* pState)
 {
     C_API_START;
 
@@ -1423,7 +1423,7 @@ int simSetStringProperty_internal(long long int target, const char* ppName, cons
     return -1;
 }
 
-int simGetStringProperty_internal(long long int target, const char* ppName, char** pState)
+int simGetStringProperty_internal(int64_t target, const char* ppName, char** pState)
 {
     C_API_START;
 
@@ -1490,7 +1490,7 @@ int simGetStringProperty_internal(long long int target, const char* ppName, char
     return -1;
 }
 
-int simSetTableProperty_internal(long long int target, const char* ppName, const char* buffer, int bufferL)
+int simSetTableProperty_internal(int64_t target, const char* ppName, const char* buffer, int bufferL)
 {
     C_API_START;
 
@@ -1543,7 +1543,7 @@ int simSetTableProperty_internal(long long int target, const char* ppName, const
     return -1;
 }
 
-int simGetTableProperty_internal(long long int target, const char* ppName, char** buffer, int* bufferL)
+int simGetTableProperty_internal(int64_t target, const char* ppName, char** buffer, int* bufferL)
 {
     C_API_START;
 
@@ -1598,7 +1598,7 @@ int simGetTableProperty_internal(long long int target, const char* ppName, char*
     return -1;
 }
 
-int simSetBufferProperty_internal(long long int target, const char* ppName, const char* buffer, int bufferL)
+int simSetBufferProperty_internal(int64_t target, const char* ppName, const char* buffer, int bufferL)
 { // this is also called from all other property type setters
     C_API_START;
 
@@ -1649,7 +1649,7 @@ int simSetBufferProperty_internal(long long int target, const char* ppName, cons
     return -1;
 }
 
-int simGetBufferProperty_internal(long long int target, const char* ppName, char** buffer, int* bufferL)
+int simGetBufferProperty_internal(int64_t target, const char* ppName, char** buffer, int* bufferL)
 {
     C_API_START;
 
@@ -1717,7 +1717,7 @@ int simGetBufferProperty_internal(long long int target, const char* ppName, char
     return -1;
 }
 
-int simSetIntArray2Property_internal(long long int target, const char* ppName, const int* pState)
+int simSetIntArray2Property_internal(int64_t target, const char* ppName, const int* pState)
 {
     C_API_START;
 
@@ -1769,7 +1769,7 @@ int simSetIntArray2Property_internal(long long int target, const char* ppName, c
     return -1;
 }
 
-int simGetIntArray2Property_internal(long long int target, const char* ppName, int* pState)
+int simGetIntArray2Property_internal(int64_t target, const char* ppName, int* pState)
 {
     C_API_START;
 
@@ -1836,7 +1836,7 @@ int simGetIntArray2Property_internal(long long int target, const char* ppName, i
     return -1;
 }
 
-int simSetVector3Property_internal(long long int target, const char* ppName, const double* pState)
+int simSetVector3Property_internal(int64_t target, const char* ppName, const double* pState)
 {
     C_API_START;
 
@@ -1897,7 +1897,7 @@ int simSetVector3Property_internal(long long int target, const char* ppName, con
     return -1;
 }
 
-int simGetVector3Property_internal(long long int target, const char* ppName, double* pState)
+int simGetVector3Property_internal(int64_t target, const char* ppName, double* pState)
 {
     C_API_START;
 
@@ -1964,7 +1964,7 @@ int simGetVector3Property_internal(long long int target, const char* ppName, dou
     return -1;
 }
 
-int simSetMatrixProperty_internal(long long int target, const char* ppName, const double* pState, int r, int c)
+int simSetMatrixProperty_internal(int64_t target, const char* ppName, const double* pState, int r, int c)
 {
     C_API_START;
 
@@ -2040,7 +2040,7 @@ int simSetMatrixProperty_internal(long long int target, const char* ppName, cons
     return -1;
 }
 
-int simGetMatrixProperty_internal(long long int target, const char* ppName, double** pState, int* r, int* c)
+int simGetMatrixProperty_internal(int64_t target, const char* ppName, double** pState, int* r, int* c)
 {
     C_API_START;
 
@@ -2126,7 +2126,7 @@ int simGetMatrixProperty_internal(long long int target, const char* ppName, doub
     return -1;
 }
 
-int simSetQuaternionProperty_internal(long long int target, const char* ppName, const double* pState)
+int simSetQuaternionProperty_internal(int64_t target, const char* ppName, const double* pState)
 {
     C_API_START;
 
@@ -2187,7 +2187,7 @@ int simSetQuaternionProperty_internal(long long int target, const char* ppName, 
     return -1;
 }
 
-int simGetQuaternionProperty_internal(long long int target, const char* ppName, double* pState)
+int simGetQuaternionProperty_internal(int64_t target, const char* ppName, double* pState)
 {
     C_API_START;
 
@@ -2254,7 +2254,7 @@ int simGetQuaternionProperty_internal(long long int target, const char* ppName, 
     return -1;
 }
 
-int simSetPoseProperty_internal(long long int target, const char* ppName, const double* pState)
+int simSetPoseProperty_internal(int64_t target, const char* ppName, const double* pState)
 {
     C_API_START;
 
@@ -2319,7 +2319,7 @@ int simSetPoseProperty_internal(long long int target, const char* ppName, const 
     return -1;
 }
 
-int simGetPoseProperty_internal(long long int target, const char* ppName, double* pState)
+int simGetPoseProperty_internal(int64_t target, const char* ppName, double* pState)
 {
     C_API_START;
 
@@ -2386,7 +2386,7 @@ int simGetPoseProperty_internal(long long int target, const char* ppName, double
     return -1;
 }
 
-int simSetColorProperty_internal(long long int target, const char* ppName, const float* pState)
+int simSetColorProperty_internal(int64_t target, const char* ppName, const float* pState)
 {
     C_API_START;
 
@@ -2446,7 +2446,7 @@ int simSetColorProperty_internal(long long int target, const char* ppName, const
     return -1;
 }
 
-int simGetColorProperty_internal(long long int target, const char* ppName, float* pState)
+int simGetColorProperty_internal(int64_t target, const char* ppName, float* pState)
 {
     C_API_START;
 
@@ -2513,7 +2513,7 @@ int simGetColorProperty_internal(long long int target, const char* ppName, float
     return -1;
 }
 
-int simSetFloatArrayProperty_internal(long long int target, const char* ppName, const double* v, int vL)
+int simSetFloatArrayProperty_internal(int64_t target, const char* ppName, const double* v, int vL)
 {
     C_API_START;
 
@@ -2595,7 +2595,7 @@ int simSetFloatArrayProperty_internal(long long int target, const char* ppName, 
     return -1;
 }
 
-int simGetFloatArrayProperty_internal(long long int target, const char* ppName, double** v, int* vL)
+int simGetFloatArrayProperty_internal(int64_t target, const char* ppName, double** v, int* vL)
 {
     C_API_START;
 
@@ -2742,7 +2742,7 @@ int simGetFloatArrayProperty_internal(long long int target, const char* ppName, 
     return -1;
 }
 
-int simSetIntArrayProperty_internal(long long int target, const char* ppName, const int* v, int vL)
+int simSetIntArrayProperty_internal(int64_t target, const char* ppName, const int* v, int vL)
 {
     C_API_START;
 
@@ -2811,7 +2811,7 @@ int simSetIntArrayProperty_internal(long long int target, const char* ppName, co
     return -1;
 }
 
-int simGetIntArrayProperty_internal(long long int target, const char* ppName, int** v, int* vL)
+int simGetIntArrayProperty_internal(int64_t target, const char* ppName, int** v, int* vL)
 {
     C_API_START;
 
@@ -2889,7 +2889,7 @@ int simGetIntArrayProperty_internal(long long int target, const char* ppName, in
     return -1;
 }
 
-int simSetHandleArrayProperty_internal(long long int target, const char* ppName, const long long int* v, int vL)
+int simSetHandleArrayProperty_internal(int64_t target, const char* ppName, const int64_t* v, int vL)
 {
     C_API_START;
 
@@ -2914,10 +2914,10 @@ int simSetHandleArrayProperty_internal(long long int target, const char* ppName,
                 {
                     std::string pName(ppName);
                     if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_handlearray)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_handlearray)))
-                        retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(long long int));
+                        retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(int64_t));
                     else
                     {
-                        std::vector<long long int> pState(v, v + vL);;
+                        std::vector<int64_t> pState(v, v + vL);;
                         pName = checkForDeprecation(__func__, pName.c_str(), target);
                         retVal = App::setHandleArrayProperty_t(target, pName.c_str(), pState);
                         if (retVal != sim_propertyret_ok)
@@ -2965,7 +2965,7 @@ int simSetHandleArrayProperty_internal(long long int target, const char* ppName,
     return -1;
 }
 
-int simGetHandleArrayProperty_internal(long long int target, const char* ppName, long long int** v, int* vL)
+int simGetHandleArrayProperty_internal(int64_t target, const char* ppName, int64_t** v, int* vL)
 {
     C_API_START;
 
@@ -2980,18 +2980,18 @@ int simGetHandleArrayProperty_internal(long long int target, const char* ppName,
             retVal = simGetBufferProperty_internal(target, pName.c_str(), &buff, &l);
             if (retVal > 0)
             {
-                v[0] = (long long int*)buff;
-                vL[0] = l / sizeof(long long int);
+                v[0] = (int64_t*)buff;
+                vL[0] = l / sizeof(int64_t);
             }
         }
         else
         {
-            std::vector<long long int> vv;
+            std::vector<int64_t> vv;
             pName = checkForDeprecation(__func__, pName.c_str(), target);
             retVal = App::getHandleArrayProperty_t(target, pName.c_str(), vv);
             if (retVal == sim_propertyret_ok)
             {
-                v[0] = new long long int[vv.size()];
+                v[0] = new int64_t[vv.size()];
                 for (size_t i = 0; i < vv.size(); i++)
                     v[0][i] = vv[i];
                 vL[0] = int(vv.size());
@@ -3028,7 +3028,7 @@ int simGetHandleArrayProperty_internal(long long int target, const char* ppName,
     return -1;
 }
 
-int simSetStringArrayProperty_internal(long long int target, const char* ppName, const char* v, int cnt)
+int simSetStringArrayProperty_internal(int64_t target, const char* ppName, const char* v, int cnt)
 {
     C_API_START;
 
@@ -3095,7 +3095,7 @@ int simSetStringArrayProperty_internal(long long int target, const char* ppName,
     return -1;
 }
 
-int simGetStringArrayProperty_internal(long long int target, const char* ppName, char** v, int* cnt)
+int simGetStringArrayProperty_internal(int64_t target, const char* ppName, char** v, int* cnt)
 {
     C_API_START;
 
@@ -3171,7 +3171,7 @@ int simGetStringArrayProperty_internal(long long int target, const char* ppName,
     return -1;
 }
 
-int simSetMethodProperty_internal(long long int target, const char* ppName, const void* v)
+int simSetMethodProperty_internal(int64_t target, const char* ppName, const void* v)
 {
     C_API_START;
 
@@ -3226,7 +3226,7 @@ int simSetMethodProperty_internal(long long int target, const char* ppName, cons
     return -1;
 }
 
-int simGetMethodProperty_internal(long long int target, const char* ppName, void** v)
+int simGetMethodProperty_internal(int64_t target, const char* ppName, void** v)
 {
     C_API_START;
 
@@ -3275,7 +3275,7 @@ int simGetMethodProperty_internal(long long int target, const char* ppName, void
     return -1;
 }
 
-int simRemoveProperty_internal(long long int target, const char* ppName)
+int simRemoveProperty_internal(int64_t target, const char* ppName)
 {
     C_API_START;
 
@@ -3316,7 +3316,7 @@ int simRemoveProperty_internal(long long int target, const char* ppName)
     return -1;
 }
 
-char* simGetPropertyName_internal(long long int target, int index, SPropertyOptions* options)
+char* simGetPropertyName_internal(int64_t target, int index, SPropertyOptions* options)
 {
     C_API_START;
 
@@ -3358,7 +3358,7 @@ char* simGetPropertyName_internal(long long int target, int index, SPropertyOpti
     return nullptr;
 }
 
-int simGetPropertyInfo_internal(long long int target, const char* ppName, SPropertyInfo* infos, SPropertyOptions* options)
+int simGetPropertyInfo_internal(int64_t target, const char* ppName, SPropertyInfo* infos, SPropertyOptions* options)
 {
     C_API_START;
 
@@ -3403,7 +3403,7 @@ int simGetPropertyInfo_internal(long long int target, const char* ppName, SPrope
     return -1;
 }
 
-int simSetPropertyInfo_internal(long long int target, const char* ppName, const SPropertyInfo* infos)
+int simSetPropertyInfo_internal(int64_t target, const char* ppName, const SPropertyInfo* infos)
 {
     C_API_START;
 
@@ -3441,7 +3441,7 @@ int simSetPropertyInfo_internal(long long int target, const char* ppName, const 
     return -1;
 }
 
-int simCallMethod_internal(long long int target, const char* nname, int inputStack, int outputStack, int detachedScript)
+int simCallMethod_internal(int64_t target, const char* nname, int inputStack, int outputStack, int detachedScript)
 {
     C_API_START;
 
@@ -3613,7 +3613,7 @@ int simGetObject_internal(const char* objectPath, int index, int proxy, int opti
     return (-1);
 }
 
-long long int simGetObjectUid_internal(int objectHandle)
+int64_t simGetObjectUid_internal(int objectHandle)
 {
     C_API_START;
 
@@ -3628,7 +3628,7 @@ long long int simGetObjectUid_internal(int objectHandle)
     return (-1);
 }
 
-int simGetObjectFromUid_internal(long long int uid, int options)
+int simGetObjectFromUid_internal(int64_t uid, int options)
 {
     C_API_START;
 
@@ -10891,7 +10891,7 @@ int simPushInt32OntoStack_internal(int stackHandle, int value)
     return (-1);
 }
 
-int simPushInt64OntoStack_internal(int stackHandle, long long int value)
+int simPushInt64OntoStack_internal(int stackHandle, int64_t value)
 {
     C_API_START;
 
@@ -11134,7 +11134,7 @@ int simPushInt32TableOntoStack_internal(int stackHandle, const int* values, int 
     return (-1);
 }
 
-int simPushInt64TableOntoStack_internal(int stackHandle, const long long int* values, int valueCnt)
+int simPushInt64TableOntoStack_internal(int stackHandle, const int64_t* values, int valueCnt)
 {
     C_API_START;
 
@@ -11418,7 +11418,7 @@ int simGetStackInt32Value_internal(int stackHandle, int* numberValue)
     return (-1);
 }
 
-int simGetStackInt64Value_internal(int stackHandle, long long int* numberValue)
+int simGetStackInt64Value_internal(int stackHandle, int64_t* numberValue)
 {
     C_API_START;
 
@@ -11429,7 +11429,7 @@ int simGetStackInt64Value_internal(int stackHandle, long long int* numberValue)
         {
             if (stack->getStackSize() > 0)
             {
-                long long int v;
+                int64_t v;
                 if (stack->getStackInt64Value(v))
                 {
                     numberValue[0] = v;
@@ -11762,7 +11762,7 @@ int simGetStackInt32Table_internal(int stackHandle, int* array, int count)
     return (-1);
 }
 
-int simGetStackInt64Table_internal(int stackHandle, long long int* array, int count)
+int simGetStackInt64Table_internal(int stackHandle, int64_t* array, int count)
 {
     C_API_START;
 
@@ -12305,7 +12305,7 @@ int simSubtractObjectFromPointCloud_internal(int pointCloudHandle, int objectHan
 }
 
 int simCheckOctreePointOccupancy_internal(int octreeHandle, int options, const double* points, int ptCnt,
-                                          unsigned int* tag, unsigned long long int* location, void* reserved)
+                                          unsigned int* tag, uint64_t* location, void* reserved)
 {
     C_API_START;
 

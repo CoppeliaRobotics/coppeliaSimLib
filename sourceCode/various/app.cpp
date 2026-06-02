@@ -74,14 +74,14 @@ int App::_eventProtocolVersion = SIM_EVENT_PROTOCOL_VERSION;
 int App::_appWideYieldingForbidLevel = 0;
 Obj* App::_obj = new Obj(sim_handle_app, "app", "superClass: object; nameSpaces: namedParam, customData, signal");
 
-long long int App::_nextUniqueId = sim_object_variousstart;
-#ifdef USE_LONG_LONG_HANDLES
-long long int App::_nextHandle_object = sim_object_sceneobjectstart;
-long long int App::_nextHandle_collection = sim_object_collectionstart;
-long long int App::_nextHandle_script = sim_object_detachedscriptstart;
-long long int App::_nextHandle_stack = sim_object_stackstart;
-long long int App::_nextHandle_texture = sim_object_texturestart;
-long long int App::_nextHandle_mesh = SIM_IDSTART_MESH;
+int64_t App::_nextUniqueId = sim_object_variousstart;
+#ifdef USE_INT64_HANDLES
+int64_t App::_nextHandle_object = sim_object_sceneobjectstart;
+int64_t App::_nextHandle_collection = sim_object_collectionstart;
+int64_t App::_nextHandle_script = sim_object_detachedscriptstart;
+int64_t App::_nextHandle_stack = sim_object_stackstart;
+int64_t App::_nextHandle_texture = sim_object_texturestart;
+int64_t App::_nextHandle_mesh = SIM_IDSTART_MESH;
 #endif
 
 #ifdef WIN_SIM
@@ -508,10 +508,10 @@ void App::loop(void (*callback)(), bool stepIfRunning)
 #endif
 }
 
-long long int App::getFreshUniqueId(int objectType)
+int64_t App::getFreshUniqueId(int objectType)
 {
-    long long int uniqueId = -1;
-#ifdef USE_LONG_LONG_HANDLES
+    int64_t uniqueId = -1;
+#ifdef USE_INT64_HANDLES
     if (objectType == sim_objecttype_sceneobject)
         uniqueId = _nextHandle_object++;
     if (objectType == sim_objecttype_collection)
@@ -534,7 +534,7 @@ long long int App::getFreshUniqueId(int objectType)
     return uniqueId;
 }
 
-void App::releaseUniqueId(long long int uid, int objectType /*= -1 */)
+void App::releaseUniqueId(int64_t uid, int objectType /*= -1 */)
 {
     scene->releaseNewHandle(uid, objectType);
     //    releaseForAppWide(uid, -1);
@@ -543,7 +543,7 @@ void App::releaseUniqueId(long long int uid, int objectType /*= -1 */)
 UID App::getNewHandleFromOldHandle(int oldHandle)
 {
     UID retVal = oldHandle;
-#ifdef USE_LONG_LONG_HANDLES
+#ifdef USE_INT64_HANDLES
     if (oldHandle >= 0)
     {
         UID handleFlags = oldHandle & sim_handleflag_flagmask;
@@ -559,7 +559,7 @@ UID App::getNewHandleFromOldHandle(int oldHandle)
 int App::getOldHandleFromNewHandle(UID newHandle)
 {
     int retVal = int(newHandle);
-#ifdef USE_LONG_LONG_HANDLES
+#ifdef USE_INT64_HANDLES
     if (newHandle >= 0)
     {
         UID handleFlags = newHandle & 0x3c0000000000000;
@@ -1569,7 +1569,7 @@ bool App::assemble(int parentHandle, int childHandle, bool justTest, bool msgs /
     return retVal;
 }
 
-int App::setBoolProperty_t(long long int target, const char* ppName, bool pState)
+int App::setBoolProperty_t(int64_t target, const char* ppName, bool pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -1621,7 +1621,7 @@ int App::setBoolProperty_t(long long int target, const char* ppName, bool pState
     return retVal;
 }
 
-int App::getBoolProperty_t(long long int target, const char* ppName, bool& pState)
+int App::getBoolProperty_t(int64_t target, const char* ppName, bool& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -1704,7 +1704,7 @@ int App::getBoolProperty_t(long long int target, const char* ppName, bool& pStat
     return retVal;
 }
 
-int App::setIntProperty_t(long long int target, const char* ppName, int pState)
+int App::setIntProperty_t(int64_t target, const char* ppName, int pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -1764,7 +1764,7 @@ int App::setIntProperty_t(long long int target, const char* ppName, int pState)
     return retVal;
 }
 
-int App::getIntProperty_t(long long int target, const char* ppName, int& pState)
+int App::getIntProperty_t(int64_t target, const char* ppName, int& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -1879,7 +1879,7 @@ int App::getIntProperty_t(long long int target, const char* ppName, int& pState)
     return retVal;
 }
 
-int App::setLongProperty_t(long long int target, const char* ppName, long long int pState)
+int App::setLongProperty_t(int64_t target, const char* ppName, int64_t pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -1913,7 +1913,7 @@ int App::setLongProperty_t(long long int target, const char* ppName, long long i
     return retVal;
 }
 
-int App::getLongProperty_t(long long int target, const char* ppName, long long int& pState)
+int App::getLongProperty_t(int64_t target, const char* ppName, int64_t& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -1956,7 +1956,7 @@ int App::getLongProperty_t(long long int target, const char* ppName, long long i
     return retVal;
 }
 
-int App::setHandleProperty_t(long long int target, const char* ppName, long long int pState)
+int App::setHandleProperty_t(int64_t target, const char* ppName, int64_t pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -1990,7 +1990,7 @@ int App::setHandleProperty_t(long long int target, const char* ppName, long long
     return retVal;
 }
 
-int App::getHandleProperty_t(long long int target, const char* ppName, long long int& pState)
+int App::getHandleProperty_t(int64_t target, const char* ppName, int64_t& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2029,7 +2029,7 @@ int App::getHandleProperty_t(long long int target, const char* ppName, long long
     return retVal;
 }
 
-int App::setFloatProperty_t(long long int target, const char* ppName, double pState)
+int App::setFloatProperty_t(int64_t target, const char* ppName, double pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2072,7 +2072,7 @@ int App::setFloatProperty_t(long long int target, const char* ppName, double pSt
     return retVal;
 }
 
-int App::getFloatProperty_t(long long int target, const char* ppName, double& pState)
+int App::getFloatProperty_t(int64_t target, const char* ppName, double& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2129,7 +2129,7 @@ int App::getFloatProperty_t(long long int target, const char* ppName, double& pS
     return retVal;
 }
 
-int App::setStringProperty_t(long long int target, const char* ppName, const std::string& pState)
+int App::setStringProperty_t(int64_t target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2268,7 +2268,7 @@ int App::setStringProperty_t(long long int target, const char* ppName, const std
     return retVal;
 }
 
-int App::getStringProperty_t(long long int target, const char* ppName, std::string& pState)
+int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2579,7 +2579,7 @@ int App::getStringProperty_t(long long int target, const char* ppName, std::stri
     return retVal;
 }
 
-int App::setTableProperty_t(long long int target, const char* ppName, const std::string& pState)
+int App::setTableProperty_t(int64_t target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2612,7 +2612,7 @@ int App::setTableProperty_t(long long int target, const char* ppName, const std:
     return retVal;
 }
 
-int App::getTableProperty_t(long long int target, const char* ppName, std::string& pState)
+int App::getTableProperty_t(int64_t target, const char* ppName, std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2645,7 +2645,7 @@ int App::getTableProperty_t(long long int target, const char* ppName, std::strin
     return retVal;
 }
 
-int App::setBufferProperty_t(long long int target, const char* ppName, const std::string& pState)
+int App::setBufferProperty_t(int64_t target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2717,7 +2717,7 @@ int App::setBufferProperty_t(long long int target, const char* ppName, const std
     return retVal;
 }
 
-int App::getBufferProperty_t(long long int target, const char* ppName, std::string& pState)
+int App::getBufferProperty_t(int64_t target, const char* ppName, std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2776,7 +2776,7 @@ int App::getBufferProperty_t(long long int target, const char* ppName, std::stri
     return retVal;
 }
 
-int App::setIntArray2Property_t(long long int target, const char* ppName, const int* pState)
+int App::setIntArray2Property_t(int64_t target, const char* ppName, const int* pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2810,7 +2810,7 @@ int App::setIntArray2Property_t(long long int target, const char* ppName, const 
     return retVal;
 }
 
-int App::getIntArray2Property_t(long long int target, const char* ppName, int* pState)
+int App::getIntArray2Property_t(int64_t target, const char* ppName, int* pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2844,7 +2844,7 @@ int App::getIntArray2Property_t(long long int target, const char* ppName, int* p
     return retVal;
 }
 
-int App::setVector3Property_t(long long int target, const char* ppName, const C3Vector& pState)
+int App::setVector3Property_t(int64_t target, const char* ppName, const C3Vector& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2878,7 +2878,7 @@ int App::setVector3Property_t(long long int target, const char* ppName, const C3
     return retVal;
 }
 
-int App::getVector3Property_t(long long int target, const char* ppName, C3Vector& pState)
+int App::getVector3Property_t(int64_t target, const char* ppName, C3Vector& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2912,7 +2912,7 @@ int App::getVector3Property_t(long long int target, const char* ppName, C3Vector
     return retVal;
 }
 
-int App::setMatrixProperty_t(long long int target, const char* ppName, const CMatrix& pState)
+int App::setMatrixProperty_t(int64_t target, const char* ppName, const CMatrix& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2944,7 +2944,7 @@ int App::setMatrixProperty_t(long long int target, const char* ppName, const CMa
     return retVal;
 }
 
-int App::getMatrixProperty_t(long long int target, const char* ppName, CMatrix& pState)
+int App::getMatrixProperty_t(int64_t target, const char* ppName, CMatrix& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -2976,7 +2976,7 @@ int App::getMatrixProperty_t(long long int target, const char* ppName, CMatrix& 
     return retVal;
 }
 
-int App::setQuaternionProperty_t(long long int target, const char* ppName, const CQuaternion& pState)
+int App::setQuaternionProperty_t(int64_t target, const char* ppName, const CQuaternion& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3010,7 +3010,7 @@ int App::setQuaternionProperty_t(long long int target, const char* ppName, const
     return retVal;
 }
 
-int App::getQuaternionProperty_t(long long int target, const char* ppName, CQuaternion& pState)
+int App::getQuaternionProperty_t(int64_t target, const char* ppName, CQuaternion& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3049,7 +3049,7 @@ int App::getQuaternionProperty_t(long long int target, const char* ppName, CQuat
     return retVal;
 }
 
-int App::setPoseProperty_t(long long int target, const char* ppName, const CPose& pState)
+int App::setPoseProperty_t(int64_t target, const char* ppName, const CPose& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3083,7 +3083,7 @@ int App::setPoseProperty_t(long long int target, const char* ppName, const CPose
     return retVal;
 }
 
-int App::getPoseProperty_t(long long int target, const char* ppName, CPose& pState)
+int App::getPoseProperty_t(int64_t target, const char* ppName, CPose& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3117,7 +3117,7 @@ int App::getPoseProperty_t(long long int target, const char* ppName, CPose& pSta
     return retVal;
 }
 
-int App::setColorProperty_t(long long int target, const char* ppName, const float* pState)
+int App::setColorProperty_t(int64_t target, const char* ppName, const float* pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3151,7 +3151,7 @@ int App::setColorProperty_t(long long int target, const char* ppName, const floa
     return retVal;
 }
 
-int App::getColorProperty_t(long long int target, const char* ppName, float* pState)
+int App::getColorProperty_t(int64_t target, const char* ppName, float* pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3185,7 +3185,7 @@ int App::getColorProperty_t(long long int target, const char* ppName, float* pSt
     return retVal;
 }
 
-int App::setFloatArrayProperty_t(long long int target, const char* ppName, const std::vector<double>& pState)
+int App::setFloatArrayProperty_t(int64_t target, const char* ppName, const std::vector<double>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3219,7 +3219,7 @@ int App::setFloatArrayProperty_t(long long int target, const char* ppName, const
     return retVal;
 }
 
-int App::getFloatArrayProperty_t(long long int target, const char* ppName, std::vector<double>& pState)
+int App::getFloatArrayProperty_t(int64_t target, const char* ppName, std::vector<double>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3254,7 +3254,7 @@ int App::getFloatArrayProperty_t(long long int target, const char* ppName, std::
     return retVal;
 }
 
-int App::setIntArrayProperty_t(long long int target, const char* ppName, const std::vector<int>& pState)
+int App::setIntArrayProperty_t(int64_t target, const char* ppName, const std::vector<int>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3288,7 +3288,7 @@ int App::setIntArrayProperty_t(long long int target, const char* ppName, const s
     return retVal;
 }
 
-int App::getIntArrayProperty_t(long long int target, const char* ppName, std::vector<int>& pState)
+int App::getIntArrayProperty_t(int64_t target, const char* ppName, std::vector<int>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3323,7 +3323,7 @@ int App::getIntArrayProperty_t(long long int target, const char* ppName, std::ve
     return retVal;
 }
 
-int App::setHandleArrayProperty_t(long long int target, const char* ppName, const std::vector<long long int>& pState)
+int App::setHandleArrayProperty_t(int64_t target, const char* ppName, const std::vector<int64_t>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3357,7 +3357,7 @@ int App::setHandleArrayProperty_t(long long int target, const char* ppName, cons
     return retVal;
 }
 
-int App::getHandleArrayProperty_t(long long int target, const char* ppName, std::vector<long long int>& pState)
+int App::getHandleArrayProperty_t(int64_t target, const char* ppName, std::vector<int64_t>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3414,7 +3414,7 @@ int App::getHandleArrayProperty_t(long long int target, const char* ppName, std:
     return retVal;
 }
 
-int App::setStringArrayProperty_t(long long int target, const char* ppName, const std::vector<std::string>& pState)
+int App::setStringArrayProperty_t(int64_t target, const char* ppName, const std::vector<std::string>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3456,7 +3456,7 @@ int App::setStringArrayProperty_t(long long int target, const char* ppName, cons
     return retVal;
 }
 
-int App::getStringArrayProperty_t(long long int target, const char* ppName, std::vector<std::string>& pState)
+int App::getStringArrayProperty_t(int64_t target, const char* ppName, std::vector<std::string>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3502,7 +3502,7 @@ int App::getStringArrayProperty_t(long long int target, const char* ppName, std:
     return retVal;
 }
 
-int App::setMethodProperty_t(long long int target, const char* ppName, const void* pState)
+int App::setMethodProperty_t(int64_t target, const char* ppName, const void* pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3529,7 +3529,7 @@ int App::setMethodProperty_t(long long int target, const char* ppName, const voi
     return retVal;
 }
 
-int App::getMethodProperty_t(long long int target, const char* ppName, void*& pState)
+int App::getMethodProperty_t(int64_t target, const char* ppName, void*& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3555,7 +3555,7 @@ int App::getMethodProperty_t(long long int target, const char* ppName, void*& pS
     return retVal;
 }
 
-int App::setMethodProperty_t(long long int target, const char* ppName, const std::string& pState)
+int App::setMethodProperty_t(int64_t target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3582,7 +3582,7 @@ int App::setMethodProperty_t(long long int target, const char* ppName, const std
     return retVal;
 }
 
-int App::getMethodProperty_t(long long int target, const char* ppName, std::string& pState)
+int App::getMethodProperty_t(int64_t target, const char* ppName, std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3608,7 +3608,7 @@ int App::getMethodProperty_t(long long int target, const char* ppName, std::stri
     return retVal;
 }
 
-int App::removeProperty_t(long long int target, const char* ppName)
+int App::removeProperty_t(int64_t target, const char* ppName)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (!_resolveTarget(target))
@@ -3692,7 +3692,7 @@ int App::removeProperty_t(long long int target, const char* ppName)
     return retVal;
 }
 
-int App::getPropertyName_t(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags)
+int App::getPropertyName_t(int64_t target, int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
     int retVal = sim_propertyret_unknownproperty;
     _resolveTarget(target);
@@ -3785,7 +3785,7 @@ int App::getPropertyName_t(long long int target, int& index, std::string& pName,
     return retVal;
 }
 
-int App::getPropertyInfo_t(long long int target, const char* ppName, int& info, std::string& infoTxt)
+int App::getPropertyInfo_t(int64_t target, const char* ppName, int& info, std::string& infoTxt)
 {
     int retVal = sim_propertyret_unknownproperty;
     _resolveTarget(target);
@@ -3906,7 +3906,7 @@ int App::getPropertyInfo_t(long long int target, const char* ppName, int& info, 
     return retVal;
 }
 
-int App::setPropertyInfo_t(long long int target, const char* ppName, int info, const char* infoTxt)
+int App::setPropertyInfo_t(int64_t target, const char* ppName, int info, const char* infoTxt)
 {
     int retVal = sim_propertyret_unknownproperty;
     _resolveTarget(target);
@@ -3928,14 +3928,14 @@ int App::setPropertyInfo_t(long long int target, const char* ppName, int info, c
     return retVal;
 }
 
-bool App::isTargetValid_t(long long int target)
+bool App::isTargetValid_t(int64_t target)
 {
     int ind = 0;
     std::string pName, appart;
     return App::getPropertyName_t(target, ind, pName, appart, 0) > 0;
 }
 
-bool App::_resolveTarget(long long int& target)
+bool App::_resolveTarget(int64_t& target)
 {
     bool retVal = true;
     if (target == sim_handle_sandbox)
@@ -4198,10 +4198,10 @@ void App::pushGenesisEvents()
         else
             ev->appendKeyHandleArray(propApp_addOns.name, addOnList.data(), addOnList.size());
 
-        std::vector<long long int> l;
+        std::vector<int64_t> l;
         scenes->customObjects->getAllObjectHandles(l);
         ev->appendKeyHandleArray(propApp_customObjects.name, l.data(), l.size());
-        std::vector<long long int> customClassList;
+        std::vector<int64_t> customClassList;
         scenes->customObjects->getAllClassHandles(l);
         ev->appendKeyHandleArray(propApp_customClasses.name, l.data(), l.size());
         l.clear();

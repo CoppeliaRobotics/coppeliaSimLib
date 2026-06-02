@@ -134,7 +134,7 @@ CMesh* CShape::getSingleMesh() const
     return retVal;
 }
 
-CMesh* CShape::getMeshFromUid(long long int meshUid, const CPose& parentCumulTr, CPose& shapeRelTr) const
+CMesh* CShape::getMeshFromUid(int64_t meshUid, const CPose& parentCumulTr, CPose& shapeRelTr) const
 {
     return _mesh->getMeshFromUid(meshUid, parentCumulTr, shapeRelTr);
 }
@@ -1636,7 +1636,7 @@ void CShape::addObjectEventData(CCbor* ev)
         std::vector<CMesh*> all;
         std::vector<CPose> allTr;
         getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, all, &allTr);
-        std::vector<long long int> mmid;
+        std::vector<int64_t> mmid;
         mmid.resize(all.size());
         for (size_t i = 0; i < all.size(); i++)
             mmid[i] = all[i]->getObjectHandle();
@@ -2308,7 +2308,7 @@ int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) co
     return retVal;
 }
 
-int CShape::getHandleArrayProperty(const char* ppName, std::vector<long long int>& pState) const
+int CShape::getHandleArrayProperty(const char* ppName, std::vector<int64_t>& pState) const
 {
     std::string _pName(ppName);
     pState.clear();

@@ -55,8 +55,8 @@ void luaWrap_lua_pushinteger(luaWrap_lua_State* L, luaWrap_lua_Integer n);
 void luaWrap_lua_pushnumber(luaWrap_lua_State* L, luaWrap_lua_Number n);
 void luaWrap_lua_pushtext(luaWrap_lua_State* L, const char* str);
 void luaWrap_lua_pushbuffer(luaWrap_lua_State* L, const char* str, size_t l);       // replaces luaWrap_lua_pushlstring !
-bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, long long int h);
-void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const long long int* handles, int cnt);
+bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, int64_t h);
+void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const int64_t* handles, int cnt);
 void luaWrap_lua_pushbinarystring(luaWrap_lua_State* L, const char* str, size_t l); // is actually luaWrap_lua_pushlstring, for very special cases !
 void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t rows, size_t cols);
 void luaWrap_lua_pushvector3(luaWrap_lua_State* L, const double* vector3);
@@ -85,7 +85,7 @@ bool luaWrap_lua_isnonbuffertable(luaWrap_lua_State* L, int idx); // a table tha
 bool luaWrap_lua_hasmetatable(luaWrap_lua_State* L, int idx);
 bool luaWrap_lua_isbuffer(luaWrap_lua_State* L, int idx);         // a buffer (a 'buffer' metatable)
 bool luaWrap_lua_ishandle(luaWrap_lua_State* L, int idx, int* handleVal = nullptr);         // a metatable with a 'handle' field
-bool luaWrap_lua_ishandlearray(luaWrap_lua_State* L, int idx, std::vector<long long int>* handles = nullptr, bool strict = false);         // a objectArray metatable
+bool luaWrap_lua_ishandlearray(luaWrap_lua_State* L, int idx, std::vector<int64_t>* handles = nullptr, bool strict = false);         // a objectArray metatable
 bool luaWrap_lua_ismatrix(luaWrap_lua_State* L, int idx, size_t* rows = nullptr, size_t* cols = nullptr, std::vector<double>* matrixData = nullptr);
 bool luaWrap_lua_isvector3(luaWrap_lua_State* L, int idx, double* vectorData = nullptr, bool strict = false);
 bool luaWrap_lua_isvector(luaWrap_lua_State* L, int idx, std::vector<double>* vectorData = nullptr, bool strict = false);
@@ -131,22 +131,22 @@ int luaWrap_lua_stype(luaWrap_lua_State* L, int idx);
 int luaWrap_lua_error(luaWrap_lua_State* L);
 int luaWrap_luaL_callmeta(luaWrap_lua_State *L, int obj, const char *func);
 
-bool getFloatsFromTable(luaWrap_lua_State* L, int tablePos, size_t floatCount, float* arrayField);
-bool getDoublesFromTable(luaWrap_lua_State* L, int tablePos, size_t doubleCount, double* arrayField);
-bool getIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int* arrayField);
-bool getLongsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, long long int* arrayField);
-bool getUIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned int* arrayField);
-bool getUCharsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned char* arrayField);
-bool getCharBoolsFromTable(luaWrap_lua_State* L, int tablePos, size_t boolCount, char* arrayField);
-bool getStringsFromTable(luaWrap_lua_State* L, int tablePos, size_t stringCount, std::vector<std::string>& array);
-bool getHandlesFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int* arrayField);
-void pushFloatTableOntoStack(luaWrap_lua_State* L, size_t floatCount, const float* arrayField);
-void pushDoubleTableOntoStack(luaWrap_lua_State* L, size_t doubleCount, const double* arrayField);
-void pushIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* arrayField);
-void pushLongTableOntoStack(luaWrap_lua_State* L, size_t intCount, const long long int* arrayField);
-void pushUIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned int* arrayField);
-void pushUCharTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned char* arrayField);
-void pushStringTableOntoStack(luaWrap_lua_State* L, const std::vector<std::string>& stringTable);
-void pushBufferTableOntoStack(luaWrap_lua_State* L, const std::vector<std::string>& stringTable);
-bool pushHandleTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* arrayField);
-bool pushHandleTableOntoStack(luaWrap_lua_State* L, size_t intCount, const long long int* arrayField);
+bool getFloatArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t floatCount, float* arrayField);
+bool getDoubleArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t doubleCount, double* arrayField);
+bool getInt32ArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int* arrayField);
+bool getInt64ArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int64_t* arrayField);
+bool getUInt32ArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned int* arrayField);
+bool getUInt8ArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned char* arrayField);
+bool getCharArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t boolCount, char* arrayField);
+bool getStringArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t stringCount, std::vector<std::string>& array);
+bool getHandleArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int* arrayField);
+void pushFloatArrayAsTable(luaWrap_lua_State* L, size_t floatCount, const float* arrayField);
+void pushDoubleArrayAsTable(luaWrap_lua_State* L, size_t doubleCount, const double* arrayField);
+void pushInt32ArrayAsTable(luaWrap_lua_State* L, size_t intCount, const int* arrayField);
+void pushInt64ArrayAsTable(luaWrap_lua_State* L, size_t intCount, const int64_t* arrayField);
+void pushUInt32ArrayAsTable(luaWrap_lua_State* L, size_t intCount, const unsigned int* arrayField);
+void pushUInt8ArrayAsTable(luaWrap_lua_State* L, size_t intCount, const unsigned char* arrayField);
+void pushStringArrayAsTable(luaWrap_lua_State* L, const std::vector<std::string>& stringTable);
+void pushBufferArrayAsTable(luaWrap_lua_State* L, const std::vector<std::string>& stringTable);
+bool pushHandleArrayAsTable(luaWrap_lua_State* L, size_t intCount, const int* arrayField);
+bool pushHandleArrayAsTable(luaWrap_lua_State* L, size_t intCount, const int64_t* arrayField);

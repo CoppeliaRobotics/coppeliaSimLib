@@ -468,7 +468,7 @@ bool luaWrap_lua_isbuffer(luaWrap_lua_State* L, int idx)
     return retVal;
 }
 
-bool luaWrap_lua_ishandlearray(luaWrap_lua_State* L, int idx, std::vector<long long int>* handles /*= nullptr*/, bool strict /*= false*/)
+bool luaWrap_lua_ishandlearray(luaWrap_lua_State* L, int idx, std::vector<int64_t>* handles /*= nullptr*/, bool strict /*= false*/)
 {
     bool retVal = false;
     int abs_idx = lua_absindex((lua_State*)L, idx);
@@ -487,7 +487,7 @@ bool luaWrap_lua_ishandlearray(luaWrap_lua_State* L, int idx, std::vector<long l
                     lua_call((lua_State*)L, 1, 1); // call :totable() method, 1 arg (self), 1 result
                     size_t cnt = (lua_Integer)lua_rawlen((lua_State*)L, -1);
                     handles->resize(cnt);
-                    getLongsFromTable(L, -1, cnt, handles->data());
+                    getInt64ArrayFromTable(L, -1, cnt, handles->data());
                     lua_pop((lua_State*)L, 1); // table of objects
                 }
                 else
@@ -505,7 +505,7 @@ bool luaWrap_lua_ishandlearray(luaWrap_lua_State* L, int idx, std::vector<long l
         {
             size_t cnt = luaWrap_lua_rawlen(L, abs_idx);
             handles->resize(cnt);
-            getLongsFromTable(L, abs_idx, cnt, handles->data());
+            getInt64ArrayFromTable(L, abs_idx, cnt, handles->data());
         }
     }
     return retVal;
@@ -614,7 +614,7 @@ bool luaWrap_lua_isvector3(luaWrap_lua_State* L, int idx, double* vectorData /*=
             int s = int(lua_rawlen((lua_State*)L, abs_idx));
             if (s == 3)
             {
-                if (getDoublesFromTable(L, abs_idx, s, dat.data()))
+                if (getDoubleArrayFromTable(L, abs_idx, s, dat.data()))
                 {
                     if (vectorData != nullptr)
                         memcpy(vectorData, dat.data(), sizeof(double) * 3);
@@ -647,7 +647,7 @@ bool luaWrap_lua_isvector(luaWrap_lua_State* L, int idx, std::vector<double>* ve
         {
             int s = int(lua_rawlen((lua_State*)L, abs_idx));
             dat.resize(s);
-            if (getDoublesFromTable(L, abs_idx, s, dat.data()))
+            if (getDoubleArrayFromTable(L, abs_idx, s, dat.data()))
             {
                 if (vectorData != nullptr)
                     dat.swap(vectorData[0]);
@@ -692,7 +692,7 @@ bool luaWrap_lua_isquaternion(luaWrap_lua_State* L, int idx, double* quaternionD
             {
                 std::vector<double> dat;
                 dat.resize(s);
-                if (getDoublesFromTable(L, abs_idx, s, dat.data()))
+                if (getDoubleArrayFromTable(L, abs_idx, s, dat.data()))
                 {
                     if (quaternionData != nullptr)
                         memcpy(quaternionData, dat.data(), sizeof(double) * 4);
@@ -738,7 +738,7 @@ bool luaWrap_lua_ispose(luaWrap_lua_State* L, int idx, double* poseData /*= null
             {
                 std::vector<double> dat;
                 dat.resize(s);
-                if (getDoublesFromTable(L, abs_idx, s, dat.data()))
+                if (getDoubleArrayFromTable(L, abs_idx, s, dat.data()))
                 {
                     if (poseData != nullptr)
                         memcpy(poseData, dat.data(), sizeof(double) * 7);
@@ -783,7 +783,7 @@ bool luaWrap_lua_iscolor(luaWrap_lua_State* L, int idx, float colorData[3] /*= n
             if (s == 3)
             {
                 float c[3];
-                if (getFloatsFromTable(L, abs_idx, s, c))
+                if (getFloatArrayFromTable(L, abs_idx, s, c))
                 {
                     if (colorData != nullptr)
                     {
@@ -855,7 +855,7 @@ void luaWrap_lua_pushbuffer(luaWrap_lua_State* L, const char* str, size_t l)
         luaWrap_lua_pushbinarystring(L, str, l); // old, no difference between strings and buffers
 }
 
-bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, long long int h)
+bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, int64_t h)
 {
     bool retVal = false;
     if ((h == sim_handle_scene) || (h == sim_handle_app) || (h >= 0))
@@ -878,7 +878,7 @@ bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, long long int h)
     return retVal;
 }
 
-void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const long long int* handles, int cnt)
+void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const int64_t* handles, int cnt)
 {
     lua_getglobal((lua_State*)L, "_ObjectArray__");
     if (lua_isnil((lua_State*)L, -1))
@@ -980,7 +980,7 @@ void luaWrap_lua_pushbinarystring(luaWrap_lua_State* L, const char* str, size_t 
     lua_pushlstring((lua_State*)L, str, l);
 }
 
-bool getFloatsFromTable(luaWrap_lua_State* L, int tablePos, size_t floatCount, float* arrayField)
+bool getFloatArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t floatCount, float* arrayField)
 {
     bool retVal = true;
     for (size_t i = 0; i < floatCount; i++)
@@ -994,7 +994,7 @@ bool getFloatsFromTable(luaWrap_lua_State* L, int tablePos, size_t floatCount, f
     return retVal;
 }
 
-bool getDoublesFromTable(luaWrap_lua_State* L, int tablePos, size_t doubleCount, double* arrayField)
+bool getDoubleArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t doubleCount, double* arrayField)
 {
     bool retVal = true;
     for (size_t i = 0; i < doubleCount; i++)
@@ -1008,7 +1008,7 @@ bool getDoublesFromTable(luaWrap_lua_State* L, int tablePos, size_t doubleCount,
     return retVal;
 }
 
-bool getIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int* arrayField)
+bool getInt32ArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int* arrayField)
 {
     bool retVal = true;
     for (size_t i = 0; i < intCount; i++)
@@ -1022,7 +1022,7 @@ bool getIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int* 
     return retVal;
 }
 
-bool getLongsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, long long int* arrayField)
+bool getInt64ArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int64_t* arrayField)
 {
     bool retVal = true;
     for (size_t i = 0; i < intCount; i++)
@@ -1036,7 +1036,7 @@ bool getLongsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, long
     return retVal;
 }
 
-bool getUIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned int* arrayField)
+bool getUInt32ArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned int* arrayField)
 {
     bool retVal = true;
     for (size_t i = 0; i < intCount; i++)
@@ -1050,7 +1050,7 @@ bool getUIntsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsi
     return retVal;
 }
 
-bool getUCharsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned char* arrayField)
+bool getUInt8ArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, unsigned char* arrayField)
 {
     bool retVal = true;
     for (size_t i = 0; i < intCount; i++)
@@ -1064,7 +1064,7 @@ bool getUCharsFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, uns
     return retVal;
 }
 
-bool getCharBoolsFromTable(luaWrap_lua_State* L, int tablePos, size_t boolCount, char* arrayField)
+bool getCharArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t boolCount, char* arrayField)
 {
     bool retVal = true;
     for (size_t i = 0; i < boolCount; i++)
@@ -1078,7 +1078,7 @@ bool getCharBoolsFromTable(luaWrap_lua_State* L, int tablePos, size_t boolCount,
     return retVal;
 }
 
-bool getStringsFromTable(luaWrap_lua_State* L, int tablePos, size_t stringCount, std::vector<std::string>& array)
+bool getStringArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t stringCount, std::vector<std::string>& array)
 {
     bool retVal = true;
     for (size_t i = 0; i < stringCount; i++)
@@ -1092,7 +1092,7 @@ bool getStringsFromTable(luaWrap_lua_State* L, int tablePos, size_t stringCount,
     return retVal;
 }
 
-bool getHandlesFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int* arrayField)
+bool getHandleArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, int* arrayField)
 {
     bool retVal = true;
     for (size_t i = 0; i < intCount; i++)
@@ -1106,7 +1106,7 @@ bool getHandlesFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount, in
     return retVal;
 }
 
-void pushFloatTableOntoStack(luaWrap_lua_State* L, size_t floatCount, const float* arrayField)
+void pushFloatArrayAsTable(luaWrap_lua_State* L, size_t floatCount, const float* arrayField)
 {
     lua_createtable((lua_State*)L, int(floatCount), 0);
     int newTablePos = lua_gettop((lua_State*)L);
@@ -1117,7 +1117,7 @@ void pushFloatTableOntoStack(luaWrap_lua_State* L, size_t floatCount, const floa
     }
 }
 
-void pushDoubleTableOntoStack(luaWrap_lua_State* L, size_t doubleCount, const double* arrayField)
+void pushDoubleArrayAsTable(luaWrap_lua_State* L, size_t doubleCount, const double* arrayField)
 {
     lua_createtable((lua_State*)L, int(doubleCount), 0);
     int newTablePos = lua_gettop((lua_State*)L);
@@ -1128,7 +1128,7 @@ void pushDoubleTableOntoStack(luaWrap_lua_State* L, size_t doubleCount, const do
     }
 }
 
-void pushIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* arrayField)
+void pushInt32ArrayAsTable(luaWrap_lua_State* L, size_t intCount, const int* arrayField)
 {
     lua_createtable((lua_State*)L, int(intCount), 0);
     int newTablePos = lua_gettop((lua_State*)L);
@@ -1139,7 +1139,7 @@ void pushIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* arr
     }
 }
 
-void pushLongTableOntoStack(luaWrap_lua_State* L, size_t intCount, const long long int* arrayField)
+void pushInt64ArrayAsTable(luaWrap_lua_State* L, size_t intCount, const int64_t* arrayField)
 {
     lua_createtable((lua_State*)L, int(intCount), 0);
     int newTablePos = lua_gettop((lua_State*)L);
@@ -1150,7 +1150,7 @@ void pushLongTableOntoStack(luaWrap_lua_State* L, size_t intCount, const long lo
     }
 }
 
-void pushUIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned int* arrayField)
+void pushUInt32ArrayAsTable(luaWrap_lua_State* L, size_t intCount, const unsigned int* arrayField)
 {
     lua_createtable((lua_State*)L, int(intCount), 0);
     int newTablePos = lua_gettop((lua_State*)L);
@@ -1161,7 +1161,7 @@ void pushUIntTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigne
     }
 }
 
-void pushUCharTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsigned char* arrayField)
+void pushUInt8ArrayAsTable(luaWrap_lua_State* L, size_t intCount, const unsigned char* arrayField)
 {
     lua_createtable((lua_State*)L, int(intCount), 0);
     int newTablePos = lua_gettop((lua_State*)L);
@@ -1172,7 +1172,7 @@ void pushUCharTableOntoStack(luaWrap_lua_State* L, size_t intCount, const unsign
     }
 }
 
-void pushStringTableOntoStack(luaWrap_lua_State* L, const std::vector<std::string>& stringTable)
+void pushStringArrayAsTable(luaWrap_lua_State* L, const std::vector<std::string>& stringTable)
 {
     lua_createtable((lua_State*)L, int(stringTable.size()), 0);
     int newTablePos = lua_gettop((lua_State*)L);
@@ -1183,7 +1183,7 @@ void pushStringTableOntoStack(luaWrap_lua_State* L, const std::vector<std::strin
     }
 }
 
-void pushBufferTableOntoStack(luaWrap_lua_State* L, const std::vector<std::string>& stringTable)
+void pushBufferArrayAsTable(luaWrap_lua_State* L, const std::vector<std::string>& stringTable)
 {
     lua_createtable((lua_State*)L, int(stringTable.size()), 0);
     int newTablePos = lua_gettop((lua_State*)L);
@@ -1194,7 +1194,7 @@ void pushBufferTableOntoStack(luaWrap_lua_State* L, const std::vector<std::strin
     }
 }
 
-bool pushHandleTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* arrayField)
+bool pushHandleArrayAsTable(luaWrap_lua_State* L, size_t intCount, const int* arrayField)
 {
     bool retVal = true;
     lua_createtable((lua_State*)L, int(intCount), 0);
@@ -1208,7 +1208,7 @@ bool pushHandleTableOntoStack(luaWrap_lua_State* L, size_t intCount, const int* 
     return retVal;
 }
 
-bool pushHandleTableOntoStack(luaWrap_lua_State* L, size_t intCount, const long long int* arrayField)
+bool pushHandleArrayAsTable(luaWrap_lua_State* L, size_t intCount, const int64_t* arrayField)
 {
     bool retVal = true;
     lua_createtable((lua_State*)L, int(intCount), 0);

@@ -52,8 +52,8 @@ class CSceneContainer
     CDetachedScript* getDetachedScriptFromHandle(int scriptHandle) const;
     CDetachedScript* getDetachedScriptFromUid(int uid) const;
     void announceObjectWillBeErased(const CSceneObject* object);
-    void announceScriptWillBeErased(int scriptOrDetachedScriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
-    void announceScriptStateWillBeErased(int detachedScriptHandle, long long int scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptWillBeErased(int scriptOrDetachedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptStateWillBeErased(int detachedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
 
     void getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
     void callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int scriptToExclude = -1);
@@ -66,12 +66,12 @@ class CSceneContainer
 
     bool getEventsEnabled() const;
     std::string getSessionId() const;
-    CCbor* createNakedEvent(const char* event, long long int handle, long long int uid, bool mergeable); // has no 'data' field
-    CCbor* createEvent(const char* event, long long int handle, long long int uid, const char* fieldName, bool mergeable);
+    CCbor* createNakedEvent(const char* event, int64_t handle, int64_t uid, bool mergeable); // has no 'data' field
+    CCbor* createEvent(const char* event, int64_t handle, int64_t uid, const char* fieldName, bool mergeable);
     CCbor* createSceneObjectAddEvent(const CSceneObject* object);
     CCbor* createSceneObjectChangedEvent(const CSceneObject* object, bool isCommonObjectData, const char* fieldName, bool mergeable);
-    CCbor* createSceneObjectChangedEvent(long long int sceneObjectHandle, bool isCommonObjectData, const char* fieldName, bool mergeable);
-    CCbor* createObjectChangedEvent(long long int objectHandle, const char* fieldName, bool mergeable);
+    CCbor* createSceneObjectChangedEvent(int64_t sceneObjectHandle, bool isCommonObjectData, const char* fieldName, bool mergeable);
+    CCbor* createObjectChangedEvent(int64_t objectHandle, const char* fieldName, bool mergeable);
     void pushEvent();
 
     void getGenesisEvents(std::vector<unsigned char>* genesisEvents, CInterfaceStack* stack);
@@ -108,7 +108,7 @@ class CSceneContainer
 #endif
 
   private:
-    CCbor* _createGeneralEvent(const char* event, long long int objectHandle, long long int uid, const char* objType,
+    CCbor* _createGeneralEvent(const char* event, int64_t objectHandle, int64_t uid, const char* objType,
                                const char* fieldName, bool mergeable, bool openDataField = true);
     bool _switchToScene(int newSceneIndex);
 
@@ -116,12 +116,12 @@ class CSceneContainer
     int _currentSceneIndex;
     std::string _sessionId;
 
-    static long long int _eventSeq;
+    static int64_t _eventSeq;
     VMutex _eventMutex; // just needed while we are still using the old GUI, since it will also generate events
     CCbor* _events;
     bool _eventsEnabled;
 
-    std::vector<long long int> _uniqueIdsOfSelectionSinceLastTimeGetAndClearModificationFlagsWasCalled;
+    std::vector<int64_t> _uniqueIdsOfSelectionSinceLastTimeGetAndClearModificationFlagsWasCalled;
     int _modificationFlags;
     // +bit 0: object(s) erased
     // +bit 1: object(s) created

@@ -56,9 +56,9 @@ GuiApp::~GuiApp()
     luaWrap_lua_close(L);
 }
 
-long long int GuiApp::getEvalInt(const char* str, bool* ok /*= nullptr*/)
+int64_t GuiApp::getEvalInt(const char* str, bool* ok /*= nullptr*/)
 {
-    long long int retVal = 0.0;
+    int64_t retVal = 0.0;
     int top = luaWrap_lua_gettop(L);
     std::string s(str);
     if (s.find("=") == std::string::npos)

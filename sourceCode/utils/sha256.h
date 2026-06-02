@@ -7,7 +7,7 @@ class SHA256
   protected:
     typedef unsigned char uint8;
     typedef unsigned int uint32;
-    typedef unsigned long long uint64;
+    typedef uint64_t uint64;
 
     const static uint32 sha256_k[];
     static const unsigned int SHA224_256_BLOCK_SIZE = (512 / 8);

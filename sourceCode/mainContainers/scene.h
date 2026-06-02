@@ -84,50 +84,50 @@ class CScene : public Obj
 
     void pushGenesisEvents();
 
-    int setBoolProperty_t(long long int target, const char* pName, bool pState);
-    int getBoolProperty_t(long long int target, const char* pName, bool& pState) const;
-    int setIntProperty_t(long long int target, const char* pName, int pState);
-    int getIntProperty_t(long long int target, const char* pName, int& pState) const;
-    int setLongProperty_t(long long int target, const char* pName, long long int pState);
-    int getLongProperty_t(long long int target, const char* pName, long long int& pState) const;
-    int setFloatProperty_t(long long int target, const char* pName, double pState);
-    int getFloatProperty_t(long long int target, const char* pName, double& pState) const;
-    int setHandleProperty_t(long long int target, const char* pName, long long int pState);
-    int getHandleProperty_t(long long int target, const char* pName, long long int& pState) const;
-    int setStringProperty_t(long long int target, const char* pName, const std::string& pState);
-    int getStringProperty_t(long long int target, const char* pName, std::string& pState) const;
-    int setTableProperty_t(long long int target, const char* pName, const std::string& pState);
-    int getTableProperty_t(long long int target, const char* pName, std::string& pState) const;
-    int setBufferProperty_t(long long int target, const char* pName, const std::string& pState);
-    int getBufferProperty_t(long long int target, const char* pName, std::string& pState) const;
-    int setIntArray2Property_t(long long int target, const char* pName, const int* pState);
-    int getIntArray2Property_t(long long int target, const char* pName, int* pState) const;
-    int setVector3Property_t(long long int target, const char* pName, const C3Vector& pState);
-    int getVector3Property_t(long long int target, const char* pName, C3Vector& pState) const;
-    int setMatrixProperty_t(long long int target, const char* pName, const CMatrix& pState);
-    int getMatrixProperty_t(long long int target, const char* pName, CMatrix& pState) const;
-    int setQuaternionProperty_t(long long int target, const char* pName, const CQuaternion& pState);
-    int getQuaternionProperty_t(long long int target, const char* pName, CQuaternion& pState) const;
-    int setPoseProperty_t(long long int target, const char* pName, const CPose& pState);
-    int getPoseProperty_t(long long int target, const char* pName, CPose& pState) const;
-    int setColorProperty_t(long long int target, const char* pName, const float* pState);
-    int getColorProperty_t(long long int target, const char* pName, float* pState) const;
-    int setFloatArrayProperty_t(long long int target, const char* pName, const std::vector<double>& pState);
-    int getFloatArrayProperty_t(long long int target, const char* pName, std::vector<double>& pState) const;
-    int setIntArrayProperty_t(long long int target, const char* pName, const std::vector<int>& pState);
-    int getIntArrayProperty_t(long long int target, const char* pName, std::vector<int>& pState) const;
-    int setHandleArrayProperty_t(long long int target, const char* pName, const std::vector<long long int>& pState); // ALL handle items have to be of the same type
-    int getHandleArrayProperty_t(long long int target, const char* pName, std::vector<long long int>& pState) const; // ALL handle items have to be of the same type
-    int setStringArrayProperty_t(long long int target, const char* pName, const std::vector<std::string>& pState);
-    int getStringArrayProperty_t(long long int target, const char* pName, std::vector<std::string>& pState) const;
-    int setMethodProperty_t(long long int target, const char* pName, const void* pState);
-    int getMethodProperty_t(long long int target, const char* pName, void*& pState) const;
-    int setMethodProperty_t(long long int target, const char* pName, const std::string& pState);
-    int getMethodProperty_t(long long int target, const char* pName, std::string& pState) const;
-    int removeProperty_t(long long int target, const char* pName);
-    int getPropertyName_t(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
-    int getPropertyInfo_t(long long int target, const char* pName, int& info, std::string& infoTxt) const;
-    int setPropertyInfo_t(long long int target, const char* pName, int info, const char* infoTxt);
+    int setBoolProperty_t(int64_t target, const char* pName, bool pState);
+    int getBoolProperty_t(int64_t target, const char* pName, bool& pState) const;
+    int setIntProperty_t(int64_t target, const char* pName, int pState);
+    int getIntProperty_t(int64_t target, const char* pName, int& pState) const;
+    int setLongProperty_t(int64_t target, const char* pName, int64_t pState);
+    int getLongProperty_t(int64_t target, const char* pName, int64_t& pState) const;
+    int setFloatProperty_t(int64_t target, const char* pName, double pState);
+    int getFloatProperty_t(int64_t target, const char* pName, double& pState) const;
+    int setHandleProperty_t(int64_t target, const char* pName, int64_t pState);
+    int getHandleProperty_t(int64_t target, const char* pName, int64_t& pState) const;
+    int setStringProperty_t(int64_t target, const char* pName, const std::string& pState);
+    int getStringProperty_t(int64_t target, const char* pName, std::string& pState) const;
+    int setTableProperty_t(int64_t target, const char* pName, const std::string& pState);
+    int getTableProperty_t(int64_t target, const char* pName, std::string& pState) const;
+    int setBufferProperty_t(int64_t target, const char* pName, const std::string& pState);
+    int getBufferProperty_t(int64_t target, const char* pName, std::string& pState) const;
+    int setIntArray2Property_t(int64_t target, const char* pName, const int* pState);
+    int getIntArray2Property_t(int64_t target, const char* pName, int* pState) const;
+    int setVector3Property_t(int64_t target, const char* pName, const C3Vector& pState);
+    int getVector3Property_t(int64_t target, const char* pName, C3Vector& pState) const;
+    int setMatrixProperty_t(int64_t target, const char* pName, const CMatrix& pState);
+    int getMatrixProperty_t(int64_t target, const char* pName, CMatrix& pState) const;
+    int setQuaternionProperty_t(int64_t target, const char* pName, const CQuaternion& pState);
+    int getQuaternionProperty_t(int64_t target, const char* pName, CQuaternion& pState) const;
+    int setPoseProperty_t(int64_t target, const char* pName, const CPose& pState);
+    int getPoseProperty_t(int64_t target, const char* pName, CPose& pState) const;
+    int setColorProperty_t(int64_t target, const char* pName, const float* pState);
+    int getColorProperty_t(int64_t target, const char* pName, float* pState) const;
+    int setFloatArrayProperty_t(int64_t target, const char* pName, const std::vector<double>& pState);
+    int getFloatArrayProperty_t(int64_t target, const char* pName, std::vector<double>& pState) const;
+    int setIntArrayProperty_t(int64_t target, const char* pName, const std::vector<int>& pState);
+    int getIntArrayProperty_t(int64_t target, const char* pName, std::vector<int>& pState) const;
+    int setHandleArrayProperty_t(int64_t target, const char* pName, const std::vector<int64_t>& pState); // ALL handle items have to be of the same type
+    int getHandleArrayProperty_t(int64_t target, const char* pName, std::vector<int64_t>& pState) const; // ALL handle items have to be of the same type
+    int setStringArrayProperty_t(int64_t target, const char* pName, const std::vector<std::string>& pState);
+    int getStringArrayProperty_t(int64_t target, const char* pName, std::vector<std::string>& pState) const;
+    int setMethodProperty_t(int64_t target, const char* pName, const void* pState);
+    int getMethodProperty_t(int64_t target, const char* pName, void*& pState) const;
+    int setMethodProperty_t(int64_t target, const char* pName, const std::string& pState);
+    int getMethodProperty_t(int64_t target, const char* pName, std::string& pState) const;
+    int removeProperty_t(int64_t target, const char* pName);
+    int getPropertyName_t(int64_t target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
+    int getPropertyInfo_t(int64_t target, const char* pName, int& info, std::string& infoTxt) const;
+    int setPropertyInfo_t(int64_t target, const char* pName, int info, const char* infoTxt);
 
     // Old:
     void announceIkGroupWillBeErased(int ikGroupHandle);
@@ -194,7 +194,7 @@ class CScene : public Obj
     void _setSuffix1ToSuffix2(int suffix1, int suffix2);
 
     int _savedMouseMode;
-    std::vector<long long int> _initialObjectUniqueIdentifiersForRemovingNewObjects;
+    std::vector<int64_t> _initialObjectUniqueIdentifiersForRemovingNewObjects;
 
     static std::vector<SLoadOperationIssue> _loadOperationIssues;
     static std::vector<bool> oldHandles;

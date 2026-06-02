@@ -9,7 +9,7 @@ Obj::Obj()
     _isSceneObject = false;
 }
 
-Obj::Obj(long long int objectHandle, const char* objectTypeStr, const char* metaInfo)
+Obj::Obj(int64_t objectHandle, const char* objectTypeStr, const char* metaInfo)
 {
     _objectHandle = objectHandle;
     _objectTypeStr = objectTypeStr;
@@ -43,7 +43,7 @@ void Obj::addObjectEventData(CCbor* ev)
     ev->appendKeyBool(propObject_metaInfoIsSceneObject.name, _isSceneObject);
 }
 
-long long int Obj::getObjectHandle() const
+int64_t Obj::getObjectHandle() const
 {
     return _objectHandle;
 }
@@ -162,7 +162,7 @@ int Obj::getBoolProperty(const char* ppName, bool& pState) const
     return retVal;
 }
 
-int Obj::setLongProperty(const char* ppName, long long int pState)
+int Obj::setLongProperty(const char* ppName, int64_t pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
@@ -175,7 +175,7 @@ int Obj::setLongProperty(const char* ppName, long long int pState)
     return retVal;
 }
 
-int Obj::getLongProperty(const char* ppName, long long int& pState) const
+int Obj::getLongProperty(const char* ppName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 

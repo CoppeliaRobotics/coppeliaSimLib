@@ -1,6 +1,6 @@
 #include <interfaceStackHandle.h>
 
-CInterfaceStackHandle::CInterfaceStackHandle(long long int theValue)
+CInterfaceStackHandle::CInterfaceStackHandle(int64_t theValue)
 {
     _objectType = sim_stackitem_handle;
     _value = theValue;
@@ -10,12 +10,12 @@ CInterfaceStackHandle::~CInterfaceStackHandle()
 {
 }
 
-long long int CInterfaceStackHandle::getValue() const
+int64_t CInterfaceStackHandle::getValue() const
 {
     return _value;
 }
 
-void CInterfaceStackHandle::setValue(long long int v)
+void CInterfaceStackHandle::setValue(int64_t v)
 {
     _value = v;
 }
@@ -60,8 +60,8 @@ unsigned int CInterfaceStackHandle::createFromData(const char* data, unsigned ch
 
 bool CInterfaceStackHandle::checkCreateFromData(const char* data, unsigned int& w, unsigned int l, unsigned char version)
 {
-    if (l < sizeof(long long int))
+    if (l < sizeof(int64_t))
         return false;
-    w = sizeof(long long int);
+    w = sizeof(int64_t);
     return true;
 }

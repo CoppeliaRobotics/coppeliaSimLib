@@ -28,8 +28,8 @@ class CDrawingObject : public Obj
     bool announceScriptStateWillBeErased(int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
     int getBoolProperty(const char* pName, bool& pState) const override;
-    int getLongProperty(const char* pName, long long int& pState) const override;
-    int getHandleProperty(const char* pName, long long int& pState) const override;
+    int getLongProperty(const char* pName, int64_t& pState) const override;
+    int getHandleProperty(const char* pName, int64_t& pState) const override;
     int getStringProperty(const char* pName, std::string& pState) const override;
     int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
@@ -66,7 +66,7 @@ class CDrawingObject : public Obj
     void _setItemSizes();
 
     int _sceneObjectId;
-    long long int _sceneObjectUid;
+    int64_t _sceneObjectUid;
     int _objectType;
     double _size;
     int _maxItemCount;

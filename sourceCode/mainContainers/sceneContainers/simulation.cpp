@@ -1111,7 +1111,7 @@ void CSimulation::serialize(CSer& ar)
             if (exhaustiveXml)
             {
                 ar.xmlAddNode_comment(" 'simulationTimeStep_ns' tag: used for backward compatibility", exhaustiveXml);
-                ar.xmlAddNode_ulonglong(
+                ar.xmlAddNode_uint64(
                     "simulationTimeStep_ns",
                     quint64(_simulationTimeStep * 1000000.0)); // for backward compatibility (05.09.2022)
             }
@@ -1128,7 +1128,7 @@ void CSimulation::serialize(CSer& ar)
             {
                 ar.xmlAddNode_comment(" 'simulationTimeToPause_ns' tag: used for backward compatibility",
                                       exhaustiveXml);
-                ar.xmlAddNode_ulonglong(
+                ar.xmlAddNode_uint64(
                     "simulationTimeToPause_ns",
                     quint64(_simulationTimeToPause * 1000000.0)); // for backward compatibility (05.09.2022)
             }
@@ -1150,7 +1150,7 @@ void CSimulation::serialize(CSer& ar)
             if (exhaustiveXml)
             { // for backward compatibility (05.09.2022)
                 quint64 step;
-                ar.xmlGetNode_ulonglong("simulationTimeStep_ns", step);
+                ar.xmlGetNode_uint64("simulationTimeStep_ns", step);
                 _simulationTimeStep = double(step) / 1000000.0;
             }
             ar.xmlGetNode_float("simulationTimeStep", _simulationTimeStep, exhaustiveXml);
@@ -1169,7 +1169,7 @@ void CSimulation::serialize(CSer& ar)
             if (exhaustiveXml)
             { // for backward compatibility (05.09.2022)
                 quint64 p;
-                ar.xmlGetNode_ulonglong("simulationTimeToPause_ns", p);
+                ar.xmlGetNode_uint64("simulationTimeToPause_ns", p);
                 _simulationTimeToPause = double(p) / 1000000.0;
             }
             ar.xmlGetNode_float("simulationTimeToPause", _simulationTimeToPause, exhaustiveXml);

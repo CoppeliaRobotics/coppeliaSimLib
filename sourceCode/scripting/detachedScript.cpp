@@ -1405,7 +1405,7 @@ int CDetachedScript::getScriptHandle() const
     return _scriptHandle;
 }
 
-long long int CDetachedScript::getScriptUid() const
+int64_t CDetachedScript::getScriptUid() const
 {
     return _scriptUid;
 }
@@ -2140,7 +2140,7 @@ int CDetachedScript::_callSystemScriptFunction(int callType, const CInterfaceSta
                 else
                 { // Following for backward compatibility with older add-ons: they could return 1 (sim_syscb_cleanup) to
                     // request cleanup
-                    long long int theValue;
+                    int64_t theValue;
                     if ((_scriptType == sim_scripttype_addon) && (outStack->getStackStrictInt64Value(theValue)) &&
                         (theValue == 1))
                         _killInterpreterState();
@@ -2721,7 +2721,7 @@ bool CDetachedScript::addCommandToOutsideCommandQueue(int commandID, int auxVal1
     return (true);
 }
 
-void CDetachedScript::setEventFilters(const std::map<long long int, std::set<std::string>>& targetFilters, const std::map<std::string, std::set<std::string>>& typeFilters)
+void CDetachedScript::setEventFilters(const std::map<int64_t, std::set<std::string>>& targetFilters, const std::map<std::string, std::set<std::string>>& typeFilters)
 {
     _eventFilters_target = targetFilters;
     _eventFilters_type = typeFilters;
@@ -2733,7 +2733,7 @@ bool CDetachedScript::prepareFilteredEventsBuffer(const std::vector<unsigned cha
     if (_eventFilters_target.size() + _eventFilters_type.size() > 0)
     {
         // Following 4 for backw. compatibility:
-        long long int mainScriptHandle = -1;
+        int64_t mainScriptHandle = -1;
         CDetachedScript* mainScript = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
         if (mainScript != nullptr)
             mainScriptHandle = mainScript->getScriptHandle();
@@ -2741,8 +2741,8 @@ bool CDetachedScript::prepareFilteredEventsBuffer(const std::vector<unsigned cha
         output.push_back(input[0]); // "array open" (holding all events)
         for (size_t ev = 0; ev < inf.size(); ev++)
         {
-            long long int t = inf[ev].target;
-            long long int altT = t;
+            int64_t t = inf[ev].target;
+            int64_t altT = t;
             std::string typeInfo1;
             std::string typeInfo2;
             if (t == sim_handle_app)
@@ -4279,7 +4279,7 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
             int handleVal;
             size_t rows, cols;
             std::vector<double> dat;
-            std::vector<long long int> handleArray;
+            std::vector<int64_t> handleArray;
             float color[3];
             double ddat[7];
             if (luaWrap_lua_isbuffer(L, index))
@@ -4472,7 +4472,7 @@ void CDetachedScript::_pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObj
     {
         const CMatrix* m = ((CInterfaceStackMatrix*)obj)->getValue();
         if (pushOnlySimpleTypes)
-            pushDoubleTableOntoStack(L, m->rows * m->cols, m->data.data());
+            pushDoubleArrayAsTable(L, m->rows * m->cols, m->data.data());
         else
             luaWrap_lua_pushmatrix(L, m->data.data(), m->rows, m->cols);
     }
@@ -4482,7 +4482,7 @@ void CDetachedScript::_pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObj
         double quat[4];
         q->getData(quat, true);
         if (pushOnlySimpleTypes)
-            pushDoubleTableOntoStack(L, 4, quat);
+            pushDoubleArrayAsTable(L, 4, quat);
         else
             luaWrap_lua_pushquaternion(L, quat);
     }
@@ -4492,7 +4492,7 @@ void CDetachedScript::_pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObj
         double pose[7];
         p->getData(pose, true);
         if (pushOnlySimpleTypes)
-            pushDoubleTableOntoStack(L, 7, pose);
+            pushDoubleArrayAsTable(L, 7, pose);
         else
             luaWrap_lua_pushpose(L, pose);
     }
@@ -4500,16 +4500,16 @@ void CDetachedScript::_pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObj
     {
         const float* col = ((CInterfaceStackColor*)obj)->getValue();
         if (pushOnlySimpleTypes)
-            pushFloatTableOntoStack(L, 3, col);
+            pushFloatArrayAsTable(L, 3, col);
         else
             luaWrap_lua_pushcolor(L, col);
     }
     else if (t == sim_stackitem_handlearray)
     {
         size_t cnt;
-        const long long int* v = ((CInterfaceStackHandleArray*)obj)->getValue(&cnt);
+        const int64_t* v = ((CInterfaceStackHandleArray*)obj)->getValue(&cnt);
         if (pushOnlySimpleTypes)
-            pushLongTableOntoStack(L, cnt, v);
+            pushInt64ArrayAsTable(L, cnt, v);
         else
             luaWrap_lua_pushhandlearray(L, v, int(cnt));
     }
@@ -4532,7 +4532,7 @@ void CDetachedScript::_pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObj
             {
                 std::string stringKey;
                 double numberKey;
-                long long int integerKey;
+                int64_t integerKey;
                 bool boolKey;
                 int keyType = -1;
                 CInterfaceStackObject* tobj = table->getMapItemAtIndex(i, stringKey, numberKey, integerKey, boolKey, keyType);
@@ -4557,7 +4557,7 @@ void CDetachedScript::_pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObj
     }
 }
 
-void CDetachedScript::signalSet(const char* sigName, long long int target /*= sim_handle_scene*/)
+void CDetachedScript::signalSet(const char* sigName, int64_t target /*= sim_handle_scene*/)
 { // sigName is xx.signal.name (no type info), with xx. 'app.', '' or 'ojb.' (for app, scene or object)
     _signalNameToScriptHandle[sigName] = std::make_pair(_scriptHandle, target);
 }
@@ -4669,14 +4669,14 @@ int CDetachedScript::getFloatProperty(const char* pName, double& pState) const
     return retVal;
 }
 
-int CDetachedScript::setLongProperty(const char* pName, long long int pState)
+int CDetachedScript::setLongProperty(const char* pName, int64_t pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
 
-int CDetachedScript::getLongProperty(const char* pName, long long int& pState) const
+int CDetachedScript::getLongProperty(const char* pName, int64_t& pState) const
 {
     int retVal = Obj::getLongProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
@@ -4686,7 +4686,7 @@ int CDetachedScript::getLongProperty(const char* pName, long long int& pState) c
     return retVal;
 }
 
-int CDetachedScript::getHandleProperty(const char* pName, long long int& pState) const
+int CDetachedScript::getHandleProperty(const char* pName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 

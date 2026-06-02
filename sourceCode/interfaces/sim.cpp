@@ -3,7 +3,7 @@
 #include <app.h>
 
 #ifdef SIM_UNIFIED_HANDLES
-SIM_DLLEXPORT int simCallMethod_L(long long int target, const char* name, UID inputStack, UID outputStack, UID detachedScript)
+SIM_DLLEXPORT int simCallMethod_L(int64_t target, const char* name, UID inputStack, UID outputStack, UID detachedScript)
 {
     return (simCallMethod_internal(target, name, inputStack, outputStack, detachedScript));
 }
@@ -13,12 +13,12 @@ SIM_DLLEXPORT UID simGetObject_L(const char* objectPath, int index, UID proxy, i
     return simGetObject_internal(objectPath, index, proxy, options);
 }
 
-SIM_DLLEXPORT long long int simGetObjectUid_L(UID objectHandle)
+SIM_DLLEXPORT int64_t simGetObjectUid_L(UID objectHandle)
 {
     return (simGetObjectUid_internal(objectHandle));
 }
 
-SIM_DLLEXPORT UID simGetObjectFromUid_L(long long int uid, int options)
+SIM_DLLEXPORT UID simGetObjectFromUid_L(int64_t uid, int options)
 {
     return (simGetObjectFromUid_internal(uid, options));
 }
@@ -328,7 +328,7 @@ SIM_DLLEXPORT int simPushInt32OntoStack_L(UID stackHandle, int value)
     return (simPushInt32OntoStack_internal(stackHandle, value));
 }
 
-SIM_DLLEXPORT int simPushInt64OntoStack_L(UID stackHandle, long long int value)
+SIM_DLLEXPORT int simPushInt64OntoStack_L(UID stackHandle, int64_t value)
 {
     return (simPushInt64OntoStack_internal(stackHandle, value));
 }
@@ -388,7 +388,7 @@ SIM_DLLEXPORT int simPushInt32TableOntoStack_L(UID stackHandle, const int* value
     return (simPushInt32TableOntoStack_internal(stackHandle, values, valueCnt));
 }
 
-SIM_DLLEXPORT int simPushInt64TableOntoStack_L(UID stackHandle, const long long int* values, int valueCnt)
+SIM_DLLEXPORT int simPushInt64TableOntoStack_L(UID stackHandle, const int64_t* values, int valueCnt)
 {
     return (simPushInt64TableOntoStack_internal(stackHandle, values, valueCnt));
 }
@@ -448,7 +448,7 @@ SIM_DLLEXPORT int simGetStackInt32Value_L(UID stackHandle, int* numberValue)
     return (simGetStackInt32Value_internal(stackHandle, numberValue));
 }
 
-SIM_DLLEXPORT int simGetStackInt64Value_L(UID stackHandle, long long int* numberValue)
+SIM_DLLEXPORT int simGetStackInt64Value_L(UID stackHandle, int64_t* numberValue)
 {
     return (simGetStackInt64Value_internal(stackHandle, numberValue));
 }
@@ -503,7 +503,7 @@ SIM_DLLEXPORT int simGetStackInt32Table_L(UID stackHandle, int* array, int count
     return (simGetStackInt32Table_internal(stackHandle, array, count));
 }
 
-SIM_DLLEXPORT int simGetStackInt64Table_L(UID stackHandle, long long int* array, int count)
+SIM_DLLEXPORT int simGetStackInt64Table_L(UID stackHandle, int64_t* array, int count)
 {
     return (simGetStackInt64Table_internal(stackHandle, array, count));
 }
@@ -1073,7 +1073,7 @@ SIM_DLLEXPORT int simSubtractObjectFromPointCloud_D_L(UID pointCloudHandle, UID 
     return (simSubtractObjectFromPointCloud_internal(pointCloudHandle, objectHandle, options, tolerance, reserved));
 }
 
-SIM_DLLEXPORT int simCheckOctreePointOccupancy_D_L(UID octreeHandle, int options, const double* points, int ptCnt, unsigned int* tag, unsigned long long int* location, void* reserved)
+SIM_DLLEXPORT int simCheckOctreePointOccupancy_D_L(UID octreeHandle, int options, const double* points, int ptCnt, unsigned int* tag, uint64_t* location, void* reserved)
 {
     return (simCheckOctreePointOccupancy_internal(octreeHandle, options, points, ptCnt, tag, location, reserved));
 }
@@ -1129,217 +1129,217 @@ SIM_DLLEXPORT int _simHandleCustomContact_D_L(UID objHandle1, UID objHandle2, in
 }
 #endif
 
-SIM_DLLEXPORT int simSetBoolProperty(long long int target, const char* pName, int pState)
+SIM_DLLEXPORT int simSetBoolProperty(int64_t target, const char* pName, int pState)
 {
     return simSetBoolProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simGetBoolProperty(long long int target, const char* pName, int* pState)
+SIM_DLLEXPORT int simGetBoolProperty(int64_t target, const char* pName, int* pState)
 {
     return simGetBoolProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simSetIntProperty(long long int target, const char* pName, int pState)
+SIM_DLLEXPORT int simSetIntProperty(int64_t target, const char* pName, int pState)
 {
     return simSetIntProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simGetIntProperty(long long int target, const char* pName, int* pState)
+SIM_DLLEXPORT int simGetIntProperty(int64_t target, const char* pName, int* pState)
 {
     return simGetIntProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simSetHandleProperty(long long int target, const char* pName, long long int pState)
+SIM_DLLEXPORT int simSetHandleProperty(int64_t target, const char* pName, int64_t pState)
 {
     return simSetHandleProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simGetHandleProperty(long long int target, const char* pName, long long int* pState)
+SIM_DLLEXPORT int simGetHandleProperty(int64_t target, const char* pName, int64_t* pState)
 {
     return simGetHandleProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simSetLongProperty(long long int target, const char* pName, long long int pState)
+SIM_DLLEXPORT int simSetLongProperty(int64_t target, const char* pName, int64_t pState)
 {
     return simSetLongProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simGetLongProperty(long long int target, const char* pName, long long int* pState)
+SIM_DLLEXPORT int simGetLongProperty(int64_t target, const char* pName, int64_t* pState)
 {
     return simGetLongProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simSetFloatProperty(long long int target, const char* pName, double pState)
+SIM_DLLEXPORT int simSetFloatProperty(int64_t target, const char* pName, double pState)
 {
     return simSetFloatProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simGetFloatProperty(long long int target, const char* pName, double* pState)
+SIM_DLLEXPORT int simGetFloatProperty(int64_t target, const char* pName, double* pState)
 {
     return simGetFloatProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simSetStringProperty(long long int target, const char* pName, const char* pState)
+SIM_DLLEXPORT int simSetStringProperty(int64_t target, const char* pName, const char* pState)
 {
     return simSetStringProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simGetStringProperty2(long long int target, const char* pName, char** pState)
+SIM_DLLEXPORT int simGetStringProperty2(int64_t target, const char* pName, char** pState)
 {
     return simGetStringProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simSetTableProperty(long long int target, const char* pName, const char* buffer, int bufferL)
+SIM_DLLEXPORT int simSetTableProperty(int64_t target, const char* pName, const char* buffer, int bufferL)
 {
     return simSetTableProperty_internal(target, pName, buffer, bufferL);
 }
 
-SIM_DLLEXPORT int simGetTableProperty2(long long int target, const char* pName, char** buffer, int* bufferL)
+SIM_DLLEXPORT int simGetTableProperty2(int64_t target, const char* pName, char** buffer, int* bufferL)
 {
     return simGetTableProperty_internal(target, pName, buffer, bufferL);
 }
 
-SIM_DLLEXPORT int simSetBufferProperty(long long int target, const char* pName, const char* buffer, int bufferL)
+SIM_DLLEXPORT int simSetBufferProperty(int64_t target, const char* pName, const char* buffer, int bufferL)
 {
     return simSetBufferProperty_internal(target, pName, buffer, bufferL);
 }
 
-SIM_DLLEXPORT int simGetBufferProperty2(long long int target, const char* pName, char** buffer, int* bufferL)
+SIM_DLLEXPORT int simGetBufferProperty2(int64_t target, const char* pName, char** buffer, int* bufferL)
 {
     return simGetBufferProperty_internal(target, pName, buffer, bufferL);
 }
 
-SIM_DLLEXPORT int simSetIntArray2Property(long long int target, const char* pName, const int* pState)
+SIM_DLLEXPORT int simSetIntArray2Property(int64_t target, const char* pName, const int* pState)
 {
     return simSetIntArray2Property_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simGetIntArray2Property(long long int target, const char* pName, int* pState)
+SIM_DLLEXPORT int simGetIntArray2Property(int64_t target, const char* pName, int* pState)
 {
     return simGetIntArray2Property_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simSetVector3Property(long long int target, const char* pName, const double* pState)
+SIM_DLLEXPORT int simSetVector3Property(int64_t target, const char* pName, const double* pState)
 {
     return simSetVector3Property_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simGetVector3Property(long long int target, const char* pName, double* pState)
+SIM_DLLEXPORT int simGetVector3Property(int64_t target, const char* pName, double* pState)
 {
     return simGetVector3Property_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simSetMatrixProperty(long long int target, const char* pName, const double* pState, int r, int c)
+SIM_DLLEXPORT int simSetMatrixProperty(int64_t target, const char* pName, const double* pState, int r, int c)
 {
     return simSetMatrixProperty_internal(target, pName, pState, r, c);
 }
 
-SIM_DLLEXPORT int simGetMatrixProperty(long long int target, const char* pName, double** pState, int* r, int* c)
+SIM_DLLEXPORT int simGetMatrixProperty(int64_t target, const char* pName, double** pState, int* r, int* c)
 {
     return simGetMatrixProperty_internal(target, pName, pState, r, c);
 }
 
-SIM_DLLEXPORT int simSetQuaternionProperty(long long int target, const char* pName, const double* pState)
+SIM_DLLEXPORT int simSetQuaternionProperty(int64_t target, const char* pName, const double* pState)
 {
     return simSetQuaternionProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simGetQuaternionProperty(long long int target, const char* pName, double* pState)
+SIM_DLLEXPORT int simGetQuaternionProperty(int64_t target, const char* pName, double* pState)
 {
     return simGetQuaternionProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simSetPoseProperty(long long int target, const char* pName, const double* pState)
+SIM_DLLEXPORT int simSetPoseProperty(int64_t target, const char* pName, const double* pState)
 {
     return simSetPoseProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simGetPoseProperty(long long int target, const char* pName, double* pState)
+SIM_DLLEXPORT int simGetPoseProperty(int64_t target, const char* pName, double* pState)
 {
     return simGetPoseProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simSetColorProperty(long long int target, const char* pName, const float* pState)
+SIM_DLLEXPORT int simSetColorProperty(int64_t target, const char* pName, const float* pState)
 {
     return simSetColorProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simGetColorProperty(long long int target, const char* pName, float* pState)
+SIM_DLLEXPORT int simGetColorProperty(int64_t target, const char* pName, float* pState)
 {
     return simGetColorProperty_internal(target, pName, pState);
 }
 
-SIM_DLLEXPORT int simSetFloatArrayProperty(long long int target, const char* pName, const double* v, int vL)
+SIM_DLLEXPORT int simSetFloatArrayProperty(int64_t target, const char* pName, const double* v, int vL)
 {
     return simSetFloatArrayProperty_internal(target, pName, v, vL);
 }
 
-SIM_DLLEXPORT int simGetFloatArrayProperty2(long long int target, const char* pName, double** v, int* vL)
+SIM_DLLEXPORT int simGetFloatArrayProperty2(int64_t target, const char* pName, double** v, int* vL)
 {
     return simGetFloatArrayProperty_internal(target, pName, v, vL);
 }
 
-SIM_DLLEXPORT int simSetIntArrayProperty(long long int target, const char* pName, const int* v, int vL)
+SIM_DLLEXPORT int simSetIntArrayProperty(int64_t target, const char* pName, const int* v, int vL)
 {
     return simSetIntArrayProperty_internal(target, pName, v, vL);
 }
 
-SIM_DLLEXPORT int simGetIntArrayProperty2(long long int target, const char* pName, int** v, int* vL)
+SIM_DLLEXPORT int simGetIntArrayProperty2(int64_t target, const char* pName, int** v, int* vL)
 {
     return simGetIntArrayProperty_internal(target, pName, v, vL);
 }
 
-SIM_DLLEXPORT int simSetHandleArrayProperty(long long int target, const char* pName, const long long int* v, int vL)
+SIM_DLLEXPORT int simSetHandleArrayProperty(int64_t target, const char* pName, const int64_t* v, int vL)
 {
     return simSetHandleArrayProperty_internal(target, pName, v, vL);
 }
 
-SIM_DLLEXPORT int simGetHandleArrayProperty2(long long int target, const char* pName, long long int** v, int* vL)
+SIM_DLLEXPORT int simGetHandleArrayProperty2(int64_t target, const char* pName, int64_t** v, int* vL)
 {
     return simGetHandleArrayProperty_internal(target, pName, v, vL);
 }
 
-SIM_DLLEXPORT int simSetStringArrayProperty(long long int target, const char* pName, const char* v, int cnt)
+SIM_DLLEXPORT int simSetStringArrayProperty(int64_t target, const char* pName, const char* v, int cnt)
 {
     return simSetStringArrayProperty_internal(target, pName, v, cnt);
 }
 
-SIM_DLLEXPORT int simGetStringArrayProperty2(long long int target, const char* pName, char** v, int* cnt)
+SIM_DLLEXPORT int simGetStringArrayProperty2(int64_t target, const char* pName, char** v, int* cnt)
 {
     return simGetStringArrayProperty_internal(target, pName, v, cnt);
 }
 
-SIM_DLLEXPORT int simSetMethodProperty(long long int target, const char* pName, const void* v)
+SIM_DLLEXPORT int simSetMethodProperty(int64_t target, const char* pName, const void* v)
 {
     return simSetMethodProperty_internal(target, pName, v);
 }
 
-SIM_DLLEXPORT int simGetMethodProperty(long long int target, const char* pName, void** v)
+SIM_DLLEXPORT int simGetMethodProperty(int64_t target, const char* pName, void** v)
 {
     return simGetMethodProperty_internal(target, pName, v);
 }
 
-SIM_DLLEXPORT int simRemoveProperty(long long int target, const char* pName)
+SIM_DLLEXPORT int simRemoveProperty(int64_t target, const char* pName)
 {
     return simRemoveProperty_internal(target, pName);
 }
 
-SIM_DLLEXPORT char* simGetPropertyName(long long int target, int index, SPropertyOptions* options)
+SIM_DLLEXPORT char* simGetPropertyName(int64_t target, int index, SPropertyOptions* options)
 {
     return simGetPropertyName_internal(target, index, options);
 }
 
-SIM_DLLEXPORT int simGetPropertyInfo(long long int target, const char* pName, SPropertyInfo* infos, SPropertyOptions* options)
+SIM_DLLEXPORT int simGetPropertyInfo(int64_t target, const char* pName, SPropertyInfo* infos, SPropertyOptions* options)
 {
     return simGetPropertyInfo_internal(target, pName, infos, options);
 }
 
-SIM_DLLEXPORT int simSetPropertyInfo(long long int target, const char* pName, const SPropertyInfo* infos)
+SIM_DLLEXPORT int simSetPropertyInfo(int64_t target, const char* pName, const SPropertyInfo* infos)
 {
     return simSetPropertyInfo_internal(target, pName, infos);
 }
 
-SIM_DLLEXPORT int simCallMethod(long long int target, const char* name, int inputStack, int outputStack, int detachedScript)
+SIM_DLLEXPORT int simCallMethod(int64_t target, const char* name, int inputStack, int outputStack, int detachedScript)
 { // backw. compatibility version
     return simCallMethod_internal(target, name, App::getNewHandleFromOldHandle(inputStack), App::getNewHandleFromOldHandle(outputStack), App::getNewHandleFromOldHandle(detachedScript));
 }
@@ -1404,12 +1404,12 @@ SIM_DLLEXPORT int simGetObject(const char* objectPath, int index, int proxy, int
     return App::getOldHandleFromNewHandle(simGetObject_internal(objectPath, index, App::getNewHandleFromOldHandle(proxy), options));
 }
 
-SIM_DLLEXPORT long long int simGetObjectUid(int objectHandle)
+SIM_DLLEXPORT int64_t simGetObjectUid(int objectHandle)
 { // backw. compatibility version
     return simGetObjectUid_internal(App::getNewHandleFromOldHandle(objectHandle));
 }
 
-SIM_DLLEXPORT int simGetObjectFromUid(long long int uid, int options)
+SIM_DLLEXPORT int simGetObjectFromUid(int64_t uid, int options)
 { // backw. compatibility version
     return App::getOldHandleFromNewHandle(simGetObjectFromUid_internal(uid, options));
 }
@@ -1945,7 +1945,7 @@ SIM_DLLEXPORT int simPushInt32OntoStack(int stackHandle, int value)
     return simPushInt32OntoStack_internal(App::getNewHandleFromOldHandle(stackHandle), value);
 }
 
-SIM_DLLEXPORT int simPushInt64OntoStack(int stackHandle, long long int value)
+SIM_DLLEXPORT int simPushInt64OntoStack(int stackHandle, int64_t value)
 { // backw. compatibility version
     return simPushInt64OntoStack_internal(App::getNewHandleFromOldHandle(stackHandle), value);
 }
@@ -2005,7 +2005,7 @@ SIM_DLLEXPORT int simPushInt32TableOntoStack(int stackHandle, const int* values,
     return simPushInt32TableOntoStack_internal(App::getNewHandleFromOldHandle(stackHandle), values, valueCnt);
 }
 
-SIM_DLLEXPORT int simPushInt64TableOntoStack(int stackHandle, const long long int* values, int valueCnt)
+SIM_DLLEXPORT int simPushInt64TableOntoStack(int stackHandle, const int64_t* values, int valueCnt)
 { // backw. compatibility version
     return simPushInt64TableOntoStack_internal(App::getNewHandleFromOldHandle(stackHandle), values, valueCnt);
 }
@@ -2065,7 +2065,7 @@ SIM_DLLEXPORT int simGetStackInt32Value(int stackHandle, int* numberValue)
     return simGetStackInt32Value_internal(App::getNewHandleFromOldHandle(stackHandle), numberValue);
 }
 
-SIM_DLLEXPORT int simGetStackInt64Value(int stackHandle, long long int* numberValue)
+SIM_DLLEXPORT int simGetStackInt64Value(int stackHandle, int64_t* numberValue)
 { // backw. compatibility version
     return simGetStackInt64Value_internal(App::getNewHandleFromOldHandle(stackHandle), numberValue);
 }
@@ -2120,7 +2120,7 @@ SIM_DLLEXPORT int simGetStackInt32Table(int stackHandle, int* array, int count)
     return simGetStackInt32Table_internal(App::getNewHandleFromOldHandle(stackHandle), array, count);
 }
 
-SIM_DLLEXPORT int simGetStackInt64Table(int stackHandle, long long int* array, int count)
+SIM_DLLEXPORT int simGetStackInt64Table(int stackHandle, int64_t* array, int count)
 { // backw. compatibility version
     return simGetStackInt64Table_internal(App::getNewHandleFromOldHandle(stackHandle), array, count);
 }
@@ -3085,7 +3085,7 @@ SIM_DLLEXPORT int simSubtractObjectFromPointCloud_D(int pointCloudHandle, int ob
     return simSubtractObjectFromPointCloud_internal(App::getNewHandleFromOldHandle(pointCloudHandle), App::getNewHandleFromOldHandle(objectHandle), options, tolerance, reserved);
 }
 
-SIM_DLLEXPORT int simCheckOctreePointOccupancy_D(int octreeHandle, int options, const double* points, int ptCnt, unsigned int* tag, unsigned long long int* location, void* reserved)
+SIM_DLLEXPORT int simCheckOctreePointOccupancy_D(int octreeHandle, int options, const double* points, int ptCnt, unsigned int* tag, uint64_t* location, void* reserved)
 { // backw. compatibility version
     return simCheckOctreePointOccupancy_internal(App::getNewHandleFromOldHandle(octreeHandle), options, points, ptCnt, tag, location, reserved);
 }

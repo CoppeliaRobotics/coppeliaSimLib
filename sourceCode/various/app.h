@@ -48,8 +48,8 @@ class App
     App();
     virtual ~App();
 
-    static long long int getFreshUniqueId(int objectType);
-    static void releaseUniqueId(long long int uid, int objectType = -1);
+    static int64_t getFreshUniqueId(int objectType);
+    static void releaseUniqueId(int64_t uid, int objectType = -1);
 
     static UID getNewHandleFromOldHandle(int oldHandle);
     static int getOldHandleFromNewHandle(UID newHandle);
@@ -117,51 +117,51 @@ class App
     static void setPluginList(const std::vector<CPlugin*>* plugins);
 
 
-    static int setBoolProperty_t(long long int target, const char* pName, bool pState);
-    static int getBoolProperty_t(long long int target, const char* pName, bool& pState);
-    static int setIntProperty_t(long long int target, const char* pName, int pState);
-    static int getIntProperty_t(long long int target, const char* pName, int& pState);
-    static int setLongProperty_t(long long int target, const char* pName, long long int pState);
-    static int getLongProperty_t(long long int target, const char* pName, long long int& pState);
-    static int setFloatProperty_t(long long int target, const char* pName, double pState);
-    static int getFloatProperty_t(long long int target, const char* pName, double& pState);
-    static int setHandleProperty_t(long long int target, const char* pName, long long int pState);
-    static int getHandleProperty_t(long long int target, const char* pName, long long int& pState);
-    static int setStringProperty_t(long long int target, const char* pName, const std::string& pState);
-    static int getStringProperty_t(long long int target, const char* pName, std::string& pState);
-    static int setTableProperty_t(long long int target, const char* pName, const std::string& pState);
-    static int getTableProperty_t(long long int target, const char* pName, std::string& pState);
-    static int setBufferProperty_t(long long int target, const char* pName, const std::string& pState);
-    static int getBufferProperty_t(long long int target, const char* pName, std::string& pState);
-    static int setIntArray2Property_t(long long int target, const char* pName, const int* pState);
-    static int getIntArray2Property_t(long long int target, const char* pName, int* pState);
-    static int setVector3Property_t(long long int target, const char* pName, const C3Vector& pState);
-    static int getVector3Property_t(long long int target, const char* pName, C3Vector& pState);
-    static int setMatrixProperty_t(long long int target, const char* pName, const CMatrix& pState);
-    static int getMatrixProperty_t(long long int target, const char* pName, CMatrix& pState);
-    static int setQuaternionProperty_t(long long int target, const char* pName, const CQuaternion& pState);
-    static int getQuaternionProperty_t(long long int target, const char* pName, CQuaternion& pState);
-    static int setPoseProperty_t(long long int target, const char* pName, const CPose& pState);
-    static int getPoseProperty_t(long long int target, const char* pName, CPose& pState);
-    static int setColorProperty_t(long long int target, const char* pName, const float* pState);
-    static int getColorProperty_t(long long int target, const char* pName, float* pState);
-    static int setFloatArrayProperty_t(long long int target, const char* pName, const std::vector<double>& pState);
-    static int getFloatArrayProperty_t(long long int target, const char* pName, std::vector<double>& pState);
-    static int setIntArrayProperty_t(long long int target, const char* pName, const std::vector<int>& pState);
-    static int getIntArrayProperty_t(long long int target, const char* pName, std::vector<int>& pState);
-    static int setHandleArrayProperty_t(long long int target, const char* pName, const std::vector<long long int>& pState); // ALL handle items have to be of the same type
-    static int getHandleArrayProperty_t(long long int target, const char* pName, std::vector<long long int>& pState); // ALL handle items have to be of the same type
-    static int setStringArrayProperty_t(long long int target, const char* pName, const std::vector<std::string>& pState);
-    static int getStringArrayProperty_t(long long int target, const char* pName, std::vector<std::string>& pState);
-    static int setMethodProperty_t(long long int target, const char* pName, const void* pState);
-    static int getMethodProperty_t(long long int target, const char* pName, void*& pState);
-    static int setMethodProperty_t(long long int target, const char* pName, const std::string& pState);
-    static int getMethodProperty_t(long long int target, const char* pName, std::string& pState);
-    static int removeProperty_t(long long int target, const char* pName);
-    static int getPropertyName_t(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags);
-    static int getPropertyInfo_t(long long int target, const char* pName, int& info, std::string& infoTxt);
-    static int setPropertyInfo_t(long long int target, const char* pName, int info, const char* infoTxt);
-    static bool isTargetValid_t(long long int target);
+    static int setBoolProperty_t(int64_t target, const char* pName, bool pState);
+    static int getBoolProperty_t(int64_t target, const char* pName, bool& pState);
+    static int setIntProperty_t(int64_t target, const char* pName, int pState);
+    static int getIntProperty_t(int64_t target, const char* pName, int& pState);
+    static int setLongProperty_t(int64_t target, const char* pName, int64_t pState);
+    static int getLongProperty_t(int64_t target, const char* pName, int64_t& pState);
+    static int setFloatProperty_t(int64_t target, const char* pName, double pState);
+    static int getFloatProperty_t(int64_t target, const char* pName, double& pState);
+    static int setHandleProperty_t(int64_t target, const char* pName, int64_t pState);
+    static int getHandleProperty_t(int64_t target, const char* pName, int64_t& pState);
+    static int setStringProperty_t(int64_t target, const char* pName, const std::string& pState);
+    static int getStringProperty_t(int64_t target, const char* pName, std::string& pState);
+    static int setTableProperty_t(int64_t target, const char* pName, const std::string& pState);
+    static int getTableProperty_t(int64_t target, const char* pName, std::string& pState);
+    static int setBufferProperty_t(int64_t target, const char* pName, const std::string& pState);
+    static int getBufferProperty_t(int64_t target, const char* pName, std::string& pState);
+    static int setIntArray2Property_t(int64_t target, const char* pName, const int* pState);
+    static int getIntArray2Property_t(int64_t target, const char* pName, int* pState);
+    static int setVector3Property_t(int64_t target, const char* pName, const C3Vector& pState);
+    static int getVector3Property_t(int64_t target, const char* pName, C3Vector& pState);
+    static int setMatrixProperty_t(int64_t target, const char* pName, const CMatrix& pState);
+    static int getMatrixProperty_t(int64_t target, const char* pName, CMatrix& pState);
+    static int setQuaternionProperty_t(int64_t target, const char* pName, const CQuaternion& pState);
+    static int getQuaternionProperty_t(int64_t target, const char* pName, CQuaternion& pState);
+    static int setPoseProperty_t(int64_t target, const char* pName, const CPose& pState);
+    static int getPoseProperty_t(int64_t target, const char* pName, CPose& pState);
+    static int setColorProperty_t(int64_t target, const char* pName, const float* pState);
+    static int getColorProperty_t(int64_t target, const char* pName, float* pState);
+    static int setFloatArrayProperty_t(int64_t target, const char* pName, const std::vector<double>& pState);
+    static int getFloatArrayProperty_t(int64_t target, const char* pName, std::vector<double>& pState);
+    static int setIntArrayProperty_t(int64_t target, const char* pName, const std::vector<int>& pState);
+    static int getIntArrayProperty_t(int64_t target, const char* pName, std::vector<int>& pState);
+    static int setHandleArrayProperty_t(int64_t target, const char* pName, const std::vector<int64_t>& pState); // ALL handle items have to be of the same type
+    static int getHandleArrayProperty_t(int64_t target, const char* pName, std::vector<int64_t>& pState); // ALL handle items have to be of the same type
+    static int setStringArrayProperty_t(int64_t target, const char* pName, const std::vector<std::string>& pState);
+    static int getStringArrayProperty_t(int64_t target, const char* pName, std::vector<std::string>& pState);
+    static int setMethodProperty_t(int64_t target, const char* pName, const void* pState);
+    static int getMethodProperty_t(int64_t target, const char* pName, void*& pState);
+    static int setMethodProperty_t(int64_t target, const char* pName, const std::string& pState);
+    static int getMethodProperty_t(int64_t target, const char* pName, std::string& pState);
+    static int removeProperty_t(int64_t target, const char* pName);
+    static int getPropertyName_t(int64_t target, int& index, std::string& pName, std::string& appartenance, int excludeFlags);
+    static int getPropertyInfo_t(int64_t target, const char* pName, int& info, std::string& infoTxt);
+    static int setPropertyInfo_t(int64_t target, const char* pName, int info, const char* infoTxt);
+    static bool isTargetValid_t(int64_t target);
 
     static void undoRedo_sceneChanged(const char* txt);
     static void undoRedo_sceneChangedGradual(const char* txt);
@@ -199,7 +199,7 @@ class App
     static void __logMsg(const char* originName, int verbosityLevel, const char* msg, int consoleVerbosity = -1, int statusbarVerbosity = -1);
     static bool _consoleLogFilter(const char* msg);
     static std::string _getHtmlEscapedString(const char* str);
-    static bool _resolveTarget(long long int& target);
+    static bool _resolveTarget(int64_t& target);
     static bool _consoleMsgsToFile;
     static std::string _consoleMsgsFilename;
     static VFile* _consoleMsgsFile;
@@ -209,7 +209,7 @@ class App
     static int _eventProtocolVersion;
     static int _appWideYieldingForbidLevel;
 
-    static long long int _nextUniqueId;
+    static int64_t _nextUniqueId;
     static SignalHandler* _sigHandler;
 
     static int _qApp_argc;
@@ -236,13 +236,13 @@ class App
     static VMutex _appSemaphore;
     static std::vector<std::string> _pluginNames;
 
-#ifdef USE_LONG_LONG_HANDLES
-    static long long int _nextHandle_object;
-    static long long int _nextHandle_collection;
-    static long long int _nextHandle_script;
-    static long long int _nextHandle_stack;
-    static long long int _nextHandle_texture;
-    static long long int _nextHandle_mesh;
+#ifdef USE_INT64_HANDLES
+    static int64_t _nextHandle_object;
+    static int64_t _nextHandle_collection;
+    static int64_t _nextHandle_script;
+    static int64_t _nextHandle_stack;
+    static int64_t _nextHandle_texture;
+    static int64_t _nextHandle_mesh;
 #endif
 };
 

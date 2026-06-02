@@ -16,7 +16,7 @@ class CInterfaceStackNumber : public CInterfaceStackObject
     static bool checkCreateFromData(const char* data, unsigned int& w, unsigned int l, unsigned char version);
 
     double getValue() const;
-    void setValue(long long int v);
+    void setValue(int64_t v);
     void setValue(double v);
 
   protected:

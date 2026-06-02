@@ -21,8 +21,8 @@ class CCollectionContainer
     void simulationEnded();
     void newScene();
     void actualizeAllCollections();
-    void announceObjectWillBeErased(long long int objectHandle);
-    void announceScriptStateWillBeErased(long long int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceObjectWillBeErased(int64_t objectHandle);
+    void announceScriptStateWillBeErased(int64_t detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     void setUpDefaultValues();
     void removeAllCollections();
 
@@ -31,33 +31,33 @@ class CCollectionContainer
     void getMinAndMaxNameSuffixes(int& minSuffix, int& maxSuffix) const;
     bool canSuffix1BeSetToSuffix2(int suffix1, int suffix2) const;
     void setSuffix1ToSuffix2(int suffix1, int suffix2);
-    void removeCollection(long long int collectionHandle);
+    void removeCollection(int64_t collectionHandle);
 
     size_t getObjectCount() const;
     CCollection* getObjectFromIndex(size_t index) const;
-    CCollection* getObjectFromHandle(long long int collectionHandle) const;
+    CCollection* getObjectFromHandle(int64_t collectionHandle) const;
     CCollection* getObjectFromName(const char* collectionName) const;
-    void getCollidableObjectsFromCollection(long long int collectionHandle, std::vector<CSceneObject*>& objects) const;
-    void getMeasurableObjectsFromCollection(long long int collectionHandle, std::vector<CSceneObject*>& objects) const;
-    void getDetectableObjectsFromCollection(long long int collectionHandle, std::vector<CSceneObject*>& objects, int detectableMask) const;
+    void getCollidableObjectsFromCollection(int64_t collectionHandle, std::vector<CSceneObject*>& objects) const;
+    void getMeasurableObjectsFromCollection(int64_t collectionHandle, std::vector<CSceneObject*>& objects) const;
+    void getDetectableObjectsFromCollection(int64_t collectionHandle, std::vector<CSceneObject*>& objects, int detectableMask) const;
 
     void performObjectLoadingMapping(const std::map<int, int>* map);
 
-    void addCollectionToSelection(long long int collectionHandle) const;
+    void addCollectionToSelection(int64_t collectionHandle) const;
     void pushGenesisEvents() const;
 
-    int getBoolProperty_t(long long int target, const char* pName, bool& pState) const;
-    int getLongProperty_t(long long int target, const char* pName, long long int& pState) const;
-    int getHandleProperty_t(long long int target, const char* pName, long long int& pState) const;
-    int getStringProperty_t(long long int target, const char* pName, std::string& pState) const;
-    int getHandleArrayProperty_t(long long int target, const char* pName, std::vector<long long int>& pState) const;
-    int getStringArrayProperty_t(long long int target, const char* pName, std::vector<std::string>& pState) const;
-    int getPropertyName_t(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
-    int getPropertyInfo_t(long long int target, const char* pName, int& info, std::string& infoTxt) const;
+    int getBoolProperty_t(int64_t target, const char* pName, bool& pState) const;
+    int getLongProperty_t(int64_t target, const char* pName, int64_t& pState) const;
+    int getHandleProperty_t(int64_t target, const char* pName, int64_t& pState) const;
+    int getStringProperty_t(int64_t target, const char* pName, std::string& pState) const;
+    int getHandleArrayProperty_t(int64_t target, const char* pName, std::vector<int64_t>& pState) const;
+    int getStringArrayProperty_t(int64_t target, const char* pName, std::vector<std::string>& pState) const;
+    int getPropertyName_t(int64_t target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
+    int getPropertyInfo_t(int64_t target, const char* pName, int& info, std::string& infoTxt) const;
 
   protected:
     void _addCollection(CCollection* collection);
-    void _removeCollection(long long int collectionHandle);
+    void _removeCollection(int64_t collectionHandle);
 
     std::vector<CCollection*> _allCollections;
 };

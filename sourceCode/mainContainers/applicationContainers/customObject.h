@@ -22,10 +22,10 @@ extern const std::vector<SProperty> allProps_customObject;
 class CustomObject: public Obj
 {
   public:
-    CustomObject(long long int handle,const char* objectTypeStr, const char* objectMetaInfo, int originDetachedScriptHandle, int target); // class definition
+    CustomObject(int64_t handle,const char* objectTypeStr, const char* objectMetaInfo, int originDetachedScriptHandle, int target); // class definition
     virtual ~CustomObject();
 
-    CustomObject* createObject(long long int handle, int originDetachedScriptHandle) const;
+    CustomObject* createObject(int64_t handle, int originDetachedScriptHandle) const;
 
     void pushObjectCreationEvent();
     void serialize(CSer& ar);
@@ -34,12 +34,12 @@ class CustomObject: public Obj
     int getBoolProperty(const char* pName, bool& pState) const override;
     int setIntProperty(const char* pName, int pState) override;
     int getIntProperty(const char* pName, int& pState) const override;
-    int setLongProperty(const char* pName, long long int pState) override;
-    int getLongProperty(const char* pName, long long int& pState) const override;
+    int setLongProperty(const char* pName, int64_t pState) override;
+    int getLongProperty(const char* pName, int64_t& pState) const override;
     int setFloatProperty(const char* pName, double pState) override;
     int getFloatProperty(const char* pName, double& pState) const override;
-    int setHandleProperty(const char* pName, long long int pState) override;
-    int getHandleProperty(const char* pName, long long int& pState) const override;
+    int setHandleProperty(const char* pName, int64_t pState) override;
+    int getHandleProperty(const char* pName, int64_t& pState) const override;
     int setStringProperty(const char* pName, const std::string& pState) override;
     int getStringProperty(const char* pName, std::string& pState) const override;
     int setTableProperty(const char* pName, const std::string& pState) override;
@@ -62,8 +62,8 @@ class CustomObject: public Obj
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
     int setIntArrayProperty(const char* pName, const std::vector<int>& pState) override;
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
-    int setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState) override;
-    int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const override;
+    int setHandleArrayProperty(const char* pName, const std::vector<int64_t>& pState) override;
+    int getHandleArrayProperty(const char* pName, std::vector<int64_t>& pState) const override;
     int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState) override;
     int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const override;
     int setMethodProperty(const char* pName, const void* pState) override;

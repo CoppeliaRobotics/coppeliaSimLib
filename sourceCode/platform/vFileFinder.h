@@ -8,7 +8,7 @@ struct SFileOrFolder
     std::string name;
     std::string path;
     bool isFile;
-    unsigned long long int lastWriteTime;
+    uint64_t lastWriteTime;
 };
 
 class VFileFinder

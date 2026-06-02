@@ -299,7 +299,7 @@ int simSetBoolParam_internal(int parameter, bool boolState);
 int simGetBoolParam_internal(int parameter);
 int simSetInt32Param_internal(int parameter, int intState);
 int simGetInt32Param_internal(int parameter, int* intState);
-int simGetUInt64Param_internal(int parameter, unsigned long long int* intState);
+int simGetUInt64Param_internal(int parameter, uint64_t* intState);
 int simSetFloatParam_internal(int parameter, double floatState);
 int simGetFloatParam_internal(int parameter, double* floatState);
 int simSetStringParam_internal(int parameter, const char* str);

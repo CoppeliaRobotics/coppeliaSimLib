@@ -3369,7 +3369,7 @@ int CCamera::getIntProperty(const char* ppName, int& pState) const
     return retVal;
 }
 
-int CCamera::setHandleProperty(const char* ppName, long long int pState)
+int CCamera::setHandleProperty(const char* ppName, int64_t pState)
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::setHandleProperty(ppName, pState);
@@ -3385,7 +3385,7 @@ int CCamera::setHandleProperty(const char* ppName, long long int pState)
     return retVal;
 }
 
-int CCamera::getHandleProperty(const char* ppName, long long int& pState) const
+int CCamera::getHandleProperty(const char* ppName, int64_t& pState) const
 {
     std::string _pName(ppName);
     int retVal = CViewableBase::getHandleProperty(ppName, pState);

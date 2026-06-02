@@ -92,7 +92,7 @@ CPlugin* CPluginContainer::_tryToLoadPluginOnce(const char* namespaceAndVersion)
     return (retVal);
 }
 
-CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion, long long int loadOrigin)
+CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion, int64_t loadOrigin)
 { // namespaceAndVersion: e.g. simAssimp, simAssimp-2-78, etc.
     // loadOrigin: -1: c++, otherwise script UID
     TRACE_INTERNAL;
@@ -172,7 +172,7 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion, lo
     return (plug);
 }
 
-void CPluginContainer::announceScriptStateWillBeErased(int detachedScriptHandle, long long int scriptUid)
+void CPluginContainer::announceScriptStateWillBeErased(int detachedScriptHandle, int64_t scriptUid)
 {
     int pluginData[4] = {detachedScriptHandle, int(scriptUid & 0xffffffff), int((scriptUid >> 32) & 0xffffffff), 0};
     sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptstateabouttobedestroyed, pluginData);
@@ -271,7 +271,7 @@ void CPluginContainer::unlockInterface()
     _pluginInterfaceMutex.unlock();
 }
 
-bool CPluginContainer::deinitAndUnloadPlugin(int handle, long long int unloadOrigin, bool force /*=false*/)
+bool CPluginContainer::deinitAndUnloadPlugin(int handle, int64_t unloadOrigin, bool force /*=false*/)
 { // not for legacy plugins
     TRACE_INTERNAL;
     bool retVal = false;
@@ -2241,7 +2241,7 @@ bool CPluginContainer::geomPlugin_getMeshMeshCollision(const void* mesh1ObbStruc
 bool CPluginContainer::geomPlugin_getMeshOctreeCollision(const void* meshObbStruct, const CPose& meshTransformation,
                                                          const void* ocStruct, const CPose& octreeTransformation,
                                                          int* meshCaching /*=nullptr*/,
-                                                         unsigned long long int* ocCaching /*=nullptr*/)
+                                                         uint64_t* ocCaching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2324,8 +2324,8 @@ bool CPluginContainer::geomPlugin_getMeshSegmentCollision(const void* meshObbStr
 }
 bool CPluginContainer::geomPlugin_getOctreeOctreeCollision(const void* oc1Struct, const CPose& octree1Transformation,
                                                            const void* oc2Struct, const CPose& octree2Transformation,
-                                                           unsigned long long int* oc1Caching /*=nullptr*/,
-                                                           unsigned long long int* oc2Caching /*=nullptr*/)
+                                                           uint64_t* oc1Caching /*=nullptr*/,
+                                                           uint64_t* oc2Caching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2346,8 +2346,8 @@ bool CPluginContainer::geomPlugin_getOctreeOctreeCollision(const void* oc1Struct
 }
 bool CPluginContainer::geomPlugin_getOctreePtcloudCollision(const void* ocStruct, const CPose& octreeTransformation,
                                                             const void* pcStruct, const CPose& ptcloudTransformation,
-                                                            unsigned long long int* ocCaching /*=nullptr*/,
-                                                            unsigned long long int* pcCaching /*=nullptr*/)
+                                                            uint64_t* ocCaching /*=nullptr*/,
+                                                            uint64_t* pcCaching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2368,7 +2368,7 @@ bool CPluginContainer::geomPlugin_getOctreePtcloudCollision(const void* ocStruct
 }
 bool CPluginContainer::geomPlugin_getOctreeTriangleCollision(const void* ocStruct, const CPose& octreeTransformation,
                                                              const C3Vector& p, const C3Vector& v, const C3Vector& w,
-                                                             unsigned long long int* caching /*=nullptr*/)
+                                                             uint64_t* caching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2388,7 +2388,7 @@ bool CPluginContainer::geomPlugin_getOctreeTriangleCollision(const void* ocStruc
 bool CPluginContainer::geomPlugin_getOctreeSegmentCollision(const void* ocStruct, const CPose& octreeTransformation,
                                                             const C3Vector& segmentExtremity,
                                                             const C3Vector& segmentVector,
-                                                            unsigned long long int* caching /*=nullptr*/)
+                                                            uint64_t* caching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2424,7 +2424,7 @@ bool CPluginContainer::geomPlugin_getOctreePointsCollision(const void* ocStruct,
 }
 bool CPluginContainer::geomPlugin_getOctreePointCollision(const void* ocStruct, const CPose& octreeTransformation,
                                                           const C3Vector& point, unsigned int* usrData /*=nullptr*/,
-                                                          unsigned long long int* caching /*=nullptr*/)
+                                                          uint64_t* caching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2607,7 +2607,7 @@ bool CPluginContainer::geomPlugin_getMeshMeshDistanceIfSmaller(
 bool CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(
     const void* meshObbStruct, const CPose& meshTransformation, const void* ocStruct,
     const CPose& octreeTransformation, double& dist, C3Vector* meshMinDistPt /*=nullptr*/,
-    C3Vector* ocMinDistPt /*=nullptr*/, int* meshCaching /*=nullptr*/, unsigned long long int* ocCaching /*=nullptr*/)
+    C3Vector* ocMinDistPt /*=nullptr*/, int* meshCaching /*=nullptr*/, uint64_t* ocCaching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2638,7 +2638,7 @@ bool CPluginContainer::geomPlugin_getMeshOctreeDistanceIfSmaller(
 bool CPluginContainer::geomPlugin_getMeshPtcloudDistanceIfSmaller(
     const void* meshObbStruct, const CPose& meshTransformation, const void* pcStruct,
     const CPose& pcTransformation, double& dist, C3Vector* meshMinDistPt /*=nullptr*/,
-    C3Vector* pcMinDistPt /*=nullptr*/, int* meshCaching /*=nullptr*/, unsigned long long int* pcCaching /*=nullptr*/)
+    C3Vector* pcMinDistPt /*=nullptr*/, int* meshCaching /*=nullptr*/, uint64_t* pcCaching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2754,8 +2754,8 @@ bool CPluginContainer::geomPlugin_getMeshPointDistanceIfSmaller(const void* mesh
 bool CPluginContainer::geomPlugin_getOctreeOctreeDistanceIfSmaller(
     const void* oc1Struct, const CPose& octree1Transformation, const void* oc2Struct,
     const CPose& octree2Transformation, double& dist, C3Vector* oc1MinDistPt /*=nullptr*/,
-    C3Vector* oc2MinDistPt /*=nullptr*/, unsigned long long int* oc1Caching /*=nullptr*/,
-    unsigned long long int* oc2Caching /*=nullptr*/)
+    C3Vector* oc2MinDistPt /*=nullptr*/, uint64_t* oc1Caching /*=nullptr*/,
+    uint64_t* oc2Caching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2786,7 +2786,7 @@ bool CPluginContainer::geomPlugin_getOctreeOctreeDistanceIfSmaller(
 bool CPluginContainer::geomPlugin_getOctreePtcloudDistanceIfSmaller(
     const void* ocStruct, const CPose& octreeTransformation, const void* pcStruct, const CPose& pcTransformation,
     double& dist, C3Vector* ocMinDistPt /*=nullptr*/, C3Vector* pcMinDistPt /*=nullptr*/,
-    unsigned long long int* ocCaching /*=nullptr*/, unsigned long long int* pcCaching /*=nullptr*/)
+    uint64_t* ocCaching /*=nullptr*/, uint64_t* pcCaching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2817,7 +2817,7 @@ bool CPluginContainer::geomPlugin_getOctreePtcloudDistanceIfSmaller(
 bool CPluginContainer::geomPlugin_getOctreeTriangleDistanceIfSmaller(
     const void* ocStruct, const CPose& octreeTransformation, const C3Vector& p, const C3Vector& v, const C3Vector& w,
     double& dist, C3Vector* ocMinDistPt /*=nullptr*/, C3Vector* triMinDistPt /*=nullptr*/,
-    unsigned long long int* ocCaching /*=nullptr*/)
+    uint64_t* ocCaching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2846,7 +2846,7 @@ bool CPluginContainer::geomPlugin_getOctreeTriangleDistanceIfSmaller(
 bool CPluginContainer::geomPlugin_getOctreeSegmentDistanceIfSmaller(
     const void* ocStruct, const CPose& octreeTransformation, const C3Vector& segmentEndPoint,
     const C3Vector& segmentVector, double& dist, C3Vector* ocMinDistPt /*=nullptr*/,
-    C3Vector* segMinDistPt /*=nullptr*/, unsigned long long int* ocCaching /*=nullptr*/)
+    C3Vector* segMinDistPt /*=nullptr*/, uint64_t* ocCaching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2876,7 +2876,7 @@ bool CPluginContainer::geomPlugin_getOctreePointDistanceIfSmaller(const void* oc
                                                                   const CPose& octreeTransformation,
                                                                   const C3Vector& point, double& dist,
                                                                   C3Vector* ocMinDistPt /*=nullptr*/,
-                                                                  unsigned long long int* ocCaching /*=nullptr*/)
+                                                                  uint64_t* ocCaching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2902,7 +2902,7 @@ bool CPluginContainer::geomPlugin_getOctreePointDistanceIfSmaller(const void* oc
 bool CPluginContainer::geomPlugin_getPtcloudPtcloudDistanceIfSmaller(
     const void* pc1Struct, const CPose& pc1Transformation, const void* pc2Struct, const CPose& pc2Transformation,
     double& dist, C3Vector* pc1MinDistPt /*=nullptr*/, C3Vector* pc2MinDistPt /*=nullptr*/,
-    unsigned long long int* pc1Caching /*=nullptr*/, unsigned long long int* pc2Caching /*=nullptr*/)
+    uint64_t* pc1Caching /*=nullptr*/, uint64_t* pc2Caching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2933,7 +2933,7 @@ bool CPluginContainer::geomPlugin_getPtcloudPtcloudDistanceIfSmaller(
 bool CPluginContainer::geomPlugin_getPtcloudTriangleDistanceIfSmaller(
     const void* pcStruct, const CPose& pcTransformation, const C3Vector& p, const C3Vector& v, const C3Vector& w,
     double& dist, C3Vector* pcMinDistPt /*=nullptr*/, C3Vector* triMinDistPt /*=nullptr*/,
-    unsigned long long int* pcCaching /*=nullptr*/)
+    uint64_t* pcCaching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2962,7 +2962,7 @@ bool CPluginContainer::geomPlugin_getPtcloudTriangleDistanceIfSmaller(
 bool CPluginContainer::geomPlugin_getPtcloudSegmentDistanceIfSmaller(
     const void* pcStruct, const CPose& pcTransformation, const C3Vector& segmentEndPoint,
     const C3Vector& segmentVector, double& dist, C3Vector* pcMinDistPt /*=nullptr*/,
-    C3Vector* segMinDistPt /*=nullptr*/, unsigned long long int* pcCaching /*=nullptr*/)
+    C3Vector* segMinDistPt /*=nullptr*/, uint64_t* pcCaching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);
@@ -2992,7 +2992,7 @@ bool CPluginContainer::geomPlugin_getPtcloudPointDistanceIfSmaller(const void* p
                                                                    const CPose& pcTransformation,
                                                                    const C3Vector& point, double& dist,
                                                                    C3Vector* pcMinDistPt /*=nullptr*/,
-                                                                   unsigned long long int* pcCaching /*=nullptr*/)
+                                                                   uint64_t* pcCaching /*=nullptr*/)
 {
     if (currentGeomPlugin == nullptr)
         currentGeomPlugin = _tryToLoadPluginOnce(SIMGEOM_DEFAULT);

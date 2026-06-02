@@ -29,7 +29,7 @@ class CShape : public CSceneObject
     int getMeshModificationCounter();
     CMeshWrapper* getMesh() const;
     CMesh* getSingleMesh() const;
-    CMesh* getMeshFromUid(long long int meshUid, const CPose& parentCumulTr, CPose& shapeRelTr) const;
+    CMesh* getMeshFromUid(int64_t meshUid, const CPose& parentCumulTr, CPose& shapeRelTr) const;
     void appendMeshes(std::vector<CMesh*>& meshes) const;
 
     void* _meshCalculationStructure;
@@ -84,7 +84,7 @@ class CShape : public CSceneObject
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
     int setIntArrayProperty(const char* pName, const std::vector<int>& pState) override;
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
-    int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const override;
+    int getHandleArrayProperty(const char* pName, std::vector<int64_t>& pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
 

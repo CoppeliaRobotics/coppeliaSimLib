@@ -491,7 +491,7 @@ CMesh* CMesh::getFirstMesh()
     return this;
 }
 
-CMesh* CMesh::getMeshFromUid(long long int meshUid, const CPose& parentCumulTr, CPose& shapeRelTr)
+CMesh* CMesh::getMeshFromUid(int64_t meshUid, const CPose& parentCumulTr, CPose& shapeRelTr)
 { // function has virtual/non-virtual counterpart!
     CMesh* retVal = nullptr;
     if (meshUid == _objectHandle)
@@ -2784,7 +2784,7 @@ int* CMesh::getEdgeBufferIdPtr()
 
 std::string CMesh::getMeshState() const
 {
-    long long int h = 0;
+    int64_t h = 0;
     for (size_t i = 0; i < _verticesForDisplayAndDisk.size(); i++)
         h += ((int*)&_verticesForDisplayAndDisk[i])[0];
     for (size_t i = 0; i < _indices.size(); i++)
@@ -2797,7 +2797,7 @@ std::string CMesh::getMeshState() const
     {
         const std::vector<float>* tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
         for (size_t i = 0; i < tc->size(); i++)
-            h += ((long long int*)&tc->at(i))[0];
+            h += ((int64_t*)&tc->at(i))[0];
         int ts[2];
         _textureProperty->getTextureObject()->getTextureSize(ts[0], ts[1]);
         const char* t = (const char*)_textureProperty->getTextureObject()->getTextureBufferPointer();
@@ -3097,14 +3097,14 @@ int CMesh::getIntProperty_mesh(const char* ppName, int& pState, const CPose& sha
     return retVal;
 }
 
-int CMesh::getLongProperty_mesh(const char* ppName, long long int& pState, const CPose& shapeRelTr) const
+int CMesh::getLongProperty_mesh(const char* ppName, int64_t& pState, const CPose& shapeRelTr) const
 {
     int retVal = Obj::getLongProperty(ppName, pState);
 
     return retVal;
 }
 
-int CMesh::getHandleProperty_mesh(const char* ppName, long long int& pState, const CPose& shapeRelTr) const
+int CMesh::getHandleProperty_mesh(const char* ppName, int64_t& pState, const CPose& shapeRelTr) const
 {
     const char* pName = ppName;
     int retVal = sim_propertyret_unknownproperty;

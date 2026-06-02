@@ -1172,14 +1172,14 @@ int CEnvironment::getIntProperty(const char* pName, int& pState) const
     return retVal;
 }
 
-int CEnvironment::getLongProperty(const char* pName, long long int& pState) const
+int CEnvironment::getLongProperty(const char* pName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
     return retVal;
 }
 
-int CEnvironment::getHandleProperty(const char* pName, long long int& pState) const
+int CEnvironment::getHandleProperty(const char* pName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 

@@ -3456,7 +3456,7 @@ CSceneObject* CSceneObjectContainer::getObjectFromHandle(int objectHandle) const
     return (nullptr);
 }
 
-CSceneObject* CSceneObjectContainer::getObjectFromUid(long long int objectUid) const
+CSceneObject* CSceneObjectContainer::getObjectFromUid(int64_t objectUid) const
 { // not efficient. For now
     for (size_t i = 0; i < _allObjects.size(); i++)
     {
@@ -4513,7 +4513,7 @@ int CSceneObjectContainer::getCalledScriptsCountInThisSimulationStep(bool onlySi
     return (cnt);
 }
 
-int CSceneObjectContainer::setBoolProperty_t(long long int target, const char* pName, bool pState)
+int CSceneObjectContainer::setBoolProperty_t(int64_t target, const char* pName, bool pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4536,7 +4536,7 @@ int CSceneObjectContainer::setBoolProperty_t(long long int target, const char* p
     return retVal;
 }
 
-int CSceneObjectContainer::getBoolProperty_t(long long int target, const char* pName, bool& pState) const
+int CSceneObjectContainer::getBoolProperty_t(int64_t target, const char* pName, bool& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4559,7 +4559,7 @@ int CSceneObjectContainer::getBoolProperty_t(long long int target, const char* p
     return retVal;
 }
 
-int CSceneObjectContainer::setIntProperty_t(long long int target, const char* pName, int pState)
+int CSceneObjectContainer::setIntProperty_t(int64_t target, const char* pName, int pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4582,7 +4582,7 @@ int CSceneObjectContainer::setIntProperty_t(long long int target, const char* pN
     return retVal;
 }
 
-int CSceneObjectContainer::getIntProperty_t(long long int target, const char* pName, int& pState) const
+int CSceneObjectContainer::getIntProperty_t(int64_t target, const char* pName, int& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4620,7 +4620,7 @@ int CSceneObjectContainer::getIntProperty_t(long long int target, const char* pN
     return retVal;
 }
 
-int CSceneObjectContainer::setLongProperty_t(long long int target, const char* pName, long long int pState)
+int CSceneObjectContainer::setLongProperty_t(int64_t target, const char* pName, int64_t pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4643,7 +4643,7 @@ int CSceneObjectContainer::setLongProperty_t(long long int target, const char* p
     return retVal;
 }
 
-int CSceneObjectContainer::getLongProperty_t(long long int target, const char* pName, long long int& pState) const
+int CSceneObjectContainer::getLongProperty_t(int64_t target, const char* pName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4666,7 +4666,7 @@ int CSceneObjectContainer::getLongProperty_t(long long int target, const char* p
     return retVal;
 }
 
-int CSceneObjectContainer::setHandleProperty_t(long long int target, const char* pName, long long int pState)
+int CSceneObjectContainer::setHandleProperty_t(int64_t target, const char* pName, int64_t pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4689,7 +4689,7 @@ int CSceneObjectContainer::setHandleProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CSceneObjectContainer::getHandleProperty_t(long long int target, const char* pName, long long int& pState) const
+int CSceneObjectContainer::getHandleProperty_t(int64_t target, const char* pName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4712,7 +4712,7 @@ int CSceneObjectContainer::getHandleProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CSceneObjectContainer::setFloatProperty_t(long long int target, const char* pName, double pState)
+int CSceneObjectContainer::setFloatProperty_t(int64_t target, const char* pName, double pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4735,7 +4735,7 @@ int CSceneObjectContainer::setFloatProperty_t(long long int target, const char* 
     return retVal;
 }
 
-int CSceneObjectContainer::getFloatProperty_t(long long int target, const char* pName, double& pState) const
+int CSceneObjectContainer::getFloatProperty_t(int64_t target, const char* pName, double& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4758,7 +4758,7 @@ int CSceneObjectContainer::getFloatProperty_t(long long int target, const char* 
     return retVal;
 }
 
-int CSceneObjectContainer::setStringProperty_t(long long int target, const char* pName, const std::string& pState)
+int CSceneObjectContainer::setStringProperty_t(int64_t target, const char* pName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4781,7 +4781,7 @@ int CSceneObjectContainer::setStringProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CSceneObjectContainer::getStringProperty_t(long long int target, const char* pName, std::string& pState) const
+int CSceneObjectContainer::getStringProperty_t(int64_t target, const char* pName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4804,7 +4804,7 @@ int CSceneObjectContainer::getStringProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CSceneObjectContainer::setTableProperty_t(long long int target, const char* pName, const std::string& pState)
+int CSceneObjectContainer::setTableProperty_t(int64_t target, const char* pName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4827,7 +4827,7 @@ int CSceneObjectContainer::setTableProperty_t(long long int target, const char* 
     return retVal;
 }
 
-int CSceneObjectContainer::getTableProperty_t(long long int target, const char* pName, std::string& pState) const
+int CSceneObjectContainer::getTableProperty_t(int64_t target, const char* pName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4850,7 +4850,7 @@ int CSceneObjectContainer::getTableProperty_t(long long int target, const char* 
     return retVal;
 }
 
-int CSceneObjectContainer::setBufferProperty_t(long long int target, const char* pName, const std::string& pState)
+int CSceneObjectContainer::setBufferProperty_t(int64_t target, const char* pName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4873,7 +4873,7 @@ int CSceneObjectContainer::setBufferProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CSceneObjectContainer::getBufferProperty_t(long long int target, const char* pName, std::string& pState) const
+int CSceneObjectContainer::getBufferProperty_t(int64_t target, const char* pName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4896,7 +4896,7 @@ int CSceneObjectContainer::getBufferProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CSceneObjectContainer::setIntArray2Property_t(long long int target, const char* pName, const int* pState)
+int CSceneObjectContainer::setIntArray2Property_t(int64_t target, const char* pName, const int* pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4919,7 +4919,7 @@ int CSceneObjectContainer::setIntArray2Property_t(long long int target, const ch
     return retVal;
 }
 
-int CSceneObjectContainer::getIntArray2Property_t(long long int target, const char* pName, int* pState) const
+int CSceneObjectContainer::getIntArray2Property_t(int64_t target, const char* pName, int* pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4942,7 +4942,7 @@ int CSceneObjectContainer::getIntArray2Property_t(long long int target, const ch
     return retVal;
 }
 
-int CSceneObjectContainer::setVector3Property_t(long long int target, const char* pName, const C3Vector& pState)
+int CSceneObjectContainer::setVector3Property_t(int64_t target, const char* pName, const C3Vector& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4965,7 +4965,7 @@ int CSceneObjectContainer::setVector3Property_t(long long int target, const char
     return retVal;
 }
 
-int CSceneObjectContainer::getVector3Property_t(long long int target, const char* pName, C3Vector& pState) const
+int CSceneObjectContainer::getVector3Property_t(int64_t target, const char* pName, C3Vector& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -4988,7 +4988,7 @@ int CSceneObjectContainer::getVector3Property_t(long long int target, const char
     return retVal;
 }
 
-int CSceneObjectContainer::setMatrixProperty_t(long long int target, const char* pName, const CMatrix& pState)
+int CSceneObjectContainer::setMatrixProperty_t(int64_t target, const char* pName, const CMatrix& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5011,7 +5011,7 @@ int CSceneObjectContainer::setMatrixProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CSceneObjectContainer::getMatrixProperty_t(long long int target, const char* pName, CMatrix& pState) const
+int CSceneObjectContainer::getMatrixProperty_t(int64_t target, const char* pName, CMatrix& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5034,7 +5034,7 @@ int CSceneObjectContainer::getMatrixProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CSceneObjectContainer::setQuaternionProperty_t(long long int target, const char* pName, const CQuaternion& pState)
+int CSceneObjectContainer::setQuaternionProperty_t(int64_t target, const char* pName, const CQuaternion& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5057,7 +5057,7 @@ int CSceneObjectContainer::setQuaternionProperty_t(long long int target, const c
     return retVal;
 }
 
-int CSceneObjectContainer::getQuaternionProperty_t(long long int target, const char* pName, CQuaternion& pState) const
+int CSceneObjectContainer::getQuaternionProperty_t(int64_t target, const char* pName, CQuaternion& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5080,7 +5080,7 @@ int CSceneObjectContainer::getQuaternionProperty_t(long long int target, const c
     return retVal;
 }
 
-int CSceneObjectContainer::setPoseProperty_t(long long int target, const char* pName, const CPose& pState)
+int CSceneObjectContainer::setPoseProperty_t(int64_t target, const char* pName, const CPose& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5103,7 +5103,7 @@ int CSceneObjectContainer::setPoseProperty_t(long long int target, const char* p
     return retVal;
 }
 
-int CSceneObjectContainer::getPoseProperty_t(long long int target, const char* pName, CPose& pState) const
+int CSceneObjectContainer::getPoseProperty_t(int64_t target, const char* pName, CPose& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5126,7 +5126,7 @@ int CSceneObjectContainer::getPoseProperty_t(long long int target, const char* p
     return retVal;
 }
 
-int CSceneObjectContainer::setColorProperty_t(long long int target, const char* pName, const float* pState)
+int CSceneObjectContainer::setColorProperty_t(int64_t target, const char* pName, const float* pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5149,7 +5149,7 @@ int CSceneObjectContainer::setColorProperty_t(long long int target, const char* 
     return retVal;
 }
 
-int CSceneObjectContainer::getColorProperty_t(long long int target, const char* pName, float* pState) const
+int CSceneObjectContainer::getColorProperty_t(int64_t target, const char* pName, float* pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5172,7 +5172,7 @@ int CSceneObjectContainer::getColorProperty_t(long long int target, const char* 
     return retVal;
 }
 
-int CSceneObjectContainer::setFloatArrayProperty_t(long long int target, const char* pName, const std::vector<double>& pState)
+int CSceneObjectContainer::setFloatArrayProperty_t(int64_t target, const char* pName, const std::vector<double>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5195,7 +5195,7 @@ int CSceneObjectContainer::setFloatArrayProperty_t(long long int target, const c
     return retVal;
 }
 
-int CSceneObjectContainer::getFloatArrayProperty_t(long long int target, const char* pName, std::vector<double>& pState) const
+int CSceneObjectContainer::getFloatArrayProperty_t(int64_t target, const char* pName, std::vector<double>& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     pState.clear();
@@ -5219,7 +5219,7 @@ int CSceneObjectContainer::getFloatArrayProperty_t(long long int target, const c
     return retVal;
 }
 
-int CSceneObjectContainer::setIntArrayProperty_t(long long int target, const char* pName, const std::vector<int>& pState)
+int CSceneObjectContainer::setIntArrayProperty_t(int64_t target, const char* pName, const std::vector<int>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5249,7 +5249,7 @@ int CSceneObjectContainer::setIntArrayProperty_t(long long int target, const cha
     return retVal;
 }
 
-int CSceneObjectContainer::getIntArrayProperty_t(long long int target, const char* pName, std::vector<int>& pState) const
+int CSceneObjectContainer::getIntArrayProperty_t(int64_t target, const char* pName, std::vector<int>& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     pState.clear();
@@ -5292,7 +5292,7 @@ int CSceneObjectContainer::getIntArrayProperty_t(long long int target, const cha
     return retVal;
 }
 
-int CSceneObjectContainer::setHandleArrayProperty_t(long long int target, const char* pName, const std::vector<long long int>& pState)
+int CSceneObjectContainer::setHandleArrayProperty_t(int64_t target, const char* pName, const std::vector<int64_t>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5323,7 +5323,7 @@ int CSceneObjectContainer::setHandleArrayProperty_t(long long int target, const 
     return retVal;
 }
 
-int CSceneObjectContainer::getHandleArrayProperty_t(long long int target, const char* pName, std::vector<long long int>& pState) const
+int CSceneObjectContainer::getHandleArrayProperty_t(int64_t target, const char* pName, std::vector<int64_t>& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     pState.clear();
@@ -5365,7 +5365,7 @@ int CSceneObjectContainer::getHandleArrayProperty_t(long long int target, const 
     return retVal;
 }
 
-int CSceneObjectContainer::setStringArrayProperty_t(long long int target, const char* pName, const std::vector<std::string>& pState)
+int CSceneObjectContainer::setStringArrayProperty_t(int64_t target, const char* pName, const std::vector<std::string>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5392,7 +5392,7 @@ int CSceneObjectContainer::setStringArrayProperty_t(long long int target, const 
     return retVal;
 }
 
-int CSceneObjectContainer::getStringArrayProperty_t(long long int target, const char* pName, std::vector<std::string>& pState) const
+int CSceneObjectContainer::getStringArrayProperty_t(int64_t target, const char* pName, std::vector<std::string>& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     pState.clear();
@@ -5420,7 +5420,7 @@ int CSceneObjectContainer::getStringArrayProperty_t(long long int target, const 
     return retVal;
 }
 
-int CSceneObjectContainer::setMethodProperty_t(long long int target, const char* pName, const void* pState)
+int CSceneObjectContainer::setMethodProperty_t(int64_t target, const char* pName, const void* pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5443,7 +5443,7 @@ int CSceneObjectContainer::setMethodProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CSceneObjectContainer::getMethodProperty_t(long long int target, const char* pName, void*& pState) const
+int CSceneObjectContainer::getMethodProperty_t(int64_t target, const char* pName, void*& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5470,7 +5470,7 @@ int CSceneObjectContainer::getMethodProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CSceneObjectContainer::setMethodProperty_t(long long int target, const char* pName, const std::string& pState)
+int CSceneObjectContainer::setMethodProperty_t(int64_t target, const char* pName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5493,7 +5493,7 @@ int CSceneObjectContainer::setMethodProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CSceneObjectContainer::getMethodProperty_t(long long int target, const char* pName, std::string& pState) const
+int CSceneObjectContainer::getMethodProperty_t(int64_t target, const char* pName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5520,7 +5520,7 @@ int CSceneObjectContainer::getMethodProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CSceneObjectContainer::removeProperty_t(long long int target, const char* pName)
+int CSceneObjectContainer::removeProperty_t(int64_t target, const char* pName)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5542,7 +5542,7 @@ int CSceneObjectContainer::removeProperty_t(long long int target, const char* pN
     return retVal;
 }
 
-int CSceneObjectContainer::getPropertyName_t(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags)
+int CSceneObjectContainer::getPropertyName_t(int64_t target, int& index, std::string& pName, std::string& appartenance, int excludeFlags)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5584,7 +5584,7 @@ int CSceneObjectContainer::getPropertyName_t(long long int target, int& index, s
     return retVal;
 }
 
-int CSceneObjectContainer::getPropertyInfo_t(long long int target, const char* pName, int& info, std::string& infoTxt)
+int CSceneObjectContainer::getPropertyInfo_t(int64_t target, const char* pName, int& info, std::string& infoTxt)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5627,7 +5627,7 @@ int CSceneObjectContainer::getPropertyInfo_t(long long int target, const char* p
     return retVal;
 }
 
-int CSceneObjectContainer::setPropertyInfo_t(long long int target, const char* pName, int info, const char* infoTxt)
+int CSceneObjectContainer::setPropertyInfo_t(int64_t target, const char* pName, int info, const char* infoTxt)
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -5707,13 +5707,13 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                         break;
                     }
                     case sim_propertytype_handle: {
-                        long long int state;
+                        int64_t state;
                         result = obj->getHandleProperty(name.c_str(), state);
                         dnaString.append(reinterpret_cast<const char*>(&state), sizeof(state));
                         break;
                     }
                     case sim_propertytype_long: {
-                        long long int state;
+                        int64_t state;
                         result = obj->getLongProperty(name.c_str(), state);
                         dnaString.append(reinterpret_cast<const char*>(&state), sizeof(state));
                         break;
@@ -5786,9 +5786,9 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                         break;
                     }
                     case sim_propertytype_handlearray: {
-                        std::vector<long long int> state;
+                        std::vector<int64_t> state;
                         result = obj->getHandleArrayProperty(name.c_str(), state);
-                        dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(long long int));
+                        dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(int64_t));
                         break;
                     }
                     case sim_propertytype_stringarray: {
@@ -5902,7 +5902,7 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
     return dnaString;
 }
 
-CMesh* CSceneObjectContainer::getMeshFromUid(long long int meshUid, CPose* optShapeRelTr /*= nullptr*/) const
+CMesh* CSceneObjectContainer::getMeshFromUid(int64_t meshUid, CPose* optShapeRelTr /*= nullptr*/) const
 {
     CMesh* mesh = nullptr;
     for (size_t i = 0; i < _shapeList.size(); i++)

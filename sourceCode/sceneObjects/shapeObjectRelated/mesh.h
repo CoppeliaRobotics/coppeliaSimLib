@@ -36,7 +36,7 @@ class CMesh : public CMeshWrapper
     void setConvex_raw(bool c);
     bool checkIfConvex();
     CMesh* getFirstMesh() override;
-    CMesh* getMeshFromUid(long long int meshUid, const CPose& parentCumulTr, CPose& shapeRelTr) override;
+    CMesh* getMeshFromUid(int64_t meshUid, const CPose& parentCumulTr, CPose& shapeRelTr) override;
     void appendMeshes(std::vector<CMesh*>& meshes) override;
     void pushObjectCreationEvent(int shapeHandle, int shapeUid, const CPose& shapeRelTr);
     void pushObjectRemoveEvent();
@@ -118,8 +118,8 @@ class CMesh : public CMeshWrapper
     int getBoolProperty_mesh(const char* pName, bool& pState, const CPose& shapeRelTr) const;
     int setIntProperty_mesh(const char* pName, int pState, const CPose& shapeRelTr);
     int getIntProperty_mesh(const char* pName, int& pState, const CPose& shapeRelTr) const;
-    int getLongProperty_mesh(const char* pName, long long int& pState, const CPose& shapeRelTr) const;
-    int getHandleProperty_mesh(const char* pName, long long int& pState, const CPose& shapeRelTr) const;
+    int getLongProperty_mesh(const char* pName, int64_t& pState, const CPose& shapeRelTr) const;
+    int getHandleProperty_mesh(const char* pName, int64_t& pState, const CPose& shapeRelTr) const;
     int setFloatProperty_mesh(const char* pName, double pState, const CPose& shapeRelTr);
     int getFloatProperty_mesh(const char* pName, double& pState, const CPose& shapeRelTr) const;
     int setStringProperty_mesh(const char* pName, const std::string& pState, const CPose& shapeRelTr);

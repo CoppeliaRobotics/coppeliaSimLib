@@ -125,7 +125,7 @@ bool CCollection::announceScriptStateWillBeErased(int detachedScriptHandle, bool
     return ((!sceneSwitchPersistentScript) && (_creatorHandle == detachedScriptHandle));
 }
 
-bool CCollection::announceObjectWillBeErased(long long int objectHandle, bool copyBuffer)
+bool CCollection::announceObjectWillBeErased(int64_t objectHandle, bool copyBuffer)
 { // Return value true means that this collection is empty
     bool retVal = false;
     size_t initialSubGroupListSize = getElementCount();
@@ -282,7 +282,7 @@ int CCollection::getBoolProperty(const char* ppName, bool& pState) const
     return retVal;
 }
 
-int CCollection::getLongProperty(const char* ppName, long long int& pState) const
+int CCollection::getLongProperty(const char* ppName, int64_t& pState) const
 {
     int retVal = Obj::getLongProperty(ppName, pState);
 
@@ -293,7 +293,7 @@ int CCollection::getLongProperty(const char* ppName, long long int& pState) cons
     return retVal;
 }
 
-int CCollection::getHandleProperty(const char* ppName, long long int& pState) const
+int CCollection::getHandleProperty(const char* ppName, int64_t& pState) const
 {
     std::string _pName(ppName);
     int retVal = sim_propertyret_unknownproperty;
@@ -313,7 +313,7 @@ int CCollection::getStringProperty(const char* ppName, std::string& pState) cons
     return retVal;
 }
 
-int CCollection::getHandleArrayProperty(const char* ppName, std::vector<long long int>& pState) const
+int CCollection::getHandleArrayProperty(const char* ppName, std::vector<int64_t>& pState) const
 {
     std::string _pName(ppName);
     const char* pName = _pName.c_str();
@@ -521,7 +521,7 @@ void CCollection::serialize(CSer& ar)
         else
         {
             if (exhaustiveXml)
-                ar.xmlGetNode_longlong("handle", _objectHandle);
+                ar.xmlGetNode_int64("handle", _objectHandle);
 
             if (ar.xmlGetNode_string("name", _collectionName, exhaustiveXml) && (!exhaustiveXml))
             {
@@ -632,7 +632,7 @@ bool CCollection::setOverridesObjectMainProperties(bool o)
     return (diff);
 }
 
-bool CCollection::setCollectionHandle(long long int newHandle)
+bool CCollection::setCollectionHandle(int64_t newHandle)
 {
     bool diff = (_objectHandle != newHandle);
     _objectHandle = newHandle;

@@ -301,7 +301,7 @@ bool CCollisionRoutine::_doesOctreeCollideWithShape(COcTree* octree, CShape* sha
 
     // TODO_CACHING
     int meshCaching = -1;
-    unsigned long long int ocCaching = 0;
+    uint64_t ocCaching = 0;
     return (App::scenes->pluginContainer->geomPlugin_getMeshOctreeCollision(
         shape->_meshCalculationStructure, shape->getCumulCenteredMeshFrame(), octree->getOctreeInfo(),
         octree->getCumulativeTransformation(), &meshCaching, &ocCaching));
@@ -349,8 +349,8 @@ bool CCollisionRoutine::_doesOctreeCollideWithPointCloud(COcTree* octree, CPoint
         return (false);
 
     // TODO_CACHING
-    unsigned long long int ocCaching = 0;
-    unsigned long long int pcCaching = 0;
+    uint64_t ocCaching = 0;
+    uint64_t pcCaching = 0;
     return (App::scenes->pluginContainer->geomPlugin_getOctreePtcloudCollision(
         octree->getOctreeInfo(), octree->getFullCumulativeTransformation(), pointCloud->getPointCloudInfo(),
         pointCloud->getFullCumulativeTransformation(), &ocCaching, &pcCaching));
@@ -369,7 +369,7 @@ bool CCollisionRoutine::_doesOctreeCollideWithDummy(COcTree* octree, CDummy* dum
         return (false);
 
     // TODO_CACHING
-    unsigned long long int ocCaching = 0;
+    uint64_t ocCaching = 0;
     return (App::scenes->pluginContainer->geomPlugin_getOctreePointCollision(
         octree->getOctreeInfo(), octree->getFullCumulativeTransformation(), dummy->getFullCumulativeTransformation().X,
         nullptr, &ocCaching));

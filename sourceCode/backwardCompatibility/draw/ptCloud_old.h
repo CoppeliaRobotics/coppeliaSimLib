@@ -15,7 +15,7 @@ class CPtCloud_old
     void setObjectID(int id);
     int getObjectID() const;
     void setObjectUniqueId();
-    long long int getObjectUniqueId() const;
+    int64_t getObjectUniqueId() const;
 
     void pushAddEvent();
     bool announceObjectWillBeErased(int objectHandleAttachedTo);
@@ -25,11 +25,11 @@ class CPtCloud_old
 #endif
 
     int _id;
-    long long int _uniqueId;
+    int64_t _uniqueId;
     int _pageMask;
     int _layerMask;
     int _parentHandle;
-    long long int _parentUniqueId;
+    int64_t _parentUniqueId;
     int _options;
     double _pointSize;
     std::vector<double> _vertices;

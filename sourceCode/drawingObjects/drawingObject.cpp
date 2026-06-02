@@ -595,7 +595,7 @@ int CDrawingObject::getBoolProperty(const char* ppName, bool& pState) const
     return retVal;
 }
 
-int CDrawingObject::getLongProperty(const char* ppName, long long int& pState) const
+int CDrawingObject::getLongProperty(const char* ppName, int64_t& pState) const
 {
     std::string _pName(ppName);
     int retVal = Obj::getLongProperty(ppName, pState);
@@ -603,7 +603,7 @@ int CDrawingObject::getLongProperty(const char* ppName, long long int& pState) c
     return retVal;
 }
 
-int CDrawingObject::getHandleProperty(const char* ppName, long long int& pState) const
+int CDrawingObject::getHandleProperty(const char* ppName, int64_t& pState) const
 {
     std::string _pName(ppName);
     int retVal = sim_propertyret_unknownproperty;

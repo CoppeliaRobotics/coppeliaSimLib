@@ -5,7 +5,7 @@
 struct SExtCache
 {
     int id;
-    unsigned long long int cache;
+    uint64_t cache;
 };
 
 struct SMovementCoherency
@@ -119,8 +119,8 @@ class CDistanceRoutine
                                                   bool overrideMeasurableFlagObject1,
                                                   bool overrideMeasurableFlagObject2, bool& cachedPairWasProcessed);
 
-    static unsigned long long int getExtendedCacheValue(int id);
-    static int insertExtendedCacheValue(unsigned long long int value);
+    static uint64_t getExtendedCacheValue(int id);
+    static int insertExtendedCacheValue(uint64_t value);
     static bool getOctreesHaveCoherentMovement(COcTree* octree1, COcTree* octree2);
     static bool _distanceCachingOff;
     static std::vector<SExtCache> _extendedCacheBuffer;

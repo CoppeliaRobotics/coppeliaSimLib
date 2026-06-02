@@ -257,7 +257,7 @@ CCodeEditorContainer::~CCodeEditorContainer()
 {
 }
 
-void CCodeEditorContainer::announceScriptStateWillBeErased(int detachedScriptHandle, long long int scriptUid)
+void CCodeEditorContainer::announceScriptStateWillBeErased(int detachedScriptHandle, int64_t scriptUid)
 {
     for (size_t i = 0; i < _allEditors.size(); i++)
     {
@@ -816,7 +816,7 @@ void CCodeEditorContainer::applyChanges(int handle) const
     }
 }
 
-bool CCodeEditorContainer::closeFromScriptUid(long long int scriptUid, int posAndSize[4], bool ignoreChange)
+bool CCodeEditorContainer::closeFromScriptUid(int64_t scriptUid, int posAndSize[4], bool ignoreChange)
 {
     if (App::userSettings->externalScriptEditor.size() == 0)
     {

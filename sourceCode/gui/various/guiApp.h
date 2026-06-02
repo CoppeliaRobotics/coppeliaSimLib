@@ -56,7 +56,7 @@ class GuiApp
     static void deleteMainWindow();
     static void setShowConsole(bool s);
 
-    static long long int getEvalInt(const char* str, bool* ok = nullptr);
+    static int64_t getEvalInt(const char* str, bool* ok = nullptr);
     static double getEvalDouble(const char* str, bool* ok = nullptr);
 
     static CSimQApp* qtApp;

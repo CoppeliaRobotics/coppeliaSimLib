@@ -1521,7 +1521,7 @@ enum
 };
 
 /*
-#ifdef USE_LONG_LONG_HANDLES
+#ifdef USE_INT64_HANDLES
 enum
 {
     SIM_OLDIDSTART_SCENEOBJECT = 0,

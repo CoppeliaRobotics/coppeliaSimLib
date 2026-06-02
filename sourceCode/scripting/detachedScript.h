@@ -53,7 +53,7 @@ class CDetachedScript : public Obj
     void simulationEnded();
 
     int getScriptHandle() const;
-    long long int getScriptUid() const;
+    int64_t getScriptUid() const;
     size_t getSimpleHash() const;
 
     std::string getDescriptiveName() const;
@@ -91,9 +91,9 @@ class CDetachedScript : public Obj
     int getIntProperty(const char* pName, int& pState) const override;
     int setFloatProperty(const char* pName, double pState) override;
     int getFloatProperty(const char* pName, double& pState) const override;
-    int setLongProperty(const char* pName, long long int pState)override;
-    int getLongProperty(const char* pName, long long int& pState) const override;
-    int getHandleProperty(const char* pName, long long int& pState) const override;
+    int setLongProperty(const char* pName, int64_t pState)override;
+    int getLongProperty(const char* pName, int64_t& pState) const override;
+    int getHandleProperty(const char* pName, int64_t& pState) const override;
     int setStringProperty(const char* pName, const std::string& pState)override;
     int getStringProperty(const char* pName, std::string& pState) const override;
     int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const override;
@@ -144,7 +144,7 @@ class CDetachedScript : public Obj
     bool addCommandToOutsideCommandQueue(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4, const double aux2Vals[8], int aux2Count);
     int extractCommandFromOutsideCommandQueue(int auxVals[4], double aux2Vals[8], int& aux2Count);
 
-    void setEventFilters(const std::map<long long int, std::set<std::string>>& targetFilters, const std::map<std::string, std::set<std::string>>& typeFilters);
+    void setEventFilters(const std::map<int64_t, std::set<std::string>>& targetFilters, const std::map<std::string, std::set<std::string>>& typeFilters);
     bool prepareFilteredEventsBuffer(const std::vector<unsigned char>& input, const std::vector<SEventInf>& inf, std::vector<unsigned char>& output) const;
 
     bool hasSystemFunction(int callType, bool returnTrueIfNotInitialized = true) const;
@@ -205,7 +205,7 @@ class CDetachedScript : public Obj
     static void setInExternalCall(int scriptHandle);
     static int getInExternalCall();
 
-    void signalSet(const char* sigName, long long int target = sim_handle_scene);
+    void signalSet(const char* sigName, int64_t target = sim_handle_scene);
     void signalRemoved(const char* sigName);
 
     // Lua specific:
@@ -264,7 +264,7 @@ class CDetachedScript : public Obj
     int _scriptHandle;        // is unique since 25.11.2022. Unique across scenes for old script, but not for new script objects (with new script objects, scriptHandle is same as scene object)
                               // See Obj::_objectHandle too (which is the detached script handle)
     int _sceneObjectHandle;   // is same as _scriptHandle with the new scene object scripts. With old associated scripts, is handle of scene object this script is associated with. -1 with add-ons and sandbox
-    long long int _scriptUid; // unique across all scenes
+    int64_t _scriptUid; // unique across all scenes
     int _scriptType;
     bool _tempSuspended;
     bool _sceneObjectScript;
@@ -277,7 +277,7 @@ class CDetachedScript : public Obj
     int _autoStartAddOn;
     int _addOnUiMenuHandle;
     int _addOnExecPriority; // only for add-ons. Not saved
-    std::map<long long int, std::set<std::string>> _eventFilters_target;
+    std::map<int64_t, std::set<std::string>> _eventFilters_target;
     std::map<std::string, std::set<std::string>> _eventFilters_type;
 
     bool _calledInThisSimulationStep;

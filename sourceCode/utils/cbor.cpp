@@ -43,7 +43,7 @@ void CCbor::swapWithEmptyBuffer(std::vector<unsigned char>* emptyBuff)
     _buff.clear();
 }
 
-void CCbor::appendInt64(long long int v)
+void CCbor::appendInt64(int64_t v)
 {
     _handleDataField();
     unsigned char add = 0;
@@ -56,11 +56,11 @@ void CCbor::appendInt64(long long int v)
     _appendItemTypeAndLength(add, v);
 }
 
-void CCbor::appendHandle(long long int h)
+void CCbor::appendHandle(int64_t h)
 {
     _handleDataField();
     _buff.push_back(0xDB); // Tag header (219)
-    long long int w = 4294999999; // Type info (handle)
+    int64_t w = 4294999999; // Type info (handle)
     _buff.push_back(((unsigned char*)&w)[7]);
     _buff.push_back(((unsigned char*)&w)[6]);
     _buff.push_back(((unsigned char*)&w)[5]);
@@ -140,16 +140,16 @@ void CCbor::appendUint32Array(const unsigned int* v, size_t cnt)
     }
 }
 
-void CCbor::appendInt64Array(const long long int* v, size_t cnt)
+void CCbor::appendInt64Array(const int64_t* v, size_t cnt)
 {
     _handleDataField();
     if (USE_TAGGED_ARRAYS)
     {
         _buff.push_back(0xD8); // Tag header
         _buff.push_back(0x4f); // 79
-        _appendItemTypeAndLength(0x40, cnt * sizeof(long long int));
+        _appendItemTypeAndLength(0x40, cnt * sizeof(int64_t));
         if (cnt > 0)
-            _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(long long int));
+            _buff.insert(_buff.end(), (unsigned char*)v, ((unsigned char*)v) + cnt * sizeof(int64_t));
     }
     else
     {
@@ -162,11 +162,11 @@ void CCbor::appendInt64Array(const long long int* v, size_t cnt)
     }
 }
 
-void CCbor::appendHandleArray(const long long int* h, size_t cnt)
+void CCbor::appendHandleArray(const int64_t* h, size_t cnt)
 {
     _handleDataField();
     _buff.push_back(0xDB); // Tag header (219)
-    long long int w = 4294999998; // Type info (handle array)
+    int64_t w = 4294999998; // Type info (handle array)
     _buff.push_back(((unsigned char*)&w)[7]);
     _buff.push_back(((unsigned char*)&w)[6]);
     _buff.push_back(((unsigned char*)&w)[5]);
@@ -186,7 +186,7 @@ void CCbor::appendHandleArray(const long long int* h, size_t cnt)
 void CCbor::appendHandleArray(const int* h, size_t cnt)
 {
     _handleDataField();
-    std::vector<long long int> arr;
+    std::vector<int64_t> arr;
     arr.resize(cnt);
     for (size_t i = 0; i < cnt; i++)
         arr[i] = h[i];
@@ -340,7 +340,7 @@ void CCbor::appendQuaternion(const double* v, bool xyzwLayout /*= false*/)
 {
     _handleDataField();
     _buff.push_back(0xDB); // Tag header (219)
-    long long int w = 4294980000; // Type info (quaternion)
+    int64_t w = 4294980000; // Type info (quaternion)
     _buff.push_back(((unsigned char*)&w)[7]);
     _buff.push_back(((unsigned char*)&w)[6]);
     _buff.push_back(((unsigned char*)&w)[5]);
@@ -379,7 +379,7 @@ void CCbor::appendPose(const double* v, bool xyzqxqyqzqwLayout /*= false*/)
 {
     _handleDataField();
     _buff.push_back(0xDB); // Tag header (219)
-    long long int w = 4294980500; // Type info (pose)
+    int64_t w = 4294980500; // Type info (pose)
     _buff.push_back(((unsigned char*)&w)[7]);
     _buff.push_back(((unsigned char*)&w)[6]);
     _buff.push_back(((unsigned char*)&w)[5]);
@@ -425,7 +425,7 @@ void CCbor::appendColor(const float c[3])
     _handleDataField();
 
     _buff.push_back(0xDB); // Tag header (219)
-    long long int w = 4294970000; // Type info (color)
+    int64_t w = 4294970000; // Type info (color)
     _buff.push_back(((unsigned char*)&w)[7]);
     _buff.push_back(((unsigned char*)&w)[6]);
     _buff.push_back(((unsigned char*)&w)[5]);
@@ -458,7 +458,7 @@ void CCbor::appendBool(bool v)
         _buff.push_back(128 + 64 + 32 + 20);
 }
 
-void CCbor::_appendItemTypeAndLength(unsigned char t, long long int l)
+void CCbor::_appendItemTypeAndLength(unsigned char t, int64_t l)
 {
     if (l < 24)
         _buff.push_back(t + (unsigned char)l);
@@ -633,7 +633,7 @@ size_t CCbor::getEventDepth() const
     return (_eventDepth);
 }
 
-void CCbor::createEvent(const char* event, const char* fieldName, const char* objType, long long int handle, long long int uid, bool mergeable, bool openDataField /*=true*/)
+void CCbor::createEvent(const char* event, const char* fieldName, const char* objType, int64_t handle, int64_t uid, bool mergeable, bool openDataField /*=true*/)
 {
     if (_eventOpen)
     {
@@ -701,7 +701,7 @@ void CCbor::pushEvent()
     inf->size = _buff.size() - inf->pos;
 }
 
-long long int CCbor::finalizeEvents(long long int nextSeq, bool seqChanges, std::vector<SEventInf>* inf /*= nullptr*/)
+int64_t CCbor::finalizeEvents(int64_t nextSeq, bool seqChanges, std::vector<SEventInf>* inf /*= nullptr*/)
 {
     if (_eventOpen)
         App::logMsg(sim_verbosity_errors, "finalizing events where an event push is expected.");
@@ -748,13 +748,13 @@ size_t CCbor::getEventCnt() const
     return (_eventInfos.size());
 }
 
-void CCbor::appendKeyInt64(const char* key, long long int v)
+void CCbor::appendKeyInt64(const char* key, int64_t v)
 {
     appendText(key);
     appendInt64(v);
 }
 
-void CCbor::appendKeyHandle(const char* key, long long int h)
+void CCbor::appendKeyHandle(const char* key, int64_t h)
 {
     appendText(key);
     appendHandle(h);
@@ -778,13 +778,13 @@ void CCbor::appendKeyUint32Array(const char* key, const unsigned int* v, size_t 
     appendUint32Array(v, cnt);
 }
 
-void CCbor::appendKeyInt64Array(const char* key, const long long int* v, size_t cnt)
+void CCbor::appendKeyInt64Array(const char* key, const int64_t* v, size_t cnt)
 {
     appendText(key);
     appendInt64Array(v, cnt);
 }
 
-void CCbor::appendKeyHandleArray(const char* key, const long long int* h, size_t cnt)
+void CCbor::appendKeyHandleArray(const char* key, const int64_t* h, size_t cnt)
 {
     appendText(key);
     appendHandleArray(h, cnt);

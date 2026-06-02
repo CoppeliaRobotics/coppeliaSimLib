@@ -164,7 +164,7 @@ class CPointCloud : public CSceneObject
     std::multiset<float> _xs;
     std::multiset<float> _ys;
     std::multiset<float> _zs;
-    std::unordered_map<long long int, CPCMultiSIt> _itemIts;
+    std::unordered_map<int64_t, CPCMultiSIt> _itemIts;
 
 #ifdef SIM_WITH_GUI
   public:

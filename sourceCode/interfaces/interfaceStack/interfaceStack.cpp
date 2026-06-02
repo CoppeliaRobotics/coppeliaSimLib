@@ -196,7 +196,7 @@ bool CInterfaceStack::getStackDoubleValue(double& theValue) const
     bool retVal = getStackStrictDoubleValue(theValue);
     if (!retVal)
     {
-        long long int v;
+        int64_t v;
         retVal = getStackStrictInt64Value(v);
         if (retVal)
             theValue = (double)v;
@@ -213,7 +213,7 @@ bool CInterfaceStack::getStackFloatValue(float& theValue) const
     return (retVal);
 }
 
-bool CInterfaceStack::getStackStrictInt64Value(long long int& theValue) const
+bool CInterfaceStack::getStackStrictInt64Value(int64_t& theValue) const
 {
     if (_stackObjects.size() != 0)
     {
@@ -227,7 +227,7 @@ bool CInterfaceStack::getStackStrictInt64Value(long long int& theValue) const
     return (false);
 }
 
-bool CInterfaceStack::getStackInt64Value(long long int& theValue) const
+bool CInterfaceStack::getStackInt64Value(int64_t& theValue) const
 {
     bool retVal = getStackStrictInt64Value(theValue);
     if (!retVal)
@@ -237,15 +237,15 @@ bool CInterfaceStack::getStackInt64Value(long long int& theValue) const
         if (retVal)
         {
             if (v >= 0.0)
-                theValue = (long long int)(v + 0.1);
+                theValue = (int64_t)(v + 0.1);
             else
-                theValue = (long long int)(v - 0.1);
+                theValue = (int64_t)(v - 0.1);
         }
     }
     return (retVal);
 }
 
-bool CInterfaceStack::getStackHandleValue(long long int& theValue) const
+bool CInterfaceStack::getStackHandleValue(int64_t& theValue) const
 {
     if (_stackObjects.size() != 0)
     {
@@ -261,7 +261,7 @@ bool CInterfaceStack::getStackHandleValue(long long int& theValue) const
 
 bool CInterfaceStack::getStackInt32Value(int& theValue) const
 {
-    long long int v;
+    int64_t v;
     bool retVal = getStackInt64Value(v);
     if (retVal)
         theValue = (int)v;
@@ -432,7 +432,7 @@ bool CInterfaceStack::getStackUCharArray(unsigned char* array, int count) const
         { // handle arrays can also be seen as arrays
             CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
             size_t l = 0;
-            const long long int* v = arr->getValue(&l);
+            const int64_t* v = arr->getValue(&l);
             size_t ml = std::min<size_t>(l, size_t(count));
             for (size_t i = 0; i < ml; i++)
                 array[i] = (unsigned char)v[i];
@@ -523,7 +523,7 @@ bool CInterfaceStack::getStackInt32Array(int* array, int count) const
         { // handle arrays can also be seen as arrays
             CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
             size_t l = 0;
-            const long long int* v = arr->getValue(&l);
+            const int64_t* v = arr->getValue(&l);
             size_t ml = std::min<size_t>(l, size_t(count));
             for (size_t i = 0; i < ml; i++)
                 array[i] = (int)v[i];
@@ -586,7 +586,7 @@ bool CInterfaceStack::getStackInt32Array(int* array, int count) const
     return retVal;
 }
 
-bool CInterfaceStack::getStackInt64Array(long long int* array, int count) const
+bool CInterfaceStack::getStackInt64Array(int64_t* array, int count) const
 {
     bool retVal = false;
     if (_stackObjects.size() > 0)
@@ -605,7 +605,7 @@ bool CInterfaceStack::getStackInt64Array(long long int* array, int count) const
             const unsigned char* strb = (unsigned char*)str->getValue(&l);
             size_t ml = std::min<size_t>(l, size_t(count));
             for (size_t i = 0; i < ml; i++)
-                array[i] = (long long int)strb[i];
+                array[i] = (int64_t)strb[i];
             for (size_t i = ml; i < size_t(count); i++)
                 array[i] = 0;
             retVal = true;
@@ -614,7 +614,7 @@ bool CInterfaceStack::getStackInt64Array(long long int* array, int count) const
         { // handle arrays can also be seen as arrays
             CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
             size_t l = 0;
-            const long long int* v = arr->getValue(&l);
+            const int64_t* v = arr->getValue(&l);
             size_t ml = std::min<size_t>(l, size_t(count));
             for (size_t i = 0; i < ml; i++)
                 array[i] = v[i];
@@ -677,7 +677,7 @@ bool CInterfaceStack::getStackInt64Array(long long int* array, int count) const
     return retVal;
 }
 
-bool CInterfaceStack::getStackHandleArray(long long int* array, int count) const
+bool CInterfaceStack::getStackHandleArray(int64_t* array, int count) const
 {
     bool retVal = false;
     if (_stackObjects.size() > 0)
@@ -693,7 +693,7 @@ bool CInterfaceStack::getStackHandleArray(long long int* array, int count) const
         {
             CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
             size_t cnt;
-            const long long int* v = arr->getValue(&cnt);
+            const int64_t* v = arr->getValue(&cnt);
             size_t ml = std::min<size_t>(cnt, size_t(count));
             for (size_t i = 0; i < ml; i++)
                 array[i] = v[i];
@@ -751,7 +751,7 @@ bool CInterfaceStack::getStackFloatArray(float* array, int count) const
         { // handle arrays can also be seen as arrays
             CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
             size_t l = 0;
-            const long long int* v = arr->getValue(&l);
+            const int64_t* v = arr->getValue(&l);
             size_t ml = std::min<size_t>(l, size_t(count));
             for (size_t i = 0; i < ml; i++)
                 array[i] = (float)v[i];
@@ -842,7 +842,7 @@ bool CInterfaceStack::getStackDoubleArray(double* array, int count) const
         { // handle arrays can also be seen as arrays
             CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
             size_t l = 0;
-            const long long int* v = arr->getValue(&l);
+            const int64_t* v = arr->getValue(&l);
             size_t ml = std::min<size_t>(l, size_t(count));
             for (size_t i = 0; i < ml; i++)
                 array[i] = (double)v[i];
@@ -1111,7 +1111,7 @@ CInterfaceStackObject* CInterfaceStack::getStackMapObject(const char* fieldName)
     return (table->getMapObject(fieldName));
 }
 
-CInterfaceStackObject* CInterfaceStack::getStackIntMapObject(long long int key) const
+CInterfaceStackObject* CInterfaceStack::getStackIntMapObject(int64_t key) const
 {
     if (_stackObjects.size() == 0)
         return (nullptr);
@@ -1124,7 +1124,7 @@ CInterfaceStackObject* CInterfaceStack::getStackIntMapObject(long long int key) 
     return (table->getIntMapObject(key));
 }
 
-void CInterfaceStack::getStackMapKeys(std::vector<std::string>* stringKeys, std::vector<long long int>* intKeys) const
+void CInterfaceStack::getStackMapKeys(std::vector<std::string>* stringKeys, std::vector<int64_t>* intKeys) const
 {
     if (_stackObjects.size() != 0)
     {
@@ -1161,7 +1161,7 @@ bool CInterfaceStack::getStackMapFloatValue(const char* fieldName, float& val) c
     return (retVal);
 }
 
-bool CInterfaceStack::getStackMapInt64Value(const char* fieldName, long long int& val) const
+bool CInterfaceStack::getStackMapInt64Value(const char* fieldName, int64_t& val) const
 {
     bool retVal = getStackMapStrictInt64Value(fieldName, val);
     if (!retVal)
@@ -1171,15 +1171,15 @@ bool CInterfaceStack::getStackMapInt64Value(const char* fieldName, long long int
         if (retVal)
         {
             if (v >= 0.0)
-                val = (long long int)(v + 0.1);
+                val = (int64_t)(v + 0.1);
             else
-                val = (long long int)(v - 0.1);
+                val = (int64_t)(v - 0.1);
         }
     }
     return (retVal);
 }
 
-bool CInterfaceStack::getStackMapHandleValue(const char* fieldName, long long int& val) const
+bool CInterfaceStack::getStackMapHandleValue(const char* fieldName, int64_t& val) const
 {
     const CInterfaceStackObject* obj = getStackMapObject(fieldName);
     if (obj != nullptr)
@@ -1196,7 +1196,7 @@ bool CInterfaceStack::getStackMapHandleValue(const char* fieldName, long long in
 
 bool CInterfaceStack::getStackMapInt32Value(const char* fieldName, int& val) const
 {
-    long long int v;
+    int64_t v;
     bool retVal = getStackMapInt64Value(fieldName, v);
     if (retVal)
         val = (int)v;
@@ -1217,7 +1217,7 @@ bool CInterfaceStack::getStackMapStrictDoubleValue(const char* fieldName, double
     return (false);
 }
 
-bool CInterfaceStack::getStackMapStrictInt64Value(const char* fieldName, long long int& val) const
+bool CInterfaceStack::getStackMapStrictInt64Value(const char* fieldName, int64_t& val) const
 {
     const CInterfaceStackObject* obj = getStackMapObject(fieldName);
     if (obj != nullptr)
@@ -1236,7 +1236,7 @@ bool CInterfaceStack::getStackMapDoubleValue(const char* fieldName, double& val)
     bool retVal = getStackMapStrictDoubleValue(fieldName, val);
     if (!retVal)
     {
-        long long int v;
+        int64_t v;
         retVal = getStackMapStrictInt64Value(fieldName, v);
         if (retVal)
             val = (double)v;
@@ -1346,7 +1346,7 @@ void CInterfaceStack::pushInt32OntoStack(int v, bool toFront /*=false*/)
     pushInt64OntoStack(v, toFront);
 }
 
-void CInterfaceStack::pushInt64OntoStack(long long int v, bool toFront /*=false*/)
+void CInterfaceStack::pushInt64OntoStack(int64_t v, bool toFront /*=false*/)
 {
     if (toFront)
         _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackInteger(v));
@@ -1354,7 +1354,7 @@ void CInterfaceStack::pushInt64OntoStack(long long int v, bool toFront /*=false*
         _stackObjects.push_back(new CInterfaceStackInteger(v));
 }
 
-void CInterfaceStack::pushHandleOntoStack(long long int v, bool toFront /*=false*/)
+void CInterfaceStack::pushHandleOntoStack(int64_t v, bool toFront /*=false*/)
 {
     if (toFront)
         _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackHandle(v));
@@ -1396,7 +1396,7 @@ void CInterfaceStack::pushInt32ArrayOntoStack(const int* arr, size_t l, bool toF
         _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushInt64ArrayOntoStack(const long long int* arr, size_t l, bool toFront /*=false*/)
+void CInterfaceStack::pushInt64ArrayOntoStack(const int64_t* arr, size_t l, bool toFront /*=false*/)
 {
     CInterfaceStackTable* table = new CInterfaceStackTable();
     table->setInt64Array(arr, l);
@@ -1406,7 +1406,7 @@ void CInterfaceStack::pushInt64ArrayOntoStack(const long long int* arr, size_t l
         _stackObjects.push_back(table);
 }
 
-void CInterfaceStack::pushHandleArrayOntoStack(const long long int* arr, size_t l, bool toFront /*=false*/)
+void CInterfaceStack::pushHandleArrayOntoStack(const int64_t* arr, size_t l, bool toFront /*=false*/)
 {
     if (toFront)
         _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackHandleArray(arr, l));
@@ -1571,14 +1571,14 @@ void CInterfaceStack::insertKeyInt32IntoStackTable(const char* key, int value)
     insertDataIntoStackTable();
 }
 
-void CInterfaceStack::insertKeyInt64IntoStackTable(const char* key, long long int value)
+void CInterfaceStack::insertKeyInt64IntoStackTable(const char* key, int64_t value)
 {
     pushTextOntoStack(key);
     pushInt64OntoStack(value);
     insertDataIntoStackTable();
 }
 
-void CInterfaceStack::insertKeyHandleIntoStackTable(const char* key, long long int value)
+void CInterfaceStack::insertKeyHandleIntoStackTable(const char* key, int64_t value)
 {
     pushTextOntoStack(key);
     pushHandleOntoStack(value);
@@ -1613,14 +1613,14 @@ void CInterfaceStack::insertKeyInt32ArrayIntoStackTable(const char* key, const i
     insertDataIntoStackTable();
 }
 
-void CInterfaceStack::insertKeyInt64ArrayIntoStackTable(const char* key, const long long int* arr, size_t l)
+void CInterfaceStack::insertKeyInt64ArrayIntoStackTable(const char* key, const int64_t* arr, size_t l)
 {
     pushTextOntoStack(key);
     pushInt64ArrayOntoStack(arr, l);
     insertDataIntoStackTable();
 }
 
-void CInterfaceStack::insertKeyHandleArrayIntoStackTable(const char* key, const long long int* arr, size_t l)
+void CInterfaceStack::insertKeyHandleArrayIntoStackTable(const char* key, const int64_t* arr, size_t l)
 {
     pushTextOntoStack(key);
     pushHandleArrayOntoStack(arr, l);
@@ -1941,7 +1941,7 @@ int CInterfaceStack::getIntProperty(const char*ppName, int& pState) const
     return retVal;
 }
 
-int CInterfaceStack::setLongProperty(const char*ppName, long long int pState)
+int CInterfaceStack::setLongProperty(const char*ppName, int64_t pState)
 {
     std::string key;
     int stackIndex;
@@ -1982,7 +1982,7 @@ int CInterfaceStack::setLongProperty(const char*ppName, long long int pState)
     return retVal;
 }
 
-int CInterfaceStack::getLongProperty(const char*ppName, long long int& pState) const
+int CInterfaceStack::getLongProperty(const char*ppName, int64_t& pState) const
 {
     int retVal = Obj::getLongProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
@@ -2026,7 +2026,7 @@ int CInterfaceStack::getLongProperty(const char*ppName, long long int& pState) c
     return retVal;
 }
 
-int CInterfaceStack::setHandleProperty(const char*ppName, long long int pState)
+int CInterfaceStack::setHandleProperty(const char*ppName, int64_t pState)
 {
     std::string key;
     int stackIndex;
@@ -2067,7 +2067,7 @@ int CInterfaceStack::setHandleProperty(const char*ppName, long long int pState)
     return retVal;
 }
 
-int CInterfaceStack::getHandleProperty(const char*ppName, long long int& pState) const
+int CInterfaceStack::getHandleProperty(const char*ppName, int64_t& pState) const
 {
     std::string key;
     int arrIndex;
@@ -3137,7 +3137,7 @@ int CInterfaceStack::getIntArrayProperty(const char*ppName, std::vector<int>& pS
     return retVal;
 }
 
-int CInterfaceStack::setHandleArrayProperty(const char*ppName, const std::vector<long long int>& pState)
+int CInterfaceStack::setHandleArrayProperty(const char*ppName, const std::vector<int64_t>& pState)
 {
     std::string key;
     int stackIndex;
@@ -3181,7 +3181,7 @@ int CInterfaceStack::setHandleArrayProperty(const char*ppName, const std::vector
     return retVal;
 }
 
-int CInterfaceStack::getHandleArrayProperty(const char*ppName, std::vector<long long int>& pState) const
+int CInterfaceStack::getHandleArrayProperty(const char*ppName, std::vector<int64_t>& pState) const
 {
     std::string key;
     int arrIndex;
@@ -3199,7 +3199,7 @@ int CInterfaceStack::getHandleArrayProperty(const char*ppName, std::vector<long 
                 {
                     CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)it;
                     size_t cnt;
-                    const long long int* a = arr->getValue(&cnt);
+                    const int64_t* a = arr->getValue(&cnt);
                     pState.assign(a, a + cnt);
                     retVal = sim_propertyret_ok;
                 }
@@ -3222,7 +3222,7 @@ int CInterfaceStack::getHandleArrayProperty(const char*ppName, std::vector<long 
                     {
                         CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)it;
                         size_t cnt;
-                        const long long int* a = arr->getValue(&cnt);
+                        const int64_t* a = arr->getValue(&cnt);
                         pState.assign(a, a + cnt);
                         retVal = sim_propertyret_ok;
                     }
@@ -3563,7 +3563,7 @@ int CInterfaceStack::_getPropertyTypeForStackItem(const CInterfaceStackObject* o
                     {
                         std::string key;
                         double numberKey;
-                        long long int integerKey;
+                        int64_t integerKey;
                         bool boolKey;
                         int keyType;
                         CInterfaceStackObject* it = tbl->getMapItemAtIndex(i, key, numberKey, integerKey, boolKey, keyType);

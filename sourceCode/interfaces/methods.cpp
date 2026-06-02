@@ -241,9 +241,9 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         void* func;
         if (App::getMethodProperty_t(targetObj, method, func) == sim_propertyret_ok)
         { // method provided via property
-            typedef char* (*MethodFunc)(long long int, const char*, long long int,  long long int,  long long int);
+            typedef char* (*MethodFunc)(int64_t, const char*, int64_t,  int64_t,  int64_t);
             MethodFunc methodFunc = reinterpret_cast<MethodFunc>(func);
-            long long int scriptHandle = -1;
+            int64_t scriptHandle = -1;
             if (currentScript != nullptr)
                 scriptHandle = currentScript->getObjectHandle();
             char* err = methodFunc(targetObj, method, inStack->getObjectHandle(), outStack->getObjectHandle(), scriptHandle);
@@ -554,9 +554,9 @@ bool fetchBool(const CInterfaceStack* inStack, int index, bool defaultValue /*= 
     return retVal;
 }
 
-long long int fetchLong(const CInterfaceStack* inStack, int index, long long int defaultValue /*= -1*/)
+int64_t fetchInt64(const CInterfaceStack* inStack, int index, int64_t defaultValue /*= -1*/)
 {
-    long long int retVal = defaultValue;
+    int64_t retVal = defaultValue;
     int argCnt = inStack->getStackSize();
     if (argCnt > index)
     {
@@ -571,12 +571,12 @@ long long int fetchLong(const CInterfaceStack* inStack, int index, long long int
 
 int fetchInt(const CInterfaceStack* inStack, int index, int defaultValue /*= -1*/)
 {
-    return int(fetchLong(inStack, index, defaultValue));
+    return int(fetchInt64(inStack, index, defaultValue));
 }
 
-long long int fetchHandle(const CInterfaceStack* inStack, int index, long long int defaultValue /*= -1*/)
+int64_t fetchHandle(const CInterfaceStack* inStack, int index, int64_t defaultValue /*= -1*/)
 {
-    long long int retVal = defaultValue;
+    int64_t retVal = defaultValue;
     int argCnt = inStack->getStackSize();
     if (argCnt > index)
     {
@@ -680,7 +680,7 @@ void fetchIntArray(const CInterfaceStack* inStack, int index, std::vector<int>& 
     }
 }
 
-void fetchLongArray(const CInterfaceStack* inStack, int index, std::vector<long long int>& outArr)
+void fetchInt64Array(const CInterfaceStack* inStack, int index, std::vector<int64_t>& outArr)
 {
     outArr.clear();
     int argCnt = inStack->getStackSize();
@@ -715,25 +715,25 @@ void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<int
         {
             const CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
             size_t cnt;
-            const long long int* v = arr->getValue(&cnt);
+            const int64_t* v = arr->getValue(&cnt);
             outArr.assign(v, v + cnt);
         }
     }
 }
 
-void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<long long int>& outArr, std::initializer_list<long long int> arr /*= {}*/)
+void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<int64_t>& outArr, std::initializer_list<int64_t> arr /*= {}*/)
 {
-    std::vector<long long int> def;
+    std::vector<int64_t> def;
     if (arr.size() != 0)
-        for (long long int x : arr) def.push_back(x);
+        for (int64_t x : arr) def.push_back(x);
     fetchHandleArray(inStack, index, outArr, def);
 }
 
-void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<long long int>& outArr, std::vector<long long int>& arr)
+void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<int64_t>& outArr, std::vector<int64_t>& arr)
 {
     outArr.clear();
     if (arr.size() != 0)
-        for (long long int x : arr) outArr.push_back(x);
+        for (int64_t x : arr) outArr.push_back(x);
     int argCnt = inStack->getStackSize();
     if (argCnt > index)
     {
@@ -749,7 +749,7 @@ void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<lon
         {
             const CInterfaceStackHandleArray* arr = (CInterfaceStackHandleArray*)obj;
             size_t cnt;
-            const long long int* v = arr->getValue(&cnt);
+            const int64_t* v = arr->getValue(&cnt);
             outArr.assign(v, v + cnt);
         }
     }
@@ -1245,7 +1245,7 @@ std::string _method_getPosition(int targetObj, const char* method, CDetachedScri
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
     {
-        long long int relativeToObjectHandle = sim_handle_world;
+        int64_t relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 0))
         {
@@ -1302,7 +1302,7 @@ std::string _method_setPosition(int targetObj, const char* method, CDetachedScri
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_vector3, arg_map | arg_optional}))
     {
         C3Vector position = fetchVector3(inStack, 0);
-        long long int relativeToObjectHandle = sim_handle_world;
+        int64_t relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
@@ -1375,7 +1375,7 @@ std::string _method_getQuaternion(int targetObj, const char* method, CDetachedSc
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
     {
-        long long int relativeToObjectHandle = sim_handle_world;
+        int64_t relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 0))
         {
@@ -1439,7 +1439,7 @@ std::string _method_setQuaternion(int targetObj, const char* method, CDetachedSc
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_quaternion, arg_map | arg_optional}))
     {
         CQuaternion quaternion = fetchQuaternion(inStack, 0);
-        long long int relativeToObjectHandle = sim_handle_world;
+        int64_t relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
@@ -1520,7 +1520,7 @@ std::string _method_getPose(int targetObj, const char* method, CDetachedScript* 
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
     {
-        long long int relativeToObjectHandle = sim_handle_world;
+        int64_t relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 0))
         {
@@ -1575,7 +1575,7 @@ std::string _method_setPose(int targetObj, const char* method, CDetachedScript* 
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_pose, arg_map | arg_optional}))
     {
         CPose tr = fetchPose(inStack, 0);
-        long long int relativeToObjectHandle = sim_handle_world;
+        int64_t relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
@@ -2244,7 +2244,7 @@ std::string _method_removeObjects(int targetObj, const char* method, CDetachedSc
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
     {
-        std::vector<long long int> objectHandles;
+        std::vector<int64_t> objectHandles;
         fetchHandleArray(inStack, 0, objectHandles);
         bool delayed = false;
         bool noError = false;
@@ -2297,7 +2297,7 @@ std::string _method_duplicateObjects(int targetObj, const char* method, CDetache
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
     {
-        std::vector<long long int> objectHandles;
+        std::vector<int64_t> objectHandles;
         fetchHandleArray(inStack, 0, objectHandles);
         bool models = false;
         bool noScripts = false;
@@ -2914,7 +2914,7 @@ std::string _method_addItems(int targetObj, const char* method, CDetachedScript*
                 cols.push_back((unsigned char)(ccols[3 * i + 2] * 255.1f));
                 cols.push_back(255);
             }
-            std::vector<long long int> newIds;
+            std::vector<int64_t> newIds;
             target->addItems(&pts, &quats, &cols, &sizes, true, &newIds);
             outStack->pushInt64ArrayOntoStack(newIds.data(), newIds.size());
         }
@@ -2939,8 +2939,8 @@ std::string _method_removeItems(int targetObj, const char* method, CDetachedScri
     CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_marker, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_integer}))
     {
-        std::vector<long long int> ids;
-        fetchLongArray(inStack, 0, ids);
+        std::vector<int64_t> ids;
+        fetchInt64Array(inStack, 0, ids);
         target->remItems(&ids);
     }
     return errMsg;
@@ -4043,7 +4043,7 @@ std::string _method_getObjectFromUid(int targetObj, const char* method, CDetache
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_map | arg_optional}))
     {
-        long long int uid = fetchLong(inStack, 0);
+        int64_t uid = fetchInt64(inStack, 0);
         bool noError = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
@@ -4223,7 +4223,7 @@ std::string _method_groupShapes(int targetObj, const char* method, CDetachedScri
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray}))
     {
-        std::vector<long long int> objectHandles;
+        std::vector<int64_t> objectHandles;
         fetchHandleArray(inStack, 0, objectHandles);
         std::vector<int> shapeHandles;
         for (size_t i = 0; i < objectHandles.size(); i++)
@@ -4248,7 +4248,7 @@ std::string _method_mergeShapes(int targetObj, const char* method, CDetachedScri
     std::string errMsg;
     if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray}))
     {
-        std::vector<long long int> objectHandles;
+        std::vector<int64_t> objectHandles;
         fetchHandleArray(inStack, 0, objectHandles);
         std::vector<int> shapeHandles;
         for (size_t i = 0; i < objectHandles.size(); i++)
@@ -4517,7 +4517,7 @@ std::string _method_packInt64Array(int targetObj, const char* method, CDetachedS
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<int64_t> arr;
-        fetchLongArray(inStack, 0, arr);
+        fetchInt64Array(inStack, 0, arr);
         int startIndex = 0;
         int count = 0;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
@@ -4569,7 +4569,7 @@ std::string _method_packInt32Array(int targetObj, const char* method, CDetachedS
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<int64_t> arr;
-        fetchLongArray(inStack, 0, arr);
+        fetchInt64Array(inStack, 0, arr);
         int startIndex = 0;
         int count = 0;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
@@ -4624,7 +4624,7 @@ std::string _method_packUInt32Array(int targetObj, const char* method, CDetached
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<int64_t> arr;
-        fetchLongArray(inStack, 0, arr);
+        fetchInt64Array(inStack, 0, arr);
         int startIndex = 0;
         int count = 0;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
@@ -4679,7 +4679,7 @@ std::string _method_packInt16Array(int targetObj, const char* method, CDetachedS
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<int64_t> arr;
-        fetchLongArray(inStack, 0, arr);
+        fetchInt64Array(inStack, 0, arr);
         int startIndex = 0;
         int count = 0;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
@@ -4732,7 +4732,7 @@ std::string _method_packUInt16Array(int targetObj, const char* method, CDetached
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<int64_t> arr;
-        fetchLongArray(inStack, 0, arr);
+        fetchInt64Array(inStack, 0, arr);
         int startIndex = 0;
         int count = 0;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
@@ -4785,7 +4785,7 @@ std::string _method_packInt8Array(int targetObj, const char* method, CDetachedSc
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<int64_t> arr;
-        fetchLongArray(inStack, 0, arr);
+        fetchInt64Array(inStack, 0, arr);
         int startIndex = 0;
         int count = 0;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
@@ -4837,7 +4837,7 @@ std::string _method_packUInt8Array(int targetObj, const char* method, CDetachedS
     if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::vector<int64_t> arr;
-        fetchLongArray(inStack, 0, arr);
+        fetchInt64Array(inStack, 0, arr);
         int startIndex = 0;
         int count = 0;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
@@ -5712,7 +5712,7 @@ std::string _method_getHandleArrayProperty(int targetObj, const char* method, CD
         }
         if (errMsg.size() == 0)
         {
-            long long int* pValue = nullptr;
+            int64_t* pValue = nullptr;
             int pLength;
             if (CALL_C_API(simGetHandleArrayProperty, targetObj, pName.c_str(), &pValue, &pLength) > 0)
             {
@@ -5747,7 +5747,7 @@ std::string _method_getHandleProperty(int targetObj, const char* method, CDetach
         }
         if (errMsg.size() == 0)
         {
-            long long int pValue;
+            int64_t pValue;
             if (CALL_C_API(simGetHandleProperty, targetObj, pName.c_str(), &pValue) > 0)
                 outStack->pushHandleOntoStack(pValue);
             else
@@ -5871,7 +5871,7 @@ std::string _method_getLongProperty(int targetObj, const char* method, CDetached
         }
         if (errMsg.size() == 0)
         {
-            long long int pValue;
+            int64_t pValue;
             if (CALL_C_API(simGetLongProperty, targetObj, pName.c_str(), &pValue) > 0)
                 outStack->pushInt64OntoStack(pValue);
             else
@@ -6258,7 +6258,7 @@ std::string _method_setHandleArrayProperty(int targetObj, const char* method, CD
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_handlearray, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
-        std::vector<long long int> pValue;
+        std::vector<int64_t> pValue;
         fetchHandleArray(inStack, 1, pValue);
         bool noError = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 2))
@@ -6296,7 +6296,7 @@ std::string _method_setHandleProperty(int targetObj, const char* method, CDetach
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_handle, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
-        long long int pValue = fetchHandle(inStack, 1);
+        int64_t pValue = fetchHandle(inStack, 1);
         bool noError = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
@@ -6446,7 +6446,7 @@ std::string _method_setLongProperty(int targetObj, const char* method, CDetached
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
-        long long int pValue = fetchLong(inStack, 1);
+        int64_t pValue = fetchInt64(inStack, 1);
         bool noError = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 2))
         {
@@ -7019,7 +7019,7 @@ std::string _method_createCustomObjectClass(int targetObj, const char* method, C
         {
             if (!hasSuperClassInfo)
                 superClass.push_back("object");
-            long long int retVal = App::scenes->customObjects->makeClass(typeStr.c_str(), superClass, nameSpaces);
+            int64_t retVal = App::scenes->customObjects->makeClass(typeStr.c_str(), superClass, nameSpaces);
             if (retVal >= 0)
                 outStack->pushHandleOntoStack(retVal);
             else
@@ -7308,7 +7308,7 @@ std::string _method_makeObject(int targetObj, const char* method, CDetachedScrip
                 int h = -1;
                 if ((currentScript != nullptr) && (!scriptPersistent) && isVolatile)
                     h = currentScript->getObjectHandle();
-                long long int retVal = -1;
+                int64_t retVal = -1;
                 if (appScope)
                     retVal = App::scenes->customObjects->makeObject(customObjectClass, isVolatile, h);
                 else
@@ -7709,7 +7709,7 @@ std::string _method_checkPoints(int targetObj, const char* method, CDetachedScri
         if (errMsg.size() == 0)
         {
             unsigned int tag = 0;
-            unsigned long long int location = 0;
+            uint64_t location = 0;
             unsigned int locLow = location & 0xffffffff;
             unsigned int locHigh = (location >> 32) & 0xffffffff;
 
@@ -7761,7 +7761,7 @@ std::string _method_checkPackedPoints(int targetObj, const char* method, CDetach
         if (errMsg.size() == 0)
         {
             unsigned int tag = 0;
-            unsigned long long int location = 0;
+            uint64_t location = 0;
             unsigned int locLow = location & 0xffffffff;
             unsigned int locHigh = (location >> 32) & 0xffffffff;
 
@@ -8127,8 +8127,8 @@ std::string _method_pushEvent(int targetObj, const char* method, CDetachedScript
     if (checkInputArguments(method, inStack, &errMsg, {arg_map, arg_map | arg_optional}))
     {
         std::string eventName("userEvent");
-        long long int eventHandle = -1;
-        long long int eventUid = -1;
+        int64_t eventHandle = -1;
+        int64_t eventUid = -1;
         bool mergeable = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
@@ -8260,11 +8260,11 @@ std::string _method_setEventFilters(int targetObj, const char* method, CDetached
     if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map}))
     {
         CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
-        std::vector<long long int> intKeys;
+        std::vector<int64_t> intKeys;
         map->getMapKeys(nullptr, &intKeys);
         std::vector<std::string> textKeys;
         map->getMapKeys(&textKeys, nullptr);
-        std::map<long long int, std::set<std::string>> targetFilters;
+        std::map<int64_t, std::set<std::string>> targetFilters;
         std::map<std::string, std::set<std::string>> typeFilters;
         for (size_t i = 0; i < intKeys.size(); i++)
         {

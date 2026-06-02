@@ -28,12 +28,12 @@ class CSceneObjectCustomizationPart
     int getBoolProperty(const char* pName, bool& pState) const;
     int setIntProperty(const char* pName, int pState);
     int getIntProperty(const char* pName, int& pState) const;
-    int setLongProperty(const char* pName, long long int pState);
-    int getLongProperty(const char* pName, long long int& pState) const;
+    int setLongProperty(const char* pName, int64_t pState);
+    int getLongProperty(const char* pName, int64_t& pState) const;
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState) const;
-    int setHandleProperty(const char* pName, long long int pState);
-    int getHandleProperty(const char* pName, long long int& pState) const;
+    int setHandleProperty(const char* pName, int64_t pState);
+    int getHandleProperty(const char* pName, int64_t& pState) const;
     int setStringProperty(const char* pName, const std::string& pState);
     int getStringProperty(const char* pName, std::string& pState) const;
     int setTableProperty(const char* pName, const std::string& pState);
@@ -56,8 +56,8 @@ class CSceneObjectCustomizationPart
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
     int setIntArrayProperty(const char* pName, const std::vector<int>& pState);
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
-    int setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState);
-    int getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const;
+    int setHandleArrayProperty(const char* pName, const std::vector<int64_t>& pState);
+    int getHandleArrayProperty(const char* pName, std::vector<int64_t>& pState) const;
     int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState);
     int getStringArrayProperty(const char* pName, std::vector<std::string>& pState) const;
     int setMethodProperty(const char* pName, const void* pState);

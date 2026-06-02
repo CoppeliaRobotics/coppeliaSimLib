@@ -227,12 +227,12 @@ void CMarker::_rebuildMarkerBoundingBox()
     }
 }
 
-void CMarker::remItems(const std::vector<long long int>* ids)
+void CMarker::remItems(const std::vector<int64_t>* ids)
 { // remove items based on item ID
     bool updateBB = false;
     for (size_t i = 0; i < ids->size(); i++)
     {
-        long long int id = ids->at(i);
+        int64_t id = ids->at(i);
         auto it = _itemIts.find(id);
         if (it != _itemIts.end())
         { // item exists
@@ -331,7 +331,7 @@ void CMarker::remItems(int itemCntToDelete, bool triggerEvent /*= true*/)
     }
 }
 
-void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* quats, const std::vector<unsigned char>* rgbas, const std::vector<float>* sizes, bool transform /*= true*/, std::vector<long long int>* newIds /*= nullptr*/)
+void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* quats, const std::vector<unsigned char>* rgbas, const std::vector<float>* sizes, bool transform /*= true*/, std::vector<int64_t>* newIds /*= nullptr*/)
 {
     int ptsCnt = int(pts->size()) / 3;
     if (quats != nullptr)
@@ -1080,7 +1080,7 @@ int CMarker::getIntProperty(const char* ppName, int& pState) const
     return retVal;
 }
 
-int CMarker::setLongProperty(const char* ppName, long long int pState)
+int CMarker::setLongProperty(const char* ppName, int64_t pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setLongProperty(ppName, pState);
@@ -1091,7 +1091,7 @@ int CMarker::setLongProperty(const char* ppName, long long int pState)
     return retVal;
 }
 
-int CMarker::getLongProperty(const char* ppName, long long int& pState) const
+int CMarker::getLongProperty(const char* ppName, int64_t& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getLongProperty(ppName, pState);
@@ -1102,7 +1102,7 @@ int CMarker::getLongProperty(const char* ppName, long long int& pState) const
     return retVal;
 }
 
-int CMarker::getHandleProperty(const char* ppName, long long int& pState) const
+int CMarker::getHandleProperty(const char* ppName, int64_t& pState) const
 {
     int retVal = CSceneObject::getHandleProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)

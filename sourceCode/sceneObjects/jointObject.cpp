@@ -630,7 +630,7 @@ void CJoint::_sendDependencyChange_old() const
         const char* cmd = "dependency";
         CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->openKeyMap(cmd);
-        long long int mast = -1;
+        int64_t mast = -1;
         if (_dependencyMasterJointHandle != -1)
         {
             CSceneObject* master = App::scene->sceneObjects->getJointFromHandle(_dependencyMasterJointHandle);
@@ -4968,12 +4968,12 @@ int CJoint::getIntProperty(const char* ppName, int& pState) const
     return retVal;
 }
 
-int CJoint::setHandleProperty(const char* ppName, long long int pState)
+int CJoint::setHandleProperty(const char* ppName, int64_t pState)
 {
     return setHandleProperty(ppName, pState, nullptr);
 }
 
-int CJoint::setHandleProperty(const char* ppName, long long int pState, CCbor* eev)
+int CJoint::setHandleProperty(const char* ppName, int64_t pState, CCbor* eev)
 {
     const char* pName = nullptr;
     std::string _pName;
@@ -5001,7 +5001,7 @@ int CJoint::setHandleProperty(const char* ppName, long long int pState, CCbor* e
     return retVal;
 }
 
-int CJoint::getHandleProperty(const char* ppName, long long int& pState) const
+int CJoint::getHandleProperty(const char* ppName, int64_t& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getHandleProperty(ppName, pState);

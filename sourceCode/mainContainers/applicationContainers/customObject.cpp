@@ -2,7 +2,7 @@
 #include <utils.h>
 #include <app.h>
 
-CustomObject::CustomObject(long long int handle, const char* objectTypeStr, const char* objectMetaInfo, int originDetachedScriptHandle, int target)
+CustomObject::CustomObject(int64_t handle, const char* objectTypeStr, const char* objectMetaInfo, int originDetachedScriptHandle, int target)
 {
     _objectHandle = handle;
     _objectTypeStr = objectTypeStr;
@@ -27,7 +27,7 @@ CustomObject::~CustomObject()
     }
 }
 
-CustomObject* CustomObject::createObject(long long int handle, int originDetachedScriptHandle) const
+CustomObject* CustomObject::createObject(int64_t handle, int originDetachedScriptHandle) const
 {
     CustomObject* retVal = new CustomObject(handle, _objectTypeStr.c_str(), getMetaInfo().c_str(), originDetachedScriptHandle, _target);
     retVal->_customProperties.copyFromExceptMethods(&_customProperties);
@@ -96,7 +96,7 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/)
                 }
                 else if (t == sim_propertytype_long)
                 {
-                    long long int v;
+                    int64_t v;
                     if (getLongProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyInt64(pName, v);
                 }
@@ -108,7 +108,7 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/)
                 }
                 else if (t == sim_propertytype_handle)
                 {
-                    long long int v;
+                    int64_t v;
                     if (getHandleProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyHandle(pName, v);
                 }
@@ -180,7 +180,7 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/)
                 }
                 else if (t == sim_propertytype_handlearray)
                 {
-                    std::vector<long long int> v;
+                    std::vector<int64_t> v;
                     if (getHandleArrayProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyHandleArray(pName, v.data(), v.size());
                 }
@@ -304,7 +304,7 @@ void CustomObject::serialize(CSer& ar)
             std::vector<std::string> data;
             _customProperties.getAllPropertyData(names, data);
 
-            ar.xmlAddNode_longlong("handle", _objectHandle);
+            ar.xmlAddNode_int64("handle", _objectHandle);
             ar.xmlAddNode_string("type", _objectTypeStr.c_str());
             ar.xmlAddNode_string("metaInfo", getMetaInfo().c_str());
 
@@ -318,7 +318,7 @@ void CustomObject::serialize(CSer& ar)
         }
         else
         {
-            ar.xmlGetNode_longlong("handle", _objectHandle);
+            ar.xmlGetNode_int64("handle", _objectHandle);
             ar.xmlGetNode_string("type", _objectTypeStr);
             std::string tmp;
             ar.xmlGetNode_string("metaInfo", tmp);
@@ -439,7 +439,7 @@ int CustomObject::getIntProperty(const char* pName, int& pState) const
     return retVal;
 }
 
-int CustomObject::setLongProperty(const char* pName, long long int pState)
+int CustomObject::setLongProperty(const char* pName, int64_t pState)
 {
     int retVal = Obj::setLongProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
@@ -447,7 +447,7 @@ int CustomObject::setLongProperty(const char* pName, long long int pState)
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_long))
         { // property already exists (with correct type), or we want to set it to a class
             if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushInt64OntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackInt64Value(v); });
+                _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const int64_t& v) { s->pushInt64OntoStack(v); }, [](CInterfaceStack* s, int64_t& v) { return s->getStackInt64Value(v); });
             bool changed = false;
             retVal = _customProperties.setLongProperty(pName, pState, changed);
             if (changed)
@@ -457,14 +457,14 @@ int CustomObject::setLongProperty(const char* pName, long long int pState)
     return retVal;
 }
 
-int CustomObject::getLongProperty(const char* pName, long long int& pState) const
+int CustomObject::getLongProperty(const char* pName, int64_t& pState) const
 {
     int retVal = Obj::getLongProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getLongProperty(pName, pState);
         if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const long long& v) { s->pushInt64OntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackInt64Value(v); });
+            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const int64_t& v) { s->pushInt64OntoStack(v); }, [](CInterfaceStack* s, int64_t& v) { return s->getStackInt64Value(v); });
     }
     return retVal;
 }
@@ -499,7 +499,7 @@ int CustomObject::getFloatProperty(const char* pName, double& pState) const
     return retVal;
 }
 
-int CustomObject::setHandleProperty(const char* pName, long long int pState)
+int CustomObject::setHandleProperty(const char* pName, int64_t pState)
 {
     int retVal = Obj::setHandleProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
@@ -507,7 +507,7 @@ int CustomObject::setHandleProperty(const char* pName, long long int pState)
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_handle))
         { // property already exists (with correct type), or we want to set it to a class
             if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushHandleOntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackHandleValue(v); });
+                _callPropertySetterGetter(pName, SET_SUFFIX, pState, [](CInterfaceStack* s, const int64_t& v) { s->pushHandleOntoStack(v); }, [](CInterfaceStack* s, int64_t& v) { return s->getStackHandleValue(v); });
             bool changed = false;
             retVal = _customProperties.setHandleProperty(pName, pState, changed);
             if (changed)
@@ -517,14 +517,14 @@ int CustomObject::setHandleProperty(const char* pName, long long int pState)
     return retVal;
 }
 
-int CustomObject::getHandleProperty(const char* pName, long long int& pState) const
+int CustomObject::getHandleProperty(const char* pName, int64_t& pState) const
 {
     int retVal = Obj::getHandleProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         retVal = _customProperties.getHandleProperty(pName, pState);
         if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const long long int& v) { s->pushHandleOntoStack(v); }, [](CInterfaceStack* s, long long int& v) { return s->getStackHandleValue(v); });
+            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const int64_t& v) { s->pushHandleOntoStack(v); }, [](CInterfaceStack* s, int64_t& v) { return s->getStackHandleValue(v); });
     }
     return retVal;
 }
@@ -890,16 +890,16 @@ int CustomObject::getIntArrayProperty(const char* pName, std::vector<int>& pStat
     return retVal;
 }
 
-int CustomObject::setHandleArrayProperty(const char* pName, const std::vector<long long int>& pState)
+int CustomObject::setHandleArrayProperty(const char* pName, const std::vector<int64_t>& pState)
 {
     int retVal = Obj::setHandleArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_handlearray))
         { // property already exists (with correct type), or we want to set it to a class
-            std::vector<long long int> pp(pState);
+            std::vector<int64_t> pp(pState);
             if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<long long int>& w) { s->pushInt64ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<long long int>& w) { return s->getStackInt64Array(w.data(), w.size()); });
+                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<int64_t>& w) { s->pushInt64ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<int64_t>& w) { return s->getStackInt64Array(w.data(), w.size()); });
             bool changed = false;
             retVal = _customProperties.setHandleArrayProperty(pName, pp, changed);
             if (changed)
@@ -909,7 +909,7 @@ int CustomObject::setHandleArrayProperty(const char* pName, const std::vector<lo
     return retVal;
 }
 
-int CustomObject::getHandleArrayProperty(const char* pName, std::vector<long long int>& pState) const
+int CustomObject::getHandleArrayProperty(const char* pName, std::vector<int64_t>& pState) const
 {
     pState.clear();
     int retVal = Obj::getHandleArrayProperty(pName, pState);
@@ -917,7 +917,7 @@ int CustomObject::getHandleArrayProperty(const char* pName, std::vector<long lon
     {
         retVal = _customProperties.getHandleArrayProperty(pName, pState);
         if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::vector<long long int>& w) { s->pushInt64ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<long long int>& w) { return s->getStackInt64Array(w.data(), w.size()); });
+            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::vector<int64_t>& w) { s->pushInt64ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<int64_t>& w) { return s->getStackInt64Array(w.data(), w.size()); });
     }
     return retVal;
 }

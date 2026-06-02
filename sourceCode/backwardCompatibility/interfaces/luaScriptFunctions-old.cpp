@@ -430,8 +430,8 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
                 {
                     luaWrap_lua_pushtext(L, outText);
                     delete[] outText;
-                    pushIntTableOntoStack(L, 2, various + 0);
-                    pushIntTableOntoStack(L, 2, various + 2);
+                    pushInt32ArrayAsTable(L, 2, various + 0);
+                    pushInt32ArrayAsTable(L, 2, various + 2);
                     LUA_END(3);
                 }
             }
@@ -659,7 +659,7 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
             res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 3, true, true, &errorString, argOffset);
             if (res == 2)
             { // get the data
-                getDoublesFromTable(L, 3, 3, posTarget);
+                getDoubleArrayFromTable(L, 3, 3, posTarget);
                 posAndOrient |= 1;
             }
             foundError = (res == -1);
@@ -669,7 +669,7 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
             res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 3, true, true, &errorString, argOffset);
             if (res == 2)
             { // get the data
-                getDoublesFromTable(L, 4, 3, eulerTarget);
+                getDoubleArrayFromTable(L, 4, 3, eulerTarget);
                 posAndOrient |= 2;
             }
             foundError = (res == -1);
@@ -704,9 +704,9 @@ int _sim_moveToPos_1(luaWrap_lua_State* L)
             if (res == 2)
             { // get the data
                 double tmpF[2];
-                getDoublesFromTable(L, 7, 2, tmpF);
+                getDoubleArrayFromTable(L, 7, 2, tmpF);
                 angleToLinearCoeff = tmpF[1];
-                getIntsFromTable(L, 7, 1, &distCalcMethod);
+                getInt32ArrayFromTable(L, 7, 1, &distCalcMethod);
             }
             foundError = (res == -1);
         }
@@ -1028,16 +1028,16 @@ int _sim_moveToJointPos_1(luaWrap_lua_State* L)
             std::vector<double> jointAccels;
             jointAccels.resize(tableLen);
 
-            getIntsFromTable(L, 1, tableLen, &jointHandles[0]);
-            getDoublesFromTable(L, 2, tableLen, &jointTargetPositions[0]);
+            getInt32ArrayFromTable(L, 1, tableLen, &jointHandles[0]);
+            getDoubleArrayFromTable(L, 2, tableLen, &jointTargetPositions[0]);
             if (!sameTimeFinish)
             {
-                getDoublesFromTable(L, 3, tableLen, &jointMaxVelocities[0]);
+                getDoubleArrayFromTable(L, 3, tableLen, &jointMaxVelocities[0]);
                 for (int i = 0; i < tableLen; i++)
                     jointMaxVelocities[i] = fabs(jointMaxVelocities[i]);
                 if (accelTablePresent)
                 {
-                    getDoublesFromTable(L, 4, tableLen, &jointAccels[0]);
+                    getDoubleArrayFromTable(L, 4, tableLen, &jointAccels[0]);
                     for (int i = 0; i < tableLen; i++)
                         jointAccels[i] = fabs(jointAccels[i]);
                 }
@@ -1521,9 +1521,9 @@ int _simGetInvertedMatrix(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 12))
     {
         double arr[12];
-        getDoublesFromTable(L, 1, 12, arr);
+        getDoubleArrayFromTable(L, 1, 12, arr);
         CALL_C_API(simInvertMatrix, arr);
-        pushDoubleTableOntoStack(L, 12, arr);
+        pushDoubleArrayAsTable(L, 12, arr);
         LUA_END(1);
     }
 
@@ -1675,7 +1675,7 @@ int _simGetUIEventButton(luaWrap_lua_State* L)
         {
             LUA_END(1);
         }
-        pushIntTableOntoStack(L, 2, auxVals);
+        pushInt32ArrayAsTable(L, 2, auxVals);
         LUA_END(2);
     }
 
@@ -1708,7 +1708,7 @@ int _simGetUIButtonSize(luaWrap_lua_State* L)
         int size[2];
         if (CALL_C_API(simGetUIButtonSize, luaToInt(L, 1), luaToInt(L, 2), size) == 1)
         {
-            pushIntTableOntoStack(L, 2, size);
+            pushInt32ArrayAsTable(L, 2, size);
             LUA_END(1);
         }
     }
@@ -1856,8 +1856,8 @@ int _simSetUIButtonArrayColor(luaWrap_lua_State* L)
     {
         int pos[2];
         float col[3];
-        getIntsFromTable(L, 3, 2, pos);
-        getFloatsFromTable(L, 4, 3, col);
+        getInt32ArrayFromTable(L, 3, 2, pos);
+        getFloatArrayFromTable(L, 4, 3, col);
         retVal = CALL_C_API(simSetUIButtonArrayColor, luaToInt(L, 1), luaToInt(L, 2), pos, col);
     }
 
@@ -1891,8 +1891,8 @@ int _simCreateUI(luaWrap_lua_State* L)
     {
         int clientSize[2];
         int cellSize[2];
-        getIntsFromTable(L, 3, 2, clientSize);
-        getIntsFromTable(L, 4, 2, cellSize);
+        getInt32ArrayFromTable(L, 3, 2, clientSize);
+        getInt32ArrayFromTable(L, 4, 2, cellSize);
         int menuAttributes = luaToInt(L, 2);
         int b = 0;
         for (int i = 0; i < 8; i++)
@@ -1906,7 +1906,7 @@ int _simCreateUI(luaWrap_lua_State* L)
         if (retVal != -1)
         {
             luaWrap_lua_pushinteger(L, retVal);
-            pushIntTableOntoStack(L, b, buttonHandles);
+            pushInt32ArrayAsTable(L, b, buttonHandles);
             delete[] buttonHandles;
             LUA_END(2);
         }
@@ -1929,8 +1929,8 @@ int _simCreateUIButton(luaWrap_lua_State* L)
     {
         int pos[2];
         int size[2];
-        getIntsFromTable(L, 2, 2, pos);
-        getIntsFromTable(L, 3, 2, size);
+        getInt32ArrayFromTable(L, 2, 2, pos);
+        getInt32ArrayFromTable(L, 3, 2, size);
         retVal = CALL_C_API(simCreateUIButton, luaToInt(L, 1), pos, size, luaToInt(L, 4));
     }
 
@@ -1957,7 +1957,7 @@ int _simSaveUI(luaWrap_lua_State* L)
             {
                 int tl = int(luaWrap_lua_rawlen(L, 1));
                 int* tble = new int[tl];
-                getIntsFromTable(L, 1, tl, tble);
+                getInt32ArrayFromTable(L, 1, tl, tble);
                 retVal = CALL_C_API(simSaveUI, tl, tble, luaWrap_lua_tostring(L, 2));
                 delete[] tble;
             }
@@ -2000,7 +2000,7 @@ int _simGetUIPosition(luaWrap_lua_State* L)
         int position[2];
         if (CALL_C_API(simGetUIPosition, luaToInt(L, 1), position) != -1)
         {
-            pushIntTableOntoStack(L, 2, position);
+            pushInt32ArrayAsTable(L, 2, position);
             LUA_END(1);
         }
     }
@@ -2018,7 +2018,7 @@ int _simSetUIPosition(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0, lua_arg_number, 2))
     {
         int position[2];
-        getIntsFromTable(L, 2, 2, position);
+        getInt32ArrayFromTable(L, 2, 2, position);
         retVal = CALL_C_API(simSetUIPosition, luaToInt(L, 1), position);
     }
 
@@ -2056,7 +2056,7 @@ int _simSetUIButtonColor(luaWrap_lua_State* L)
                     for (int i = 0; i < 3; i++)
                     {
                         if (acp[i] != nullptr)
-                            getFloatsFromTable(L, 3 + i, 3, acp[i]);
+                            getFloatArrayFromTable(L, 3 + i, 3, acp[i]);
                     }
                     retVal = CALL_C_API(simSetUIButtonColor, luaToInt(L, 1), luaToInt(L, 2), acp[0], acp[1], acp[2]);
                 }
@@ -2135,7 +2135,7 @@ int _simGetShapeVertex(luaWrap_lua_State* L)
         if (retVal == 1)
         {
             luaWrap_lua_pushinteger(L, retVal);
-            pushDoubleTableOntoStack(L, 3, relPos);
+            pushDoubleArrayAsTable(L, 3, relPos);
             LUA_END(2);
         }
     }
@@ -2159,8 +2159,8 @@ int _simGetShapeTriangle(luaWrap_lua_State* L)
         if (retVal == 1)
         {
             luaWrap_lua_pushinteger(L, retVal);
-            pushIntTableOntoStack(L, 3, indices);
-            pushDoubleTableOntoStack(L, 9, normals);
+            pushInt32ArrayAsTable(L, 3, indices);
+            pushDoubleArrayAsTable(L, 9, normals);
             LUA_END(3);
         }
     }
@@ -2564,9 +2564,9 @@ int _simSetShapeMassAndInertia(luaWrap_lua_State* L)
         int handle = luaToInt(L, 1);
         double mass = luaToDouble(L, 2);
         double inertiaMatrix[9];
-        getDoublesFromTable(L, 3, 9, inertiaMatrix);
+        getDoubleArrayFromTable(L, 3, 9, inertiaMatrix);
         double centerOfMass[3];
-        getDoublesFromTable(L, 4, 3, centerOfMass);
+        getDoubleArrayFromTable(L, 4, 3, centerOfMass);
         double* transf = nullptr;
         double transformation[12];
         int res = checkOneGeneralInputArgument(L, 5, lua_arg_number, 12, true, true, &errorString, argOffset);
@@ -2574,7 +2574,7 @@ int _simSetShapeMassAndInertia(luaWrap_lua_State* L)
         {
             if (res == 2)
             {
-                getDoublesFromTable(L, 5, 12, transformation);
+                getDoubleArrayFromTable(L, 5, 12, transformation);
                 transf = transformation;
             }
             result = CALL_C_API(simSetShapeMassAndInertia, handle, mass, inertiaMatrix, centerOfMass, transf);
@@ -2601,7 +2601,7 @@ int _simGetShapeMassAndInertia(luaWrap_lua_State* L)
         {
             if (res == 2)
             {
-                getDoublesFromTable(L, 2, 12, transformation);
+                getDoubleArrayFromTable(L, 2, 12, transformation);
                 transf = transformation;
             }
             double mass;
@@ -2611,8 +2611,8 @@ int _simGetShapeMassAndInertia(luaWrap_lua_State* L)
             if (result == -1)
                 luaWrap_lua_pushnil(L);
             luaWrap_lua_pushnumber(L, mass);
-            pushDoubleTableOntoStack(L, 9, inertiaMatrix);
-            pushDoubleTableOntoStack(L, 3, centerOfMass);
+            pushDoubleArrayAsTable(L, 9, inertiaMatrix);
+            pushDoubleArrayAsTable(L, 3, centerOfMass);
             LUA_END(3);
         }
     }
@@ -2873,7 +2873,7 @@ int _simCheckIkGroup(luaWrap_lua_State* L)
         {
             int jointCnt = (int)luaWrap_lua_rawlen(L, 2);
             int* handles = new int[jointCnt];
-            getIntsFromTable(L, 2, jointCnt, handles);
+            getInt32ArrayFromTable(L, 2, jointCnt, handles);
             double* values = new double[jointCnt];
 
             int res = checkOneGeneralInputArgument(L, 3, lua_arg_number, jointCnt, true, true, &errorString, argOffset);
@@ -2884,13 +2884,13 @@ int _simCheckIkGroup(luaWrap_lua_State* L)
                 if (res == 2)
                 {
                     jointOptions.resize(jointCnt);
-                    getIntsFromTable(L, 3, jointCnt, &jointOptions[0]);
+                    getInt32ArrayFromTable(L, 3, jointCnt, &jointOptions[0]);
                     jointOptionsP = &jointOptions[0];
                 }
 
                 int retVal = CALL_C_API(simCheckIkGroup, luaToInt(L, 1), jointCnt, handles, values, jointOptionsP);
                 luaWrap_lua_pushinteger(L, retVal);
-                pushDoubleTableOntoStack(L, jointCnt, values);
+                pushDoubleArrayAsTable(L, jointCnt, values);
                 delete[] values;
                 delete[] handles;
                 LUA_END(2);
@@ -2919,7 +2919,7 @@ int _simCreateIkGroup(luaWrap_lua_State* L)
             int* intP = nullptr;
             if (res == 2)
             {
-                getIntsFromTable(L, 2, 2, intParams);
+                getInt32ArrayFromTable(L, 2, 2, intParams);
                 intP = intParams;
             }
             res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 4, true, true, &errorString, argOffset);
@@ -2929,7 +2929,7 @@ int _simCreateIkGroup(luaWrap_lua_State* L)
                 double* floatP = nullptr;
                 if (res == 2)
                 {
-                    getDoublesFromTable(L, 3, 4, floatParams);
+                    getDoubleArrayFromTable(L, 3, 4, floatParams);
                     floatP = floatParams;
                 }
                 retVal = CALL_C_API(simCreateIkGroup, options, intP, floatP, nullptr);
@@ -2970,7 +2970,7 @@ int _simCreateIkElement(luaWrap_lua_State* L)
         int ikGroup = luaToInt(L, 1);
         int options = luaToInt(L, 2);
         int intParams[4];
-        getIntsFromTable(L, 3, 4, intParams);
+        getInt32ArrayFromTable(L, 3, 4, intParams);
 
         int res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 4, true, true, &errorString, argOffset);
         if (res >= 0)
@@ -2979,7 +2979,7 @@ int _simCreateIkElement(luaWrap_lua_State* L)
             double* floatP = nullptr;
             if (res == 2)
             {
-                getDoublesFromTable(L, 4, 4, floatParams);
+                getDoubleArrayFromTable(L, 4, 4, floatParams);
                 floatP = floatParams;
             }
             retVal = CALL_C_API(simCreateIkElement, ikGroup, options, intParams, floatP, nullptr);
@@ -3034,7 +3034,7 @@ int _simGetConfigForTipPose(luaWrap_lua_State* L)
         std::vector<int> jointHandles;
         int jointCnt = int(luaWrap_lua_rawlen(L, 2));
         jointHandles.resize(jointCnt);
-        getIntsFromTable(L, 2, jointCnt, &jointHandles[0]);
+        getInt32ArrayFromTable(L, 2, jointCnt, &jointHandles[0]);
         double thresholdDist = luaToDouble(L, 3);
         int maxTimeInMs = luaToInt(L, 4);
         double metric[4] = {1.0, 1.0, 1.0, 0.1};
@@ -3042,7 +3042,7 @@ int _simGetConfigForTipPose(luaWrap_lua_State* L)
         if (res >= 0)
         {
             if (res == 2)
-                getDoublesFromTable(L, 5, 4, metric);
+                getDoubleArrayFromTable(L, 5, 4, metric);
             int collisionPairCnt = 0;
             std::vector<int> _collisionPairs;
             int* collisionPairs = nullptr;
@@ -3055,7 +3055,7 @@ int _simGetConfigForTipPose(luaWrap_lua_State* L)
                     if (collisionPairCnt > 0)
                     {
                         _collisionPairs.resize(collisionPairCnt * 2);
-                        getIntsFromTable(L, 6, collisionPairCnt * 2, &_collisionPairs[0]);
+                        getInt32ArrayFromTable(L, 6, collisionPairCnt * 2, &_collisionPairs[0]);
                         collisionPairs = &_collisionPairs[0];
                     }
                 }
@@ -3067,7 +3067,7 @@ int _simGetConfigForTipPose(luaWrap_lua_State* L)
                     if (res == 2)
                     {
                         _jointOptions.resize(jointCnt);
-                        getIntsFromTable(L, 7, jointCnt, &_jointOptions[0]);
+                        getInt32ArrayFromTable(L, 7, jointCnt, &_jointOptions[0]);
                         jointOptions = &_jointOptions[0];
                     }
 
@@ -3082,7 +3082,7 @@ int _simGetConfigForTipPose(luaWrap_lua_State* L)
                         double* ranges = nullptr;
                         if (res == 2)
                         {
-                            getDoublesFromTable(L, 8, jointCnt, &_lowLimits[0]);
+                            getDoubleArrayFromTable(L, 8, jointCnt, &_lowLimits[0]);
                             lowLimits = &_lowLimits[0];
                         }
                         res = checkOneGeneralInputArgument(L, 9, lua_arg_number, jointCnt, lowLimits == nullptr,
@@ -3091,7 +3091,7 @@ int _simGetConfigForTipPose(luaWrap_lua_State* L)
                         {
                             if (res == 2)
                             {
-                                getDoublesFromTable(L, 9, jointCnt, &_ranges[0]);
+                                getDoubleArrayFromTable(L, 9, jointCnt, &_ranges[0]);
                                 ranges = &_ranges[0];
                             }
                             std::vector<double> foundConfig;
@@ -3101,7 +3101,7 @@ int _simGetConfigForTipPose(luaWrap_lua_State* L)
                                 metric, collisionPairCnt, collisionPairs, jointOptions, lowLimits, ranges, nullptr);
                             if (res > 0)
                             {
-                                pushDoubleTableOntoStack(L, jointCnt, &foundConfig[0]);
+                                pushDoubleArrayAsTable(L, jointCnt, &foundConfig[0]);
                                 LUA_END(1);
                             }
                         }
@@ -3126,7 +3126,7 @@ int _simGenerateIkPath(luaWrap_lua_State* L)
         std::vector<int> jointHandles;
         int jointCnt = int(luaWrap_lua_rawlen(L, 2));
         jointHandles.resize(jointCnt);
-        getIntsFromTable(L, 2, jointCnt, &jointHandles[0]);
+        getInt32ArrayFromTable(L, 2, jointCnt, &jointHandles[0]);
         int ptCnt = luaToInt(L, 3);
         int res = checkOneGeneralInputArgument(L, 4, lua_arg_number, -1, true, true, &errorString, argOffset);
         if (res >= 0)
@@ -3140,7 +3140,7 @@ int _simGenerateIkPath(luaWrap_lua_State* L)
                 if (collisionPairCnt > 0)
                 {
                     _collisionPairs.resize(collisionPairCnt * 2);
-                    getIntsFromTable(L, 4, collisionPairCnt * 2, &_collisionPairs[0]);
+                    getInt32ArrayFromTable(L, 4, collisionPairCnt * 2, &_collisionPairs[0]);
                     collisionPairs = &_collisionPairs[0];
                 }
             }
@@ -3152,14 +3152,14 @@ int _simGenerateIkPath(luaWrap_lua_State* L)
                 if (res == 2)
                 {
                     _jointOptions.resize(jointCnt);
-                    getIntsFromTable(L, 5, jointCnt, &_jointOptions[0]);
+                    getInt32ArrayFromTable(L, 5, jointCnt, &_jointOptions[0]);
                     jointOptions = &_jointOptions[0];
                 }
                 double* path = CALL_C_API(simGenerateIkPath, ikGroupHandle, jointCnt, &jointHandles[0], ptCnt,
                                                           collisionPairCnt, collisionPairs, jointOptions, nullptr);
                 if (path != nullptr)
                 {
-                    pushDoubleTableOntoStack(L, jointCnt * ptCnt, path);
+                    pushDoubleArrayAsTable(L, jointCnt * ptCnt, path);
                     CALL_C_API(simReleaseBuffer, (char*)path);
                     LUA_END(1);
                 }
@@ -3203,8 +3203,8 @@ int _simGetIkGroupMatrix(luaWrap_lua_State* L)
         double* data = CALL_C_API(simGetIkGroupMatrix, ikGroupHandle, options, matrixSize);
         if (data != nullptr)
         {
-            pushDoubleTableOntoStack(L, matrixSize[0] * matrixSize[1], data);
-            pushIntTableOntoStack(L, 2, matrixSize);
+            pushDoubleArrayAsTable(L, matrixSize[0] * matrixSize[1], data);
+            pushInt32ArrayAsTable(L, 2, matrixSize);
             LUA_END(2);
         }
     }
@@ -3258,7 +3258,7 @@ int _simSetIkElementProperties(luaWrap_lua_State* L)
             double prec[2];
             if (res == 2)
             {
-                getDoublesFromTable(L, 4, 2, prec);
+                getDoubleArrayFromTable(L, 4, 2, prec);
                 precision = prec;
             }
             res = checkOneGeneralInputArgument(L, 5, lua_arg_number, 2, true, true, &errorString, argOffset);
@@ -3268,7 +3268,7 @@ int _simSetIkElementProperties(luaWrap_lua_State* L)
                 double w[2];
                 if (res == 2)
                 {
-                    getDoublesFromTable(L, 5, 2, w);
+                    getDoubleArrayFromTable(L, 5, 2, w);
                     weight = w;
                 }
                 retVal = CALL_C_API(simSetIkElementProperties, luaToInt(L, 1), luaToInt(L, 2), luaToInt(L, 3), precision,
@@ -3815,7 +3815,7 @@ int _simGetDataOnPath(luaWrap_lua_State* L)
         if (CALL_C_API(simGetDataOnPath, luaToInt(L, 1), luaToDouble(L, 2), 0, &auxFlags, auxChannels) == 1)
         {
             luaWrap_lua_pushinteger(L, auxFlags);
-            pushDoubleTableOntoStack(L, 4, auxChannels);
+            pushDoubleArrayAsTable(L, 4, auxChannels);
             LUA_END(2);
         }
     }
@@ -3834,7 +3834,7 @@ int _simGetPositionOnPath(luaWrap_lua_State* L)
         double coord[3];
         if (CALL_C_API(simGetPositionOnPath, luaToInt(L, 1), luaToDouble(L, 2), coord) == 1)
         {
-            pushDoubleTableOntoStack(L, 3, coord);
+            pushDoubleArrayAsTable(L, 3, coord);
             LUA_END(1);
         }
     }
@@ -3853,7 +3853,7 @@ int _simGetOrientationOnPath(luaWrap_lua_State* L)
         double coord[3];
         if (CALL_C_API(simGetOrientationOnPath, luaToInt(L, 1), luaToDouble(L, 2), coord) == 1)
         {
-            pushDoubleTableOntoStack(L, 3, coord);
+            pushDoubleArrayAsTable(L, 3, coord);
             LUA_END(1);
         }
     }
@@ -3870,7 +3870,7 @@ int _simGetClosestPositionOnPath(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0, lua_arg_number, 3))
     {
         double coord[3];
-        getDoublesFromTable(L, 2, 3, coord);
+        getDoubleArrayFromTable(L, 2, 3, coord);
         double dist = 0.0;
         if (CALL_C_API(simGetClosestPositionOnPath, luaToInt(L, 1), coord, &dist) != -1)
         {
@@ -3956,7 +3956,7 @@ int _simInsertPathCtrlPoints(luaWrap_lua_State* L)
         if (res == 2)
         {
             double* data = new double[ptCnt * floatOrIntCountPerPoint];
-            getDoublesFromTable(L, 5, ptCnt * floatOrIntCountPerPoint, data);
+            getDoubleArrayFromTable(L, 5, ptCnt * floatOrIntCountPerPoint, data);
             for (int i = 0; i < ptCnt; i++)
                 ((int*)(data + floatOrIntCountPerPoint * i + 8))[0] = int(data[floatOrIntCountPerPoint * i + 8] + 0.5);
             if (options & 2)
@@ -4014,7 +4014,7 @@ int _sim_CreatePath(luaWrap_lua_State* L)
         {
             if (res == 2)
             {
-                getIntsFromTable(L, 2, 3, intParams);
+                getInt32ArrayFromTable(L, 2, 3, intParams);
                 intP = intParams;
             }
             res = checkOneGeneralInputArgument(L, 3, lua_arg_number, 3, true, true, &errorString, argOffset);
@@ -4022,7 +4022,7 @@ int _sim_CreatePath(luaWrap_lua_State* L)
             {
                 if (res == 2)
                 {
-                    getDoublesFromTable(L, 3, 3, floatParams);
+                    getDoubleArrayFromTable(L, 3, 3, floatParams);
                     floatP = floatParams;
                 }
                 res = checkOneGeneralInputArgument(L, 4, lua_arg_number, 12, true, true, &errorString, argOffset);
@@ -4030,7 +4030,7 @@ int _sim_CreatePath(luaWrap_lua_State* L)
                 {
                     if (res == 2)
                     {
-                        getFloatsFromTable(L, 4, 12, c);
+                        getFloatArrayFromTable(L, 4, 12, c);
                         color = c;
                     }
                     retVal = CALL_C_API(simCreatePath, attribs, intP, floatP, color);
@@ -4493,7 +4493,7 @@ int _simHandleCollision(luaWrap_lua_State* L)
             {
                 it->readCollision(collObjHandles);
                 luaWrap_lua_pushinteger(L, retVal);
-                pushIntTableOntoStack(L, 2, collObjHandles);
+                pushInt32ArrayAsTable(L, 2, collObjHandles);
                 LUA_END(2);
             }
         }
@@ -4522,7 +4522,7 @@ int _simReadCollision(luaWrap_lua_State* L)
             {
                 it->readCollision(collObjHandles);
                 luaWrap_lua_pushinteger(L, retVal);
-                pushIntTableOntoStack(L, 2, collObjHandles);
+                pushInt32ArrayAsTable(L, 2, collObjHandles);
                 LUA_END(2);
             }
         }
@@ -4671,7 +4671,7 @@ int _simAddBanner(luaWrap_lua_State* L)
             {
                 if (res == 2)
                 {
-                    getDoublesFromTable(L, 4, 6, positionAndEulerAnglesC);
+                    getDoubleArrayFromTable(L, 4, 6, positionAndEulerAnglesC);
                     positionAndEulerAngles = positionAndEulerAnglesC;
                 }
                 res = checkOneGeneralInputArgument(L, 5, lua_arg_number, 0, true, true, &errorString, argOffset);
@@ -4691,7 +4691,7 @@ int _simAddBanner(luaWrap_lua_State* L)
                             {
                                 if (res == 2)
                                 {
-                                    getFloatsFromTable(L, 6, 12, labelColorsC);
+                                    getFloatArrayFromTable(L, 6, 12, labelColorsC);
                                     labelColors = labelColorsC;
                                 }
                                 res = checkOneGeneralInputArgument(L, 7, lua_arg_number, 12, true, true, &errorString, argOffset);
@@ -4703,7 +4703,7 @@ int _simAddBanner(luaWrap_lua_State* L)
                                     {
                                         if (res == 2)
                                         {
-                                            getFloatsFromTable(L, 7, 12, backgroundColorsC);
+                                            getFloatArrayFromTable(L, 7, 12, backgroundColorsC);
                                             backgroundColors = backgroundColorsC;
                                         }
                                     }
@@ -4781,7 +4781,7 @@ int _simAddGhost(luaWrap_lua_State* L)
             if (res == 2)
             {
                 defaultColors = false;
-                getFloatsFromTable(L, 6, 12, color);
+                getFloatArrayFromTable(L, 6, 12, color);
             }
             if (defaultColors)
                 retVal = CALL_C_API(simAddGhost, ghostGroup, objectHandle, options, startTime, endTime, nullptr);
@@ -4837,7 +4837,7 @@ int _simModifyGhost(luaWrap_lua_State* L)
                 {
                     double colorOrTransfData[12];
                     if ((res == 2) && (operation >= 11) && (operation <= 13))
-                        getDoublesFromTable(L, 7, floatCnt, colorOrTransfData);
+                        getDoubleArrayFromTable(L, 7, floatCnt, colorOrTransfData);
                     retVal = CALL_C_API(simModifyGhost, ghostGroup, ghostId, operation, floatValue, options, optionsMask,
                                                      colorOrTransfData);
                 }
@@ -4890,7 +4890,7 @@ int _simAddPointCloud(luaWrap_lua_State* L)
         double pointSize = luaToDouble(L, 5);
         int pointCnt = (int)luaWrap_lua_rawlen(L, 6) / 3;
         std::vector<double> pointCoordinates(pointCnt * 3, 0.0);
-        getDoublesFromTable(L, 6, pointCnt * 3, &pointCoordinates[0]);
+        getDoubleArrayFromTable(L, 6, pointCnt * 3, &pointCoordinates[0]);
         int res;
         res = checkOneGeneralInputArgument(L, 7, lua_arg_number, 12, true, true, &errorString, argOffset);
         if (res >= 0)
@@ -4900,7 +4900,7 @@ int _simAddPointCloud(luaWrap_lua_State* L)
             if (res == 2)
             {
                 std::vector<int> _defCols_(12, 0);
-                getIntsFromTable(L, 7, 12, &_defCols_[0]);
+                getInt32ArrayFromTable(L, 7, 12, &_defCols_[0]);
                 for (int i = 0; i < 12; i++)
                     _defCols[i] = (unsigned char)_defCols_[i];
                 defaultColors = &_defCols[0];
@@ -4914,7 +4914,7 @@ int _simAddPointCloud(luaWrap_lua_State* L)
                 {
                     _pointCols.resize(pointCnt * 3, 0);
                     std::vector<int> _pointCols_(pointCnt * 3, 0);
-                    getIntsFromTable(L, 8, pointCnt * 3, &_pointCols_[0]);
+                    getInt32ArrayFromTable(L, 8, pointCnt * 3, &_pointCols_[0]);
                     for (int i = 0; i < pointCnt * 3; i++)
                         _pointCols[i] = (unsigned char)_pointCols_[i];
                     pointColors = &_pointCols[0];
@@ -4927,7 +4927,7 @@ int _simAddPointCloud(luaWrap_lua_State* L)
                     if (res == 2)
                     {
                         _pointNormals.resize(pointCnt * 3, 0);
-                        getDoublesFromTable(L, 9, pointCnt * 3, &_pointNormals[0]);
+                        getDoubleArrayFromTable(L, 9, pointCnt * 3, &_pointNormals[0]);
                         pointNormals = &_pointNormals[0];
                     }
                     retVal = CALL_C_API(simAddPointCloud, pageMask, layerMask, objectHandle, options, pointSize,
@@ -4969,8 +4969,8 @@ int _simCopyMatrix(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 12))
     {
         double arr[12];
-        getDoublesFromTable(L, 1, 12, arr);
-        pushDoubleTableOntoStack(L, 12, arr);
+        getDoubleArrayFromTable(L, 1, 12, arr);
+        pushDoubleArrayAsTable(L, 12, arr);
         LUA_END(1);
     }
 
@@ -5294,7 +5294,7 @@ int _simSetObjectSizeValues(luaWrap_lua_State* L)
     {
         int handle = luaToInt(L, 1);
         double s[3];
-        getDoublesFromTable(L, 2, 3, s);
+        getDoubleArrayFromTable(L, 2, 3, s);
         retVal = CALL_C_API(simSetObjectSizeValues, handle, s);
     }
 
@@ -5314,7 +5314,7 @@ int _simGetObjectSizeValues(luaWrap_lua_State* L)
         double s[3];
         if (CALL_C_API(simGetObjectSizeValues, handle, s) != -1)
         {
-            pushDoubleTableOntoStack(L, 3, s);
+            pushDoubleArrayAsTable(L, 3, s);
             LUA_END(1);
         }
     }
@@ -5529,7 +5529,7 @@ int _simAddObjectToSelection(luaWrap_lua_State* L)
         { // Ok we have a table. Now what size is it?
             int tableLen = int(luaWrap_lua_rawlen(L, 1));
             int* buffer = new int[tableLen];
-            if (getIntsFromTable(L, 1, tableLen, buffer))
+            if (getInt32ArrayFromTable(L, 1, tableLen, buffer))
             {
                 for (int i = 0; i < tableLen; i++)
                 {
@@ -5582,7 +5582,7 @@ int _simRemoveObjectFromSelection(luaWrap_lua_State* L)
         { // Ok we have a table. Now what size is it?
             int tableLen = int(luaWrap_lua_rawlen(L, 1));
             int* buffer = new int[tableLen];
-            if (getIntsFromTable(L, 1, tableLen, buffer))
+            if (getInt32ArrayFromTable(L, 1, tableLen, buffer))
             {
                 for (int i = 0; i < tableLen; i++)
                     retVal = CALL_C_API(simRemoveObjectFromSelection, sim_handle_single, buffer[i]);
@@ -5621,7 +5621,7 @@ int _simGetObjectUniqueIdentifier(luaWrap_lua_State* L)
             int* buffer = new int[cnt];
             if (CALL_C_API(simGetObjectUniqueIdentifier, handle, buffer) != -1)
             {
-                pushIntTableOntoStack(L, cnt, buffer);
+                pushInt32ArrayAsTable(L, cnt, buffer);
                 delete[] buffer;
                 LUA_END(1);
             }
@@ -5656,7 +5656,7 @@ int _simSetSphericalJointMatrix(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0, lua_arg_number, 12))
     {
         double arr[12];
-        getDoublesFromTable(L, 2, 12, arr);
+        getDoubleArrayFromTable(L, 2, 12, arr);
         retVal = CALL_C_API(simSetSphericalJointMatrix, luaToInt(L, 1), arr);
     }
 
@@ -5675,7 +5675,7 @@ int _simGetJointMatrix(luaWrap_lua_State* L)
         double arr[12];
         if (CALL_C_API(simGetJointMatrix, luaToInt(L, 1), arr) == 1)
         {
-            pushDoubleTableOntoStack(L, 12, arr); // Success
+            pushDoubleArrayAsTable(L, 12, arr); // Success
             LUA_END(1);
         }
     }
@@ -5923,7 +5923,7 @@ int _simGetVisionSensorResolution(luaWrap_lua_State* L)
         int resolution[2];
         if (CALL_C_API(simGetVisionSensorRes, luaToInt(L, 1), resolution) == 1)
         {
-            pushIntTableOntoStack(L, 2, resolution);
+            pushInt32ArrayAsTable(L, 2, resolution);
             LUA_END(1);
         }
     }
@@ -5996,7 +5996,7 @@ int _simGetVisionSensorImage(luaWrap_lua_State* L)
                                 if (buffer != nullptr)
                                 {
                                     if (retType == 0)
-                                        pushFloatTableOntoStack(L, sizeX * sizeY * valPerPix, buffer);
+                                        pushFloatArrayAsTable(L, sizeX * sizeY * valPerPix, buffer);
                                     else
                                     { // here we return RGB data in a string
                                         char* str = new char[sizeX * sizeY * valPerPix];
@@ -6064,7 +6064,7 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
                         if (int(luaWrap_lua_rawlen(L, 2)) >= res[0] * res[1])
                         {
                             float* img = new float[res[0] * res[1]];
-                            getFloatsFromTable(L, 2, res[0] * res[1], img);
+                            getFloatArrayFromTable(L, 2, res[0] * res[1], img);
                             rendSens->setDepthBuffer(img);
                             retVal = 1;
                             delete[] img;
@@ -6078,7 +6078,7 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
                         if (int(luaWrap_lua_rawlen(L, 2)) >= res[0] * res[1] * valPerPix)
                         {
                             float* img = new float[res[0] * res[1] * valPerPix];
-                            getFloatsFromTable(L, 2, res[0] * res[1] * valPerPix,
+                            getFloatArrayFromTable(L, 2, res[0] * res[1] * valPerPix,
                                                img); // we do the operation directly without going through the c-api
                             if (rendSens->setExternalImage_old(img, valPerPix == 1, noProcessing))
                                 retVal = 1;
@@ -6346,7 +6346,7 @@ int _simGetVisionSensorDepthBuffer(luaWrap_lua_State* L)
                                 if (returnString)
                                     luaWrap_lua_pushbuffer(L, (char*)buffer, sizeX * sizeY * sizeof(float));
                                 else
-                                    pushFloatTableOntoStack(L, sizeX * sizeY, buffer);
+                                    pushFloatArrayAsTable(L, sizeX * sizeY, buffer);
                                 delete[]((char*)buffer);
                                 LUA_END(1);
                             }
@@ -6377,7 +6377,7 @@ int _simCreatePureShape(luaWrap_lua_State* L)
         int primitiveType = luaToInt(L, 1);
         int options = luaToInt(L, 2);
         double sizes[3];
-        getDoublesFromTable(L, 3, 3, sizes);
+        getDoubleArrayFromTable(L, 3, 3, sizes);
         double mass = luaToDouble(L, 4);
         int* precision = nullptr;
         int prec[2];
@@ -6386,7 +6386,7 @@ int _simCreatePureShape(luaWrap_lua_State* L)
         {
             if (res == 2)
             {
-                getIntsFromTable(L, 5, 2, prec);
+                getInt32ArrayFromTable(L, 5, 2, prec);
                 precision = prec;
             }
             retVal = CALL_C_API(simCreatePureShape, primitiveType, options, sizes, mass, precision);
@@ -6609,8 +6609,8 @@ int _simCreateMeshShape(luaWrap_lua_State* L)
             {
                 double* vertices = new double[vl];
                 int* indices = new int[il];
-                getDoublesFromTable(L, 3, vl, vertices);
-                getIntsFromTable(L, 4, il, indices);
+                getDoubleArrayFromTable(L, 3, vl, vertices);
+                getInt32ArrayFromTable(L, 4, il, indices);
                 retVal = CALL_C_API(simCreateMeshShape, options, shadingAngle, vertices, vl, indices, il, nullptr);
                 delete[] indices;
                 delete[] vertices;
@@ -6631,7 +6631,7 @@ int _simInvertMatrix(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 12))
     {
         double arr[12];
-        getDoublesFromTable(L, 1, 12, arr);
+        getDoubleArrayFromTable(L, 1, 12, arr);
         retVal = CALL_C_API(simInvertMatrix, arr);
         for (int i = 0; i < 12; i++)
         {
@@ -6653,7 +6653,7 @@ int _simInvertPose(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 7))
     {
         double arr[7];
-        getDoublesFromTable(L, 1, 7, arr);
+        getDoubleArrayFromTable(L, 1, 7, arr);
         retVal = CALL_C_API(simInvertPose, arr);
         for (int i = 0; i < 7; i++)
         {
@@ -6827,8 +6827,8 @@ int _simConvexDecompose(luaWrap_lua_State* L)
                 res = checkOneGeneralInputArgument(L, 4, lua_arg_number, fpc, false, false, &errorString, argOffset);
                 if (res == 2)
                 {
-                    getIntsFromTable(L, 3, ipc, intParams);
-                    getDoublesFromTable(L, 4, fpc, floatParams);
+                    getInt32ArrayFromTable(L, 3, ipc, intParams);
+                    getDoubleArrayFromTable(L, 4, fpc, floatParams);
                     goOn = true;
                 }
             }
@@ -6858,9 +6858,9 @@ int _simGetDecimatedMesh(luaWrap_lua_State* L)
         if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, vl, lua_arg_number, il, lua_arg_number, 0))
         {
             double* vertices = new double[vl];
-            getDoublesFromTable(L, 1, vl, vertices);
+            getDoubleArrayFromTable(L, 1, vl, vertices);
             int* indices = new int[il];
-            getIntsFromTable(L, 2, il, indices);
+            getInt32ArrayFromTable(L, 2, il, indices);
             double* vertOut;
             int vertOutL;
             int* indOut;
@@ -6868,8 +6868,8 @@ int _simGetDecimatedMesh(luaWrap_lua_State* L)
             if (CALL_C_API(simGetDecimatedMesh, vertices, vl, indices, il, &vertOut, &vertOutL, &indOut, &indOutL,
                                              percentage, 0, nullptr))
             {
-                pushDoubleTableOntoStack(L, vertOutL, vertOut);
-                pushIntTableOntoStack(L, indOutL, indOut);
+                pushDoubleArrayAsTable(L, vertOutL, vertOut);
+                pushInt32ArrayAsTable(L, indOutL, indOut);
                 delete[] vertOut;
                 delete[] indOut;
                 LUA_END(2);
@@ -7087,7 +7087,7 @@ int _simGetPersistentDataTags(luaWrap_lua_State* L)
             stringTable.push_back(data + off);
             off += strlen(data + off) + 1;
         }
-        pushStringTableOntoStack(L, stringTable);
+        pushStringArrayAsTable(L, stringTable);
         CALL_C_API(simReleaseBuffer, data);
         LUA_END(1);
     }
@@ -7287,7 +7287,7 @@ int _simSetArrayParam(luaWrap_lua_State* L)
         if (true)
         { // for now all array parameters are tables of 3 floats
             double theArray[3];
-            getDoublesFromTable(L, 2, 3, theArray);
+            getDoubleArrayFromTable(L, 2, 3, theArray);
             retVal = CALL_C_API(simSetArrayParam, parameter, theArray);
         }
     }
@@ -7311,7 +7311,7 @@ int _simGetArrayParam(luaWrap_lua_State* L)
             int retVal = CALL_C_API(simGetArrayParam, parameter, theArray);
             if (retVal != -1)
             {
-                pushDoubleTableOntoStack(L, 3, theArray);
+                pushDoubleArrayAsTable(L, 3, theArray);
                 LUA_END(1);
             }
         }
@@ -7572,9 +7572,9 @@ int _simGetLightParameters(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
-    pushDoubleTableOntoStack(L, 3, ambientOld);
-    pushDoubleTableOntoStack(L, 3, diffuse);
-    pushDoubleTableOntoStack(L, 3, specular);
+    pushDoubleArrayAsTable(L, 3, ambientOld);
+    pushDoubleArrayAsTable(L, 3, diffuse);
+    pushDoubleArrayAsTable(L, 3, specular);
     LUA_END(4);
 }
 
@@ -7600,7 +7600,7 @@ int _simSetLightParameters(luaWrap_lua_State* L)
             {
                 if (res == 2)
                 { // get the data
-                    getFloatsFromTable(L, 4, 3, diffuse_);
+                    getFloatArrayFromTable(L, 4, 3, diffuse_);
                     diffuseP = diffuse_;
                 }
                 int res = checkOneGeneralInputArgument(L, 5, lua_arg_number, 3, true, true, &errorString, argOffset);
@@ -7608,7 +7608,7 @@ int _simSetLightParameters(luaWrap_lua_State* L)
                 {
                     if (res == 2)
                     { // get the data
-                        getFloatsFromTable(L, 5, 3, specular_);
+                        getFloatArrayFromTable(L, 5, 3, specular_);
                         specularP = specular_;
                     }
                     retVal = CALL_C_API(simSetLightParameters, objHandle, state, nullptr, diffuseP, specularP);
@@ -7701,7 +7701,7 @@ int _simGetObjectFloatArrayParam(luaWrap_lua_State* L)
         double* params = CALL_C_API(simGetObjectFloatArrayParam, luaToInt(L, 1), luaToInt(L, 2), &s);
         if (params != nullptr)
         {
-            pushDoubleTableOntoStack(L, s, params);
+            pushDoubleArrayAsTable(L, s, params);
             delete[] params;
             LUA_END(1);
         }
@@ -7722,7 +7722,7 @@ int _simSetObjectFloatArrayParam(luaWrap_lua_State* L)
         size_t cnt = luaWrap_lua_rawlen(L, 3);
         std::vector<double> arr;
         arr.resize(cnt);
-        getDoublesFromTable(L, 3, cnt, &arr[0]);
+        getDoubleArrayFromTable(L, 3, cnt, &arr[0]);
         retVal = CALL_C_API(simSetObjectFloatArrayParam, luaToInt(L, 1), luaToInt(L, 2), &arr[0], int(cnt));
     }
 
@@ -7846,7 +7846,7 @@ int _simReadCustomDataTags(luaWrap_lua_State* L)
     }
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    pushStringTableOntoStack(L, stringTable);
+    pushStringArrayAsTable(L, stringTable);
     LUA_END(1);
 }
 
@@ -8079,11 +8079,11 @@ int _simBuildMatrixQ(luaWrap_lua_State* L)
         double arr[12];
         double pos[3];
         double quaternion[4];
-        getDoublesFromTable(L, 1, 3, pos);
-        getDoublesFromTable(L, 2, 4, quaternion);
+        getDoubleArrayFromTable(L, 1, 3, pos);
+        getDoubleArrayFromTable(L, 2, 4, quaternion);
         if (CALL_C_API(simBuildMatrixQ, pos, quaternion, arr) == 1)
         {
-            pushDoubleTableOntoStack(L, 12, arr);
+            pushDoubleArrayAsTable(L, 12, arr);
             LUA_END(1);
         }
     }
@@ -8105,7 +8105,7 @@ int _simCheckCollisionEx(luaWrap_lua_State* L)
         if (retVal > 0)
         {
             luaWrap_lua_pushinteger(L, retVal);
-            pushDoubleTableOntoStack(L, retVal * 6, (*intersections));
+            pushDoubleArrayAsTable(L, retVal * 6, (*intersections));
             CALL_C_API(simReleaseBuffer, (char*)(*intersections));
             LUA_END(2);
         }
@@ -8113,7 +8113,7 @@ int _simCheckCollisionEx(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
-    pushIntTableOntoStack(L, 0, nullptr); // empty table
+    pushInt32ArrayAsTable(L, 0, nullptr); // empty table
     LUA_END(2);
 }
 
@@ -8135,9 +8135,9 @@ int _simCheckProximitySensorEx(luaWrap_lua_State* L)
         {
             luaWrap_lua_pushinteger(L, retVal);
             luaWrap_lua_pushnumber(L, detPt[3]);
-            pushDoubleTableOntoStack(L, 3, detPt);
+            pushDoubleArrayAsTable(L, 3, detPt);
             luaWrap_lua_pushinteger(L, detObj);
-            pushDoubleTableOntoStack(L, 3, normVect);
+            pushDoubleArrayAsTable(L, 3, normVect);
             LUA_END(5);
         }
     }
@@ -8146,9 +8146,9 @@ int _simCheckProximitySensorEx(luaWrap_lua_State* L)
     luaWrap_lua_pushinteger(L, retVal);
     double dummy[3] = {0.0, 0.0, 0.0};
     luaWrap_lua_pushnumber(L, 0.0);
-    pushDoubleTableOntoStack(L, 3, dummy);
+    pushDoubleArrayAsTable(L, 3, dummy);
     luaWrap_lua_pushinteger(L, -1);
-    pushDoubleTableOntoStack(L, 3, dummy);
+    pushDoubleArrayAsTable(L, 3, dummy);
     LUA_END(5);
 }
 
@@ -8176,7 +8176,7 @@ int _simCheckProximitySensorEx2(luaWrap_lua_State* L)
                     double threshold = luaToDouble(L, 6);
                     double maxAngle = luaToDouble(L, 7);
                     double* vertices = new double[requiredValues];
-                    getDoublesFromTable(L, 2, requiredValues, vertices);
+                    getDoubleArrayFromTable(L, 2, requiredValues, vertices);
 
                     double detPt[4];
                     double normVect[3];
@@ -8187,8 +8187,8 @@ int _simCheckProximitySensorEx2(luaWrap_lua_State* L)
                     {
                         luaWrap_lua_pushinteger(L, retVal);
                         luaWrap_lua_pushnumber(L, detPt[3]);
-                        pushDoubleTableOntoStack(L, 3, detPt);
-                        pushDoubleTableOntoStack(L, 3, normVect);
+                        pushDoubleArrayAsTable(L, 3, detPt);
+                        pushDoubleArrayAsTable(L, 3, normVect);
                         LUA_END(4);
                     }
                 }
@@ -8200,8 +8200,8 @@ int _simCheckProximitySensorEx2(luaWrap_lua_State* L)
     luaWrap_lua_pushinteger(L, retVal);
     double dummy[3] = {0.0, 0.0, 0.0};
     luaWrap_lua_pushnumber(L, 0.0);
-    pushDoubleTableOntoStack(L, 3, dummy);
-    pushDoubleTableOntoStack(L, 3, dummy);
+    pushDoubleArrayAsTable(L, 3, dummy);
+    pushDoubleArrayAsTable(L, 3, dummy);
     LUA_END(4);
 }
 
@@ -8218,7 +8218,7 @@ int _simGetObjectMatrix(luaWrap_lua_State* L)
             rel = luaToInt(L, 2);
         if (CALL_C_API(simGetObjectMatrix, luaToInt(L, 1), rel, arr) == 1)
         {
-            pushDoubleTableOntoStack(L, 12, arr); // Success
+            pushDoubleArrayAsTable(L, 12, arr); // Success
             LUA_END(1);
         }
     }
@@ -8238,7 +8238,7 @@ int _simSetObjectMatrix(luaWrap_lua_State* L)
                                 lua_arg_integer | lua_arg_optional, 0))
         {
             double arr[12];
-            getDoublesFromTable(L, 2, 12, arr);
+            getDoubleArrayFromTable(L, 2, 12, arr);
             int rel = sim_handle_world;
             if (luaWrap_lua_isinteger(L, 3))
                 rel = luaToInt(L, 3);
@@ -8250,7 +8250,7 @@ int _simSetObjectMatrix(luaWrap_lua_State* L)
         if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 12))
         {
             double arr[12];
-            getDoublesFromTable(L, 3, 12, arr);
+            getDoubleArrayFromTable(L, 3, 12, arr);
             CALL_C_API(simSetObjectMatrix, luaToInt(L, 1), luaToInt(L, 2), arr);
         }
     }
@@ -8272,7 +8272,7 @@ int _simGetObjectOrientation(luaWrap_lua_State* L)
         double coord[3];
         if (CALL_C_API(simGetObjectOrientation, luaToInt(L, 1), rel, coord) == 1)
         {
-            pushDoubleTableOntoStack(L, 3, coord);
+            pushDoubleArrayAsTable(L, 3, coord);
             LUA_END(1);
         }
     }
@@ -8292,7 +8292,7 @@ int _simSetObjectOrientation(luaWrap_lua_State* L)
                                 lua_arg_integer | lua_arg_optional, 0))
         {
             double coord[3];
-            getDoublesFromTable(L, 2, 3, coord);
+            getDoubleArrayFromTable(L, 2, 3, coord);
             int rel = sim_handle_world;
             if (luaWrap_lua_isinteger(L, 3))
                 rel = luaToInt(L, 3);
@@ -8304,7 +8304,7 @@ int _simSetObjectOrientation(luaWrap_lua_State* L)
         if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 0, lua_arg_number, 0, lua_arg_number, 3))
         {
             double coord[3];
-            getDoublesFromTable(L, 3, 3, coord);
+            getDoubleArrayFromTable(L, 3, 3, coord);
             CALL_C_API(simSetObjectOrientation, luaToInt(L, 1), luaToInt(L, 2), coord);
         }
     }
@@ -8327,15 +8327,15 @@ int _simGetRotationAxis(luaWrap_lua_State* L)
         C4X4Matrix mGoal;
         if (luaWrap_lua_rawlen(L, 1) >= 12)
         { // we have a matrix
-            getDoublesFromTable(L, 1, 12, inM0);
-            getDoublesFromTable(L, 2, 12, inM1);
+            getDoubleArrayFromTable(L, 1, 12, inM0);
+            getDoubleArrayFromTable(L, 2, 12, inM1);
             mStart.setData(inM0);
             mGoal.setData(inM1);
         }
         else
         { // we have a pose
-            getDoublesFromTable(L, 1, 7, inM0);
-            getDoublesFromTable(L, 2, 7, inM1);
+            getDoubleArrayFromTable(L, 1, 7, inM0);
+            getDoubleArrayFromTable(L, 2, 7, inM1);
             CPose p;
             p.setData(inM0, true);
             mStart = p.getMatrix();
@@ -8365,7 +8365,7 @@ int _simGetRotationAxis(luaWrap_lua_State* L)
             axis[2] /= l;
         }
 
-        pushDoubleTableOntoStack(L, 3, axis);
+        pushDoubleArrayAsTable(L, 3, axis);
         luaWrap_lua_pushnumber(L, r(0));
         LUA_END(2);
     }
@@ -8386,20 +8386,20 @@ int _simRotateAroundAxis(luaWrap_lua_State* L)
         double axis[3];
         double ppos[3];
         double outM[12];
-        getDoublesFromTable(L, 2, 3, axis);
-        getDoublesFromTable(L, 3, 3, ppos);
+        getDoubleArrayFromTable(L, 2, 3, axis);
+        getDoubleArrayFromTable(L, 3, 3, ppos);
 
         CPose tr;
         if (luaWrap_lua_rawlen(L, 1) >= 12)
         { // we have a matrix
-            getDoublesFromTable(L, 1, 12, inM);
+            getDoubleArrayFromTable(L, 1, 12, inM);
             C4X4Matrix m;
             m.setData(inM);
             tr = m.getTransformation();
         }
         else
         { // we have a pose
-            getDoublesFromTable(L, 1, 7, inM);
+            getDoubleArrayFromTable(L, 1, 7, inM);
             tr.setData(inM, true);
         }
         C3Vector ax(axis);
@@ -8424,12 +8424,12 @@ int _simRotateAroundAxis(luaWrap_lua_State* L)
         if (luaWrap_lua_rawlen(L, 1) >= 12)
         { // we have a matrix
             tr.getMatrix().getData(outM);
-            pushDoubleTableOntoStack(L, 12, outM);
+            pushDoubleArrayAsTable(L, 12, outM);
         }
         else
         { // we have a pose
             tr.getData(outM, true);
-            pushDoubleTableOntoStack(L, 7, outM);
+            pushDoubleArrayAsTable(L, 7, outM);
         }
         LUA_END(1);
     }
@@ -8447,7 +8447,7 @@ int _simBuildIdentityMatrix(luaWrap_lua_State* L)
     CALL_C_API(simBuildIdentityMatrix, arr);
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    pushDoubleTableOntoStack(L, 12, arr);
+    pushDoubleArrayAsTable(L, 12, arr);
     LUA_END(1);
 }
 
@@ -8461,11 +8461,11 @@ int _simBuildMatrix(luaWrap_lua_State* L)
         double arr[12];
         double pos[3];
         double euler[3];
-        getDoublesFromTable(L, 1, 3, pos);
-        getDoublesFromTable(L, 2, 3, euler);
+        getDoubleArrayFromTable(L, 1, 3, pos);
+        getDoubleArrayFromTable(L, 2, 3, euler);
         if (CALL_C_API(simBuildMatrix, pos, euler, arr) == 1)
         {
-            pushDoubleTableOntoStack(L, 12, arr);
+            pushDoubleArrayAsTable(L, 12, arr);
             LUA_END(1);
         }
     }
@@ -8486,8 +8486,8 @@ int _simBuildPose(luaWrap_lua_State* L)
         double axis1[3];
         double axis2[3];
         int mode = 0;
-        getDoublesFromTable(L, 1, 3, pos);
-        getDoublesFromTable(L, 2, 3, axis1);
+        getDoubleArrayFromTable(L, 1, 3, pos);
+        getDoubleArrayFromTable(L, 2, 3, axis1);
         int res = checkOneGeneralInputArgument(L, 3, lua_arg_integer, 0, true, false, &errorString, argOffset);
         if (res >= 0)
         {
@@ -8497,7 +8497,7 @@ int _simBuildPose(luaWrap_lua_State* L)
             {
                 if (CALL_C_API(simBuildPose, pos, axis1, tr) == 1)
                 {
-                    pushDoubleTableOntoStack(L, 7, tr);
+                    pushDoubleArrayAsTable(L, 7, tr);
                     LUA_END(1);
                 }
             }
@@ -8507,7 +8507,7 @@ int _simBuildPose(luaWrap_lua_State* L)
                 if (res >= 0)
                 {
                     if (res == 2)
-                        getDoublesFromTable(L, 4, 3, axis2);
+                        getDoubleArrayFromTable(L, 4, 3, axis2);
                     C3X3Matrix m;
                     C3Vector a1(axis1);
                     a1.normalize();
@@ -8558,7 +8558,7 @@ int _simBuildPose(luaWrap_lua_State* L)
                     tr[1] = pos[1];
                     tr[2] = pos[2];
                     m.getQuaternion().getData(tr + 3, true);
-                    pushDoubleTableOntoStack(L, 7, tr);
+                    pushDoubleArrayAsTable(L, 7, tr);
                     LUA_END(1);
                 }
             }
@@ -8578,10 +8578,10 @@ int _simGetEulerAnglesFromMatrix(luaWrap_lua_State* L)
     {
         double arr[12];
         double euler[3];
-        getDoublesFromTable(L, 1, 12, arr);
+        getDoubleArrayFromTable(L, 1, 12, arr);
         if (CALL_C_API(simGetEulerAnglesFromMatrix, arr, euler) == 1)
         {
-            pushDoubleTableOntoStack(L, 3, euler);
+            pushDoubleArrayAsTable(L, 3, euler);
             LUA_END(1);
         }
     }
@@ -8598,11 +8598,11 @@ int _simGetMatrixInverse(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 12))
     {
         double arr[12];
-        getDoublesFromTable(L, 1, 12, arr);
+        getDoubleArrayFromTable(L, 1, 12, arr);
         retVal = CALL_C_API(simInvertMatrix, arr);
         if (retVal >= 0)
         {
-            pushDoubleTableOntoStack(L, 12, arr); // Success
+            pushDoubleArrayAsTable(L, 12, arr); // Success
             LUA_END(1);
         }
     }
@@ -8620,11 +8620,11 @@ int _simGetPoseInverse(luaWrap_lua_State* L)
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_number, 7))
     {
         double arr[7];
-        getDoublesFromTable(L, 1, 7, arr);
+        getDoubleArrayFromTable(L, 1, 7, arr);
         retVal = CALL_C_API(simInvertPose, arr);
         if (retVal >= 0)
         {
-            pushDoubleTableOntoStack(L, 7, arr); // Success
+            pushDoubleArrayAsTable(L, 7, arr); // Success
             LUA_END(1);
         }
     }
@@ -8644,11 +8644,11 @@ int _simMultiplyMatrices(luaWrap_lua_State* L)
         double inM0[12];
         double inM1[12];
         double outM[12];
-        getDoublesFromTable(L, 1, 12, inM0);
-        getDoublesFromTable(L, 2, 12, inM1);
+        getDoubleArrayFromTable(L, 1, 12, inM0);
+        getDoubleArrayFromTable(L, 2, 12, inM1);
         if (CALL_C_API(simMultiplyMatrices, inM0, inM1, outM) != -1)
         {
-            pushDoubleTableOntoStack(L, 12, outM);
+            pushDoubleArrayAsTable(L, 12, outM);
             LUA_END(1);
         }
     }
@@ -8667,11 +8667,11 @@ int _simMultiplyPoses(luaWrap_lua_State* L)
         double inP0[7];
         double inP1[7];
         double outP[7];
-        getDoublesFromTable(L, 1, 7, inP0);
-        getDoublesFromTable(L, 2, 7, inP1);
+        getDoubleArrayFromTable(L, 1, 7, inP0);
+        getDoubleArrayFromTable(L, 2, 7, inP1);
         if (CALL_C_API(simMultiplyPoses, inP0, inP1, outP) != -1)
         {
-            pushDoubleTableOntoStack(L, 7, outP);
+            pushDoubleArrayAsTable(L, 7, outP);
             LUA_END(1);
         }
     }
@@ -8690,11 +8690,11 @@ int _simInterpolateMatrices(luaWrap_lua_State* L)
         double inM0[12];
         double inM1[12];
         double outM[12];
-        getDoublesFromTable(L, 1, 12, inM0);
-        getDoublesFromTable(L, 2, 12, inM1);
+        getDoubleArrayFromTable(L, 1, 12, inM0);
+        getDoubleArrayFromTable(L, 2, 12, inM1);
         if (CALL_C_API(simInterpolateMatrices, inM0, inM1, luaToDouble(L, 3), outM) != -1)
         {
-            pushDoubleTableOntoStack(L, 12, outM);
+            pushDoubleArrayAsTable(L, 12, outM);
             LUA_END(1);
         }
     }
@@ -8713,11 +8713,11 @@ int _simInterpolatePoses(luaWrap_lua_State* L)
         double inP0[7];
         double inP1[7];
         double outP[7];
-        getDoublesFromTable(L, 1, 7, inP0);
-        getDoublesFromTable(L, 2, 7, inP1);
+        getDoubleArrayFromTable(L, 1, 7, inP0);
+        getDoubleArrayFromTable(L, 2, 7, inP1);
         if (CALL_C_API(simInterpolatePoses, inP0, inP1, luaToDouble(L, 3), outP) != -1)
         {
-            pushDoubleTableOntoStack(L, 7, outP);
+            pushDoubleArrayAsTable(L, 7, outP);
             LUA_END(1);
         }
     }
@@ -8735,10 +8735,10 @@ int _simPoseToMatrix(luaWrap_lua_State* L)
     {
         double inP[7];
         double outM[12];
-        getDoublesFromTable(L, 1, 7, inP);
+        getDoubleArrayFromTable(L, 1, 7, inP);
         if (CALL_C_API(simPoseToMatrix, inP, outM) != -1)
         {
-            pushDoubleTableOntoStack(L, 12, outM);
+            pushDoubleArrayAsTable(L, 12, outM);
             LUA_END(1);
         }
     }
@@ -8756,10 +8756,10 @@ int _simMatrixToPose(luaWrap_lua_State* L)
     {
         double inM[12];
         double outP[7];
-        getDoublesFromTable(L, 1, 12, inM);
+        getDoubleArrayFromTable(L, 1, 12, inM);
         if (CALL_C_API(simMatrixToPose, inM, outP) != -1)
         {
-            pushDoubleTableOntoStack(L, 7, outP);
+            pushDoubleArrayAsTable(L, 7, outP);
             LUA_END(1);
         }
     }
@@ -8779,11 +8779,11 @@ int _simMultiplyVector(luaWrap_lua_State* L)
         std::vector<double> vect;
         size_t cnt = luaWrap_lua_rawlen(L, 2) / 3;
         vect.resize(cnt * 3);
-        getDoublesFromTable(L, 2, cnt * 3, &vect[0]);
+        getDoubleArrayFromTable(L, 2, cnt * 3, &vect[0]);
 
         if (luaWrap_lua_rawlen(L, 1) >= 12)
         { // we have a matrix
-            getDoublesFromTable(L, 1, 12, matr);
+            getDoubleArrayFromTable(L, 1, 12, matr);
             C4X4Matrix m;
             m.setData(matr);
             for (size_t i = 0; i < cnt; i++)
@@ -8794,7 +8794,7 @@ int _simMultiplyVector(luaWrap_lua_State* L)
         }
         else if (luaWrap_lua_rawlen(L, 1) == 7)
         { // we have a pose
-            getDoublesFromTable(L, 1, 7, matr);
+            getDoubleArrayFromTable(L, 1, 7, matr);
             CPose tr;
             tr.X.setData(matr);
             tr.Q.setData(matr + 3, true);
@@ -8806,7 +8806,7 @@ int _simMultiplyVector(luaWrap_lua_State* L)
         }
         else if (luaWrap_lua_rawlen(L, 1) == 4)
         { // we have a quaternion
-            getDoublesFromTable(L, 1, 4, matr);
+            getDoubleArrayFromTable(L, 1, 4, matr);
             CQuaternion q;
             q.setData(matr, true);
             for (size_t i = 0; i < cnt; i++)
@@ -8816,7 +8816,7 @@ int _simMultiplyVector(luaWrap_lua_State* L)
             }
         }
 
-        pushDoubleTableOntoStack(L, 3 * cnt, &vect[0]);
+        pushDoubleArrayAsTable(L, 3 * cnt, &vect[0]);
         LUA_END(1);
     }
 
@@ -8862,7 +8862,7 @@ int _simGetCollectionObjects(luaWrap_lua_State* L)
         int handle = luaToInt(L, 1);
         int cnt;
         int* objHandles = CALL_C_API(simGetCollectionObjects, handle, &cnt);
-        pushIntTableOntoStack(L, cnt, objHandles);
+        pushInt32ArrayAsTable(L, cnt, objHandles);
         delete[] objHandles;
         LUA_END(1);
     }
@@ -8884,8 +8884,8 @@ int _simReadForceSensor(luaWrap_lua_State* L)
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     luaWrap_lua_pushinteger(L, retVal);
-    pushDoubleTableOntoStack(L, 3, force);
-    pushDoubleTableOntoStack(L, 3, torque);
+    pushDoubleArrayAsTable(L, 3, force);
+    pushDoubleArrayAsTable(L, 3, torque);
     LUA_END(3);
 }
 
@@ -8921,9 +8921,9 @@ int _simCheckVisionSensorEx(luaWrap_lua_State* L)
             else
             {
                 if (returnImage)
-                    pushFloatTableOntoStack(L, res[0] * res[1] * 3, buffer);
+                    pushFloatArrayAsTable(L, res[0] * res[1] * 3, buffer);
                 else
-                    pushFloatTableOntoStack(L, res[0] * res[1], buffer);
+                    pushFloatArrayAsTable(L, res[0] * res[1], buffer);
             }
             CALL_C_API(simReleaseBuffer, buffer);
             LUA_END(1);
@@ -8950,9 +8950,9 @@ int _simReadProximitySensor(luaWrap_lua_State* L)
         {
             luaWrap_lua_pushinteger(L, retVal);
             luaWrap_lua_pushnumber(L, detPt[3]);
-            pushDoubleTableOntoStack(L, 3, detPt);
+            pushDoubleArrayAsTable(L, 3, detPt);
             luaWrap_lua_pushinteger(L, detectedObjectID);
-            pushDoubleTableOntoStack(L, 3, surfaceNormal);
+            pushDoubleArrayAsTable(L, 3, surfaceNormal);
             LUA_END(5);
         }
     }
@@ -8961,9 +8961,9 @@ int _simReadProximitySensor(luaWrap_lua_State* L)
     luaWrap_lua_pushinteger(L, retVal);
     luaWrap_lua_pushnumber(L, 0.0);
     double ft[3] = {0.0, 0.0, 0.0};
-    pushDoubleTableOntoStack(L, 3, ft);
+    pushDoubleArrayAsTable(L, 3, ft);
     luaWrap_lua_pushinteger(L, -1);
-    pushDoubleTableOntoStack(L, 3, ft);
+    pushDoubleArrayAsTable(L, 3, ft);
     LUA_END(5);
 }
 
@@ -8988,7 +8988,7 @@ int _simReadVisionSensor(luaWrap_lua_State* L)
                 int off = 0;
                 for (int i = 0; i < tableCount; i++)
                 {
-                    pushDoubleTableOntoStack(L, auxValsCount[i + 1], auxVals + off);
+                    pushDoubleArrayAsTable(L, auxValsCount[i + 1], auxVals + off);
                     off += auxValsCount[i + 1];
                 }
                 delete[] auxValsCount;
@@ -8996,7 +8996,7 @@ int _simReadVisionSensor(luaWrap_lua_State* L)
             }
             for (int i = tableCount; i < 2; i++)
             {
-                pushDoubleTableOntoStack(L, 0, nullptr); // return at least 2 aux packets, even empty
+                pushDoubleArrayAsTable(L, 0, nullptr); // return at least 2 aux packets, even empty
                 tableCount++;
             }
             LUA_END(1 + tableCount);
@@ -9060,7 +9060,7 @@ int _simGetObjectsInTree(luaWrap_lua_State* L)
                 int* objHandles = CALL_C_API(simGetObjectsInTree, handle, objType, options, &objCnt);
                 if (objHandles != nullptr)
                 {
-                    pushIntTableOntoStack(L, objCnt, objHandles);
+                    pushInt32ArrayAsTable(L, objCnt, objHandles);
                     CALL_C_API(simReleaseBuffer, (char*)objHandles);
                     LUA_END(1);
                 }

@@ -1070,7 +1070,7 @@ void CGraph::exportGraphData(VArchive& ar)
 
 bool CGraph::getGraphCurveData(int graphType, int index, std::string& label, std::vector<double>& xVals,
                                std::vector<double>& yVals, int& curveType, float col[3], double minMax[6], int& curveId,
-                               int& curveWidth, long long int& curveUid) const
+                               int& curveWidth, int64_t& curveUid) const
 {
     if (graphType == 0)
     { // time curves (dyn then static curves)

@@ -22,8 +22,8 @@ class CMemorizedConf_old
 
     // General 3D objects:
     CPose configuration;
-    long long int uniqueID;
-    long long int parentUniqueID;
+    int64_t uniqueID;
+    int64_t parentUniqueID;
     int objectType;
 
     // Joints:

@@ -39,7 +39,7 @@ bool VVarious::executeExternalApplication(const char* file, const char* argument
         if (file[0] == '@')
             cmd.erase(cmd.begin());
     }
-    return (reinterpret_cast<long long>(ShellExecuteA(nullptr, "open", cmd.c_str(), arguments, nullptr, sh)) > 32);
+    return (reinterpret_cast<int64_t>(ShellExecuteA(nullptr, "open", cmd.c_str(), arguments, nullptr, sh)) > 32);
 #else // WIN_SIM
     QString cmd;
     if (strlen(file) > 0)

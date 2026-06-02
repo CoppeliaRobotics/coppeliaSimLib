@@ -60,7 +60,7 @@ class CSer
     CSer& operator<<(const unsigned int& v);
     CSer& operator<<(const quint64& v);
     CSer& operator<<(const long& v);
-    CSer& operator<<(const long long int& v);
+    CSer& operator<<(const int64_t& v);
     CSer& operator<<(const unsigned char& v);
     CSer& operator<<(const char& v);
     CSer& operator<<(const std::string& v);
@@ -72,7 +72,7 @@ class CSer
     CSer& operator>>(unsigned int& v);
     CSer& operator>>(quint64& v);
     CSer& operator>>(long& v);
-    CSer& operator>>(long long int& v);
+    CSer& operator>>(int64_t& v);
     CSer& operator>>(unsigned char& v);
     CSer& operator>>(char& v);
     CSer& operator>>(std::string& v);
@@ -151,8 +151,8 @@ class CSer
     void xmlAddNode_ints(const char* name, const int* vals, size_t cnt);
     void xmlAddNode_ints(const char* name, const std::vector<int>& vals);
     void xmlAddNode_uint(const char* name, unsigned int val);
-    void xmlAddNode_longlong(const char* name, long long val);
-    void xmlAddNode_ulonglong(const char* name, unsigned long long val);
+    void xmlAddNode_int64(const char* name, int64_t val);
+    void xmlAddNode_uint64(const char* name, uint64_t val);
     void xmlAddNode_uchars(const char* name, const std::vector<unsigned char>& vals);
     void xmlAddNode_float(const char* name, double val);
     void xmlAddNode_2float(const char* name, double val1, double val2);
@@ -196,8 +196,8 @@ class CSer
     bool xmlGetNode_ints(const char* name, int* vals, size_t cnt, bool required = true);
     bool xmlGetNode_ints(const char* name, std::vector<int>& vals, bool required = true);
     bool xmlGetNode_uint(const char* name, unsigned int& val, bool required = true);
-    bool xmlGetNode_longlong(const char* name, long long& val, bool required = true);
-    bool xmlGetNode_ulonglong(const char* name, unsigned long long& val, bool required = true);
+    bool xmlGetNode_int64(const char* name, int64_t& val, bool required = true);
+    bool xmlGetNode_uint64(const char* name, uint64_t& val, bool required = true);
     bool xmlGetNode_uchars(const char* name, std::vector<unsigned char>& vals, bool required = true);
     bool xmlGetNode_float(const char* name, float& val, bool required = true);
     bool xmlGetNode_2float(const char* name, double& val1, double& val2, bool required = true);

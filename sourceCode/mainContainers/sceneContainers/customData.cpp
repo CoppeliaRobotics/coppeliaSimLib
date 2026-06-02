@@ -471,13 +471,13 @@ void CCustomData::appendEventData(const char* tag, CCbor* ev, bool remove /*= fa
             {
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyHandle(tg.c_str(), ((long long int*)dat.data())[0]);
+                ev->appendKeyHandle(tg.c_str(), ((int64_t*)dat.data())[0]);
             }
             else if (tg.find(proptypetag_handlearray) != std::string::npos)
             {
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyHandleArray(tg.c_str(), (long long int*)dat.data(), dat.size() / sizeof(long long int));
+                ev->appendKeyHandleArray(tg.c_str(), (int64_t*)dat.data(), dat.size() / sizeof(int64_t));
             }
             else if (tg.find(proptypetag_color) != std::string::npos)
             {
@@ -507,7 +507,7 @@ void CCustomData::appendEventData(const char* tag, CCbor* ev, bool remove /*= fa
             {
                 tg.erase(0, p + 2);
                 tg = _eventPrefix + tg;
-                ev->appendKeyInt64Array(tg.c_str(), (long long int*)dat.data(), dat.size() / sizeof(long long int));
+                ev->appendKeyInt64Array(tg.c_str(), (int64_t*)dat.data(), dat.size() / sizeof(int64_t));
             }
             else
             {

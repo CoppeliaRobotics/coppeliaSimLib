@@ -121,8 +121,8 @@ void COcTree::_readPositionsAndColorsAndSetDimensions()
         {
             unsigned char* v = (unsigned char*)_voxelPositions.data();
             unsigned char* w = (unsigned char*)_voxelPositions_old.data();
-            unsigned long long vv = 0;
-            unsigned long long ww = 0;
+            uint64_t vv = 0;
+            uint64_t ww = 0;
             for (size_t i = 0; i < _voxelPositions_old.size() * 4; i++)
             {
                 vv += v[i];
@@ -1635,9 +1635,9 @@ int COcTree::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
 
 std::string COcTree::getObjectState() const
 {
-    long long int h = 0;
+    int64_t h = 0;
     for (size_t i = 0; i < _voxelPositions.size(); i++)
-        h += ((long long int*)&_voxelPositions[i])[0];
+        h += ((int64_t*)&_voxelPositions[i])[0];
     for (size_t i = 0; i < _colorsByte.size(); i++)
         h += _colorsByte[i];
     return std::string(reinterpret_cast<const char*>(&h), sizeof(h));

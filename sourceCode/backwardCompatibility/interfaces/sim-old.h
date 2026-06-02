@@ -171,7 +171,7 @@ SIM_DLLEXPORT int simInsertObjectIntoPointCloud(int pointCloudHandle, int object
 SIM_DLLEXPORT int simSubtractObjectFromPointCloud(int pointCloudHandle, int objectHandle, int options, float tolerance,
                                                   void* reserved);
 SIM_DLLEXPORT int simCheckOctreePointOccupancy(int octreeHandle, int options, const float* points, int ptCnt,
-                                               unsigned int* tag, unsigned long long int* location, void* reserved);
+                                               unsigned int* tag, uint64_t* location, void* reserved);
 SIM_DLLEXPORT int simApplyTexture(int shapeHandle, const float* textureCoordinates, int textCoordSize,
                                   const unsigned char* texture, const int* textureResolution, int options);
 SIM_DLLEXPORT int simSetJointDependency(int jointHandle, int masterJointHandle, float offset, float multCoeff);
@@ -368,7 +368,7 @@ SIM_DLLEXPORT int simSetIntegerParameter(int parameter, int intState);
 SIM_DLLEXPORT int simGetIntegerParameter(int parameter, int* intState);
 SIM_DLLEXPORT int simSetInt32Parameter(int parameter, int intState);
 SIM_DLLEXPORT int simGetInt32Parameter(int parameter, int* intState);
-SIM_DLLEXPORT int simGetUInt64Parameter(int parameter, unsigned long long int* intState);
+SIM_DLLEXPORT int simGetUInt64Parameter(int parameter, uint64_t* intState);
 SIM_DLLEXPORT int simSetStringParameter(int parameter, const char* str);
 SIM_DLLEXPORT char* simGetStringParameter(int parameter);
 SIM_DLLEXPORT int simGetEngineInt32Parameter(int paramId, int objectHandle, const void* object, bool* ok);
@@ -781,7 +781,7 @@ SIM_DLLEXPORT int simSetBoolParam(int parameter, bool boolState);
 SIM_DLLEXPORT int simGetBoolParam(int parameter);
 SIM_DLLEXPORT int simSetInt32Param(int parameter, int intState);
 SIM_DLLEXPORT int simGetInt32Param(int parameter, int* intState);
-SIM_DLLEXPORT int simGetUInt64Param(int parameter, unsigned long long int* intState);
+SIM_DLLEXPORT int simGetUInt64Param(int parameter, uint64_t* intState);
 SIM_DLLEXPORT int simSetStringParam(int parameter, const char* str);
 SIM_DLLEXPORT char* simGetStringParam(int parameter);
 SIM_DLLEXPORT int simSetNamedStringParam(const char* paramName, const char* stringParam, int paramLength);
@@ -831,13 +831,13 @@ SIM_DLLEXPORT int simSetObjectProperty(int objectHandle, int prop);
 SIM_DLLEXPORT int simGetObjectProperty(int objectHandle);
 SIM_DLLEXPORT int simSetObjectSpecialProperty(int objectHandle, int prop);
 SIM_DLLEXPORT int simGetObjectSpecialProperty(int objectHandle);
-SIM_DLLEXPORT char* simGetStringProperty(long long int target, const char* pName);
-SIM_DLLEXPORT char* simGetTableProperty(long long int target, const char* pName, int* bufferL);
-SIM_DLLEXPORT char* simGetBufferProperty(long long int target, const char* pName, int* bufferL);
-SIM_DLLEXPORT double* simGetFloatArrayProperty(long long int target, const char* pName, int* vL);
-SIM_DLLEXPORT int* simGetIntArrayProperty(long long int target, const char* pName, int* vL);
+SIM_DLLEXPORT char* simGetStringProperty(int64_t target, const char* pName);
+SIM_DLLEXPORT char* simGetTableProperty(int64_t target, const char* pName, int* bufferL);
+SIM_DLLEXPORT char* simGetBufferProperty(int64_t target, const char* pName, int* bufferL);
+SIM_DLLEXPORT double* simGetFloatArrayProperty(int64_t target, const char* pName, int* vL);
+SIM_DLLEXPORT int* simGetIntArrayProperty(int64_t target, const char* pName, int* vL);
 SIM_DLLEXPORT char* simGetPluginName(int index);
-SIM_DLLEXPORT int simGetPropertyInfo_lib1(long long int target, const char*, SPropertyInfo* infos, SPropertyOptions* options);
+SIM_DLLEXPORT int simGetPropertyInfo_lib1(int64_t target, const char*, SPropertyInfo* infos, SPropertyOptions* options);
 
-SIM_DLLEXPORT int simSetVector2Property(long long int target, const char* pName, const double* pState) {return -1;};
-SIM_DLLEXPORT int simGetVector2Property(long long int target, const char* pName, double* pState) {return -1;};
+SIM_DLLEXPORT int simSetVector2Property(int64_t target, const char* pName, const double* pState) {return -1;};
+SIM_DLLEXPORT int simGetVector2Property(int64_t target, const char* pName, double* pState) {return -1;};

@@ -33,7 +33,7 @@ void CCollectionContainer::newScene()
     removeAllCollections();
 }
 
-void CCollectionContainer::announceObjectWillBeErased(long long int objectHandle)
+void CCollectionContainer::announceObjectWillBeErased(int64_t objectHandle)
 { // Never called from copy buffer!
     size_t i = 0;
     while (i < getObjectCount())
@@ -51,7 +51,7 @@ void CCollectionContainer::announceObjectWillBeErased(long long int objectHandle
     }
 }
 
-void CCollectionContainer::announceScriptStateWillBeErased(long long int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
+void CCollectionContainer::announceScriptStateWillBeErased(int64_t detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     size_t i = 0;
     while (i < getObjectCount())
@@ -82,7 +82,7 @@ void CCollectionContainer::actualizeAllCollections()
     }
 }
 
-void CCollectionContainer::getCollidableObjectsFromCollection(long long int collectionHandle, std::vector<CSceneObject*>& objects) const
+void CCollectionContainer::getCollidableObjectsFromCollection(int64_t collectionHandle, std::vector<CSceneObject*>& objects) const
 {
     objects.clear();
     CCollection* theGroup = getObjectFromHandle(collectionHandle);
@@ -103,7 +103,7 @@ void CCollectionContainer::getCollidableObjectsFromCollection(long long int coll
     }
 }
 
-void CCollectionContainer::getMeasurableObjectsFromCollection(long long int collectionHandle, std::vector<CSceneObject*>& objects) const
+void CCollectionContainer::getMeasurableObjectsFromCollection(int64_t collectionHandle, std::vector<CSceneObject*>& objects) const
 {
     objects.clear();
     CCollection* theGroup = getObjectFromHandle(collectionHandle);
@@ -124,7 +124,7 @@ void CCollectionContainer::getMeasurableObjectsFromCollection(long long int coll
     }
 }
 
-void CCollectionContainer::getDetectableObjectsFromCollection(long long int collectionHandle, std::vector<CSceneObject*>& objects, int detectableMask) const
+void CCollectionContainer::getDetectableObjectsFromCollection(int64_t collectionHandle, std::vector<CSceneObject*>& objects, int detectableMask) const
 {
     objects.clear();
     CCollection* theGroup = getObjectFromHandle(collectionHandle);
@@ -155,7 +155,7 @@ void CCollectionContainer::setUpDefaultValues()
     removeAllCollections();
 }
 
-void CCollectionContainer::removeCollection(long long int collectionHandle)
+void CCollectionContainer::removeCollection(int64_t collectionHandle)
 {
     App::scene->announceCollectionWillBeErased(int(collectionHandle));
     _removeCollection(collectionHandle);
@@ -252,7 +252,7 @@ void CCollectionContainer::addCollectionWithSuffixOffset(CCollection* collection
 #endif
 }
 
-void CCollectionContainer::addCollectionToSelection(long long int collectionHandle) const
+void CCollectionContainer::addCollectionToSelection(int64_t collectionHandle) const
 {
     CCollection* it = getObjectFromHandle(collectionHandle);
     if (it != nullptr)
@@ -262,7 +262,7 @@ void CCollectionContainer::addCollectionToSelection(long long int collectionHand
     }
 }
 
-int CCollectionContainer::getBoolProperty_t(long long int target, const char* pName, bool& pState) const
+int CCollectionContainer::getBoolProperty_t(int64_t target, const char* pName, bool& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -278,7 +278,7 @@ int CCollectionContainer::getBoolProperty_t(long long int target, const char* pN
     return retVal;
 }
 
-int CCollectionContainer::getLongProperty_t(long long int target, const char* pName, long long int& pState) const
+int CCollectionContainer::getLongProperty_t(int64_t target, const char* pName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -294,7 +294,7 @@ int CCollectionContainer::getLongProperty_t(long long int target, const char* pN
     return retVal;
 }
 
-int CCollectionContainer::getHandleProperty_t(long long int target, const char* pName, long long int& pState) const
+int CCollectionContainer::getHandleProperty_t(int64_t target, const char* pName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -310,7 +310,7 @@ int CCollectionContainer::getHandleProperty_t(long long int target, const char* 
     return retVal;
 }
 
-int CCollectionContainer::getStringProperty_t(long long int target, const char* pName, std::string& pState) const
+int CCollectionContainer::getStringProperty_t(int64_t target, const char* pName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -326,7 +326,7 @@ int CCollectionContainer::getStringProperty_t(long long int target, const char* 
     return retVal;
 }
 
-int CCollectionContainer::getHandleArrayProperty_t(long long int target, const char* pName, std::vector<long long int>& pState) const
+int CCollectionContainer::getHandleArrayProperty_t(int64_t target, const char* pName, std::vector<int64_t>& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     pState.clear();
@@ -349,7 +349,7 @@ int CCollectionContainer::getHandleArrayProperty_t(long long int target, const c
     return retVal;
 }
 
-int CCollectionContainer::getStringArrayProperty_t(long long int target, const char* pName, std::vector<std::string>& pState) const
+int CCollectionContainer::getStringArrayProperty_t(int64_t target, const char* pName, std::vector<std::string>& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -365,7 +365,7 @@ int CCollectionContainer::getStringArrayProperty_t(long long int target, const c
     return retVal;
 }
 
-int CCollectionContainer::getPropertyName_t(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+int CCollectionContainer::getPropertyName_t(int64_t target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -400,7 +400,7 @@ int CCollectionContainer::getPropertyName_t(long long int target, int& index, st
     return retVal;
 }
 
-int CCollectionContainer::getPropertyInfo_t(long long int target, const char* pName, int& info, std::string& infoTxt) const
+int CCollectionContainer::getPropertyInfo_t(int64_t target, const char* pName, int& info, std::string& infoTxt) const
 {
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
@@ -443,7 +443,7 @@ void CCollectionContainer::performObjectLoadingMapping(const std::map<int, int>*
         getObjectFromIndex(i)->performObjectLoadingMapping(map, 0);
 }
 
-void CCollectionContainer::_removeCollection(long long int collectionHandle)
+void CCollectionContainer::_removeCollection(int64_t collectionHandle)
 {
     for (size_t i = 0; i < _allCollections.size(); i++)
     {
@@ -476,7 +476,7 @@ void CCollectionContainer::_addCollection(CCollection* collection)
 
     if (App::scenes->getEventsEnabled())
     {
-        std::vector<long long int> handles;
+        std::vector<int64_t> handles;
         for (size_t i = 0; i < _allCollections.size(); i++)
             handles.push_back(_allCollections[i]->getObjectHandle());
         const char* cmd = propCollectionCont_collections.name;
@@ -502,7 +502,7 @@ CCollection* CCollectionContainer::getObjectFromIndex(size_t index) const
     return retVal;
 }
 
-CCollection* CCollectionContainer::getObjectFromHandle(long long int collectionHandle) const
+CCollection* CCollectionContainer::getObjectFromHandle(int64_t collectionHandle) const
 {
     CCollection* retVal = nullptr;
     for (size_t i = 0; i < _allCollections.size(); i++)

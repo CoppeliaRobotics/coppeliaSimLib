@@ -47,9 +47,9 @@ class CMarker : public CSceneObject
     int getBoolProperty(const char* pName, bool& pState) const override;
     int setIntProperty(const char* pName, int pState) override;
     int getIntProperty(const char* pName, int& pState) const override;
-    int setLongProperty(const char* pName, long long int pState) override;
-    int getLongProperty(const char* pName, long long int& pState) const override;
-    int getHandleProperty(const char* pName, long long int& pState) const override;
+    int setLongProperty(const char* pName, int64_t pState) override;
+    int getLongProperty(const char* pName, int64_t& pState) const override;
+    int getHandleProperty(const char* pName, int64_t& pState) const override;
     int setFloatProperty(const char* pName, double pState) override;
     int getFloatProperty(const char* pName, double& pState) const override;
     int setStringProperty(const char* pName, const std::string& pState) override;
@@ -65,9 +65,9 @@ class CMarker : public CSceneObject
 
     int getMarkerOptions() const;
 
-    void addItems(const std::vector<float>* pts, const std::vector<float>* quats, const std::vector<unsigned char>* rgbas, const std::vector<float>* sizes, bool transform = true, std::vector<long long int>* newIds = nullptr);
+    void addItems(const std::vector<float>* pts, const std::vector<float>* quats, const std::vector<unsigned char>* rgbas, const std::vector<float>* sizes, bool transform = true, std::vector<int64_t>* newIds = nullptr);
     void remItems(int itemCnt, bool triggerEvent = true);
-    void remItems(const std::vector<long long int>* ids);
+    void remItems(const std::vector<int64_t>* ids);
 
   protected:
     void _updateMarkerEvent(bool incremental, CCbor* evv = nullptr);
@@ -93,18 +93,18 @@ class CMarker : public CSceneObject
     std::vector<float> _quats; // 4 per item (qx, qy, qz, qw) (or 0 with lines and triangles, pts and similar)
     std::vector<unsigned char> _rgba; // 4 * _itemPointCnt per item
     std::vector<float> _sizes; // 3 per item (or 0 with lines and triangles, pts and similar)
-    std::vector<long long int> _ids; // 1 item
+    std::vector<int64_t> _ids; // 1 item
 
     bool _sendFullEvent;
-    long long int _nextId;
+    int64_t _nextId;
     int _newItemsCnt;
-    std::vector<long long int> _remIds;
+    std::vector<int64_t> _remIds;
 
     // For bounding box calculation:
     std::multiset<float> _xs;
     std::multiset<float> _ys;
     std::multiset<float> _zs;
-    std::unordered_map<long long int, CItemPointIts> _itemIts;
+    std::unordered_map<int64_t, CItemPointIts> _itemIts;
 
 #ifdef SIM_WITH_GUI
   public:

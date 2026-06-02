@@ -71,7 +71,7 @@ CInterfaceStack* CInterfaceStackContainer::getStack(int id) const
     return nullptr;
 }
 
-int CInterfaceStackContainer::setBoolProperty_t(long long int target, const char* ppName, bool pState)
+int CInterfaceStackContainer::setBoolProperty_t(int64_t target, const char* ppName, bool pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -80,7 +80,7 @@ int CInterfaceStackContainer::setBoolProperty_t(long long int target, const char
     return retVal;
 }
 
-int CInterfaceStackContainer::getBoolProperty_t(long long int target, const char* ppName, bool& pState) const
+int CInterfaceStackContainer::getBoolProperty_t(int64_t target, const char* ppName, bool& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -89,7 +89,7 @@ int CInterfaceStackContainer::getBoolProperty_t(long long int target, const char
     return retVal;
 }
 
-int CInterfaceStackContainer::setIntProperty_t(long long int target, const char* ppName, int pState)
+int CInterfaceStackContainer::setIntProperty_t(int64_t target, const char* ppName, int pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -98,7 +98,7 @@ int CInterfaceStackContainer::setIntProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CInterfaceStackContainer::getIntProperty_t(long long int target, const char* ppName, int& pState) const
+int CInterfaceStackContainer::getIntProperty_t(int64_t target, const char* ppName, int& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -107,7 +107,7 @@ int CInterfaceStackContainer::getIntProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CInterfaceStackContainer::setLongProperty_t(long long int target, const char* ppName, long long int pState)
+int CInterfaceStackContainer::setLongProperty_t(int64_t target, const char* ppName, int64_t pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -116,7 +116,7 @@ int CInterfaceStackContainer::setLongProperty_t(long long int target, const char
     return retVal;
 }
 
-int CInterfaceStackContainer::getLongProperty_t(long long int target, const char* ppName, long long int& pState) const
+int CInterfaceStackContainer::getLongProperty_t(int64_t target, const char* ppName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -125,7 +125,7 @@ int CInterfaceStackContainer::getLongProperty_t(long long int target, const char
     return retVal;
 }
 
-int CInterfaceStackContainer::setHandleProperty_t(long long int target, const char* ppName, long long int pState)
+int CInterfaceStackContainer::setHandleProperty_t(int64_t target, const char* ppName, int64_t pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -134,7 +134,7 @@ int CInterfaceStackContainer::setHandleProperty_t(long long int target, const ch
     return retVal;
 }
 
-int CInterfaceStackContainer::getHandleProperty_t(long long int target, const char* ppName, long long int& pState) const
+int CInterfaceStackContainer::getHandleProperty_t(int64_t target, const char* ppName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -143,7 +143,7 @@ int CInterfaceStackContainer::getHandleProperty_t(long long int target, const ch
     return retVal;
 }
 
-int CInterfaceStackContainer::setFloatProperty_t(long long int target, const char* ppName, double pState)
+int CInterfaceStackContainer::setFloatProperty_t(int64_t target, const char* ppName, double pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -152,7 +152,7 @@ int CInterfaceStackContainer::setFloatProperty_t(long long int target, const cha
     return retVal;
 }
 
-int CInterfaceStackContainer::getFloatProperty_t(long long int target, const char* ppName, double& pState) const
+int CInterfaceStackContainer::getFloatProperty_t(int64_t target, const char* ppName, double& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -161,7 +161,7 @@ int CInterfaceStackContainer::getFloatProperty_t(long long int target, const cha
     return retVal;
 }
 
-int CInterfaceStackContainer::setStringProperty_t(long long int target, const char* ppName, const std::string& pState)
+int CInterfaceStackContainer::setStringProperty_t(int64_t target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -170,7 +170,7 @@ int CInterfaceStackContainer::setStringProperty_t(long long int target, const ch
     return retVal;
 }
 
-int CInterfaceStackContainer::getStringProperty_t(long long int target, const char* ppName, std::string& pState) const
+int CInterfaceStackContainer::getStringProperty_t(int64_t target, const char* ppName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -179,7 +179,7 @@ int CInterfaceStackContainer::getStringProperty_t(long long int target, const ch
     return retVal;
 }
 
-int CInterfaceStackContainer::setBufferProperty_t(long long int target, const char* ppName, const std::string& pState)
+int CInterfaceStackContainer::setBufferProperty_t(int64_t target, const char* ppName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -188,7 +188,7 @@ int CInterfaceStackContainer::setBufferProperty_t(long long int target, const ch
     return retVal;
 }
 
-int CInterfaceStackContainer::getBufferProperty_t(long long int target, const char* ppName, std::string& pState) const
+int CInterfaceStackContainer::getBufferProperty_t(int64_t target, const char* ppName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -197,7 +197,7 @@ int CInterfaceStackContainer::getBufferProperty_t(long long int target, const ch
     return retVal;
 }
 
-int CInterfaceStackContainer::setIntArray2Property_t(long long int target, const char* ppName, const int* pState)
+int CInterfaceStackContainer::setIntArray2Property_t(int64_t target, const char* ppName, const int* pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -206,7 +206,7 @@ int CInterfaceStackContainer::setIntArray2Property_t(long long int target, const
     return retVal;
 }
 
-int CInterfaceStackContainer::getIntArray2Property_t(long long int target, const char* ppName, int* pState) const
+int CInterfaceStackContainer::getIntArray2Property_t(int64_t target, const char* ppName, int* pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -215,7 +215,7 @@ int CInterfaceStackContainer::getIntArray2Property_t(long long int target, const
     return retVal;
 }
 
-int CInterfaceStackContainer::setVector3Property_t(long long int target, const char* ppName, const C3Vector& pState)
+int CInterfaceStackContainer::setVector3Property_t(int64_t target, const char* ppName, const C3Vector& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -224,7 +224,7 @@ int CInterfaceStackContainer::setVector3Property_t(long long int target, const c
     return retVal;
 }
 
-int CInterfaceStackContainer::getVector3Property_t(long long int target, const char* ppName, C3Vector& pState) const
+int CInterfaceStackContainer::getVector3Property_t(int64_t target, const char* ppName, C3Vector& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -233,7 +233,7 @@ int CInterfaceStackContainer::getVector3Property_t(long long int target, const c
     return retVal;
 }
 
-int CInterfaceStackContainer::setMatrixProperty_t(long long int target, const char* ppName, const CMatrix& pState)
+int CInterfaceStackContainer::setMatrixProperty_t(int64_t target, const char* ppName, const CMatrix& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -242,7 +242,7 @@ int CInterfaceStackContainer::setMatrixProperty_t(long long int target, const ch
     return retVal;
 }
 
-int CInterfaceStackContainer::getMatrixProperty_t(long long int target, const char* ppName, CMatrix& pState) const
+int CInterfaceStackContainer::getMatrixProperty_t(int64_t target, const char* ppName, CMatrix& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -251,7 +251,7 @@ int CInterfaceStackContainer::getMatrixProperty_t(long long int target, const ch
     return retVal;
 }
 
-int CInterfaceStackContainer::setQuaternionProperty_t(long long int target, const char* ppName, const CQuaternion& pState)
+int CInterfaceStackContainer::setQuaternionProperty_t(int64_t target, const char* ppName, const CQuaternion& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -260,7 +260,7 @@ int CInterfaceStackContainer::setQuaternionProperty_t(long long int target, cons
     return retVal;
 }
 
-int CInterfaceStackContainer::getQuaternionProperty_t(long long int target, const char* ppName, CQuaternion& pState) const
+int CInterfaceStackContainer::getQuaternionProperty_t(int64_t target, const char* ppName, CQuaternion& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -269,7 +269,7 @@ int CInterfaceStackContainer::getQuaternionProperty_t(long long int target, cons
     return retVal;
 }
 
-int CInterfaceStackContainer::setPoseProperty_t(long long int target, const char* ppName, const CPose& pState)
+int CInterfaceStackContainer::setPoseProperty_t(int64_t target, const char* ppName, const CPose& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -278,7 +278,7 @@ int CInterfaceStackContainer::setPoseProperty_t(long long int target, const char
     return retVal;
 }
 
-int CInterfaceStackContainer::getPoseProperty_t(long long int target, const char* ppName, CPose& pState) const
+int CInterfaceStackContainer::getPoseProperty_t(int64_t target, const char* ppName, CPose& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -287,7 +287,7 @@ int CInterfaceStackContainer::getPoseProperty_t(long long int target, const char
     return retVal;
 }
 
-int CInterfaceStackContainer::setColorProperty_t(long long int target, const char* ppName, const float* pState)
+int CInterfaceStackContainer::setColorProperty_t(int64_t target, const char* ppName, const float* pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -296,7 +296,7 @@ int CInterfaceStackContainer::setColorProperty_t(long long int target, const cha
     return retVal;
 }
 
-int CInterfaceStackContainer::getColorProperty_t(long long int target, const char* ppName, float* pState) const
+int CInterfaceStackContainer::getColorProperty_t(int64_t target, const char* ppName, float* pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -305,7 +305,7 @@ int CInterfaceStackContainer::getColorProperty_t(long long int target, const cha
     return retVal;
 }
 
-int CInterfaceStackContainer::setFloatArrayProperty_t(long long int target, const char* ppName, const std::vector<double>& pState)
+int CInterfaceStackContainer::setFloatArrayProperty_t(int64_t target, const char* ppName, const std::vector<double>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -314,7 +314,7 @@ int CInterfaceStackContainer::setFloatArrayProperty_t(long long int target, cons
     return retVal;
 }
 
-int CInterfaceStackContainer::getFloatArrayProperty_t(long long int target, const char* ppName, std::vector<double>& pState) const
+int CInterfaceStackContainer::getFloatArrayProperty_t(int64_t target, const char* ppName, std::vector<double>& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -323,7 +323,7 @@ int CInterfaceStackContainer::getFloatArrayProperty_t(long long int target, cons
     return retVal;
 }
 
-int CInterfaceStackContainer::setIntArrayProperty_t(long long int target, const char* ppName, const std::vector<int>& pState)
+int CInterfaceStackContainer::setIntArrayProperty_t(int64_t target, const char* ppName, const std::vector<int>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -332,7 +332,7 @@ int CInterfaceStackContainer::setIntArrayProperty_t(long long int target, const 
     return retVal;
 }
 
-int CInterfaceStackContainer::getIntArrayProperty_t(long long int target, const char* ppName, std::vector<int>& pState) const
+int CInterfaceStackContainer::getIntArrayProperty_t(int64_t target, const char* ppName, std::vector<int>& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -341,7 +341,7 @@ int CInterfaceStackContainer::getIntArrayProperty_t(long long int target, const 
     return retVal;
 }
 
-int CInterfaceStackContainer::setHandleArrayProperty_t(long long int target, const char* ppName, const std::vector<long long int>& pState)
+int CInterfaceStackContainer::setHandleArrayProperty_t(int64_t target, const char* ppName, const std::vector<int64_t>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -350,7 +350,7 @@ int CInterfaceStackContainer::setHandleArrayProperty_t(long long int target, con
     return retVal;
 }
 
-int CInterfaceStackContainer::getHandleArrayProperty_t(long long int target, const char* ppName, std::vector<long long int>& pState) const
+int CInterfaceStackContainer::getHandleArrayProperty_t(int64_t target, const char* ppName, std::vector<int64_t>& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -359,7 +359,7 @@ int CInterfaceStackContainer::getHandleArrayProperty_t(long long int target, con
     return retVal;
 }
 
-int CInterfaceStackContainer::setStringArrayProperty_t(long long int target, const char* ppName, const std::vector<std::string>& pState)
+int CInterfaceStackContainer::setStringArrayProperty_t(int64_t target, const char* ppName, const std::vector<std::string>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -368,7 +368,7 @@ int CInterfaceStackContainer::setStringArrayProperty_t(long long int target, con
     return retVal;
 }
 
-int CInterfaceStackContainer::getStringArrayProperty_t(long long int target, const char* ppName, std::vector<std::string>& pState) const
+int CInterfaceStackContainer::getStringArrayProperty_t(int64_t target, const char* ppName, std::vector<std::string>& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -377,7 +377,7 @@ int CInterfaceStackContainer::getStringArrayProperty_t(long long int target, con
     return retVal;
 }
 
-int CInterfaceStackContainer::removeProperty_t(long long int target, const char* ppName)
+int CInterfaceStackContainer::removeProperty_t(int64_t target, const char* ppName)
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -386,7 +386,7 @@ int CInterfaceStackContainer::removeProperty_t(long long int target, const char*
     return retVal;
 }
 
-int CInterfaceStackContainer::getPropertyName_t(long long int target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+int CInterfaceStackContainer::getPropertyName_t(int64_t target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);
@@ -395,7 +395,7 @@ int CInterfaceStackContainer::getPropertyName_t(long long int target, int& index
     return retVal;
 }
 
-int CInterfaceStackContainer::getPropertyInfo_t(long long int target, const char* ppName, int& info, std::string& infoTxt) const
+int CInterfaceStackContainer::getPropertyInfo_t(int64_t target, const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = sim_propertyret_unknowntarget;
     CInterfaceStack* stack = getStack(target);

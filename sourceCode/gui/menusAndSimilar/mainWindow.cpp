@@ -304,7 +304,7 @@ void CMainWindow::initializeWindow()
                        App::userSettings->initWindowSize[0], App::userSettings->initWindowSize[1]);
 }
 
-void CMainWindow::announceScriptStateWillBeErased(int detachedScriptHandle, long long int scriptUid)
+void CMainWindow::announceScriptStateWillBeErased(int detachedScriptHandle, int64_t scriptUid)
 {
     if (codeEditorContainer != nullptr)
         codeEditorContainer->announceScriptStateWillBeErased(detachedScriptHandle, scriptUid);

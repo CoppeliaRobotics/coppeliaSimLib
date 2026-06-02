@@ -150,7 +150,7 @@ typedef bool(__cdecl* ptr_geomPlugin_getMeshMeshCollision)(const void* mesh1ObbS
 typedef bool(__cdecl* ptr_geomPlugin_getMeshOctreeCollision)(const void* meshObbStruct,
                                                              const double meshTransformation[7], const void* ocStruct,
                                                              const double octreeTransformation[7], int* meshCaching,
-                                                             unsigned long long int* ocCaching);
+                                                             uint64_t* ocCaching);
 typedef bool(__cdecl* ptr_geomPlugin_getMeshTriangleCollision)(const void* meshObbStruct,
                                                                const double meshTransformation[7], const double p[3],
                                                                const double v[3], const double w[3],
@@ -163,26 +163,26 @@ typedef bool(__cdecl* ptr_geomPlugin_getMeshSegmentCollision)(const void* meshOb
                                                               int* intersectionsSize, int* caching);
 typedef bool(__cdecl* ptr_geomPlugin_getOctreeOctreeCollision)(
     const void* oc1Struct, const double octree1Transformation[7], const void* oc2Struct,
-    const double octree2Transformation[7], unsigned long long int* oc1Caching, unsigned long long int* oc2Caching);
+    const double octree2Transformation[7], uint64_t* oc1Caching, uint64_t* oc2Caching);
 typedef bool(__cdecl* ptr_geomPlugin_getOctreePtcloudCollision)(
     const void* ocStruct, const double octreeTransformation[7], const void* pcStruct,
-    const double ptcloudTransformation[7], unsigned long long int* ocCaching, unsigned long long int* pcCaching);
+    const double ptcloudTransformation[7], uint64_t* ocCaching, uint64_t* pcCaching);
 typedef bool(__cdecl* ptr_geomPlugin_getOctreeTriangleCollision)(const void* ocStruct,
                                                                  const double octreeTransformation[7],
                                                                  const double p[3], const double v[3],
-                                                                 const double w[3], unsigned long long int* caching);
+                                                                 const double w[3], uint64_t* caching);
 typedef bool(__cdecl* ptr_geomPlugin_getOctreeSegmentCollision)(const void* ocStruct,
                                                                 const double octreeTransformation[7],
                                                                 const double segmentExtremity[3],
                                                                 const double segmentVector[3],
-                                                                unsigned long long int* caching);
+                                                                uint64_t* caching);
 typedef bool(__cdecl* ptr_geomPlugin_getOctreePointsCollision)(const void* ocStruct,
                                                                const double octreeTransformation[7],
                                                                const double* points, int pointCount);
 typedef bool(__cdecl* ptr_geomPlugin_getOctreePointCollision)(const void* ocStruct,
                                                               const double octreeTransformation[7],
                                                               const double point[3], unsigned* usrData,
-                                                              unsigned long long int* caching);
+                                                              uint64_t* caching);
 typedef bool(__cdecl* ptr_geomPlugin_getBoxBoxCollision)(const double box1Transformation[7],
                                                          const double box1HalfSize[3],
                                                          const double box2Transformation[7],
@@ -213,11 +213,11 @@ typedef bool(__cdecl* ptr_geomPlugin_getMeshMeshDistanceIfSmaller)(const void* m
 typedef bool(__cdecl* ptr_geomPlugin_getMeshOctreeDistanceIfSmaller)(
     const void* meshObbStruct, const double meshTransformation[7], const void* ocStruct,
     const double octreeTransformation[7], double* dist, double meshMinDistPt[3], double ocMinDistPt[3],
-    int* meshCaching, unsigned long long int* ocCaching);
+    int* meshCaching, uint64_t* ocCaching);
 typedef bool(__cdecl* ptr_geomPlugin_getMeshPtcloudDistanceIfSmaller)(
     const void* meshObbStruct, const double meshTransformation[7], const void* pcStruct,
     const double pcTransformation[7], double* dist, double meshMinDistPt[3], double pcMinDistPt[3], int* meshCaching,
-    unsigned long long int* pcCaching);
+    uint64_t* pcCaching);
 typedef bool(__cdecl* ptr_geomPlugin_getMeshTriangleDistanceIfSmaller)(
     const void* meshObbStruct, const double meshTransformation[7], const double p[3], const double v[3],
     const double w[3], double* dist, double minDistSegPt1[3], double minDistSegPt2[3], int* caching);
@@ -231,43 +231,43 @@ typedef bool(__cdecl* ptr_geomPlugin_getMeshPointDistanceIfSmaller)(const void* 
 typedef bool(__cdecl* ptr_geomPlugin_getOctreeOctreeDistanceIfSmaller)(
     const void* oc1Struct, const double octree1Transformation[7], const void* oc2Struct,
     const double octree2Transformation[7], double* dist, double oc1MinDistPt[3], double oc2MinDistPt[3],
-    unsigned long long int* oc1Caching, unsigned long long int* oc2Caching);
+    uint64_t* oc1Caching, uint64_t* oc2Caching);
 typedef bool(__cdecl* ptr_geomPlugin_getOctreePtcloudDistanceIfSmaller)(
     const void* ocStruct, const double octreeTransformation[7], const void* pcStruct, const double pcTransformation[7],
-    double* dist, double ocMinDistPt[3], double pcMinDistPt[3], unsigned long long int* ocCaching,
-    unsigned long long int* pcCaching);
+    double* dist, double ocMinDistPt[3], double pcMinDistPt[3], uint64_t* ocCaching,
+    uint64_t* pcCaching);
 typedef bool(__cdecl* ptr_geomPlugin_getOctreeTriangleDistanceIfSmaller)(
     const void* ocStruct, const double octreeTransformation[7], const double p[3], const double v[3], const double w[3],
-    double* dist, double ocMinDistPt[3], double triMinDistPt[3], unsigned long long int* ocCaching);
+    double* dist, double ocMinDistPt[3], double triMinDistPt[3], uint64_t* ocCaching);
 typedef bool(__cdecl* ptr_geomPlugin_getOctreeSegmentDistanceIfSmaller)(const void* ocStruct,
                                                                         const double octreeTransformation[7],
                                                                         const double segmentEndPoint[3],
                                                                         const double segmentVector[3], double* dist,
                                                                         double ocMinDistPt[3], double segMinDistPt[3],
-                                                                        unsigned long long int* ocCaching);
+                                                                        uint64_t* ocCaching);
 typedef bool(__cdecl* ptr_geomPlugin_getOctreePointDistanceIfSmaller)(const void* ocStruct,
                                                                       const double octreeTransformation[7],
                                                                       const double point[3], double* dist,
                                                                       double ocMinDistPt[3],
-                                                                      unsigned long long int* ocCaching);
+                                                                      uint64_t* ocCaching);
 typedef bool(__cdecl* ptr_geomPlugin_getPtcloudPtcloudDistanceIfSmaller)(
     const void* pc1Struct, const double pc1Transformation[7], const void* pc2Struct, const double pc2Transformation[7],
-    double* dist, double* pc1MinDistPt, double* pc2MinDistPt, unsigned long long int* pc1Caching,
-    unsigned long long int* pc2Caching);
+    double* dist, double* pc1MinDistPt, double* pc2MinDistPt, uint64_t* pc1Caching,
+    uint64_t* pc2Caching);
 typedef bool(__cdecl* ptr_geomPlugin_getPtcloudTriangleDistanceIfSmaller)(
     const void* pcStruct, const double pcTransformation[7], const double p[3], const double v[3], const double w[3],
-    double* dist, double* pcMinDistPt, double* triMinDistPt, unsigned long long int* pcCaching);
+    double* dist, double* pcMinDistPt, double* triMinDistPt, uint64_t* pcCaching);
 typedef bool(__cdecl* ptr_geomPlugin_getPtcloudSegmentDistanceIfSmaller)(const void* pcStruct,
                                                                          const double pcTransformation[7],
                                                                          const double segmentEndPoint[3],
                                                                          const double segmentVector[3], double* dist,
                                                                          double* pcMinDistPt, double* segMinDistPt,
-                                                                         unsigned long long int* pcCaching);
+                                                                         uint64_t* pcCaching);
 typedef bool(__cdecl* ptr_geomPlugin_getPtcloudPointDistanceIfSmaller)(const void* pcStruct,
                                                                        const double pcTransformation[7],
                                                                        const double point[3], double* dist,
                                                                        double* pcMinDistPt,
-                                                                       unsigned long long int* pcCaching);
+                                                                       uint64_t* pcCaching);
 typedef double(__cdecl* ptr_geomPlugin_getApproxBoxBoxDistance)(const double box1Transformation[7],
                                                                 const double box1HalfSize[3],
                                                                 const double box2Transformation[7],
@@ -445,7 +445,7 @@ class CPlugin
         stage_uicleanupdone = 3, // set by UI thread
     };
 
-    CPlugin(const char* filename, const char* pluginnamespaceAndVersion, long long int loadOrigin);
+    CPlugin(const char* filename, const char* pluginnamespaceAndVersion, int64_t loadOrigin);
     virtual ~CPlugin();
     int load(std::string* errStr);
 
@@ -479,9 +479,9 @@ class CPlugin
     void popCurrentPlugin();
     CPluginCallbackContainer* getPluginCallbackContainer();
     CPluginVariableContainer* getPluginVariableContainer();
-    void addDependency(long long int loadOrigin);
-    void removeDependency(long long int loadOrigin);
-    bool hasDependency(long long int loadOrigin) const;
+    void addDependency(int64_t loadOrigin);
+    void removeDependency(int64_t loadOrigin);
+    bool hasDependency(int64_t loadOrigin) const;
     std::string getDependencies() const;
     bool hasAnyDependency() const;
 
@@ -689,7 +689,7 @@ class CPlugin
     CPluginCallbackContainer _pluginCallbackContainer;
     CPluginVariableContainer _pluginVariableContainer;
 
-    std::unordered_set<long long int> _dependencies; // -1 = c++, otherwise script UIDs
+    std::unordered_set<int64_t> _dependencies; // -1 = c++, otherwise script UIDs
 
     std::string _filename;
     int pluginVersion;

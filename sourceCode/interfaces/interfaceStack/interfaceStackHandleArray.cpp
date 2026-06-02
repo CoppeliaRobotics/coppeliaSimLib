@@ -1,6 +1,6 @@
 #include <interfaceStackHandleArray.h>
 
-CInterfaceStackHandleArray::CInterfaceStackHandleArray(const long long int* vals, size_t cnt)
+CInterfaceStackHandleArray::CInterfaceStackHandleArray(const int64_t* vals, size_t cnt)
 {
     _objectType = sim_stackitem_handlearray;
     setValue(vals, cnt);
@@ -10,14 +10,14 @@ CInterfaceStackHandleArray::~CInterfaceStackHandleArray()
 {
 }
 
-const long long int* CInterfaceStackHandleArray::getValue(size_t* cnt) const
+const int64_t* CInterfaceStackHandleArray::getValue(size_t* cnt) const
 {
     if (cnt != nullptr)
         cnt[0] = _handles.size();
     return _handles.data();
 }
 
-void CInterfaceStackHandleArray::setValue(const long long int* vals, size_t cnt)
+void CInterfaceStackHandleArray::setValue(const int64_t* vals, size_t cnt)
 {
     _handles.assign(vals, vals + cnt);
 }
@@ -55,7 +55,7 @@ std::string CInterfaceStackHandleArray::getObjectData(std::string& /*auxInfos*/)
     size_t c = _handles.size();
     retVal.append(reinterpret_cast<const char*>(&c), sizeof(c));
     for (size_t i = 0; i < c; i++)
-        retVal.append(reinterpret_cast<const char*>(_handles.data() + i), sizeof(long long int));
+        retVal.append(reinterpret_cast<const char*>(_handles.data() + i), sizeof(int64_t));
     return retVal;
 }
 
@@ -71,8 +71,8 @@ unsigned int CInterfaceStackHandleArray::createFromData(const char* data, unsign
     std::memcpy(&s, data + pos, sizeof(s));
     pos += sizeof(s);
     _handles.resize(s);
-    std::memcpy(_handles.data(), data + pos, s * sizeof(long long int));
-    return (unsigned int)(sizeof(s) + s * sizeof(long long int));
+    std::memcpy(_handles.data(), data + pos, s * sizeof(int64_t));
+    return (unsigned int)(sizeof(s) + s * sizeof(int64_t));
 }
 
 bool CInterfaceStackHandleArray::checkCreateFromData(const char* data, unsigned int& w, unsigned int l, unsigned char version)
@@ -82,7 +82,7 @@ bool CInterfaceStackHandleArray::checkCreateFromData(const char* data, unsigned 
     {
         size_t s;
         std::memcpy(&s, data + 0, sizeof(s));
-        w = (unsigned int)(sizeof(s) + s * sizeof(long long int));
+        w = (unsigned int)(sizeof(s) + s * sizeof(int64_t));
         retVal = l >= w;
     }
     return retVal;

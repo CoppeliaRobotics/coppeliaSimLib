@@ -5,7 +5,7 @@
 class CInterfaceStackInteger : public CInterfaceStackObject
 {
   public:
-    CInterfaceStackInteger(long long int theValue);
+    CInterfaceStackInteger(int64_t theValue);
     virtual ~CInterfaceStackInteger();
 
     CInterfaceStackObject* copyYourself() const override;
@@ -15,9 +15,9 @@ class CInterfaceStackInteger : public CInterfaceStackObject
     unsigned int createFromData(const char* data, unsigned char version, std::vector<CInterfaceStackObject*>& allCreatedObjects) override;
     static bool checkCreateFromData(const char* data, unsigned int& w, unsigned int l, unsigned char version);
 
-    long long int getValue() const;
-    void setValue(long long int v);
+    int64_t getValue() const;
+    void setValue(int64_t v);
 
   protected:
-    long long int _value;
+    int64_t _value;
 };
