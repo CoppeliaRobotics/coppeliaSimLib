@@ -5687,9 +5687,9 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                 if ((sel[i] != modelHandle) || (name != propSceneObject_pose.name))
                 { // the model base's pose should not be included.
                     int result = -1;
-                    if ((t != sim_propertytype_buffer) && (name.find(CUSTOMDATAPREFIX) != std::string::npos))
+                    if ((t != sim_propertytype_buffer) && (name.find(CUSTOMDATAPREFIXDOT) != std::string::npos))
                     { // customData (and signals) might return a different type than 'buffer', but is actually always buffer (this is normally handled at the API entry)
-                        utils::replaceSubstringStart(name, CUSTOMDATAPREFIX, (std::string(CUSTOMDATAPREFIX) + propertyStrings[t]).c_str());
+                        utils::replaceSubstringStart(name, CUSTOMDATAPREFIXDOT, (std::string(CUSTOMDATAPREFIXDOT) + propertyStrings[t]).c_str());
                         t = sim_propertytype_buffer;
                     }
                     switch (t)

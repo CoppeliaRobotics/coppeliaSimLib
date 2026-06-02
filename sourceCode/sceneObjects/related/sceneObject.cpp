@@ -1590,7 +1590,7 @@ void CSceneObject::addObjectEventData(CCbor* ev)
             auto it = _customReferencedHandles.find(tags[i]);
             for (size_t j = 0; j < it->second.size(); j++)
                 handles.push_back(it->second[j].generalObjectHandle);
-            ev->appendKeyHandleArray((REFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+            ev->appendKeyHandleArray((REFSPREFIXDOT + tags[i]).c_str(), handles.data(), handles.size());
         }
     }
     tags.clear();
@@ -1603,7 +1603,7 @@ void CSceneObject::addObjectEventData(CCbor* ev)
             auto it = _customReferencedOriginalHandles.find(tags[i]);
             for (size_t j = 0; j < it->second.size(); j++)
                 handles.push_back(it->second[j].generalObjectHandle);
-            ev->appendKeyHandleArray((ORIGREFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+            ev->appendKeyHandleArray((ORIGREFSPREFIXDOT + tags[i]).c_str(), handles.data(), handles.size());
         }
     }
 
@@ -4392,14 +4392,14 @@ void CSceneObject::setReferencedHandles(size_t cnt, const int* handles, const ch
                     auto it = _customReferencedHandles.find(tags[i]);
                     for (size_t j = 0; j < it->second.size(); j++)
                         handles.push_back(it->second[j].generalObjectHandle);
-                    ev->appendKeyHandleArray((REFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+                    ev->appendKeyHandleArray((REFSPREFIXDOT + tags[i]).c_str(), handles.data(), handles.size());
                     usedTags.insert(tags[i]);
                 }
             }
             for (size_t i = 0; i < initTags.size(); i++)
             { // take care of cleared tags
                 if ( (initTags[i].size() > 0) && (usedTags.find(initTags[i]) == usedTags.end()) )
-                    ev->appendKeyNull((REFSPREFIX + initTags[i]).c_str());
+                    ev->appendKeyNull((REFSPREFIXDOT + initTags[i]).c_str());
             }
             App::scenes->pushEvent();
         }
@@ -4525,14 +4525,14 @@ void CSceneObject::setReferencedOriginalHandles(int cnt, const int* handles, con
                     auto it = _customReferencedOriginalHandles.find(tags[i]);
                     for (size_t j = 0; j < it->second.size(); j++)
                         handles.push_back(it->second[j].generalObjectHandle);
-                    ev->appendKeyHandleArray((ORIGREFSPREFIX + tags[i]).c_str(), handles.data(), handles.size());
+                    ev->appendKeyHandleArray((ORIGREFSPREFIXDOT + tags[i]).c_str(), handles.data(), handles.size());
                     usedTags.insert(tags[i]);
                 }
             }
             for (size_t i = 0; i < initTags.size(); i++)
             { // take care of cleared tags
                 if ( (initTags[i].size() > 0) && (usedTags.find(initTags[i]) == usedTags.end()) )
-                    ev->appendKeyNull((ORIGREFSPREFIX + initTags[i]).c_str());
+                    ev->appendKeyNull((ORIGREFSPREFIXDOT + initTags[i]).c_str());
             }
             App::scenes->pushEvent();
         }
@@ -6528,9 +6528,9 @@ int CSceneObject::setBufferProperty(const char* ppName, const std::string& pStat
         std::string _pName(ppName);
         std::string pN(ppName);
         CCustomData* customDataPtr = nullptr;
-        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIXDOT, ""))
             customDataPtr = &customObjectData;
-        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIXDOT, ""))
             customDataPtr = &customObjectData_volatile;
         if (customDataPtr != nullptr)
         {
@@ -6561,15 +6561,15 @@ int CSceneObject::getBufferProperty(const char* ppName, std::string& pState) con
         std::string _pName(ppName);
         std::string pN(ppName);
         const CCustomData* customDataPtr = nullptr;
-        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIXDOT, ""))
             customDataPtr = &customObjectData;
-        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIXDOT, ""))
             customDataPtr = &customObjectData_volatile;
         if (customDataPtr != nullptr)
         {
             if (pN.size() > 0)
             {
-                if (customDataPtr->hasData(pN.c_str(), false) >= 0)
+                if (customDataPtr->hasData(pN.c_str(), false, nullptr, false) >= 0)
                 {
                     pState = customDataPtr->getData(pN.c_str());
                     retVal = sim_propertyret_ok;
@@ -6964,7 +6964,7 @@ int CSceneObject::setHandleArrayProperty(const char* ppName, const std::vector<l
     {
         std::string _pName(ppName);
         std::string pN(ppName);
-        if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
+        if (utils::replaceSubstringStart(pN, REFSPREFIXDOT, "") && (pN.size() > 0))
         {
             std::vector<int> v2;
             for (int i = 0; i < pState.size(); i++)
@@ -6972,7 +6972,7 @@ int CSceneObject::setHandleArrayProperty(const char* ppName, const std::vector<l
             setReferencedHandles(v2.size(), v2.data(), pN.c_str());
             retVal = sim_propertyret_ok;
         }
-        else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
+        else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIXDOT, "") && (pN.size() > 0))
         {
             std::vector<int> v2;
             for (int i = 0; i < pState.size(); i++)
@@ -7011,7 +7011,7 @@ int CSceneObject::getHandleArrayProperty(const char* ppName, std::vector<long lo
         if (retVal == sim_propertyret_unknownproperty)
         {
             std::string pN(ppName);
-            if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
+            if (utils::replaceSubstringStart(pN, REFSPREFIXDOT, "") && (pN.size() > 0))
             {
                 size_t cnt = getReferencedHandlesCount(pN.c_str());
                 std::vector<int> v2;
@@ -7024,7 +7024,7 @@ int CSceneObject::getHandleArrayProperty(const char* ppName, std::vector<long lo
                     pState.push_back(v2[i]);
                 retVal = sim_propertyret_ok;
             }
-            else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
+            else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIXDOT, "") && (pN.size() > 0))
             {
                 size_t cnt = getReferencedOriginalHandlesCount(pN.c_str());
                 std::vector<int> v2;
@@ -7119,15 +7119,15 @@ int CSceneObject::removeProperty(const char* ppName)
         std::string _pName(ppName);
         std::string pN(ppName);
         CCustomData* customDataPtr = nullptr;
-        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIXDOT, ""))
             customDataPtr = &customObjectData;
-        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIXDOT, ""))
             customDataPtr = &customObjectData_volatile;
         if (customDataPtr != nullptr)
         {
             if (pN.size() > 0)
             {
-                int tp = customDataPtr->hasData(pN.c_str(), true);
+                int tp = customDataPtr->hasData(pN.c_str(), false, nullptr, true);
                 if (tp >= 0)
                 {
                     bool diff = customDataPtr->clearData((propertyStrings[tp] + pN).c_str());
@@ -7143,7 +7143,7 @@ int CSceneObject::removeProperty(const char* ppName)
         }
         else
         {
-            if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
+            if (utils::replaceSubstringStart(pN, REFSPREFIXDOT, "") && (pN.size() > 0))
             {
                 if (getReferencedHandlesCount(pN.c_str()) > 0)
                 {
@@ -7151,7 +7151,7 @@ int CSceneObject::removeProperty(const char* ppName)
                     retVal = sim_propertyret_ok;
                 }
             }
-            else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
+            else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIXDOT, "") && (pN.size() > 0))
             {
                 if (getReferencedOriginalHandlesCount(pN.c_str()) > 0)
                 {
@@ -7196,13 +7196,13 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
             if (customObjectData.getPropertyName(index, pName, excludeFlags))
             {
                 appartenance = "sceneObject";
-                pName = CUSTOMDATAPREFIX + pName;
+                pName = CUSTOMDATAPREFIXDOT + pName;
                 retVal = sim_propertyret_ok;
             }
             else if (customObjectData_volatile.getPropertyName(index, pName, excludeFlags))
             {
                 appartenance = "sceneObject";
-                pName = SIGNALPREFIX + pName;
+                pName = SIGNALPREFIXDOT + pName;
                 retVal = sim_propertyret_ok;
             }
             else
@@ -7212,7 +7212,7 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
                 for (size_t i = 0; i < tags.size(); i++)
                 {
                     std::string tag(tags[i]);
-                    std::string decoratedTag(REFSPREFIX + tag);
+                    std::string decoratedTag(REFSPREFIXDOT + tag);
                     if ( (tag.size() > 0) && ((pName.size() == 0) || utils::startsWith(decoratedTag.c_str(), pName.c_str())) )
                     {
                         int flags = REFSFLAGS;
@@ -7238,7 +7238,7 @@ int CSceneObject::getPropertyName(int& index, std::string& pName, std::string& a
                     for (size_t i = 0; i < tags.size(); i++)
                     {
                         std::string tag(tags[i]);
-                        std::string decoratedTag(ORIGREFSPREFIX + tag);
+                        std::string decoratedTag(ORIGREFSPREFIXDOT + tag);
                         if ( (tag.size() > 0) && ((pName.size() == 0) || utils::startsWith(decoratedTag.c_str(), pName.c_str())) )
                         {
                             int flags = ORIGREFSFLAGS;
@@ -7298,9 +7298,9 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& in
         std::string pN(ppName);
         bool signal = false;
         const CCustomData* customDataPtr = nullptr;
-        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIXDOT, ""))
             customDataPtr = &customObjectData;
-        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIXDOT, ""))
         {
             signal = true;
             customDataPtr = &customObjectData_volatile;
@@ -7310,22 +7310,27 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& in
             if (pN.size() > 0)
             {
                 int s;
-                retVal = customDataPtr->hasData(pN.c_str(), true, &s);
-                if (retVal >= 0)
+                retVal = customDataPtr->hasData(pN.c_str(), true, &s, true);
+                if (retVal >= sim_propertytype_start)
                 {
-                    if (signal)
-                        info = SIGNALFLAGS;
+                    if (retVal != sim_propertytype_group)
+                    {
+                        if (signal)
+                            info = SIGNALFLAGS;
+                        else
+                            info = CUSTOMDATAFLAGS;
+                        if (s > LARGE_PROPERTY_SIZE)
+                            info = info | sim_propertyinfo_largedata;
+                    }
                     else
-                        info = CUSTOMDATAFLAGS;
-                    if (s > LARGE_PROPERTY_SIZE)
-                        info = info | sim_propertyinfo_largedata;
+                        info = SIM_PROPERTYINFO_GROUP;
                     infoTxt = "";
                 }
             }
         }
         else
         {
-            if (utils::replaceSubstringStart(pN, REFSPREFIX, "") && (pN.size() > 0))
+            if (utils::replaceSubstringStart(pN, REFSPREFIXDOT, "") && (pN.size() > 0))
             {
                 size_t s = getReferencedHandlesCount(pN.c_str());
                 if (s > 0)
@@ -7337,7 +7342,7 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& in
                     infoTxt = "";
                 }
             }
-            else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIX, "") && (pN.size() > 0))
+            else if (utils::replaceSubstringStart(pN, ORIGREFSPREFIXDOT, "") && (pN.size() > 0))
             {
                 size_t s = getReferencedOriginalHandlesCount(pN.c_str());
                 if (s > 0)

@@ -6,7 +6,7 @@
 
 CCustomData::CCustomData()
 {
-    _eventPrefix = CUSTOMDATAPREFIX;
+    _eventPrefix = CUSTOMDATAPREFIXDOT;
 }
 
 CCustomData::~CCustomData()
@@ -15,7 +15,7 @@ CCustomData::~CCustomData()
 
 void CCustomData::setItemsAreVolatile()
 {
-    _eventPrefix = SIGNALPREFIX;
+    _eventPrefix = SIGNALPREFIXDOT;
 }
 
 std::string CCustomData::getTypeless(const char* tag)
@@ -138,7 +138,7 @@ bool CCustomData::clearData(const char* tag)
     return (diff);
 }
 
-int CCustomData::hasData(const char* tag, bool checkAllTypes, int* dataSize /*= nullptr*/) const
+int CCustomData::hasData(const char* tag, bool checkAlsoGroupType, int* dataSize /*= nullptr*/, bool checkAllTypes /*=true*/) const
 { // returns its type, or -1 if not present
     int retVal = -1;
 
@@ -148,9 +148,25 @@ int CCustomData::hasData(const char* tag, bool checkAllTypes, int* dataSize /*= 
         {
             std::string tp = propertyTypes[j].second;
             tp += tag;
-            retVal = hasData(tp.c_str(), false, dataSize);
+            retVal = hasData(tp.c_str(), false, dataSize, false);
             if (retVal >= 0)
                 break;
+        }
+        if ((retVal < 0) && checkAlsoGroupType)
+        { // not found, let's check if we are dealing with a group:
+            for (size_t j = 0; j < propertyTypes.size(); j++)
+            {
+                std::string tp = propertyTypes[j].second;
+                tp += tag;
+                retVal = hasData(tp.c_str(), true, dataSize, false);
+                if (retVal >= 0)
+                {
+                    retVal = sim_propertytype_group;
+                    if (dataSize != nullptr)
+                        dataSize[0] = 0;
+                    break;
+                }
+            }
         }
     }
     else
@@ -170,6 +186,21 @@ int CCustomData::hasData(const char* tag, bool checkAllTypes, int* dataSize /*= 
                 if (dataSize != nullptr)
                     dataSize[0] = int(_data[i].data.size());
                 break;
+            }
+        }
+        if ((retVal < sim_propertytype_start) && checkAlsoGroupType)
+        { // So that we can recognize groups
+            std::string dn(tag);
+            dn += ".";
+            for (size_t i = 0; i < _data.size(); i++)
+            {
+                if (_data[i].tag.compare(0, dn.size(), dn) == 0) // partial compare
+                {
+                    retVal = sim_propertytype_group;
+                    if (dataSize != nullptr)
+                        dataSize[0] = 0;
+                    break;
+                }
             }
         }
     }
@@ -203,7 +234,7 @@ bool CCustomData::getPropertyName(int& index, std::string& pName, int excludeFla
         if ((pName.size() == 0) || utils::startsWith((_eventPrefix + nnmm).c_str(), pName.c_str()))
         {
             int flags;
-            if (_eventPrefix == SIGNALPREFIX)
+            if (_eventPrefix == SIGNALPREFIXDOT)
                 flags = SIGNALFLAGS;
             else
                 flags = CUSTOMDATAFLAGS;

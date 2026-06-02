@@ -4766,7 +4766,7 @@ int _simSetBoolProperty(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetBoolProperty, target, pName.c_str(), pValue) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -4844,7 +4844,7 @@ int _simSetIntProperty(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetIntProperty, target, pName.c_str(), pValue) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -4922,7 +4922,7 @@ int _simSetLongProperty(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetLongProperty, target, pName.c_str(), pValue) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -5000,7 +5000,7 @@ int _simSetHandleProperty(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetHandleProperty, target, pName.c_str(), pValue) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -5078,7 +5078,7 @@ int _simSetFloatProperty(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetFloatProperty, target, pName.c_str(), pValue) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -5156,7 +5156,7 @@ int _simSetStringProperty(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetStringProperty, target, pName.c_str(), pValue.c_str()) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -5237,7 +5237,7 @@ int _simSetTableProperty(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetTableProperty, target, pName.c_str(), pValue, int(pValueL)) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -5319,7 +5319,7 @@ int _simSetBufferProperty(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetBufferProperty, target, pName.c_str(), pValue, int(pValueL)) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -5401,7 +5401,7 @@ int _simSetIntArray2Property(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetIntArray2Property, target, pName.c_str(), pValue) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -5480,7 +5480,7 @@ int _simSetVector3Property(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetVector3Property, target, pName.c_str(), pValue) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -5558,7 +5558,7 @@ int _simSetMatrixProperty(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetMatrixProperty, target, pName.c_str(), pValue.data.data(), pValue.rows, pValue.cols) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -5639,7 +5639,7 @@ int _simSetQuaternionProperty(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetQuaternionProperty, target, pName.c_str(), pValue) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -5718,7 +5718,7 @@ int _simSetPoseProperty(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetPoseProperty, target, pName.c_str(), pValue) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -5797,7 +5797,7 @@ int _simSetColorProperty(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetColorProperty, target, pName.c_str(), pValue) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -5878,7 +5878,7 @@ int _simSetFloatArrayProperty(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetFloatArrayProperty, target, pName.c_str(), v.data(), cnt) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -5962,7 +5962,7 @@ int _simSetIntArrayProperty(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetIntArrayProperty, target, pName.c_str(), v.data(), cnt) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -6046,7 +6046,7 @@ int _simSetHandleArrayProperty(luaWrap_lua_State* L)
         }
         if (CALL_C_API(simSetHandleArrayProperty, target, pName.c_str(), v.data(), cnt) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -6136,7 +6136,7 @@ int _simSetStringArrayProperty(luaWrap_lua_State* L)
 
         if (CALL_C_API(simSetStringArrayProperty, target, pName.c_str(), v.data(), int(strings.size())) > 0)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 int currentScriptID = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(currentScriptID);
@@ -6225,7 +6225,7 @@ int _simRemoveProperty(luaWrap_lua_State* L)
         int ret = CALL_C_API(simRemoveProperty, target, pName.c_str());
         if (ret == sim_propertyret_ok)
         {
-            if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+            if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
                 CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L));
                 std::string nn(pName);

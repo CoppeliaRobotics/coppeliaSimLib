@@ -4644,6 +4644,31 @@ int CDetachedScript::getIntProperty(const char* pName, int& pState) const
     return retVal;
 }
 
+int CDetachedScript::setFloatProperty(const char* pName, double pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (strcmp(propDetachedScript_autoYieldDelay.name, pName) == 0)
+    {
+        retVal = sim_propertyret_ok;
+        setDelayForAutoYielding(pState * 1000.0 + 0.49);
+    }
+    return retVal;
+}
+
+int CDetachedScript::getFloatProperty(const char* pName, double& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (strcmp(propDetachedScript_autoYieldDelay.name, pName) == 0)
+    {
+        retVal = sim_propertyret_ok;
+        pState = double(getDelayForAutoYielding()) / 1000.0;
+    }
+
+    return retVal;
+}
+
 int CDetachedScript::setLongProperty(const char* pName, long long int pState)
 {
     int retVal = sim_propertyret_unknownproperty;

@@ -750,7 +750,7 @@ int simSetBoolProperty_internal(long long int target, const char* ppName, int pS
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_bool))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_bool))))
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_bool)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_bool)))
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(int));
             else
             {
@@ -800,7 +800,7 @@ int simGetBoolProperty_internal(long long int target, const char* ppName, int* p
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_bool))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_bool))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_bool)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_bool)))
         {
             int l;
             char* data;
@@ -866,7 +866,7 @@ int simSetIntProperty_internal(long long int target, const char* ppName, int pSt
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_int))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_int))))
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_int)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_int)))
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(pState));
             else
             {
@@ -923,7 +923,7 @@ int simGetIntProperty_internal(long long int target, const char* ppName, int* pS
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_int))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_int))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_int)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_int)))
         {
             int l;
             char* data;
@@ -992,7 +992,7 @@ int simSetHandleProperty_internal(long long int target, const char* ppName, long
             if ((pState == -1) || App::isTargetValid_t(pState))
             {
                 std::string pName(ppName);
-                if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_handle))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_handle))))
+                if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_handle)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_handle)))
                     retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(pState));
                 else
                 {
@@ -1048,7 +1048,7 @@ int simGetHandleProperty_internal(long long int target, const char* ppName, long
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_handle))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_handle))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_handle)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_handle)))
         {
             int l;
             char* data;
@@ -1114,7 +1114,7 @@ int simSetLongProperty_internal(long long int target, const char* ppName, long l
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_long))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_long))))
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_long)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_long)))
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(pState));
             else
             {
@@ -1171,7 +1171,7 @@ int simGetLongProperty_internal(long long int target, const char* ppName, long l
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_long))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_long))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_long)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_long)))
         {
             int l;
             char* data;
@@ -1248,7 +1248,7 @@ int simSetFloatProperty_internal(long long int target, const char* ppName, doubl
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_float))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_float))))
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_float)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_float)))
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(double));
             else
             {
@@ -1298,7 +1298,7 @@ int simGetFloatProperty_internal(long long int target, const char* ppName, doubl
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_float))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_float))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_float)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_float)))
         {
             int l;
             char* data;
@@ -1373,7 +1373,7 @@ int simSetStringProperty_internal(long long int target, const char* ppName, cons
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_string))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_string))))
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_string)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_string)))
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), pState, int(strlen(pState)));
             else
             {
@@ -1431,7 +1431,7 @@ int simGetStringProperty_internal(long long int target, const char* ppName, char
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_string))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_string))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_string)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_string)))
         {
             int l;
             char* dat;
@@ -1500,7 +1500,7 @@ int simSetTableProperty_internal(long long int target, const char* ppName, const
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_table))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_table))))
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_table)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_table)))
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), buffer, bufferL);
             else
             {
@@ -1551,7 +1551,7 @@ int simGetTableProperty_internal(long long int target, const char* ppName, char*
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_table))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_table))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_table)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_table)))
             retVal = simGetBufferProperty_internal(target, pName.c_str(), buffer, bufferL);
         else
         {
@@ -1727,7 +1727,7 @@ int simSetIntArray2Property_internal(long long int target, const char* ppName, c
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_intarray2))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_intarray2))))
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_intarray2)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_intarray2)))
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 2 * sizeof(int));
             else
             {
@@ -1777,7 +1777,7 @@ int simGetIntArray2Property_internal(long long int target, const char* ppName, i
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_intarray2))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_intarray2))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_intarray2)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_intarray2)))
         {
             int l;
             char* data;
@@ -1846,7 +1846,7 @@ int simSetVector3Property_internal(long long int target, const char* ppName, con
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_vector3))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_vector3))))
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_vector3)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_vector3)))
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 3 * sizeof(double));
             else
             {
@@ -1905,7 +1905,7 @@ int simGetVector3Property_internal(long long int target, const char* ppName, dou
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_vector3))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_vector3))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_vector3)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_vector3)))
         {
             int l;
             char* data;
@@ -1978,7 +1978,7 @@ int simSetMatrixProperty_internal(long long int target, const char* ppName, cons
             if (c < 0)
                 c = 0;
             std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_matrix))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_matrix))))
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_matrix)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_matrix)))
             {
                 std::string packed;
                 packed.resize(2 * sizeof(int) + r * c * sizeof(double));
@@ -2048,7 +2048,7 @@ int simGetMatrixProperty_internal(long long int target, const char* ppName, doub
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_matrix))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_matrix))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_matrix)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_matrix)))
         {
             int l;
             char* data;
@@ -2136,7 +2136,7 @@ int simSetQuaternionProperty_internal(long long int target, const char* ppName, 
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_quaternion))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_quaternion))))
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_quaternion)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_quaternion)))
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 4 * sizeof(double));
             else
             {
@@ -2195,7 +2195,7 @@ int simGetQuaternionProperty_internal(long long int target, const char* ppName, 
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_quaternion))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_quaternion))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_quaternion)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_quaternion)))
         {
             int l;
             char* data;
@@ -2264,7 +2264,7 @@ int simSetPoseProperty_internal(long long int target, const char* ppName, const 
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_pose))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_pose))))
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_pose)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_pose)))
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 7 * sizeof(double));
             else
             {
@@ -2327,7 +2327,7 @@ int simGetPoseProperty_internal(long long int target, const char* ppName, double
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_pose))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_pose))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_pose)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_pose)))
         {
             int l;
             char* data;
@@ -2396,7 +2396,7 @@ int simSetColorProperty_internal(long long int target, const char* ppName, const
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_color))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_color))))
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_color)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_color)))
                 retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 3 * sizeof(float));
             else
             {
@@ -2454,7 +2454,7 @@ int simGetColorProperty_internal(long long int target, const char* ppName, float
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_color))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_color))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_color)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_color)))
         {
             int l;
             char* data;
@@ -2525,7 +2525,7 @@ int simSetFloatArrayProperty_internal(long long int target, const char* ppName, 
             if (vL >= 0)
             {
                 std::string pName(ppName);
-                if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_floatarray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_floatarray))))
+                if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_floatarray)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_floatarray)))
                     retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(double));
                 else
                 {
@@ -2603,7 +2603,7 @@ int simGetFloatArrayProperty_internal(long long int target, const char* ppName, 
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_floatarray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_floatarray))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_floatarray)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_floatarray)))
         {
             int l;
             char* buff;
@@ -2754,7 +2754,7 @@ int simSetIntArrayProperty_internal(long long int target, const char* ppName, co
             if (vL >= 0)
             {
                 std::string pName(ppName);
-                if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_intarray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_intarray))))
+                if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_intarray)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_intarray)))
                     retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(int));
                 else
                 {
@@ -2819,7 +2819,7 @@ int simGetIntArrayProperty_internal(long long int target, const char* ppName, in
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_intarray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_intarray))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_intarray)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_intarray)))
         {
             int l;
             char* buff;
@@ -2913,7 +2913,7 @@ int simSetHandleArrayProperty_internal(long long int target, const char* ppName,
                 if (valid)
                 {
                     std::string pName(ppName);
-                    if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_handlearray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_handlearray))))
+                    if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_handlearray)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_handlearray)))
                         retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(long long int));
                     else
                     {
@@ -2973,7 +2973,7 @@ int simGetHandleArrayProperty_internal(long long int target, const char* ppName,
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_handlearray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_handlearray))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_handlearray)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_handlearray)))
         {
             int l;
             char* buff;
@@ -3050,7 +3050,7 @@ int simSetStringArrayProperty_internal(long long int target, const char* ppName,
                     ptr += len + 1;
                 }
                 std::string pName(ppName);
-                if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_stringarray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_stringarray))))
+                if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_stringarray)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_stringarray)))
                     retVal = simSetBufferProperty_internal(target, pName.c_str(), v, int(totalSize));
                 else
                 {
@@ -3103,7 +3103,7 @@ int simGetStringArrayProperty_internal(long long int target, const char* ppName,
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_stringarray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_stringarray))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_stringarray)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_stringarray)))
         {
             int l;
             char* buff;
@@ -3181,7 +3181,7 @@ int simSetMethodProperty_internal(long long int target, const char* ppName, cons
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
             std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_stringarray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_stringarray))))
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_stringarray)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_stringarray)))
             {
                 retVal = sim_propertyret_unavailable;
                 CApiErrors::setLastError(__func__, SIM_ERROR_OPERATION_UNAVAILABLE);
@@ -3234,7 +3234,7 @@ int simGetMethodProperty_internal(long long int target, const char* ppName, void
     {
         int retVal = sim_propertyret_unavailable;
         std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIX, STRCONCAT(CUSTOMDATAPREFIX, proptypetag_stringarray))) || (utils::replaceSubstringStart(pName, SIGNALPREFIX, STRCONCAT(SIGNALPREFIX, proptypetag_stringarray))))
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_stringarray)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_stringarray)))
             CApiErrors::setLastError(__func__, SIM_ERROR_OPERATION_UNAVAILABLE);
         else
         {

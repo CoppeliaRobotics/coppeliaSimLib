@@ -639,7 +639,7 @@ std::string App::getAdditionalAddOnScript2()
     return (_additionalAddOnScript2);
 }
 
-bool App::getAppNamedParam(const char* paramName, std::string& param)
+bool App::getAppNamedParam(const char* paramName, std::string& param, bool checkAlsoGroupType /*= false*/)
 {
     bool retVal = false;
     std::map<std::string, std::string>::iterator it = _applicationNamedParams.find(paramName);
@@ -647,6 +647,20 @@ bool App::getAppNamedParam(const char* paramName, std::string& param)
     {
         param = it->second;
         retVal = true;
+    }
+    if ((!retVal) && checkAlsoGroupType)
+    {
+        std::string n(paramName);
+        n += ".";
+        for (const auto& pair : _applicationNamedParams)
+        {
+            if (pair.first.find(n) == 0)   // key starts with n
+            {
+                param.clear();
+                retVal = true;
+                break;
+            }
+        }
     }
     return retVal;
 }
@@ -667,7 +681,7 @@ void App::setAppNamedParam(const char* paramName, const char* param, int paramLe
         _applicationNamedParams[paramName] = newVal;
         if ((scenes != nullptr) && scenes->getEventsEnabled())
         {
-            std::string cmd(NAMEDPARAMPREFIX);
+            std::string cmd(NAMEDPARAMPREFIXDOT);
             cmd += paramName;
             CCbor* ev = scenes->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
             ev->appendKeyText(cmd.c_str(), param);
@@ -686,7 +700,7 @@ bool App::removeAppNamedParam(const char* paramName)
         retVal = true;
         if ((scenes != nullptr) && scenes->getEventsEnabled())
         {
-            std::string cmd(NAMEDPARAMPREFIX);
+            std::string cmd(NAMEDPARAMPREFIXDOT);
             cmd += paramName;
             CCbor* ev = scenes->createObjectChangedEvent(sim_handle_app, cmd.c_str(), false);
             ev->appendKeyNull(cmd.c_str());
@@ -2041,10 +2055,7 @@ int App::setFloatProperty_t(long long int target, const char* ppName, double pSt
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
-        {
-          //const char* pName = ppName;
-          //retVal = script->setFloatProperty(pName, pState);
-        }
+            retVal = script->setFloatProperty(ppName, pState);
         else
             retVal = sim_propertyret_unknowntarget;
     }
@@ -2101,10 +2112,7 @@ int App::getFloatProperty_t(long long int target, const char* ppName, double& pS
     { // sandbox, main, add-ons, or old associated scripts:
         CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
         if (script != nullptr)
-        {
-          //const char* pName = ppName;
-          //retVal = script->getFloatProperty(pName, pState);
-        }
+            retVal = script->getFloatProperty(ppName, pState);
         else
             retVal = sim_propertyret_unknowntarget;
     }
@@ -2131,7 +2139,7 @@ int App::setStringProperty_t(long long int target, const char* ppName, const std
     if (target == sim_handle_app)
     {
         std::string pN(pName);
-        if (utils::replaceSubstringStart(pN, NAMEDPARAMPREFIX, ""))
+        if (utils::replaceSubstringStart(pN, NAMEDPARAMPREFIXDOT, ""))
         {
             if (pN.size() > 0)
             {
@@ -2273,7 +2281,7 @@ int App::getStringProperty_t(long long int target, const char* ppName, std::stri
         if (retVal == sim_propertyret_unknownproperty)
         {
             std::string pN(pName);
-            if (utils::replaceSubstringStart(pN, NAMEDPARAMPREFIX, ""))
+            if (utils::replaceSubstringStart(pN, NAMEDPARAMPREFIXDOT, ""))
             {
                 if (pN.size() > 0)
                 {
@@ -2647,7 +2655,7 @@ int App::setBufferProperty_t(long long int target, const char* ppName, const std
     if (target == sim_handle_app)
     {
         std::string pN(pName);
-        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIXDOT, ""))
         {
             if (pN.size() > 0)
             {
@@ -2665,7 +2673,7 @@ int App::setBufferProperty_t(long long int target, const char* ppName, const std
                 retVal = sim_propertyret_ok;
             }
         }
-        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIXDOT, ""))
         {
             if (pN.size() > 0)
             {
@@ -2719,7 +2727,7 @@ int App::getBufferProperty_t(long long int target, const char* ppName, std::stri
     if (target == sim_handle_app)
     {
         std::string pN(pName);
-        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIXDOT, ""))
         {
             pN += "&customData"; // we add a suffix to separate user and system data
             if (pN.size() > 0)
@@ -2729,13 +2737,13 @@ int App::getBufferProperty_t(long long int target, const char* ppName, std::stri
                     retVal = sim_propertyret_ok;
             }
         }
-        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIXDOT, ""))
         {
             if (pN.size() > 0)
             {
                 if (scenes != nullptr)
                 {
-                    if (scenes->customAppData_volatile.hasData(pN.c_str(), false) >= 0)
+                    if (scenes->customAppData_volatile.hasData(pN.c_str(), false, nullptr, false) >= 0)
                     {
                         pState = scenes->customAppData_volatile.getData(pN.c_str());
                         retVal = sim_propertyret_ok;
@@ -3610,13 +3618,12 @@ int App::removeProperty_t(long long int target, const char* ppName)
     if (target == sim_handle_app)
     {
         std::string pN(pName);
-        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIXDOT, ""))
         {
-            pN += "&customData"; // we add a suffix to separate user and system data
-            //CPersistentDataContainer cont("appStorage.dat");
-            int tp = _appStorage->hasData(pN.c_str(), true);
-            if (tp >= 0)
+            int tp = _appStorage->hasCustomData(pN.c_str(), false, nullptr);
+            if (tp >= sim_propertytype_start)
             {
+                pN += "&customData";  // we add a suffix to separate user and system data
                 if (_appStorage->clearData((propertyStrings[tp] + pN).c_str(), true))
                 {
                     if ((scenes != nullptr) && scenes->getEventsEnabled())
@@ -3629,13 +3636,13 @@ int App::removeProperty_t(long long int target, const char* ppName)
                 retVal = sim_propertyret_ok;
             }
         }
-        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIXDOT, ""))
         {
             if (pN.size() > 0)
             {
                 if (scenes != nullptr)
                 {
-                    int tp = scenes->customAppData_volatile.hasData(pN.c_str(), true);
+                    int tp = scenes->customAppData_volatile.hasData(pN.c_str(), false, nullptr, true);
                     if (tp >= 0)
                     {
                         bool diff = scenes->customAppData_volatile.clearData((propertyStrings[tp] + pN).c_str());
@@ -3650,7 +3657,7 @@ int App::removeProperty_t(long long int target, const char* ppName)
                 }
             }
         }
-        else if (utils::replaceSubstringStart(pN, NAMEDPARAMPREFIX, ""))
+        else if (utils::replaceSubstringStart(pN, NAMEDPARAMPREFIXDOT, ""))
         {
             if (pN.size() > 0)
             {
@@ -3717,7 +3724,7 @@ int App::getPropertyName_t(long long int target, int& index, std::string& pName,
                 //CPersistentDataContainer cont("appStorage.dat");
                 if (_appStorage->getPropertyName(index, pName, excludeFlags))
                 {
-                    pName = CUSTOMDATAPREFIX + pName;
+                    pName = CUSTOMDATAPREFIXDOT + pName;
                     retVal = sim_propertyret_ok;
                 }
             }
@@ -3725,7 +3732,7 @@ int App::getPropertyName_t(long long int target, int& index, std::string& pName,
             {
                 if (scenes->customAppData_volatile.getPropertyName(index, pName, excludeFlags))
                 {
-                    pName = SIGNALPREFIX + pName;
+                    pName = SIGNALPREFIXDOT + pName;
                     retVal = sim_propertyret_ok;
                 }
             }
@@ -3736,14 +3743,14 @@ int App::getPropertyName_t(long long int target, int& index, std::string& pName,
                     int flags = NAMEDPARAMFLAGS;
                     if (pair.second.size() > LARGE_PROPERTY_SIZE)
                         flags |= sim_propertyinfo_largedata;
-                    if ((pName.size() == 0) || utils::startsWith((NAMEDPARAMPREFIX + pair.first).c_str(), pName.c_str()))
+                    if ((pName.size() == 0) || utils::startsWith((NAMEDPARAMPREFIXDOT + pair.first).c_str(), pName.c_str()))
                     {
                         if ((flags & excludeFlags) == 0)
                         {
                             index--;
                             if (index == -1)
                             {
-                                pName = NAMEDPARAMPREFIX + pair.first;
+                                pName = NAMEDPARAMPREFIXDOT + pair.first;
                                 retVal = sim_propertyret_ok;
                                 break;
                             }
@@ -3813,17 +3820,20 @@ int App::getPropertyInfo_t(long long int target, const char* ppName, int& info, 
             if (retVal == sim_propertyret_unknownproperty)
             {
                 std::string pN(pName);
-                if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+                if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIXDOT, ""))
                 {
-                    pN += "&customData";
-                    //CPersistentDataContainer cont("appStorage.dat");
                     int s;
-                    retVal = _appStorage->hasData(pN.c_str(), true, &s);
-                    if (retVal >= 0)
+                    retVal = _appStorage->hasCustomData(pN.c_str(), true, &s);
+                    if (retVal >= sim_propertytype_start)
                     {
-                        info = CUSTOMDATAFLAGS;
-                        if (s > LARGE_PROPERTY_SIZE)
-                            info = info | sim_propertyinfo_largedata;
+                        if (retVal != sim_propertytype_group)
+                        {
+                            info = CUSTOMDATAFLAGS;
+                            if (s > LARGE_PROPERTY_SIZE)
+                                info = info | sim_propertyinfo_largedata;
+                        }
+                        else
+                            info = SIM_PROPERTYINFO_GROUP;
                         infoTxt = "";
                     }
                 }
@@ -3831,15 +3841,20 @@ int App::getPropertyInfo_t(long long int target, const char* ppName, int& info, 
             if ((retVal == sim_propertyret_unknownproperty) && (scenes != nullptr))
             {
                 std::string pN(pName);
-                if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+                if (utils::replaceSubstringStart(pN, SIGNALPREFIXDOT, ""))
                 {
                     int s;
-                    retVal = scenes->customAppData_volatile.hasData(pN.c_str(), true, &s);
-                    if (retVal >= 0)
+                    retVal = scenes->customAppData_volatile.hasData(pN.c_str(), true, &s, true);
+                    if (retVal >= sim_propertytype_start)
                     {
-                        info = SIGNALFLAGS;
-                        if (s > LARGE_PROPERTY_SIZE)
-                            info = info | sim_propertyinfo_largedata;
+                        if (retVal != sim_propertytype_group)
+                        {
+                            info = SIGNALFLAGS;
+                            if (s > LARGE_PROPERTY_SIZE)
+                                info = info | sim_propertyinfo_largedata;
+                        }
+                        else
+                            info = SIM_PROPERTYINFO_GROUP;
                         infoTxt = "";
                     }
                 }
@@ -3847,16 +3862,23 @@ int App::getPropertyInfo_t(long long int target, const char* ppName, int& info, 
             if (retVal == sim_propertyret_unknownproperty)
             {
                 std::string pN(pName);
-                pN.erase(0, 11);
-                if (pN.size() > 0)
+                if (utils::replaceSubstringStart(pN, NAMEDPARAMPREFIXDOT, ""))
                 {
                     std::string param;
-                    if (getAppNamedParam(pN.c_str(), param))
+                    if (getAppNamedParam(pN.c_str(), param, true))
                     {
-                        retVal = sim_propertytype_string;
-                        info = NAMEDPARAMFLAGS;
-                        if (param.size() > LARGE_PROPERTY_SIZE)
-                            info = info | 0x100;
+                        if (!param.empty())
+                        {
+                            retVal = sim_propertytype_string;
+                            info = NAMEDPARAMFLAGS;
+                            if (param.size() > LARGE_PROPERTY_SIZE)
+                                info = info | 0x100;
+                        }
+                        else
+                        {
+                            retVal = sim_propertytype_group;
+                            info = SIM_PROPERTYINFO_GROUP;
+                        }
                         infoTxt = "";
                     }
                 }
@@ -4188,7 +4210,7 @@ void App::pushGenesisEvents()
 
         for (const auto& pair : _applicationNamedParams)
         {
-            std::string t(NAMEDPARAMPREFIX);
+            std::string t(NAMEDPARAMPREFIXDOT);
             t += pair.first;
             ev->appendKeyText(t.c_str(), pair.second.c_str());
         }

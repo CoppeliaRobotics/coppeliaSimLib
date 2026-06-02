@@ -58,23 +58,30 @@ struct SJointProperty
     const std::string infoTxt;
 };
 
-#define CUSTOMDATAPREFIX "customData."
+#define CUSTOMDATAPREFIX "customData"
+#define CUSTOMDATAPREFIXDOT CUSTOMDATAPREFIX "."
 #define CUSTOMDATAFLAGS (sim_propertyinfo_removable)
 
-#define SIGNALPREFIX "signal."
+#define SIGNALPREFIX "signal"
+#define SIGNALPREFIXDOT SIGNALPREFIX "."
 #define SIGNALFLAGS (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude)
 
-#define NAMEDPARAMPREFIX "namedParam."
+#define NAMEDPARAMPREFIX "namedParam"
+#define NAMEDPARAMPREFIXDOT NAMEDPARAMPREFIX "."
 #define NAMEDPARAMFLAGS (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude)
 
-#define REFSPREFIX "refs."
+#define REFSPREFIX "refs"
+#define REFSPREFIXDOT REFSPREFIX "."
 #define REFSFLAGS (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude)
 
-#define ORIGREFSPREFIX "origRefs."
+#define ORIGREFSPREFIX "origRefs"
+#define ORIGREFSPREFIXDOT ORIGREFSPREFIX "."
 #define ORIGREFSFLAGS (sim_propertyinfo_removable | sim_propertyinfo_modelhashexclude)
 
-#define COLORPREFIX "color."
-#define COLORPREFIX_CAP "Color."
+#define COLORPREFIX "color"
+#define COLORPREFIXDOT COLORPREFIX "."
+#define COLORPREFIX_CAP "Color"
+#define COLORPREFIXDOT_CAP COLORPREFIX_CAP "."
 
 #define proptypetag_bool "&bool&."
 #define proptypetag_int "&int&."
@@ -100,7 +107,7 @@ struct SJointProperty
 #define proptypetag_group "&grp&."
 
 #define SIM_PROPERTYINFO_DEPRECATED (sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude)
-#define SIM_PROPERTYINFO_METHOD (sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude)
+#define SIM_PROPERTYINFO_METHOD (sim_propertyinfo_silent | sim_propertyinfo_constant | sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude)
 #define SIM_PROPERTYINFO_GROUP (sim_propertyinfo_silent | sim_propertyinfo_constant | sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude)
 
 #define OBJECT_PROPERTIES \
@@ -228,6 +235,9 @@ struct SJointProperty
     FUNCX(propApp_machineID3, "machineID3", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", ""}, {"description", ""}}), "") \
     FUNCX(propApp_pid, "pid", sim_propertytype_long, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "PID"}, {"description", ""}}), "") \
     FUNCX(propApp_systemTime, "systemTime", sim_propertytype_float, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "System time"}, {"description", ""}}), "") \
+    FUNCX(propApp_GROUP_namedParam, NAMEDPARAMPREFIX, sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
+    FUNCX(propApp_GROUP_customData, CUSTOMDATAPREFIX, sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
+    FUNCX(propApp_GROUP_signal, SIGNALPREFIX, sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
     FUNCX(propApp_GROUP_paths, "paths", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
     FUNCX(propApp_METHOD_handleAddOnScripts, "handleAddOnScripts", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propApp_METHOD_handleSandboxScript, "handleSandboxScript", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
@@ -326,6 +336,7 @@ struct SJointProperty
     FUNCX(propDetachedScript_scriptName, "scriptName", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Name"}, {"description", "Script name"}}), "") \
     FUNCX(propDetachedScript_addOnPath, "addOnPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Add-on path"}, {"description", "Path of add-on"}}), "") \
     FUNCX(propDetachedScript_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Add-on menu path"}, {"description", "Menu path of add-on"}}), "") \
+    FUNCX(propDetachedScript_autoYieldDelay, "autoYieldDelay", sim_propertytype_float, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Automatic yield delay"}, {"description", ""}}), "") \
     FUNCX(propDetachedScript_METHOD_callFunction, "callFunction", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propDetachedScript_METHOD_getFunctions, "getFunctions", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propDetachedScript_METHOD_executeString, "executeString", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
@@ -606,6 +617,8 @@ struct SJointProperty
     FUNCX(propScene_acknowledgment, "acknowledgment", sim_propertytype_string, 0,  jsonStr({{"label", "Acknowledgment"}, {"description", "Scene acknowledgment"}}), "") \
     FUNCX(propScene_ambientLight, "ambientLight", sim_propertytype_color, 0,  jsonStr({{"label", "Ambient light"}, {"description", ""}}), "") \
     FUNCX(propScene_customObjects, "customObjects", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Custom objects"}, {"description", "List of scene custom objects"}, {"handleType", "customObject"}}), "") \
+    FUNCX(propScene_GROUP_customData, CUSTOMDATAPREFIX, sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
+    FUNCX(propScene_GROUP_signal, SIGNALPREFIX, sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
     FUNCX(propScene_METHOD_createObject, "createObject", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_removeObjects, "removeObjects", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propScene_METHOD_duplicateObjects, "duplicateObjects", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
@@ -993,6 +1006,10 @@ struct SJointProperty
     FUNCX(propSceneObject_children, "children", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Children handles"}, {"description", ""}, {"handleType", "sceneObject"}}), "") \
     FUNCX(propSceneObject_modelHash, "modelHash", sim_propertytype_string, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Model hash"}, {"description", ""}}), "") \
     FUNCX(propSceneObject_dynamicallyEnabled, "dynamicallyEnabled", sim_propertytype_bool, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Dynamically enabled"}, {"description", ""}}), "") \
+    FUNCX(propSceneObject_GROUP_customData, CUSTOMDATAPREFIX, sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
+    FUNCX(propSceneObject_GROUP_signal, SIGNALPREFIX, sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
+    FUNCX(propSceneObject_GROUP_refs, REFSPREFIX, sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
+    FUNCX(propSceneObject_GROUP_origRefs, ORIGREFSPREFIX, sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
     FUNCX(propSceneObject_METHOD_getAncestors, "getAncestors", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propSceneObject_METHOD_getDescendants, "getDescendants", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propSceneObject_METHOD_removeModel, "removeModel", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \

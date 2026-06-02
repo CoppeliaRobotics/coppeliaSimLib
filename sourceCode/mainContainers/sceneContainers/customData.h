@@ -18,7 +18,7 @@ class CCustomData
     void setItemsAreVolatile();
     bool setData(const char* tag, const char* data, size_t dataLen, bool allowEmptyData = true);
     bool clearData(const char* tag);
-    int hasData(const char* tag, bool checkAllTypes, int* dataSize = nullptr) const;
+    int hasData(const char* tag, bool checkAlsoGroupType, int* dataSize = nullptr, bool checkAllTypes = true) const;
     bool getPropertyName(int& index, std::string& pName, int excludeFlagsMask) const;
     std::string getData(const char* tag) const;
     void getDataEvents(std::map<std::string, bool>& dataEvents); // different from below cbor events

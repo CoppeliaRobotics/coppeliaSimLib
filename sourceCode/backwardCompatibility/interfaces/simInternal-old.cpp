@@ -5619,7 +5619,7 @@ int simSetDoubleSignalOld_internal(const char* signalName, double signalValue)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        std::string pName(SIGNALPREFIX);
+        std::string pName(SIGNALPREFIXDOT);
         pName += "DLEGACY.";
         pName += signalName;
         simSetFloatProperty_internal(sim_handle_scene, pName.c_str(), signalValue);
@@ -5641,7 +5641,7 @@ int simGetDoubleSignalOld_internal(const char* signalName, double* signalValue)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = 0;
-        std::string pName(SIGNALPREFIX);
+        std::string pName(SIGNALPREFIXDOT);
         pName += "DLEGACY.";
         pName += signalName;
         if (1 == simGetFloatProperty_internal(sim_handle_scene, pName.c_str(), signalValue))
@@ -5669,7 +5669,7 @@ int simClearDoubleSignalOld_internal(const char* signalName)
                 if (sn.size() != 0)
                 {
                     retVal++;
-                    sn = SIGNALPREFIX + sn;
+                    sn = SIGNALPREFIXDOT + sn;
                     simRemoveProperty_internal(sim_handle_scene, sn.c_str());
                 }
             }
@@ -5677,7 +5677,7 @@ int simClearDoubleSignalOld_internal(const char* signalName)
         else
         {
             retVal = 0;
-            std::string pName(SIGNALPREFIX);
+            std::string pName(SIGNALPREFIXDOT);
             pName += "DLEGACY.";
             pName += signalName;
             if (1 == simRemoveProperty_internal(sim_handle_scene, pName.c_str()))
@@ -8794,7 +8794,7 @@ int simSetInt32Signal_internal(const char* signalName, int signalValue)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        std::string pName(SIGNALPREFIX);
+        std::string pName(SIGNALPREFIXDOT);
         pName += "ILEGACY.";
         pName += signalName;
         simSetIntProperty_internal(sim_handle_scene, pName.c_str(), signalValue);
@@ -8816,7 +8816,7 @@ int simGetInt32Signal_internal(const char* signalName, int* signalValue)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = 0;
-        std::string pName(SIGNALPREFIX);
+        std::string pName(SIGNALPREFIXDOT);
         pName += "ILEGACY.";
         pName += signalName;
         if (1 == simGetIntProperty_internal(sim_handle_scene, pName.c_str(), signalValue))
@@ -8846,7 +8846,7 @@ int simClearInt32Signal_internal(const char* signalName)
                 if (sn.size() != 0)
                 {
                     retVal++;
-                    sn = SIGNALPREFIX + sn;
+                    sn = SIGNALPREFIXDOT + sn;
                     simRemoveProperty_internal(sim_handle_scene, sn.c_str());
                 }
             }
@@ -8854,7 +8854,7 @@ int simClearInt32Signal_internal(const char* signalName)
         else
         {
             retVal = 0;
-            std::string pName(SIGNALPREFIX);
+            std::string pName(SIGNALPREFIXDOT);
             pName += "ILEGACY.";
             pName += signalName;
             if (1 == simRemoveProperty_internal(sim_handle_scene, pName.c_str()))
@@ -8879,7 +8879,7 @@ int simSetFloatSignal_internal(const char* signalName, double signalValue)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        std::string pName(SIGNALPREFIX);
+        std::string pName(SIGNALPREFIXDOT);
         pName += "FLEGACY.";
         pName += signalName;
         simSetFloatProperty_internal(sim_handle_scene, pName.c_str(), signalValue);
@@ -8901,7 +8901,7 @@ int simGetFloatSignal_internal(const char* signalName, double* signalValue)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = 0;
-        std::string pName(SIGNALPREFIX);
+        std::string pName(SIGNALPREFIXDOT);
         pName += "FLEGACY.";
         pName += signalName;
         if (1 == simGetFloatProperty_internal(sim_handle_scene, pName.c_str(), signalValue))
@@ -8932,7 +8932,7 @@ int simClearFloatSignal_internal(const char* signalName)
                 if (sn.size() != 0)
                 {
                     retVal++;
-                    sn = SIGNALPREFIX + sn;
+                    sn = SIGNALPREFIXDOT + sn;
                     simRemoveProperty_internal(sim_handle_scene, sn.c_str());
                 }
             }
@@ -8940,7 +8940,7 @@ int simClearFloatSignal_internal(const char* signalName)
         else
         {
             retVal = 0;
-            std::string pName(SIGNALPREFIX);
+            std::string pName(SIGNALPREFIXDOT);
             pName += "FLEGACY.";
             pName += signalName;
             if (1 == simRemoveProperty_internal(sim_handle_scene, pName.c_str()))
@@ -8965,7 +8965,7 @@ int simSetStringSignal_internal(const char* signalName, const char* signalValue,
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        std::string pName(SIGNALPREFIX);
+        std::string pName(SIGNALPREFIXDOT);
         pName += "SLEGACY.";
         pName += signalName;
         simSetBufferProperty_internal(sim_handle_scene, pName.c_str(), signalValue, stringLength);
@@ -8987,7 +8987,7 @@ char* simGetStringSignal_internal(const char* signalName, int* stringLength)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         std::string sigVal;
-        std::string pName(SIGNALPREFIX);
+        std::string pName(SIGNALPREFIXDOT);
         pName += "SLEGACY.";
         pName += signalName;
         char* retVal = nullptr;
@@ -9029,7 +9029,7 @@ int simClearStringSignal_internal(const char* signalName)
                 if (sn.size() != 0)
                 {
                     retVal++;
-                    sn = SIGNALPREFIX + sn;
+                    sn = SIGNALPREFIXDOT + sn;
                     simRemoveProperty_internal(sim_handle_scene, sn.c_str());
                 }
             }
@@ -9037,7 +9037,7 @@ int simClearStringSignal_internal(const char* signalName)
         else
         {
             retVal = 0;
-            std::string pName(SIGNALPREFIX);
+            std::string pName(SIGNALPREFIXDOT);
             pName += "SLEGACY.";
             pName += signalName;
             if (1 == simRemoveProperty_internal(sim_handle_scene, pName.c_str()))

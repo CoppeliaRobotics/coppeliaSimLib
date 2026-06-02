@@ -3167,9 +3167,9 @@ int CScene::setBufferProperty_t(long long int target, const char* ppName, const 
         const char* pName = ppName;
         std::string pN(pName);
         CCustomData* customDataPtr = nullptr;
-        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIXDOT, ""))
             customDataPtr = &customSceneData;
-        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIXDOT, ""))
             customDataPtr = &customSceneData_volatile;
         if (customDataPtr != nullptr)
         {
@@ -3213,15 +3213,15 @@ int CScene::getBufferProperty_t(long long int target, const char* ppName, std::s
         const char* pName = ppName;
         std::string pN(pName);
         const CCustomData* customDataPtr = nullptr;
-        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIXDOT, ""))
             customDataPtr = &customSceneData;
-        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIXDOT, ""))
             customDataPtr = &customSceneData_volatile;
         if (customDataPtr != nullptr)
         {
             if (pN.size() > 0)
             {
-                if (customDataPtr->hasData(pN.c_str(), false) >= 0)
+                if (customDataPtr->hasData(pN.c_str(), false, nullptr, false) >= 0)
                 {
                     pState = customDataPtr->getData(pN.c_str());
                     retVal = 1;
@@ -3980,11 +3980,11 @@ int CScene::removeProperty_t(long long int target, const char* ppName)
     {
         const char* pName = ppName;
         std::string pN(pName);
-        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+        if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIXDOT, ""))
         {
             if (pN.size() > 0)
             {
-                int tp = customSceneData.hasData(pN.c_str(), true);
+                int tp = customSceneData.hasData(pN.c_str(), false, nullptr, true);
                 if (tp >= 0)
                 {
                     bool diff = customSceneData.clearData((propertyStrings[tp] + pN).c_str());
@@ -3998,11 +3998,11 @@ int CScene::removeProperty_t(long long int target, const char* ppName)
                 }
             }
         }
-        else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+        else if (utils::replaceSubstringStart(pN, SIGNALPREFIXDOT, ""))
         {
             if (pN.size() > 0)
             {
-                int tp = customSceneData_volatile.hasData(pN.c_str(), true);
+                int tp = customSceneData_volatile.hasData(pN.c_str(), false, nullptr, true);
                 if (tp >= 0)
                 {
                     bool diff = customSceneData_volatile.clearData((propertyStrings[tp] + pN).c_str());
@@ -4057,12 +4057,12 @@ int CScene::getPropertyName_t(long long int target, int& index, std::string& pNa
             {
                 if (customSceneData.getPropertyName(index, pName, excludeFlags))
                 {
-                    pName = CUSTOMDATAPREFIX + pName;
+                    pName = CUSTOMDATAPREFIXDOT + pName;
                     retVal = 1;
                 }
                 else if (customSceneData_volatile.getPropertyName(index, pName, excludeFlags))
                 {
-                    pName = SIGNALPREFIX + pName;
+                    pName = SIGNALPREFIXDOT + pName;
                     retVal = 1;
                 }
             }
@@ -4110,32 +4110,42 @@ int CScene::getPropertyInfo_t(long long int target, const char* ppName, int& inf
         if (retVal == sim_propertyret_unknownproperty)
         {
             std::string pN(pName);
-            if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIX, ""))
+            if (utils::replaceSubstringStart(pN, CUSTOMDATAPREFIXDOT, ""))
             {
                 if (pN.size() > 0)
                 {
                     int s;
-                    retVal = customSceneData.hasData(pN.c_str(), true, &s);
-                    if (retVal >= 0)
+                    retVal = customSceneData.hasData(pN.c_str(), true, &s, true);
+                    if (retVal >= sim_propertytype_start)
                     {
-                        info = CUSTOMDATAFLAGS;
-                        if (s > LARGE_PROPERTY_SIZE)
-                            info = info | sim_propertyinfo_largedata;
+                        if (retVal != sim_propertytype_group)
+                        {
+                            info = CUSTOMDATAFLAGS;
+                            if (s > LARGE_PROPERTY_SIZE)
+                                info = info | sim_propertyinfo_largedata;
+                        }
+                        else
+                            info = SIM_PROPERTYINFO_GROUP;
                         infoTxt = "";
                     }
                 }
             }
-            else if (utils::replaceSubstringStart(pN, SIGNALPREFIX, ""))
+            else if (utils::replaceSubstringStart(pN, SIGNALPREFIXDOT, ""))
             {
                 if (pN.size() > 0)
                 {
                     int s;
-                    retVal = customSceneData_volatile.hasData(pN.c_str(), true, &s);
-                    if (retVal >= 0)
+                    retVal = customSceneData_volatile.hasData(pN.c_str(), true, &s, true);
+                    if (retVal >= sim_propertytype_start)
                     {
-                        info = SIGNALFLAGS;
-                        if (s > LARGE_PROPERTY_SIZE)
-                            info = info | sim_propertyinfo_largedata;
+                        if (retVal != sim_propertytype_group)
+                        {
+                            info = SIGNALFLAGS;
+                            if (s > LARGE_PROPERTY_SIZE)
+                                info = info | sim_propertyinfo_largedata;
+                        }
+                        else
+                            info = SIM_PROPERTYINFO_GROUP;
                         infoTxt = "";
                     }
                 }

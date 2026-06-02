@@ -13,7 +13,7 @@ CColorObject::CColorObject()
     for (size_t i = 0; i < 15; i++)
         _colors[i] = 0.0f;
     _opacity = 0.5;
-    _eventPrefix = COLORPREFIX;
+    _eventPrefix = COLORPREFIXDOT;
     _translucid = false;
     _shininess = 48;
     setColorName("");
@@ -42,7 +42,7 @@ void CColorObject::setEventParams(bool belongsToSceneObject, int eventObjectHand
         _eventFlags = eventFlags;
     //   _eventPrefix.clear();
     if ((eventPrefix != nullptr) && (strlen(eventPrefix) != 0))
-        _eventPrefix = std::string(eventPrefix) + COLORPREFIX_CAP;
+        _eventPrefix = std::string(eventPrefix) + COLORPREFIXDOT_CAP;
 }
 
 void CColorObject::setFlash(bool flashIsOn)

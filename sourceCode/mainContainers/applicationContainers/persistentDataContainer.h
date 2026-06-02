@@ -17,15 +17,15 @@ class CPersistentDataContainer
 
     bool clearData(const char* dataName, bool toFile);
     bool writeData(const char* dataName, const std::string& value, bool toFile, bool allowEmptyString);
-    bool readData(const char* dataName, std::string& value);
-    int hasData(const char* dataName, bool checkAllTypes, int* dataSize = nullptr);
+    bool readData(const char* dataName, std::string& value, const char* suffix = nullptr, bool checkGroupType = false);
+    int hasCustomData(const char* dataName, bool checkAlsoGroupType, int* dataSize = nullptr, bool checkAllTypes = true);
     bool getPropertyName(int& index, std::string& pName, int excludeFlagsMask) const;
     int getAllDataNames(std::vector<std::string>& names);
     void appendEventData(const char* dataName, CCbor* ev, bool remove = false) const;
 
   protected:
     bool _writeData(const char* dataName, const std::string& value, bool allowEmptyString);
-    int _getDataIndex(const char* dataName);
+    int _getDataIndex(const char* dataName, const char* suffix = nullptr, bool checkGroupType = false);
 
     void _readFromFile(std::vector<std::string>& dataNames, std::vector<std::string>& dataValues);
     void _writeToFile(std::vector<std::string>& dataNames, std::vector<std::string>& dataValues);

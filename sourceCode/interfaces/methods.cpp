@@ -6036,7 +6036,7 @@ std::string _method_setBoolProperty(int targetObj, const char* method, CDetached
         {
             if (CALL_C_API(simSetBoolProperty, targetObj, pName.c_str(), pValue) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6073,7 +6073,7 @@ std::string _method_setBufferProperty(int targetObj, const char* method, CDetach
         {
             if (CALL_C_API(simSetBufferProperty, targetObj, pName.c_str(), pValue.c_str(), pValue.size()) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6111,7 +6111,7 @@ std::string _method_setColorProperty(int targetObj, const char* method, CDetache
         {
             if (CALL_C_API(simSetColorProperty, targetObj, pName.c_str(), pValue) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6149,7 +6149,7 @@ std::string _method_setFloatArrayProperty(int targetObj, const char* method, CDe
         {
             if (CALL_C_API(simSetFloatArrayProperty, targetObj, pName.c_str(), pValue.data(), pValue.size()) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6186,7 +6186,7 @@ std::string _method_setFloatProperty(int targetObj, const char* method, CDetache
         {
             if (CALL_C_API(simSetFloatProperty, targetObj, pName.c_str(), pValue) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6231,7 +6231,7 @@ std::string _method_setStringArrayProperty(int targetObj, const char* method, CD
             }
             if (CALL_C_API(simSetStringArrayProperty, targetObj, pName.c_str(), v.data(), int(pValue.size())) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6269,7 +6269,7 @@ std::string _method_setHandleArrayProperty(int targetObj, const char* method, CD
         {
             if (CALL_C_API(simSetHandleArrayProperty, targetObj, pName.c_str(), pValue.data(), pValue.size()) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6306,7 +6306,7 @@ std::string _method_setHandleProperty(int targetObj, const char* method, CDetach
         {
             if (CALL_C_API(simSetHandleProperty, targetObj, pName.c_str(), pValue) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6344,7 +6344,7 @@ std::string _method_setIntArray2Property(int targetObj, const char* method, CDet
         {
             if (CALL_C_API(simSetIntArray2Property, targetObj, pName.c_str(), pValue.data()) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6382,7 +6382,7 @@ std::string _method_setIntArrayProperty(int targetObj, const char* method, CDeta
         {
             if (CALL_C_API(simSetIntArrayProperty, targetObj, pName.c_str(), pValue.data(), pValue.size()) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6419,7 +6419,7 @@ std::string _method_setIntProperty(int targetObj, const char* method, CDetachedS
         {
             if (CALL_C_API(simSetIntProperty, targetObj, pName.c_str(), pValue) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6456,7 +6456,7 @@ std::string _method_setLongProperty(int targetObj, const char* method, CDetached
         {
             if (CALL_C_API(simSetLongProperty, targetObj, pName.c_str(), pValue) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6495,7 +6495,7 @@ std::string _method_setPoseProperty(int targetObj, const char* method, CDetached
             pState.getData(p, true);
             if (CALL_C_API(simSetPoseProperty, targetObj, pName.c_str(), p) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6534,7 +6534,7 @@ std::string _method_setQuaternionProperty(int targetObj, const char* method, CDe
             pState.getData(q, true);
             if (CALL_C_API(simSetQuaternionProperty, targetObj, pName.c_str(), q) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6571,7 +6571,7 @@ std::string _method_setStringProperty(int targetObj, const char* method, CDetach
         {
             if (CALL_C_API(simSetStringProperty, targetObj, pName.c_str(), pValue.c_str()) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6608,7 +6608,7 @@ std::string _method_setVector3Property(int targetObj, const char* method, CDetac
         {
             if (CALL_C_API(simSetVector3Property, targetObj, pName.c_str(), pValue.data) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6681,7 +6681,7 @@ std::string _method_setMatrixProperty(int targetObj, const char* method, CDetach
         {
             if (CALL_C_API(simSetMatrixProperty, targetObj, pName.c_str(), pValue.data.data(), pValue.rows, pValue.cols) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6836,7 +6836,7 @@ std::string _method_setTableProperty(int targetObj, const char* method, CDetache
         {
             if (CALL_C_API(simSetTableProperty, targetObj, pName.c_str(), pValue.c_str(), int(pValue.size())) > 0)
             {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -6872,7 +6872,7 @@ std::string _method_removeProperty(int targetObj, const char* method, CDetachedS
         {
             if (CALL_C_API(simRemoveProperty, targetObj, pName.c_str()) == sim_propertyret_ok)
             {
-                if (utils::startsWith(pName.c_str(), SIGNALPREFIX))
+                if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
                     std::string nn(pName);
                     if (targetObj == sim_handle_app)
@@ -8420,7 +8420,9 @@ std::string _method_dynamicsStep(int targetObj, const char* method, CDetachedScr
         {
             if (App::scene->dynamicsContainer->getDynamicsEnabled())
             {
-                double stepSize = fetchDouble(inStack, 0, App::scene->simulation->getTimeStep());
+                double stepSize = fetchDouble(inStack, 0, 0.0);
+                if (stepSize == 0.0)
+                    stepSize = App::scene->simulation->getTimeStep();
                 App::scene->dynamicsContainer->handleDynamics(stepSize);
                 CApiErrors::getAndClearLastError();
                 if (!App::scene->dynamicsContainer->isWorldThere())
