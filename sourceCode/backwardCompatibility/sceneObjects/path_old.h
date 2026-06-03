@@ -86,7 +86,7 @@ class CPath_old : public CSceneObject
     double _shapingScaling;
 
     // Other variables:
-    unsigned short _pathModifID;
+    uint16_t _pathModifID;
 
     bool _initialExplicitHandling;
 

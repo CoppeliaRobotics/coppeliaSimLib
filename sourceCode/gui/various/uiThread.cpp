@@ -589,11 +589,11 @@ std::string CUiThread::getOpenOrSaveFileName_api(int mode, const char* title, co
     return (retVal);
 }
 
-unsigned short CUiThread::messageBox_informationSystemModal(void* parentWidget, const char* title, const char* message,
-                                                            unsigned short flags, unsigned short defaultAnswer)
+uint16_t CUiThread::messageBox_informationSystemModal(void* parentWidget, const char* title, const char* message,
+                                                            uint16_t flags, uint16_t defaultAnswer)
 {
     TRACE_INTERNAL;
-    unsigned short retVal = defaultAnswer;
+    uint16_t retVal = defaultAnswer;
     if ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0)
     {
         SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
@@ -602,11 +602,11 @@ unsigned short CUiThread::messageBox_informationSystemModal(void* parentWidget, 
     return retVal;
 }
 
-unsigned short CUiThread::messageBox_information(void* parentWidget, const char* title, const char* message,
-                                                 unsigned short flags, unsigned short defaultAnswer)
+uint16_t CUiThread::messageBox_information(void* parentWidget, const char* title, const char* message,
+                                                 uint16_t flags, uint16_t defaultAnswer)
 {
     TRACE_INTERNAL;
-    unsigned short retVal = defaultAnswer;
+    uint16_t retVal = defaultAnswer;
     if ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0)
     {
         SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
@@ -615,11 +615,11 @@ unsigned short CUiThread::messageBox_information(void* parentWidget, const char*
     return retVal;
 }
 
-unsigned short CUiThread::messageBox_question(void* parentWidget, const char* title, const char* message,
-                                              unsigned short flags, unsigned short defaultAnswer)
+uint16_t CUiThread::messageBox_question(void* parentWidget, const char* title, const char* message,
+                                              uint16_t flags, uint16_t defaultAnswer)
 {
     TRACE_INTERNAL;
-    unsigned short retVal = defaultAnswer;
+    uint16_t retVal = defaultAnswer;
     if ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0)
     {
         SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
@@ -628,11 +628,11 @@ unsigned short CUiThread::messageBox_question(void* parentWidget, const char* ti
     return retVal;
 }
 
-unsigned short CUiThread::messageBox_warning(void* parentWidget, const char* title, const char* message,
-                                             unsigned short flags, unsigned short defaultAnswer)
+uint16_t CUiThread::messageBox_warning(void* parentWidget, const char* title, const char* message,
+                                             uint16_t flags, uint16_t defaultAnswer)
 {
     TRACE_INTERNAL;
-    unsigned short retVal = defaultAnswer;
+    uint16_t retVal = defaultAnswer;
     if ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0)
     {
         SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
@@ -641,11 +641,11 @@ unsigned short CUiThread::messageBox_warning(void* parentWidget, const char* tit
     return retVal;
 }
 
-unsigned short CUiThread::messageBox_critical(void* parentWidget, const char* title, const char* message,
-                                              unsigned short flags, unsigned short defaultAnswer)
+uint16_t CUiThread::messageBox_critical(void* parentWidget, const char* title, const char* message,
+                                              uint16_t flags, uint16_t defaultAnswer)
 {
     TRACE_INTERNAL;
-    unsigned short retVal = defaultAnswer;
+    uint16_t retVal = defaultAnswer;
     if ((GuiApp::operationalUIParts & sim_gui_dialogs) != 0)
     {
         SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
@@ -654,11 +654,11 @@ unsigned short CUiThread::messageBox_critical(void* parentWidget, const char* ti
     return retVal;
 }
 
-unsigned short CUiThread::_messageBox(int type, void* parentWidget, const char* title, const char* message,
-                                      unsigned short flags, unsigned short defaultAnswer)
+uint16_t CUiThread::_messageBox(int type, void* parentWidget, const char* title, const char* message,
+                                      uint16_t flags, uint16_t defaultAnswer)
 { // type: 0=info, 1=question, 2=warning, 3=critical, 4=info, system modal
     TRACE_INTERNAL;
-    unsigned short retVal = VMESSAGEBOX_REPLY_ERROR;
+    uint16_t retVal = VMESSAGEBOX_REPLY_ERROR;
     if (GuiApp::canShowDialogs())
     { // make sure we are not in headless mode
         if (VThread::isUiThread())
@@ -763,7 +763,7 @@ bool CUiThread::checkExecuteUnsafeOk(const char* what, const char* arg, const ch
                               VMESSAGEBOX_REPLY_NO) == VMESSAGEBOX_REPLY_YES;
 }
 
-bool CUiThread::getOpenFileNames(std::vector<std::string>& files, void* parentWidget, unsigned short option,
+bool CUiThread::getOpenFileNames(std::vector<std::string>& files, void* parentWidget, uint16_t option,
                                  const char* title, const char* startPath, const char* initFilename, bool allowAnyFile,
                                  const char* extensionName, const char* extension1, const char* extension2,
                                  const char* extension3, const char* extension4, const char* extension5,
@@ -831,7 +831,7 @@ void CUiThread::setFileDialogsNative(int n)
     }
 }
 
-std::string CUiThread::getOpenFileName(void* parentWidget, unsigned short option, const char* title,
+std::string CUiThread::getOpenFileName(void* parentWidget, uint16_t option, const char* title,
                                        const char* startPath, const char* initFilename, bool allowAnyFile,
                                        const char* extensionName, const char* extension1, const char* extension2,
                                        const char* extension3, const char* extension4, const char* extension5,
@@ -880,7 +880,7 @@ std::string CUiThread::getOpenFileName(void* parentWidget, unsigned short option
     return (retVal);
 }
 
-std::string CUiThread::getSaveFileName(void* parentWidget, unsigned short option, const char* title,
+std::string CUiThread::getSaveFileName(void* parentWidget, uint16_t option, const char* title,
                                        const char* startPath, const char* initFilename, bool allowAnyFile,
                                        const char* extensionName, const char* extension1, const char* extension2,
                                        const char* extension3, const char* extension4, const char* extension5,

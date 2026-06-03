@@ -470,7 +470,7 @@ void CEnvironment::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Vil");
-            ar << (unsigned short)_activeLayers;
+            ar << (uint16_t)_activeLayers;
             ar.flush();
 
             ar.storeDataName("_d2");
@@ -584,7 +584,7 @@ void CEnvironment::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        unsigned short al;
+                        uint16_t al;
                         ar >> al;
                         _activeLayers = (int)al;
                     }

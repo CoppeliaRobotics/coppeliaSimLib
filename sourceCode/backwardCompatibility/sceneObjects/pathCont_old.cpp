@@ -93,7 +93,7 @@ double CPathCont_old::getAvpRelativeAcceleration()
     return (_avp_relativeAcceleration);
 }
 
-unsigned short CPathCont_old::getPathModifID()
+uint16_t CPathCont_old::getPathModifID()
 {
     return (_pathModifID);
 }
@@ -977,7 +977,7 @@ void CPathCont_old::createEquivalent(int pathHandle)
 }
 
 CBezierPathPoint_old* CPathCont_old::_addBezierPathPoint(const CPose& transf, double maxRelAbsVelocity,
-                                                         double onSpotDistance, unsigned short auxFlags,
+                                                         double onSpotDistance, uint16_t auxFlags,
                                                          const double auxChannels[4])
 {
     CBezierPathPoint_old* it = new CBezierPathPoint_old(transf);
@@ -1722,7 +1722,7 @@ void CPathCont_old::_recomputeBezierPoints()
             itm->getAuxChannels(auxChannels1);
             ita->getAuxChannels(auxChannels2);
 
-            unsigned short auxFlags1 = itm->getAuxFlags();
+            uint16_t auxFlags1 = itm->getAuxFlags();
 
             bool linOk = false;
             bool angOk = false;

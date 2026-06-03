@@ -11,10 +11,10 @@ enum
     VMESSAGEBOX_CRITICAL_TYPE = 128,
 };
 
-unsigned short VMessageBox::informationSystemModal(QWidget* parent, const char* title, const char* message,
-                                                   unsigned short flags, unsigned short defaultAnswer)
+uint16_t VMessageBox::informationSystemModal(QWidget* parent, const char* title, const char* message,
+                                                   uint16_t flags, uint16_t defaultAnswer)
 { // Don't forget: parent can be nullptr at application start-up!
-    unsigned short retVal = defaultAnswer;
+    uint16_t retVal = defaultAnswer;
     if (App::getDlgVerbosity() >= sim_verbosity_infos)
     {
         flags |= VMESSAGEBOX_INFO_TYPE;
@@ -29,10 +29,10 @@ unsigned short VMessageBox::informationSystemModal(QWidget* parent, const char* 
     return (retVal);
 }
 
-unsigned short VMessageBox::information(QWidget* parent, const char* title, const char* message, unsigned short flags,
-                                        unsigned short defaultAnswer)
+uint16_t VMessageBox::information(QWidget* parent, const char* title, const char* message, uint16_t flags,
+                                        uint16_t defaultAnswer)
 { // Don't forget: parent can be nullptr at application start-up!
-    unsigned short retVal = defaultAnswer;
+    uint16_t retVal = defaultAnswer;
     if (App::getDlgVerbosity() >= sim_verbosity_infos)
     {
         flags |= VMESSAGEBOX_APP_MODAL | VMESSAGEBOX_INFO_TYPE;
@@ -47,10 +47,10 @@ unsigned short VMessageBox::information(QWidget* parent, const char* title, cons
     return (retVal);
 }
 
-unsigned short VMessageBox::question(QWidget* parent, const char* title, const char* message, unsigned short flags,
-                                     unsigned short defaultAnswer)
+uint16_t VMessageBox::question(QWidget* parent, const char* title, const char* message, uint16_t flags,
+                                     uint16_t defaultAnswer)
 { // Don't forget: parent can be nullptr at application start-up!
-    unsigned short retVal = defaultAnswer;
+    uint16_t retVal = defaultAnswer;
     if (App::getDlgVerbosity() >= sim_verbosity_questions)
     {
         flags |= VMESSAGEBOX_APP_MODAL | VMESSAGEBOX_QUESTION_TYPE;
@@ -65,10 +65,10 @@ unsigned short VMessageBox::question(QWidget* parent, const char* title, const c
     return (retVal);
 }
 
-unsigned short VMessageBox::warning(QWidget* parent, const char* title, const char* message, unsigned short flags,
-                                    unsigned short defaultAnswer)
+uint16_t VMessageBox::warning(QWidget* parent, const char* title, const char* message, uint16_t flags,
+                                    uint16_t defaultAnswer)
 { // Don't forget: parent can be nullptr at application start-up!
-    unsigned short retVal = defaultAnswer;
+    uint16_t retVal = defaultAnswer;
     if (App::getDlgVerbosity() >= sim_verbosity_warnings)
     {
         flags |= VMESSAGEBOX_APP_MODAL | VMESSAGEBOX_WARNING_TYPE;
@@ -83,10 +83,10 @@ unsigned short VMessageBox::warning(QWidget* parent, const char* title, const ch
     return (retVal);
 }
 
-unsigned short VMessageBox::critical(QWidget* parent, const char* title, const char* message, unsigned short flags,
-                                     unsigned short defaultAnswer)
+uint16_t VMessageBox::critical(QWidget* parent, const char* title, const char* message, uint16_t flags,
+                                     uint16_t defaultAnswer)
 { // Don't forget: parent can be nullptr at application start-up!
-    unsigned short retVal = defaultAnswer;
+    uint16_t retVal = defaultAnswer;
     if (App::getDlgVerbosity() >= sim_verbosity_errors)
     {
         flags |= VMESSAGEBOX_APP_MODAL | VMESSAGEBOX_CRITICAL_TYPE;
@@ -101,10 +101,10 @@ unsigned short VMessageBox::critical(QWidget* parent, const char* title, const c
     return (retVal);
 }
 
-unsigned short VMessageBox::_displayBox(QWidget* parent, const char* title, const char* message, unsigned short flags)
+uint16_t VMessageBox::_displayBox(QWidget* parent, const char* title, const char* message, uint16_t flags)
 { // Don't forget: parent can be nullptr at application start-up!
-    unsigned short lower = (flags & 7);
-    unsigned short upper = flags - lower;
+    uint16_t lower = (flags & 7);
+    uint16_t upper = flags - lower;
 
     QMessageBox msg(parent);
     msg.setWindowTitle(title);

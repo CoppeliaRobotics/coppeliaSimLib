@@ -26,17 +26,17 @@ void utils::lightBinaryDecode(char* data, int length)
     }
 }
 
-unsigned short utils::getCRC(char* data, int length)
+uint16_t utils::getCRC(char* data, int length)
 {
-    unsigned short crc = 0;
+    uint16_t crc = 0;
     int p = 0;
     for (int i = 0; i < length; i++)
     {
-        crc = crc ^ (((unsigned short)data[p]) << 8);
+        crc = crc ^ (((uint16_t)data[p]) << 8);
         for (int j = 0; j < 8; j++)
         {
-            if (crc & ((unsigned short)0x8000))
-                crc = (crc << 1) ^ ((unsigned short)0x1021);
+            if (crc & ((uint16_t)0x8000))
+                crc = (crc << 1) ^ ((uint16_t)0x1021);
             else
                 crc <<= 1;
         }
@@ -45,7 +45,7 @@ unsigned short utils::getCRC(char* data, int length)
     return (crc);
 }
 
-unsigned short utils::getCRC(const std::string& data)
+uint16_t utils::getCRC(const std::string& data)
 {
     if (data.length() == 0)
         return (0);

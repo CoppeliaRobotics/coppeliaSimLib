@@ -15,8 +15,8 @@ class CPathPoint_old
     double getMaxRelAbsVelocity();
     void setOnSpotDistance(double d);
     double getOnSpotDistance();
-    void setAuxFlags(unsigned short f);
-    unsigned short getAuxFlags();
+    void setAuxFlags(uint16_t f);
+    uint16_t getAuxFlags();
     void setAuxChannels(const double c[4]);
     void getAuxChannels(double c[4]);
 
@@ -24,6 +24,6 @@ class CPathPoint_old
     CPose _transformation;
     double _maxRelAbsVelocity;
     double _onSpotDistance;
-    unsigned short _auxFlags;
+    uint16_t _auxFlags;
     double _auxChannels[4];
 };

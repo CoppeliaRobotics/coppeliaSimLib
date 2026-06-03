@@ -1682,7 +1682,7 @@ void CMesh::serializeTempVerticesIndicesNormalsAndEdges(CSer& ar)
                     arr->resize(byteQuantity * 6 / sizeof(float), 0.0);
                     for (int i = 0; i < byteQuantity / 2; i++)
                     {
-                        unsigned short w;
+                        uint16_t w;
                         ar >> w;
                         char x = (w & 0x001f) - 15;
                         char y = ((w >> 5) & 0x001f) - 15;
@@ -2124,7 +2124,7 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const CPose& parentCumulI
                         _normalsForDisplayAndDisk.resize(byteQuantity * 6 / sizeof(float), 0.0);
                         for (int i = 0; i < byteQuantity / 2; i++)
                         {
-                            unsigned short w;
+                            uint16_t w;
                             ar >> w;
                             char x = (w & 0x001f) - 15;
                             char y = ((w >> 5) & 0x001f) - 15;

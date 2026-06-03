@@ -8,17 +8,17 @@
 class VMessageBox
 {
   public:
-    static unsigned short information(QWidget* parent, const char* title, const char* message, unsigned short flags,
-                                      unsigned short defaultAnswer);
-    static unsigned short question(QWidget* parent, const char* title, const char* message, unsigned short flags,
-                                   unsigned short defaultAnswer);
-    static unsigned short warning(QWidget* parent, const char* title, const char* message, unsigned short flags,
-                                  unsigned short defaultAnswer);
-    static unsigned short critical(QWidget* parent, const char* title, const char* message, unsigned short flags,
-                                   unsigned short defaultAnswer);
-    static unsigned short informationSystemModal(QWidget* parent, const char* title, const char* message,
-                                                 unsigned short flags, unsigned short defaultAnswer);
+    static uint16_t information(QWidget* parent, const char* title, const char* message, uint16_t flags,
+                                      uint16_t defaultAnswer);
+    static uint16_t question(QWidget* parent, const char* title, const char* message, uint16_t flags,
+                                   uint16_t defaultAnswer);
+    static uint16_t warning(QWidget* parent, const char* title, const char* message, uint16_t flags,
+                                  uint16_t defaultAnswer);
+    static uint16_t critical(QWidget* parent, const char* title, const char* message, uint16_t flags,
+                                   uint16_t defaultAnswer);
+    static uint16_t informationSystemModal(QWidget* parent, const char* title, const char* message,
+                                                 uint16_t flags, uint16_t defaultAnswer);
 
   private:
-    static unsigned short _displayBox(QWidget* parent, const char* title, const char* message, unsigned short flags);
+    static uint16_t _displayBox(QWidget* parent, const char* title, const char* message, uint16_t flags);
 };

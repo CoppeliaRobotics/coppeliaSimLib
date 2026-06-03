@@ -56,10 +56,9 @@ class CSer
     CSer& operator<<(const int& v);
     CSer& operator<<(const float& v);
     CSer& operator<<(const double& v);
-    CSer& operator<<(const unsigned short& v);
+    CSer& operator<<(const uint16_t& v);
     CSer& operator<<(const unsigned int& v);
     CSer& operator<<(const quint64& v);
-    CSer& operator<<(const long& v);
     CSer& operator<<(const int64_t& v);
     CSer& operator<<(const unsigned char& v);
     CSer& operator<<(const char& v);
@@ -68,10 +67,9 @@ class CSer
     CSer& operator>>(int& v);
     CSer& operator>>(float& v);
     CSer& operator>>(double& v);
-    CSer& operator>>(unsigned short& v);
+    CSer& operator>>(uint16_t& v);
     CSer& operator>>(unsigned int& v);
     CSer& operator>>(quint64& v);
-    CSer& operator>>(long& v);
     CSer& operator>>(int64_t& v);
     CSer& operator>>(unsigned char& v);
     CSer& operator>>(char& v);
@@ -93,7 +91,7 @@ class CSer
     void loadUnknownData();
     bool getFoundUnknownCommands();
 
-    unsigned short getCoppeliaSimVersionThatWroteThisFile();
+    uint16_t getCoppeliaSimVersionThatWroteThisFile();
     int getLicenseTypeThatWroteThisFile();
     int getSerializationVersionThatWroteThisFile();
     static int getSerializationVersionThatWroteLastFile();
@@ -218,14 +216,14 @@ class CSer
 
   private:
     void _getFileOpenInfoAndError(int fileType, int result, int serializationVersion,
-                                  unsigned short coppeliaSimVersionThatWroteThis, int licenseTypeThatWroteThis,
+                                  uint16_t coppeliaSimVersionThatWroteThis, int licenseTypeThatWroteThis,
                                   char revNumber, std::string* infoStr = nullptr, std::string* errorStr = nullptr);
 
     void _commonInit();
     void _writeBinaryHeader();
     void _writeXmlHeader();
     void _writeXmlFooter();
-    int _readXmlHeader(int& serializationVersion, unsigned short& coppeliaSimVersionThatWroteThis, char& revNumber);
+    int _readXmlHeader(int& serializationVersion, uint16_t& coppeliaSimVersionThatWroteThis, char& revNumber);
     std::string _getNodeText(const xmlNode* node) const;
     std::string _getNodeCdataText(const xmlNode* node) const;
     VArchive* theArchive;
@@ -250,7 +248,7 @@ class CSer
     int _fileBufferReadPointer;
     bool _foundUnknownCommands;
 
-    unsigned short _coppeliaSimVersionThatWroteThis;
+    uint16_t _coppeliaSimVersionThatWroteThis;
     int _licenseTypeThatWroteThis;
     int _serializationVersionThatWroteThisFile;
     static int _serializationVersionThatWroteLastFile;

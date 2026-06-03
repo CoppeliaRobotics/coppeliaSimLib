@@ -1,12 +1,12 @@
 #include <app.h>
 #include <vArchive.h>
 
-unsigned short VArchive::LOAD = 0;
-unsigned short VArchive::STORE = 1;
+uint16_t VArchive::LOAD = 0;
+uint16_t VArchive::STORE = 1;
 
 #define ARCHIVE_SEMAPHORE_TAG "__ACCESSING_ARCHIVE_DATA__"
 
-VArchive::VArchive(VFile* file, unsigned short flag)
+VArchive::VArchive(VFile* file, uint16_t flag)
 {
     App::systemSemaphore(ARCHIVE_SEMAPHORE_TAG, true);
     _theFile = file;

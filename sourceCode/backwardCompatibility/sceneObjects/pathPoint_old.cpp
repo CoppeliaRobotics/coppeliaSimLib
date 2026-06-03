@@ -44,12 +44,12 @@ double CPathPoint_old::getOnSpotDistance()
     return (_onSpotDistance);
 }
 
-void CPathPoint_old::setAuxFlags(unsigned short f)
+void CPathPoint_old::setAuxFlags(uint16_t f)
 {
     _auxFlags = f;
 }
 
-unsigned short CPathPoint_old::getAuxFlags()
+uint16_t CPathPoint_old::getAuxFlags()
 {
     return (_auxFlags);
 }

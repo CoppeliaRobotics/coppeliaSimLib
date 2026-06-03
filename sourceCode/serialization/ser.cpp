@@ -303,7 +303,7 @@ void CSer::_writeBinaryHeader()
         licenseType = 0x00007000;
     if (theArchive != nullptr)
     {
-        unsigned short v = SIM_PROGRAM_VERSION_NB;
+        uint16_t v = SIM_PROGRAM_VERSION_NB;
         (*theArchive) << ((char*)&v)[0];
         (*theArchive) << ((char*)&v)[1];
 
@@ -314,7 +314,7 @@ void CSer::_writeBinaryHeader()
     }
     else
     {
-        unsigned short v = SIM_PROGRAM_VERSION_NB;
+        uint16_t v = SIM_PROGRAM_VERSION_NB;
         (*_bufferArchive).push_back(((char*)&v)[0]);
         (*_bufferArchive).push_back(((char*)&v)[1]);
 
@@ -455,7 +455,7 @@ std::string CSer::xmlGetStackString() const
     return (retVal);
 }
 
-int CSer::_readXmlHeader(int& serializationVersion, unsigned short& coppeliaSimVersionThatWroteThis, char& revNumber)
+int CSer::_readXmlHeader(int& serializationVersion, uint16_t& coppeliaSimVersionThatWroteThis, char& revNumber)
 {
     if (_xmlDocument.LoadFile(_filename.c_str()) == tinyxml2::XML_SUCCESS)
     {
@@ -505,9 +505,9 @@ int CSer::readOpenBinaryNoHeader()
         if (theFile->getFile() != nullptr)
         {
             theArchive = new VArchive(theFile, VArchive::LOAD);
-            unsigned long l = (unsigned long)theArchive->getFile()->getLength();
+            uint64_t l = theArchive->getFile()->getLength();
             char dummy;
-            for (unsigned long i = 0; i < l; i++)
+            for (uint64_t i = 0; i < l; i++)
             {
                 (*theArchive) >> dummy;
                 _fileBuffer.push_back(dummy);
@@ -530,7 +530,7 @@ int CSer::readOpenXml(int fileType, bool ignoreTooOldSerializationVersion, std::
 { // return values: -4 file can't be opened, -3=wrong fileformat, -2=format too old, -1=format too new, 0=compressor
     // unknown, 1=alright!
     _storing = false;
-    unsigned short coppeliaSimVersionThatWroteThis = 0; // means: not yet supported
+    uint16_t coppeliaSimVersionThatWroteThis = 0; // means: not yet supported
     int licenseTypeThatWroteThis = -1;                  // means: not yet supported
     int serializationVersion = -1;                      // error
     char revNumber;
@@ -563,7 +563,7 @@ int CSer::readOpenBinary(int fileType, bool ignoreTooOldSerializationVersion, st
     }
 
     char revNumber;
-    unsigned short coppeliaSimVersionThatWroteThis = 0; // means: not yet supported
+    uint16_t coppeliaSimVersionThatWroteThis = 0; // means: not yet supported
     int licenseTypeThatWroteThis = -1;                  // means: not yet supported
     int serializationVersion = -1;                      // error
     _serializationVersionThatWroteThisFile = serializationVersion;
@@ -573,11 +573,11 @@ int CSer::readOpenBinary(int fileType, bool ignoreTooOldSerializationVersion, st
     {
         int minSerializationVersionThatCanReadThis = -1; // error
         int compilationVersion = -1;
-        int alreadyReadDataCount = 0;
+        uint64_t alreadyReadDataCount = 0;
         char filetype = 0;
         char compressMethod = 0;
         int originalDataSize = 0;
-        int bufferArchivePointer = 0;
+        uint64_t bufferArchivePointer = 0;
 
         if (!_noHeader)
         {
@@ -751,9 +751,9 @@ int CSer::readOpenBinary(int fileType, bool ignoreTooOldSerializationVersion, st
         { // We read the whole file:
             if (theArchive != nullptr)
             {
-                unsigned long l = (unsigned long)theArchive->getFile()->getLength() - alreadyReadDataCount;
+                uint64_t l = theArchive->getFile()->getLength() - alreadyReadDataCount;
                 char dummy;
-                for (unsigned long i = 0; i < l; i++)
+                for (uint64_t i = 0; i < l; i++)
                 {
                     (*theArchive) >> dummy;
                     _fileBuffer.push_back(dummy);
@@ -761,7 +761,7 @@ int CSer::readOpenBinary(int fileType, bool ignoreTooOldSerializationVersion, st
             }
             else
             {
-                for (unsigned long i = bufferArchivePointer; i < (*_bufferArchive).size(); i++)
+                for (uint64_t i = bufferArchivePointer; i < (*_bufferArchive).size(); i++)
                     _fileBuffer.push_back((*_bufferArchive)[i]);
             }
 
@@ -789,7 +789,7 @@ int CSer::readOpenBinary(int fileType, bool ignoreTooOldSerializationVersion, st
 }
 
 void CSer::_getFileOpenInfoAndError(int fileType, int result, int serializationVersion,
-                                    unsigned short coppeliaSimVersionThatWroteThis, int licenseTypeThatWroteThis,
+                                    uint16_t coppeliaSimVersionThatWroteThis, int licenseTypeThatWroteThis,
                                     char revNumber, std::string* infoStr /*=nullptr*/,
                                     std::string* errorStr /*=nullptr*/)
 {
@@ -974,7 +974,7 @@ CSer& CSer::operator<<(const double& v)
     return (*this);
 }
 
-CSer& CSer::operator<<(const unsigned short& v)
+CSer& CSer::operator<<(const uint16_t& v)
 {
     unsigned char* tmp = (unsigned char*)(&v);
     for (int i = 0; i < int(sizeof(v)); i++)
@@ -991,14 +991,6 @@ CSer& CSer::operator<<(const unsigned int& v)
 }
 
 CSer& CSer::operator<<(const quint64& v)
-{
-    unsigned char* tmp = (unsigned char*)(&v);
-    for (int i = 0; i < int(sizeof(v)); i++)
-        buffer.push_back(tmp[i]);
-    return (*this);
-}
-
-CSer& CSer::operator<<(const long& v)
 {
     unsigned char* tmp = (unsigned char*)(&v);
     for (int i = 0; i < int(sizeof(v)); i++)
@@ -1073,7 +1065,7 @@ CSer& CSer::operator>>(double& v)
     return (*this);
 }
 
-CSer& CSer::operator>>(unsigned short& v)
+CSer& CSer::operator>>(uint16_t& v)
 {
     unsigned char* tmp = (unsigned char*)(&v);
     for (int i = 0; i < int(sizeof(v)); i++)
@@ -1090,14 +1082,6 @@ CSer& CSer::operator>>(unsigned int& v)
 }
 
 CSer& CSer::operator>>(quint64& v)
-{
-    unsigned char* tmp = (unsigned char*)(&v);
-    for (int i = 0; i < int(sizeof(v)); i++)
-        tmp[i] = _fileBuffer[_fileBufferReadPointer++];
-    return (*this);
-}
-
-CSer& CSer::operator>>(long& v)
 {
     unsigned char* tmp = (unsigned char*)(&v);
     for (int i = 0; i < int(sizeof(v)); i++)
@@ -1199,7 +1183,7 @@ VArchive& CSer::getArchive()
     return (*theArchive);
 }
 
-unsigned short CSer::getCoppeliaSimVersionThatWroteThisFile()
+uint16_t CSer::getCoppeliaSimVersionThatWroteThisFile()
 {
     return (_coppeliaSimVersionThatWroteThis);
 }

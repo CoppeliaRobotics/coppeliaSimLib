@@ -74,7 +74,7 @@ void CMainSettings::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Al2"); // Kept for backward compatibility
-            ar << (unsigned short)App::scene->environment->getActiveLayers();
+            ar << (uint16_t)App::scene->environment->getActiveLayers();
             ar.flush();
 
             ar.storeDataName("Iwc");
@@ -174,7 +174,7 @@ void CMainSettings::serialize(CSer& ar)
                     { // For backward compatibility
                         noHit = false;
                         ar >> byteQuantity;
-                        unsigned short l;
+                        uint16_t l;
                         ar >> l;
                         App::scene->environment->setActiveLayers((int)l);
                     }
@@ -299,7 +299,7 @@ void CMainSettings::serialize(CSer& ar)
             if (ar.xmlGetNode_int("visibleLayers", l, exhaustiveXml))
             { // For backward compatibility
                 tt::limitValue(0, 65526, l);
-                App::scene->environment->setActiveLayers((unsigned short)l);
+                App::scene->environment->setActiveLayers((uint16_t)l);
             }
 
             if (ar.xmlPushChildNode("switches", exhaustiveXml))

@@ -790,7 +790,7 @@ void CShape::serialize(CSer& ar)
                 _dynMaterial->serialize(ar);
 
             ar.storeDataName("Dc2");
-            ar << (unsigned short)_respondableMask;
+            ar << (uint16_t)_respondableMask;
             ar.flush();
 
             ar.storeDataName("_dv");
@@ -854,7 +854,7 @@ void CShape::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        unsigned short m;
+                        uint16_t m;
                         ar >> m;
                         _respondableMask = m;
                     }

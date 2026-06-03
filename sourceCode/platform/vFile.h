@@ -9,7 +9,7 @@ typedef QFile WFile;
 class VFile
 {
   public:
-    VFile(const char* filename, unsigned short flags, bool dontThrow = false);
+    VFile(const char* filename, uint16_t flags, bool dontThrow = false);
     VFile(const char* filename); // opens a Qt resource files
     virtual ~VFile();
 
@@ -26,10 +26,10 @@ class VFile
     bool flush();
     std::string getPathAndFilename();
 
-    static unsigned short CREATE_WRITE;
-    static unsigned short SHARE_EXCLUSIVE;
-    static unsigned short READ;
-    static unsigned short SHARE_DENY_NONE;
+    static uint16_t CREATE_WRITE;
+    static uint16_t SHARE_EXCLUSIVE;
+    static uint16_t READ;
+    static uint16_t SHARE_DENY_NONE;
 
   private:
     static bool _doesFileOrFolderExist(const char* filenameOrFoldernameAndPath, bool checkForFolder);

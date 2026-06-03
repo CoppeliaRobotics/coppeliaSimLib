@@ -3421,7 +3421,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 #ifdef SIM_WITH_GUI
             if (GuiApp::mainWindow != nullptr)
             {
-                unsigned short res = GuiApp::uiThread->messageBox_question(
+                uint16_t res = GuiApp::uiThread->messageBox_question(
                     GuiApp::mainWindow, "Code conversion",
                     "CoppeliaSim can try to adjust the code automatically, by mainly performing a simple string replacement:\n\n"
                     "'.' and './' (and similar)    with    '..' and '../'\n"

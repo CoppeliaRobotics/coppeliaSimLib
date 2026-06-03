@@ -254,7 +254,7 @@ void CSimplePathPoint_old::serialize(CSer& ar)
 
             int tmp;
             ar.xmlGetNode_int("auxiliaryFlags", tmp, exhaustiveXml);
-            _auxFlags = (unsigned short)tmp;
+            _auxFlags = (uint16_t)tmp;
 
             ar.xmlGetNode_floats("auxiliaryChannels", _auxChannels, 4, exhaustiveXml);
         }

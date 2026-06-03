@@ -8,7 +8,7 @@ void VFileDialog::setFileDialogNative(int n)
     _fileDialogNative = n;
 }
 
-std::string VFileDialog::getOpenFileName(QWidget* parent, unsigned short option, const char* title,
+std::string VFileDialog::getOpenFileName(QWidget* parent, uint16_t option, const char* title,
                                          const char* startPath, const char* initFilename, bool allowAnyFile,
                                          const char* extensionName, const char* extension1, const char* extension2,
                                          const char* extension3, const char* extension4, const char* extension5,
@@ -20,7 +20,7 @@ std::string VFileDialog::getOpenFileName(QWidget* parent, unsigned short option,
                                    extension8, extension9, extension10));
 }
 
-std::string VFileDialog::getSaveFileName(QWidget* parent, unsigned short option, const char* title,
+std::string VFileDialog::getSaveFileName(QWidget* parent, uint16_t option, const char* title,
                                          const char* startPath, const char* initFilename, bool allowAnyFile,
                                          const char* extensionName, const char* extension1, const char* extension2,
                                          const char* extension3, const char* extension4, const char* extension5,
@@ -32,7 +32,7 @@ std::string VFileDialog::getSaveFileName(QWidget* parent, unsigned short option,
                                    extension8, extension9, extension10));
 }
 
-std::string VFileDialog::_getOpenOrSaveFileName(bool open, QWidget* parent, unsigned short option, const char* title,
+std::string VFileDialog::_getOpenOrSaveFileName(bool open, QWidget* parent, uint16_t option, const char* title,
                                                 const char* startPath, const char* initFilename, bool allowAnyFile,
                                                 const char* extensionName, const char* extension1,
                                                 const char* extension2, const char* extension3, const char* extension4,
@@ -170,7 +170,7 @@ std::string VFileDialog::_getOpenOrSaveFileName(bool open, QWidget* parent, unsi
     return (rs);
 }
 
-bool VFileDialog::getOpenFileNames(std::vector<std::string>& files, QWidget* parent, unsigned short option,
+bool VFileDialog::getOpenFileNames(std::vector<std::string>& files, QWidget* parent, uint16_t option,
                                    const char* title, const char* startPath, const char* initFilename,
                                    bool allowAnyFile, const char* extensionName, const char* extension1,
                                    const char* extension2, const char* extension3, const char* extension4,

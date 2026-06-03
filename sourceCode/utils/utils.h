@@ -9,8 +9,8 @@ class utils
   public:
     static void lightBinaryEncode(char* data, int length);
     static void lightBinaryDecode(char* data, int length);
-    static unsigned short getCRC(char* data, int length);
-    static unsigned short getCRC(const std::string& data);
+    static uint16_t getCRC(char* data, int length);
+    static uint16_t getCRC(const std::string& data);
     static std::string extractWord(std::string& str, const char* separationWord);
     static bool extractCommaSeparatedWord(std::string& line, std::string& word);
     static bool extractSpaceSeparatedWord(std::string& line, std::string& word);

@@ -90,7 +90,7 @@ LONG WINAPI _winExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
     void* stack[62];
     HANDLE process = GetCurrentProcess();
     SymInitialize(process, 0, TRUE);
-    unsigned short fr = CaptureStackBackTrace(0, 62, stack, nullptr);
+    uint16_t fr = CaptureStackBackTrace(0, 62, stack, nullptr);
     SYMBOL_INFO* symb = (SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO) + 1024 * sizeof(char), 1);
     symb->MaxNameLen = 1023;
     symb->SizeOfStruct = sizeof(SYMBOL_INFO);

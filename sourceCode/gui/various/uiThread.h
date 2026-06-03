@@ -141,19 +141,19 @@ class CUiThread : public QObject
     bool messageBox_checkbox(void* parentWidget, const char* title, const char* message, const char* checkboxMessage,
                              bool isWarning);
     void setFileDialogsNative(int n);
-    std::string getOpenFileName(void* parentWidget, unsigned short option, const char* title, const char* startPath,
+    std::string getOpenFileName(void* parentWidget, uint16_t option, const char* title, const char* startPath,
                                 const char* initFilename, bool allowAnyFile, const char* extensionName,
                                 const char* extension1, const char* extension2 = "", const char* extension3 = "",
                                 const char* extension4 = "", const char* extension5 = "", const char* extension6 = "",
                                 const char* extension7 = "", const char* extension8 = "", const char* extension9 = "",
                                 const char* extension10 = "");
-    bool getOpenFileNames(std::vector<std::string>& files, void* parentWidget, unsigned short option, const char* title,
+    bool getOpenFileNames(std::vector<std::string>& files, void* parentWidget, uint16_t option, const char* title,
                           const char* startPath, const char* initFilename, bool allowAnyFile, const char* extensionName,
                           const char* extension1, const char* extension2 = "", const char* extension3 = "",
                           const char* extension4 = "", const char* extension5 = "", const char* extension6 = "",
                           const char* extension7 = "", const char* extension8 = "", const char* extension9 = "",
                           const char* extension10 = "");
-    std::string getSaveFileName(void* parentWidget, unsigned short option, const char* title, const char* startPath,
+    std::string getSaveFileName(void* parentWidget, uint16_t option, const char* title, const char* startPath,
                                 const char* initFilename, bool allowAnyFile, const char* extensionName,
                                 const char* extension1, const char* extension2 = "", const char* extension3 = "",
                                 const char* extension4 = "", const char* extension5 = "", const char* extension6 = "",
@@ -164,23 +164,23 @@ class CUiThread : public QObject
     bool showPrimitiveShapeDialog(int type, const C3Vector* optionalSizesIn, C3Vector& sizes, int subdiv[3],
                                   int& facesSubdiv, int& sides, int& discSubdiv, bool& smooth, bool& openEnds,
                                   bool& dynamic, double& density);
-    unsigned short messageBox_informationSystemModal(void* parentWidget, const char* title, const char* message,
-                                                     unsigned short flags, unsigned short defaultAnswer);
-    unsigned short messageBox_information(void* parentWidget, const char* title, const char* message,
-                                          unsigned short flags, unsigned short defaultAnswer);
-    unsigned short messageBox_question(void* parentWidget, const char* title, const char* message, unsigned short flags,
-                                       unsigned short defaultAnswer);
-    unsigned short messageBox_warning(void* parentWidget, const char* title, const char* message, unsigned short flags,
-                                      unsigned short defaultAnswer);
-    unsigned short messageBox_critical(void* parentWidget, const char* title, const char* message, unsigned short flags,
-                                       unsigned short defaultAnswer);
+    uint16_t messageBox_informationSystemModal(void* parentWidget, const char* title, const char* message,
+                                                     uint16_t flags, uint16_t defaultAnswer);
+    uint16_t messageBox_information(void* parentWidget, const char* title, const char* message,
+                                          uint16_t flags, uint16_t defaultAnswer);
+    uint16_t messageBox_question(void* parentWidget, const char* title, const char* message, uint16_t flags,
+                                       uint16_t defaultAnswer);
+    uint16_t messageBox_warning(void* parentWidget, const char* title, const char* message, uint16_t flags,
+                                      uint16_t defaultAnswer);
+    uint16_t messageBox_critical(void* parentWidget, const char* title, const char* message, uint16_t flags,
+                                       uint16_t defaultAnswer);
     bool checkExecuteUnsafeOk(const char* what, const char* arg, const char* idStr);
     bool dialogInputGetFloat(void* parentWidget, const char* title, const char* msg, double def, double minV,
                              double maxV, int decimals, double* outFloat);
 
   private:
-    unsigned short _messageBox(int type, void* parentWidget, const char* title, const char* message,
-                               unsigned short flags, unsigned short defaultAnswer);
+    uint16_t _messageBox(int type, void* parentWidget, const char* title, const char* message,
+                               uint16_t flags, uint16_t defaultAnswer);
 
   signals:
     void _renderScene();

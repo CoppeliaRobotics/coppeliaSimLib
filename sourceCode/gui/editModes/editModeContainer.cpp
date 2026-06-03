@@ -928,7 +928,7 @@ bool CEditModeContainer::_processShapeEditModeCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            unsigned short res = 0;
+            uint16_t res = 0;
             if ((commandID == ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD) ||
                 (commandID == SHAPE_EDIT_MODE_TOGGLE_ON_OFF_EMCMD))
                 res = GuiApp::uiThread->messageBox_information(GuiApp::mainWindow, IDSN_SHAPE_EDIT_MODE,
@@ -1220,7 +1220,7 @@ bool CEditModeContainer::_processPathEditModeCommand_old(int commandID, CSceneOb
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            unsigned short res = 0;
+            uint16_t res = 0;
             if ((commandID == ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD) ||
                 (commandID == PATH_EDIT_MODE_OLD_TOGGLE_ON_OFF_EMCMD))
                 res = GuiApp::uiThread->messageBox_information(GuiApp::mainWindow, IDSN_PATH_EDIT_MODE_OLD,

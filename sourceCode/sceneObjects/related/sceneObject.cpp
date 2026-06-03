@@ -2705,7 +2705,7 @@ void CSceneObject::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Lar");
-            ar << (unsigned short)_visibilityLayer;
+            ar << (uint16_t)_visibilityLayer;
             ar.flush();
 
             ar.storeDataName("Sep");
@@ -3170,7 +3170,7 @@ void CSceneObject::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        unsigned short vl;
+                        uint16_t vl;
                         ar >> vl;
                         _visibilityLayer = vl;
                     }

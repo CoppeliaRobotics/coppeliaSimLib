@@ -76,7 +76,7 @@ class CPathCont_old
 
     bool getPositionOnPathClosestTo(const C3Vector& pt, double& distOnPath);
 
-    unsigned short getPathModifID();
+    uint16_t getPathModifID();
 
     bool getPointOnBezierCurveAtNormalDistance(double& l, int& index0, double& t);
     CPose _getInterpolatedBezierCurvePoint(int index0, double t);
@@ -123,7 +123,7 @@ class CPathCont_old
     void _recomputeBezierPoints();
     void _removeAllBezierPathPoints();
     CBezierPathPoint_old* _addBezierPathPoint(const CPose& transf, double maxRelAbsVelocity, double onSpotDistance,
-                                              unsigned short auxFlags, const double auxChannels[4]);
+                                              uint16_t auxFlags, const double auxChannels[4]);
 
     std::vector<CSimplePathPoint_old*> _simplePathPoints;
     std::vector<CBezierPathPoint_old*> _bezierPathPoints;
@@ -161,7 +161,7 @@ class CPathCont_old
 
     // following is calculated:
     C3Vector _startPosition;
-    unsigned short _pathModifID;
+    uint16_t _pathModifID;
     int _lifeID;
 
 #ifdef SIM_WITH_GUI

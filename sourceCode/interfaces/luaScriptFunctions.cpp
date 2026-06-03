@@ -8140,16 +8140,16 @@ int _simPackUInt16Table(luaWrap_lua_State* L)
                         count = tableSize - startIndex;
                     if (count > 0)
                     {
-                        char* data = new char[sizeof(short) * count];
+                        char* data = new char[sizeof(uint16_t) * count];
                         for (int i = 0; i < count; i++)
                         {
                             luaWrap_lua_rawgeti(L, 1, i + 1 + startIndex);
-                            unsigned short v = (unsigned short)luaToInt(L, -1);
+                            uint16_t v = (uint16_t)luaToInt(L, -1);
                             data[2 * i + 0] = ((char*)&v)[0];
                             data[2 * i + 1] = ((char*)&v)[1];
                             luaWrap_lua_pop(L, 1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                         }
-                        luaWrap_lua_pushbuffer(L, (const char*)data, count * sizeof(short));
+                        luaWrap_lua_pushbuffer(L, (const char*)data, count * sizeof(uint16_t));
                         delete[] data;
                         LUA_END(1);
                     }
@@ -8638,7 +8638,7 @@ int _simUnpackUInt16Table(luaWrap_lua_State* L)
                             int* theWords = new int[count];
                             for (int i = 0; i < int(count); i++)
                             {
-                                unsigned short v;
+                                uint16_t v;
                                 ((char*)&v)[0] = data[2 * (i + startIndex) + 0];
                                 ((char*)&v)[1] = data[2 * (i + startIndex) + 1];
                                 theWords[i] = v;

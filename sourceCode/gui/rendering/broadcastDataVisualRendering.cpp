@@ -100,7 +100,7 @@ void displayEmitterOrReceiver(CBroadcastDataVisual* it)
     else
     {
         App::scene->environment->wirelessReceptionVolumeColor.makeCurrentColor(false);
-        unsigned short stipple = 255;
+        uint16_t stipple = 255;
         glLineStipple(1, stipple);
         glLineWidth(4.0);
         glEnable(GL_LINE_STIPPLE);

@@ -58,7 +58,7 @@ void CQDlgAssembly::on_qqParentMatchValue_editingFinished()
 
 void CQDlgAssembly::on_qqSetLocalMatrix_clicked()
 {
-    unsigned short res = GuiApp::uiThread->messageBox_question(
+    uint16_t res = GuiApp::uiThread->messageBox_question(
         GuiApp::mainWindow, "Setting local matrix transformation (for assembly)",
         "Do you want to use current local transformation matrix as local transformation matrix after assembly?",
         VMESSAGEBOX_YES_NO, VMESSAGEBOX_REPLY_YES);

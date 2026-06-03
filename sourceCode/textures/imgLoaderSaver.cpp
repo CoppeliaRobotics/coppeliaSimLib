@@ -64,7 +64,7 @@ unsigned char* CImageLoaderSaver::load(const char* filename, int* resX, int* res
         { // set the side size to a power of 2 and smaller or equal to 'scaleTo':
             int v = s[i];
             v &= (32768 - 1);
-            unsigned short tmp = 32768;
+            uint16_t tmp = 32768;
             while (tmp != 1)
             {
                 if (v & tmp)

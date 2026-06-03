@@ -129,7 +129,7 @@ typedef void* (*VTHREAD_START_ADDRESS)(void*);
 #define VRGB(r, g, b) (quint32(quint8(r) | (quint8(g) << 8) | (quint8(b) << 16)))
 #define VRGBW(a)                                                                                                    \
     (static_cast<unsigned int>(                                                                                     \
-        (static_cast<unsigned char>(a[0]) | (static_cast<unsigned short>(static_cast<unsigned char>(a[1])) << 8)) | \
+        (static_cast<unsigned char>(a[0]) | (static_cast<uint16_t>(static_cast<unsigned char>(a[1])) << 8)) | \
         ((static_cast<unsigned int>(static_cast<unsigned char>(a[2]))) << 16)))
 #define VTHREAD_ARGUMENT_TYPE void*
 #define VTHREAD_ID_DEAD 0

@@ -9,14 +9,14 @@
 #include <vVarious.h>
 #include <vFileFinder.h>
 
-unsigned short VFile::CREATE_WRITE = 1;
-unsigned short VFile::SHARE_EXCLUSIVE = 2;
-unsigned short VFile::READ = 4;
-unsigned short VFile::SHARE_DENY_NONE = 8;
+uint16_t VFile::CREATE_WRITE = 1;
+uint16_t VFile::SHARE_EXCLUSIVE = 2;
+uint16_t VFile::READ = 4;
+uint16_t VFile::SHARE_DENY_NONE = 8;
 
 #define FILE_SEMAPHORE_TAG "__ACCESSING_FILE_DATA__"
 
-VFile::VFile(const char* filename, unsigned short flags, bool dontThrow)
+VFile::VFile(const char* filename, uint16_t flags, bool dontThrow)
 {
     _pathAndFilename = filename;
     _theFile = new QFile(QString::fromLocal8Bit(filename));

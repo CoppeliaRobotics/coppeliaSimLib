@@ -885,7 +885,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         { // execute the command only when simulation is not running and not in an edit mode
             if (!VThread::isUiThread())
             {
-                unsigned short action = VMESSAGEBOX_REPLY_NO;
+                uint16_t action = VMESSAGEBOX_REPLY_NO;
                 if (!App::scene->environment->getSceneCanBeDiscardedWhenNewSceneOpened())
                 {
                     if (CSimFlavor::getBoolVal(16) && (!App::scene->environment->getSceneLocked()))
@@ -1624,7 +1624,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 }
                 if ((ci == App::scenes->getCurrentSceneIndex()) && (!displayed))
                 {
-                    unsigned short action = VMESSAGEBOX_REPLY_NO;
+                    uint16_t action = VMESSAGEBOX_REPLY_NO;
                     if (CSimFlavor::getBoolVal(16))
                         action = GuiApp::uiThread->messageBox_warning(GuiApp::mainWindow, IDSN_SAVE,
                                                                       IDS_WANNA_SAVE_THE_SCENE_WARNING,

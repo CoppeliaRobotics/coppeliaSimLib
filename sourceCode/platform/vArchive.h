@@ -7,7 +7,7 @@
 class VArchive
 {
   public:
-    VArchive(VFile* file, unsigned short flag);
+    VArchive(VFile* file, uint16_t flag);
     virtual ~VArchive();
 
     void writeLine(const std::string& line);  // Will add char(10) and char(13)
@@ -61,7 +61,7 @@ class VArchive
         return (*this);
     }
 
-    inline VArchive& operator<<(const unsigned short& v)
+    inline VArchive& operator<<(const uint16_t& v)
     {
         (*_theArchive) << v;
         return (*this);
@@ -127,7 +127,7 @@ class VArchive
         return (*this);
     }
 
-    inline VArchive& operator>>(unsigned short& v)
+    inline VArchive& operator>>(uint16_t& v)
     {
         (*_theArchive) >> v;
         return (*this);
@@ -157,6 +157,6 @@ class VArchive
     bool _loading;
 
   public:
-    static unsigned short LOAD;
-    static unsigned short STORE;
+    static uint16_t LOAD;
+    static uint16_t STORE;
 };

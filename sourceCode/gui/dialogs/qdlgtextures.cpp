@@ -545,7 +545,7 @@ void CQDlgTextures::on_qqLoad_clicked()
                     int oResY = resY;
                     oResX &= (32768 - 1);
                     oResY &= (32768 - 1);
-                    unsigned short tmp = 32768;
+                    uint16_t tmp = 32768;
                     while (tmp != 1)
                     {
                         if (oResX & tmp)
