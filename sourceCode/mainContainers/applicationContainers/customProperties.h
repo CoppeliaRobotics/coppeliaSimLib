@@ -11,6 +11,7 @@ class CCustomProperties
     CCustomProperties();
     virtual ~CCustomProperties();
 
+    void setGroupProperty(const char* pName);
     int setBoolProperty(const char* pName, bool pState, bool& valueChange);
     int getBoolProperty(const char* pName, bool& pState) const;
     int setIntProperty(const char* pName, int pState, bool& valueChange);
@@ -94,4 +95,6 @@ class CCustomProperties
 
     void _setPropertyRaw(const char* pName, int propType, int propInfo, const std::string& infoTxt, const char* data, size_t dataLen);
     bool _updatePropertyData(const char* pName, const char* data, size_t dataLen);
+
+    void _checkNeedForPropertyGroup(const char* pName);
 };

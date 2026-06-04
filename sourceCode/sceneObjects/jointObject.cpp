@@ -6076,10 +6076,10 @@ int CJoint::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
                 retVal = allProps_joint[i].type;
                 info = allProps_joint[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_joint[i].shortInfoTxt;
+                    infoTxt = allProps_joint[i].info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_joint[i].shortInfoTxt.c_str()).object();
+                    auto w = allProps_joint[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

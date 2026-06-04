@@ -1115,10 +1115,10 @@ int CustomObject::getPropertyInfo(const char* pName, int& info, std::string& inf
                 retVal = prop->at(i).type;
                 info = prop->at(i).flags;
                 if (infoTxt == "j")
-                    infoTxt = prop->at(i).shortInfoTxt;
+                    infoTxt = prop->at(i).info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(prop->at(i).shortInfoTxt.c_str()).object();
+                    auto w = prop->at(i).info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

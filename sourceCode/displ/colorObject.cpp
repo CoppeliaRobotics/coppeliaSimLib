@@ -1031,10 +1031,10 @@ int CColorObject::getPropertyInfo(const char* ppName, int& info, std::string& in
                 retVal = allProps_col[i].type;
                 info = allProps_col[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_col[i].shortInfoTxt;
+                    infoTxt = allProps_col[i].info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_col[i].shortInfoTxt.c_str()).object();
+                    auto w = allProps_col[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

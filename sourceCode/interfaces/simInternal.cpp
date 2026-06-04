@@ -3372,13 +3372,6 @@ int simGetPropertyInfo_internal(int64_t target, const char* ppName, SPropertyInf
                 infoTxt = "s";
             if ((options->structSize >= 32) && (options->bitCoded & 1))
                 infoTxt = "j";
-            /* not supported anymore since 19.03.2026
-            if ((options->structSize >= 8) && (options->objectType != -1))
-            {
-                target = options->objectType;
-                staticParsing = true;
-            }
-            */
         }
         retVal = App::getPropertyInfo_t(target, ppName, infos->flags, infoTxt);
         if (retVal == sim_propertyret_unknowntarget)

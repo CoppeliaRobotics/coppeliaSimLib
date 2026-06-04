@@ -67,11 +67,11 @@ static std::string jsonStr(const QJsonObject& obj)
 // ----------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) extern const SDynProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
+#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) extern const SPropertyEx name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
     DYNCONT_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) name,
-    extern const std::vector<SDynProperty> allProps_dyn = {DYNCONT_PROPERTIES};
+    extern const std::vector<SPropertyEx> allProps_dyn = {DYNCONT_PROPERTIES};
 #undef FUNCX
 // ----------------------------------------------------------------------------------------------
 
@@ -112,11 +112,11 @@ static std::string jsonStr(const QJsonObject& obj)
 // ----------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) extern const SDummyProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
+#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) extern const SPropertyEx name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
     DUMMY_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) name,
-    extern const std::vector<SDummyProperty> allProps_dummy = {DUMMY_PROPERTIES};
+    extern const std::vector<SPropertyEx> allProps_dummy = {DUMMY_PROPERTIES};
 #undef FUNCX
 // ----------------------------------------------------------------------------------------------
 
@@ -139,11 +139,11 @@ static std::string jsonStr(const QJsonObject& obj)
 // ----------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) extern const SJointProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
+#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) extern const SPropertyEx name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
     JOINT_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) name,
-    extern const std::vector<SJointProperty> allProps_joint = {JOINT_PROPERTIES};
+    extern const std::vector<SPropertyEx> allProps_joint = {JOINT_PROPERTIES};
 #undef FUNCX
 // ----------------------------------------------------------------------------------------------
 
@@ -337,11 +337,11 @@ static std::string jsonStr(const QJsonObject& obj)
 // ----------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) extern const SEngMaterialProperty name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
+#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) extern const SPropertyEx name = {str, v1, v2, {w0, w1, w2, w3, w4}, t1, t2};
     DYNMATERIAL_PROPERTIES
 #undef FUNCX
 #define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) name,
-    extern const std::vector<SEngMaterialProperty> allProps_material = {DYNMATERIAL_PROPERTIES};
+    extern const std::vector<SPropertyEx> allProps_material = {DYNMATERIAL_PROPERTIES};
 #undef FUNCX
 // ----------------------------------------------------------------------------------------------
 

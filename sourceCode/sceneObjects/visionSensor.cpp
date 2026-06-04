@@ -3900,10 +3900,10 @@ int CVisionSensor::getPropertyInfo(const char* ppName, int& info, std::string& i
                 retVal = allProps_visionSensor[i].type;
                 info = allProps_visionSensor[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_visionSensor[i].shortInfoTxt;
+                    infoTxt = allProps_visionSensor[i].info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_visionSensor[i].shortInfoTxt.c_str()).object();
+                    auto w = allProps_visionSensor[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

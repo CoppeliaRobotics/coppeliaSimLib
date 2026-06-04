@@ -3411,10 +3411,10 @@ int CInterfaceStack::getPropertyInfo(const char*ppName, int& info, std::string& 
                 retVal = allProps_stack[i].type;
                 info = allProps_stack[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_stack[i].shortInfoTxt;
+                    infoTxt = allProps_stack[i].info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_stack[i].shortInfoTxt.c_str()).object();
+                    auto w = allProps_stack[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

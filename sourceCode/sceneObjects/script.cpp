@@ -800,10 +800,10 @@ int CScript::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
                 retVal = allProps_script[i].type;
                 info = allProps_script[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_script[i].shortInfoTxt;
+                    infoTxt = allProps_script[i].info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_script[i].shortInfoTxt.c_str()).object();
+                    auto w = allProps_script[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

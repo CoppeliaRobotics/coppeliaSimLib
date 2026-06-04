@@ -3,10 +3,10 @@
 #include <sceneObject.h>
 
 // ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) extern const SJointProperty name;
+#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) extern const SPropertyEx name;
 JOINT_PROPERTIES
 #undef FUNCX
-extern const std::vector<SJointProperty> allProps_joint;
+extern const std::vector<SPropertyEx> allProps_joint;
 // ----------------------------------------------------------------------------------------------
 
 enum

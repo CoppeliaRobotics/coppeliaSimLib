@@ -412,10 +412,10 @@ int CCollectionContainer::getPropertyInfo_t(int64_t target, const char* pName, i
                 retVal = allProps_collCont[i].type;
                 info = allProps_collCont[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_collCont[i].shortInfoTxt;
+                    infoTxt = allProps_collCont[i].info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_collCont[i].shortInfoTxt.c_str()).object();
+                    auto w = allProps_collCont[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

@@ -7278,10 +7278,10 @@ int CSceneObject::getPropertyInfo(const char* ppName, int& info, std::string& in
                 retVal = allProps_sceneObject[i].type;
                 info = allProps_sceneObject[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_sceneObject[i].shortInfoTxt;
+                    infoTxt = allProps_sceneObject[i].info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_sceneObject[i].shortInfoTxt.c_str()).object();
+                    auto w = allProps_sceneObject[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

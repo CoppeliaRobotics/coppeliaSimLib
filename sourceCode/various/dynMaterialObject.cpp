@@ -2394,10 +2394,10 @@ int CDynMaterialObject::getPropertyInfo(const char* pName, int& info, std::strin
             retVal = allProps_material[i].type;
             info = allProps_material[i].flags;
             if (infoTxt == "j")
-                infoTxt = allProps_material[i].shortInfoTxt;
+                infoTxt = allProps_material[i].info.json.toStdString();
             else
             {
-                auto w = QJsonDocument::fromJson(allProps_material[i].shortInfoTxt.c_str()).object();
+                auto w = allProps_material[i].info.map;
                 std::string descr = w["description"].toString().toStdString();
                 std::string label = w["label"].toString().toStdString();
                 if ( (infoTxt == "s") || (descr == "") )

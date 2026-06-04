@@ -1601,10 +1601,10 @@ int COcTree::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
                 retVal = allProps_ocTree[i].type;
                 info = allProps_ocTree[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_ocTree[i].shortInfoTxt;
+                    infoTxt = allProps_ocTree[i].info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_ocTree[i].shortInfoTxt.c_str()).object();
+                    auto w = allProps_ocTree[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

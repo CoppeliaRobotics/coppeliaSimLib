@@ -3812,10 +3812,10 @@ int CGraph::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
                 retVal = allProps_graph[i].type;
                 info = allProps_graph[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_graph[i].shortInfoTxt;
+                    infoTxt = allProps_graph[i].info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_graph[i].shortInfoTxt.c_str()).object();
+                    auto w = allProps_graph[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

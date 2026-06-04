@@ -252,10 +252,10 @@ int Obj::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) co
             retVal = allProps_obj[i].type;
             info = allProps_obj[i].flags;
             if (infoTxt == "j")
-                infoTxt = allProps_obj[i].shortInfoTxt;
+                infoTxt = allProps_obj[i].info.json.toStdString();
             else
             {
-                auto w = QJsonDocument::fromJson(allProps_obj[i].shortInfoTxt.c_str()).object();
+                auto w = allProps_obj[i].info.map;
                 std::string descr = w["description"].toString().toStdString();
                 std::string label = w["label"].toString().toStdString();
                 if ( (infoTxt == "s") || (descr == "") )

@@ -5595,10 +5595,10 @@ int CSceneObjectContainer::getPropertyInfo_t(int64_t target, const char* pName, 
                 retVal = allProps_objCont[i].type;
                 info = allProps_objCont[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_objCont[i].shortInfoTxt;
+                    infoTxt = allProps_objCont[i].info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_objCont[i].shortInfoTxt.c_str()).object();
+                    auto w = allProps_objCont[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

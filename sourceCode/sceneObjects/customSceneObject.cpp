@@ -462,10 +462,10 @@ int CCustomSceneObject::getPropertyInfo(const char* ppName, int& info, std::stri
                 retVal = allProps_customSceneObject[i].type;
                 info = allProps_customSceneObject[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_customSceneObject[i].shortInfoTxt;
+                    infoTxt = allProps_customSceneObject[i].info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_customSceneObject[i].shortInfoTxt.c_str()).object();
+                    auto w = allProps_customSceneObject[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

@@ -671,10 +671,10 @@ int CDrawingObject::getPropertyInfo(const char* ppName, int& info, std::string& 
                 retVal = allProps_drawingObj[i].type;
                 info = allProps_drawingObj[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_drawingObj[i].shortInfoTxt;
+                    infoTxt = allProps_drawingObj[i].info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_drawingObj[i].shortInfoTxt.c_str()).object();
+                    auto w = allProps_drawingObj[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

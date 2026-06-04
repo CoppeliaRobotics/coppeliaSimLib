@@ -874,10 +874,10 @@ int CViewableBase::getPropertyInfo(const char* pName, int& info, std::string& in
                 retVal = allProps_viewable[i].type;
                 info = allProps_viewable[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_viewable[i].shortInfoTxt;
+                    infoTxt = allProps_viewable[i].info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_viewable[i].shortInfoTxt.c_str()).object();
+                    auto w = allProps_viewable[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

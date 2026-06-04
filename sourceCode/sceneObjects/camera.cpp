@@ -3601,10 +3601,10 @@ int CCamera::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
                 retVal = allProps_camera[i].type;
                 info = allProps_camera[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_camera[i].shortInfoTxt;
+                    infoTxt = allProps_camera[i].info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_camera[i].shortInfoTxt.c_str()).object();
+                    auto w = allProps_camera[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

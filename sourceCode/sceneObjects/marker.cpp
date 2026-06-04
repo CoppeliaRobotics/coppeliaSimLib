@@ -1312,10 +1312,10 @@ int CMarker::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
                 retVal = allProps_marker[i].type;
                 info = allProps_marker[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_marker[i].shortInfoTxt;
+                    infoTxt = allProps_marker[i].info.json.toStdString();
                 else
                 {
-                    auto w = QJsonDocument::fromJson(allProps_marker[i].shortInfoTxt.c_str()).object();
+                    auto w = allProps_marker[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

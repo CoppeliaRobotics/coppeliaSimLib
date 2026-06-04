@@ -155,6 +155,19 @@ void CCustomProperties::_setPropertyRaw(const char* pName, int propType, int pro
     _properties[pName] = _packProperty(propType, propInfo, infoTxt, data, dataLen);
 }
 
+void CCustomProperties::_checkNeedForPropertyGroup(const char* pName)
+{
+    std::string n(pName);
+    while (true)
+    {
+        auto pos = n.rfind('.');
+        if (pos == std::string::npos)
+            break;
+        n.resize(pos);  // remove last ".xxx"
+        setGroupProperty(n.c_str());
+    }
+}
+
 bool CCustomProperties::_updatePropertyData(const char* pName, const char* data, size_t dataLen)
 {
     auto it = _properties.find(pName);
@@ -185,6 +198,18 @@ bool CCustomProperties::_updatePropertyData(const char* pName, const char* data,
     return true;
 }
 
+void CCustomProperties::setGroupProperty(const char* pName)
+{
+    int propType, propInfo;
+    std::string infoTxt;
+    const char* dataPtr;
+    size_t dataLen;
+
+    bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
+    if (!alreadyPresent)
+        _setPropertyRaw(pName, sim_propertytype_group, sim_propertyinfo_removable, "", nullptr, 0);
+}
+
 int CCustomProperties::setBoolProperty(const char* pName, bool pState, bool& valueChange)
 {
     int propType, propInfo;
@@ -209,6 +234,8 @@ int CCustomProperties::setBoolProperty(const char* pName, bool pState, bool& val
         _setPropertyRaw(pName, sim_propertytype_bool, sim_propertyinfo_removable, "", &val, 1);
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -253,6 +280,8 @@ int CCustomProperties::setIntProperty(const char* pName, int pState, bool& value
         _setPropertyRaw(pName, sim_propertytype_int, sim_propertyinfo_removable, "", (const char*)&pState, sizeof(int));
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -297,6 +326,8 @@ int CCustomProperties::setLongProperty(const char* pName, int64_t pState, bool& 
         _setPropertyRaw(pName, sim_propertytype_long, sim_propertyinfo_removable, "", (const char*)&pState, sizeof(int64_t));
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -341,6 +372,8 @@ int CCustomProperties::setFloatProperty(const char* pName, double pState, bool& 
         _setPropertyRaw(pName, sim_propertytype_float, sim_propertyinfo_removable, "", (const char*)&pState, sizeof(double));
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -385,6 +418,8 @@ int CCustomProperties::setHandleProperty(const char* pName, int64_t pState, bool
         _setPropertyRaw(pName, sim_propertytype_handle, sim_propertyinfo_removable, "", (const char*)&pState, sizeof(int64_t));
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -442,6 +477,8 @@ int CCustomProperties::setStringProperty(const char* pName, const std::string& p
         _setPropertyRaw(pName, sim_propertytype_string, sim_propertyinfo_removable, "", packed.data(), packed.size());
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -499,6 +536,8 @@ int CCustomProperties::setTableProperty(const char* pName, const std::string& pS
         _setPropertyRaw(pName, sim_propertytype_table, sim_propertyinfo_removable, "", packed.data(), packed.size());
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -556,6 +595,8 @@ int CCustomProperties::setBufferProperty(const char* pName, const std::string& p
         _setPropertyRaw(pName, sim_propertytype_buffer, sim_propertyinfo_removable, "", packed.data(), packed.size());
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -606,6 +647,8 @@ int CCustomProperties::setIntArray2Property(const char* pName, const int* pState
         _setPropertyRaw(pName, sim_propertytype_intarray2, sim_propertyinfo_removable, "", (const char*)pState, 2 * sizeof(int));
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -650,6 +693,8 @@ int CCustomProperties::setVector3Property(const char* pName, const C3Vector& pSt
         _setPropertyRaw(pName, sim_propertytype_vector3, sim_propertyinfo_removable, "", (const char*)pState.data, 3 * sizeof(double));
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -704,6 +749,8 @@ int CCustomProperties::setMatrixProperty(const char* pName, const CMatrix& pStat
         _setPropertyRaw(pName, sim_propertytype_matrix, sim_propertyinfo_removable, "", packed.data(), packed.size());
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -760,6 +807,8 @@ int CCustomProperties::setQuaternionProperty(const char* pName, const CQuaternio
         _setPropertyRaw(pName, sim_propertytype_quaternion, sim_propertyinfo_removable, "", (const char*)dat, 4 * sizeof(double));
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -806,6 +855,8 @@ int CCustomProperties::setPoseProperty(const char* pName, const CPose& pState, b
         _setPropertyRaw(pName, sim_propertytype_pose, sim_propertyinfo_removable, "", (const char*)dat, 7 * sizeof(double));
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -854,6 +905,8 @@ int CCustomProperties::setColorProperty(const char* pName, const float* pState, 
         _setPropertyRaw(pName, sim_propertytype_color, sim_propertyinfo_removable, "", (const char*)pState, 3 * sizeof(float));
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -904,6 +957,8 @@ int CCustomProperties::setFloatArrayProperty(const char* pName, const std::vecto
         _setPropertyRaw(pName, sim_propertytype_floatarray, sim_propertyinfo_removable, "", packed.data(), packed.size());
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -964,6 +1019,8 @@ int CCustomProperties::setIntArrayProperty(const char* pName, const std::vector<
         valueChange = true;
 
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -1023,6 +1080,8 @@ int CCustomProperties::setHandleArrayProperty(const char* pName, const std::vect
         _setPropertyRaw(pName, sim_propertytype_handlearray, sim_propertyinfo_removable, "", packed.data(), packed.size());
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -1098,6 +1157,8 @@ int CCustomProperties::setStringArrayProperty(const char* pName, const std::vect
         _setPropertyRaw(pName, sim_propertytype_stringarray, sim_propertyinfo_removable, "", packed.data(), packed.size());
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -1163,6 +1224,8 @@ int CCustomProperties::setMethodProperty(const char* pName, const void* pState, 
         _setPropertyRaw(pName, sim_propertytype_method, sim_propertyinfo_removable, "", packed.data(), packed.size());
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 
@@ -1214,6 +1277,8 @@ int CCustomProperties::setMethodProperty(const char* pName, const std::string& p
         _setPropertyRaw(pName, sim_propertytype_method, sim_propertyinfo_removable, "", packed.data(), packed.size());
         valueChange = true;
     }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
     return sim_propertyret_ok;
 }
 

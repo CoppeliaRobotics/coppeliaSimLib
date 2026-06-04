@@ -6965,11 +6965,10 @@ std::string _method_getPropertyInfo(int targetObj, const char* method, CDetached
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
         SPropertyOptions opt;
+        opt.bitCoded = 1;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
             map->fetchBoolFromKey("noError", noError, &errMsg);
-            map->fetchBoolFromKey("shortInfoTxt", opt.shortInfoTxt, &errMsg);
-            map->fetchInt32FromKey("bitCoded", opt.bitCoded, &errMsg);
         }
         if (errMsg.empty())
         {
@@ -8208,7 +8207,7 @@ std::string _method_getContacts(int targetObj, const char* method, CDetachedScri
                 };
                 std::map<int, SCont> colls;
                 int index = sim_handleflag_extended;
-                while (App::scene->dynamicsContainer->getContactForce(dynPass, obj, index, objectHandles, contactInfo) > 0)
+                while (App::scene->dynamicsContainer->getContactForce(dynPass, obj, index, objectHandles, contactInfo))
                 {
                     auto it = colls.find(objectHandles[0]);
                     if (it == colls.end())

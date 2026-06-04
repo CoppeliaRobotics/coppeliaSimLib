@@ -3803,10 +3803,10 @@ int App::getPropertyInfo_t(int64_t target, const char* ppName, int& info, std::s
                     retVal = allProps_app[i].type;
                     info = allProps_app[i].flags;
                     if (infoTxt == "j")
-                        infoTxt = allProps_app[i].shortInfoTxt;
+                        infoTxt = allProps_app[i].info.json.toStdString();
                     else
                     {
-                        auto w = QJsonDocument::fromJson(allProps_app[i].shortInfoTxt.c_str()).object();
+                        auto w = allProps_app[i].info.map;
                         std::string descr = w["description"].toString().toStdString();
                         std::string label = w["label"].toString().toStdString();
                         if ( (infoTxt == "s") || (descr == "") )
