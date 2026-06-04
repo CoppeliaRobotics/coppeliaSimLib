@@ -78,7 +78,7 @@ CDetachedScript* CAddOnScriptContainer::getAddOnFromHandle(int scriptHandle) con
 {
     for (size_t i = 0; i < _addOns.size(); i++)
     {
-        if (_addOns[i]->getScriptHandle() == scriptHandle)
+        if (_addOns[i]->getSceneObjectOrDetachedScriptHandle() == scriptHandle)
             return _addOns[i];
     }
     return nullptr;
@@ -88,7 +88,7 @@ std::vector<int> CAddOnScriptContainer::getAddOnHandles() const
 {
     std::vector<int> retVal;
     for (size_t i = 0; i < _addOns.size(); i++)
-        retVal.push_back(_addOns[i]->getScriptHandle());
+        retVal.push_back(_addOns[i]->getSceneObjectOrDetachedScriptHandle());
     return retVal;
 }
 
@@ -127,7 +127,7 @@ int CAddOnScriptContainer::createAddOn(const char* lang, const char* code)
 int CAddOnScriptContainer::_insertAddOn(CDetachedScript* script)
 {
     _addOns.push_back(script);
-    return script->getScriptHandle();
+    return script->getSceneObjectOrDetachedScriptHandle();
 }
 
 void CAddOnScriptContainer::_insertAddOns(const char* addOnExt)
@@ -305,8 +305,7 @@ void CAddOnScriptContainer::getActiveScripts(std::vector<CDetachedScript*>& scri
     scripts.insert(scripts.end(), scripts_last.begin(), scripts_last.end());
 }
 
-int CAddOnScriptContainer::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack,
-                                       int scriptToExclude /*=-1*/)
+int CAddOnScriptContainer::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, int detachedScriptToExclude /*=-1*/)
 {
     int retVal = 0;
     std::vector<CDetachedScript*> scripts;
@@ -328,7 +327,7 @@ int CAddOnScriptContainer::callScripts(int callType, CInterfaceStack* inStack, C
     for (size_t i = 0; i < scripts.size(); i++)
     {
         CDetachedScript* it = scripts[i];
-        if (it->getScriptHandle() != scriptToExclude)
+        if (it->getObjectHandle() != detachedScriptToExclude)
         {
             if (it->hasSystemFunctionOrHook(callType))
             {
@@ -348,7 +347,7 @@ bool CAddOnScriptContainer::removeAddOn(int scriptID)
     bool res = false;
     for (size_t i = 0; i < _addOns.size(); i++)
     {
-        if (_addOns[i]->getScriptHandle() == scriptID)
+        if (_addOns[i]->getSceneObjectOrDetachedScriptHandle() == scriptID)
         {
             CDetachedScript* it = _addOns[i];
             it->resetScript(); // should not be done in the destructor!

@@ -2002,7 +2002,7 @@ int App::getHandleProperty_t(int64_t target, const char* ppName, int64_t& pState
         if (strcmp(pName, propApp_sandbox.name) == 0)
         {
             if ( (scenes != nullptr) && (scenes->sandboxScript != nullptr) )
-                pState = scenes->sandboxScript->getScriptHandle();
+                pState = scenes->sandboxScript->getSceneObjectOrDetachedScriptHandle();
             else
                 pState = -1;
             retVal = sim_propertyret_ok;
@@ -3941,14 +3941,14 @@ bool App::_resolveTarget(int64_t& target)
     if (target == sim_handle_sandbox)
     {
         if ((scenes != nullptr) && (scenes->sandboxScript != nullptr))
-            target = scenes->sandboxScript->getScriptHandle();
+            target = scenes->sandboxScript->getSceneObjectOrDetachedScriptHandle();
         else
             retVal = false; // target does not exist
     }
     else if (target == sim_handle_mainscript)
     {
         if ((scene != nullptr) && (scene->sceneObjects->embeddedScriptContainer->getMainScript() != nullptr))
-            target = scene->sceneObjects->embeddedScriptContainer->getMainScript()->getScriptHandle();
+            target = scene->sceneObjects->embeddedScriptContainer->getMainScript()->getSceneObjectOrDetachedScriptHandle();
         else
             retVal = false; // target does not exist
     }
@@ -4166,7 +4166,7 @@ void App::pushGenesisEvents()
         ev->appendKeyInt64(propApp_qtVersion.name, (QT_VERSION >> 16) * 10000 + ((QT_VERSION >> 8) & 255) * 100 + (QT_VERSION & 255) * 1);
         int sbh = -1;
         if (scenes->sandboxScript != nullptr)
-            sbh = scenes->sandboxScript->getScriptHandle();
+            sbh = scenes->sandboxScript->getSceneObjectOrDetachedScriptHandle();
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt64(propApp_sandbox.name, sbh);
         else

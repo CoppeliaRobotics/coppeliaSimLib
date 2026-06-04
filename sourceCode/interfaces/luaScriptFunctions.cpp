@@ -6937,7 +6937,7 @@ int _simLaunchExecutable(luaWrap_lua_State* L)
                     App::scenes->getDetachedScriptFromHandle(CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L));
                 std::string what(it->getDescriptiveName());
                 what += " (via sim.launchExecutable)";
-                if (1 == CALL_C_API(simCheckExecAuthorization, what.c_str(), (file + " " + args).c_str(), it->getScriptHandle()))
+                if (1 == CALL_C_API(simCheckExecAuthorization, what.c_str(), (file + " " + args).c_str(), it->getSceneObjectOrDetachedScriptHandle()))
                 {
                     if (VVarious::executeExternalApplication(file.c_str(), args.c_str(),
                                                              App::folders->getExecutablePath().c_str(),
@@ -12245,9 +12245,9 @@ int _simBroadcastMsg(luaWrap_lua_State* L)
                 options = luaToInt(L, 2);
             CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
             CDetachedScript::buildFromInterpreterStack_lua(L, stack, 1, 0);
-            int scriptHandle = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
-            stack->pushInt32OntoStack(scriptHandle, false);
-            App::scenes->broadcastMsg(stack, scriptHandle, options);
+            int detachedScriptHandle = CDetachedScript::getDetachedScriptHandleFromInterpreterState_lua(L);
+            stack->pushInt32OntoStack(detachedScriptHandle, false);
+            App::scenes->broadcastMsg(stack, detachedScriptHandle, options);
             App::scenes->interfaceStackContainer->destroyStack(stack);
         }
     }

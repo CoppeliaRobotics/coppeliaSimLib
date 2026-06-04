@@ -42,9 +42,7 @@ class CEmbeddedScriptContainer
                                           const double aux2Vals[8], int aux2Count);
 
     void getActiveLegacyScripts(std::vector<CDetachedScript*>& scripts, bool reverse = false) const;
-    int callLegacyScripts(int scriptType, int callTypeOrResumeLocation, CInterfaceStack* inStack,
-                          CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr,
-                          int scriptToExclude = -1);
+    int callLegacyScripts(int scriptType, int callTypeOrResumeLocation, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int detachedScriptToExclude = -1);
     bool shouldTemporarilySuspendMainScript();
     int getSysFuncAndHookCnt(int sysCall) const;
     void setSysFuncAndHookCnt(int sysCall, int cnt);

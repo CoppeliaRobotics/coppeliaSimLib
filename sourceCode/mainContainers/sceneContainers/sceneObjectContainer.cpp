@@ -3120,7 +3120,7 @@ void CSceneObjectContainer::getActiveScripts(std::vector<CDetachedScript*>& scri
     }
 }
 
-void CSceneObjectContainer::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
+void CSceneObjectContainer::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
 {
     bool doNotInterrupt = !CDetachedScript::isSystemCallbackInterruptible(callType);
     if (CDetachedScript::isSystemCallbackInReverseOrder(callType))
@@ -3132,20 +3132,20 @@ void CSceneObjectContainer::callScripts(int callType, CInterfaceStack* inStack, 
             CDetachedScript* script = embeddedScriptContainer->getMainScript();
             if ((script != nullptr) && script->hasSystemFunctionOrHook(callType))
             {
-                if (script->getScriptHandle() != scriptToExclude)
+                if (script->getObjectHandle() != detachedScriptToExclude)
                     script->systemCallMainScript(callType, inStack, outStack);
             }
         }
 
         // child + customization scripts (legacy + new):
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
-            callScripts_noMainScript(-1, callType, inStack, outStack, objectBranch, scriptToExclude);
+            callScripts_noMainScript(-1, callType, inStack, outStack, objectBranch, detachedScriptToExclude);
     }
     else
     { // regular order, from unimportant, to most important
 
         // child + customization scripts (legacy + new):
-        callScripts_noMainScript(-1, callType, inStack, outStack, objectBranch, scriptToExclude);
+        callScripts_noMainScript(-1, callType, inStack, outStack, objectBranch, detachedScriptToExclude);
 
         // main script
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
@@ -3155,7 +3155,7 @@ void CSceneObjectContainer::callScripts(int callType, CInterfaceStack* inStack, 
                 CDetachedScript* script = embeddedScriptContainer->getMainScript();
                 if ((script != nullptr) && script->hasSystemFunctionOrHook(callType))
                 {
-                    if (script->getScriptHandle() != scriptToExclude)
+                    if (script->getSceneObjectOrDetachedScriptHandle() != detachedScriptToExclude)
                         script->systemCallMainScript(callType, inStack, outStack);
                 }
             }
@@ -3163,25 +3163,25 @@ void CSceneObjectContainer::callScripts(int callType, CInterfaceStack* inStack, 
     }
 }
 
-int CSceneObjectContainer::callScripts_noMainScript(int scriptType, int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
+int CSceneObjectContainer::callScripts_noMainScript(int scriptType, int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
 {
     int retVal = 0;
     bool doNotInterrupt = !CDetachedScript::isSystemCallbackInterruptible(callType);
     if (CDetachedScript::isSystemCallbackInReverseOrder(callType))
     { // reverse order
 
-        retVal += _callScripts(scriptType, callType, inStack, outStack, objectBranch, scriptToExclude);
+        retVal += _callScripts(scriptType, callType, inStack, outStack, objectBranch, detachedScriptToExclude);
 
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
-            retVal += embeddedScriptContainer->callLegacyScripts(scriptType, callType, inStack, outStack, objectBranch, scriptToExclude);
+            retVal += embeddedScriptContainer->callLegacyScripts(scriptType, callType, inStack, outStack, objectBranch, detachedScriptToExclude);
     }
     else
     { // regular order, from unimportant, to most important
 
-        retVal += embeddedScriptContainer->callLegacyScripts(scriptType, callType, inStack, outStack, objectBranch, scriptToExclude);
+        retVal += embeddedScriptContainer->callLegacyScripts(scriptType, callType, inStack, outStack, objectBranch, detachedScriptToExclude);
 
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
-            retVal += _callScripts(scriptType, callType, inStack, outStack, objectBranch, scriptToExclude);
+            retVal += _callScripts(scriptType, callType, inStack, outStack, objectBranch, detachedScriptToExclude);
     }
     return retVal;
 }
@@ -3199,8 +3199,7 @@ void CSceneObjectContainer::_getActiveScripts(std::vector<CDetachedScript*>& scr
     }
 }
 
-int CSceneObjectContainer::_callScripts(int scriptType, int callType, CInterfaceStack* inStack, CInterfaceStack* outStack,
-                                        CSceneObject* objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
+int CSceneObjectContainer::_callScripts(int scriptType, int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
 { // with objectBranch!=nullptr, will return the chain starting at objectBranch up to the main script
     TRACE_INTERNAL;
 
@@ -3215,7 +3214,7 @@ int CSceneObjectContainer::_callScripts(int scriptType, int callType, CInterface
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {
         CScript* script = getScriptFromHandle(scriptHandles[i]);
-        if ((script != nullptr) && (scriptHandles[i] != scriptToExclude))
+        if ((script != nullptr) && (script->detachedScript->getObjectHandle() != detachedScriptToExclude))
         { // the script could have been erased in the mean time
             if (script->detachedScript->hasSystemFunctionOrHook(callType))
             { // has the function

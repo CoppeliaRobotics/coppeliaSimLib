@@ -960,7 +960,7 @@ void CCopyBuffer::_eraseScriptInBuffer(int scriptOrDetachedScriptHandle)
     _announceScriptWillBeErased(scriptOrDetachedScriptHandle, false, false);
     for (size_t i = 0; i < luaScriptBuffer.size(); i++)
     {
-        if (luaScriptBuffer[i]->getScriptHandle() == scriptOrDetachedScriptHandle)
+        if (luaScriptBuffer[i]->getSceneObjectOrDetachedScriptHandle() == scriptOrDetachedScriptHandle)
         {
             CDetachedScript::destroy(luaScriptBuffer[i], false);
             luaScriptBuffer.erase(luaScriptBuffer.begin() + i);
@@ -1086,7 +1086,7 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject* object)
         CDetachedScript* it = luaScriptBuffer[i];
         if (it->announceSceneObjectWillBeErased(object, true))
         {
-            _eraseScriptInBuffer(it->getScriptHandle());
+            _eraseScriptInBuffer(it->getSceneObjectOrDetachedScriptHandle());
             i = 0; // Ordering may have changed!
         }
         else

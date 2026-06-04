@@ -403,6 +403,7 @@ struct SJointProperty
     FUNCX(propDetachedScript_METHOD_wait, "wait", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propDetachedScript_METHOD_init, "init", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propDetachedScript_METHOD_setEventFilters, "setEventFilters", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
+    FUNCX(propDetachedScript_METHOD_broadcast, "broadcast", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     /* Following for backward compatibility: */ \
     FUNCX(propDetachedScript_DEPRECATED_scriptType, "scriptType", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable,  jsonStr({{"", ""}, {"", ""}}), "") \
     FUNCX(propDetachedScript_DEPRECATED_scriptDisabled, "scriptDisabled", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED,  jsonStr({{"", ""}, {"", ""}}), "") \
@@ -742,7 +743,7 @@ struct SJointProperty
     FUNCX(propMesh_textureRepeatU, TEXTUREPREFIXDOT "repeatU", sim_propertytype_bool, 0,  jsonStr({{"label", "Texture repeat U"}, {"description", ""}}), "") \
     FUNCX(propMesh_textureRepeatV, TEXTUREPREFIXDOT "repeatV", sim_propertytype_bool, 0,  jsonStr({{"label", "Texture repeat V"}, {"description", ""}}), "") \
     FUNCX(propMesh_textureInterpolate, TEXTUREPREFIXDOT "interpolate", sim_propertytype_bool, 0,  jsonStr({{"label", "Interpolate texture"}, {"description", ""}}), "") \
-    FUNCX(propMesh_texture, TEXTUREPREFIXDOT "rawData", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Texture"}, {"description", ""}}), "") \
+    FUNCX(propMesh_texture, TEXTUREPREFIXDOT "data", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Texture"}, {"description", ""}}), "") \
     FUNCX(propMesh_textureID, TEXTUREPREFIXDOT "id", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Texture ID"}, {"description", ""}}), "") \
     FUNCX(propMesh_vertices, "vertices", sim_propertytype_matrix, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Vertices"}, {"description", ""}}), "") \
     FUNCX(propMesh_indices, "indices", sim_propertytype_intarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Indices"}, {"description", "Indices (3 values per triangle)"}}), "") \
@@ -756,6 +757,7 @@ struct SJointProperty
     FUNCX(propMesh_primitiveType, "primitiveType", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  jsonStr({{"label", "Primitive type"}, {"description", ""}}), "") \
     FUNCX(propMesh_convex, "convex", sim_propertytype_bool, sim_propertyinfo_notwritable,  jsonStr({{"label", "Convex"}, {"description", "Whether mesh is convex or not"}}), "") \
     FUNCX(propMesh_colorName, "colorName", sim_propertytype_string, 0,  jsonStr({{"label", "Color name"}, {"description", ""}}), "") \
+    FUNCX(propScene_METHOD_textureSetData, TEXTUREPREFIXDOT "setData", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  jsonStr({}), "") \
     FUNCX(propMesh_GROUP_texture, TEXTUREPREFIX, sim_propertytype_group, SIM_PROPERTYINFO_GROUP, "", "") \
     /* Following for backward compatibility: */ \
     FUNCX(propMesh_DEPRECATED_textureResolution, "textureResolution", sim_propertytype_intarray2, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_notwritable, "", "") \

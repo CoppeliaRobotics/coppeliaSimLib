@@ -65,7 +65,7 @@ void getScriptTree_old(luaWrap_lua_State* L, bool selfIncluded, std::vector<int>
                 CDetachedScript* lso = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                     sim_scripttype_simulation, q->getObjectHandle());
                 if (lso != nullptr)
-                    scriptHandles.push_back(lso->getScriptHandle());
+                    scriptHandles.push_back(lso->getSceneObjectOrDetachedScriptHandle());
             }
         }
 
@@ -85,7 +85,7 @@ void getScriptTree_old(luaWrap_lua_State* L, bool selfIncluded, std::vector<int>
                     CDetachedScript* lso = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                         sim_scripttype_simulation, objList[i]->getObjectHandle());
                     if (lso != nullptr)
-                        scriptHandles.push_back(lso->getScriptHandle());
+                        scriptHandles.push_back(lso->getSceneObjectOrDetachedScriptHandle());
                 }
             }
         }
@@ -101,7 +101,7 @@ void getScriptTree_old(luaWrap_lua_State* L, bool selfIncluded, std::vector<int>
                     CDetachedScript* aScript = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                         sim_scripttype_simulation, obj->getObjectHandle());
                     if (aScript != nullptr)
-                        scriptHandles.push_back(aScript->getScriptHandle());
+                        scriptHandles.push_back(aScript->getSceneObjectOrDetachedScriptHandle());
                 }
 
                 std::vector<CSceneObject*> objList;
@@ -112,7 +112,7 @@ void getScriptTree_old(luaWrap_lua_State* L, bool selfIncluded, std::vector<int>
                         sim_scripttype_simulation, objList[i]->getObjectHandle());
                     if (lso != nullptr)
                     {
-                        scriptHandles.push_back(lso->getScriptHandle());
+                        scriptHandles.push_back(lso->getSceneObjectOrDetachedScriptHandle());
                     }
                 }
             }
@@ -149,13 +149,13 @@ void getScriptChain_old(luaWrap_lua_State* L, bool selfIncluded, bool mainInclud
                     CDetachedScript* lso = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                         sim_scripttype_simulation, obj->getObjectHandle());
                     if (lso != nullptr)
-                        scriptHandles.push_back(lso->getScriptHandle());
+                        scriptHandles.push_back(lso->getSceneObjectOrDetachedScriptHandle());
                 }
                 if (mainIncluded)
                 {
                     CDetachedScript* lso = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
                     if (lso != nullptr)
-                        scriptHandles.push_back(lso->getScriptHandle());
+                        scriptHandles.push_back(lso->getSceneObjectOrDetachedScriptHandle());
                 }
             }
         }
@@ -171,7 +171,7 @@ void getScriptChain_old(luaWrap_lua_State* L, bool selfIncluded, bool mainInclud
                     CDetachedScript* aScript = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                         sim_scripttype_simulation, obj->getObjectHandle());
                     if (aScript != nullptr)
-                        scriptHandles.push_back(aScript->getScriptHandle());
+                        scriptHandles.push_back(aScript->getSceneObjectOrDetachedScriptHandle());
                 }
                 while (obj->getParent() != nullptr)
                 {
@@ -179,13 +179,13 @@ void getScriptChain_old(luaWrap_lua_State* L, bool selfIncluded, bool mainInclud
                     CDetachedScript* lso = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                         sim_scripttype_simulation, obj->getObjectHandle());
                     if (lso != nullptr)
-                        scriptHandles.push_back(lso->getScriptHandle());
+                        scriptHandles.push_back(lso->getSceneObjectOrDetachedScriptHandle());
                 }
                 if (mainIncluded)
                 {
                     CDetachedScript* lso = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
                     if (lso != nullptr)
-                        scriptHandles.push_back(lso->getScriptHandle());
+                        scriptHandles.push_back(lso->getSceneObjectOrDetachedScriptHandle());
                 }
             }
         }
@@ -2319,7 +2319,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
                     it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                         sim_scripttype_simulation, handle);
                     if (it != nullptr)
-                        handle = it->getScriptHandle();
+                        handle = it->getSceneObjectOrDetachedScriptHandle();
                     else
                         goOn = false;
                 }
@@ -2402,7 +2402,7 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
                     it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                         sim_scripttype_simulation, handle);
                     if (it != nullptr)
-                        handle = it->getScriptHandle();
+                        handle = it->getSceneObjectOrDetachedScriptHandle();
                     else
                         goOn = false;
                 }

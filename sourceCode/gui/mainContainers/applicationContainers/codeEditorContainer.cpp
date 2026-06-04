@@ -712,7 +712,7 @@ int CCodeEditorContainer::openTextEditor_old(const char* initText, const char* x
         inf.handle = retVal;
         inf.scriptHandle = -1;
         inf.scriptUid = -1;
-        inf.callingScriptHandle = requestOrigin->getScriptHandle();
+        inf.callingScriptHandle = requestOrigin->getSceneObjectOrDetachedScriptHandle();
         inf.callingScriptUid = requestOrigin->getScriptUid();
         inf.sceneUniqueId = App::scene->environment->getSceneUniqueID();
         inf.openAcrossScenes = false;

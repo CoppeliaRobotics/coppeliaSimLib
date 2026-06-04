@@ -2367,7 +2367,7 @@ int CSceneObject::getScriptsInTree(std::vector<SScriptInfo>& scripts, int script
             if ((it != nullptr) && (!it->getScriptIsDisabled()))
             {
                 SScriptInfo s;
-                s.scriptHandle = it->getScriptHandle();
+                s.scriptHandle = it->getSceneObjectOrDetachedScriptHandle();
                 s.depth = depth;
                 scripts.push_back(s);
                 maxDepth = depth;
@@ -2387,7 +2387,7 @@ int CSceneObject::getScriptsInTree(std::vector<SScriptInfo>& scripts, int script
             if ((it != nullptr) && (!it->getScriptIsDisabled()))
             {
                 SScriptInfo s;
-                s.scriptHandle = it->getScriptHandle();
+                s.scriptHandle = it->getSceneObjectOrDetachedScriptHandle();
                 s.depth = depth;
                 scripts.push_back(s);
                 maxDepth = depth;
@@ -2488,9 +2488,9 @@ void CSceneObject::getScriptsInChain(std::vector<int>& scripts, int scriptType, 
                 if ( (it != nullptr) && (!it->getScriptIsDisabled()) )
                 {
                     if (scriptType == sim_scripttype_customization)
-                        scripts.push_back(it->getScriptHandle());
+                        scripts.push_back(it->getSceneObjectOrDetachedScriptHandle());
                     if ((scriptType == sim_scripttype_simulation) && (!App::scene->simulation->isSimulationStopped()))
-                        scripts.push_back(it->getScriptHandle());
+                        scripts.push_back(it->getSceneObjectOrDetachedScriptHandle());
                 }
             }
             else
@@ -2529,7 +2529,7 @@ void CSceneObject::getScriptsInChain(std::vector<int>& scripts, int scriptType, 
                     {
                         CScript* it = (CScript*)this;
                         if ((it->detachedScript != nullptr) && (it->detachedScript->getScriptType() == scriptType) && (!it->detachedScript->getScriptIsDisabled()))
-                            scripts.push_back(it->detachedScript->getScriptHandle());
+                            scripts.push_back(it->detachedScript->getSceneObjectOrDetachedScriptHandle());
                     }
                 }
             }

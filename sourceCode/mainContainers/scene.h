@@ -80,7 +80,7 @@ class CScene : public Obj
     CDetachedScript* getDetachedScriptFromHandle(int scriptHandle) const;
     CDetachedScript* getDetachedScriptFromUid(int uid) const;
     void getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
-    void callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int scriptToExclude = -1);
+    void callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int detachedScriptToExclude = -1);
 
     void pushGenesisEvents();
 

@@ -391,7 +391,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
             {
                 hier->scriptIconPosition.push_back(tPosX + localOffset);
                 hier->scriptIconPosition.push_back(tPosY);
-                hier->scriptIconPosition.push_back(script->getScriptHandle());
+                hier->scriptIconPosition.push_back(script->getSceneObjectOrDetachedScriptHandle());
             }
             localOffset += HIERARCHY_ICON_WIDTH * GuiApp::sc;
         }
@@ -420,7 +420,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
             {
                 hier->scriptIconPosition.push_back(tPosX + localOffset);
                 hier->scriptIconPosition.push_back(tPosY);
-                hier->scriptIconPosition.push_back(customizationScript->getScriptHandle());
+                hier->scriptIconPosition.push_back(customizationScript->getSceneObjectOrDetachedScriptHandle());
             }
             localOffset += HIERARCHY_ICON_WIDTH * GuiApp::sc;
         }
@@ -468,7 +468,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
                 {
                     hier->scriptParametersIconPosition.push_back(tPosX + localOffset);
                     hier->scriptParametersIconPosition.push_back(tPosY);
-                    hier->scriptParametersIconPosition.push_back(newScript->getScriptHandle()); // which is same as object handle with new scripts
+                    hier->scriptParametersIconPosition.push_back(newScript->getSceneObjectOrDetachedScriptHandle()); // which is same as object handle with new scripts
                 }
                 localOffset += (HIERARCHY_ICON_WIDTH + HIERARCHY_INTER_ICON_SPACING) * GuiApp::sc;
             }
@@ -516,7 +516,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
             {
                 hier->scriptIconPosition.push_back(tPosX + localOffset);
                 hier->scriptIconPosition.push_back(tPosY);
-                hier->scriptIconPosition.push_back(script->getScriptHandle());
+                hier->scriptIconPosition.push_back(script->getSceneObjectOrDetachedScriptHandle());
             }
             localOffset += HIERARCHY_ICON_WIDTH * GuiApp::sc;
             /*

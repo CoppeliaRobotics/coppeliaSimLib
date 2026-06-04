@@ -400,7 +400,7 @@ CDetachedScript* CSceneContainer::getDetachedScriptFromHandle(int scriptHandle) 
         retVal = scene->getDetachedScriptFromHandle(scriptHandle);
     if ((retVal == nullptr) && (addOnScriptContainer != nullptr))
         retVal = addOnScriptContainer->getAddOnFromHandle(scriptHandle);
-    if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getScriptHandle() == scriptHandle))
+    if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getSceneObjectOrDetachedScriptHandle() == scriptHandle))
         retVal = sandboxScript;
     return (retVal);
 }
@@ -450,7 +450,7 @@ void CSceneContainer::getActiveScripts(std::vector<CDetachedScript*>& scripts, b
     }
 }
 
-void CSceneContainer::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
+void CSceneContainer::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
 {
     TRACE_INTERNAL;
     bool doNotInterrupt = !CDetachedScript::isSystemCallbackInterruptible(callType);
@@ -458,38 +458,38 @@ void CSceneContainer::callScripts(int callType, CInterfaceStack* inStack, CInter
     { // reverse order
         if ((sandboxScript != nullptr) && sandboxScript->hasSystemFunctionOrHook(callType))
         {
-            if (scriptToExclude != sandboxScript->getScriptHandle())
+            if (detachedScriptToExclude != sandboxScript->getObjectHandle())
                 sandboxScript->systemCallScript(callType, inStack, outStack);
         }
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
-            addOnScriptContainer->callScripts(callType, inStack, outStack, scriptToExclude);
+            addOnScriptContainer->callScripts(callType, inStack, outStack, detachedScriptToExclude);
         if (scene != nullptr)
         {
             if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
-                scene->callScripts(callType, inStack, outStack, objectBranch, scriptToExclude);
+                scene->callScripts(callType, inStack, outStack, objectBranch, detachedScriptToExclude);
         }
     }
     else
     { // regular order, from unimportant, to most important
         if (scene != nullptr)
-            scene->callScripts(callType, inStack, outStack, objectBranch, scriptToExclude);
+            scene->callScripts(callType, inStack, outStack, objectBranch, detachedScriptToExclude);
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
-            addOnScriptContainer->callScripts(callType, inStack, outStack, scriptToExclude);
+            addOnScriptContainer->callScripts(callType, inStack, outStack, detachedScriptToExclude);
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
         {
             if ((sandboxScript != nullptr) && sandboxScript->hasSystemFunctionOrHook(callType))
             {
-                if (scriptToExclude != sandboxScript->getScriptHandle())
+                if (detachedScriptToExclude != sandboxScript->getObjectHandle())
                     sandboxScript->systemCallScript(callType, inStack, outStack);
             }
         }
     }
 }
 
-void CSceneContainer::broadcastMsg(CInterfaceStack* inStack, int emittingScriptHandle, int options)
+void CSceneContainer::broadcastMsg(CInterfaceStack* inStack, int emittingDetachedScriptHandle, int options)
 {
     TRACE_INTERNAL;
-    callScripts(sim_syscb_msg, inStack, nullptr, nullptr, emittingScriptHandle);
+    callScripts(sim_syscb_msg, inStack, nullptr, nullptr, emittingDetachedScriptHandle);
 }
 
 bool CSceneContainer::shouldTemporarilySuspendMainScript()

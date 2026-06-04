@@ -49,6 +49,7 @@ CSceneObject* getSpecificSceneObjectType(int identifier, const char* method, int
 CCollection* getCollection(int identifier, const char* method, std::string* errMsg = nullptr, size_t argPos = -1);
 CDrawingObject* getDrawingObject(int identifier, const char* method, std::string* errMsg = nullptr, size_t argPos = -1);
 CDetachedScript* getDetachedScript(int identifier, const char* method, std::string* errMsg = nullptr, size_t argPos = -1);
+CMesh* getMesh(int identifier, const char* method, std::string* errMsg = nullptr, size_t argPos = -1);
 bool doesEntityExist(int identifier, const char* method, std::string* errMsg = nullptr, size_t argPos = -1);
 std::string getInvalidArgString(size_t argPos);
 
@@ -226,6 +227,8 @@ extern std::string _method_setEventFilters(int targetObj, const char* method, CD
 extern std::string _method_getPluginInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_setPluginInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_dynamicsStep(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_broadcast(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_textureSetData(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 
 extern std::string _method_remove(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_removeObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

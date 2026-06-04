@@ -231,6 +231,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["getPluginInfo"] = _method_getPluginInfo;
         funcTable["setPluginInfo"] = _method_setPluginInfo;
         funcTable["dynamics.step"] = _method_dynamicsStep;
+        funcTable["broadcast"] = _method_broadcast;
+        funcTable["texture.setData"] = _method_textureSetData;
     }
 
     std::string retVal("__notFound__");
@@ -1191,6 +1193,30 @@ CDetachedScript* getDetachedScript(int identifier, const char* method, std::stri
             errMsg[0] = "in method '";
             errMsg[0] += method;
             errMsg[0] = "': target object does not exist."; // can happen when calling from C
+        }
+        else
+        {
+            std::string msg("in method '");
+            msg += method;
+            msg += "': bad argument #";
+            msg += std::to_string(argPos + 1);
+            msg += " (object does not exist).";
+            errMsg->assign(msg.c_str());
+        }
+    }
+    return retVal;
+}
+
+CMesh* getMesh(int identifier, const char* method, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
+{
+    CMesh* retVal = App::scene->sceneObjects->getMeshFromUid(identifier);
+    if ( (retVal == nullptr) && (errMsg != nullptr) )
+    {
+        if (argPos == -1)
+        {
+            errMsg[0] = "in method '";
+            errMsg[0] += method;
+            errMsg[0] += "': target object does not exist."; // can happen when calling from C
         }
         else
         {
@@ -2860,10 +2886,10 @@ std::string _method_getObjects(int targetObj, const char* method, CDetachedScrip
                     else if (t == "detachedScript")
                     {
                         if (App::scenes->sandboxScript != nullptr)
-                            objects.push_back(App::scenes->sandboxScript->getScriptHandle());
+                            objects.push_back(App::scenes->sandboxScript->getSceneObjectOrDetachedScriptHandle());
                         std::vector<int> addOns = App::scenes->addOnScriptContainer->getAddOnHandles();
                         objects.insert(objects.end(), addOns.begin(), addOns.end());
-                        objects.push_back(App::scene->sceneObjects->embeddedScriptContainer->getMainScript()->getScriptHandle());
+                        objects.push_back(App::scene->sceneObjects->embeddedScriptContainer->getMainScript()->getSceneObjectOrDetachedScriptHandle());
                     }
                     else if (t == "mesh")
                     {
@@ -3986,8 +4012,8 @@ std::string _method_getObject(int targetObj, const char* method, CDetachedScript
         if (targetObj >= 0)
         {
             prox = App::scene->sceneObjects->getObjectFromHandle(targetObj);
-            if ((prox == nullptr) && (currentScript->getScriptHandle() <= sim_object_sceneobjectend))
-                prox = App::scene->sceneObjects->getScriptFromHandle(currentScript->getScriptHandle());
+            if ((prox == nullptr) && (currentScript->getSceneObjectOrDetachedScriptHandle() <= sim_object_sceneobjectend))
+                prox = App::scene->sceneObjects->getScriptFromHandle(currentScript->getSceneObjectOrDetachedScriptHandle());
 //                prox = App::scene->getDetachedScriptFromHandle(targetObj);
         }
         it = App::scene->sceneObjects->getObjectFromPath(prox, path.c_str(), index);
@@ -7068,7 +7094,7 @@ std::string _method_addCurve(int targetObj, const char* method, CDetachedScript*
             tt::removeIllegalCharacters(name, false);
             int h = -1;
             if (currentScript != nullptr)
-                h = currentScript->getScriptHandle();
+                h = currentScript->getSceneObjectOrDetachedScriptHandle();
             int options = 0;
             if (hideLabel)
                 options += 2;
@@ -7131,7 +7157,7 @@ std::string _method_addSignal(int targetObj, const char* method, CDetachedScript
             tt::removeIllegalCharacters(name, false);
             int h = -1;
             if (currentScript != nullptr)
-                h = currentScript->getScriptHandle();
+                h = currentScript->getSceneObjectOrDetachedScriptHandle();
             int options = 0;
             if (hideSignal)
                 options += 1;
@@ -8434,3 +8460,86 @@ std::string _method_dynamicsStep(int targetObj, const char* method, CDetachedScr
     }
     return errMsg;
 }
+
+std::string _method_broadcast(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CDetachedScript* target = getDetachedScript(targetObj, method, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map}))
+    {
+        CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStackCopy(inStack);
+        if (stack->getStackSize() > 1)
+            stack->popStackValue(stack->getStackSize() - 1);
+        stack->pushInt32OntoStack(targetObj, false);
+        App::scenes->broadcastMsg(stack, targetObj, 0);
+        App::scenes->interfaceStackContainer->destroyStack(stack);
+    }
+    return errMsg;
+}
+
+std::string _method_textureSetData(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CMesh* target = getMesh(targetObj, method, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    {
+        std::string data = fetchBuffer(inStack, 0);
+        int position[2] = {0, 0};
+        int size[2] = {0, 0};
+        double interpolation = 0.0;
+        bool rectangular = true;
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            map->fetchInt32ArrayFromKey("position", position, 2, &errMsg);
+            map->fetchInt32ArrayFromKey("size", size, 2, &errMsg);
+            map->fetchDoubleFromKey("interpolation", interpolation, &errMsg);
+            map->fetchBoolFromKey("rectangular", rectangular, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            CTextureProperty* tp = target->getTextureProperty();
+            if (tp != nullptr)
+            {
+                CTextureObject* to = tp->getTextureObject();
+                if (to != nullptr)
+                {
+                    int resX, resY;
+                    to->getTextureSize(resX, resY);
+                    if ((size[0] >= 0) && (size[1] >= 0) && (data.size() >= 3))
+                    {
+                        if (size[0] == 0)
+                        {
+                            position[0] = 0;
+                            size[0] = resX;
+                        }
+                        if (size[1] == 0)
+                        {
+                            position[1] = 0;
+                            size[1] = resY;
+                        }
+                        if (int(data.size()) < size[0] * size[1] * 3)
+                        {
+                            std::string d(data);
+                            data.resize(size[0] * size[1] * 3);
+                            for (size_t i = 0; i < size[0] * size[1]; i++)
+                            {
+                                data[3 * i + 0] = d[0];
+                                data[3 * i + 1] = d[1];
+                                data[3 * i + 2] = d[2];
+                            }
+                        }
+                        to->writePortionOfTexture((unsigned char*)data.data(), position[0], position[1], size[0], size[1], !rectangular, interpolation);
+                    }
+                    else
+                        errMsg = SIM_ERROR_INVALID_ARGUMENTS;
+                }
+                else
+                    errMsg = SIM_ERROR_TEXTURE_INEXISTANT;
+            }
+            else
+                errMsg = SIM_ERROR_TEXTURE_INEXISTANT;
+        }
+    }
+    return errMsg;
+}
+

@@ -52,7 +52,7 @@ class CDetachedScript : public Obj
     void simulationAboutToEnd();
     void simulationEnded();
 
-    int getScriptHandle() const;
+    int getSceneObjectOrDetachedScriptHandle() const;
     int64_t getScriptUid() const;
     size_t getSimpleHash() const;
 
@@ -261,7 +261,7 @@ class CDetachedScript : public Obj
     void _handleInfoCallback();
     void _setScriptHandleToInterpreterState_lua(void* LL);
 
-    int _scriptHandle;        // is unique since 25.11.2022. Unique across scenes for old script, but not for new script objects (with new script objects, scriptHandle is same as scene object)
+    int _sceneObjectOrDetachedScriptHandle;        // is unique since 25.11.2022. Unique across scenes for old script, but not for new script objects (with new script objects, scriptHandle is same as scene object)
                               // See Obj::_objectHandle too (which is the detached script handle)
     int _sceneObjectHandle;   // is same as _scriptHandle with the new scene object scripts. With old associated scripts, is handle of scene object this script is associated with. -1 with add-ons and sandbox
     int64_t _scriptUid; // unique across all scenes

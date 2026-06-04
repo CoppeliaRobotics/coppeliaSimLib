@@ -4044,7 +4044,7 @@ int simGetScriptHandle_internal(const char* targetAtScriptName)
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_WAS_DESTROYED);
             return (-1);
         }
-        int retVal = it->getScriptHandle();
+        int retVal = it->getSceneObjectOrDetachedScriptHandle();
         return (retVal);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -4155,7 +4155,7 @@ int simGetScript_internal(int index)
         if ((index < 0) || (index >= int(App::scene->sceneObjects->embeddedScriptContainer->allScripts.size())))
             return (-1);
         CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->allScripts[index];
-        int retVal = it->getScriptHandle();
+        int retVal = it->getSceneObjectOrDetachedScriptHandle();
         return (retVal);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -4198,7 +4198,7 @@ int simGetScriptAssociatedWithObject_internal(int objectHandle)
             }
         }
         else
-            retVal = it->getScriptHandle();
+            retVal = it->getSceneObjectOrDetachedScriptHandle();
         return (retVal);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -4241,7 +4241,7 @@ int simGetCustomizationScriptAssociatedWithObject_internal(int objectHandle)
             }
         }
         else
-            retVal = it->getScriptHandle();
+            retVal = it->getSceneObjectOrDetachedScriptHandle();
         return (retVal);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -5123,7 +5123,7 @@ int simGetScriptAttribute_internal(int scriptHandle, int attributeID, double* fl
         }
         if (attributeID == sim_scriptattribute_scripthandle)
         {
-            intOrBoolVal[0] = it->getScriptHandle();
+            intOrBoolVal[0] = it->getSceneObjectOrDetachedScriptHandle();
             retVal = 1;
         }
 
@@ -6348,7 +6348,7 @@ int simGetScriptInt32Param_internal(int scriptHandle, int parameterID, int* para
         }
         if (parameterID == sim_scriptintparam_handle)
         {
-            parameter[0] = it->getScriptHandle();
+            parameter[0] = it->getSceneObjectOrDetachedScriptHandle();
             retVal = 1;
         }
         if (parameterID == sim_scriptintparam_objecthandle)
@@ -9496,7 +9496,7 @@ int simGetObjectInt32Param_internal(int objectHandle, int parameterID, int* para
             }
             if (parameterID == sim_scriptintparam_handle)
             { // for backw. compatibility
-                parameter[0] = detachedScript->getScriptHandle();
+                parameter[0] = detachedScript->getSceneObjectOrDetachedScriptHandle();
                 retVal = 1;
             }
             if (parameterID == sim_scriptintparam_objecthandle)

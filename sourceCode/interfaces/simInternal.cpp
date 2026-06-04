@@ -3705,7 +3705,7 @@ int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char* 
             }
         }
         if ((it != nullptr) && (!it->getFlaggedForDestruction()))
-            return (it->getScriptHandle());
+            return (it->getSceneObjectOrDetachedScriptHandle());
         return (-1);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);

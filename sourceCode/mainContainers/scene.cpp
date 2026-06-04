@@ -975,9 +975,9 @@ int CScene::addGeneralObjectsToSceneAndPerformMappings(
     std::map<int, int> luaScriptMapping;
     for (size_t i = 0; i < loadedLuaScriptList->size(); i++)
     {
-        int oldHandle = loadedLuaScriptList->at(i)->getScriptHandle();
+        int oldHandle = loadedLuaScriptList->at(i)->getSceneObjectOrDetachedScriptHandle();
         sceneObjects->embeddedScriptContainer->insertScript(loadedLuaScriptList->at(i));
-        luaScriptMapping[oldHandle] = loadedLuaScriptList->at(i)->getScriptHandle();
+        luaScriptMapping[oldHandle] = loadedLuaScriptList->at(i)->getSceneObjectOrDetachedScriptHandle();
     }
 
     sceneObjects->enableObjectActualization(false);
@@ -1236,10 +1236,10 @@ void CScene::getActiveScripts(std::vector<CDetachedScript*>& scripts, bool rever
     sceneObjects->getActiveScripts(scripts, reverse, alsoLegacyScripts);
 }
 
-void CScene::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int scriptToExclude /*=-1*/)
+void CScene::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
 {
     TRACE_INTERNAL;
-    sceneObjects->callScripts(callType, inStack, outStack, objectBranch, scriptToExclude);
+    sceneObjects->callScripts(callType, inStack, outStack, objectBranch, detachedScriptToExclude);
 }
 
 void CScene::pushGenesisEvents()
@@ -1778,7 +1778,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
     // Following for backward compatibility (Lua script parameters are now attached to objects, and not scripts anymore):
     for (size_t i = 0; i < loadedLuaScriptList.size(); i++)
     {
-        CDetachedScript* script = sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(loadedLuaScriptList[i]->getScriptHandle());
+        CDetachedScript* script = sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(loadedLuaScriptList[i]->getSceneObjectOrDetachedScriptHandle());
         if (script != nullptr)
         {
             CUserParameters* params = script->getScriptParametersObject_backCompatibility();
@@ -1817,7 +1817,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
             CDetachedScript* detachedScript = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, loadedObjectList[i]->getObjectHandle());
             if (detachedScript != nullptr)
             {
-                sceneObjects->embeddedScriptContainer->extractScript(detachedScript->getScriptHandle());
+                sceneObjects->embeddedScriptContainer->extractScript(detachedScript->getSceneObjectOrDetachedScriptHandle());
                 CScript* script = new CScript(detachedScript);
                 detachedScript->setParentIsProxy(true);
                 script->setVisibilityLayer(0);
@@ -1837,7 +1837,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
             detachedScript = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, loadedObjectList[i]->getObjectHandle());
             if (detachedScript != nullptr)
             {
-                sceneObjects->embeddedScriptContainer->extractScript(detachedScript->getScriptHandle());
+                sceneObjects->embeddedScriptContainer->extractScript(detachedScript->getSceneObjectOrDetachedScriptHandle());
                 CScript* script = new CScript(detachedScript);
                 detachedScript->setParentIsProxy(true);
                 script->setVisibilityLayer(0);

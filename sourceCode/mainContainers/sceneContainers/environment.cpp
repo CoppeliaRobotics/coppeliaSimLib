@@ -154,7 +154,7 @@ void CEnvironment::appendGenesisData(CCbor* ev) const
     int msh = -1;
     CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
     if (it != nullptr)
-        msh = it->getScriptHandle();
+        msh = it->getSceneObjectOrDetachedScriptHandle();
     ev->appendKeyInt64(propScene_visibilityLayers.name, _activeLayers);
     ev->appendKeyText(propScene_acknowledgment.name, _acknowledgement.c_str());
     if (App::getEventProtocolVersion() <= 3)
@@ -1188,7 +1188,7 @@ int CEnvironment::getHandleProperty(const char* pName, int64_t& pState) const
         CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
         pState = -1;
         if (it != nullptr)
-            pState = it->getScriptHandle();
+            pState = it->getSceneObjectOrDetachedScriptHandle();
         retVal = sim_propertyret_ok;
     }
 

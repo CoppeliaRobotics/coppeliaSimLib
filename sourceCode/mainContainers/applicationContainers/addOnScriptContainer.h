@@ -42,7 +42,7 @@ class CAddOnScriptContainer
 
     bool shouldTemporarilySuspendMainScript();
     void getActiveScripts(std::vector<CDetachedScript*>& scripts) const;
-    int callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, int scriptToExclude = -1);
+    int callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, int detachedScriptToExclude = -1);
 
 #ifdef SIM_WITH_GUI
     bool processCommand(int commandID);

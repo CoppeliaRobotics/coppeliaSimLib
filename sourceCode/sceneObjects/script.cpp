@@ -72,7 +72,7 @@ void CScript::setIsInScene(bool s)
 void CScript::setObjectHandle(int newObjectHandle)
 {
     CSceneObject::setObjectHandle(newObjectHandle);
-    detachedScript->_scriptHandle = newObjectHandle;
+    detachedScript->_sceneObjectOrDetachedScriptHandle = newObjectHandle;
     detachedScript->_sceneObjectHandle = newObjectHandle;
 }
 

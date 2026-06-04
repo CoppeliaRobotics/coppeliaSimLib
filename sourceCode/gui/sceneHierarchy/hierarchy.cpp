@@ -1182,7 +1182,7 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
             // Process the command via the simulation thread (delayed):
             SSimulationThreadCommand cmd;
             cmd.cmdId = OPEN_SCRIPT_EDITOR_CMD;
-            cmd.intParams.push_back(it->getScriptHandle());
+            cmd.intParams.push_back(it->getSceneObjectOrDetachedScriptHandle());
             App::appendSimulationThreadCommand(cmd);
         }
         return (true);
@@ -1726,7 +1726,7 @@ bool CHierarchy::processCommand(int commandID)
         if (s == nullptr)
             cmd.intParams.push_back(h);
         else
-            cmd.intParams.push_back(s->getScriptHandle());
+            cmd.intParams.push_back(s->getSceneObjectOrDetachedScriptHandle());
         App::appendSimulationThreadCommand(cmd);
         return (true);
     }
