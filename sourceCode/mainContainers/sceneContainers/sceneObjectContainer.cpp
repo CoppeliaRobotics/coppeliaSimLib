@@ -5802,6 +5802,12 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                         dnaString.append(reinterpret_cast<const char*>(state.data.data()), state.data.size() * sizeof(double));
                         break;
                     }
+                    case sim_propertytype_enum: {
+                        int state;
+                        result = obj->getIntProperty(name.c_str(), state); //enumProp TODO
+                        dnaString.append(reinterpret_cast<const char*>(&state), sizeof(state));
+                        break;
+                    }
                     case sim_propertytype_method: {
                         std::string state;
                         result = obj->getMethodProperty(name.c_str(), state);

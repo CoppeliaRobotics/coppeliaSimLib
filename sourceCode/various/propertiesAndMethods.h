@@ -135,6 +135,7 @@ struct SPropertyEx
 #define proptypetag_handle "&han&."
 #define proptypetag_handlearray "&hanvect&."
 #define proptypetag_stringarray "&strvect&."
+#define proptypetag_enum "&enm&."
 #define proptypetag_group "&grp&."
 
 #define SIM_PROPERTYINFO_DEPRECATED (sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude)
@@ -160,10 +161,12 @@ struct SPropertyEx
     FUNCX(propObject_METHOD_getIntArray2Property, "getIntArray2Property", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_getIntArrayProperty, "getIntArrayProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_getIntProperty, "getIntProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
+    FUNCX(propObject_METHOD_getEnumProperty, "getEnumProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_getLongProperty, "getLongProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_getPoseProperty, "getPoseProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_getQuaternionProperty, "getQuaternionProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_getStringProperty, "getStringProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
+    FUNCX(propObject_METHOD_getStrEnumProperty, "getStrEnumProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_getTableProperty, "getTableProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_getVector3Property, "getVector3Property", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_setBoolProperty, "setBoolProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
@@ -177,10 +180,12 @@ struct SPropertyEx
     FUNCX(propObject_METHOD_setIntArray2Property, "setIntArray2Property", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_setIntArrayProperty, "setIntArrayProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_setIntProperty, "setIntProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
+    FUNCX(propObject_METHOD_setEnumProperty, "setEnumProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_setLongProperty, "setLongProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_setPoseProperty, "setPoseProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_setQuaternionProperty, "setQuaternionProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_setStringProperty, "setStringProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
+    FUNCX(propObject_METHOD_setStrEnumProperty, "setStrEnumProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_setTableProperty, "setTableProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_setVector3Property, "setVector3Property", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \
     FUNCX(propObject_METHOD_setMatrixProperty, "setMatrixProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({}), "") \

@@ -2679,8 +2679,6 @@ void CMesh::display_extRenderer(const CPose& cumulIFrameTr, CShape* geomData, in
         }
 
         CPose tr2(tr * cumulIFrameTr * _iFrame * _bbFrame);
-        static int a = 0;
-        a++;
         void* data[40];
         data[0] = &_verticesForDisplayAndDisk[0];
         int vs = (int)_verticesForDisplayAndDisk.size() / 3;
@@ -2713,7 +2711,8 @@ void CMesh::display_extRenderer(const CPose& cumulIFrameTr, CShape* geomData, in
         data[27] = &visibleEdges;
         // FREE data[28]=edgeColor_DEPRECATED.colors;
         data[30] = &displayAttrib;
-        data[31] = (void*)color.getColorName().c_str();
+        std::string nm(color.getColorName());
+        data[31] = (void*)nm.c_str();
         data[32] = &shapeHandle;
         data[33] = &componentIndex;
 

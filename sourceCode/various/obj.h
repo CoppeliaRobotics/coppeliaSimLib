@@ -40,6 +40,7 @@ static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_handle, proptypetag_handle},
     {sim_propertytype_handlearray, proptypetag_handlearray},
     {sim_propertytype_stringarray, proptypetag_stringarray},
+    {sim_propertytype_enum, proptypetag_enum},
     {sim_propertytype_group, proptypetag_group},
 
     {sim_propertytype_buffer, proptypetag_buffer}, // keep always at the end
@@ -66,6 +67,7 @@ static std::map<int, std::string> propertyStrings = {
     {sim_propertytype_handle, proptypetag_handle},
     {sim_propertytype_handlearray, proptypetag_handlearray},
     {sim_propertytype_stringarray, proptypetag_stringarray},
+    {sim_propertytype_enum, proptypetag_enum},
     {sim_propertytype_group, proptypetag_group},
 
     {sim_propertytype_buffer, proptypetag_buffer},

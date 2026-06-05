@@ -1189,6 +1189,16 @@ SIM_DLLEXPORT int simGetStringProperty2(int64_t target, const char* pName, char*
     return simGetStringProperty_internal(target, pName, pState);
 }
 
+SIM_DLLEXPORT int simSetStrEnumProperty(int64_t target, const char* pName, const char* pState)
+{
+    return simSetStrEnumProperty_internal(target, pName, pState);
+}
+
+SIM_DLLEXPORT int simGetStrEnumProperty(int64_t target, const char* pName, char** pState)
+{
+    return simGetStrEnumProperty_internal(target, pName, pState);
+}
+
 SIM_DLLEXPORT int simSetTableProperty(int64_t target, const char* pName, const char* buffer, int bufferL)
 {
     return simSetTableProperty_internal(target, pName, buffer, bufferL);

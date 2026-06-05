@@ -67,6 +67,12 @@ void CSceneObjectCustomizationPart::_triggerEvent(const char* pName, CCbor* evv 
                     if (getIntProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyInt64(pName, v);
                 }
+                else if (t == sim_propertytype_enum)
+                {
+                    int v;
+                    if (getIntProperty(pName, v) == sim_propertyret_ok) //enumProp TODO
+                        ev->appendKeyInt64(pName, v);
+                }
                 else if (t == sim_propertytype_long)
                 {
                     int64_t v;
