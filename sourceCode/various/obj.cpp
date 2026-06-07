@@ -36,11 +36,11 @@ void Obj::copyYourselfInto(Obj* it) const
 
 void Obj::addObjectEventData(CCbor* ev)
 {
-    ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
-    ev->appendKeyTextArray(propObject_metaInfoSuperClass.name, _superClass);
-    ev->appendKeyTextArray(propObject_metaInfoNameSpaces.name, _nameSpaces);
-    ev->appendKeyBool(propObject_metaInfoIsClass.name, _isClass);
-    ev->appendKeyBool(propObject_metaInfoIsSceneObject.name, _isSceneObject);
+    ev->appendKeyText(prop(PropObject::objectType).name, _objectTypeStr.c_str());
+    ev->appendKeyTextArray(prop(PropObject::metaInfoSuperClass).name, _superClass);
+    ev->appendKeyTextArray(prop(PropObject::metaInfoNameSpaces).name, _nameSpaces);
+    ev->appendKeyBool(prop(PropObject::metaInfoIsClass).name, _isClass);
+    ev->appendKeyBool(prop(PropObject::metaInfoIsSceneObject).name, _isSceneObject);
 }
 
 int64_t Obj::getObjectHandle() const
@@ -148,12 +148,12 @@ int Obj::getBoolProperty(const char* ppName, bool& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(ppName, propObject_metaInfoIsClass.name) == 0)
+    if (strcmp(ppName, prop(PropObject::metaInfoIsClass).name) == 0)
     {
         pState = _isClass;
         retVal = sim_propertyret_ok;
     }
-    else if (strcmp(ppName, propObject_metaInfoIsSceneObject.name) == 0)
+    else if (strcmp(ppName, prop(PropObject::metaInfoIsSceneObject).name) == 0)
     {
         pState = _isSceneObject;
         retVal = sim_propertyret_ok;
@@ -166,7 +166,7 @@ int Obj::setLongProperty(const char* ppName, int64_t pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(ppName, propObject_handle.name) == 0)
+    if (strcmp(ppName, prop(PropObject::handle).name) == 0)
     {
         _objectHandle = pState;
         retVal = sim_propertyret_ok;
@@ -179,7 +179,7 @@ int Obj::getLongProperty(const char* ppName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(ppName, propObject_handle.name) == 0)
+    if (strcmp(ppName, prop(PropObject::handle).name) == 0)
     {
         pState = _objectHandle;
         retVal = sim_propertyret_ok;
@@ -192,7 +192,7 @@ int Obj::getStringProperty(const char* ppName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(ppName, propObject_objectType.name) == 0)
+    if (strcmp(ppName, prop(PropObject::objectType).name) == 0)
     {
         pState = _objectTypeStr;
         retVal = sim_propertyret_ok;
@@ -205,12 +205,12 @@ int Obj::getStringArrayProperty(const char* ppName, std::vector<std::string>& pS
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(ppName, propObject_metaInfoSuperClass.name) == 0)
+    if (strcmp(ppName, prop(PropObject::metaInfoSuperClass).name) == 0)
     {
         pState = _superClass;
         retVal = sim_propertyret_ok;
     }
-    else if (strcmp(ppName, propObject_metaInfoNameSpaces.name) == 0)
+    else if (strcmp(ppName, prop(PropObject::metaInfoNameSpaces).name) == 0)
     {
         pState = _nameSpaces;
         retVal = sim_propertyret_ok;
@@ -252,7 +252,7 @@ int Obj::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) co
             retVal = allProps_obj[i].type;
             info = allProps_obj[i].flags;
             if (infoTxt == "j")
-                infoTxt = allProps_obj[i].info.json.toStdString();
+                infoTxt = allProps_obj[i].info.json;
             else
             {
                 auto w = allProps_obj[i].info.map;

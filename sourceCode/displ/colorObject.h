@@ -5,13 +5,6 @@
 #include <cbor.h>
 #include <propertiesAndMethods.h>
 
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
-COLOR_PROPERTIES
-#undef FUNCX
-extern const std::vector<SProperty> allProps_col;
-// ----------------------------------------------------------------------------------------------
-
 class CColorObject
 {
   public:

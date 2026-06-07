@@ -332,7 +332,7 @@ int CCollectionContainer::getHandleArrayProperty_t(int64_t target, const char* p
     pState.clear();
     if (target == -1)
     {
-        if (strcmp(pName, propCollectionCont_collections.name) == 0)
+        if (strcmp(pName, prop(PropCollectionCont::collections).name) == 0)
         {
             for (size_t i = 0; i < _allCollections.size(); i++)
                 pState.push_back(_allCollections[i]->getObjectHandle());
@@ -412,7 +412,7 @@ int CCollectionContainer::getPropertyInfo_t(int64_t target, const char* pName, i
                 retVal = allProps_collCont[i].type;
                 info = allProps_collCont[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_collCont[i].info.json.toStdString();
+                    infoTxt = allProps_collCont[i].info.json;
                 else
                 {
                     auto w = allProps_collCont[i].info.map;
@@ -479,7 +479,7 @@ void CCollectionContainer::_addCollection(CCollection* collection)
         std::vector<int64_t> handles;
         for (size_t i = 0; i < _allCollections.size(); i++)
             handles.push_back(_allCollections[i]->getObjectHandle());
-        const char* cmd = propCollectionCont_collections.name;
+        const char* cmd = prop(PropCollectionCont::collections).name;
         CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt64Array(cmd, handles.data(), handles.size());
@@ -540,7 +540,7 @@ void CCollectionContainer::pushGenesisEvents() const
 
         // We need to "fake" adding that collection:
         addedCollections.push_back(coll->getObjectHandle());
-        const char* cmd = propCollectionCont_collections.name;
+        const char* cmd = prop(PropCollectionCont::collections).name;
         CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, addedCollections.data(), addedCollections.size());

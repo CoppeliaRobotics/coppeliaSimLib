@@ -4,13 +4,6 @@
 #include <sceneObject.h>
 #include <array>
 
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
-MARKER_PROPERTIES
-#undef FUNCX
-extern const std::vector<SProperty> allProps_marker;
-// ----------------------------------------------------------------------------------------------
-
 struct CMultiSIt
 {
     std::multiset<float>::iterator itX;

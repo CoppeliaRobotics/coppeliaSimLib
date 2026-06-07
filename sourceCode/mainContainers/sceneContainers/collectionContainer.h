@@ -4,13 +4,6 @@
 #include <shape.h>
 #include <dummy.h>
 
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
-COLLECTIONCONT_PROPERTIES
-#undef FUNCX
-extern const std::vector<SProperty> allProps_collCont;
-// ----------------------------------------------------------------------------------------------
-
 class CCollectionContainer
 {
   public:

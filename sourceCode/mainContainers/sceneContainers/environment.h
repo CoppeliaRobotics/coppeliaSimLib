@@ -8,13 +8,6 @@
 #include <vMenubar.h>
 #endif
 
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
-SCENE_PROPERTIES
-#undef FUNCX
-extern const std::vector<SProperty> allProps_scene;
-// ----------------------------------------------------------------------------------------------
-
 class CCamera;
 class CViewableBase;
 

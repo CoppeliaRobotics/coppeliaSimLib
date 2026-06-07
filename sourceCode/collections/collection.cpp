@@ -320,7 +320,7 @@ int CCollection::getHandleArrayProperty(const char* ppName, std::vector<int64_t>
     int retVal = sim_propertyret_unknownproperty;
     pState.clear();
 
-    if (strcmp(pName, propCollection_objects.name) == 0)
+    if (strcmp(pName, prop(PropCollection::objects).name) == 0)
     {
         for (size_t i = 0; i < _collectionObjects.size(); i++)
             pState.push_back(_collectionObjects[i]);
@@ -380,7 +380,7 @@ int CCollection::getPropertyInfo(const char* ppName, int& info, std::string& inf
                 retVal = allProps_collection[i].type;
                 info = allProps_collection[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_collection[i].info.json.toStdString();
+                    infoTxt = allProps_collection[i].info.json;
                 else
                 {
                     auto w = allProps_collection[i].info.map;
@@ -570,15 +570,15 @@ void CCollection::_updateCollectionObjects_(const std::vector<int>& sceneObjectH
             {
                 CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
                 if (App::getEventProtocolVersion() <= 3)
-                    ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+                    ev->appendKeyInt32Array(prop(PropCollection::objects).name, _collectionObjects.data(), _collectionObjects.size());
                 else
-                    ev->appendKeyHandleArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+                    ev->appendKeyHandleArray(prop(PropCollection::objects).name, _collectionObjects.data(), _collectionObjects.size());
                 App::scenes->pushEvent();
             }
             if (App::getEventProtocolVersion() <= 3)
             { // For backw. compatibility
                 CCbor* ev = App::scenes->createEvent("collectionChanged", -1, _objectHandle, nullptr, false);
-                ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+                ev->appendKeyInt32Array(prop(PropCollection::objects).name, _collectionObjects.data(), _collectionObjects.size());
                 App::scenes->pushEvent();
             }
         }
@@ -666,17 +666,17 @@ void CCollection::pushCreationEvent()
             CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
             Obj::addObjectEventData(ev);
             if (App::getEventProtocolVersion() <= 3)
-                ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+                ev->appendKeyInt32Array(prop(PropCollection::objects).name, _collectionObjects.data(), _collectionObjects.size());
             else
-                ev->appendKeyHandleArray(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
-            ev->appendKeyInt64(propObject_handle.name, _objectHandle);
+                ev->appendKeyHandleArray(prop(PropCollection::objects).name, _collectionObjects.data(), _collectionObjects.size());
+            ev->appendKeyInt64(prop(PropObject::handle).name, _objectHandle);
             App::scenes->pushEvent();
         }
         if (App::getEventProtocolVersion() <= 3)
         { // For backw. compatibility
             CCbor* ev = App::scenes->createEvent("collectionAdded", -1, _objectHandle, nullptr, false);
-            ev->appendKeyText(propObject_objectType.name, _objectTypeStr.c_str());
-            ev->appendKeyInt32Array(propCollection_objects.name, _collectionObjects.data(), _collectionObjects.size());
+            ev->appendKeyText(prop(PropObject::objectType).name, _objectTypeStr.c_str());
+            ev->appendKeyInt32Array(prop(PropCollection::objects).name, _collectionObjects.data(), _collectionObjects.size());
             App::scenes->pushEvent();
         }
     }

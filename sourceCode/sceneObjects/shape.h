@@ -4,13 +4,6 @@
 #include <mesh.h>
 #include <dummy.h>
 
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
-SHAPE_PROPERTIES
-#undef FUNCX
-extern const std::vector<SProperty> allProps_shape;
-// ----------------------------------------------------------------------------------------------
-
 class CShape : public CSceneObject
 {
   public:

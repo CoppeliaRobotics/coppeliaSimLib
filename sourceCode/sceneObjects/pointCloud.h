@@ -4,13 +4,7 @@
 #include <sceneObject.h>
 #include <simMath/3Vector.h>
 #include <simMath/7Vector.h>
-
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
-POINTCLOUD_PROPERTIES
-#undef FUNCX
-extern const std::vector<SProperty> allProps_pointCloud;
-// ----------------------------------------------------------------------------------------------
+#include <propertiesAndMethods.h>
 
 struct CPCMultiSIt
 {

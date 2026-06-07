@@ -1513,6 +1513,8 @@ int simSetStrEnumProperty_internal(int64_t target, const char* ppName, const cha
         int retVal = enumFromString(target, ppName, pState, enumVal);
         if (retVal == sim_propertyret_ok)
             retVal = simSetIntProperty_internal(target, ppName, enumVal);
+        if (retVal != sim_propertyret_ok)
+            CApiErrors::setLastError(__func__, SIM_ERROR_OPERATION_UNAVAILABLE);
         return retVal;
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -1539,6 +1541,8 @@ int simGetStrEnumProperty_internal(int64_t target, const char* ppName, char** pS
                 pState[0][enumStrVal.size()] = 0;
             }
         }
+        if (retVal != sim_propertyret_ok)
+            CApiErrors::setLastError(__func__, SIM_ERROR_OPERATION_UNAVAILABLE);
         return retVal;
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);

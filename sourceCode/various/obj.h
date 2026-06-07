@@ -12,13 +12,6 @@
 #include <propertiesAndMethods.h>
 #include <cbor.h>
 
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
-OBJECT_PROPERTIES
-#undef FUNCX
-extern const std::vector<SProperty> allProps_obj;
-// ----------------------------------------------------------------------------------------------
-
 static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_bool, proptypetag_bool},
     {sim_propertytype_int, proptypetag_int},

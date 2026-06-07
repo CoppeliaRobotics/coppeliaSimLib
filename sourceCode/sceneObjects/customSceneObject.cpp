@@ -82,7 +82,7 @@ void CCustomSceneObject::removeSceneDependencies()
 void CCustomSceneObject::addObjectEventData(CCbor* ev)
 {
     _objectColor.addGenesisEventData(ev);
-    ev->appendKeyDouble(propCustomSceneObject_size.name, _objectSize);
+    ev->appendKeyDouble(prop(PropCustomSceneObject::size).name, _objectSize);
     CSceneObject::addObjectEventData(ev);
 }
 
@@ -313,7 +313,7 @@ void CCustomSceneObject::setObjectSize(double s)
         computeBoundingBox();
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propCustomSceneObject_size.name;
+            const char* cmd = prop(PropCustomSceneObject::size).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _objectSize);
             App::scenes->pushEvent();
@@ -353,7 +353,7 @@ int CCustomSceneObject::setFloatProperty(const char* ppName, double pState)
         retVal = _objectColor.setFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(ppName, propCustomSceneObject_size.name) == 0)
+        if (strcmp(ppName, prop(PropCustomSceneObject::size).name) == 0)
         {
             setObjectSize(pState);
             retVal = sim_propertyret_ok;
@@ -369,7 +369,7 @@ int CCustomSceneObject::getFloatProperty(const char* ppName, double& pState) con
         retVal = _objectColor.getFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(ppName, propCustomSceneObject_size.name) == 0)
+        if (strcmp(ppName, prop(PropCustomSceneObject::size).name) == 0)
         {
             pState = _objectSize;
             retVal = sim_propertyret_ok;
@@ -462,7 +462,7 @@ int CCustomSceneObject::getPropertyInfo(const char* ppName, int& info, std::stri
                 retVal = allProps_customSceneObject[i].type;
                 info = allProps_customSceneObject[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_customSceneObject[i].info.json.toStdString();
+                    infoTxt = allProps_customSceneObject[i].info.json;
                 else
                 {
                     auto w = allProps_customSceneObject[i].info.map;

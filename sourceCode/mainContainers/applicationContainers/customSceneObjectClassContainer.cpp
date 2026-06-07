@@ -123,7 +123,7 @@ void CustomSceneObjectClassContainer::_notifyClassListChanged() const
         std::vector<int64_t> customClassList;
         getAllClassHandles(customClassList);
         CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_app, nullptr, true);
-        ev->appendKeyHandleArray(propApp_customSceneObjectClasses.name, customClassList.data(), customClassList.size());
+        ev->appendKeyHandleArray(prop(PropApp::customSceneObjectClasses).name, customClassList.data(), customClassList.size());
         App::scenes->pushEvent();
     }
 }

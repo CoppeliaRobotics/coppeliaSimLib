@@ -3364,23 +3364,23 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_MATERIAL_SHAPEDYNGUITRIGGEREDCMD)
     {
-        CEngineProperties prop;
-        prop.editObjectProperties(cmd.intParams[0]);
+        CEngineProperties prope;
+        prope.editObjectProperties(cmd.intParams[0]);
     }
     if (cmd.cmdId == SET_ENGINEPARAMS_JOINTDYNGUITRIGGEREDCMD)
     {
-        CEngineProperties prop;
-        prop.editObjectProperties(cmd.intParams[0]);
+        CEngineProperties prope;
+        prope.editObjectProperties(cmd.intParams[0]);
     }
     if (cmd.cmdId == SET_ENGINEPARAMS_DUMMYGUITRIGGEREDCMD)
     {
-        CEngineProperties prop;
-        prop.editObjectProperties(cmd.intParams[0]);
+        CEngineProperties prope;
+        prope.editObjectProperties(cmd.intParams[0]);
     }
     if (cmd.cmdId == SET_ENGINEPARAMS_DYNAMICSGUITRIGGEREDCMD)
     {
-        CEngineProperties prop;
-        prop.editObjectProperties(-1);
+        CEngineProperties prope;
+        prope.editObjectProperties(-1);
     }
     if (cmd.cmdId == DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD)
     {

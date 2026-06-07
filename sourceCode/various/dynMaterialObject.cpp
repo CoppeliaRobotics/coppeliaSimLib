@@ -1077,10 +1077,10 @@ void CDynMaterialObject::serialize(CSer& ar)
             ar.xmlAddNode_float("nondefaultcollisionmargingfactorconvex",
                                 _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex]);
 
-            ar.xmlAddNode_bool("sticky", getBoolPropertyValue(propMaterial_bulletSticky.name));
-            ar.xmlAddNode_bool("usenondefaultcollisionmargin", getBoolPropertyValue(propMaterial_bulletNonDefaultCollisionMargin.name));
-            ar.xmlAddNode_bool("usenondefaultcollisionmarginconvex", getBoolPropertyValue(propMaterial_bulletNonDefaultCollisionMarginConvex.name));
-            ar.xmlAddNode_bool("autoshrinkconvex", getBoolPropertyValue(propMaterial_bulletAutoShrinkConvex.name));
+            ar.xmlAddNode_bool("sticky", getBoolPropertyValue(prop(PropMaterial::bulletSticky).name));
+            ar.xmlAddNode_bool("usenondefaultcollisionmargin", getBoolPropertyValue(prop(PropMaterial::bulletNonDefaultCollisionMargin).name));
+            ar.xmlAddNode_bool("usenondefaultcollisionmarginconvex", getBoolPropertyValue(prop(PropMaterial::bulletNonDefaultCollisionMarginConvex).name));
+            ar.xmlAddNode_bool("autoshrinkconvex", getBoolPropertyValue(prop(PropMaterial::bulletAutoShrinkConvex).name));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("ode");
@@ -1169,15 +1169,15 @@ void CDynMaterialObject::serialize(CSer& ar)
                               _vortexIntParams[simi_vortex_body_autosleepsteplivethreshold]);
             ar.xmlAddNode_int("materialuniqueid", _vortexIntParams[simi_vortex_body_materialuniqueid]);
 
-            ar.xmlAddNode_bool("pureshapesasconvex", getBoolPropertyValue(propMaterial_vortexPrimitiveShapesAsConvex.name));
-            ar.xmlAddNode_bool("convexshapesasrandom", getBoolPropertyValue(propMaterial_vortexConvexShapesAsRandom.name));
-            ar.xmlAddNode_bool("randomshapesasterrain", getBoolPropertyValue(propMaterial_vortexRandomShapesAsTerrain.name));
-            ar.xmlAddNode_bool("fastmoving", getBoolPropertyValue(propMaterial_vortexFastMoving.name));
-            ar.xmlAddNode_bool("autoslip", getBoolPropertyValue(propMaterial_vortexAutoSlip.name));
-            ar.xmlAddNode_bool("seclinaxissameasprimlinaxis", getBoolPropertyValue(propMaterial_vortexSecondaryLinearAxisSameAsPrimaryLinearAxis.name));
-            ar.xmlAddNode_bool("secangaxissameasprimangaxis", getBoolPropertyValue(propMaterial_vortexSecondaryAngularAxisSameAsPrimaryAngularAxis.name));
-            ar.xmlAddNode_bool("normangaxissameasprimangaxis", getBoolPropertyValue(propMaterial_vortexNormalAngularAxisSameAsPrimaryAngularAxis.name));
-            ar.xmlAddNode_bool("autoangulardamping", getBoolPropertyValue(propMaterial_vortexAutoAngularDamping.name));
+            ar.xmlAddNode_bool("pureshapesasconvex", getBoolPropertyValue(prop(PropMaterial::vortexPrimitiveShapesAsConvex).name));
+            ar.xmlAddNode_bool("convexshapesasrandom", getBoolPropertyValue(prop(PropMaterial::vortexConvexShapesAsRandom).name));
+            ar.xmlAddNode_bool("randomshapesasterrain", getBoolPropertyValue(prop(PropMaterial::vortexRandomShapesAsTerrain).name));
+            ar.xmlAddNode_bool("fastmoving", getBoolPropertyValue(prop(PropMaterial::vortexFastMoving).name));
+            ar.xmlAddNode_bool("autoslip", getBoolPropertyValue(prop(PropMaterial::vortexAutoSlip).name));
+            ar.xmlAddNode_bool("seclinaxissameasprimlinaxis", getBoolPropertyValue(prop(PropMaterial::vortexSecondaryLinearAxisSameAsPrimaryLinearAxis).name));
+            ar.xmlAddNode_bool("secangaxissameasprimangaxis", getBoolPropertyValue(prop(PropMaterial::vortexSecondaryAngularAxisSameAsPrimaryAngularAxis).name));
+            ar.xmlAddNode_bool("normangaxissameasprimangaxis", getBoolPropertyValue(prop(PropMaterial::vortexNormalAngularAxisSameAsPrimaryAngularAxis).name));
+            ar.xmlAddNode_bool("autoangulardamping", getBoolPropertyValue(prop(PropMaterial::vortexAutoAngularDamping).name));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("newton");
@@ -1186,7 +1186,7 @@ void CDynMaterialObject::serialize(CSer& ar)
             ar.xmlAddNode_float("restitution", _newtonFloatParams[simi_newton_body_restitution]);
             ar.xmlAddNode_float("lineardrag", _newtonFloatParams[simi_newton_body_lineardrag]);
             ar.xmlAddNode_float("angulardrag", _newtonFloatParams[simi_newton_body_angulardrag]);
-            ar.xmlAddNode_bool("fastmoving", getBoolPropertyValue(propMaterial_newtonFastMoving.name));
+            ar.xmlAddNode_bool("fastmoving", getBoolPropertyValue(prop(PropMaterial::newtonFastMoving).name));
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("mujoco");
@@ -1208,7 +1208,7 @@ void CDynMaterialObject::serialize(CSer& ar)
             ar.xmlAddNode_float("gravcomp", _mujocoFloatParams[simi_mujoco_body_gravcomp]);
             ar.xmlAddNode_int("condim", _mujocoIntParams[simi_mujoco_body_condim]);
             ar.xmlAddNode_int("priority", _mujocoIntParams[simi_mujoco_body_priority]);
-            ar.xmlAddNode_bool("adhesion", getBoolPropertyValue(propMaterial_mujocoAdhesion.name));
+            ar.xmlAddNode_bool("adhesion", getBoolPropertyValue(prop(PropMaterial::mujocoAdhesion).name));
             ar.xmlAddNode_float("adhesiongain", _mujocoFloatParams[simi_mujoco_body_adhesiongain]);
             si[0] = _mujocoFloatParams[simi_mujoco_body_adhesionctrlrange1];
             si[1] = _mujocoFloatParams[simi_mujoco_body_adhesionctrlrange2];
@@ -1597,21 +1597,21 @@ int CDynMaterialObject::setBoolProperty(const char* pName, bool pState, CCbor* e
         }
     };
 
-    handleProp(propMaterial_bulletSticky.name, _bulletIntParams, simi_bullet_body_bitcoded, simi_bullet_body_sticky);
-    handleProp(propMaterial_bulletNonDefaultCollisionMargin.name, _bulletIntParams, simi_bullet_body_bitcoded, simi_bullet_body_usenondefaultcollisionmargin);
-    handleProp(propMaterial_bulletNonDefaultCollisionMarginConvex.name, _bulletIntParams, simi_bullet_body_bitcoded, simi_bullet_body_usenondefaultcollisionmarginconvex);
-    handleProp(propMaterial_bulletAutoShrinkConvex.name, _bulletIntParams, simi_bullet_body_bitcoded, simi_bullet_body_autoshrinkconvex);
-    handleProp(propMaterial_vortexPrimitiveShapesAsConvex.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_pureshapesasconvex);
-    handleProp(propMaterial_vortexConvexShapesAsRandom.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_convexshapesasrandom);
-    handleProp(propMaterial_vortexRandomShapesAsTerrain.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_randomshapesasterrain);
-    handleProp(propMaterial_vortexFastMoving.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_fastmoving);
-    handleProp(propMaterial_vortexAutoSlip.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_autoslip);
-    handleProp(propMaterial_vortexSecondaryLinearAxisSameAsPrimaryLinearAxis.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_seclinaxissameasprimlinaxis);
-    handleProp(propMaterial_vortexSecondaryAngularAxisSameAsPrimaryAngularAxis.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_secangaxissameasprimangaxis);
-    handleProp(propMaterial_vortexNormalAngularAxisSameAsPrimaryAngularAxis.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_normangaxissameasprimangaxis);
-    handleProp(propMaterial_vortexAutoAngularDamping.name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_autoangulardamping);
-    handleProp(propMaterial_newtonFastMoving.name, _newtonIntParams, simi_newton_body_bitcoded, simi_newton_body_fastmoving);
-    handleProp(propMaterial_mujocoAdhesion.name, _mujocoIntParams, simi_mujoco_body_bitcoded, simi_mujoco_body_adhesion);
+    handleProp(prop(PropMaterial::bulletSticky).name, _bulletIntParams, simi_bullet_body_bitcoded, simi_bullet_body_sticky);
+    handleProp(prop(PropMaterial::bulletNonDefaultCollisionMargin).name, _bulletIntParams, simi_bullet_body_bitcoded, simi_bullet_body_usenondefaultcollisionmargin);
+    handleProp(prop(PropMaterial::bulletNonDefaultCollisionMarginConvex).name, _bulletIntParams, simi_bullet_body_bitcoded, simi_bullet_body_usenondefaultcollisionmarginconvex);
+    handleProp(prop(PropMaterial::bulletAutoShrinkConvex).name, _bulletIntParams, simi_bullet_body_bitcoded, simi_bullet_body_autoshrinkconvex);
+    handleProp(prop(PropMaterial::vortexPrimitiveShapesAsConvex).name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_pureshapesasconvex);
+    handleProp(prop(PropMaterial::vortexConvexShapesAsRandom).name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_convexshapesasrandom);
+    handleProp(prop(PropMaterial::vortexRandomShapesAsTerrain).name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_randomshapesasterrain);
+    handleProp(prop(PropMaterial::vortexFastMoving).name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_fastmoving);
+    handleProp(prop(PropMaterial::vortexAutoSlip).name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_autoslip);
+    handleProp(prop(PropMaterial::vortexSecondaryLinearAxisSameAsPrimaryLinearAxis).name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_seclinaxissameasprimlinaxis);
+    handleProp(prop(PropMaterial::vortexSecondaryAngularAxisSameAsPrimaryAngularAxis).name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_secangaxissameasprimangaxis);
+    handleProp(prop(PropMaterial::vortexNormalAngularAxisSameAsPrimaryAngularAxis).name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_normangaxissameasprimangaxis);
+    handleProp(prop(PropMaterial::vortexAutoAngularDamping).name, _vortexIntParams, simi_vortex_body_bitcoded, simi_vortex_body_autoangulardamping);
+    handleProp(prop(PropMaterial::newtonFastMoving).name, _newtonIntParams, simi_newton_body_bitcoded, simi_newton_body_fastmoving);
+    handleProp(prop(PropMaterial::mujocoAdhesion).name, _mujocoIntParams, simi_mujoco_body_bitcoded, simi_mujoco_body_adhesion);
 
     if ((ev != nullptr) && (eev == nullptr))
         App::scenes->pushEvent();
@@ -1622,77 +1622,77 @@ int CDynMaterialObject::getBoolProperty(const char* pName, bool& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propMaterial_bulletSticky.name) == 0)
+    if (strcmp(pName, prop(PropMaterial::bulletSticky).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_sticky;
     }
-    else if (strcmp(pName, propMaterial_bulletNonDefaultCollisionMargin.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::bulletNonDefaultCollisionMargin).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_usenondefaultcollisionmargin;
     }
-    else if (strcmp(pName, propMaterial_bulletNonDefaultCollisionMarginConvex.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::bulletNonDefaultCollisionMarginConvex).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_usenondefaultcollisionmarginconvex;
     }
-    else if (strcmp(pName, propMaterial_bulletAutoShrinkConvex.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::bulletAutoShrinkConvex).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _bulletIntParams[simi_bullet_body_bitcoded] & simi_bullet_body_autoshrinkconvex;
     }
-    else if (strcmp(pName, propMaterial_vortexPrimitiveShapesAsConvex.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexPrimitiveShapesAsConvex).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_pureshapesasconvex;
     }
-    else if (strcmp(pName, propMaterial_vortexConvexShapesAsRandom.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexConvexShapesAsRandom).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_convexshapesasrandom;
     }
-    else if (strcmp(pName, propMaterial_vortexRandomShapesAsTerrain.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexRandomShapesAsTerrain).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_randomshapesasterrain;
     }
-    else if (strcmp(pName, propMaterial_vortexFastMoving.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexFastMoving).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_fastmoving;
     }
-    else if (strcmp(pName, propMaterial_vortexAutoSlip.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexAutoSlip).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_autoslip;
     }
-    else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisSameAsPrimaryLinearAxis.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexSecondaryLinearAxisSameAsPrimaryLinearAxis).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_seclinaxissameasprimlinaxis;
     }
-    else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisSameAsPrimaryAngularAxis.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexSecondaryAngularAxisSameAsPrimaryAngularAxis).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_secangaxissameasprimangaxis;
     }
-    else if (strcmp(pName, propMaterial_vortexNormalAngularAxisSameAsPrimaryAngularAxis.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexNormalAngularAxisSameAsPrimaryAngularAxis).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_normangaxissameasprimangaxis;
     }
-    else if (strcmp(pName, propMaterial_vortexAutoAngularDamping.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexAutoAngularDamping).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_bitcoded] & simi_vortex_body_autoangulardamping;
     }
-    else if (strcmp(pName, propMaterial_newtonFastMoving.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::newtonFastMoving).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _newtonIntParams[simi_newton_body_bitcoded] & simi_newton_body_fastmoving;
     }
-    else if (strcmp(pName, propMaterial_mujocoAdhesion.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::mujocoAdhesion).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _mujocoIntParams[simi_mujoco_body_bitcoded] & simi_mujoco_body_adhesion;
@@ -1728,17 +1728,17 @@ int CDynMaterialObject::setIntProperty(const char* pName, int pState, CCbor* eev
         }
     };
 
-    handleProp(propMaterial_odeMaxContacts.name, _odeIntParams, simi_ode_body_maxcontacts);
-    handleProp(propMaterial_vortexPrimaryLinearAxisFrictionModel.name, _vortexIntParams, simi_vortex_body_primlinearaxisfrictionmodel);
-    handleProp(propMaterial_vortexSecondaryLinearAxisFrictionModel.name, _vortexIntParams, simi_vortex_body_seclinearaxisfrictionmodel);
-    handleProp(propMaterial_vortexPrimaryAngularAxisFrictionModel.name, _vortexIntParams, simi_vortex_body_primangulararaxisfrictionmodel);
-    handleProp(propMaterial_vortexSecondaryAngularAxisFrictionModel.name, _vortexIntParams, simi_vortex_body_secmangulararaxisfrictionmodel);
-    handleProp(propMaterial_vortexNormalAngularAxisFrictionModel.name, _vortexIntParams, simi_vortex_body_normalmangulararaxisfrictionmodel);
-    handleProp(propMaterial_vortexAutoSleepStepLiveThreshold.name, _vortexIntParams, simi_vortex_body_autosleepsteplivethreshold);
-    handleProp(propMaterial_vortexMaterialUniqueId.name, _vortexIntParams, simi_vortex_body_materialuniqueid);
-    handleProp(propMaterial_mujocoCondim.name, _mujocoIntParams, simi_mujoco_body_condim);
-    handleProp(propMaterial_mujocoPriority.name, _mujocoIntParams, simi_mujoco_body_priority);
-    handleProp(propMaterial_mujocoAdhesionForcelimited.name, _mujocoIntParams, simi_mujoco_body_adhesionforcelimited);
+    handleProp(prop(PropMaterial::odeMaxContacts).name, _odeIntParams, simi_ode_body_maxcontacts);
+    handleProp(prop(PropMaterial::vortexPrimaryLinearAxisFrictionModel).name, _vortexIntParams, simi_vortex_body_primlinearaxisfrictionmodel);
+    handleProp(prop(PropMaterial::vortexSecondaryLinearAxisFrictionModel).name, _vortexIntParams, simi_vortex_body_seclinearaxisfrictionmodel);
+    handleProp(prop(PropMaterial::vortexPrimaryAngularAxisFrictionModel).name, _vortexIntParams, simi_vortex_body_primangulararaxisfrictionmodel);
+    handleProp(prop(PropMaterial::vortexSecondaryAngularAxisFrictionModel).name, _vortexIntParams, simi_vortex_body_secmangulararaxisfrictionmodel);
+    handleProp(prop(PropMaterial::vortexNormalAngularAxisFrictionModel).name, _vortexIntParams, simi_vortex_body_normalmangulararaxisfrictionmodel);
+    handleProp(prop(PropMaterial::vortexAutoSleepStepLiveThreshold).name, _vortexIntParams, simi_vortex_body_autosleepsteplivethreshold);
+    handleProp(prop(PropMaterial::vortexMaterialUniqueId).name, _vortexIntParams, simi_vortex_body_materialuniqueid);
+    handleProp(prop(PropMaterial::mujocoCondim).name, _mujocoIntParams, simi_mujoco_body_condim);
+    handleProp(prop(PropMaterial::mujocoPriority).name, _mujocoIntParams, simi_mujoco_body_priority);
+    handleProp(prop(PropMaterial::mujocoAdhesionForcelimited).name, _mujocoIntParams, simi_mujoco_body_adhesionforcelimited);
 
     if ((ev != nullptr) && (eev == nullptr))
         App::scenes->pushEvent();
@@ -1749,57 +1749,57 @@ int CDynMaterialObject::getIntProperty(const char* pName, int& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propMaterial_odeMaxContacts.name) == 0)
+    if (strcmp(pName, prop(PropMaterial::odeMaxContacts).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _odeIntParams[simi_ode_body_maxcontacts];
     }
-    else if (strcmp(pName, propMaterial_vortexPrimaryLinearAxisFrictionModel.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexPrimaryLinearAxisFrictionModel).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_primlinearaxisfrictionmodel];
     }
-    else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisFrictionModel.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexSecondaryLinearAxisFrictionModel).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_seclinearaxisfrictionmodel];
     }
-    else if (strcmp(pName, propMaterial_vortexPrimaryAngularAxisFrictionModel.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexPrimaryAngularAxisFrictionModel).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_primangulararaxisfrictionmodel];
     }
-    else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisFrictionModel.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexSecondaryAngularAxisFrictionModel).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_secmangulararaxisfrictionmodel];
     }
-    else if (strcmp(pName, propMaterial_vortexNormalAngularAxisFrictionModel.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexNormalAngularAxisFrictionModel).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_normalmangulararaxisfrictionmodel];
     }
-    else if (strcmp(pName, propMaterial_vortexAutoSleepStepLiveThreshold.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexAutoSleepStepLiveThreshold).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_autosleepsteplivethreshold];
     }
-    else if (strcmp(pName, propMaterial_vortexMaterialUniqueId.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexMaterialUniqueId).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexIntParams[simi_vortex_body_materialuniqueid];
     }
-    else if (strcmp(pName, propMaterial_mujocoCondim.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::mujocoCondim).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _mujocoIntParams[simi_mujoco_body_condim];
     }
-    else if (strcmp(pName, propMaterial_mujocoPriority.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::mujocoPriority).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _mujocoIntParams[simi_mujoco_body_priority];
     }
-    else if (strcmp(pName, propMaterial_mujocoAdhesionForcelimited.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::mujocoAdhesionForcelimited).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _mujocoIntParams[simi_mujoco_body_adhesionforcelimited];
@@ -1835,62 +1835,62 @@ int CDynMaterialObject::setFloatProperty(const char* pName, double pState, CCbor
         }
     };
 
-    handleProp(propMaterial_bulletRestitution.name, _bulletFloatParams, simi_bullet_body_restitution);
-    handleProp(propMaterial_bulletFriction0.name, _bulletFloatParams, simi_bullet_body_oldfriction);
-    handleProp(propMaterial_bulletFriction.name, _bulletFloatParams, simi_bullet_body_friction);
-    handleProp(propMaterial_bulletLinearDamping.name, _bulletFloatParams, simi_bullet_body_lineardamping);
-    handleProp(propMaterial_bulletAngularDamping.name, _bulletFloatParams, simi_bullet_body_angulardamping);
-    handleProp(propMaterial_bulletNonDefaultCollisionMarginFactor.name, _bulletFloatParams, simi_bullet_body_nondefaultcollisionmargingfactor);
-    handleProp(propMaterial_bulletNonDefaultCollisionMarginFactorConvex.name, _bulletFloatParams, simi_bullet_body_nondefaultcollisionmargingfactorconvex);
-    handleProp(propMaterial_odeFriction.name, _odeFloatParams, simi_ode_body_friction);
-    handleProp(propMaterial_odeSoftErp.name, _odeFloatParams, simi_ode_body_softerp);
-    handleProp(propMaterial_odeSoftCfm.name, _odeFloatParams, simi_ode_body_softcfm);
-    handleProp(propMaterial_odeLinearDamping.name, _odeFloatParams, simi_ode_body_lineardamping);
-    handleProp(propMaterial_odeAngularDamping.name, _odeFloatParams, simi_ode_body_angulardamping);
-    handleProp(propMaterial_vortexPrimaryLinearAxisFriction.name, _vortexFloatParams, simi_vortex_body_primlinearaxisfriction);
-    handleProp(propMaterial_vortexSecondaryLinearAxisFriction.name, _vortexFloatParams, simi_vortex_body_seclinearaxisfriction);
-    handleProp(propMaterial_vortexPrimaryAngularAxisFriction.name, _vortexFloatParams, simi_vortex_body_primangularaxisfriction);
-    handleProp(propMaterial_vortexSecondaryAngularAxisFriction.name, _vortexFloatParams, simi_vortex_body_secangularaxisfriction);
-    handleProp(propMaterial_vortexNormalAngularAxisFriction.name, _vortexFloatParams, simi_vortex_body_normalangularaxisfriction);
-    handleProp(propMaterial_vortexPrimaryLinearAxisStaticFrictionScale.name, _vortexFloatParams, simi_vortex_body_primlinearaxisstaticfrictionscale);
-    handleProp(propMaterial_vortexSecondaryLinearAxisStaticFrictionScale.name, _vortexFloatParams, simi_vortex_body_seclinearaxisstaticfrictionscale);
-    handleProp(propMaterial_vortexPrimaryAngularAxisStaticFrictionScale.name, _vortexFloatParams, simi_vortex_body_primangularaxisstaticfrictionscale);
-    handleProp(propMaterial_vortexSecondaryAngularAxisStaticFrictionScale.name, _vortexFloatParams, simi_vortex_body_secangularaxisstaticfrictionscale);
-    handleProp(propMaterial_vortexNormalAngularAxisStaticFrictionScale.name, _vortexFloatParams, simi_vortex_body_normalangularaxisstaticfrictionscale);
-    handleProp(propMaterial_vortexCompliance.name, _vortexFloatParams, simi_vortex_body_compliance);
-    handleProp(propMaterial_vortexDamping.name, _vortexFloatParams, simi_vortex_body_damping);
-    handleProp(propMaterial_vortexRestitution.name, _vortexFloatParams, simi_vortex_body_restitution);
-    handleProp(propMaterial_vortexRestitutionThreshold.name, _vortexFloatParams, simi_vortex_body_restitutionthreshold);
-    handleProp(propMaterial_vortexAdhesiveForce.name, _vortexFloatParams, simi_vortex_body_adhesiveforce);
-    handleProp(propMaterial_vortexLinearVelocityDamping.name, _vortexFloatParams, simi_vortex_body_linearvelocitydamping);
-    handleProp(propMaterial_vortexAngularVelocityDamping.name, _vortexFloatParams, simi_vortex_body_angularvelocitydamping);
-    handleProp(propMaterial_vortexPrimaryLinearAxisSlide.name, _vortexFloatParams, simi_vortex_body_primlinearaxisslide);
-    handleProp(propMaterial_vortexSecondaryLinearAxisSlide.name, _vortexFloatParams, simi_vortex_body_seclinearaxisslide);
-    handleProp(propMaterial_vortexPrimaryAngularAxisSlide.name, _vortexFloatParams, simi_vortex_body_primangularaxisslide);
-    handleProp(propMaterial_vortexSecondaryAngularAxisSlide.name, _vortexFloatParams, simi_vortex_body_secangularaxisslide);
-    handleProp(propMaterial_vortexNormalAngularAxisSlide.name, _vortexFloatParams, simi_vortex_body_normalangularaxisslide);
-    handleProp(propMaterial_vortexPrimaryLinearAxisSlip.name, _vortexFloatParams, simi_vortex_body_primlinearaxisslip);
-    handleProp(propMaterial_vortexSecondaryLinearAxisSlip.name, _vortexFloatParams, simi_vortex_body_seclinearaxisslip);
-    handleProp(propMaterial_vortexPrimaryAngularAxisSlip.name, _vortexFloatParams, simi_vortex_body_primangularaxisslip);
-    handleProp(propMaterial_vortexSecondaryAngularAxisSlip.name, _vortexFloatParams, simi_vortex_body_secangularaxisslip);
-    handleProp(propMaterial_vortexNormalAngularAxisSlip.name, _vortexFloatParams, simi_vortex_body_normalangularaxisslip);
-    handleProp(propMaterial_vortexAutoSleepLinearSpeedThreshold.name, _vortexFloatParams, simi_vortex_body_autosleeplinearspeedthreshold);
-    handleProp(propMaterial_vortexAutoSleepLinearAccelerationThreshold.name, _vortexFloatParams, simi_vortex_body_autosleeplinearaccelthreshold);
-    handleProp(propMaterial_vortexAutoSleepAngularSpeedThreshold.name, _vortexFloatParams, simi_vortex_body_autosleepangularspeedthreshold);
-    handleProp(propMaterial_vortexAutoSleepAngularAccelerationThreshold.name, _vortexFloatParams, simi_vortex_body_autosleepangularaccelthreshold);
-    handleProp(propMaterial_vortexSkinThickness.name, _vortexFloatParams, simi_vortex_body_skinthickness);
-    handleProp(propMaterial_vortexAutoAngularDampingTensionRatio.name, _vortexFloatParams, simi_vortex_body_autoangulardampingtensionratio);
-    handleProp(propMaterial_newtonStaticFriction.name, _newtonFloatParams, simi_newton_body_staticfriction);
-    handleProp(propMaterial_newtonKineticFriction.name, _newtonFloatParams, simi_newton_body_kineticfriction);
-    handleProp(propMaterial_newtonRestitution.name, _newtonFloatParams, simi_newton_body_restitution);
-    handleProp(propMaterial_newtonLinearDrag.name, _newtonFloatParams, simi_newton_body_lineardrag);
-    handleProp(propMaterial_newtonAngularDrag.name, _newtonFloatParams, simi_newton_body_angulardrag);
-    handleProp(propMaterial_mujocoSolmix.name, _mujocoFloatParams, simi_mujoco_body_solmix);
-    handleProp(propMaterial_mujocoMargin.name, _mujocoFloatParams, simi_mujoco_body_margin);
-    handleProp(propMaterial_mujocoGap.name, _mujocoFloatParams, simi_mujoco_body_gap);
-    handleProp(propMaterial_mujocoAdhesionGain.name, _mujocoFloatParams, simi_mujoco_body_adhesiongain);
-    handleProp(propMaterial_mujocoAdhesionCtrl.name, _mujocoFloatParams, simi_mujoco_body_adhesionctrl);
-    handleProp(propMaterial_mujocoGravcomp.name, _mujocoFloatParams, simi_mujoco_body_gravcomp);
+    handleProp(prop(PropMaterial::bulletRestitution).name, _bulletFloatParams, simi_bullet_body_restitution);
+    handleProp(prop(PropMaterial::bulletFriction0).name, _bulletFloatParams, simi_bullet_body_oldfriction);
+    handleProp(prop(PropMaterial::bulletFriction).name, _bulletFloatParams, simi_bullet_body_friction);
+    handleProp(prop(PropMaterial::bulletLinearDamping).name, _bulletFloatParams, simi_bullet_body_lineardamping);
+    handleProp(prop(PropMaterial::bulletAngularDamping).name, _bulletFloatParams, simi_bullet_body_angulardamping);
+    handleProp(prop(PropMaterial::bulletNonDefaultCollisionMarginFactor).name, _bulletFloatParams, simi_bullet_body_nondefaultcollisionmargingfactor);
+    handleProp(prop(PropMaterial::bulletNonDefaultCollisionMarginFactorConvex).name, _bulletFloatParams, simi_bullet_body_nondefaultcollisionmargingfactorconvex);
+    handleProp(prop(PropMaterial::odeFriction).name, _odeFloatParams, simi_ode_body_friction);
+    handleProp(prop(PropMaterial::odeSoftErp).name, _odeFloatParams, simi_ode_body_softerp);
+    handleProp(prop(PropMaterial::odeSoftCfm).name, _odeFloatParams, simi_ode_body_softcfm);
+    handleProp(prop(PropMaterial::odeLinearDamping).name, _odeFloatParams, simi_ode_body_lineardamping);
+    handleProp(prop(PropMaterial::odeAngularDamping).name, _odeFloatParams, simi_ode_body_angulardamping);
+    handleProp(prop(PropMaterial::vortexPrimaryLinearAxisFriction).name, _vortexFloatParams, simi_vortex_body_primlinearaxisfriction);
+    handleProp(prop(PropMaterial::vortexSecondaryLinearAxisFriction).name, _vortexFloatParams, simi_vortex_body_seclinearaxisfriction);
+    handleProp(prop(PropMaterial::vortexPrimaryAngularAxisFriction).name, _vortexFloatParams, simi_vortex_body_primangularaxisfriction);
+    handleProp(prop(PropMaterial::vortexSecondaryAngularAxisFriction).name, _vortexFloatParams, simi_vortex_body_secangularaxisfriction);
+    handleProp(prop(PropMaterial::vortexNormalAngularAxisFriction).name, _vortexFloatParams, simi_vortex_body_normalangularaxisfriction);
+    handleProp(prop(PropMaterial::vortexPrimaryLinearAxisStaticFrictionScale).name, _vortexFloatParams, simi_vortex_body_primlinearaxisstaticfrictionscale);
+    handleProp(prop(PropMaterial::vortexSecondaryLinearAxisStaticFrictionScale).name, _vortexFloatParams, simi_vortex_body_seclinearaxisstaticfrictionscale);
+    handleProp(prop(PropMaterial::vortexPrimaryAngularAxisStaticFrictionScale).name, _vortexFloatParams, simi_vortex_body_primangularaxisstaticfrictionscale);
+    handleProp(prop(PropMaterial::vortexSecondaryAngularAxisStaticFrictionScale).name, _vortexFloatParams, simi_vortex_body_secangularaxisstaticfrictionscale);
+    handleProp(prop(PropMaterial::vortexNormalAngularAxisStaticFrictionScale).name, _vortexFloatParams, simi_vortex_body_normalangularaxisstaticfrictionscale);
+    handleProp(prop(PropMaterial::vortexCompliance).name, _vortexFloatParams, simi_vortex_body_compliance);
+    handleProp(prop(PropMaterial::vortexDamping).name, _vortexFloatParams, simi_vortex_body_damping);
+    handleProp(prop(PropMaterial::vortexRestitution).name, _vortexFloatParams, simi_vortex_body_restitution);
+    handleProp(prop(PropMaterial::vortexRestitutionThreshold).name, _vortexFloatParams, simi_vortex_body_restitutionthreshold);
+    handleProp(prop(PropMaterial::vortexAdhesiveForce).name, _vortexFloatParams, simi_vortex_body_adhesiveforce);
+    handleProp(prop(PropMaterial::vortexLinearVelocityDamping).name, _vortexFloatParams, simi_vortex_body_linearvelocitydamping);
+    handleProp(prop(PropMaterial::vortexAngularVelocityDamping).name, _vortexFloatParams, simi_vortex_body_angularvelocitydamping);
+    handleProp(prop(PropMaterial::vortexPrimaryLinearAxisSlide).name, _vortexFloatParams, simi_vortex_body_primlinearaxisslide);
+    handleProp(prop(PropMaterial::vortexSecondaryLinearAxisSlide).name, _vortexFloatParams, simi_vortex_body_seclinearaxisslide);
+    handleProp(prop(PropMaterial::vortexPrimaryAngularAxisSlide).name, _vortexFloatParams, simi_vortex_body_primangularaxisslide);
+    handleProp(prop(PropMaterial::vortexSecondaryAngularAxisSlide).name, _vortexFloatParams, simi_vortex_body_secangularaxisslide);
+    handleProp(prop(PropMaterial::vortexNormalAngularAxisSlide).name, _vortexFloatParams, simi_vortex_body_normalangularaxisslide);
+    handleProp(prop(PropMaterial::vortexPrimaryLinearAxisSlip).name, _vortexFloatParams, simi_vortex_body_primlinearaxisslip);
+    handleProp(prop(PropMaterial::vortexSecondaryLinearAxisSlip).name, _vortexFloatParams, simi_vortex_body_seclinearaxisslip);
+    handleProp(prop(PropMaterial::vortexPrimaryAngularAxisSlip).name, _vortexFloatParams, simi_vortex_body_primangularaxisslip);
+    handleProp(prop(PropMaterial::vortexSecondaryAngularAxisSlip).name, _vortexFloatParams, simi_vortex_body_secangularaxisslip);
+    handleProp(prop(PropMaterial::vortexNormalAngularAxisSlip).name, _vortexFloatParams, simi_vortex_body_normalangularaxisslip);
+    handleProp(prop(PropMaterial::vortexAutoSleepLinearSpeedThreshold).name, _vortexFloatParams, simi_vortex_body_autosleeplinearspeedthreshold);
+    handleProp(prop(PropMaterial::vortexAutoSleepLinearAccelerationThreshold).name, _vortexFloatParams, simi_vortex_body_autosleeplinearaccelthreshold);
+    handleProp(prop(PropMaterial::vortexAutoSleepAngularSpeedThreshold).name, _vortexFloatParams, simi_vortex_body_autosleepangularspeedthreshold);
+    handleProp(prop(PropMaterial::vortexAutoSleepAngularAccelerationThreshold).name, _vortexFloatParams, simi_vortex_body_autosleepangularaccelthreshold);
+    handleProp(prop(PropMaterial::vortexSkinThickness).name, _vortexFloatParams, simi_vortex_body_skinthickness);
+    handleProp(prop(PropMaterial::vortexAutoAngularDampingTensionRatio).name, _vortexFloatParams, simi_vortex_body_autoangulardampingtensionratio);
+    handleProp(prop(PropMaterial::newtonStaticFriction).name, _newtonFloatParams, simi_newton_body_staticfriction);
+    handleProp(prop(PropMaterial::newtonKineticFriction).name, _newtonFloatParams, simi_newton_body_kineticfriction);
+    handleProp(prop(PropMaterial::newtonRestitution).name, _newtonFloatParams, simi_newton_body_restitution);
+    handleProp(prop(PropMaterial::newtonLinearDrag).name, _newtonFloatParams, simi_newton_body_lineardrag);
+    handleProp(prop(PropMaterial::newtonAngularDrag).name, _newtonFloatParams, simi_newton_body_angulardrag);
+    handleProp(prop(PropMaterial::mujocoSolmix).name, _mujocoFloatParams, simi_mujoco_body_solmix);
+    handleProp(prop(PropMaterial::mujocoMargin).name, _mujocoFloatParams, simi_mujoco_body_margin);
+    handleProp(prop(PropMaterial::mujocoGap).name, _mujocoFloatParams, simi_mujoco_body_gap);
+    handleProp(prop(PropMaterial::mujocoAdhesionGain).name, _mujocoFloatParams, simi_mujoco_body_adhesiongain);
+    handleProp(prop(PropMaterial::mujocoAdhesionCtrl).name, _mujocoFloatParams, simi_mujoco_body_adhesionctrl);
+    handleProp(prop(PropMaterial::mujocoGravcomp).name, _mujocoFloatParams, simi_mujoco_body_gravcomp);
 
     if ((ev != nullptr) && (eev == nullptr))
         App::scenes->pushEvent();
@@ -1901,282 +1901,282 @@ int CDynMaterialObject::getFloatProperty(const char* pName, double& pState) cons
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propMaterial_bulletRestitution.name) == 0)
+    if (strcmp(pName, prop(PropMaterial::bulletRestitution).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _bulletFloatParams[simi_bullet_body_restitution];
     }
-    else if (strcmp(pName, propMaterial_bulletFriction0.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::bulletFriction0).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _bulletFloatParams[simi_bullet_body_oldfriction];
     }
-    else if (strcmp(pName, propMaterial_bulletFriction.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::bulletFriction).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _bulletFloatParams[simi_bullet_body_friction];
     }
-    else if (strcmp(pName, propMaterial_bulletLinearDamping.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::bulletLinearDamping).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _bulletFloatParams[simi_bullet_body_lineardamping];
     }
-    else if (strcmp(pName, propMaterial_bulletAngularDamping.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::bulletAngularDamping).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _bulletFloatParams[simi_bullet_body_angulardamping];
     }
-    else if (strcmp(pName, propMaterial_bulletNonDefaultCollisionMarginFactor.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::bulletNonDefaultCollisionMarginFactor).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor];
     }
-    else if (strcmp(pName, propMaterial_bulletNonDefaultCollisionMarginFactorConvex.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::bulletNonDefaultCollisionMarginFactorConvex).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex];
     }
-    else if (strcmp(pName, propMaterial_odeFriction.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::odeFriction).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _odeFloatParams[simi_ode_body_friction];
     }
-    else if (strcmp(pName, propMaterial_odeSoftErp.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::odeSoftErp).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _odeFloatParams[simi_ode_body_softerp];
     }
-    else if (strcmp(pName, propMaterial_odeSoftCfm.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::odeSoftCfm).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _odeFloatParams[simi_ode_body_softcfm];
     }
-    else if (strcmp(pName, propMaterial_odeLinearDamping.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::odeLinearDamping).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _odeFloatParams[simi_ode_body_lineardamping];
     }
-    else if (strcmp(pName, propMaterial_odeAngularDamping.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::odeAngularDamping).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _odeFloatParams[simi_ode_body_angulardamping];
     }
-    else if (strcmp(pName, propMaterial_vortexPrimaryLinearAxisFriction.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexPrimaryLinearAxisFriction).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primlinearaxisfriction];
     }
-    else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisFriction.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexSecondaryLinearAxisFriction).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_seclinearaxisfriction];
     }
-    else if (strcmp(pName, propMaterial_vortexPrimaryAngularAxisFriction.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexPrimaryAngularAxisFriction).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primangularaxisfriction];
     }
-    else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisFriction.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexSecondaryAngularAxisFriction).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_secangularaxisfriction];
     }
-    else if (strcmp(pName, propMaterial_vortexNormalAngularAxisFriction.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexNormalAngularAxisFriction).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_normalangularaxisfriction];
     }
-    else if (strcmp(pName, propMaterial_vortexPrimaryLinearAxisStaticFrictionScale.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexPrimaryLinearAxisStaticFrictionScale).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primlinearaxisstaticfrictionscale];
     }
-    else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisStaticFrictionScale.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexSecondaryLinearAxisStaticFrictionScale).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_seclinearaxisstaticfrictionscale];
     }
-    else if (strcmp(pName, propMaterial_vortexPrimaryAngularAxisStaticFrictionScale.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexPrimaryAngularAxisStaticFrictionScale).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primangularaxisstaticfrictionscale];
     }
-    else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisStaticFrictionScale.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexSecondaryAngularAxisStaticFrictionScale).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_secangularaxisstaticfrictionscale];
     }
-    else if (strcmp(pName, propMaterial_vortexNormalAngularAxisStaticFrictionScale.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexNormalAngularAxisStaticFrictionScale).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_normalangularaxisstaticfrictionscale];
     }
-    else if (strcmp(pName, propMaterial_vortexCompliance.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexCompliance).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_compliance];
     }
-    else if (strcmp(pName, propMaterial_vortexDamping.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexDamping).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_damping];
     }
-    else if (strcmp(pName, propMaterial_vortexRestitution.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexRestitution).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_restitution];
     }
-    else if (strcmp(pName, propMaterial_vortexRestitutionThreshold.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexRestitutionThreshold).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_restitutionthreshold];
     }
-    else if (strcmp(pName, propMaterial_vortexAdhesiveForce.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexAdhesiveForce).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_adhesiveforce];
     }
-    else if (strcmp(pName, propMaterial_vortexLinearVelocityDamping.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexLinearVelocityDamping).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_linearvelocitydamping];
     }
-    else if (strcmp(pName, propMaterial_vortexAngularVelocityDamping.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexAngularVelocityDamping).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_angularvelocitydamping];
     }
-    else if (strcmp(pName, propMaterial_vortexPrimaryLinearAxisSlide.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexPrimaryLinearAxisSlide).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primlinearaxisslide];
     }
-    else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisSlide.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexSecondaryLinearAxisSlide).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_seclinearaxisslide];
     }
-    else if (strcmp(pName, propMaterial_vortexPrimaryAngularAxisSlide.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexPrimaryAngularAxisSlide).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primangularaxisslide];
     }
-    else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisSlide.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexSecondaryAngularAxisSlide).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_secangularaxisslide];
     }
-    else if (strcmp(pName, propMaterial_vortexNormalAngularAxisSlide.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexNormalAngularAxisSlide).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_normalangularaxisslide];
     }
-    else if (strcmp(pName, propMaterial_vortexPrimaryLinearAxisSlip.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexPrimaryLinearAxisSlip).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primlinearaxisslip];
     }
-    else if (strcmp(pName, propMaterial_vortexSecondaryLinearAxisSlip.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexSecondaryLinearAxisSlip).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_seclinearaxisslip];
     }
-    else if (strcmp(pName, propMaterial_vortexPrimaryAngularAxisSlip.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexPrimaryAngularAxisSlip).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_primangularaxisslip];
     }
-    else if (strcmp(pName, propMaterial_vortexSecondaryAngularAxisSlip.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexSecondaryAngularAxisSlip).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_secangularaxisslip];
     }
-    else if (strcmp(pName, propMaterial_vortexNormalAngularAxisSlip.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexNormalAngularAxisSlip).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_normalangularaxisslip];
     }
-    else if (strcmp(pName, propMaterial_vortexAutoSleepLinearSpeedThreshold.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexAutoSleepLinearSpeedThreshold).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_autosleeplinearspeedthreshold];
     }
-    else if (strcmp(pName, propMaterial_vortexAutoSleepLinearAccelerationThreshold.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexAutoSleepLinearAccelerationThreshold).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_autosleeplinearaccelthreshold];
     }
-    else if (strcmp(pName, propMaterial_vortexAutoSleepAngularSpeedThreshold.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexAutoSleepAngularSpeedThreshold).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_autosleepangularspeedthreshold];
     }
-    else if (strcmp(pName, propMaterial_vortexAutoSleepAngularAccelerationThreshold.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexAutoSleepAngularAccelerationThreshold).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_autosleepangularaccelthreshold];
     }
-    else if (strcmp(pName, propMaterial_vortexSkinThickness.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexSkinThickness).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_skinthickness];
     }
-    else if (strcmp(pName, propMaterial_vortexAutoAngularDampingTensionRatio.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::vortexAutoAngularDampingTensionRatio).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _vortexFloatParams[simi_vortex_body_autoangulardampingtensionratio];
     }
-    else if (strcmp(pName, propMaterial_newtonStaticFriction.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::newtonStaticFriction).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _newtonFloatParams[simi_newton_body_staticfriction];
     }
-    else if (strcmp(pName, propMaterial_newtonKineticFriction.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::newtonKineticFriction).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _newtonFloatParams[simi_newton_body_kineticfriction];
     }
-    else if (strcmp(pName, propMaterial_newtonRestitution.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::newtonRestitution).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _newtonFloatParams[simi_newton_body_restitution];
     }
-    else if (strcmp(pName, propMaterial_newtonLinearDrag.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::newtonLinearDrag).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _newtonFloatParams[simi_newton_body_lineardrag];
     }
-    else if (strcmp(pName, propMaterial_newtonAngularDrag.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::newtonAngularDrag).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _newtonFloatParams[simi_newton_body_angulardrag];
     }
-    else if (strcmp(pName, propMaterial_mujocoSolmix.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::mujocoSolmix).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _mujocoFloatParams[simi_mujoco_body_solmix];
     }
-    else if (strcmp(pName, propMaterial_mujocoMargin.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::mujocoMargin).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _mujocoFloatParams[simi_mujoco_body_margin];
     }
-    else if (strcmp(pName, propMaterial_mujocoGap.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::mujocoGap).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _mujocoFloatParams[simi_mujoco_body_gap];
     }
-    else if (strcmp(pName, propMaterial_mujocoAdhesionGain.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::mujocoAdhesionGain).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _mujocoFloatParams[simi_mujoco_body_adhesiongain];
     }
-    else if (strcmp(pName, propMaterial_mujocoAdhesionCtrl.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::mujocoAdhesionCtrl).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _mujocoFloatParams[simi_mujoco_body_adhesionctrl];
     }
-    else if (strcmp(pName, propMaterial_mujocoGravcomp.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::mujocoGravcomp).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _mujocoFloatParams[simi_mujoco_body_gravcomp];
@@ -2192,11 +2192,11 @@ void CDynMaterialObject::sendEngineString(CCbor* eev /*= nullptr*/)
         CCbor* ev = nullptr;
         if (eev != nullptr)
             ev = eev;
-        CEngineProperties prop;
-        std::string current(prop.getObjectProperties(_shapeHandleForEvents));
+        CEngineProperties prope;
+        std::string current(prope.getObjectProperties(_shapeHandleForEvents));
         if (ev == nullptr)
-            ev = App::scenes->createSceneObjectChangedEvent(_shapeHandleForEvents, false, propMaterial_engineProperties.name, true);
-        ev->appendKeyText(propMaterial_engineProperties.name, current.c_str());
+            ev = App::scenes->createSceneObjectChangedEvent(_shapeHandleForEvents, false, prop(PropMaterial::engineProperties).name, true);
+        ev->appendKeyText(prop(PropMaterial::engineProperties).name, current.c_str());
         if ((ev != nullptr) && (eev == nullptr))
             App::scenes->pushEvent();
     }
@@ -2205,15 +2205,15 @@ void CDynMaterialObject::sendEngineString(CCbor* eev /*= nullptr*/)
 int CDynMaterialObject::setStringProperty(const char* pName, const std::string& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (strcmp(pName, propMaterial_engineProperties.name) == 0)
+    if (strcmp(pName, prop(PropMaterial::engineProperties).name) == 0)
     {
         retVal = 0;
-        CEngineProperties prop;
-        std::string current(prop.getObjectProperties(_shapeHandleForEvents));
-        if (prop.setObjectProperties(_shapeHandleForEvents, pState.c_str()))
+        CEngineProperties prope;
+        std::string current(prope.getObjectProperties(_shapeHandleForEvents));
+        if (prope.setObjectProperties(_shapeHandleForEvents, pState.c_str()))
         {
             retVal = sim_propertyret_ok;
-            std::string current2(prop.getObjectProperties(_shapeHandleForEvents));
+            std::string current2(prope.getObjectProperties(_shapeHandleForEvents));
             if (current != current2)
                 sendEngineString();
         }
@@ -2224,11 +2224,11 @@ int CDynMaterialObject::setStringProperty(const char* pName, const std::string& 
 int CDynMaterialObject::getStringProperty(const char* pName, std::string& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (strcmp(pName, propMaterial_engineProperties.name) == 0)
+    if (strcmp(pName, prop(PropMaterial::engineProperties).name) == 0)
     {
         retVal = sim_propertyret_ok;
-        CEngineProperties prop;
-        pState = prop.getObjectProperties(_shapeHandleForEvents);
+        CEngineProperties prope;
+        pState = prope.getObjectProperties(_shapeHandleForEvents);
     }
     return retVal;
 }
@@ -2270,7 +2270,7 @@ int CDynMaterialObject::setVector3Property(const char* pName, const C3Vector* pS
         }
     };
 
-    handleProp(propMaterial_vortexPrimaryAxisVector.name, _vortexFloatParams, simi_vortex_body_primaxisvectorx);
+    handleProp(prop(PropMaterial::vortexPrimaryAxisVector).name, _vortexFloatParams, simi_vortex_body_primaxisvectorx);
 
     if ((ev != nullptr) && (eev == nullptr))
         App::scenes->pushEvent();
@@ -2281,7 +2281,7 @@ int CDynMaterialObject::getVector3Property(const char* pName, C3Vector* pState) 
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propMaterial_vortexPrimaryAxisVector.name) == 0)
+    if (strcmp(pName, prop(PropMaterial::vortexPrimaryAxisVector).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState->setData(_vortexFloatParams.data() + simi_vortex_body_primaxisvectorx);
@@ -2326,11 +2326,11 @@ int CDynMaterialObject::setFloatArrayProperty(const char* pName, const std::vect
         }
     };
 
-    handleProp(propMaterial_mujocoFriction.name, _mujocoFloatParams, simi_mujoco_body_friction1, 3);
-    handleProp(propMaterial_mujocoSolref.name, _mujocoFloatParams, simi_mujoco_body_solref1, 2);
-    handleProp(propMaterial_mujocoSolimp.name, _mujocoFloatParams, simi_mujoco_body_solimp1, 5);
-    handleProp(propMaterial_mujocoAdhesionCtrlrange.name, _mujocoFloatParams, simi_mujoco_body_adhesionctrlrange1, 2);
-    handleProp(propMaterial_mujocoAdhesionForcerange.name, _mujocoFloatParams, simi_mujoco_body_adhesionforcerange1, 2);
+    handleProp(prop(PropMaterial::mujocoFriction).name, _mujocoFloatParams, simi_mujoco_body_friction1, 3);
+    handleProp(prop(PropMaterial::mujocoSolref).name, _mujocoFloatParams, simi_mujoco_body_solref1, 2);
+    handleProp(prop(PropMaterial::mujocoSolimp).name, _mujocoFloatParams, simi_mujoco_body_solimp1, 5);
+    handleProp(prop(PropMaterial::mujocoAdhesionCtrlrange).name, _mujocoFloatParams, simi_mujoco_body_adhesionctrlrange1, 2);
+    handleProp(prop(PropMaterial::mujocoAdhesionForcerange).name, _mujocoFloatParams, simi_mujoco_body_adhesionforcerange1, 2);
 
     if ((ev != nullptr) && (eev == nullptr))
         App::scenes->pushEvent();
@@ -2348,15 +2348,15 @@ int CDynMaterialObject::getFloatArrayProperty(const char* pName, std::vector<dou
             pState.push_back(arr[simiIndex1 + i]);
     };
 
-    if (strcmp(pName, propMaterial_mujocoSolref.name) == 0)
+    if (strcmp(pName, prop(PropMaterial::mujocoSolref).name) == 0)
         handleProp(_mujocoFloatParams, simi_mujoco_body_solref1, 2);
-    else if (strcmp(pName, propMaterial_mujocoSolimp.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::mujocoSolimp).name) == 0)
         handleProp(_mujocoFloatParams, simi_mujoco_body_solimp1, 5);
-    else if (strcmp(pName, propMaterial_mujocoFriction.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::mujocoFriction).name) == 0)
         handleProp(_mujocoFloatParams, simi_mujoco_body_friction1, 3);
-    else if (strcmp(pName, propMaterial_mujocoAdhesionCtrlrange.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::mujocoAdhesionCtrlrange).name) == 0)
         handleProp(_mujocoFloatParams, simi_mujoco_body_adhesionctrlrange1, 2);
-    else if (strcmp(pName, propMaterial_mujocoAdhesionForcerange.name) == 0)
+    else if (strcmp(pName, prop(PropMaterial::mujocoAdhesionForcerange).name) == 0)
         handleProp(_mujocoFloatParams, simi_mujoco_body_adhesionforcerange1, 2);
 
     return retVal;
@@ -2394,7 +2394,7 @@ int CDynMaterialObject::getPropertyInfo(const char* pName, int& info, std::strin
             retVal = allProps_material[i].type;
             info = allProps_material[i].flags;
             if (infoTxt == "j")
-                infoTxt = allProps_material[i].info.json.toStdString();
+                infoTxt = allProps_material[i].info.json;
             else
             {
                 auto w = allProps_material[i].info.map;

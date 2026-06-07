@@ -903,9 +903,9 @@ int CScene::addGeneralObjectsToSceneAndPerformMappings(
                 if (mat->getEngineBoolParam_old(sim_bullet_body_sticky, nullptr))
                 { // Formely sticky contact objects need to be adjusted for the new Bullet:
                     if (shape->getStatic())
-                        mat->setFloatProperty(propMaterial_bulletFriction.name, mat->getFloatPropertyValue(propMaterial_bulletFriction0.name)); // the new Bullet friction
+                        mat->setFloatProperty(prop(PropMaterial::bulletFriction).name, mat->getFloatPropertyValue(prop(PropMaterial::bulletFriction0).name)); // the new Bullet friction
                     else
-                        mat->setFloatProperty(propMaterial_bulletFriction.name, 0.25); // the new Bullet friction
+                        mat->setFloatProperty(prop(PropMaterial::bulletFriction).name, 0.25); // the new Bullet friction
                 }
             }
             shape->getMesh()->setDynMaterialId_old(-1);
@@ -1246,7 +1246,7 @@ void CScene::pushGenesisEvents()
 {
     CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, false);
     Obj::addObjectEventData(ev);
-    ev->appendKeyInt64(propObject_handle.name, _objectHandle);
+    ev->appendKeyInt64(prop(PropObject::handle).name, _objectHandle);
     simulation->appendGenesisData(ev);
     environment->appendGenesisData(ev);
     customSceneData.appendEventData(nullptr, ev);
@@ -1255,7 +1255,7 @@ void CScene::pushGenesisEvents()
 
     std::vector<int64_t> customObjectList;
     customObjects->getAllObjectHandles(customObjectList);
-    ev->appendKeyHandleArray(propScene_customObjects.name, customObjectList.data(), customObjectList.size());
+    ev->appendKeyHandleArray(prop(PropScene::customObjects).name, customObjectList.data(), customObjectList.size());
 
     sceneObjects->appendNonObjectGenesisData(ev);
     App::scenes->pushEvent();
@@ -3791,7 +3791,7 @@ int CScene::getHandleArrayProperty_t(int64_t target, const char* ppName, std::ve
             retVal = drawingCont->getHandleArrayProperty_t(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
-            if (strcmp(ppName, propScene_customObjects.name) == 0)
+            if (strcmp(ppName, prop(PropScene::customObjects).name) == 0)
             {
                 customObjects->getAllObjectHandles(pState);
                 retVal = sim_propertyret_ok;

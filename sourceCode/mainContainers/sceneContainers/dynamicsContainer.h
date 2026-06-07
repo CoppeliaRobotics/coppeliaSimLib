@@ -5,13 +5,6 @@
 #include <colorObject.h>
 #include <cbor.h>
 
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) extern const SPropertyEx name;
-DYNCONT_PROPERTIES
-#undef FUNCX
-extern const std::vector<SPropertyEx> allProps_dyn;
-// ----------------------------------------------------------------------------------------------
-
 enum
 { /* Bullet global double params */
     simi_bullet_global_stepsize = 0,

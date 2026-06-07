@@ -484,11 +484,11 @@ void CDrawingObject::pushAddEvent()
                 tp = "spherePoint";
                 break;
             }
-            ev->appendKeyInt64(propObject_handle.name, _objectHandle);
+            ev->appendKeyInt64(prop(PropObject::handle).name, _objectHandle);
             if (App::getEventProtocolVersion() <= 3)
-                ev->appendKeyInt64(propDrawingObject_parent.name, _sceneObjectId);
+                ev->appendKeyInt64(prop(PropDrawingObject::parent).name, _sceneObjectId);
             else
-                ev->appendKeyHandle(propDrawingObject_parent.name, _sceneObjectId);
+                ev->appendKeyHandle(prop(PropDrawingObject::parent).name, _sceneObjectId);
             ev->appendKeyText("type", tp.c_str());
             ev->appendKeyInt64("maxCnt", _maxItemCount);
             ev->appendKeyDouble("size", _size);
@@ -608,7 +608,7 @@ int CDrawingObject::getHandleProperty(const char* ppName, int64_t& pState) const
     std::string _pName(ppName);
     int retVal = sim_propertyret_unknownproperty;
 
-    if (_pName == propDrawingObject_parent.name)
+    if (_pName == prop(PropDrawingObject::parent).name)
     {
         retVal = sim_propertyret_ok;
         pState = _sceneObjectId;
@@ -641,7 +641,7 @@ int CDrawingObject::getPropertyName(int& index, std::string& pName, std::string&
         appartenance = _objectTypeStr;
         for (size_t i = 0; i < allProps_drawingObj.size(); i++)
         {
-            if ((pName.size() == 0) || utils::startsWith(allProps_collection[i].name, pName.c_str()))
+            if ((pName.size() == 0) || utils::startsWith(allProps_drawingObj[i].name, pName.c_str()))
             {
                 if ((allProps_drawingObj[i].flags & excludeFlags) == 0)
                 {
@@ -671,7 +671,7 @@ int CDrawingObject::getPropertyInfo(const char* ppName, int& info, std::string& 
                 retVal = allProps_drawingObj[i].type;
                 info = allProps_drawingObj[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_drawingObj[i].info.json.toStdString();
+                    infoTxt = allProps_drawingObj[i].info.json;
                 else
                 {
                     auto w = allProps_drawingObj[i].info.map;

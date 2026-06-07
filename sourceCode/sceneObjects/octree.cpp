@@ -200,7 +200,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
             const char* cmd = "voxels";
             if (evv == nullptr)
                 ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
+            ev->appendKeyDouble(prop(PropOctree::voxelSize).name, _cellSize);
             ev->openKeyMap(cmd);
             ev->appendKeyDoubleArray("positions", _voxelPositions.data(), _voxelPositions.size());
             ev->appendKeyUint8Array("colors", _colorsByte.data(), _colorsByte.size());
@@ -213,10 +213,10 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
             if (evv == nullptr)
                 ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDoubleArray(cmd, _voxelPositions.data(), _voxelPositions.size());
-            ev->appendKeyBuff(propOctree_colors.name, _colorsByte.data(), _colorsByte.size());
-            ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
-            ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
-            ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
+            ev->appendKeyBuff(prop(PropOctree::colors).name, _colorsByte.data(), _colorsByte.size());
+            ev->appendKeyDouble(prop(PropOctree::voxelSize).name, _cellSize);
+            ev->appendKeyBool(prop(PropOctree::randomColors).name, _useRandomColors);
+            ev->appendKeyBool(prop(PropOctree::showPoints).name, _usePointsInsteadOfCubes);
             if (evv == nullptr)
                 App::scenes->pushEvent();
         }
@@ -228,8 +228,8 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                 if (evv == nullptr)
                     ev = App::scenes->createSceneObjectChangedEvent(this, false, "set", true);
                 ev->openKeyMap("set");
-                ev->appendKeyMatrix(propOctree_points.name, (float*)nullptr, 0, 3);
-                ev->appendKeyUint8Array(propOctree_colors.name, nullptr, 0);
+                ev->appendKeyMatrix(prop(PropOctree::points).name, (float*)nullptr, 0, 3);
+                ev->appendKeyUint8Array(prop(PropOctree::colors).name, nullptr, 0);
                 ev->appendKeyUint32Array("ids", nullptr, 0);
                 ev->closeArrayOrMap();
                 if (evv == nullptr)
@@ -237,8 +237,8 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                     App::scenes->pushEvent();
                     computeBoundingBox();
                     ev = App::scenes->createSceneObjectChangedEvent(this, false, "bb", true);
-                    ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
-                    ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
+                    ev->appendKeyPose(prop(PropSceneObject::bbPose).name, _bbFrame);
+                    ev->appendKeyVector3(prop(PropSceneObject::size).name, _bbHalfSize);
                     App::scenes->pushEvent();
                 }
             }
@@ -261,8 +261,8 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                         if (evv == nullptr)
                             ev = App::scenes->createSceneObjectChangedEvent(this, false, "set", true);
                         ev->openKeyMap("set");
-                        ev->appendKeyMatrix(propOctree_points.name, pts, newCnt, 3);
-                        ev->appendKeyUint8Array(propOctree_colors.name, cols, newCnt * 4);
+                        ev->appendKeyMatrix(prop(PropOctree::points).name, pts, newCnt, 3);
+                        ev->appendKeyUint8Array(prop(PropOctree::colors).name, cols, newCnt * 4);
                         ev->appendKeyUint32Array("ids", ids, newCnt);
                         ev->closeArrayOrMap();
                         if (evv == nullptr)
@@ -270,8 +270,8 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                             App::scenes->pushEvent();
                             computeBoundingBox();
                             ev = App::scenes->createSceneObjectChangedEvent(this, false, "bb", true);
-                            ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
-                            ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
+                            ev->appendKeyPose(prop(PropSceneObject::bbPose).name, _bbFrame);
+                            ev->appendKeyVector3(prop(PropSceneObject::size).name, _bbHalfSize);
                             App::scenes->pushEvent();
                         }
                         else
@@ -291,8 +291,8 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                             if (evv == nullptr)
                                 ev = App::scenes->createSceneObjectChangedEvent(this, false, "addRemove", true);
                             ev->openKeyMap("add");
-                            ev->appendKeyMatrix(propOctree_points.name, pts, newCnt, 3);
-                            ev->appendKeyUint8Array(propOctree_colors.name, cols, newCnt * 4);
+                            ev->appendKeyMatrix(prop(PropOctree::points).name, pts, newCnt, 3);
+                            ev->appendKeyUint8Array(prop(PropOctree::colors).name, cols, newCnt * 4);
                             ev->appendKeyUint32Array("ids", ids, newCnt);
                             ev->closeArrayOrMap();
                             ev->openKeyMap("rem");
@@ -303,8 +303,8 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                                 App::scenes->pushEvent();
                                 computeBoundingBox();
                                 ev = App::scenes->createSceneObjectChangedEvent(this, false, "bb", true);
-                                ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
-                                ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
+                                ev->appendKeyPose(prop(PropSceneObject::bbPose).name, _bbFrame);
+                                ev->appendKeyVector3(prop(PropSceneObject::size).name, _bbHalfSize);
                                 App::scenes->pushEvent();
                             }
                         }
@@ -632,7 +632,7 @@ void COcTree::setUseRandomColors(bool r)
         _updateOctreeEvent(false);
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propOctree_randomColors.name;
+            const char* cmd = prop(PropOctree::randomColors).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _useRandomColors);
             App::scenes->pushEvent();
@@ -663,7 +663,7 @@ void COcTree::setUsePointsInsteadOfCubes(bool r)
         _usePointsInsteadOfCubes = r;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propOctree_showPoints.name;
+            const char* cmd = prop(PropOctree::showPoints).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _usePointsInsteadOfCubes);
             App::scenes->pushEvent();
@@ -804,17 +804,17 @@ void COcTree::addObjectEventData(CCbor* ev)
         ev->appendKeyDoubleArray("positions", _voxelPositions.data(), _voxelPositions.size());
         ev->appendKeyUint8Array("colors", _colorsByte.data(), _colorsByte.size());
         ev->closeArrayOrMap(); // voxels
-        ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
-        ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
-        ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
+        ev->appendKeyDouble(prop(PropOctree::voxelSize).name, _cellSize);
+        ev->appendKeyBool(prop(PropOctree::showPoints).name, _usePointsInsteadOfCubes);
+        ev->appendKeyBool(prop(PropOctree::randomColors).name, _useRandomColors);
         ev->closeArrayOrMap(); // octree
     }
     else
     {
         color.addGenesisEventData(ev);
-        ev->appendKeyDouble(propOctree_voxelSize.name, _cellSize);
-        ev->appendKeyBool(propOctree_randomColors.name, _useRandomColors);
-        ev->appendKeyBool(propOctree_showPoints.name, _usePointsInsteadOfCubes);
+        ev->appendKeyDouble(prop(PropOctree::voxelSize).name, _cellSize);
+        ev->appendKeyBool(prop(PropOctree::randomColors).name, _useRandomColors);
+        ev->appendKeyBool(prop(PropOctree::showPoints).name, _usePointsInsteadOfCubes);
         _updateOctreeEvent(false, ev);
     }
     CSceneObject::addObjectEventData(ev);
@@ -1381,12 +1381,12 @@ int COcTree::setBoolProperty(const char* ppName, bool pState)
     int retVal = CSceneObject::setBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propOctree_randomColors.name)
+        if (_pName == prop(PropOctree::randomColors).name)
         {
             setUseRandomColors(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propOctree_showPoints.name)
+        else if (_pName == prop(PropOctree::showPoints).name)
         {
             setUsePointsInsteadOfCubes(pState);
             retVal = sim_propertyret_ok;
@@ -1402,12 +1402,12 @@ int COcTree::getBoolProperty(const char* ppName, bool& pState) const
     int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propOctree_randomColors.name)
+        if (_pName == prop(PropOctree::randomColors).name)
         {
             pState = _useRandomColors;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propOctree_showPoints.name)
+        else if (_pName == prop(PropOctree::showPoints).name)
         {
             pState = _usePointsInsteadOfCubes;
             retVal = sim_propertyret_ok;
@@ -1425,7 +1425,7 @@ int COcTree::setFloatProperty(const char* ppName, double pState)
         retVal = color.setFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propOctree_voxelSize.name)
+        if (_pName == prop(PropOctree::voxelSize).name)
         {
             setCellSize(pState);
             retVal = sim_propertyret_ok;
@@ -1443,7 +1443,7 @@ int COcTree::getFloatProperty(const char* ppName, double& pState) const
         retVal = color.getFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propOctree_voxelSize.name)
+        if (_pName == prop(PropOctree::voxelSize).name)
         {
             pState = _cellSize;
             retVal = sim_propertyret_ok;
@@ -1482,12 +1482,12 @@ int COcTree::getBufferProperty(const char* ppName, std::string& pState) const
     int retVal = CSceneObject::getBufferProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propOctree_colors.name)
+        if (_pName == prop(PropOctree::colors).name)
         {
             retVal = sim_propertyret_ok;
             pState.assign(_colorsByte.begin(), _colorsByte.end());
         }
-        else if (_pName == propOctree_packedPoints.name)
+        else if (_pName == prop(PropOctree::packedPoints).name)
         {
             retVal = sim_propertyret_ok;
             std::vector<float> p;
@@ -1545,7 +1545,7 @@ int COcTree::getMatrixProperty(const char* pName, CMatrix& pState) const
     if (retVal == sim_propertyret_unknownproperty)
     {
         std::string _pName(pName);
-        if (_pName == propOctree_points.name)
+        if (_pName == prop(PropOctree::points).name)
         {
             retVal = sim_propertyret_ok;
             pState.resize(_voxelPositions.size() / 3, 3, 0.0);
@@ -1601,7 +1601,7 @@ int COcTree::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
                 retVal = allProps_ocTree[i].type;
                 info = allProps_ocTree[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_ocTree[i].info.json.toStdString();
+                    infoTxt = allProps_ocTree[i].info.json;
                 else
                 {
                     auto w = allProps_ocTree[i].info.map;
@@ -1618,12 +1618,12 @@ int COcTree::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
         if (retVal != sim_propertyret_unknownproperty)
         {
             std::string _pName(ppName);
-            if ((_pName == propOctree_points.name) || (_pName == propOctree_packedPoints.name))
+            if ((_pName == prop(PropOctree::points).name) || (_pName == prop(PropOctree::packedPoints).name))
             {
                 if (_voxelPositions.size() > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;
             }
-            if (_pName == propOctree_colors.name)
+            if (_pName == prop(PropOctree::colors).name)
             {
                 if (_colorsByte.size() * 3 > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;

@@ -149,31 +149,31 @@ void CEnvironment::setUpDefaultValues()
 
 void CEnvironment::appendGenesisData(CCbor* ev) const
 {
-    ev->appendKeyBool(propScene_finalSaveRequest.name, _requestFinalSave);
-    ev->appendKeyBool(propScene_saveCalculationStructs.name, _saveExistingCalculationStructures);
+    ev->appendKeyBool(prop(PropScene::finalSaveRequest).name, _requestFinalSave);
+    ev->appendKeyBool(prop(PropScene::saveCalculationStructs).name, _saveExistingCalculationStructures);
     int msh = -1;
     CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
     if (it != nullptr)
         msh = it->getSceneObjectOrDetachedScriptHandle();
-    ev->appendKeyInt64(propScene_visibilityLayers.name, _activeLayers);
-    ev->appendKeyText(propScene_acknowledgment.name, _acknowledgement.c_str());
+    ev->appendKeyInt64(prop(PropScene::visibilityLayers).name, _activeLayers);
+    ev->appendKeyText(prop(PropScene::acknowledgment).name, _acknowledgement.c_str());
     if (App::getEventProtocolVersion() <= 3)
     {
         ev->appendKeyBool("sceneIsLocked", _sceneIsLocked);
         ev->appendKeyText("scenePath", _scenePathAndName.c_str());
         ev->appendKeyInt64("sceneUid", _sceneUniqueID);
         ev->appendKeyText("sceneUidString", _sceneUniquePersistentIdString.c_str());
-        ev->appendKeyInt64(propScene_mainScript.name, msh);
-        ev->appendKeyFloatArray(propScene_ambientLight.name, ambientLightColor, 3);
+        ev->appendKeyInt64(prop(PropScene::mainScript).name, msh);
+        ev->appendKeyFloatArray(prop(PropScene::ambientLight).name, ambientLightColor, 3);
     }
     else
     {
-        ev->appendKeyBool(propScene_sceneIsLocked.name, _sceneIsLocked);
-        ev->appendKeyText(propScene_scenePath.name, _scenePathAndName.c_str());
-        ev->appendKeyInt64(propScene_sceneUid.name, _sceneUniqueID);
-        ev->appendKeyText(propScene_sceneUidString.name, _sceneUniquePersistentIdString.c_str());
-        ev->appendKeyHandle(propScene_mainScript.name, msh);
-        ev->appendKeyColor(propScene_ambientLight.name, ambientLightColor);
+        ev->appendKeyBool(prop(PropScene::sceneIsLocked).name, _sceneIsLocked);
+        ev->appendKeyText(prop(PropScene::scenePath).name, _scenePathAndName.c_str());
+        ev->appendKeyInt64(prop(PropScene::sceneUid).name, _sceneUniqueID);
+        ev->appendKeyText(prop(PropScene::sceneUidString).name, _sceneUniquePersistentIdString.c_str());
+        ev->appendKeyHandle(prop(PropScene::mainScript).name, msh);
+        ev->appendKeyColor(prop(PropScene::ambientLight).name, ambientLightColor);
     }
 }
 
@@ -186,7 +186,7 @@ void CEnvironment::setAmbientLight(const float c[3])
             ambientLightColor[i] = c[i];
         if (App::scenes->getEventsEnabled())
         {
-            const char* cmd = propScene_ambientLight.name;
+            const char* cmd = prop(PropScene::ambientLight).name;
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyFloatArray(cmd, ambientLightColor, 3);
@@ -205,7 +205,7 @@ void CEnvironment::setActiveLayers(int l)
         _activeLayers = l;
         if (App::scenes->getEventsEnabled())
         {
-            const char* cmd = propScene_visibilityLayers.name;
+            const char* cmd = prop(PropScene::visibilityLayers).name;
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyInt64(cmd, _activeLayers);
             App::scenes->pushEvent();
@@ -245,7 +245,7 @@ void CEnvironment::setSaveExistingCalculationStructures(bool s)
         _saveExistingCalculationStructures = s;
         if (App::scenes->getEventsEnabled())
         {
-            const char* cmd = propScene_saveCalculationStructs.name;
+            const char* cmd = prop(PropScene::saveCalculationStructs).name;
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyBool(cmd, _saveExistingCalculationStructures);
             App::scenes->pushEvent();
@@ -324,7 +324,7 @@ void CEnvironment::setRequestFinalSave(bool finalSaveActivated)
         _requestFinalSave = finalSaveActivated;
         if (App::scenes->getEventsEnabled())
         {
-            const char* cmd = propScene_finalSaveRequest.name;
+            const char* cmd = prop(PropScene::finalSaveRequest).name;
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyBool(cmd, _requestFinalSave);
             App::scenes->pushEvent();
@@ -345,7 +345,7 @@ void CEnvironment::setSceneLocked()
         _sceneIsLocked = true;
         if (App::scenes->getEventsEnabled())
         {
-            const char* cmd = propScene_sceneIsLocked.name;
+            const char* cmd = prop(PropScene::sceneIsLocked).name;
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyBool("sceneIsLocked", _sceneIsLocked);
@@ -446,7 +446,7 @@ void CEnvironment::setAcknowledgement(const char* a)
         _acknowledgement = ack;
         if (App::scenes->getEventsEnabled())
         {
-            const char* cmd = propScene_acknowledgment.name;
+            const char* cmd = prop(PropScene::acknowledgment).name;
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             ev->appendKeyText(cmd, _acknowledgement.c_str());
             App::scenes->pushEvent();
@@ -1055,7 +1055,7 @@ void CEnvironment::setScenePathAndName(const char* pathAndName)
         _scenePathAndName = pathAndName;
         if (App::scenes->getEventsEnabled())
         {
-            const char* cmd = propScene_scenePath.name;
+            const char* cmd = prop(PropScene::scenePath).name;
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyText("scenePath", _scenePathAndName.c_str());
@@ -1104,12 +1104,12 @@ int CEnvironment::setBoolProperty(const char* pName, bool pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propScene_finalSaveRequest.name) == 0)
+    if (strcmp(pName, prop(PropScene::finalSaveRequest).name) == 0)
     {
         retVal = sim_propertyret_ok;
         setRequestFinalSave(pState);
     }
-    else if (strcmp(pName, propScene_saveCalculationStructs.name) == 0)
+    else if (strcmp(pName, prop(PropScene::saveCalculationStructs).name) == 0)
     {
         retVal = sim_propertyret_ok;
         setSaveExistingCalculationStructures(pState);
@@ -1122,17 +1122,17 @@ int CEnvironment::getBoolProperty(const char* pName, bool& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propScene_finalSaveRequest.name) == 0)
+    if (strcmp(pName, prop(PropScene::finalSaveRequest).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _requestFinalSave;
     }
-    else if (strcmp(pName, propScene_saveCalculationStructs.name) == 0)
+    else if (strcmp(pName, prop(PropScene::saveCalculationStructs).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _saveExistingCalculationStructures;
     }
-    else if (strcmp(pName, propScene_sceneIsLocked.name) == 0)
+    else if (strcmp(pName, prop(PropScene::sceneIsLocked).name) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _sceneIsLocked;
@@ -1145,7 +1145,7 @@ int CEnvironment::setIntProperty(const char* pName, int pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propScene_visibilityLayers.name) == 0)
+    if (strcmp(pName, prop(PropScene::visibilityLayers).name) == 0)
     {
         setActiveLayers(pState);
         retVal = sim_propertyret_ok;
@@ -1158,12 +1158,12 @@ int CEnvironment::getIntProperty(const char* pName, int& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propScene_sceneUid.name) == 0)
+    if (strcmp(pName, prop(PropScene::sceneUid).name) == 0)
     {
         pState = _sceneUniqueID;
         retVal = sim_propertyret_ok;
     }
-    else if (strcmp(pName, propScene_visibilityLayers.name) == 0)
+    else if (strcmp(pName, prop(PropScene::visibilityLayers).name) == 0)
     {
         pState = _activeLayers;
         retVal = sim_propertyret_ok;
@@ -1183,7 +1183,7 @@ int CEnvironment::getHandleProperty(const char* pName, int64_t& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propScene_mainScript.name) == 0)
+    if (strcmp(pName, prop(PropScene::mainScript).name) == 0)
     {
         CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
         pState = -1;
@@ -1199,12 +1199,12 @@ int CEnvironment::setStringProperty(const char* pName, const std::string& pState
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propScene_scenePath.name) == 0)
+    if (strcmp(pName, prop(PropScene::scenePath).name) == 0)
     {
         setScenePathAndName(pState.c_str());
         retVal = sim_propertyret_ok;
     }
-    else if (strcmp(pName, propScene_acknowledgment.name) == 0)
+    else if (strcmp(pName, prop(PropScene::acknowledgment).name) == 0)
     {
         setAcknowledgement(pState.c_str());
         retVal = sim_propertyret_ok;
@@ -1217,17 +1217,17 @@ int CEnvironment::getStringProperty(const char* pName, std::string& pState) cons
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propScene_scenePath.name) == 0)
+    if (strcmp(pName, prop(PropScene::scenePath).name) == 0)
     {
         pState = _scenePathAndName;
         retVal = sim_propertyret_ok;
     }
-    else if (strcmp(pName, propScene_acknowledgment.name) == 0)
+    else if (strcmp(pName, prop(PropScene::acknowledgment).name) == 0)
     {
         pState = _acknowledgement;
         retVal = sim_propertyret_ok;
     }
-    else if (strcmp(pName, propScene_sceneUidString.name) == 0)
+    else if (strcmp(pName, prop(PropScene::sceneUidString).name) == 0)
     {
         pState = _sceneUniquePersistentIdString;
         retVal = sim_propertyret_ok;
@@ -1240,7 +1240,7 @@ int CEnvironment::setColorProperty(const char* pName, const float* pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propScene_ambientLight.name) == 0)
+    if (strcmp(pName, prop(PropScene::ambientLight).name) == 0)
     {
         setAmbientLight(pState);
         retVal = sim_propertyret_ok;
@@ -1253,7 +1253,7 @@ int CEnvironment::getColorProperty(const char* pName, float* pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, propScene_ambientLight.name) == 0)
+    if (strcmp(pName, prop(PropScene::ambientLight).name) == 0)
     {
         for (size_t i = 0; i < 3; i++)
             pState[i] = ambientLightColor[i];
@@ -1298,7 +1298,7 @@ int CEnvironment::getPropertyInfo(const char* pName, int& info, std::string& inf
             retVal = allProps_scene[i].type;
             info = allProps_scene[i].flags;
             if (infoTxt == "j")
-                infoTxt = allProps_scene[i].info.json.toStdString();
+                infoTxt = allProps_scene[i].info.json;
             else
             {
                 auto w = allProps_scene[i].info.map;

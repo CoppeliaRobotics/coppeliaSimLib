@@ -101,7 +101,7 @@ bool CScript::canDestroyNow()
             detachedScript = nullptr;
             if (_isInScene && App::scenes->getEventsEnabled())
             { // indicate that this object does not have any detachedScript attached anymore
-                const char* cmd = propScript_detachedScript.name;
+                const char* cmd = prop(PropScript::detachedScript).name;
                 CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
                 if (App::getEventProtocolVersion() <= 3)
                     ev->appendKeyInt64(cmd, -1);
@@ -165,12 +165,12 @@ void CScript::addObjectEventData(CCbor* ev)
     }
     else
         _scriptColor.addGenesisEventData(ev);
-    ev->appendKeyBool(propScript_resetAfterSimError.name, _resetAfterSimError);
-    ev->appendKeyDouble(propScript_size.name, _scriptSize);
+    ev->appendKeyBool(prop(PropScript::resetAfterSimError).name, _resetAfterSimError);
+    ev->appendKeyDouble(prop(PropScript::size).name, _scriptSize);
     if (App::getEventProtocolVersion() <= 3)
-        ev->appendKeyInt64(propScript_detachedScript.name, detachedScript->getObjectHandle());
+        ev->appendKeyInt64(prop(PropScript::detachedScript).name, detachedScript->getObjectHandle());
     else
-        ev->appendKeyHandle(propScript_detachedScript.name, detachedScript->getObjectHandle());
+        ev->appendKeyHandle(prop(PropScript::detachedScript).name, detachedScript->getObjectHandle());
     if (App::getEventProtocolVersion() == 2)
         ev->closeArrayOrMap(); // script
     CSceneObject::addObjectEventData(ev);
@@ -444,7 +444,7 @@ void CScript::setScriptSize(double s)
         computeBoundingBox();
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propScript_size.name;
+            const char* cmd = prop(PropScript::size).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _scriptSize);
             App::scenes->pushEvent();
@@ -460,7 +460,7 @@ void CScript::resetAfterSimError(bool r)
         _resetAfterSimError = r;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propScript_resetAfterSimError.name;
+            const char* cmd = prop(PropScript::resetAfterSimError).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _resetAfterSimError);
             App::scenes->pushEvent();
@@ -489,7 +489,7 @@ int CScript::setBoolProperty(const char* ppName, bool pState)
     int retVal = CSceneObject::setBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propScript_resetAfterSimError.name)
+        if (_pName == prop(PropScript::resetAfterSimError).name)
         {
             resetAfterSimError(pState);
             retVal = sim_propertyret_ok;
@@ -499,12 +499,12 @@ int CScript::setBoolProperty(const char* ppName, bool pState)
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propScript_DEPRECATED_scriptDisabled.name, ppName) == 0)
+        if (strcmp(prop(PropScript::DEPRECATED_scriptDisabled).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             detachedScript->setScriptIsDisabled(pState);
         }
-        else if (strcmp(propScript_DEPRECATED_restartOnError.name, ppName) == 0)
+        else if (strcmp(prop(PropScript::DEPRECATED_restartOnError).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             detachedScript->setAutoRestartOnError(pState);
@@ -520,7 +520,7 @@ int CScript::getBoolProperty(const char* ppName, bool& pState) const
     int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propScript_resetAfterSimError.name)
+        if (_pName == prop(PropScript::resetAfterSimError).name)
         {
             pState = _resetAfterSimError;
             retVal = sim_propertyret_ok;
@@ -530,12 +530,12 @@ int CScript::getBoolProperty(const char* ppName, bool& pState) const
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propScript_DEPRECATED_scriptDisabled.name, ppName) == 0)
+        if (strcmp(prop(PropScript::DEPRECATED_scriptDisabled).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getScriptIsDisabled();
         }
-        else if (strcmp(propScript_DEPRECATED_restartOnError.name, ppName) == 0)
+        else if (strcmp(prop(PropScript::DEPRECATED_restartOnError).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getAutoRestartOnError();
@@ -556,7 +556,7 @@ int CScript::setIntProperty(const char* ppName, int pState)
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propScript_DEPRECATED_execPriority.name, ppName) == 0)
+        if (strcmp(prop(PropScript::DEPRECATED_execPriority).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             detachedScript->setScriptExecPriority(pState);
@@ -577,22 +577,22 @@ int CScript::getIntProperty(const char* ppName, int& pState) const
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propScript_DEPRECATED_execPriority.name, ppName) == 0)
+        if (strcmp(prop(PropScript::DEPRECATED_execPriority).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getScriptExecPriority();
         }
-        else if (strcmp(propScript_DEPRECATED_scriptType.name, ppName) == 0)
+        else if (strcmp(prop(PropScript::DEPRECATED_scriptType).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getScriptType();
         }
-        else if (strcmp(propScript_DEPRECATED_executionDepth.name, ppName) == 0)
+        else if (strcmp(prop(PropScript::DEPRECATED_executionDepth).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getExecutionDepth();
         }
-        else if (strcmp(propScript_DEPRECATED_scriptState.name, ppName) == 0)
+        else if (strcmp(prop(PropScript::DEPRECATED_scriptState).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getScriptState();
@@ -629,7 +629,7 @@ int CScript::getHandleProperty(const char* ppName, int64_t& pState) const
     int retVal = CSceneObject::getHandleProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propScript_detachedScript.name, ppName) == 0)
+        if (strcmp(prop(PropScript::detachedScript).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = -1;
@@ -647,7 +647,7 @@ int CScript::setFloatProperty(const char* ppName, double pState)
     int retVal = CSceneObject::setFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propScript_size.name)
+        if (_pName == prop(PropScript::size).name)
         {
             setScriptSize(pState);
             retVal = sim_propertyret_ok;
@@ -665,7 +665,7 @@ int CScript::getFloatProperty(const char* ppName, double& pState) const
         retVal = _scriptColor.getFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propScript_size.name)
+        if (_pName == prop(PropScript::size).name)
         {
             pState = _scriptSize;
             retVal = sim_propertyret_ok;
@@ -686,7 +686,7 @@ int CScript::setStringProperty(const char* ppName, const std::string& pState)
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propScript_DEPRECATED_code.name, ppName) == 0)
+        if (strcmp(prop(PropScript::DEPRECATED_code).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             detachedScript->setScriptText(pState.c_str());
@@ -704,7 +704,7 @@ int CScript::getStringProperty(const char* ppName, std::string& pState) const
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propScript_DEPRECATED_code.name, ppName) == 0)
+        if (strcmp(prop(PropScript::DEPRECATED_code).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
 #ifdef SIM_WITH_GUI
@@ -713,22 +713,22 @@ int CScript::getStringProperty(const char* ppName, std::string& pState) const
 #endif
             pState = detachedScript->getScriptText();
         }
-        else if (strcmp(propScript_DEPRECATED_language.name, ppName) == 0)
+        else if (strcmp(prop(PropScript::DEPRECATED_language).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getLang();
         }
-        else if (strcmp(propScript_DEPRECATED_scriptName.name, ppName) == 0)
+        else if (strcmp(prop(PropScript::DEPRECATED_scriptName).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getScriptName();
         }
-        else if (strcmp(propScript_DEPRECATED_addOnPath.name, ppName) == 0)
+        else if (strcmp(prop(PropScript::DEPRECATED_addOnPath).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getAddOnPath();
         }
-        else if (strcmp(propScript_DEPRECATED_addOnMenuPath.name, ppName) == 0)
+        else if (strcmp(prop(PropScript::DEPRECATED_addOnMenuPath).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = detachedScript->getAddOnMenuPath();;
@@ -800,7 +800,7 @@ int CScript::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
                 retVal = allProps_script[i].type;
                 info = allProps_script[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_script[i].info.json.toStdString();
+                    infoTxt = allProps_script[i].info.json;
                 else
                 {
                     auto w = allProps_script[i].info.map;

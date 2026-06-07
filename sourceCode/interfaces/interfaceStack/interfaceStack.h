@@ -10,13 +10,6 @@
 #include <map>
 #include <obj.h>
 
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
-STACK_PROPERTIES
-#undef FUNCX
-extern const std::vector<SProperty> allProps_stack;
-// ----------------------------------------------------------------------------------------------
-
 class CInterfaceStack : public Obj
 {
   public:

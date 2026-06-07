@@ -4,13 +4,6 @@
 #include <simMath/4X4Matrix.h>
 #include <obj.h>
 
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
-DRAWINGOBJECT_PROPERTIES
-#undef FUNCX
-extern const std::vector<SProperty> allProps_drawingObj;
-// ----------------------------------------------------------------------------------------------
-
 class CSceneObject;
 
 class CDrawingObject : public Obj

@@ -2234,7 +2234,7 @@ int CInterfaceStack::getStringProperty(const char* ppName, std::string& pState) 
     int retVal = Obj::getStringProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propStack_content.name, ppName) == 0)
+        if (strcmp(prop(PropStack::content).name, ppName) == 0)
         {
             fetchContent(-1, pState);
             retVal = sim_propertyret_ok;
@@ -3411,7 +3411,7 @@ int CInterfaceStack::getPropertyInfo(const char*ppName, int& info, std::string& 
                 retVal = allProps_stack[i].type;
                 info = allProps_stack[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_stack[i].info.json.toStdString();
+                    infoTxt = allProps_stack[i].info.json;
                 else
                 {
                     auto w = allProps_stack[i].info.map;

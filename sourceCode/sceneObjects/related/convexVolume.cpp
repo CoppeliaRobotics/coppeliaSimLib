@@ -2015,7 +2015,7 @@ void CConvexVolume::sendEventData(CCbor* eev)
             return;
     }
 
-    ev->appendKeyDouble(propConvexVolume_closeThreshold.name, _smallestDistanceAllowed);
+    ev->appendKeyDouble(prop(PropConvexVolume::closeThreshold).name, _smallestDistanceAllowed);
     double xsize[2] = {xSize, xSizeFar};
     double ysize[2] = {ySize, ySizeFar};
     double radd[2] = {radius, radiusFar};
@@ -2037,16 +2037,16 @@ void CConvexVolume::sendEventData(CCbor* eev)
     }
     else
     {
-        ev->appendKeyDouble(propConvexVolume_offset.name, offset);
-        ev->appendKeyDouble(propConvexVolume_range.name, range);
-        ev->appendKeyDoubleArray(propConvexVolume_xSize.name, xsize, 2);
-        ev->appendKeyDoubleArray(propConvexVolume_ySize.name, ysize, 2);
-        ev->appendKeyDoubleArray(propConvexVolume_radius.name, radd, 2);
-        ev->appendKeyDoubleArray(propConvexVolume_angle.name, agl, 2);
-        ev->appendKeyInt32Array(propConvexVolume_faces.name, faceN, 2);
-        ev->appendKeyInt32Array(propConvexVolume_subdivisions.name, subdivs, 2);
-        ev->appendKeyDoubleArray(propConvexVolume_edges.name, volumeEdges.data(), volumeEdges.size());
-        ev->appendKeyDoubleArray(propConvexVolume_closeEdges.name, nonDetectingVolumeEdges.data(), nonDetectingVolumeEdges.size());
+        ev->appendKeyDouble(prop(PropConvexVolume::offset).name, offset);
+        ev->appendKeyDouble(prop(PropConvexVolume::range).name, range);
+        ev->appendKeyDoubleArray(prop(PropConvexVolume::xSize).name, xsize, 2);
+        ev->appendKeyDoubleArray(prop(PropConvexVolume::ySize).name, ysize, 2);
+        ev->appendKeyDoubleArray(prop(PropConvexVolume::radius).name, radd, 2);
+        ev->appendKeyDoubleArray(prop(PropConvexVolume::angle).name, agl, 2);
+        ev->appendKeyInt32Array(prop(PropConvexVolume::faces).name, faceN, 2);
+        ev->appendKeyInt32Array(prop(PropConvexVolume::subdivisions).name, subdivs, 2);
+        ev->appendKeyDoubleArray(prop(PropConvexVolume::edges).name, volumeEdges.data(), volumeEdges.size());
+        ev->appendKeyDoubleArray(prop(PropConvexVolume::closeEdges).name, nonDetectingVolumeEdges.data(), nonDetectingVolumeEdges.size());
     }
 
     if (eev == nullptr)
@@ -2085,17 +2085,17 @@ int CConvexVolume::setFloatProperty(const char* pName, double pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(propConvexVolume_closeThreshold.name, pName) == 0)
+    if (strcmp(prop(PropConvexVolume::closeThreshold).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         setSmallestDistanceAllowed(pState);
     }
-    else if (strcmp(propConvexVolume_offset.name, pName) == 0)
+    else if (strcmp(prop(PropConvexVolume::offset).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         setOffset(pState);
     }
-    else if (strcmp(propConvexVolume_range.name, pName) == 0)
+    else if (strcmp(prop(PropConvexVolume::range).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         setRange(pState);
@@ -2108,17 +2108,17 @@ int CConvexVolume::getFloatProperty(const char* pName, double& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(propConvexVolume_closeThreshold.name, pName) == 0)
+    if (strcmp(prop(PropConvexVolume::closeThreshold).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _smallestDistanceAllowed;
     }
-    else if (strcmp(propConvexVolume_offset.name, pName) == 0)
+    else if (strcmp(prop(PropConvexVolume::offset).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = offset;
     }
-    else if (strcmp(propConvexVolume_range.name, pName) == 0)
+    else if (strcmp(prop(PropConvexVolume::range).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = range;
@@ -2145,7 +2145,7 @@ int CConvexVolume::setFloatArrayProperty(const char* pName, const std::vector<do
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(propConvexVolume_xSize.name, pName) == 0)
+    if (strcmp(prop(PropConvexVolume::xSize).name, pName) == 0)
     {
         if (pState.size() >= 2)
         {
@@ -2157,7 +2157,7 @@ int CConvexVolume::setFloatArrayProperty(const char* pName, const std::vector<do
         else
             retVal = 0;
     }
-    else if (strcmp(propConvexVolume_ySize.name, pName) == 0)
+    else if (strcmp(prop(PropConvexVolume::ySize).name, pName) == 0)
     {
         if (pState.size() >= 2)
         {
@@ -2169,7 +2169,7 @@ int CConvexVolume::setFloatArrayProperty(const char* pName, const std::vector<do
         else
             retVal = 0;
     }
-    else if (strcmp(propConvexVolume_radius.name, pName) == 0)
+    else if (strcmp(prop(PropConvexVolume::radius).name, pName) == 0)
     {
         if (pState.size() >= 2)
         {
@@ -2181,7 +2181,7 @@ int CConvexVolume::setFloatArrayProperty(const char* pName, const std::vector<do
         else
             retVal = 0;
     }
-    else if (strcmp(propConvexVolume_angle.name, pName) == 0)
+    else if (strcmp(prop(PropConvexVolume::angle).name, pName) == 0)
     {
         if (pState.size() >= 2)
         {
@@ -2202,36 +2202,36 @@ int CConvexVolume::getFloatArrayProperty(const char* pName, std::vector<double>&
     pState.clear();
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(propConvexVolume_xSize.name, pName) == 0)
+    if (strcmp(prop(PropConvexVolume::xSize).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState.push_back(xSize);
         pState.push_back(xSizeFar);
     }
-    else if (strcmp(propConvexVolume_ySize.name, pName) == 0)
+    else if (strcmp(prop(PropConvexVolume::ySize).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState.push_back(ySize);
         pState.push_back(ySizeFar);
     }
-    else if (strcmp(propConvexVolume_radius.name, pName) == 0)
+    else if (strcmp(prop(PropConvexVolume::radius).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState.push_back(radius);
         pState.push_back(radiusFar);
     }
-    else if (strcmp(propConvexVolume_angle.name, pName) == 0)
+    else if (strcmp(prop(PropConvexVolume::angle).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState.push_back(angle);
         pState.push_back(insideAngleThing);
     }
-    else if (strcmp(propConvexVolume_edges.name, pName) == 0)
+    else if (strcmp(prop(PropConvexVolume::edges).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState.assign(volumeEdges.begin(), volumeEdges.end());
     }
-    else if (strcmp(propConvexVolume_closeEdges.name, pName) == 0)
+    else if (strcmp(prop(PropConvexVolume::closeEdges).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState.assign(nonDetectingVolumeEdges.begin(), nonDetectingVolumeEdges.end());
@@ -2244,7 +2244,7 @@ int CConvexVolume::setIntArrayProperty(const char* pName, const std::vector<int>
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(propConvexVolume_faces.name, pName) == 0)
+    if (strcmp(prop(PropConvexVolume::faces).name, pName) == 0)
     {
         if (pState.size() >= 2)
         {
@@ -2256,7 +2256,7 @@ int CConvexVolume::setIntArrayProperty(const char* pName, const std::vector<int>
         else
             retVal = 0;
     }
-    else if (strcmp(propConvexVolume_subdivisions.name, pName) == 0)
+    else if (strcmp(prop(PropConvexVolume::subdivisions).name, pName) == 0)
     {
         if (pState.size() >= 2)
         {
@@ -2277,13 +2277,13 @@ int CConvexVolume::getIntArrayProperty(const char* pName, std::vector<int>& pSta
     pState.clear();
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(propConvexVolume_faces.name, pName) == 0)
+    if (strcmp(prop(PropConvexVolume::faces).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState.push_back(faceNumber);
         pState.push_back(faceNumberFar);
     }
-    else if (strcmp(propConvexVolume_subdivisions.name, pName) == 0)
+    else if (strcmp(prop(PropConvexVolume::subdivisions).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState.push_back(subdivisions);
@@ -2325,7 +2325,7 @@ int CConvexVolume::getPropertyInfo(const char* pName, int& info, std::string& in
             retVal = allProps_volume[i].type;
             info = allProps_volume[i].flags;
             if (infoTxt == "j")
-                infoTxt = allProps_volume[i].info.json.toStdString();
+                infoTxt = allProps_volume[i].info.json;
             else
             {
                 auto w = allProps_volume[i].info.map;

@@ -261,11 +261,11 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
         }
         else if (App::getEventProtocolVersion() == 3)
         {
-            const char* cmd = propPointCloud_points.name;
+            const char* cmd = prop(PropPointCloud::points).name;
             if (evv == nullptr)
                 ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDoubleArray(cmd, _displayPoints.data(), _displayPoints.size());
-            ev->appendKeyBuff(propPointCloud_colors.name, _displayColorsByte.data(), _displayColorsByte.size());
+            ev->appendKeyBuff(prop(PropPointCloud::colors).name, _displayColorsByte.data(), _displayColorsByte.size());
             if (evv == nullptr)
                 App::scenes->pushEvent();
         }
@@ -277,8 +277,8 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                 if (evv == nullptr)
                     ev = App::scenes->createSceneObjectChangedEvent(this, false, "set", true);
                 ev->openKeyMap("set");
-                ev->appendKeyMatrix(propPointCloud_points.name, (float*)nullptr, 0, 3);
-                ev->appendKeyUint8Array(propPointCloud_colors.name, nullptr, 0);
+                ev->appendKeyMatrix(prop(PropPointCloud::points).name, (float*)nullptr, 0, 3);
+                ev->appendKeyUint8Array(prop(PropPointCloud::colors).name, nullptr, 0);
                 ev->appendKeyUint32Array("ids", nullptr, 0);
                 ev->closeArrayOrMap();
                 if (evv == nullptr)
@@ -286,8 +286,8 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                     App::scenes->pushEvent();
                     computeBoundingBox();
                     ev = App::scenes->createSceneObjectChangedEvent(this, false, "bb", true);
-                    ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
-                    ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
+                    ev->appendKeyPose(prop(PropSceneObject::bbPose).name, _bbFrame);
+                    ev->appendKeyVector3(prop(PropSceneObject::size).name, _bbHalfSize);
                     App::scenes->pushEvent();
                 }
             }
@@ -310,8 +310,8 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                         if (evv == nullptr)
                             ev = App::scenes->createSceneObjectChangedEvent(this, false, "set", true);
                         ev->openKeyMap("set");
-                        ev->appendKeyMatrix(propPointCloud_points.name, pts, newCnt, 3);
-                        ev->appendKeyUint8Array(propPointCloud_colors.name, cols, newCnt * 4);
+                        ev->appendKeyMatrix(prop(PropPointCloud::points).name, pts, newCnt, 3);
+                        ev->appendKeyUint8Array(prop(PropPointCloud::colors).name, cols, newCnt * 4);
                         ev->appendKeyUint32Array("ids", ids, newCnt);
                         ev->closeArrayOrMap();
                         if (evv == nullptr)
@@ -319,8 +319,8 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                             App::scenes->pushEvent();
                             computeBoundingBox();
                             ev = App::scenes->createSceneObjectChangedEvent(this, false, "bb", true);
-                            ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
-                            ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
+                            ev->appendKeyPose(prop(PropSceneObject::bbPose).name, _bbFrame);
+                            ev->appendKeyVector3(prop(PropSceneObject::size).name, _bbHalfSize);
                             App::scenes->pushEvent();
                         }
                     }
@@ -334,8 +334,8 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                             if (evv == nullptr)
                                 ev = App::scenes->createSceneObjectChangedEvent(this, false, "addRemove", true);
                             ev->openKeyMap("add");
-                            ev->appendKeyMatrix(propPointCloud_points.name, pts, newCnt, 3);
-                            ev->appendKeyUint8Array(propPointCloud_colors.name, cols, newCnt * 4);
+                            ev->appendKeyMatrix(prop(PropPointCloud::points).name, pts, newCnt, 3);
+                            ev->appendKeyUint8Array(prop(PropPointCloud::colors).name, cols, newCnt * 4);
                             ev->appendKeyUint32Array("ids", ids, newCnt);
                             ev->closeArrayOrMap();
                             ev->openKeyMap("rem");
@@ -346,8 +346,8 @@ void CPointCloud::_updatePointCloudEvent(bool incremental, CCbor* evv /*= nullpt
                                 App::scenes->pushEvent();
                                 computeBoundingBox();
                                 ev = App::scenes->createSceneObjectChangedEvent(this, false, "bb", true);
-                                ev->appendKeyPose(propSceneObject_bbPose.name, _bbFrame);
-                                ev->appendKeyVector3(propSceneObject_size.name, _bbHalfSize);
+                                ev->appendKeyPose(prop(PropSceneObject::bbPose).name, _bbFrame);
+                                ev->appendKeyVector3(prop(PropSceneObject::size).name, _bbHalfSize);
                                 App::scenes->pushEvent();
                             }
                         }
@@ -839,12 +839,12 @@ void CPointCloud::addObjectEventData(CCbor* ev)
     else
     {
         color.addGenesisEventData(ev);
-        ev->appendKeyBool(propPointCloud_ocTreeStruct.name, !_doNotUseOctreeStructure);
-        ev->appendKeyBool(propPointCloud_randomColors.name, _useRandomColors);
-        ev->appendKeyInt64(propPointCloud_pointSize.name, _pointSize);
-        ev->appendKeyInt64(propPointCloud_maxPtsInCell.name, _maxPointCountPerCell);
-        ev->appendKeyDouble(propPointCloud_cellSize.name, _cellSize);
-        ev->appendKeyDouble(propPointCloud_pointDisplayFraction.name, _pointDisplayRatio);
+        ev->appendKeyBool(prop(PropPointCloud::ocTreeStruct).name, !_doNotUseOctreeStructure);
+        ev->appendKeyBool(prop(PropPointCloud::randomColors).name, _useRandomColors);
+        ev->appendKeyInt64(prop(PropPointCloud::pointSize).name, _pointSize);
+        ev->appendKeyInt64(prop(PropPointCloud::maxPtsInCell).name, _maxPointCountPerCell);
+        ev->appendKeyDouble(prop(PropPointCloud::cellSize).name, _cellSize);
+        ev->appendKeyDouble(prop(PropPointCloud::pointDisplayFraction).name, _pointDisplayRatio);
         _updatePointCloudEvent(false, ev);
     }
     CSceneObject::addObjectEventData(ev);
@@ -887,7 +887,7 @@ void CPointCloud::setCellSize(double theNewSize)
         _cellSize = theNewSize;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propPointCloud_cellSize.name;
+            const char* cmd = prop(PropPointCloud::cellSize).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _cellSize);
             App::scenes->pushEvent();
@@ -914,7 +914,7 @@ void CPointCloud::setMaxPointCountPerCell(int cnt)
         _maxPointCountPerCell = cnt;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propPointCloud_maxPtsInCell.name;
+            const char* cmd = prop(PropPointCloud::maxPtsInCell).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _maxPointCountPerCell);
             App::scenes->pushEvent();
@@ -964,7 +964,7 @@ void CPointCloud::setPointSize(int s)
         _pointSize = s;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propPointCloud_pointSize.name;
+            const char* cmd = prop(PropPointCloud::pointSize).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _pointSize);
             App::scenes->pushEvent();
@@ -1017,7 +1017,7 @@ void CPointCloud::setUseRandomColors(bool r)
         _updatePointCloudEvent(false);
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propPointCloud_randomColors.name;
+            const char* cmd = prop(PropPointCloud::randomColors).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _useRandomColors);
             App::scenes->pushEvent();
@@ -1047,7 +1047,7 @@ void CPointCloud::setDoNotUseCalculationStructure(bool s)
         _doNotUseOctreeStructure = s;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propPointCloud_ocTreeStruct.name;
+            const char* cmd = prop(PropPointCloud::ocTreeStruct).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, !_doNotUseOctreeStructure);
             App::scenes->pushEvent();
@@ -1082,7 +1082,7 @@ void CPointCloud::setPointDisplayRatio(double r)
         _pointDisplayRatio = r;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propPointCloud_pointDisplayFraction.name;
+            const char* cmd = prop(PropPointCloud::pointDisplayFraction).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _pointDisplayRatio);
             App::scenes->pushEvent();
@@ -1709,12 +1709,12 @@ int CPointCloud::setBoolProperty(const char* ppName, bool pState)
     int retVal = CSceneObject::setBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propPointCloud_ocTreeStruct.name)
+        if (_pName == prop(PropPointCloud::ocTreeStruct).name)
         {
             retVal = sim_propertyret_ok;
             setDoNotUseCalculationStructure(!pState);
         }
-        else if (_pName == propPointCloud_randomColors.name)
+        else if (_pName == prop(PropPointCloud::randomColors).name)
         {
             retVal = sim_propertyret_ok;
             setUseRandomColors(pState);
@@ -1730,12 +1730,12 @@ int CPointCloud::getBoolProperty(const char* ppName, bool& pState) const
     int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propPointCloud_ocTreeStruct.name)
+        if (_pName == prop(PropPointCloud::ocTreeStruct).name)
         {
             retVal = sim_propertyret_ok;
             pState = !_doNotUseOctreeStructure;
         }
-        else if (_pName == propPointCloud_randomColors.name)
+        else if (_pName == prop(PropPointCloud::randomColors).name)
         {
             retVal = sim_propertyret_ok;
             pState = _useRandomColors;
@@ -1751,12 +1751,12 @@ int CPointCloud::setIntProperty(const char* ppName, int pState)
     int retVal = CSceneObject::setIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propPointCloud_pointSize.name)
+        if (_pName == prop(PropPointCloud::pointSize).name)
         {
             setPointSize(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propPointCloud_maxPtsInCell.name)
+        else if (_pName == prop(PropPointCloud::maxPtsInCell).name)
         {
             setMaxPointCountPerCell(pState);
             retVal = sim_propertyret_ok;
@@ -1772,12 +1772,12 @@ int CPointCloud::getIntProperty(const char* ppName, int& pState) const
     int retVal = CSceneObject::getIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propPointCloud_pointSize.name)
+        if (_pName == prop(PropPointCloud::pointSize).name)
         {
             pState = _pointSize;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propPointCloud_maxPtsInCell.name)
+        else if (_pName == prop(PropPointCloud::maxPtsInCell).name)
         {
             pState = _maxPointCountPerCell;
             retVal = sim_propertyret_ok;
@@ -1795,12 +1795,12 @@ int CPointCloud::setFloatProperty(const char* ppName, double pState)
         retVal = color.setFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propPointCloud_cellSize.name)
+        if (_pName == prop(PropPointCloud::cellSize).name)
         {
             setCellSize(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propPointCloud_pointDisplayFraction.name)
+        else if (_pName == prop(PropPointCloud::pointDisplayFraction).name)
         {
             setPointDisplayRatio(pState);
             retVal = sim_propertyret_ok;
@@ -1818,12 +1818,12 @@ int CPointCloud::getFloatProperty(const char* ppName, double& pState) const
         retVal = color.getFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propPointCloud_cellSize.name)
+        if (_pName == prop(PropPointCloud::cellSize).name)
         {
             pState = _cellSize;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propPointCloud_pointDisplayFraction.name)
+        else if (_pName == prop(PropPointCloud::pointDisplayFraction).name)
         {
             pState = _pointDisplayRatio;
             retVal = sim_propertyret_ok;
@@ -1862,12 +1862,12 @@ int CPointCloud::getBufferProperty(const char* ppName, std::string& pState) cons
     int retVal = CSceneObject::getBufferProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propPointCloud_colors.name)
+        if (_pName == prop(PropPointCloud::colors).name)
         {
             retVal = sim_propertyret_ok;
             pState.assign(_displayColorsByte.begin(), _displayColorsByte.end());
         }
-        else if (_pName == propPointCloud_packedPoints.name)
+        else if (_pName == prop(PropPointCloud::packedPoints).name)
         {
             retVal = sim_propertyret_ok;
             std::vector<float> p;
@@ -1924,7 +1924,7 @@ int CPointCloud::getMatrixProperty(const char* pName, CMatrix& pState) const
     if (retVal == sim_propertyret_unknownproperty)
     {
         std::string _pName(pName);
-        if (_pName == propPointCloud_points.name)
+        if (_pName == prop(PropPointCloud::points).name)
         {
             retVal = sim_propertyret_ok;
             pState.resize(_displayPoints.size() / 3, 3, 0.0);
@@ -1981,7 +1981,7 @@ int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& inf
                 retVal = allProps_pointCloud[i].type;
                 info = allProps_pointCloud[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_pointCloud[i].info.json.toStdString();
+                    infoTxt = allProps_pointCloud[i].info.json;
                 else
                 {
                     auto w = allProps_pointCloud[i].info.map;
@@ -1998,12 +1998,12 @@ int CPointCloud::getPropertyInfo(const char* ppName, int& info, std::string& inf
         if (retVal != sim_propertyret_unknownproperty)
         {
             std::string _pName(ppName);
-            if ((_pName == propPointCloud_points.name) || (_pName == propPointCloud_packedPoints.name))
+            if ((_pName == prop(PropPointCloud::points).name) || (_pName == prop(PropPointCloud::packedPoints).name))
             {
                 if (_displayPoints.size() > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;
             }
-            else if (_pName == propPointCloud_colors.name)
+            else if (_pName == prop(PropPointCloud::colors).name)
             {
                 if (_displayColorsByte.size() * 3 > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;

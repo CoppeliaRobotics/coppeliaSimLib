@@ -172,7 +172,7 @@ void CShape::setInitialDynamicLinearVelocity(const C3Vector& vel)
         _initialDynamicLinearVelocity = vel;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propShape_initLinearVelocity.name;
+            const char* cmd = prop(PropShape::initLinearVelocity).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyDoubleArray(cmd, _initialDynamicLinearVelocity.data, 3);
@@ -196,7 +196,7 @@ void CShape::setInitialDynamicAngularVelocity(const C3Vector& vel)
         _initialDynamicAngularVelocity = vel;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propShape_initAngularVelocity.name;
+            const char* cmd = prop(PropShape::initAngularVelocity).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyDoubleArray(cmd, _initialDynamicAngularVelocity.data, 3);
@@ -240,7 +240,7 @@ void CShape::setRespondableMask(int m)
         _respondableMask = m;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propShape_respondableMask.name;
+            const char* cmd = prop(PropShape::respondableMask).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _respondableMask);
             App::scenes->pushEvent();
@@ -373,17 +373,17 @@ void CShape::setDynamicVelocity(const C3Vector& linearV, const C3Vector& angular
         _dynamicAngularVelocity = angularV;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propShape_dynLinearVelocity.name;
+            const char* cmd = prop(PropShape::dynLinearVelocity).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
             {
                 ev->appendKeyDoubleArray(cmd, _dynamicLinearVelocity.data, 3);
-                ev->appendKeyDoubleArray(propShape_dynAngularVelocity.name, _dynamicAngularVelocity.data, 3);
+                ev->appendKeyDoubleArray(prop(PropShape::dynAngularVelocity).name, _dynamicAngularVelocity.data, 3);
             }
             else
             {
                 ev->appendKeyVector3(cmd, _dynamicLinearVelocity);
-                ev->appendKeyVector3(propShape_dynAngularVelocity.name, _dynamicAngularVelocity);
+                ev->appendKeyVector3(prop(PropShape::dynAngularVelocity).name, _dynamicAngularVelocity);
             }
             App::scenes->pushEvent();
         }
@@ -440,7 +440,7 @@ void CShape::setRespondable(bool r)
         _shapeIsDynamicallyRespondable = r;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propShape_respondable.name;
+            const char* cmd = prop(PropShape::respondable).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _shapeIsDynamicallyRespondable);
             App::scenes->pushEvent();
@@ -466,7 +466,7 @@ void CShape::setSetAutomaticallyToNonStaticIfGetsParent(bool autoNonStatic)
         _setAutomaticallyToNonStaticIfGetsParent = autoNonStatic;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propShape_setToDynamicWithParent.name;
+            const char* cmd = prop(PropShape::setToDynamicWithParent).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _setAutomaticallyToNonStaticIfGetsParent);
             App::scenes->pushEvent();
@@ -487,7 +487,7 @@ void CShape::setStartInDynamicSleeping(bool sleeping)
         _startInDynamicSleeping = sleeping;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propShape_startInDynSleepMode.name;
+            const char* cmd = prop(PropShape::startInDynSleepMode).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _startInDynamicSleeping);
             App::scenes->pushEvent();
@@ -508,7 +508,7 @@ void CShape::setStatic(bool sta)
         _shapeIsDynamicallyStatic = sta;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propShape_dynamic.name;
+            const char* cmd = prop(PropShape::dynamic).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, !_shapeIsDynamicallyStatic);
             App::scenes->pushEvent();
@@ -538,7 +538,7 @@ void CShape::setDynKinematic(bool kin)
         _shapeIsDynamicallyKinematic = kin;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propShape_kinematic.name;
+            const char* cmd = prop(PropShape::kinematic).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _shapeIsDynamicallyKinematic);
             App::scenes->pushEvent();
@@ -1537,7 +1537,7 @@ void CShape::addObjectEventData(CCbor* ev)
     _dynMaterial->sendEngineString(ev);
     if (App::getEventProtocolVersion() == 2)
     {
-        ev->openKeyArray(propShape_meshes.name);
+        ev->openKeyArray(prop(PropShape::meshes).name);
         std::vector<CMesh*> all;
         std::vector<CPose> allTr;
         getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, all, &allTr);
@@ -1640,32 +1640,32 @@ void CShape::addObjectEventData(CCbor* ev)
         mmid.resize(all.size());
         for (size_t i = 0; i < all.size(); i++)
             mmid[i] = all[i]->getObjectHandle();
-        ev->appendKeyHandleArray(propShape_meshes.name, mmid.data(), mmid.size());
+        ev->appendKeyHandleArray(prop(PropShape::meshes).name, mmid.data(), mmid.size());
     }
 
-    ev->appendKeyInt64(propShape_respondableMask.name, _respondableMask);
-    ev->appendKeyBool(propShape_startInDynSleepMode.name, _startInDynamicSleeping);
-    ev->appendKeyBool(propShape_dynamic.name, !_shapeIsDynamicallyStatic);
-    ev->appendKeyBool(propShape_kinematic.name, _shapeIsDynamicallyKinematic);
-    ev->appendKeyBool(propShape_respondable.name, _shapeIsDynamicallyRespondable);
-    ev->appendKeyBool(propShape_setToDynamicWithParent.name, _setAutomaticallyToNonStaticIfGetsParent);
+    ev->appendKeyInt64(prop(PropShape::respondableMask).name, _respondableMask);
+    ev->appendKeyBool(prop(PropShape::startInDynSleepMode).name, _startInDynamicSleeping);
+    ev->appendKeyBool(prop(PropShape::dynamic).name, !_shapeIsDynamicallyStatic);
+    ev->appendKeyBool(prop(PropShape::kinematic).name, _shapeIsDynamicallyKinematic);
+    ev->appendKeyBool(prop(PropShape::respondable).name, _shapeIsDynamicallyRespondable);
+    ev->appendKeyBool(prop(PropShape::setToDynamicWithParent).name, _setAutomaticallyToNonStaticIfGetsParent);
     if (App::getEventProtocolVersion() <= 3)
     {
-        ev->appendKeyDoubleArray(propShape_initLinearVelocity.name, _initialDynamicLinearVelocity.data, 3);
-        ev->appendKeyDoubleArray(propShape_initAngularVelocity.name, _initialDynamicAngularVelocity.data, 3);
-        ev->appendKeyDoubleArray(propShape_dynLinearVelocity.name, _dynamicLinearVelocity.data, 3);
-        ev->appendKeyDoubleArray(propShape_dynAngularVelocity.name, _dynamicAngularVelocity.data, 3);
+        ev->appendKeyDoubleArray(prop(PropShape::initLinearVelocity).name, _initialDynamicLinearVelocity.data, 3);
+        ev->appendKeyDoubleArray(prop(PropShape::initAngularVelocity).name, _initialDynamicAngularVelocity.data, 3);
+        ev->appendKeyDoubleArray(prop(PropShape::dynLinearVelocity).name, _dynamicLinearVelocity.data, 3);
+        ev->appendKeyDoubleArray(prop(PropShape::dynAngularVelocity).name, _dynamicAngularVelocity.data, 3);
     }
     else
     {
-        ev->appendKeyVector3(propShape_initLinearVelocity.name, _initialDynamicLinearVelocity);
-        ev->appendKeyVector3(propShape_initAngularVelocity.name, _initialDynamicAngularVelocity);
-        ev->appendKeyVector3(propShape_dynLinearVelocity.name, _dynamicLinearVelocity);
-        ev->appendKeyVector3(propShape_dynAngularVelocity.name, _dynamicAngularVelocity);
+        ev->appendKeyVector3(prop(PropShape::initLinearVelocity).name, _initialDynamicLinearVelocity);
+        ev->appendKeyVector3(prop(PropShape::initAngularVelocity).name, _initialDynamicAngularVelocity);
+        ev->appendKeyVector3(prop(PropShape::dynLinearVelocity).name, _dynamicLinearVelocity);
+        ev->appendKeyVector3(prop(PropShape::dynAngularVelocity).name, _dynamicAngularVelocity);
     }
-    ev->appendKeyBool(propShape_convex.name, _mesh->isConvex());
-    ev->appendKeyBool(propShape_primitive.name, _mesh->isPure());
-    ev->appendKeyBool(propShape_compound.name, (_mesh->getComponentCount() > 1));
+    ev->appendKeyBool(prop(PropShape::convex).name, _mesh->isConvex());
+    ev->appendKeyBool(prop(PropShape::primitive).name, _mesh->isPure());
+    ev->appendKeyBool(prop(PropShape::compound).name, (_mesh->getComponentCount() > 1));
     _mesh->addObjectEventData(_objectHandle, ev);
 
     if (App::getEventProtocolVersion() == 2)
@@ -1814,42 +1814,42 @@ int CShape::setBoolProperty(const char* ppName, bool pState)
         retVal = _dynMaterial->setBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propShape_applyCulling.name)
+        if (_pName == prop(PropShape::applyCulling).name)
         {
             setCulling(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_applyShowEdges.name)
+        else if (_pName == prop(PropShape::applyShowEdges).name)
         {
             setVisibleEdges(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_flipFaces.name)
+        else if (_pName == prop(PropShape::flipFaces).name)
         {
             invertFrontBack();
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_startInDynSleepMode.name)
+        else if (_pName == prop(PropShape::startInDynSleepMode).name)
         {
             setStartInDynamicSleeping(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_dynamic.name)
+        else if (_pName == prop(PropShape::dynamic).name)
         {
             setStatic(!pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_kinematic.name)
+        else if (_pName == prop(PropShape::kinematic).name)
         {
             setDynKinematic(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_respondable.name)
+        else if (_pName == prop(PropShape::respondable).name)
         {
             setRespondable(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_setToDynamicWithParent.name)
+        else if (_pName == prop(PropShape::setToDynamicWithParent).name)
         {
             setSetAutomaticallyToNonStaticIfGetsParent(pState);
             retVal = sim_propertyret_ok;
@@ -1867,42 +1867,42 @@ int CShape::getBoolProperty(const char* ppName, bool& pState) const
         retVal = _dynMaterial->getBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propShape_startInDynSleepMode.name)
+        if (_pName == prop(PropShape::startInDynSleepMode).name)
         {
             pState = _startInDynamicSleeping;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_dynamic.name)
+        else if (_pName == prop(PropShape::dynamic).name)
         {
             pState = !_shapeIsDynamicallyStatic;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_kinematic.name)
+        else if (_pName == prop(PropShape::kinematic).name)
         {
             pState = _shapeIsDynamicallyKinematic;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_respondable.name)
+        else if (_pName == prop(PropShape::respondable).name)
         {
             pState = _shapeIsDynamicallyRespondable;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_setToDynamicWithParent.name)
+        else if (_pName == prop(PropShape::setToDynamicWithParent).name)
         {
             pState = _setAutomaticallyToNonStaticIfGetsParent;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_convex.name)
+        else if (_pName == prop(PropShape::convex).name)
         {
             pState = _mesh->isConvex();
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_primitive.name)
+        else if (_pName == prop(PropShape::primitive).name)
         {
             pState = _mesh->isPure();
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_compound.name)
+        else if (_pName == prop(PropShape::compound).name)
         {
             pState = (_mesh->getComponentCount() > 1);
             retVal = sim_propertyret_ok;
@@ -1920,7 +1920,7 @@ int CShape::setIntProperty(const char* ppName, int pState)
         retVal = _dynMaterial->setIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propShape_respondableMask.name)
+        if (_pName == prop(PropShape::respondableMask).name)
         {
             setRespondableMask(pState);
             retVal = sim_propertyret_ok;
@@ -1938,7 +1938,7 @@ int CShape::getIntProperty(const char* ppName, int& pState) const
         retVal = _dynMaterial->getIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propShape_respondableMask.name)
+        if (_pName == prop(PropShape::respondableMask).name)
         {
             pState = _respondableMask;
             retVal = sim_propertyret_ok;
@@ -1958,12 +1958,12 @@ int CShape::setFloatProperty(const char* ppName, double pState)
         retVal = _mesh->setFloatProperty_wrapper(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propShape_applyShadingAngle.name)
+        if (_pName == prop(PropShape::applyShadingAngle).name)
         {
             setShadingAngle(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_applyColorTransparency.name)
+        else if (_pName == prop(PropShape::applyColorTransparency).name)
         {
             float tr = float(1.0 - pState);
             _mesh->setColor(sim_colorcomponent_transparency, &tr);
@@ -2020,12 +2020,12 @@ int CShape::setVector3Property(const char* ppName, const C3Vector& pState)
         retVal = _mesh->setVector3Property_wrapper(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propShape_initLinearVelocity.name)
+        if (_pName == prop(PropShape::initLinearVelocity).name)
         {
             setInitialDynamicLinearVelocity(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_initAngularVelocity.name)
+        else if (_pName == prop(PropShape::initAngularVelocity).name)
         {
             setInitialDynamicAngularVelocity(pState);
             retVal = sim_propertyret_ok;
@@ -2045,22 +2045,22 @@ int CShape::getVector3Property(const char* ppName, C3Vector& pState) const
         retVal = _mesh->getVector3Property_wrapper(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propShape_initLinearVelocity.name)
+        if (_pName == prop(PropShape::initLinearVelocity).name)
         {
             pState = _initialDynamicLinearVelocity;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_initAngularVelocity.name)
+        else if (_pName == prop(PropShape::initAngularVelocity).name)
         {
             pState = _initialDynamicAngularVelocity;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_dynLinearVelocity.name)
+        else if (_pName == prop(PropShape::dynLinearVelocity).name)
         {
             pState = _dynamicLinearVelocity;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_dynAngularVelocity.name)
+        else if (_pName == prop(PropShape::dynAngularVelocity).name)
         {
             pState = _dynamicAngularVelocity;
             retVal = sim_propertyret_ok;
@@ -2124,17 +2124,17 @@ int CShape::setColorProperty(const char* ppName, const float* pState)
     int retVal = CSceneObject::setColorProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propShape_applyColorDiffuse.name)
+        if (_pName == prop(PropShape::applyColorDiffuse).name)
         {
             _mesh->setColor(sim_materialcomponent_diffuse, pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_applyColorSpecular.name)
+        else if (_pName == prop(PropShape::applyColorSpecular).name)
         {
             _mesh->setColor(sim_materialcomponent_specular, pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propShape_applyColorEmission.name)
+        else if (_pName == prop(PropShape::applyColorEmission).name)
         {
             _mesh->setColor(sim_materialcomponent_emission, pState);
             retVal = sim_propertyret_ok;
@@ -2153,22 +2153,22 @@ int CShape::setFloatArrayProperty(const char* ppName, const std::vector<double>&
         retVal = _mesh->setFloatArrayProperty_wrapper(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if ((strcmp(propShape_compoundColorDiffuse.name, ppName) == 0) || (strcmp(propShape_compoundColorSpecular.name, ppName) == 0) || (strcmp(propShape_compoundColorEmission.name, ppName) == 0))
+        if ((strcmp(prop(PropShape::compoundColorDiffuse).name, ppName) == 0) || (strcmp(prop(PropShape::compoundColorSpecular).name, ppName) == 0) || (strcmp(prop(PropShape::compoundColorEmission).name, ppName) == 0))
         {
             int res = getComponentCount() * 3;
             if (res == pState.size())
             {
                 int c = sim_materialcomponent_diffuse;
-                if (strcmp(propShape_compoundColorSpecular.name, ppName) == 0)
+                if (strcmp(prop(PropShape::compoundColorSpecular).name, ppName) == 0)
                     c = sim_materialcomponent_specular;
-                else if (strcmp(propShape_compoundColorEmission.name, ppName) == 0)
+                else if (strcmp(prop(PropShape::compoundColorEmission).name, ppName) == 0)
                     c = sim_materialcomponent_emission;
                 std::vector<float> vec(pState.data(), pState.data() + pState.size());
                 setColor("@compound", c, vec.data());
             }
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(propShape_compoundColorTransparency.name, ppName) == 0)
+        else if (strcmp(prop(PropShape::compoundColorTransparency).name, ppName) == 0)
         {
             int res = getComponentCount();
             if (res == pState.size())
@@ -2178,7 +2178,7 @@ int CShape::setFloatArrayProperty(const char* ppName, const std::vector<double>&
             }
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(propShape_compoundShadingAngles.name, ppName) == 0)
+        else if (strcmp(prop(PropShape::compoundShadingAngles).name, ppName) == 0)
         {
             std::vector<CMesh*> meshes;
             getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, meshes);
@@ -2204,13 +2204,13 @@ int CShape::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
         retVal = _mesh->getFloatArrayProperty_wrapper(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if ((strcmp(propShape_compoundColorDiffuse.name, ppName) == 0) || (strcmp(propShape_compoundColorSpecular.name, ppName) == 0) || (strcmp(propShape_compoundColorEmission.name, ppName) == 0))
+        if ((strcmp(prop(PropShape::compoundColorDiffuse).name, ppName) == 0) || (strcmp(prop(PropShape::compoundColorSpecular).name, ppName) == 0) || (strcmp(prop(PropShape::compoundColorEmission).name, ppName) == 0))
         {
             int res = getComponentCount() * 3;
             int c = sim_materialcomponent_diffuse;
-            if (strcmp(propShape_compoundColorSpecular.name, ppName) == 0)
+            if (strcmp(prop(PropShape::compoundColorSpecular).name, ppName) == 0)
                 c = sim_materialcomponent_specular;
-            else if (strcmp(propShape_compoundColorEmission.name, ppName) == 0)
+            else if (strcmp(prop(PropShape::compoundColorEmission).name, ppName) == 0)
                 c = sim_materialcomponent_emission;
             std::vector<float> vec;
             vec.resize(res);
@@ -2220,7 +2220,7 @@ int CShape::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
                 pState[i] = vec[i];
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(propShape_compoundColorTransparency.name, ppName) == 0)
+        else if (strcmp(prop(PropShape::compoundColorTransparency).name, ppName) == 0)
         {
             int res = getComponentCount();
             std::vector<float> vec;
@@ -2231,7 +2231,7 @@ int CShape::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
                 pState[i] = vec[i];
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(propShape_compoundShadingAngles.name, ppName) == 0)
+        else if (strcmp(prop(PropShape::compoundShadingAngles).name, ppName) == 0)
         {
             std::vector<CMesh*> meshes;
             getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, meshes);
@@ -2251,7 +2251,7 @@ int CShape::setIntArrayProperty(const char* ppName, const std::vector<int>& pSta
 
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if ((strcmp(propShape_compoundEdges.name, ppName) == 0) || (strcmp(propShape_compoundWireframe.name, ppName) == 0) || (strcmp(propShape_compoundCullings.name, ppName) == 0))
+        if ((strcmp(prop(PropShape::compoundEdges).name, ppName) == 0) || (strcmp(prop(PropShape::compoundWireframe).name, ppName) == 0) || (strcmp(prop(PropShape::compoundCullings).name, ppName) == 0))
         {
             std::vector<CMesh*> meshes;
             getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, meshes);
@@ -2259,11 +2259,11 @@ int CShape::setIntArrayProperty(const char* ppName, const std::vector<int>& pSta
             {
                 for (size_t i = 0; i < meshes.size(); i++)
                 {
-                    if (strcmp(propShape_compoundEdges.name, ppName) == 0)
+                    if (strcmp(prop(PropShape::compoundEdges).name, ppName) == 0)
                         meshes[i]->setVisibleEdges(pState[i] != 0);
-                    else if (strcmp(propShape_compoundWireframe.name, ppName) == 0)
+                    else if (strcmp(prop(PropShape::compoundWireframe).name, ppName) == 0)
                         meshes[i]->setWireframe(pState[i] != 0);
-                    else if (strcmp(propShape_compoundCullings.name, ppName) == 0)
+                    else if (strcmp(prop(PropShape::compoundCullings).name, ppName) == 0)
                         meshes[i]->setCulling(pState[i] != 0);
                 }
             }
@@ -2288,17 +2288,17 @@ int CShape::getIntArrayProperty(const char* ppName, std::vector<int>& pState) co
                 pState.push_back(all[i]->getObjectHandle());
             retVal = sim_propertyret_ok;
         }
-        else if ((strcmp(propShape_compoundEdges.name, ppName) == 0) || (strcmp(propShape_compoundWireframe.name, ppName) == 0) || (strcmp(propShape_compoundCullings.name, ppName) == 0))
+        else if ((strcmp(prop(PropShape::compoundEdges).name, ppName) == 0) || (strcmp(prop(PropShape::compoundWireframe).name, ppName) == 0) || (strcmp(prop(PropShape::compoundCullings).name, ppName) == 0))
         {
             std::vector<CMesh*> meshes;
             getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, meshes);
             for (size_t i = 0; i < meshes.size(); i++)
             {
-                if (strcmp(propShape_compoundEdges.name, ppName) == 0)
+                if (strcmp(prop(PropShape::compoundEdges).name, ppName) == 0)
                     pState.push_back(meshes[i]->getVisibleEdges());
-                else if (strcmp(propShape_compoundWireframe.name, ppName) == 0)
+                else if (strcmp(prop(PropShape::compoundWireframe).name, ppName) == 0)
                     pState.push_back(meshes[i]->getWireframe());
-                else if (strcmp(propShape_compoundCullings.name, ppName) == 0)
+                else if (strcmp(prop(PropShape::compoundCullings).name, ppName) == 0)
                     pState.push_back(meshes[i]->getCulling());
             }
             retVal = sim_propertyret_ok;
@@ -2315,7 +2315,7 @@ int CShape::getHandleArrayProperty(const char* ppName, std::vector<int64_t>& pSt
     int retVal = CSceneObject::getHandleArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(ppName, propShape_meshes.name) == 0)
+        if (strcmp(ppName, prop(PropShape::meshes).name) == 0)
         {
             std::vector<CMesh*> all;
             getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, all, nullptr);
@@ -2377,7 +2377,7 @@ int CShape::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
                 retVal = allProps_shape[i].type;
                 info = allProps_shape[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_shape[i].info.json.toStdString();
+                    infoTxt = allProps_shape[i].info.json;
                 else
                 {
                     auto w = allProps_shape[i].info.map;

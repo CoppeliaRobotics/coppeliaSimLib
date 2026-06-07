@@ -108,7 +108,7 @@ void CProxSensor::setShowVolume(bool s)
         _showVolume = s;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propProximitySensor_showVolume.name;
+            const char* cmd = prop(PropProximitySensor::showVolume).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _showVolume);
             App::scenes->pushEvent();
@@ -213,19 +213,19 @@ void CProxSensor::_setDetectedObjectAndInfo(int h, const C3Vector* detectedPt /*
         }
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propProximitySensor_detectedObject.name;
+            const char* cmd = prop(PropProximitySensor::detectedObject).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
             {
-                ev->appendKeyInt64(propProximitySensor_DEPRECATED_detectedObjectHandle.name, _detectedObjectHandle);
-                ev->appendKeyDoubleArray(propProximitySensor_detectedPoint.name, _detectedPoint.data, 3);
-                ev->appendKeyDoubleArray(propProximitySensor_detectedNormal.name, _detectedNormalVector.data, 3);
+                ev->appendKeyInt64(prop(PropProximitySensor::DEPRECATED_detectedObjectHandle).name, _detectedObjectHandle);
+                ev->appendKeyDoubleArray(prop(PropProximitySensor::detectedPoint).name, _detectedPoint.data, 3);
+                ev->appendKeyDoubleArray(prop(PropProximitySensor::detectedNormal).name, _detectedNormalVector.data, 3);
             }
             else
             {
-                ev->appendKeyHandle(propProximitySensor_detectedObject.name, _detectedObjectHandle);
-                ev->appendKeyVector3(propProximitySensor_detectedPoint.name, _detectedPoint);
-                ev->appendKeyVector3(propProximitySensor_detectedNormal.name, _detectedNormalVector);
+                ev->appendKeyHandle(prop(PropProximitySensor::detectedObject).name, _detectedObjectHandle);
+                ev->appendKeyVector3(prop(PropProximitySensor::detectedPoint).name, _detectedPoint);
+                ev->appendKeyVector3(prop(PropProximitySensor::detectedNormal).name, _detectedNormalVector);
             }
             App::scenes->pushEvent();
         }
@@ -249,7 +249,7 @@ void CProxSensor::setExplicitHandling(bool setExplicit)
         _explicitHandling = setExplicit;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propProximitySensor_explicitHandling.name;
+            const char* cmd = prop(PropProximitySensor::explicitHandling).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _explicitHandling);
             App::scenes->pushEvent();
@@ -287,28 +287,28 @@ void CProxSensor::addObjectEventData(CCbor* ev)
         volumeColor.addGenesisEventData(ev);
         detectionRayColor.addGenesisEventData(ev);
     }
-    ev->appendKeyBool(propProximitySensor_frontFaceDetection.name, _frontFaceDetection);
-    ev->appendKeyBool(propProximitySensor_backFaceDetection.name, _backFaceDetection);
-    ev->appendKeyBool(propProximitySensor_exactMode.name, _exactMode);
-    ev->appendKeyBool(propProximitySensor_explicitHandling.name, _explicitHandling);
-    ev->appendKeyBool(propProximitySensor_showVolume.name, _showVolume);
-    ev->appendKeyBool(propProximitySensor_randomizedDetection.name, _randomizedDetection);
-    ev->appendKeyDouble(propProximitySensor_angleThreshold.name, _angleThreshold);
+    ev->appendKeyBool(prop(PropProximitySensor::frontFaceDetection).name, _frontFaceDetection);
+    ev->appendKeyBool(prop(PropProximitySensor::backFaceDetection).name, _backFaceDetection);
+    ev->appendKeyBool(prop(PropProximitySensor::exactMode).name, _exactMode);
+    ev->appendKeyBool(prop(PropProximitySensor::explicitHandling).name, _explicitHandling);
+    ev->appendKeyBool(prop(PropProximitySensor::showVolume).name, _showVolume);
+    ev->appendKeyBool(prop(PropProximitySensor::randomizedDetection).name, _randomizedDetection);
+    ev->appendKeyDouble(prop(PropProximitySensor::angleThreshold).name, _angleThreshold);
     if (App::getEventProtocolVersion() <= 3)
     {
         ev->appendKeyDouble("sensorPointSize", _proxSensorSize);
         ev->appendKeyInt64("sensorType", sensorType);
         ev->appendKeyInt64("detectedObjectHandle", _detectedObjectHandle);
-        ev->appendKeyDoubleArray(propProximitySensor_detectedPoint.name, _detectedPoint.data, 3);
-        ev->appendKeyDoubleArray(propProximitySensor_detectedNormal.name, _detectedNormalVector.data, 3);
+        ev->appendKeyDoubleArray(prop(PropProximitySensor::detectedPoint).name, _detectedPoint.data, 3);
+        ev->appendKeyDoubleArray(prop(PropProximitySensor::detectedNormal).name, _detectedNormalVector.data, 3);
     }
     else
     {
-        ev->appendKeyDouble(propProximitySensor_size.name, _proxSensorSize);
-        ev->appendKeyInt64(propProximitySensor_sensorType.name, sensorType);
-        ev->appendKeyHandle(propProximitySensor_detectedObject.name, _detectedObjectHandle);
-        ev->appendKeyVector3(propProximitySensor_detectedPoint.name, _detectedPoint);
-        ev->appendKeyVector3(propProximitySensor_detectedNormal.name, _detectedNormalVector);
+        ev->appendKeyDouble(prop(PropProximitySensor::size).name, _proxSensorSize);
+        ev->appendKeyInt64(prop(PropProximitySensor::sensorType).name, sensorType);
+        ev->appendKeyHandle(prop(PropProximitySensor::detectedObject).name, _detectedObjectHandle);
+        ev->appendKeyVector3(prop(PropProximitySensor::detectedPoint).name, _detectedPoint);
+        ev->appendKeyVector3(prop(PropProximitySensor::detectedNormal).name, _detectedNormalVector);
     }
     convexVolume->sendEventData(ev);
     if (App::getEventProtocolVersion() == 2)
@@ -1065,7 +1065,7 @@ void CProxSensor::setFrontFaceDetection(bool faceOn)
         _frontFaceDetection = faceOn;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propProximitySensor_frontFaceDetection.name;
+            const char* cmd = prop(PropProximitySensor::frontFaceDetection).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _frontFaceDetection);
             App::scenes->pushEvent();
@@ -1082,7 +1082,7 @@ void CProxSensor::setBackFaceDetection(bool faceOn)
         _backFaceDetection = faceOn;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propProximitySensor_backFaceDetection.name;
+            const char* cmd = prop(PropProximitySensor::backFaceDetection).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _backFaceDetection);
             App::scenes->pushEvent();
@@ -1100,7 +1100,7 @@ void CProxSensor::setAllowedNormal(double al)
         _angleThreshold = al;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propProximitySensor_angleThreshold.name;
+            const char* cmd = prop(PropProximitySensor::angleThreshold).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _angleThreshold);
             App::scenes->pushEvent();
@@ -1120,7 +1120,7 @@ void CProxSensor::setExactMode(bool closestObjMode)
         _exactMode = closestObjMode;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propProximitySensor_exactMode.name;
+            const char* cmd = prop(PropProximitySensor::exactMode).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _exactMode);
             App::scenes->pushEvent();
@@ -1144,7 +1144,7 @@ void CProxSensor::setProxSensorSize(double newSize)
         _proxSensorSize = newSize;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propProximitySensor_size.name;
+            const char* cmd = prop(PropProximitySensor::size).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyDouble("sensorPointSize", _proxSensorSize);
@@ -1229,27 +1229,27 @@ int CProxSensor::setBoolProperty(const char* ppName, bool pState)
         retVal = convexVolume->setBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propProximitySensor_frontFaceDetection.name)
+        if (_pName == prop(PropProximitySensor::frontFaceDetection).name)
         {
             retVal = sim_propertyret_ok;
             setFrontFaceDetection(pState);
         }
-        else if (_pName == propProximitySensor_backFaceDetection.name)
+        else if (_pName == prop(PropProximitySensor::backFaceDetection).name)
         {
             retVal = sim_propertyret_ok;
             setBackFaceDetection(pState);
         }
-        else if (_pName == propProximitySensor_exactMode.name)
+        else if (_pName == prop(PropProximitySensor::exactMode).name)
         {
             retVal = sim_propertyret_ok;
             setExactMode(pState);
         }
-        else if (_pName == propProximitySensor_explicitHandling.name)
+        else if (_pName == prop(PropProximitySensor::explicitHandling).name)
         {
             retVal = sim_propertyret_ok;
             setExplicitHandling(pState);
         }
-        else if (_pName == propProximitySensor_showVolume.name)
+        else if (_pName == prop(PropProximitySensor::showVolume).name)
         {
             retVal = sim_propertyret_ok;
             setShowVolume(pState);
@@ -1267,32 +1267,32 @@ int CProxSensor::getBoolProperty(const char* ppName, bool& pState) const
         retVal = convexVolume->getBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propProximitySensor_frontFaceDetection.name)
+        if (_pName == prop(PropProximitySensor::frontFaceDetection).name)
         {
             retVal = sim_propertyret_ok;
             pState = _frontFaceDetection;
         }
-        else if (_pName == propProximitySensor_backFaceDetection.name)
+        else if (_pName == prop(PropProximitySensor::backFaceDetection).name)
         {
             retVal = sim_propertyret_ok;
             pState = _backFaceDetection;
         }
-        else if (_pName == propProximitySensor_exactMode.name)
+        else if (_pName == prop(PropProximitySensor::exactMode).name)
         {
             retVal = sim_propertyret_ok;
             pState = _exactMode;
         }
-        else if (_pName == propProximitySensor_explicitHandling.name)
+        else if (_pName == prop(PropProximitySensor::explicitHandling).name)
         {
             retVal = sim_propertyret_ok;
             pState = _explicitHandling;
         }
-        else if (_pName == propProximitySensor_showVolume.name)
+        else if (_pName == prop(PropProximitySensor::showVolume).name)
         {
             retVal = sim_propertyret_ok;
             pState = _showVolume;
         }
-        else if (_pName == propProximitySensor_randomizedDetection.name)
+        else if (_pName == prop(PropProximitySensor::randomizedDetection).name)
         {
             retVal = sim_propertyret_ok;
             pState = _randomizedDetection;
@@ -1323,12 +1323,12 @@ int CProxSensor::getIntProperty(const char* ppName, int& pState) const
         retVal = convexVolume->getIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propProximitySensor_sensorType.name)
+        if (_pName == prop(PropProximitySensor::sensorType).name)
         {
             retVal = sim_propertyret_ok;
             pState = sensorType;
         }
-        else if (_pName == propProximitySensor_DEPRECATED_detectedObjectHandle.name)
+        else if (_pName == prop(PropProximitySensor::DEPRECATED_detectedObjectHandle).name)
         {
             retVal = sim_propertyret_ok;
             pState = _detectedObjectHandle;
@@ -1346,7 +1346,7 @@ int CProxSensor::getHandleProperty(const char* ppName, int64_t& pState) const
     //    retVal = convexVolume->getHandleProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propProximitySensor_detectedObject.name)
+        if (_pName == prop(PropProximitySensor::detectedObject).name)
         {
             retVal = sim_propertyret_ok;
             pState = _detectedObjectHandle;
@@ -1368,12 +1368,12 @@ int CProxSensor::setFloatProperty(const char* ppName, double pState)
         retVal = convexVolume->setFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propProximitySensor_size.name)
+        if (_pName == prop(PropProximitySensor::size).name)
         {
             setProxSensorSize(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propProximitySensor_angleThreshold.name)
+        else if (_pName == prop(PropProximitySensor::angleThreshold).name)
         {
             retVal = sim_propertyret_ok;
             setAllowedNormal(pState);
@@ -1395,12 +1395,12 @@ int CProxSensor::getFloatProperty(const char* ppName, double& pState) const
         retVal = convexVolume->getFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propProximitySensor_size.name)
+        if (_pName == prop(PropProximitySensor::size).name)
         {
             pState = _proxSensorSize;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propProximitySensor_angleThreshold.name)
+        else if (_pName == prop(PropProximitySensor::angleThreshold).name)
         {
             retVal = sim_propertyret_ok;
             pState = _angleThreshold;
@@ -1464,12 +1464,12 @@ int CProxSensor::getVector3Property(const char* ppName, C3Vector& pState) const
     int retVal = CSceneObject::getVector3Property(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propProximitySensor_detectedPoint.name)
+        if (_pName == prop(PropProximitySensor::detectedPoint).name)
         {
             pState = _detectedPoint;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propProximitySensor_detectedNormal.name)
+        else if (_pName == prop(PropProximitySensor::detectedNormal).name)
         {
             retVal = sim_propertyret_ok;
             pState = _detectedNormalVector;
@@ -1607,7 +1607,7 @@ int CProxSensor::getPropertyInfo(const char* ppName, int& info, std::string& inf
                 retVal = allProps_proximitySensor[i].type;
                 info = allProps_proximitySensor[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_proximitySensor[i].info.json.toStdString();
+                    infoTxt = allProps_proximitySensor[i].info.json;
                 else
                 {
                     auto w = allProps_proximitySensor[i].info.map;

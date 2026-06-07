@@ -319,9 +319,9 @@ void CustomObjectContainer::_notifyObjectListChanged() const
         getAllObjectHandles(customObjectList);
         CCbor* ev = App::scenes->createObjectChangedEvent(_target, nullptr, true);
         if (_target == sim_handle_app)
-            ev->appendKeyHandleArray(propApp_customObjects.name, customObjectList.data(), customObjectList.size());
+            ev->appendKeyHandleArray(prop(PropApp::customObjects).name, customObjectList.data(), customObjectList.size());
         if (_target == sim_handle_scene)
-            ev->appendKeyHandleArray(propScene_customObjects.name, customObjectList.data(), customObjectList.size());
+            ev->appendKeyHandleArray(prop(PropScene::customObjects).name, customObjectList.data(), customObjectList.size());
         App::scenes->pushEvent();
     }
 }
@@ -333,7 +333,7 @@ void CustomObjectContainer::_notifyClassListChanged() const
         std::vector<int64_t> customClassList;
         getAllClassHandles(customClassList);
         CCbor* ev = App::scenes->createObjectChangedEvent(_target, nullptr, true);
-        ev->appendKeyHandleArray(propApp_customClasses.name, customClassList.data(), customClassList.size());
+        ev->appendKeyHandleArray(prop(PropApp::customClasses).name, customClassList.data(), customClassList.size());
         App::scenes->pushEvent();
     }
 }

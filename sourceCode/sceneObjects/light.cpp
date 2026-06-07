@@ -197,7 +197,7 @@ void CLight::setLightSize(double size)
         _lightSize = size;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propLight_size.name;
+            const char* cmd = prop(PropLight::size).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _lightSize);
             App::scenes->pushEvent();
@@ -228,7 +228,7 @@ void CLight::setAttenuationFactors(const double fact[3])
         quadraticAttenuation = fact[2];
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propLight_attenuationFactors.name;
+            const char* cmd = prop(PropLight::attenuationFactors).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDoubleArray(cmd, fact, 3);
             App::scenes->pushEvent();
@@ -244,7 +244,7 @@ void CLight::setLightActive(bool active)
         lightActive = active;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propLight_enabled.name;
+            const char* cmd = prop(PropLight::enabled).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, lightActive);
             App::scenes->pushEvent();
@@ -269,7 +269,7 @@ void CLight::setSpotExponent(int e)
         _spotExponent = e;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propLight_spotExponent.name;
+            const char* cmd = prop(PropLight::spotExponent).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _spotExponent);
             App::scenes->pushEvent();
@@ -291,7 +291,7 @@ void CLight::setSpotCutoffAngle(double co)
         _spotCutoffAngle = co;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propLight_spotCutoffAngle.name;
+            const char* cmd = prop(PropLight::spotCutoffAngle).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _spotCutoffAngle);
             App::scenes->pushEvent();
@@ -336,16 +336,16 @@ void CLight::addObjectEventData(CCbor* ev)
         objectColor.addGenesisEventData(ev);
         lightColor.addGenesisEventData(ev);
     }
-    ev->appendKeyDouble(propLight_size.name, _lightSize);
+    ev->appendKeyDouble(prop(PropLight::size).name, _lightSize);
     if (App::getEventProtocolVersion() <= 3)
         ev->appendKeyInt64("lightType", _lightType);
     else
-        ev->appendKeyInt64(propLight_lightType.name, _lightType);
-    ev->appendKeyDouble(propLight_spotCutoffAngle.name, _spotCutoffAngle);
-    ev->appendKeyInt64(propLight_spotExponent.name, _spotExponent);
-    ev->appendKeyBool(propLight_enabled.name, lightActive);
+        ev->appendKeyInt64(prop(PropLight::lightType).name, _lightType);
+    ev->appendKeyDouble(prop(PropLight::spotCutoffAngle).name, _spotCutoffAngle);
+    ev->appendKeyInt64(prop(PropLight::spotExponent).name, _spotExponent);
+    ev->appendKeyBool(prop(PropLight::enabled).name, lightActive);
     double arr[3] = {constantAttenuation, linearAttenuation, quadraticAttenuation};
-    ev->appendKeyDoubleArray(propLight_attenuationFactors.name, arr, 3);
+    ev->appendKeyDoubleArray(prop(PropLight::attenuationFactors).name, arr, 3);
     // todo
     if (App::getEventProtocolVersion() == 2)
         ev->closeArrayOrMap(); // light
@@ -803,12 +803,12 @@ int CLight::setBoolProperty(const char* ppName, bool pState)
     int retVal = CSceneObject::setBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propLight_enabled.name)
+        if (_pName == prop(PropLight::enabled).name)
         {
             retVal = sim_propertyret_ok;
             setLightActive(pState);
         }
-        else if (_pName == propLight_povCastShadows.name)
+        else if (_pName == prop(PropLight::povCastShadows).name)
         {
             retVal = sim_propertyret_ok;
             if (pState)
@@ -827,12 +827,12 @@ int CLight::getBoolProperty(const char* ppName, bool& pState) const
     int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propLight_enabled.name)
+        if (_pName == prop(PropLight::enabled).name)
         {
             retVal = sim_propertyret_ok;
             pState = lightActive;
         }
-        else if (_pName == propLight_povCastShadows.name)
+        else if (_pName == prop(PropLight::povCastShadows).name)
         {
             retVal = sim_propertyret_ok;
             std::string val;
@@ -851,7 +851,7 @@ int CLight::setIntProperty(const char* ppName, int pState)
     int retVal = CSceneObject::setIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propLight_spotExponent.name)
+        if (_pName == prop(PropLight::spotExponent).name)
         {
             retVal = sim_propertyret_ok;
             setSpotExponent(pState);
@@ -867,12 +867,12 @@ int CLight::getIntProperty(const char* ppName, int& pState) const
     int retVal = CSceneObject::getIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propLight_spotExponent.name)
+        if (_pName == prop(PropLight::spotExponent).name)
         {
             retVal = sim_propertyret_ok;
             pState = _spotExponent;
         }
-        else if (_pName == propLight_lightType.name)
+        else if (_pName == prop(PropLight::lightType).name)
         {
             retVal = sim_propertyret_ok;
             pState = _lightType;
@@ -892,12 +892,12 @@ int CLight::setFloatProperty(const char* ppName, double pState)
         retVal = lightColor.setFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propLight_size.name)
+        if (_pName == prop(PropLight::size).name)
         {
             setLightSize(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propLight_spotCutoffAngle.name)
+        else if (_pName == prop(PropLight::spotCutoffAngle).name)
         {
             setSpotCutoffAngle(pState);
             retVal = sim_propertyret_ok;
@@ -917,12 +917,12 @@ int CLight::getFloatProperty(const char* ppName, double& pState) const
         retVal = lightColor.getFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propLight_size.name)
+        if (_pName == prop(PropLight::size).name)
         {
             pState = _lightSize;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propLight_spotCutoffAngle.name)
+        else if (_pName == prop(PropLight::spotCutoffAngle).name)
         {
             pState = _spotCutoffAngle;
             retVal = sim_propertyret_ok;
@@ -993,7 +993,7 @@ int CLight::setFloatArrayProperty(const char* ppName, const std::vector<double>&
     int retVal = CSceneObject::setFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propLight_attenuationFactors.name)
+        if (_pName == prop(PropLight::attenuationFactors).name)
         {
             if (pState.size() >= 3)
             {
@@ -1015,7 +1015,7 @@ int CLight::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
     int retVal = CSceneObject::getFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propLight_attenuationFactors.name)
+        if (_pName == prop(PropLight::attenuationFactors).name)
         {
             pState.push_back(constantAttenuation);
             pState.push_back(linearAttenuation);
@@ -1075,7 +1075,7 @@ int CLight::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
                 retVal = allProps_light[i].type;
                 info = allProps_light[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_light[i].info.json.toStdString();
+                    infoTxt = allProps_light[i].info.json;
                 else
                 {
                     auto w = allProps_light[i].info.map;

@@ -379,7 +379,7 @@ void GuiApp::setBrowserEnabled(bool e)
         _browserEnabled = e;
         if ((App::scenes != nullptr) && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propApp_browserEnabled.name;
+            const char* cmd = prop(PropApp::browserEnabled).name;
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyBool(cmd, _browserEnabled);
             App::scenes->pushEvent();

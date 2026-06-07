@@ -13,13 +13,6 @@
 #include <obj.h>
 #include <sceneObjectCustomizationPart.h>
 
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
-SCENEOBJECT_PROPERTIES
-#undef FUNCX
-extern const std::vector<SProperty> allProps_sceneObject;
-// ----------------------------------------------------------------------------------------------
-
 struct SCustomRefs
 {
     int generalObjectType; // e.g. sim_objecttype_sceneobject, sim_appobj_collision_type

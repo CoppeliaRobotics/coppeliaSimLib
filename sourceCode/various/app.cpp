@@ -72,6 +72,7 @@ std::map<std::string, SSysSemaphore> App::_systemSemaphores;
 std::vector<std::string> App::_pluginNames;
 int App::_eventProtocolVersion = SIM_EVENT_PROTOCOL_VERSION;
 int App::_appWideYieldingForbidLevel = 0;
+std::vector<int> App::_apiVersion = {2}; // default for C-side
 Obj* App::_obj = new Obj(sim_handle_app, "app", "superClass: object; nameSpaces: namedParam, customData, signal");
 
 int64_t App::_nextUniqueId = sim_object_variousstart;
@@ -1170,7 +1171,7 @@ void App::setDlgVerbosity(int v)
         _dlgVerbosity = v;
         if ((scenes != nullptr) && scenes->getEventsEnabled())
         {
-            const char* cmd = propApp_dialogVerbosity.name;
+            const char* cmd = prop(PropApp::dialogVerbosity).name;
             CCbor* ev = scenes->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyInt64(cmd, _dlgVerbosity);
             scenes->pushEvent();
@@ -1291,7 +1292,7 @@ void App::setConsoleVerbosity(int v, const char* pluginName /*=nullptr*/)
             _consoleVerbosity = v;
             if ((scenes != nullptr) && scenes->getEventsEnabled())
             {
-                const char* cmd = propApp_consoleVerbosity.name;
+                const char* cmd = prop(PropApp::consoleVerbosity).name;
                 CCbor* ev = scenes->createObjectChangedEvent(sim_handle_app, cmd, true);
                 ev->appendKeyInt64(cmd, _consoleVerbosity);
                 scenes->pushEvent();
@@ -1331,7 +1332,7 @@ void App::setStatusbarVerbosity(int v, const char* pluginName /*=nullptr*/)
             _statusbarVerbosity = v;
             if ((scenes != nullptr) && scenes->getEventsEnabled())
             {
-                const char* cmd = propApp_statusbarVerbosity.name;
+                const char* cmd = prop(PropApp::statusbarVerbosity).name;
                 CCbor* ev = scenes->createObjectChangedEvent(sim_handle_app, cmd, true);
                 ev->appendKeyInt64(cmd, _statusbarVerbosity);
                 scenes->pushEvent();
@@ -1578,19 +1579,19 @@ int App::setBoolProperty_t(int64_t target, const char* ppName, bool pState)
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        if (strcmp(pName, propApp_hierarchyEnabled.name) == 0)
+        if (strcmp(pName, prop(PropApp::hierarchyEnabled).name) == 0)
         {
             setHierarchyEnabled(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_browserEnabled.name) == 0)
+        else if (strcmp(pName, prop(PropApp::browserEnabled).name) == 0)
         {
 #ifdef SIM_WITH_GUI
             GuiApp::setBrowserEnabled(pState);
 #endif
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_displayEnabled.name) == 0)
+        else if (strcmp(pName, prop(PropApp::displayEnabled).name) == 0)
         {
             setOpenGlDisplayEnabled(pState);
             retVal = sim_propertyret_ok;
@@ -1633,12 +1634,12 @@ int App::getBoolProperty_t(int64_t target, const char* ppName, bool& pState)
         retVal = _obj->getBoolProperty(ppName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
-            if (strcmp(pName, propApp_hierarchyEnabled.name) == 0)
+            if (strcmp(pName, prop(PropApp::hierarchyEnabled).name) == 0)
             {
                 pState = getHierarchyEnabled();
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_browserEnabled.name) == 0)
+            else if (strcmp(pName, prop(PropApp::browserEnabled).name) == 0)
             {
 #ifdef SIM_WITH_GUI
                 pState = GuiApp::getBrowserEnabled();
@@ -1647,17 +1648,17 @@ int App::getBoolProperty_t(int64_t target, const char* ppName, bool& pState)
 #endif
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_displayEnabled.name) == 0)
+            else if (strcmp(pName, prop(PropApp::displayEnabled).name) == 0)
             {
                 pState = getOpenGlDisplayEnabled();
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_canSave.name) == 0)
+            else if (strcmp(pName, prop(PropApp::canSave).name) == 0)
             {
                 pState = canSave();
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_execUnsafe.name) == 0)
+            else if (strcmp(pName, prop(PropApp::execUnsafe).name) == 0)
             {
                 if (userSettings != nullptr)
                 {
@@ -1667,7 +1668,7 @@ int App::getBoolProperty_t(int64_t target, const char* ppName, bool& pState)
                 else
                     retVal = 0;
             }
-            else if (strcmp(pName, propApp_execUnsafeExt.name) == 0)
+            else if (strcmp(pName, prop(PropApp::execUnsafeExt).name) == 0)
             {
                 if (userSettings != nullptr)
                 {
@@ -1713,27 +1714,27 @@ int App::setIntProperty_t(int64_t target, const char* ppName, int pState)
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        if (strcmp(pName, propApp_protocolVersion.name) == 0)
+        if (strcmp(pName, prop(PropApp::protocolVersion).name) == 0)
         {
             setEventProtocolVersion(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_consoleVerbosity.name) == 0)
+        else if (strcmp(pName, prop(PropApp::consoleVerbosity).name) == 0)
         {
             setConsoleVerbosity(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_statusbarVerbosity.name) == 0)
+        else if (strcmp(pName, prop(PropApp::statusbarVerbosity).name) == 0)
         {
             setStatusbarVerbosity(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_dialogVerbosity.name) == 0)
+        else if (strcmp(pName, prop(PropApp::dialogVerbosity).name) == 0)
         {
             setDlgVerbosity(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_idleFps.name) == 0)
+        else if (strcmp(pName, prop(PropApp::idleFps).name) == 0)
         {
             if (userSettings != nullptr)
                 userSettings->setIdleFps_session(pState);
@@ -1773,22 +1774,22 @@ int App::getIntProperty_t(int64_t target, const char* ppName, int& pState)
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        if (strcmp(pName, propApp_protocolVersion.name) == 0)
+        if (strcmp(pName, prop(PropApp::protocolVersion).name) == 0)
         {
             pState = _eventProtocolVersion;
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_productVersionNb.name) == 0)
+        else if (strcmp(pName, prop(PropApp::productVersionNb).name) == 0)
         {
             pState = SIM_PROGRAM_FULL_VERSION_NB;
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_platform.name) == 0)
+        else if (strcmp(pName, prop(PropApp::platform).name) == 0)
         {
             pState = getPlatform();
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_flavor.name) == 0)
+        else if (strcmp(pName, prop(PropApp::flavor).name) == 0)
         {
 #ifdef SIM_FL
             pState = SIM_FL;
@@ -1797,12 +1798,12 @@ int App::getIntProperty_t(int64_t target, const char* ppName, int& pState)
 #endif
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_qtVersion.name) == 0)
+        else if (strcmp(pName, prop(PropApp::qtVersion).name) == 0)
         {
             pState = (QT_VERSION >> 16) * 10000 + ((QT_VERSION >> 8) & 255) * 100 + (QT_VERSION & 255) * 1;
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_processId.name) == 0)
+        else if (strcmp(pName, prop(PropApp::processId).name) == 0)
         {
             if (instancesList != nullptr)
                 pState = instancesList->thisInstanceId();
@@ -1810,7 +1811,7 @@ int App::getIntProperty_t(int64_t target, const char* ppName, int& pState)
                 pState = -1;
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_processCnt.name) == 0)
+        else if (strcmp(pName, prop(PropApp::processCnt).name) == 0)
         {
             if (instancesList != nullptr)
                 pState = instancesList->numInstances();
@@ -1818,27 +1819,27 @@ int App::getIntProperty_t(int64_t target, const char* ppName, int& pState)
                 pState = -1;
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_consoleVerbosity.name) == 0)
+        else if (strcmp(pName, prop(PropApp::consoleVerbosity).name) == 0)
         {
             pState = getConsoleVerbosity();
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_statusbarVerbosity.name) == 0)
+        else if (strcmp(pName, prop(PropApp::statusbarVerbosity).name) == 0)
         {
             pState = getStatusbarVerbosity();
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_dialogVerbosity.name) == 0)
+        else if (strcmp(pName, prop(PropApp::dialogVerbosity).name) == 0)
         {
             pState = getDlgVerbosity();
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_headlessMode.name) == 0)
+        else if (strcmp(pName, prop(PropApp::headlessMode).name) == 0)
         {
             pState = getHeadlessMode();
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_idleFps.name) == 0)
+        else if (strcmp(pName, prop(PropApp::idleFps).name) == 0)
         {
             if (userSettings != nullptr)
                 pState = userSettings->getIdleFps();
@@ -1846,7 +1847,7 @@ int App::getIntProperty_t(int64_t target, const char* ppName, int& pState)
                 pState = -1;
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_notifyDeprecated.name) == 0)
+        else if (strcmp(pName, prop(PropApp::notifyDeprecated).name) == 0)
         {
             if (userSettings != nullptr)
                 pState = userSettings->notifyDeprecated;
@@ -1925,7 +1926,7 @@ int App::getLongProperty_t(int64_t target, const char* ppName, int64_t& pState)
         retVal = _obj->getLongProperty(ppName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
-            if (strcmp(pName, propApp_pid.name) == 0)
+            if (strcmp(pName, prop(PropApp::pid).name) == 0)
             {
                 pState = pid;
                 retVal = sim_propertyret_ok;
@@ -1999,7 +2000,7 @@ int App::getHandleProperty_t(int64_t target, const char* ppName, int64_t& pState
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        if (strcmp(pName, propApp_sandbox.name) == 0)
+        if (strcmp(pName, prop(PropApp::sandbox).name) == 0)
         {
             if ( (scenes != nullptr) && (scenes->sandboxScript != nullptr) )
                 pState = scenes->sandboxScript->getSceneObjectOrDetachedScriptHandle();
@@ -2038,13 +2039,13 @@ int App::setFloatProperty_t(int64_t target, const char* ppName, double pState)
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        if (strcmp(pName, propApp_defaultTranslationStepSize.name) == 0)
+        if (strcmp(pName, prop(PropApp::defaultTranslationStepSize).name) == 0)
         {
             if (userSettings != nullptr)
                 userSettings->setTranslationStepSize(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_defaultRotationStepSize.name) == 0)
+        else if (strcmp(pName, prop(PropApp::defaultRotationStepSize).name) == 0)
         {
             if (userSettings != nullptr)
                 userSettings->setRotationStepSize(pState);
@@ -2081,7 +2082,7 @@ int App::getFloatProperty_t(int64_t target, const char* ppName, double& pState)
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        if (strcmp(pName, propApp_defaultTranslationStepSize.name) == 0)
+        if (strcmp(pName, prop(PropApp::defaultTranslationStepSize).name) == 0)
         {
             if (userSettings != nullptr)
                 pState = userSettings->getTranslationStepSize();
@@ -2089,7 +2090,7 @@ int App::getFloatProperty_t(int64_t target, const char* ppName, double& pState)
                 pState = 0.0;
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_defaultRotationStepSize.name) == 0)
+        else if (strcmp(pName, prop(PropApp::defaultRotationStepSize).name) == 0)
         {
             if (userSettings != nullptr)
                 pState = userSettings->getRotationStepSize();
@@ -2097,12 +2098,12 @@ int App::getFloatProperty_t(int64_t target, const char* ppName, double& pState)
                 pState = 0.0;
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_randomFloat.name) == 0)
+        else if (strcmp(pName, prop(PropApp::randomFloat).name) == 0)
         {
             pState = SIM_RAND_FLOAT;
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_systemTime.name) == 0)
+        else if (strcmp(pName, prop(PropApp::systemTime).name) == 0)
         {
             pState = VDateTime::getTime();
             retVal = sim_propertyret_ok;
@@ -2149,95 +2150,95 @@ int App::setStringProperty_t(int64_t target, const char* ppName, const std::stri
         }
         if (retVal == sim_propertyret_unknownproperty)
         {
-            if (strcmp(pName, propApp_sceneDir.name) == 0)
+            if (strcmp(pName, prop(PropApp::sceneDir).name) == 0)
             {
                 if (folders != nullptr)
                     folders->setScenesPath(pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_modelDir.name) == 0)
+            else if (strcmp(pName, prop(PropApp::modelDir).name) == 0)
             {
                 if (folders != nullptr)
                     folders->setModelsPath(pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_importExportDir.name) == 0)
+            else if (strcmp(pName, prop(PropApp::importExportDir).name) == 0)
             {
                 if (folders != nullptr)
                     folders->setImportExportPath(pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_consoleVerbosityStr.name) == 0)
+            else if (strcmp(pName, prop(PropApp::consoleVerbosityStr).name) == 0)
             {
                 setStringVerbosity(0, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_statusbarVerbosityStr.name) == 0)
+            else if (strcmp(pName, prop(PropApp::statusbarVerbosityStr).name) == 0)
             {
                 setStringVerbosity(1, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_dialogVerbosityStr.name) == 0)
+            else if (strcmp(pName, prop(PropApp::dialogVerbosityStr).name) == 0)
             {
                 setStringVerbosity(2, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_auxAddOn1.name) == 0)
+            else if (strcmp(pName, prop(PropApp::auxAddOn1).name) == 0)
             {
                 setAdditionalAddOnScript1(pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_auxAddOn2.name) == 0)
+            else if (strcmp(pName, prop(PropApp::auxAddOn2).name) == 0)
             {
                 setAdditionalAddOnScript2(pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_startupCode.name) == 0)
+            else if (strcmp(pName, prop(PropApp::startupCode).name) == 0)
             {
                 setStartupScriptString(pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg1.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg1).name) == 0)
             {
                 setApplicationArgument(0, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg2.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg2).name) == 0)
             {
                 setApplicationArgument(1, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg3.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg3).name) == 0)
             {
                 setApplicationArgument(2, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg4.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg4).name) == 0)
             {
                 setApplicationArgument(3, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg5.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg5).name) == 0)
             {
                 setApplicationArgument(4, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg6.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg6).name) == 0)
             {
                 setApplicationArgument(5, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg7.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg7).name) == 0)
             {
                 setApplicationArgument(6, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg8.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg8).name) == 0)
             {
                 setApplicationArgument(7, pState.c_str());
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg9.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg9).name) == 0)
             {
                 setApplicationArgument(8, pState.c_str());
                 retVal = sim_propertyret_ok;
@@ -2292,7 +2293,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
         }
         if (retVal == sim_propertyret_unknownproperty)
         {
-            if (strcmp(pName, propApp_sessionId.name) == 0)
+            if (strcmp(pName, prop(PropApp::sessionId).name) == 0)
             {
                 if (scenes != nullptr)
                     pState = scenes->getSessionId();
@@ -2300,12 +2301,12 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_productVersion.name) == 0)
+            else if (strcmp(pName, prop(PropApp::productVersion).name) == 0)
             {
                 pState = SIM_VERSION_STR_SHORT;
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_appDir.name) == 0)
+            else if (strcmp(pName, prop(PropApp::appDir).name) == 0)
             {
                 if (folders != nullptr)
                     pState = folders->getExecutablePath();
@@ -2313,17 +2314,17 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_machineId.name) == 0)
+            else if (strcmp(pName, prop(PropApp::machineId).name) == 0)
             {
                 pState = CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_legacyMachineId.name) == 0)
+            else if (strcmp(pName, prop(PropApp::legacyMachineId).name) == 0)
             {
                 pState = CSimFlavor::getStringVal_int(0, sim_stringparam_machine_id_legacy);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_tempDir.name) == 0)
+            else if (strcmp(pName, prop(PropApp::tempDir).name) == 0)
             {
                 if (folders != nullptr)
                     pState = folders->getTempDataPath();
@@ -2331,7 +2332,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_sceneTempDir.name) == 0)
+            else if (strcmp(pName, prop(PropApp::sceneTempDir).name) == 0)
             {
                 if (folders != nullptr)
                     pState = folders->getSceneTempDataPath();
@@ -2339,7 +2340,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_settingsDir.name) == 0)
+            else if (strcmp(pName, prop(PropApp::settingsDir).name) == 0)
             {
                 if (folders != nullptr)
                     pState = folders->getUserSettingsPath();
@@ -2347,7 +2348,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_luaDir.name) == 0)
+            else if (strcmp(pName, prop(PropApp::luaDir).name) == 0)
             {
                 if (folders != nullptr)
                     pState = folders->getLuaPath();
@@ -2355,7 +2356,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_pythonDir.name) == 0)
+            else if (strcmp(pName, prop(PropApp::pythonDir).name) == 0)
             {
                 if (folders != nullptr)
                     pState = folders->getPythonPath();
@@ -2363,7 +2364,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_mujocoDir.name) == 0)
+            else if (strcmp(pName, prop(PropApp::mujocoDir).name) == 0)
             {
                 if (folders != nullptr)
                     pState = folders->getMujocoPath();
@@ -2371,7 +2372,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_systemDir.name) == 0)
+            else if (strcmp(pName, prop(PropApp::systemDir).name) == 0)
             {
                 if (folders != nullptr)
                     pState = folders->getSystemPath();
@@ -2379,7 +2380,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_resourceDir.name) == 0)
+            else if (strcmp(pName, prop(PropApp::resourceDir).name) == 0)
             {
                 if (folders != nullptr)
                     pState = folders->getResourcesPath();
@@ -2387,7 +2388,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_addOnDir.name) == 0)
+            else if (strcmp(pName, prop(PropApp::addOnDir).name) == 0)
             {
                 if (folders != nullptr)
                     pState = folders->getAddOnPath();
@@ -2395,7 +2396,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_sceneDir.name) == 0)
+            else if (strcmp(pName, prop(PropApp::sceneDir).name) == 0)
             {
                 if (folders != nullptr)
                     pState = folders->getScenesPath();
@@ -2403,7 +2404,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_modelDir.name) == 0)
+            else if (strcmp(pName, prop(PropApp::modelDir).name) == 0)
             {
                 if (folders != nullptr)
                     pState = folders->getModelsPath();
@@ -2411,7 +2412,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_importExportDir.name) == 0)
+            else if (strcmp(pName, prop(PropApp::importExportDir).name) == 0)
             {
                 if (folders != nullptr)
                     pState = folders->getImportExportPath();
@@ -2419,7 +2420,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_defaultPython.name) == 0)
+            else if (strcmp(pName, prop(PropApp::defaultPython).name) == 0)
             {
                 if (userSettings != nullptr)
                     pState = userSettings->defaultPython;
@@ -2435,7 +2436,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                 }
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_sandboxLang.name) == 0)
+            else if (strcmp(pName, prop(PropApp::sandboxLang).name) == 0)
             {
                 if (userSettings != nullptr)
                     pState = userSettings->preferredSandboxLang;
@@ -2443,112 +2444,112 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                     pState = "";
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg1.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg1).name) == 0)
             {
                 pState = getApplicationArgument(0);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg2.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg2).name) == 0)
             {
                 pState = getApplicationArgument(1);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg3.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg3).name) == 0)
             {
                 pState = getApplicationArgument(2);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg4.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg4).name) == 0)
             {
                 pState = getApplicationArgument(3);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg5.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg5).name) == 0)
             {
                 pState = getApplicationArgument(4);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg6.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg6).name) == 0)
             {
                 pState = getApplicationArgument(5);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg7.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg7).name) == 0)
             {
                 pState = getApplicationArgument(6);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg8.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg8).name) == 0)
             {
                 pState = getApplicationArgument(7);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_DEPRECATED_appArg9.name) == 0)
+            else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg9).name) == 0)
             {
                 pState = getApplicationArgument(8);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_dongleSerial.name) == 0)
+            else if (strcmp(pName, prop(PropApp::dongleSerial).name) == 0)
             {
                 pState = CSimFlavor::getStringVal(22);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_machineSerialND.name) == 0)
+            else if (strcmp(pName, prop(PropApp::machineSerialND).name) == 0)
             {
                 pState = CSimFlavor::getStringVal(23);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_machineSerial.name) == 0)
+            else if (strcmp(pName, prop(PropApp::machineSerial).name) == 0)
             {
                 pState = CSimFlavor::getStringVal(24);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_dongleID.name) == 0)
+            else if (strcmp(pName, prop(PropApp::dongleID).name) == 0)
             {
                 pState = CSimFlavor::getStringVal(25);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_machineIDX.name) == 0)
+            else if (strcmp(pName, prop(PropApp::machineIDX).name) == 0)
             {
                 pState = CSimFlavor::getStringVal(26);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_machineID0.name) == 0)
+            else if (strcmp(pName, prop(PropApp::machineID0).name) == 0)
             {
                 pState = CSimFlavor::getStringVal(27);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_machineID1.name) == 0)
+            else if (strcmp(pName, prop(PropApp::machineID1).name) == 0)
             {
                 pState = CSimFlavor::getStringVal(28);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_machineID2.name) == 0)
+            else if (strcmp(pName, prop(PropApp::machineID2).name) == 0)
             {
                 pState = CSimFlavor::getStringVal(29);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_machineID3.name) == 0)
+            else if (strcmp(pName, prop(PropApp::machineID3).name) == 0)
             {
                 pState = CSimFlavor::getStringVal(30);
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_randomString.name) == 0)
+            else if (strcmp(pName, prop(PropApp::randomString).name) == 0)
             {
                 pState = utils::generateUniqueAlphaNumericString();
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_auxAddOn1.name) == 0)
+            else if (strcmp(pName, prop(PropApp::auxAddOn1).name) == 0)
             {
                 pState = getAdditionalAddOnScript1();
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_auxAddOn2.name) == 0)
+            else if (strcmp(pName, prop(PropApp::auxAddOn2).name) == 0)
             {
                 pState = getAdditionalAddOnScript2();
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_startupCode.name) == 0)
+            else if (strcmp(pName, prop(PropApp::startupCode).name) == 0)
             {
                 pState = _startupScriptString;
                 retVal = sim_propertyret_ok;
@@ -3019,7 +3020,7 @@ int App::getQuaternionProperty_t(int64_t target, const char* ppName, CQuaternion
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        if (strcmp(pName, propApp_randomQuaternion.name) == 0)
+        if (strcmp(pName, prop(PropApp::randomQuaternion).name) == 0)
         {
             pState.buildRandomOrientation();
             retVal = sim_propertyret_ok;
@@ -3367,24 +3368,24 @@ int App::getHandleArrayProperty_t(int64_t target, const char* ppName, std::vecto
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        if (strcmp(pName, propApp_addOns.name) == 0)
+        if (strcmp(pName, prop(PropApp::addOns).name) == 0)
         {
             std::vector<int> addOnList(scenes->addOnScriptContainer->getAddOnHandles());
             for (size_t i = 0; i < addOnList.size(); i++)
                 pState.push_back(addOnList[i]);
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_customObjects.name) == 0)
+        else if (strcmp(pName, prop(PropApp::customObjects).name) == 0)
         {
             scenes->customObjects->getAllObjectHandles(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_customClasses.name) == 0)
+        else if (strcmp(pName, prop(PropApp::customClasses).name) == 0)
         {
             scenes->customObjects->getAllClassHandles(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propApp_customSceneObjectClasses.name) == 0)
+        else if (strcmp(pName, prop(PropApp::customSceneObjectClasses).name) == 0)
         {
             scenes->customSceneObjectClasses->getAllClassHandles(pState);
             retVal = sim_propertyret_ok;
@@ -3423,7 +3424,7 @@ int App::setStringArrayProperty_t(int64_t target, const char* ppName, const std:
     const char* pName = ppName;
     if (target == sim_handle_app)
     {
-        if (strcmp(pName, propApp_appArgs.name) == 0)
+        if (strcmp(pName, prop(PropApp::appArgs).name) == 0)
         {
             std::vector<std::string> ps(pState);
             ps.resize(9);
@@ -3469,12 +3470,12 @@ int App::getStringArrayProperty_t(int64_t target, const char* ppName, std::vecto
         retVal = _obj->getStringArrayProperty(ppName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
-            if (strcmp(pName, propApp_appArgs.name) == 0)
+            if (strcmp(pName, prop(PropApp::appArgs).name) == 0)
             {
                 pState = _applicationArguments;
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, propApp_pluginNames.name) == 0)
+            else if (strcmp(pName, prop(PropApp::pluginNames).name) == 0)
             {
                 pState = _pluginNames;
                 retVal = sim_propertyret_ok;
@@ -3803,7 +3804,7 @@ int App::getPropertyInfo_t(int64_t target, const char* ppName, int& info, std::s
                     retVal = allProps_app[i].type;
                     info = allProps_app[i].flags;
                     if (infoTxt == "j")
-                        infoTxt = allProps_app[i].info.json.toStdString();
+                        infoTxt = allProps_app[i].info.json;
                     else
                     {
                         auto w = allProps_app[i].info.map;
@@ -3963,7 +3964,7 @@ void App::setHierarchyEnabled(bool v)
         _hierarchyEnabled = v;
         if ((scenes != nullptr) && scenes->getEventsEnabled())
         {
-            const char* cmd = propApp_hierarchyEnabled.name;
+            const char* cmd = prop(PropApp::hierarchyEnabled).name;
             CCbor* ev = scenes->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyBool(cmd, _hierarchyEnabled);
             scenes->pushEvent();
@@ -3993,7 +3994,7 @@ void App::setOpenGlDisplayEnabled(bool e)
         _openGlDisplayEnabled = e;
         if ((scenes != nullptr) && scenes->getEventsEnabled())
         {
-            const char* cmd = propApp_displayEnabled.name;
+            const char* cmd = prop(PropApp::displayEnabled).name;
             CCbor* ev = scenes->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyBool(cmd, _openGlDisplayEnabled);
             scenes->pushEvent();
@@ -4153,38 +4154,38 @@ void App::pushGenesisEvents()
             ev = scenes->createEvent("appSession", sim_handle_app, sim_handle_app, nullptr, false);
         else
             ev = scenes->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_app, sim_handle_app, nullptr, false);
-        ev->appendKeyText(propApp_sessionId.name, scenes->getSessionId().c_str());
-        ev->appendKeyInt64(propApp_protocolVersion.name, _eventProtocolVersion);
-        ev->appendKeyText(propApp_productVersion.name, SIM_VERSION_STR_SHORT);
-        ev->appendKeyInt64(propApp_productVersionNb.name, SIM_PROGRAM_FULL_VERSION_NB);
-        ev->appendKeyInt64(propApp_platform.name, getPlatform());
+        ev->appendKeyText(prop(PropApp::sessionId).name, scenes->getSessionId().c_str());
+        ev->appendKeyInt64(prop(PropApp::protocolVersion).name, _eventProtocolVersion);
+        ev->appendKeyText(prop(PropApp::productVersion).name, SIM_VERSION_STR_SHORT);
+        ev->appendKeyInt64(prop(PropApp::productVersionNb).name, SIM_PROGRAM_FULL_VERSION_NB);
+        ev->appendKeyInt64(prop(PropApp::platform).name, getPlatform());
 #ifdef SIM_FL
-        ev->appendKeyInt64(propApp_flavor.name, SIM_FL);
+        ev->appendKeyInt64(prop(PropApp::flavor).name, SIM_FL);
 #else
-        ev->appendKeyInt64(propApp_flavor.name, -1);
+        ev->appendKeyInt64(prop(PropApp::flavor).name, -1);
 #endif
-        ev->appendKeyInt64(propApp_qtVersion.name, (QT_VERSION >> 16) * 10000 + ((QT_VERSION >> 8) & 255) * 100 + (QT_VERSION & 255) * 1);
+        ev->appendKeyInt64(prop(PropApp::qtVersion).name, (QT_VERSION >> 16) * 10000 + ((QT_VERSION >> 8) & 255) * 100 + (QT_VERSION & 255) * 1);
         int sbh = -1;
         if (scenes->sandboxScript != nullptr)
             sbh = scenes->sandboxScript->getSceneObjectOrDetachedScriptHandle();
         if (App::getEventProtocolVersion() <= 3)
-            ev->appendKeyInt64(propApp_sandbox.name, sbh);
+            ev->appendKeyInt64(prop(PropApp::sandbox).name, sbh);
         else
-            ev->appendKeyHandle(propApp_sandbox.name, sbh);
+            ev->appendKeyHandle(prop(PropApp::sandbox).name, sbh);
         if (instancesList != nullptr)
         {
-            ev->appendKeyInt64(propApp_processId.name, instancesList->thisInstanceId());
-            ev->appendKeyInt64(propApp_processCnt.name, instancesList->numInstances());
+            ev->appendKeyInt64(prop(PropApp::processId).name, instancesList->thisInstanceId());
+            ev->appendKeyInt64(prop(PropApp::processCnt).name, instancesList->numInstances());
         }
-        ev->appendKeyInt64(propApp_consoleVerbosity.name, getConsoleVerbosity());
-        ev->appendKeyInt64(propApp_statusbarVerbosity.name, getStatusbarVerbosity());
-        ev->appendKeyInt64(propApp_dialogVerbosity.name, getDlgVerbosity());
-        ev->appendKeyTextArray(propApp_appArgs.name, _applicationArguments);
-        ev->appendKeyTextArray(propApp_pluginNames.name, _pluginNames);
+        ev->appendKeyInt64(prop(PropApp::consoleVerbosity).name, getConsoleVerbosity());
+        ev->appendKeyInt64(prop(PropApp::statusbarVerbosity).name, getStatusbarVerbosity());
+        ev->appendKeyInt64(prop(PropApp::dialogVerbosity).name, getDlgVerbosity());
+        ev->appendKeyTextArray(prop(PropApp::appArgs).name, _applicationArguments);
+        ev->appendKeyTextArray(prop(PropApp::pluginNames).name, _pluginNames);
         std::vector<int> addOnList(scenes->addOnScriptContainer->getAddOnHandles());
         if (App::getEventProtocolVersion() <= 3)
         {
-            ev->appendKeyInt32Array(propApp_addOns.name, addOnList.data(), addOnList.size());
+            ev->appendKeyInt32Array(prop(PropApp::addOns).name, addOnList.data(), addOnList.size());
             ev->appendKeyText("appArg1", getApplicationArgument(0).c_str());
             ev->appendKeyText("appArg2", getApplicationArgument(1).c_str());
             ev->appendKeyText("appArg3", getApplicationArgument(2).c_str());
@@ -4196,17 +4197,17 @@ void App::pushGenesisEvents()
             ev->appendKeyText("appArg9", getApplicationArgument(8).c_str());
         }
         else
-            ev->appendKeyHandleArray(propApp_addOns.name, addOnList.data(), addOnList.size());
+            ev->appendKeyHandleArray(prop(PropApp::addOns).name, addOnList.data(), addOnList.size());
 
         std::vector<int64_t> l;
         scenes->customObjects->getAllObjectHandles(l);
-        ev->appendKeyHandleArray(propApp_customObjects.name, l.data(), l.size());
+        ev->appendKeyHandleArray(prop(PropApp::customObjects).name, l.data(), l.size());
         std::vector<int64_t> customClassList;
         scenes->customObjects->getAllClassHandles(l);
-        ev->appendKeyHandleArray(propApp_customClasses.name, l.data(), l.size());
+        ev->appendKeyHandleArray(prop(PropApp::customClasses).name, l.data(), l.size());
         l.clear();
         scenes->customSceneObjectClasses->getAllClassHandles(l);
-        ev->appendKeyHandleArray(propApp_customSceneObjectClasses.name, l.data(), l.size());
+        ev->appendKeyHandleArray(prop(PropApp::customSceneObjectClasses).name, l.data(), l.size());
 
         for (const auto& pair : _applicationNamedParams)
         {
@@ -4235,19 +4236,19 @@ void App::pushGenesisEvents()
             }
             else
             {
-                ev->appendKeyText(propApp_appDir.name, folders->getExecutablePath().c_str());
-                ev->appendKeyText(propApp_tempDir.name, folders->getTempDataPath().c_str());
-                ev->appendKeyText(propApp_sceneTempDir.name, folders->getSceneTempDataPath().c_str());
-                ev->appendKeyText(propApp_settingsDir.name, folders->getUserSettingsPath().c_str());
-                ev->appendKeyText(propApp_luaDir.name, folders->getLuaPath().c_str());
-                ev->appendKeyText(propApp_pythonDir.name, folders->getPythonPath().c_str());
-                ev->appendKeyText(propApp_mujocoDir.name, folders->getMujocoPath().c_str());
-                ev->appendKeyText(propApp_systemDir.name, folders->getSystemPath().c_str());
-                ev->appendKeyText(propApp_resourceDir.name, folders->getResourcesPath().c_str());
-                ev->appendKeyText(propApp_addOnDir.name, folders->getAddOnPath().c_str());
-                ev->appendKeyText(propApp_sceneDir.name, folders->getScenesPath().c_str());
-                ev->appendKeyText(propApp_modelDir.name, folders->getModelsPath().c_str());
-                ev->appendKeyText(propApp_importExportDir.name, folders->getImportExportPath().c_str());
+                ev->appendKeyText(prop(PropApp::appDir).name, folders->getExecutablePath().c_str());
+                ev->appendKeyText(prop(PropApp::tempDir).name, folders->getTempDataPath().c_str());
+                ev->appendKeyText(prop(PropApp::sceneTempDir).name, folders->getSceneTempDataPath().c_str());
+                ev->appendKeyText(prop(PropApp::settingsDir).name, folders->getUserSettingsPath().c_str());
+                ev->appendKeyText(prop(PropApp::luaDir).name, folders->getLuaPath().c_str());
+                ev->appendKeyText(prop(PropApp::pythonDir).name, folders->getPythonPath().c_str());
+                ev->appendKeyText(prop(PropApp::mujocoDir).name, folders->getMujocoPath().c_str());
+                ev->appendKeyText(prop(PropApp::systemDir).name, folders->getSystemPath().c_str());
+                ev->appendKeyText(prop(PropApp::resourceDir).name, folders->getResourcesPath().c_str());
+                ev->appendKeyText(prop(PropApp::addOnDir).name, folders->getAddOnPath().c_str());
+                ev->appendKeyText(prop(PropApp::sceneDir).name, folders->getScenesPath().c_str());
+                ev->appendKeyText(prop(PropApp::modelDir).name, folders->getModelsPath().c_str());
+                ev->appendKeyText(prop(PropApp::importExportDir).name, folders->getImportExportPath().c_str());
             }
         }
 
@@ -4255,8 +4256,8 @@ void App::pushGenesisEvents()
 
         if (userSettings != nullptr)
         {
-            ev->appendKeyText(propApp_defaultPython.name, userSettings->defaultPython.c_str());
-            ev->appendKeyText(propApp_sandboxLang.name, userSettings->preferredSandboxLang.c_str());
+            ev->appendKeyText(prop(PropApp::defaultPython).name, userSettings->defaultPython.c_str());
+            ev->appendKeyText(prop(PropApp::sandboxLang).name, userSettings->preferredSandboxLang.c_str());
         }
         if (App::getEventProtocolVersion() == 2)
         {
@@ -4265,33 +4266,33 @@ void App::pushGenesisEvents()
         }
         if (userSettings != nullptr)
         {
-            ev->appendKeyDouble(propApp_defaultTranslationStepSize.name, userSettings->getTranslationStepSize());
-            ev->appendKeyDouble(propApp_defaultRotationStepSize.name, userSettings->getRotationStepSize());
-            ev->appendKeyInt64(propApp_notifyDeprecated.name, userSettings->notifyDeprecated);
-            ev->appendKeyBool(propApp_execUnsafe.name, userSettings->execUnsafe);
-            ev->appendKeyBool(propApp_execUnsafeExt.name, userSettings->execUnsafeExt);
-            ev->appendKeyText(propApp_dongleSerial.name, CSimFlavor::getStringVal(22).c_str());
-            ev->appendKeyText(propApp_machineSerialND.name, CSimFlavor::getStringVal(23).c_str());
-            ev->appendKeyText(propApp_machineSerial.name, CSimFlavor::getStringVal(24).c_str());
-            ev->appendKeyText(propApp_dongleID.name, CSimFlavor::getStringVal(25).c_str());
-            ev->appendKeyText(propApp_machineIDX.name, CSimFlavor::getStringVal(26).c_str());
-            ev->appendKeyText(propApp_machineID0.name, CSimFlavor::getStringVal(27).c_str());
-            ev->appendKeyText(propApp_machineID1.name, CSimFlavor::getStringVal(28).c_str());
-            ev->appendKeyText(propApp_machineID2.name, CSimFlavor::getStringVal(29).c_str());
-            ev->appendKeyText(propApp_machineID3.name, CSimFlavor::getStringVal(30).c_str());
+            ev->appendKeyDouble(prop(PropApp::defaultTranslationStepSize).name, userSettings->getTranslationStepSize());
+            ev->appendKeyDouble(prop(PropApp::defaultRotationStepSize).name, userSettings->getRotationStepSize());
+            ev->appendKeyInt64(prop(PropApp::notifyDeprecated).name, userSettings->notifyDeprecated);
+            ev->appendKeyBool(prop(PropApp::execUnsafe).name, userSettings->execUnsafe);
+            ev->appendKeyBool(prop(PropApp::execUnsafeExt).name, userSettings->execUnsafeExt);
+            ev->appendKeyText(prop(PropApp::dongleSerial).name, CSimFlavor::getStringVal(22).c_str());
+            ev->appendKeyText(prop(PropApp::machineSerialND).name, CSimFlavor::getStringVal(23).c_str());
+            ev->appendKeyText(prop(PropApp::machineSerial).name, CSimFlavor::getStringVal(24).c_str());
+            ev->appendKeyText(prop(PropApp::dongleID).name, CSimFlavor::getStringVal(25).c_str());
+            ev->appendKeyText(prop(PropApp::machineIDX).name, CSimFlavor::getStringVal(26).c_str());
+            ev->appendKeyText(prop(PropApp::machineID0).name, CSimFlavor::getStringVal(27).c_str());
+            ev->appendKeyText(prop(PropApp::machineID1).name, CSimFlavor::getStringVal(28).c_str());
+            ev->appendKeyText(prop(PropApp::machineID2).name, CSimFlavor::getStringVal(29).c_str());
+            ev->appendKeyText(prop(PropApp::machineID3).name, CSimFlavor::getStringVal(30).c_str());
         }
 #ifdef SIM_WITH_GUI
-        ev->appendKeyBool(propApp_browserEnabled.name, GuiApp::getBrowserEnabled());
+        ev->appendKeyBool(prop(PropApp::browserEnabled).name, GuiApp::getBrowserEnabled());
 #else
-        ev->appendKeyBool(propApp_browserEnabled.name, false);
+        ev->appendKeyBool(prop(PropApp::browserEnabled).name, false);
 #endif
-        ev->appendKeyBool(propApp_hierarchyEnabled.name, getHierarchyEnabled());
-        ev->appendKeyBool(propApp_displayEnabled.name, getOpenGlDisplayEnabled());
-        ev->appendKeyInt64(propApp_headlessMode.name, getHeadlessMode());
-        ev->appendKeyInt64(propApp_pid.name, pid);
+        ev->appendKeyBool(prop(PropApp::hierarchyEnabled).name, getHierarchyEnabled());
+        ev->appendKeyBool(prop(PropApp::displayEnabled).name, getOpenGlDisplayEnabled());
+        ev->appendKeyInt64(prop(PropApp::headlessMode).name, getHeadlessMode());
+        ev->appendKeyInt64(prop(PropApp::pid).name, pid);
 
         if (userSettings != nullptr)
-            ev->appendKeyInt64(propApp_idleFps.name, userSettings->getIdleFps());
+            ev->appendKeyInt64(prop(PropApp::idleFps).name, userSettings->getIdleFps());
 
         scenes->pushEvent();
 
@@ -4326,10 +4327,28 @@ void App::setPluginList(const std::vector<CPlugin*>* plugins)
     {
         if ((scenes != nullptr) && scenes->getEventsEnabled())
         {
-            const char* cmd = propApp_pluginNames.name;
+            const char* cmd = prop(PropApp::pluginNames).name;
             CCbor* ev = scenes->createObjectChangedEvent(sim_handle_app, cmd, true);
             ev->appendKeyTextArray(cmd, _pluginNames);
             scenes->pushEvent();
         }
     }
+}
+
+int App::getApiVersion()
+{
+    int retVal = -1;
+    if (_apiVersion.size() > 0)
+        retVal = _apiVersion[_apiVersion.size() - 1];
+    return retVal;
+}
+
+void App::pushApiVersion(int v)
+{
+    _apiVersion.push_back(v);
+}
+
+void App::popApiVersion()
+{
+    _apiVersion.pop_back();
 }

@@ -14,13 +14,6 @@
 #include <simQApp.h>
 #endif
 
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
-APP_PROPERTIES
-#undef FUNCX
-extern const std::vector<SProperty> allProps_app;
-// ----------------------------------------------------------------------------------------------
-
 struct SSysSemaphore
 {
     QSystemSemaphore* semaphore;
@@ -63,6 +56,9 @@ class App
     static std::string getApplicationDir();
     static void postExitRequest();
     static bool getExitRequest();
+    static int getApiVersion();
+    static void pushApiVersion(int v);
+    static void popApiVersion();
 
     static void appendSimulationThreadCommand(int cmdId, int intP1 = -1, int intP2 = -1, double floatP1 = 0.0,
                                               double floatP2 = 0.0, const char* stringP1 = nullptr,
@@ -208,6 +204,7 @@ class App
     static bool _openGlDisplayEnabled;
     static int _eventProtocolVersion;
     static int _appWideYieldingForbidLevel;
+    static std::vector<int> _apiVersion;
 
     static int64_t _nextUniqueId;
     static SignalHandler* _sigHandler;

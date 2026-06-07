@@ -1112,17 +1112,17 @@ void CDetachedScript::pushObjectCreationEvent()
     }
     else
     {
-        ev->appendKeyBool(propDetachedScript_scriptDisabled.name, _scriptIsDisabled);
-        ev->appendKeyInt64(propDetachedScript_scriptType.name, _scriptType);
-        ev->appendKeyInt64(propDetachedScript_scriptState.name, _scriptState);
+        ev->appendKeyBool(prop(PropDetachedScript::scriptDisabled).name, _scriptIsDisabled);
+        ev->appendKeyInt64(prop(PropDetachedScript::scriptType).name, _scriptType);
+        ev->appendKeyInt64(prop(PropDetachedScript::scriptState).name, _scriptState);
     }
-    ev->appendKeyBool(propDetachedScript_restartOnError.name, _autoRestartOnError);
-    ev->appendKeyInt64(propDetachedScript_execPriority.name, getScriptExecPriority());
-    ev->appendKeyText(propDetachedScript_language.name, _lang.c_str());
-    ev->appendKeyText(propDetachedScript_code.name, _scriptText.c_str());
-    ev->appendKeyText(propDetachedScript_scriptName.name, getScriptName().c_str());
-    ev->appendKeyText(propDetachedScript_addOnPath.name, _addOnPath.c_str());
-    ev->appendKeyText(propDetachedScript_addOnMenuPath.name, _addOnMenuPath.c_str());
+    ev->appendKeyBool(prop(PropDetachedScript::restartOnError).name, _autoRestartOnError);
+    ev->appendKeyInt64(prop(PropDetachedScript::execPriority).name, getScriptExecPriority());
+    ev->appendKeyText(prop(PropDetachedScript::language).name, _lang.c_str());
+    ev->appendKeyText(prop(PropDetachedScript::code).name, _scriptText.c_str());
+    ev->appendKeyText(prop(PropDetachedScript::scriptName).name, getScriptName().c_str());
+    ev->appendKeyText(prop(PropDetachedScript::addOnPath).name, _addOnPath.c_str());
+    ev->appendKeyText(prop(PropDetachedScript::addOnMenuPath).name, _addOnMenuPath.c_str());
     App::scenes->pushEvent();
 }
 
@@ -1140,7 +1140,7 @@ void CDetachedScript::setScriptState(int state)
         _scriptState = state;
         if (isNotInCopyBuffer() && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propDetachedScript_scriptState.name;
+            const char* cmd = prop(PropDetachedScript::scriptState).name;
             CCbor* ev;
             ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             if (App::getEventProtocolVersion() <= 3)
@@ -1175,7 +1175,7 @@ void CDetachedScript::setScriptExecPriority(int priority)
     {
         if (isNotInCopyBuffer() && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propDetachedScript_execPriority.name;
+            const char* cmd = prop(PropDetachedScript::execPriority).name;
             CCbor* ev;
             ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyInt64(cmd, priority);
@@ -1248,7 +1248,7 @@ void CDetachedScript::setScriptIsDisabled(bool isDisabled)
         _scriptIsDisabled = isDisabled;
         if (isNotInCopyBuffer() && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propDetachedScript_scriptDisabled.name;
+            const char* cmd = prop(PropDetachedScript::scriptDisabled).name;
             CCbor* ev;
             ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             if (App::getEventProtocolVersion() <= 3)
@@ -1308,7 +1308,7 @@ void CDetachedScript::setAutoRestartOnError(bool restart)
         _autoRestartOnError = restart;
         if (isNotInCopyBuffer() && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propDetachedScript_restartOnError.name;
+            const char* cmd = prop(PropDetachedScript::restartOnError).name;
             CCbor* ev;
             ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyBool(cmd, _autoRestartOnError);
@@ -1383,7 +1383,7 @@ void CDetachedScript::setScriptText(const char* scriptTxt, bool toFileIfApplicab
             _scriptText = scriptTxt;
         if (isNotInCopyBuffer() && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propDetachedScript_code.name;
+            const char* cmd = prop(PropDetachedScript::code).name;
             CCbor* ev;
             ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             ev->appendKeyText(cmd, scriptTxt);
@@ -4571,12 +4571,12 @@ int CDetachedScript::setBoolProperty(const char* pName, bool pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(propDetachedScript_scriptDisabled.name, pName) == 0)
+    if (strcmp(prop(PropDetachedScript::scriptDisabled).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         setScriptIsDisabled(pState);
     }
-    else if (strcmp(propDetachedScript_restartOnError.name, pName) == 0)
+    else if (strcmp(prop(PropDetachedScript::restartOnError).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         setAutoRestartOnError(pState);
@@ -4589,12 +4589,12 @@ int CDetachedScript::getBoolProperty(const char* pName, bool& pState) const
 {
     int retVal = Obj::getBoolProperty(pName, pState);
 
-    if (strcmp(propDetachedScript_scriptDisabled.name, pName) == 0)
+    if (strcmp(prop(PropDetachedScript::scriptDisabled).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _scriptIsDisabled;
     }
-    else if (strcmp(propDetachedScript_restartOnError.name, pName) == 0)
+    else if (strcmp(prop(PropDetachedScript::restartOnError).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _autoRestartOnError;
@@ -4607,7 +4607,7 @@ int CDetachedScript::setIntProperty(const char* pName, int pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(propDetachedScript_execPriority.name, pName) == 0)
+    if (strcmp(prop(PropDetachedScript::execPriority).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         setScriptExecPriority(pState);
@@ -4620,22 +4620,22 @@ int CDetachedScript::getIntProperty(const char* pName, int& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(propDetachedScript_execPriority.name, pName) == 0)
+    if (strcmp(prop(PropDetachedScript::execPriority).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = getScriptExecPriority();
     }
-    else if (strcmp(propDetachedScript_scriptType.name, pName) == 0)
+    else if (strcmp(prop(PropDetachedScript::scriptType).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _scriptType;
     }
-    else if (strcmp(propDetachedScript_executionDepth.name, pName) == 0)
+    else if (strcmp(prop(PropDetachedScript::executionDepth).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _executionDepth;
     }
-    else if (strcmp(propDetachedScript_scriptState.name, pName) == 0)
+    else if (strcmp(prop(PropDetachedScript::scriptState).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _scriptState;
@@ -4648,7 +4648,7 @@ int CDetachedScript::setFloatProperty(const char* pName, double pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(propDetachedScript_autoYieldDelay.name, pName) == 0)
+    if (strcmp(prop(PropDetachedScript::autoYieldDelay).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         setDelayForAutoYielding(pState * 1000.0 + 0.49);
@@ -4660,7 +4660,7 @@ int CDetachedScript::getFloatProperty(const char* pName, double& pState) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(propDetachedScript_autoYieldDelay.name, pName) == 0)
+    if (strcmp(prop(PropDetachedScript::autoYieldDelay).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = double(getDelayForAutoYielding()) / 1000.0;
@@ -4697,12 +4697,12 @@ int CDetachedScript::setStringProperty(const char* pName, const std::string& pSt
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(propDetachedScript_code.name, pName) == 0)
+    if (strcmp(prop(PropDetachedScript::code).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         setScriptText(pState.c_str());
     }
-    else if (strcmp(propDetachedScript_addOnMenuPath.name, pName) == 0)
+    else if (strcmp(prop(PropDetachedScript::addOnMenuPath).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         _addOnMenuPath = pState;
@@ -4716,7 +4716,7 @@ int CDetachedScript::getStringProperty(const char* pName, std::string& pState) c
     int retVal = Obj::getStringProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propDetachedScript_code.name, pName) == 0)
+        if (strcmp(prop(PropDetachedScript::code).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
 #ifdef SIM_WITH_GUI
@@ -4725,22 +4725,22 @@ int CDetachedScript::getStringProperty(const char* pName, std::string& pState) c
 #endif
             pState = _scriptText;
         }
-        else if (strcmp(propDetachedScript_language.name, pName) == 0)
+        else if (strcmp(prop(PropDetachedScript::language).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = _lang;
         }
-        else if (strcmp(propDetachedScript_scriptName.name, pName) == 0)
+        else if (strcmp(prop(PropDetachedScript::scriptName).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = getScriptName();
         }
-        else if (strcmp(propDetachedScript_addOnPath.name, pName) == 0)
+        else if (strcmp(prop(PropDetachedScript::addOnPath).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = _addOnPath;
         }
-        else if (strcmp(propDetachedScript_addOnMenuPath.name, pName) == 0)
+        else if (strcmp(prop(PropDetachedScript::addOnMenuPath).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = _addOnMenuPath;
@@ -4798,7 +4798,7 @@ int CDetachedScript::getPropertyInfo(const char* pName, int& info, std::string& 
                 retVal = allProps_detachedScript[i].type;
                 info = allProps_detachedScript[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_detachedScript[i].info.json.toStdString();
+                    infoTxt = allProps_detachedScript[i].info.json;
                 else
                 {
                     auto w = allProps_detachedScript[i].info.map;
@@ -4815,7 +4815,7 @@ int CDetachedScript::getPropertyInfo(const char* pName, int& info, std::string& 
     }
     if (retVal != sim_propertyret_unknownproperty)
     {
-        if (strcmp(propDetachedScript_code.name, pName) == 0)
+        if (strcmp(prop(PropDetachedScript::code).name, pName) == 0)
         {
             if (_scriptText.size() > LARGE_PROPERTY_SIZE)
                 info = info | sim_propertyinfo_largedata;

@@ -263,19 +263,19 @@ void CDummy::addObjectEventData(CCbor* ev)
     }
     else
         _dummyColor.addGenesisEventData(ev);
-    ev->appendKeyDouble(propDummy_size.name, _dummySize);
+    ev->appendKeyDouble(prop(PropDummy::size).name, _dummySize);
     if (App::getEventProtocolVersion() <= 3)
     {
         ev->appendKeyInt64("linkedDummyHandle", _linkedDummyHandle); // for backw. compatibility
-        ev->appendKeyInt64(propDummy_linkedDummy.name, _linkedDummyHandle);
+        ev->appendKeyInt64(prop(PropDummy::linkedDummy).name, _linkedDummyHandle);
         ev->appendKeyInt64("dummyType", _linkType);
     }
     else
     {
-        ev->appendKeyHandle(propDummy_linkedDummy.name, _linkedDummyHandle);
-        ev->appendKeyInt64(propDummy_dummyType.name, _linkType);
+        ev->appendKeyHandle(prop(PropDummy::linkedDummy).name, _linkedDummyHandle);
+        ev->appendKeyInt64(prop(PropDummy::dummyType).name, _linkType);
     }
-    ev->appendKeyText(propDummy_assemblyTag.name, _assemblyTag.c_str());
+    ev->appendKeyText(prop(PropDummy::assemblyTag).name, _assemblyTag.c_str());
 
     // Engine properties:
     setBoolProperty(nullptr, false, ev);
@@ -724,15 +724,15 @@ void CDummy::serialize(CSer& ar)
             ar.xmlPushNewNode("engines");
             ar.xmlPushNewNode("mujoco");
             std::vector<double> v;
-            if (getFloatArrayProperty(propDummy_mujocoLimitsRange.name, v) == 1)
+            if (getFloatArrayProperty(prop(PropDummy::mujocoLimitsRange).name, v) == 1)
                 ar.xmlAddNode_floats("range", v.data(), 2);
-            if (getFloatArrayProperty(propDummy_mujocoLimitsSolref.name, v) == 1)
+            if (getFloatArrayProperty(prop(PropDummy::mujocoLimitsSolref).name, v) == 1)
                 ar.xmlAddNode_floats("solreflimit", v.data(), 2);
-            if (getFloatArrayProperty(propDummy_mujocoLimitsSolimp.name, v) == 1)
+            if (getFloatArrayProperty(prop(PropDummy::mujocoLimitsSolimp).name, v) == 1)
                 ar.xmlAddNode_floats("solimplimit", v.data(), 5);
-            if (getFloatArrayProperty(propDummy_mujocoOverlapConstrSolref.name, v) == 1)
+            if (getFloatArrayProperty(prop(PropDummy::mujocoOverlapConstrSolref).name, v) == 1)
                 ar.xmlAddNode_floats("solrefoverlapconstr", v.data(), 2);
-            if (getFloatArrayProperty(propDummy_mujocoOverlapConstrSolimp.name, v) == 1)
+            if (getFloatArrayProperty(prop(PropDummy::mujocoOverlapConstrSolimp).name, v) == 1)
                 ar.xmlAddNode_floats("solimpoverlapconstr", v.data(), 5);
             ar.xmlAddNode_float("torquescaleoverlapconstr", _mujocoFloatParams[simi_mujoco_dummy_torquescaleoverlapconstr]);
             ar.xmlAddNode_float("margin", _mujocoFloatParams[simi_mujoco_dummy_margin]);
@@ -919,7 +919,7 @@ void CDummy::setLinkedDummyHandle(int handle, bool check)
     {
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propDummy_linkedDummy.name;
+            const char* cmd = prop(PropDummy::linkedDummy).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
             {
@@ -948,7 +948,7 @@ bool CDummy::setDummyType(int lt, bool check)
         _linkType = lt;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propDummy_dummyType.name;
+            const char* cmd = prop(PropDummy::dummyType).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt64("dummyType", _linkType);
@@ -1006,7 +1006,7 @@ void CDummy::setAssemblyTag(const char* tag)
         _assemblyTag = tag;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propDummy_assemblyTag.name;
+            const char* cmd = prop(PropDummy::assemblyTag).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyText(cmd, _assemblyTag.c_str());
             App::scenes->pushEvent();
@@ -1021,7 +1021,7 @@ void CDummy::announceObjectWillBeErased(const CSceneObject* object, bool copyBuf
     if (_linkedDummyHandle == object->getObjectHandle())
         setLinkedDummyHandle(-1, !copyBuffer);
     if (_mujocoIntParams[simi_mujoco_dummy_proxyjointid] == object->getObjectHandle()) // that's the Mujoco proxy joint
-        setIntProperty(propDummy_mujocoJointProxyHandle.name, -1);
+        setIntProperty(prop(PropDummy::mujocoJointProxyHandle).name, -1);
 }
 
 void CDummy::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
@@ -1143,7 +1143,7 @@ void CDummy::setDummySize(double s)
         computeBoundingBox();
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propDummy_size.name;
+            const char* cmd = prop(PropDummy::size).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _dummySize);
             App::scenes->pushEvent();
@@ -1211,7 +1211,7 @@ int CDummy::setBoolProperty(const char* ppName, bool pState, CCbor* eev)
             }
         };
 
-        handleProp(propDummy_mujocoLimitsEnabled.name, _mujocoIntParams, simi_mujoco_dummy_bitcoded, simi_mujoco_dummy_limited);
+        handleProp(prop(PropDummy::mujocoLimitsEnabled).name, _mujocoIntParams, simi_mujoco_dummy_bitcoded, simi_mujoco_dummy_limited);
 
         if ((ev != nullptr) && (eev == nullptr))
             App::scenes->pushEvent();
@@ -1229,7 +1229,7 @@ int CDummy::getBoolProperty(const char* ppName, bool& pState) const
     {
         // First non-engine properties:
         /*
-        if (_pName == propJoint_length.name)
+        if (_pName == prop(PropJoint::length).name)
         {
             pState = _length;
             retVal = sim_propertyret_ok;
@@ -1238,7 +1238,7 @@ int CDummy::getBoolProperty(const char* ppName, bool& pState) const
 
         // Engine-only properties:
         // ------------------------
-        if (_pName == propDummy_mujocoLimitsEnabled.name)
+        if (_pName == prop(PropDummy::mujocoLimitsEnabled).name)
         {
             retVal = sim_propertyret_ok;
             pState = _mujocoIntParams[simi_mujoco_dummy_bitcoded] & simi_mujoco_dummy_limited;
@@ -1273,12 +1273,12 @@ int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev)
         retVal = CSceneObject::setIntProperty(pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
-            if (_pName == propDummy_DEPRECATED_linkedDummyHandle.name)
+            if (_pName == prop(PropDummy::DEPRECATED_linkedDummyHandle).name)
             {
                 setLinkedDummyHandle(pState, true);
                 retVal = sim_propertyret_ok;
             }
-            else if (_pName == propDummy_dummyType.name)
+            else if (_pName == prop(PropDummy::dummyType).name)
             {
                 setDummyType(pState, true);
                 retVal = sim_propertyret_ok;
@@ -1310,7 +1310,7 @@ int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev)
             }
         };
 
-        handleProp(propDummy_mujocoJointProxyHandle.name, _mujocoIntParams, simi_mujoco_dummy_proxyjointid);
+        handleProp(prop(PropDummy::mujocoJointProxyHandle).name, _mujocoIntParams, simi_mujoco_dummy_proxyjointid);
 
         if ((ev != nullptr) && (eev == nullptr))
             App::scenes->pushEvent();
@@ -1327,12 +1327,12 @@ int CDummy::getIntProperty(const char* ppName, int& pState) const
     if (retVal == sim_propertyret_unknownproperty)
     {
         // First non-engine properties:
-        if (_pName == propDummy_DEPRECATED_linkedDummyHandle.name)
+        if (_pName == prop(PropDummy::DEPRECATED_linkedDummyHandle).name)
         {
             pState = _linkedDummyHandle;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propDummy_dummyType.name)
+        else if (_pName == prop(PropDummy::dummyType).name)
         {
             pState = _linkType;
             retVal = sim_propertyret_ok;
@@ -1342,7 +1342,7 @@ int CDummy::getIntProperty(const char* ppName, int& pState) const
     {
         // Engine-only properties:
         // ------------------------
-        if (_pName == propDummy_mujocoJointProxyHandle.name)
+        if (_pName == prop(PropDummy::mujocoJointProxyHandle).name)
         {
             retVal = sim_propertyret_ok;
             pState = _mujocoIntParams[simi_mujoco_dummy_proxyjointid];
@@ -1378,7 +1378,7 @@ int CDummy::setHandleProperty(const char* ppName, int64_t pState, CCbor* eev)
         retVal = CSceneObject::setHandleProperty(pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
-            if (_pName == propDummy_linkedDummy.name)
+            if (_pName == prop(PropDummy::linkedDummy).name)
             {
                 setLinkedDummyHandle(pState, true);
                 retVal = sim_propertyret_ok;
@@ -1411,7 +1411,7 @@ int CDummy::setHandleProperty(const char* ppName, int64_t pState, CCbor* eev)
             }
         };
 
-        handleProp(propDummy_mujocoJointProxyHandle.name, _mujocoIntParams, simi_mujoco_dummy_proxyjointid);
+        handleProp(prop(PropDummy::mujocoJointProxyHandle).name, _mujocoIntParams, simi_mujoco_dummy_proxyjointid);
 
         if ((ev != nullptr) && (eev == nullptr))
             App::scenes->pushEvent();
@@ -1429,7 +1429,7 @@ int CDummy::getHandleProperty(const char* ppName, int64_t& pState) const
     if (retVal == sim_propertyret_unknownproperty)
     {
         // First non-engine properties:
-        if (_pName == propDummy_linkedDummy.name)
+        if (_pName == prop(PropDummy::linkedDummy).name)
         {
             pState = _linkedDummyHandle;
             retVal = sim_propertyret_ok;
@@ -1440,7 +1440,7 @@ int CDummy::getHandleProperty(const char* ppName, int64_t& pState) const
         /*
         // Engine-only properties:
         // ------------------------
-        if (_pName == propDummy_mujocoJointProxyHandle.name)
+        if (_pName == prop(PropDummy::mujocoJointProxyHandle).name)
         {
             retVal = sim_propertyret_ok;
             pState = _mujocoIntParams[simi_mujoco_dummy_proxyjointid];
@@ -1479,7 +1479,7 @@ int CDummy::setFloatProperty(const char* ppName, double pState, CCbor* eev)
             retVal = _dummyColor.setFloatProperty(pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
-            if (strcmp(pName, propDummy_size.name) == 0)
+            if (strcmp(pName, prop(PropDummy::size).name) == 0)
             {
                 setDummySize(pState);
                 retVal = sim_propertyret_ok;
@@ -1511,11 +1511,11 @@ int CDummy::setFloatProperty(const char* ppName, double pState, CCbor* eev)
             }
         };
 
-        handleProp(propDummy_mujocoMargin.name, _mujocoFloatParams, simi_mujoco_dummy_margin);
-        handleProp(propDummy_mujocoSpringStiffness.name, _mujocoFloatParams, simi_mujoco_dummy_stiffness);
-        handleProp(propDummy_mujocoSpringDamping.name, _mujocoFloatParams, simi_mujoco_dummy_damping);
-        handleProp(propDummy_mujocoSpringLength.name, _mujocoFloatParams, simi_mujoco_dummy_springlength);
-        handleProp(propDummy_mujocoOverlapConstrTorqueScale.name, _mujocoFloatParams, simi_mujoco_dummy_torquescaleoverlapconstr);
+        handleProp(prop(PropDummy::mujocoMargin).name, _mujocoFloatParams, simi_mujoco_dummy_margin);
+        handleProp(prop(PropDummy::mujocoSpringStiffness).name, _mujocoFloatParams, simi_mujoco_dummy_stiffness);
+        handleProp(prop(PropDummy::mujocoSpringDamping).name, _mujocoFloatParams, simi_mujoco_dummy_damping);
+        handleProp(prop(PropDummy::mujocoSpringLength).name, _mujocoFloatParams, simi_mujoco_dummy_springlength);
+        handleProp(prop(PropDummy::mujocoOverlapConstrTorqueScale).name, _mujocoFloatParams, simi_mujoco_dummy_torquescaleoverlapconstr);
 
         if ((ev != nullptr) && (eev == nullptr))
             App::scenes->pushEvent();
@@ -1533,7 +1533,7 @@ int CDummy::getFloatProperty(const char* ppName, double& pState) const
         retVal = _dummyColor.getFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(ppName, propDummy_size.name) == 0)
+        if (strcmp(ppName, prop(PropDummy::size).name) == 0)
         {
             pState = _dummySize;
             retVal = sim_propertyret_ok;
@@ -1541,27 +1541,27 @@ int CDummy::getFloatProperty(const char* ppName, double& pState) const
 
         // Engine-only properties:
         // ------------------------
-        if (_pName == propDummy_mujocoMargin.name)
+        if (_pName == prop(PropDummy::mujocoMargin).name)
         {
             retVal = sim_propertyret_ok;
             pState = _mujocoFloatParams[simi_mujoco_dummy_margin];
         }
-        else if (_pName == propDummy_mujocoSpringStiffness.name)
+        else if (_pName == prop(PropDummy::mujocoSpringStiffness).name)
         {
             retVal = sim_propertyret_ok;
             pState = _mujocoFloatParams[simi_mujoco_dummy_stiffness];
         }
-        else if (_pName == propDummy_mujocoSpringDamping.name)
+        else if (_pName == prop(PropDummy::mujocoSpringDamping).name)
         {
             retVal = sim_propertyret_ok;
             pState = _mujocoFloatParams[simi_mujoco_dummy_damping];
         }
-        else if (_pName == propDummy_mujocoSpringLength.name)
+        else if (_pName == prop(PropDummy::mujocoSpringLength).name)
         {
             retVal = sim_propertyret_ok;
             pState = _mujocoFloatParams[simi_mujoco_dummy_springlength];
         }
-        else if (_pName == propDummy_mujocoOverlapConstrTorqueScale.name)
+        else if (_pName == prop(PropDummy::mujocoOverlapConstrTorqueScale).name)
         {
             retVal = sim_propertyret_ok;
             pState = _mujocoFloatParams[simi_mujoco_dummy_torquescaleoverlapconstr];
@@ -1577,7 +1577,7 @@ int CDummy::setStringProperty(const char* ppName, const std::string& pState)
     int retVal = CSceneObject::setStringProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propDummy_assemblyTag.name)
+        if (_pName == prop(PropDummy::assemblyTag).name)
         {
             retVal = sim_propertyret_ok;
             setAssemblyTag(pState.c_str());
@@ -1585,15 +1585,15 @@ int CDummy::setStringProperty(const char* ppName, const std::string& pState)
     }
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(ppName, propDummy_engineProperties.name) == 0)
+        if (strcmp(ppName, prop(PropDummy::engineProperties).name) == 0)
         {
             retVal = 0;
-            CEngineProperties prop;
-            std::string current(prop.getObjectProperties(_objectHandle));
-            if (prop.setObjectProperties(_objectHandle, pState.c_str()))
+            CEngineProperties prope;
+            std::string current(prope.getObjectProperties(_objectHandle));
+            if (prope.setObjectProperties(_objectHandle, pState.c_str()))
             {
                 retVal = sim_propertyret_ok;
-                std::string current2(prop.getObjectProperties(_objectHandle));
+                std::string current2(prope.getObjectProperties(_objectHandle));
                 if (current != current2)
                     _sendEngineString();
             }
@@ -1608,7 +1608,7 @@ int CDummy::getStringProperty(const char* ppName, std::string& pState) const
     int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propDummy_assemblyTag.name)
+        if (_pName == prop(PropDummy::assemblyTag).name)
         {
             retVal = sim_propertyret_ok;
             pState = _assemblyTag;
@@ -1616,11 +1616,11 @@ int CDummy::getStringProperty(const char* ppName, std::string& pState) const
     }
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(ppName, propDummy_engineProperties.name) == 0)
+        if (strcmp(ppName, prop(PropDummy::engineProperties).name) == 0)
         {
             retVal = sim_propertyret_ok;
-            CEngineProperties prop;
-            pState = prop.getObjectProperties(_objectHandle);
+            CEngineProperties prope;
+            pState = prope.getObjectProperties(_objectHandle);
         }
     }
 
@@ -1712,11 +1712,11 @@ int CDummy::setFloatArrayProperty(const char* ppName, const std::vector<double>&
             }
         };
 
-        handleProp(propDummy_mujocoLimitsRange.name, _mujocoFloatParams, simi_mujoco_dummy_range1, 2);
-        handleProp(propDummy_mujocoLimitsSolref.name, _mujocoFloatParams, simi_mujoco_dummy_solreflimit1, 2);
-        handleProp(propDummy_mujocoLimitsSolimp.name, _mujocoFloatParams, simi_mujoco_dummy_solimplimit1, 5);
-        handleProp(propDummy_mujocoOverlapConstrSolref.name, _mujocoFloatParams, simi_mujoco_dummy_solrefoverlapconstr1, 2);
-        handleProp(propDummy_mujocoOverlapConstrSolimp.name, _mujocoFloatParams, simi_mujoco_dummy_solimpoverlapconstr1, 5);
+        handleProp(prop(PropDummy::mujocoLimitsRange).name, _mujocoFloatParams, simi_mujoco_dummy_range1, 2);
+        handleProp(prop(PropDummy::mujocoLimitsSolref).name, _mujocoFloatParams, simi_mujoco_dummy_solreflimit1, 2);
+        handleProp(prop(PropDummy::mujocoLimitsSolimp).name, _mujocoFloatParams, simi_mujoco_dummy_solimplimit1, 5);
+        handleProp(prop(PropDummy::mujocoOverlapConstrSolref).name, _mujocoFloatParams, simi_mujoco_dummy_solrefoverlapconstr1, 2);
+        handleProp(prop(PropDummy::mujocoOverlapConstrSolimp).name, _mujocoFloatParams, simi_mujoco_dummy_solimpoverlapconstr1, 5);
 
         if ((ev != nullptr) && (eev == nullptr))
             App::scenes->pushEvent();
@@ -1745,15 +1745,15 @@ int CDummy::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
                 pState.push_back(arr[simiIndex1 + i]);
         };
 
-        if (_pName == propDummy_mujocoLimitsRange.name)
+        if (_pName == prop(PropDummy::mujocoLimitsRange).name)
             handleProp(_mujocoFloatParams, simi_mujoco_dummy_range1, 2);
-        else if (_pName == propDummy_mujocoLimitsSolref.name)
+        else if (_pName == prop(PropDummy::mujocoLimitsSolref).name)
             handleProp(_mujocoFloatParams, simi_mujoco_dummy_solreflimit1, 2);
-        else if (_pName == propDummy_mujocoLimitsSolimp.name)
+        else if (_pName == prop(PropDummy::mujocoLimitsSolimp).name)
             handleProp(_mujocoFloatParams, simi_mujoco_dummy_solimplimit1, 5);
-        else if (_pName == propDummy_mujocoOverlapConstrSolref.name)
+        else if (_pName == prop(PropDummy::mujocoOverlapConstrSolref).name)
             handleProp(_mujocoFloatParams, simi_mujoco_dummy_solrefoverlapconstr1, 2);
-        else if (_pName == propDummy_mujocoOverlapConstrSolimp.name)
+        else if (_pName == prop(PropDummy::mujocoOverlapConstrSolimp).name)
             handleProp(_mujocoFloatParams, simi_mujoco_dummy_solimpoverlapconstr1, 5);
         // ------------------------
     }
@@ -1806,7 +1806,7 @@ int CDummy::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
                 retVal = allProps_dummy[i].type;
                 info = allProps_dummy[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_dummy[i].info.json.toStdString();
+                    infoTxt = allProps_dummy[i].info.json;
                 else
                 {
                     auto w = allProps_dummy[i].info.map;
@@ -1831,14 +1831,14 @@ void CDummy::_sendEngineString(CCbor* eev /*= nullptr*/)
         CCbor* ev = nullptr;
         if (eev != nullptr)
             ev = eev;
-        CEngineProperties prop;
-        std::string current(prop.getObjectProperties(_objectHandle));
+        CEngineProperties prope;
+        std::string current(prope.getObjectProperties(_objectHandle));
         if (ev == nullptr)
-            ev = App::scenes->createSceneObjectChangedEvent(this, false, propDummy_engineProperties.name, true);
+            ev = App::scenes->createSceneObjectChangedEvent(this, false, prop(PropDummy::engineProperties).name, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyText("engineProperties", current.c_str());
         else
-            ev->appendKeyText(propDummy_engineProperties.name, current.c_str());
+            ev->appendKeyText(prop(PropDummy::engineProperties).name, current.c_str());
         if ((ev != nullptr) && (eev == nullptr))
             App::scenes->pushEvent();
     }

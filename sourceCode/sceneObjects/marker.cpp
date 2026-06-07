@@ -640,9 +640,9 @@ void CMarker::scaleObject(double scalingFactor)
     if ( (_isInScene && App::scenes->getEventsEnabled()) && (_itemType == sim_markertype_custom) )
     {
         CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, "vertices", true);
-        ev->appendKeyMatrix(propMarker_vertices.name, _vertices.data(), _vertices.size() / 3, 3);
-        ev->appendKeyInt32Array(propMarker_indices.name, _indices.data(), _indices.size());
-        ev->appendKeyMatrix(propMarker_normals.name, _normals.data(), _normals.size() / 3, 3);
+        ev->appendKeyMatrix(prop(PropMarker::vertices).name, _vertices.data(), _vertices.size() / 3, 3);
+        ev->appendKeyInt32Array(prop(PropMarker::indices).name, _indices.data(), _indices.size());
+        ev->appendKeyMatrix(prop(PropMarker::normals).name, _normals.data(), _normals.size() / 3, 3);
         App::scenes->pushEvent();
     }
 }
@@ -654,15 +654,15 @@ void CMarker::removeSceneDependencies()
 
 void CMarker::addObjectEventData(CCbor* ev)
 {
-    ev->appendKeyInt64(propMarker_itemType.name, _itemType);
-    ev->appendKeyBool(propMarker_cyclic.name, _itemOptions & sim_markeropts_cyclic);
-    ev->appendKeyBool(propMarker_local.name, _itemOptions & sim_markeropts_local);
-    ev->appendKeyBool(propMarker_overlay.name, _itemOptions & sim_markeropts_overlay);
+    ev->appendKeyInt64(prop(PropMarker::itemType).name, _itemType);
+    ev->appendKeyBool(prop(PropMarker::cyclic).name, _itemOptions & sim_markeropts_cyclic);
+    ev->appendKeyBool(prop(PropMarker::local).name, _itemOptions & sim_markeropts_local);
+    ev->appendKeyBool(prop(PropMarker::overlay).name, _itemOptions & sim_markeropts_overlay);
     if (_itemType == sim_markertype_custom)
     {
-        ev->appendKeyMatrix(propMarker_vertices.name, _vertices.data(), _vertices.size() / 3, 3);
-        ev->appendKeyInt32Array(propMarker_indices.name, _indices.data(), _indices.size());
-        ev->appendKeyMatrix(propMarker_normals.name, _normals.data(), _normals.size() / 3, 3);
+        ev->appendKeyMatrix(prop(PropMarker::vertices).name, _vertices.data(), _vertices.size() / 3, 3);
+        ev->appendKeyInt32Array(prop(PropMarker::indices).name, _indices.data(), _indices.size());
+        ev->appendKeyMatrix(prop(PropMarker::normals).name, _normals.data(), _normals.size() / 3, 3);
     }
     _updateMarkerEvent(false, ev);
     CSceneObject::addObjectEventData(ev);
@@ -1033,17 +1033,17 @@ int CMarker::getBoolProperty(const char* ppName, bool& pState) const
     int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propMarker_cyclic.name, ppName) == 0)
+        if (strcmp(prop(PropMarker::cyclic).name, ppName) == 0)
         {
             pState = _itemOptions & sim_markeropts_cyclic;
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(propMarker_overlay.name, ppName) == 0)
+        else if (strcmp(prop(PropMarker::overlay).name, ppName) == 0)
         {
             pState = _itemOptions & sim_markeropts_overlay;
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(propMarker_local.name, ppName) == 0)
+        else if (strcmp(prop(PropMarker::local).name, ppName) == 0)
         {
             pState = _itemOptions & sim_markeropts_local;
             retVal = sim_propertyret_ok;
@@ -1070,7 +1070,7 @@ int CMarker::getIntProperty(const char* ppName, int& pState) const
     int retVal = CSceneObject::getIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propMarker_itemType.name)
+        if (_pName == prop(PropMarker::itemType).name)
         {
             pState = _itemType;
             retVal = sim_propertyret_ok;
@@ -1161,22 +1161,22 @@ int CMarker::getBufferProperty(const char* pName, std::string& pState) const
     int retVal = CSceneObject::getBufferProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(pName, propMarker_colors.name) == 0)
+        if (strcmp(pName, prop(PropMarker::colors).name) == 0)
         {
             pState.assign(_rgba.begin(), _rgba.end());
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propMarker_packedPoints.name) == 0)
+        else if (strcmp(pName, prop(PropMarker::packedPoints).name) == 0)
         {
             pState.assign((char*)_pts.data(), _pts.size() * sizeof(float));
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propMarker_packedQuaternions.name) == 0)
+        else if (strcmp(pName, prop(PropMarker::packedQuaternions).name) == 0)
         {
             pState.assign((char*)_quats.data(), _quats.size() * sizeof(float));
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propMarker_packedSizes.name) == 0)
+        else if (strcmp(pName, prop(PropMarker::packedSizes).name) == 0)
         {
             pState.assign((char*)_sizes.data(), _sizes.size() * sizeof(float));
             retVal = sim_propertyret_ok;
@@ -1211,7 +1211,7 @@ int CMarker::getIntArrayProperty(const char* pName, std::vector<int>& pState) co
     int retVal = CSceneObject::getIntArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(pName, propMarker_indices.name) == 0)
+        if (strcmp(pName, prop(PropMarker::indices).name) == 0)
         {
             pState = _indices;
             retVal = sim_propertyret_ok;
@@ -1234,35 +1234,35 @@ int CMarker::getMatrixProperty(const char* pName, CMatrix& pState) const
     int retVal = CSceneObject::getMatrixProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(pName, propMarker_points.name) == 0)
+        if (strcmp(pName, prop(PropMarker::points).name) == 0)
         {
             pState.resize(_pts.size() / 3, 3, 0.0);
             for (size_t i = 0; i < _pts.size(); i++)
                 pState.data[i] = (double)_pts[i];
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propMarker_quaternions.name) == 0)
+        else if (strcmp(pName, prop(PropMarker::quaternions).name) == 0)
         {
             pState.resize(_quats.size() / 4, 4, 0.0);
             for (size_t i = 0; i < _quats.size(); i++)
                 pState.data[i] = (double)_quats[i];
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propMarker_sizes.name) == 0)
+        else if (strcmp(pName, prop(PropMarker::sizes).name) == 0)
         {
             pState.resize(_sizes.size() / 3, 3, 0.0);
             for (size_t i = 0; i < _sizes.size(); i++)
                 pState.data[i] = (double)_sizes[i];
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propMarker_vertices.name) == 0)
+        else if (strcmp(pName, prop(PropMarker::vertices).name) == 0)
         {
             pState.resize(_vertices.size() / 3, 3, 0.0);
             for (size_t i = 0; i < _vertices.size(); i++)
                 pState.data[i] = (double)_vertices[i];
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propMarker_normals.name) == 0)
+        else if (strcmp(pName, prop(PropMarker::normals).name) == 0)
         {
             pState.resize(_normals.size() / 3, 3, 0.0);
             for (size_t i = 0; i < _normals.size(); i++)
@@ -1312,7 +1312,7 @@ int CMarker::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
                 retVal = allProps_marker[i].type;
                 info = allProps_marker[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_marker[i].info.json.toStdString();
+                    infoTxt = allProps_marker[i].info.json;
                 else
                 {
                     auto w = allProps_marker[i].info.map;
@@ -1343,10 +1343,10 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
             if (evv == nullptr)
                 ev = App::scenes->createSceneObjectChangedEvent(this, false, "set", true);
             ev->openKeyMap("set");
-            ev->appendKeyMatrix(propMarker_points.name, _pts.data(), _pts.size() / 3, 3);
-            ev->appendKeyMatrix(propMarker_quaternions.name, _quats.data(), _quats.size() / 4, 4);
-            ev->appendKeyMatrix(propMarker_sizes.name, _sizes.data(), _sizes.size() / 3, 3);
-            ev->appendKeyUint8Array(propMarker_colors.name, _rgba.data(), _rgba.size());
+            ev->appendKeyMatrix(prop(PropMarker::points).name, _pts.data(), _pts.size() / 3, 3);
+            ev->appendKeyMatrix(prop(PropMarker::quaternions).name, _quats.data(), _quats.size() / 4, 4);
+            ev->appendKeyMatrix(prop(PropMarker::sizes).name, _sizes.data(), _sizes.size() / 3, 3);
+            ev->appendKeyUint8Array(prop(PropMarker::colors).name, _rgba.data(), _rgba.size());
             ev->appendKeyInt64Array("ids", _ids.data(), _ids.size());
             ev->closeArrayOrMap();
             if (evv == nullptr)
@@ -1361,16 +1361,16 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
                 if (_newItemsCnt > 0)
                 {
                     ev->openKeyMap("add");
-                    ev->appendKeyMatrix(propMarker_points.name, _pts.data() + _pts.size() - (_newItemsCnt * 3 * _itemPointCnt), _newItemsCnt * _itemPointCnt, 3);
+                    ev->appendKeyMatrix(prop(PropMarker::points).name, _pts.data() + _pts.size() - (_newItemsCnt * 3 * _itemPointCnt), _newItemsCnt * _itemPointCnt, 3);
                     if (_quats.size() > 0)
-                        ev->appendKeyMatrix(propMarker_quaternions.name, _quats.data() + _quats.size() - (_newItemsCnt * 4 * _itemPointCnt), _newItemsCnt * _itemPointCnt, 4);
+                        ev->appendKeyMatrix(prop(PropMarker::quaternions).name, _quats.data() + _quats.size() - (_newItemsCnt * 4 * _itemPointCnt), _newItemsCnt * _itemPointCnt, 4);
                     else
-                        ev->appendKeyMatrix(propMarker_quaternions.name, (float*)nullptr, 0, 4);
+                        ev->appendKeyMatrix(prop(PropMarker::quaternions).name, (float*)nullptr, 0, 4);
                     if (_sizes.size() > 0)
-                        ev->appendKeyMatrix(propMarker_sizes.name, _sizes.data() + _sizes.size() - (_newItemsCnt * 3 * _itemPointCnt), _newItemsCnt * _itemPointCnt, 3);
+                        ev->appendKeyMatrix(prop(PropMarker::sizes).name, _sizes.data() + _sizes.size() - (_newItemsCnt * 3 * _itemPointCnt), _newItemsCnt * _itemPointCnt, 3);
                     else
-                        ev->appendKeyMatrix(propMarker_sizes.name, (float*)nullptr, 0, 3);
-                    ev->appendKeyUint8Array(propMarker_colors.name, (unsigned char*)(_rgba.data() + _rgba.size() - (_newItemsCnt * 4 * _itemPointCnt)), _newItemsCnt * 4 * _itemPointCnt);
+                        ev->appendKeyMatrix(prop(PropMarker::sizes).name, (float*)nullptr, 0, 3);
+                    ev->appendKeyUint8Array(prop(PropMarker::colors).name, (unsigned char*)(_rgba.data() + _rgba.size() - (_newItemsCnt * 4 * _itemPointCnt)), _newItemsCnt * 4 * _itemPointCnt);
                     ev->appendKeyInt64Array("ids", _ids.data() + _ids.size() - _newItemsCnt, _newItemsCnt);
                     ev->closeArrayOrMap();
                 }

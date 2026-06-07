@@ -4,13 +4,6 @@
 #include <sceneObject.h>
 #include <detachedScript.h>
 
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
-SCRIPT_PROPERTIES
-#undef FUNCX
-extern const std::vector<SProperty> allProps_script;
-// ----------------------------------------------------------------------------------------------
-
 class CScript : public CSceneObject
 {
   public:

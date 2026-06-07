@@ -20,13 +20,6 @@
 #include <customSceneObject.h>
 #include <embeddedScriptContainer.h>
 
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
-SCENEOBJECTCONT_PROPERTIES
-#undef FUNCX
-extern const std::vector<SProperty> allProps_objCont;
-// ----------------------------------------------------------------------------------------------
-
 struct SSimpleXmlSceneObject
 {
     CSceneObject* object;

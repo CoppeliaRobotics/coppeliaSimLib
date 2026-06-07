@@ -65,7 +65,7 @@ void CDrawingContainer::_publishAllDrawingObjectHandlesEvent() const
             CDrawingObject* dr = _allObjects[i];
             handles.push_back(dr->getObjectHandle());
         }
-        const char* cmd = propDrawingObjectCont_drawingObjects.name;
+        const char* cmd = prop(PropDrawingObjectCont::drawingObjects).name;
         CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, handles.data(), handles.size());
@@ -143,7 +143,7 @@ void CDrawingContainer::pushGenesisEvents()
         dr->pushAddEvent();
         // We need to "fake" adding that drawing object:
         addedObjects.push_back(dr->getObjectHandle());
-        const char* cmd = propDrawingObjectCont_drawingObjects.name;
+        const char* cmd = prop(PropDrawingObjectCont::drawingObjects).name;
         CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, addedObjects.data(), addedObjects.size());
@@ -229,7 +229,7 @@ int CDrawingContainer::getHandleArrayProperty_t(int64_t target, const char* pNam
     pState.clear();
     if (target == -1)
     {
-        if (strcmp(pName, propDrawingObjectCont_drawingObjects.name) == 0)
+        if (strcmp(pName, prop(PropDrawingObjectCont::drawingObjects).name) == 0)
         {
             for (size_t i = 0; i < _allObjects.size(); i++)
                 pState.push_back(_allObjects[i]->getObjectHandle());
@@ -302,7 +302,7 @@ int CDrawingContainer::getPropertyInfo_t(int64_t target, const char* pName, int&
                 retVal = allProps_drawCont[i].type;
                 info = allProps_drawCont[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_drawCont[i].info.json.toStdString();
+                    infoTxt = allProps_drawCont[i].info.json;
                 else
                 {
                     auto w = allProps_drawCont[i].info.map;

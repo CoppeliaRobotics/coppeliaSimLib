@@ -684,7 +684,7 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
 
         // We need to "fake" adding that object:
         f_objectHandles.push_back(obj->getObjectHandle());
-        const char* cmd = propSceneObjectCont_objects.name;
+        const char* cmd = prop(PropSceneObjectCont::objects).name;
         CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, f_objectHandles.data(), f_objectHandles.size());
@@ -701,7 +701,7 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
         if (obj->getParent() == nullptr)
         { // We need to "fake" adding that orphan:
             f_orphanHandles.push_back(obj->getObjectHandle());
-            cmd = propSceneObjectCont_orphans.name;
+            cmd = prop(PropSceneObjectCont::orphans).name;
             ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt32Array(cmd, f_orphanHandles.data(), f_orphanHandles.size());
@@ -721,7 +721,7 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
     std::vector<int> arr;
     for (size_t i = 0; i < _allObjects.size(); i++)
         arr.push_back(_allObjects[i]->getObjectHandle());
-    const char* cmd = propSceneObjectCont_objects.name;
+    const char* cmd = prop(PropSceneObjectCont::objects).name;
     CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
     if (App::getEventProtocolVersion() <= 3)
         ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
@@ -739,7 +739,7 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
     arr.clear();
     for (size_t i = 0; i < _orphanObjects.size(); i++)
         arr.push_back(_orphanObjects[i]->getObjectHandle());
-    cmd = propSceneObjectCont_orphans.name;
+    cmd = prop(PropSceneObjectCont::orphans).name;
     ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
     if (App::getEventProtocolVersion() <= 3)
         ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
@@ -755,7 +755,7 @@ void CSceneObjectContainer::pushObjectGenesisEvents() const
 
 
     // Update the selection list:
-    cmd = propSceneObjectCont_selection.name;
+    cmd = prop(PropSceneObjectCont::selection).name;
     ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
     if (App::getEventProtocolVersion() <= 3)
         ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
@@ -778,15 +778,15 @@ void CSceneObjectContainer::appendNonObjectGenesisData(CCbor* ev) const
     std::vector<int> arr;
     if (App::getEventProtocolVersion() <= 3)
     {
-        ev->appendKeyInt32Array(propSceneObjectCont_objects.name, arr.data(), arr.size());
-        ev->appendKeyInt32Array(propSceneObjectCont_orphans.name, arr.data(), arr.size());
+        ev->appendKeyInt32Array(prop(PropSceneObjectCont::objects).name, arr.data(), arr.size());
+        ev->appendKeyInt32Array(prop(PropSceneObjectCont::orphans).name, arr.data(), arr.size());
     }
     else
     {
-        ev->appendKeyHandleArray(propSceneObjectCont_objects.name, arr.data(), arr.size());
-        ev->appendKeyHandleArray(propSceneObjectCont_orphans.name, arr.data(), arr.size());
+        ev->appendKeyHandleArray(prop(PropSceneObjectCont::objects).name, arr.data(), arr.size());
+        ev->appendKeyHandleArray(prop(PropSceneObjectCont::orphans).name, arr.data(), arr.size());
     }
-    ev->appendText(propSceneObjectCont_selection.name);
+    ev->appendText(prop(PropSceneObjectCont::selection).name);
     ev->openArray();
     ev->closeArrayOrMap();
     if (App::getEventProtocolVersion() < 4)
@@ -1781,7 +1781,7 @@ bool CSceneObjectContainer::setSelectedObjectHandles(const int* v, size_t length
         }
         if (App::scenes->getEventsEnabled())
         {
-            const char* cmd = propSceneObjectCont_selection.name;
+            const char* cmd = prop(PropSceneObjectCont::selection).name;
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt32Array(cmd, _selectedObjectHandles.data(), _selectedObjectHandles.size());
@@ -4586,17 +4586,17 @@ int CSceneObjectContainer::getIntProperty_t(int64_t target, const char* pName, i
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
-        if (strcmp(pName, propSceneObjectCont_objectCreationCounter.name) == 0)
+        if (strcmp(pName, prop(PropSceneObjectCont::objectCreationCounter).name) == 0)
         {
             pState = _objectCreationCounter;
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propSceneObjectCont_objectDestructionCounter.name) == 0)
+        else if (strcmp(pName, prop(PropSceneObjectCont::objectDestructionCounter).name) == 0)
         {
             pState = _objectDestructionCounter;
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propSceneObjectCont_hierarchyChangeCounter.name) == 0)
+        else if (strcmp(pName, prop(PropSceneObjectCont::hierarchyChangeCounter).name) == 0)
         {
             pState = _hierarchyChangeCounter;
             retVal = sim_propertyret_ok;
@@ -5224,7 +5224,7 @@ int CSceneObjectContainer::setIntArrayProperty_t(int64_t target, const char* pNa
     if (target == -1)
     {
         // --- For backward compatibility ---
-        if (strcmp(pName, propSceneObjectCont_DEPRECATED_selectionHandles.name) == 0)
+        if (strcmp(pName, prop(PropSceneObjectCont::DEPRECATED_selectionHandles).name) == 0)
         {
             setSelectedObjectHandles(pState.data(), pState.size());
             retVal = sim_propertyret_ok;
@@ -5255,19 +5255,19 @@ int CSceneObjectContainer::getIntArrayProperty_t(int64_t target, const char* pNa
     if (target == -1)
     {
         // --- For backward compatibility ---
-        if (strcmp(pName, propSceneObjectCont_DEPRECATED_objectHandles.name) == 0)
+        if (strcmp(pName, prop(PropSceneObjectCont::DEPRECATED_objectHandles).name) == 0)
         {
             for (size_t i = 0; i < _allObjects.size(); i++)
                 pState.push_back(_allObjects[i]->getObjectHandle());
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propSceneObjectCont_DEPRECATED_orphanHandles.name) == 0)
+        else if (strcmp(pName, prop(PropSceneObjectCont::DEPRECATED_orphanHandles).name) == 0)
         {
             for (size_t i = 0; i < _orphanObjects.size(); i++)
                 pState.push_back(_orphanObjects[i]->getObjectHandle());
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propSceneObjectCont_DEPRECATED_selectionHandles.name) == 0)
+        else if (strcmp(pName, prop(PropSceneObjectCont::DEPRECATED_selectionHandles).name) == 0)
         {
             pState.assign(_selectedObjectHandles.begin(), _selectedObjectHandles.end());
             retVal = sim_propertyret_ok;
@@ -5296,7 +5296,7 @@ int CSceneObjectContainer::setHandleArrayProperty_t(int64_t target, const char* 
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
-        if (strcmp(pName, propSceneObjectCont_selection.name) == 0)
+        if (strcmp(pName, prop(PropSceneObjectCont::selection).name) == 0)
         {
             std::vector<int> hh;
             for (int i = 0; i < pState.size(); i++)
@@ -5328,19 +5328,19 @@ int CSceneObjectContainer::getHandleArrayProperty_t(int64_t target, const char* 
     pState.clear();
     if (target == -1)
     {
-        if (strcmp(pName, propSceneObjectCont_objects.name) == 0)
+        if (strcmp(pName, prop(PropSceneObjectCont::objects).name) == 0)
         {
             for (size_t i = 0; i < _allObjects.size(); i++)
                 pState.push_back(_allObjects[i]->getObjectHandle());
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propSceneObjectCont_orphans.name) == 0)
+        else if (strcmp(pName, prop(PropSceneObjectCont::orphans).name) == 0)
         {
             for (size_t i = 0; i < _orphanObjects.size(); i++)
                 pState.push_back(_orphanObjects[i]->getObjectHandle());
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, propSceneObjectCont_selection.name) == 0)
+        else if (strcmp(pName, prop(PropSceneObjectCont::selection).name) == 0)
         {
             for (size_t i = 0; i < _selectedObjectHandles.size(); i++)
                 pState.push_back(_selectedObjectHandles[i]);
@@ -5369,7 +5369,7 @@ int CSceneObjectContainer::setStringArrayProperty_t(int64_t target, const char* 
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
-        // if (strcmp(pName, propSceneObjectCont_selection.name) == 0)
+        // if (strcmp(pName, prop(PropSceneObjectCont::selection).name) == 0)
         //{
         //    retVal = sim_propertyret_ok;
         //}
@@ -5397,7 +5397,7 @@ int CSceneObjectContainer::getStringArrayProperty_t(int64_t target, const char* 
     pState.clear();
     if (target == -1)
     {
-        //if (strcmp(pName, propSceneObjectCont_objects.name) == 0)
+        //if (strcmp(pName, prop(PropSceneObjectCont::objects).name) == 0)
         //{
         //    retVal = sim_propertyret_ok;
         //}
@@ -5447,7 +5447,7 @@ int CSceneObjectContainer::getMethodProperty_t(int64_t target, const char* pName
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
-        //if (strcmp(pName, propSceneObjectCont_objects.name) == 0)
+        //if (strcmp(pName, prop(PropSceneObjectCont::objects).name) == 0)
         //{
         //    retVal = sim_propertyret_ok;
         //}
@@ -5497,7 +5497,7 @@ int CSceneObjectContainer::getMethodProperty_t(int64_t target, const char* pName
     int retVal = sim_propertyret_unknownproperty;
     if (target == -1)
     {
-        //if (strcmp(pName, propSceneObjectCont_objects.name) == 0)
+        //if (strcmp(pName, prop(PropSceneObjectCont::objects).name) == 0)
         //{
         //    retVal = sim_propertyret_ok;
         //}
@@ -5595,7 +5595,7 @@ int CSceneObjectContainer::getPropertyInfo_t(int64_t target, const char* pName, 
                 retVal = allProps_objCont[i].type;
                 info = allProps_objCont[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_objCont[i].info.json.toStdString();
+                    infoTxt = allProps_objCont[i].info.json;
                 else
                 {
                     auto w = allProps_objCont[i].info.map;
@@ -5683,7 +5683,7 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                 index++;
                 int info;
                 t = obj->getPropertyInfo(name.c_str(), info, app);
-                if ((sel[i] != modelHandle) || (name != propSceneObject_pose.name))
+                if ((sel[i] != modelHandle) || (name != prop(PropSceneObject::pose).name))
                 { // the model base's pose should not be included.
                     int result = -1;
                     if ((t != sim_propertytype_buffer) && (name.find(CUSTOMDATAPREFIXDOT) != std::string::npos))
@@ -5883,7 +5883,7 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                     h = -1;
                 dnaString.append(reinterpret_cast<const char*>(&h), sizeof(h));
 
-                dummy->getIntProperty(propDummy_mujocoJointProxyHandle.name, h);
+                dummy->getIntProperty(prop(PropDummy::mujocoJointProxyHandle).name, h);
                 it = handleMapping.find(h);
                 if (it != handleMapping.end())
                     h = it->second;
@@ -5956,7 +5956,7 @@ void CSceneObjectContainer::_setOrphanObjects(const std::vector<CSceneObject*>& 
             std::vector<int> arr;
             for (size_t i = 0; i < _orphanObjects.size(); i++)
                 arr.push_back(_orphanObjects[i]->getObjectHandle());
-            const char* cmd = propSceneObjectCont_orphans.name;
+            const char* cmd = prop(PropSceneObjectCont::orphans).name;
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
@@ -5965,7 +5965,7 @@ void CSceneObjectContainer::_setOrphanObjects(const std::vector<CSceneObject*>& 
             App::scenes->pushEvent();
             if (App::getEventProtocolVersion() < 4)
             { // --- For backward compatibility ---
-                cmd = propSceneObjectCont_DEPRECATED_orphanHandles.name;
+                cmd = prop(PropSceneObjectCont::DEPRECATED_orphanHandles).name;
                 ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
                 ev->appendKeyInt32Array(cmd, arr.data(), arr.size());
                 App::scenes->pushEvent();
@@ -5996,7 +5996,7 @@ void CSceneObjectContainer::_setAllObjects(const std::vector<CSceneObject*>& new
             std::vector<int> arr;
             for (size_t i = 0; i < _allObjects.size(); i++)
                 arr.push_back(_allObjects[i]->getObjectHandle());
-            const char* cmd = propSceneObjectCont_objects.name;
+            const char* cmd = prop(PropSceneObjectCont::objects).name;
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt32Array(cmd, arr.data(), arr.size());

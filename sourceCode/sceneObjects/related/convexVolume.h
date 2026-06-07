@@ -8,13 +8,6 @@
 #define PROXSENSOR_MAX_FACE_NUMBER 1024  // Maximum faces of a disk or cone-type sensor
 #define PROXSENSOR_MAX_SUBDIVISIONS 1024 // Maximum subdivisions of a cone-type sensor
 
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, t1, t2) extern const SProperty name;
-CONVEXVOLUME_PROPERTIES
-#undef FUNCX
-extern const std::vector<SProperty> allProps_volume;
-// ----------------------------------------------------------------------------------------------
-
 enum
 { // IS SERIALIZED!!!!
     PYRAMID_TYPE_CONVEX_VOLUME = 0,

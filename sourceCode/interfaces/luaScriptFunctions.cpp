@@ -36,7 +36,8 @@
     std::string errorString; \
     std::string warningString; \
     bool cSideErrorOrWarningReporting = true; \
-    App::changeAppWideYieldingForbidLevel(1);
+    App::changeAppWideYieldingForbidLevel(1); \
+    App::pushApiVersion(1);
 
 #define LUA_START_NO_CSIDE_ERROR(funcName) \
     int argOffset = 0; \
@@ -44,7 +45,8 @@
     std::string errorString; \
     std::string warningString; \
     bool cSideErrorOrWarningReporting = false; \
-    App::changeAppWideYieldingForbidLevel(1);
+    App::changeAppWideYieldingForbidLevel(1); \
+    App::pushApiVersion(1);
 
 #define LUA_END(p) \
     do \
@@ -54,6 +56,7 @@
         _reportWarningsIfNeeded(L, functionName.c_str(), warningString.c_str()); \
         CApiErrors::getAndClearLastError(); \
         App::changeAppWideYieldingForbidLevel(-1); \
+        App::popApiVersion(); \
         return p; \
     } while (0)
 
@@ -6422,6 +6425,7 @@ int _callMethod(luaWrap_lua_State* L)
     TRACE_LUA_API;
     LUA_START("callMethod");
 
+    App::pushApiVersion(2);
     if (checkInputArguments(L, &errorString, argOffset, lua_arg_handle, 0, lua_arg_string, 0))
     {
         int64_t target = fetchHandleArg(L, 1);
@@ -6437,9 +6441,11 @@ int _callMethod(luaWrap_lua_State* L)
             int s = int(CDetachedScript::buildOntoInterpreterStack_lua(L, outStack, false, false));
             App::scenes->interfaceStackContainer->destroyStack(outStack);
             App::scenes->interfaceStackContainer->destroyStack(inStack);
+            App::popApiVersion();
             LUA_END(s);
         }
     }
+    App::popApiVersion();
 
     LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
     LUA_END(0);

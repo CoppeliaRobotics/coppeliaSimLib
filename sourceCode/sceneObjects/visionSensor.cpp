@@ -425,7 +425,7 @@ void CVisionSensor::setUseExternalImage(bool u)
         _useExternalImage = u;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propVisionSensor_useExtImage.name;
+            const char* cmd = prop(PropVisionSensor::useExtImage).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _useExternalImage);
             App::scenes->pushEvent();
@@ -446,7 +446,7 @@ void CVisionSensor::setEmitImageChangedEvent(bool e)
         _emitImageChangedEventEnabled = e;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propVisionSensor_emitImageChangedEvent.name;
+            const char* cmd = prop(PropVisionSensor::emitImageChangedEvent).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _emitImageChangedEventEnabled);
             App::scenes->pushEvent();
@@ -462,7 +462,7 @@ void CVisionSensor::setEmitDepthChangedEvent(bool e)
         _emitDepthChangedEventEnabled = e;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propVisionSensor_emitDepthChangedEvent.name;
+            const char* cmd = prop(PropVisionSensor::emitDepthChangedEvent).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _emitDepthChangedEventEnabled);
             App::scenes->pushEvent();
@@ -474,7 +474,7 @@ void CVisionSensor::_emitImageChangedEvent(CCbor* thirdPartyEv /*= nullptr*/) co
 {
     if (_emitImageChangedEventEnabled && _isInScene && App::scenes->getEventsEnabled())
     {
-        const char* cmd = propVisionSensor_imageBuffer.name;
+        const char* cmd = prop(PropVisionSensor::imageBuffer).name;
         CCbor* ev = thirdPartyEv;
         if (thirdPartyEv == nullptr)
             ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
@@ -491,12 +491,12 @@ void CVisionSensor::_emitDepthChangedEvent(CCbor* thirdPartyEv /*= nullptr*/) co
 {
     if (_emitDepthChangedEventEnabled && _isInScene && App::scenes->getEventsEnabled())
     {
-        const char* cmd = propVisionSensor_depthBuffer.name;
+        const char* cmd = prop(PropVisionSensor::depthBuffer).name;
         CCbor* ev = thirdPartyEv;
         if (thirdPartyEv == nullptr)
             ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
-            ev->appendKeyFloatArray(propVisionSensor_DEPRECATED_depthBuffer.name, _depthBuffer, _resolution[0] * _resolution[1]);
+            ev->appendKeyFloatArray(prop(PropVisionSensor::DEPRECATED_depthBuffer).name, _depthBuffer, _resolution[0] * _resolution[1]);
         else
             ev->appendKeyMatrix(cmd, _depthBuffer, _resolution[1], _resolution[0]);
         if (thirdPartyEv == nullptr)
@@ -635,7 +635,7 @@ void CVisionSensor::setUseEnvironmentBackgroundColor(bool s)
         _useSameBackgroundAsEnvironment = s;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propVisionSensor_backgroundSameAsEnv.name;
+            const char* cmd = prop(PropVisionSensor::backgroundSameAsEnv).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _useSameBackgroundAsEnvironment);
             App::scenes->pushEvent();
@@ -655,7 +655,7 @@ void CVisionSensor::setVisionSensorSize(const double s)
         _visionSensorSize = s;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propVisionSensor_size.name;
+            const char* cmd = prop(PropVisionSensor::size).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyDouble("sensorSize", _visionSensorSize);
@@ -680,7 +680,7 @@ void CVisionSensor::setExplicitHandling(bool eh)
         _explicitHandling = eh;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propVisionSensor_explicitHandling.name;
+            const char* cmd = prop(PropVisionSensor::explicitHandling).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _explicitHandling);
             App::scenes->pushEvent();
@@ -701,7 +701,7 @@ void CVisionSensor::setIgnoreRGBInfo(bool ignore)
         _ignoreRGBInfo = ignore;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propVisionSensor_ignoreRgbInfo.name;
+            const char* cmd = prop(PropVisionSensor::ignoreRgbInfo).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _ignoreRGBInfo);
             App::scenes->pushEvent();
@@ -722,7 +722,7 @@ void CVisionSensor::setComputeImageBasicStats(bool c)
         _computeImageBasicStats = c;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propVisionSensor_omitPacket1.name;
+            const char* cmd = prop(PropVisionSensor::omitPacket1).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, !_computeImageBasicStats);
             App::scenes->pushEvent();
@@ -743,7 +743,7 @@ void CVisionSensor::setIgnoreDepthInfo(bool ignore)
         _ignoreDepthInfo = ignore;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propVisionSensor_ignoreDepthInfo.name;
+            const char* cmd = prop(PropVisionSensor::ignoreDepthInfo).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _ignoreDepthInfo);
             App::scenes->pushEvent();
@@ -769,7 +769,7 @@ void CVisionSensor::setRenderMode(int mode)
         }
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propVisionSensor_renderMode.name;
+            const char* cmd = prop(PropVisionSensor::renderMode).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt64(cmd, _renderMode);
             App::scenes->pushEvent();
@@ -811,7 +811,7 @@ void CVisionSensor::setDefaultBufferValues(const float v[3])
             _defaultBufferValues[i] = v[i];
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propVisionSensor_backgroundCol.name;
+            const char* cmd = prop(PropVisionSensor::backgroundCol).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyFloatArray(cmd, _defaultBufferValues, 3);
@@ -960,19 +960,19 @@ void CVisionSensor::_emitTriggerStateAndPacketChangeEvents(CCbor* thirdPartyEv /
 {
     if (_isInScene && App::scenes->getEventsEnabled())
     {
-        const char* cmd = propVisionSensor_triggerState.name;
+        const char* cmd = prop(PropVisionSensor::triggerState).name;
         CCbor* ev = thirdPartyEv;
         if (thirdPartyEv == nullptr)
             ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
         ev->appendKeyBool(cmd, sensorResult.sensorWasTriggered);
         if (sensorAuxiliaryResult.size() >= 1)
-            ev->appendKeyDoubleArray(propVisionSensor_packet1.name, sensorAuxiliaryResult[0].data(), sensorAuxiliaryResult[0].size());
+            ev->appendKeyDoubleArray(prop(PropVisionSensor::packet1).name, sensorAuxiliaryResult[0].data(), sensorAuxiliaryResult[0].size());
         else
-            ev->appendKeyDoubleArray(propVisionSensor_packet1.name, nullptr, 0);
+            ev->appendKeyDoubleArray(prop(PropVisionSensor::packet1).name, nullptr, 0);
         if (sensorAuxiliaryResult.size() >= 2)
-            ev->appendKeyDoubleArray(propVisionSensor_packet2.name, sensorAuxiliaryResult[1].data(), sensorAuxiliaryResult[1].size());
+            ev->appendKeyDoubleArray(prop(PropVisionSensor::packet2).name, sensorAuxiliaryResult[1].data(), sensorAuxiliaryResult[1].size());
         else
-            ev->appendKeyDoubleArray(propVisionSensor_packet2.name, nullptr, 0);
+            ev->appendKeyDoubleArray(prop(PropVisionSensor::packet2).name, nullptr, 0);
         if (thirdPartyEv == nullptr)
             App::scenes->pushEvent();
     }
@@ -2147,34 +2147,34 @@ void CVisionSensor::addObjectEventData(CCbor* ev)
     }
     else
         color.addGenesisEventData(ev);
-    ev->appendKeyDouble(propVisionSensor_size.name, _visionSensorSize);
+    ev->appendKeyDouble(prop(PropVisionSensor::size).name, _visionSensorSize);
     if (App::getEventProtocolVersion() <= 3)
-        ev->appendKeyFloatArray(propVisionSensor_backgroundCol.name, _defaultBufferValues, 3);
+        ev->appendKeyFloatArray(prop(PropVisionSensor::backgroundCol).name, _defaultBufferValues, 3);
     else
-        ev->appendKeyColor(propVisionSensor_backgroundCol.name, _defaultBufferValues);
-    ev->appendKeyInt64(propVisionSensor_renderMode.name, _renderMode);
-    ev->appendKeyBool(propVisionSensor_backgroundSameAsEnv.name, _useSameBackgroundAsEnvironment);
-    ev->appendKeyBool(propVisionSensor_explicitHandling.name, _explicitHandling);
-    ev->appendKeyBool(propVisionSensor_useExtImage.name, _useExternalImage);
-    ev->appendKeyBool(propVisionSensor_ignoreRgbInfo.name, _ignoreRGBInfo);
-    ev->appendKeyBool(propVisionSensor_ignoreDepthInfo.name, _ignoreDepthInfo);
-    ev->appendKeyBool(propVisionSensor_omitPacket1.name, !_computeImageBasicStats);
-    ev->appendKeyBool(propVisionSensor_emitImageChangedEvent.name, _emitImageChangedEventEnabled);
-    ev->appendKeyBool(propVisionSensor_emitDepthChangedEvent.name, _emitDepthChangedEventEnabled);
+        ev->appendKeyColor(prop(PropVisionSensor::backgroundCol).name, _defaultBufferValues);
+    ev->appendKeyInt64(prop(PropVisionSensor::renderMode).name, _renderMode);
+    ev->appendKeyBool(prop(PropVisionSensor::backgroundSameAsEnv).name, _useSameBackgroundAsEnvironment);
+    ev->appendKeyBool(prop(PropVisionSensor::explicitHandling).name, _explicitHandling);
+    ev->appendKeyBool(prop(PropVisionSensor::useExtImage).name, _useExternalImage);
+    ev->appendKeyBool(prop(PropVisionSensor::ignoreRgbInfo).name, _ignoreRGBInfo);
+    ev->appendKeyBool(prop(PropVisionSensor::ignoreDepthInfo).name, _ignoreDepthInfo);
+    ev->appendKeyBool(prop(PropVisionSensor::omitPacket1).name, !_computeImageBasicStats);
+    ev->appendKeyBool(prop(PropVisionSensor::emitImageChangedEvent).name, _emitImageChangedEventEnabled);
+    ev->appendKeyBool(prop(PropVisionSensor::emitDepthChangedEvent).name, _emitDepthChangedEventEnabled);
     _emitImageChangedEvent(ev);
     _emitDepthChangedEvent(ev);
     _emitTriggerStateAndPacketChangeEvents(ev);
     if (App::getEventProtocolVersion() == 2)
     {
-        ev->appendKeyDouble(propViewableBase_viewAngle.name, _viewAngle);
-        ev->appendKeyDouble(propViewableBase_viewSize.name, _orthoViewSize);
+        ev->appendKeyDouble(prop(PropViewableBase::viewAngle).name, _viewAngle);
+        ev->appendKeyDouble(prop(PropViewableBase::viewSize).name, _orthoViewSize);
         double arr[2] = {_nearClippingPlane, _farClippingPlane};
-        ev->appendKeyDoubleArray(propViewableBase_clippingPlanes.name, arr, 2);
-        ev->appendKeyBool(propViewableBase_perspective.name, _perspective);
-        ev->appendKeyBool(propViewableBase_showFrustum.name, _showVolume);
-        ev->appendKeyDoubleArray(propViewableBase_frustumCornerNear.name, _volumeVectorNear.data, 3);
-        ev->appendKeyDoubleArray(propViewableBase_frustumCornerFar.name, _volumeVectorFar.data, 3);
-        ev->appendKeyInt32Array(propViewableBase_resolution.name, _resolution, 2);
+        ev->appendKeyDoubleArray(prop(PropViewableBase::clippingPlanes).name, arr, 2);
+        ev->appendKeyBool(prop(PropViewableBase::perspective).name, _perspective);
+        ev->appendKeyBool(prop(PropViewableBase::showFrustum).name, _showVolume);
+        ev->appendKeyDoubleArray(prop(PropViewableBase::frustumCornerNear).name, _volumeVectorNear.data, 3);
+        ev->appendKeyDoubleArray(prop(PropViewableBase::frustumCornerFar).name, _volumeVectorFar.data, 3);
+        ev->appendKeyInt32Array(prop(PropViewableBase::resolution).name, _resolution, 2);
         ev->closeArrayOrMap(); // visionSensor
         CSceneObject::addObjectEventData(ev);
     }
@@ -3415,47 +3415,47 @@ int CVisionSensor::setBoolProperty(const char* ppName, bool pState)
     int retVal = CViewableBase::setBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propVisionSensor_backgroundSameAsEnv.name)
+        if (_pName == prop(PropVisionSensor::backgroundSameAsEnv).name)
         {
             retVal = sim_propertyret_ok;
             setUseEnvironmentBackgroundColor(pState);
         }
-        else if (_pName == propVisionSensor_explicitHandling.name)
+        else if (_pName == prop(PropVisionSensor::explicitHandling).name)
         {
             retVal = sim_propertyret_ok;
             setExplicitHandling(pState);
         }
-        else if (_pName == propVisionSensor_useExtImage.name)
+        else if (_pName == prop(PropVisionSensor::useExtImage).name)
         {
             retVal = sim_propertyret_ok;
             setUseExternalImage(pState);
         }
-        else if (_pName == propVisionSensor_ignoreRgbInfo.name)
+        else if (_pName == prop(PropVisionSensor::ignoreRgbInfo).name)
         {
             retVal = sim_propertyret_ok;
             setIgnoreRGBInfo(pState);
         }
-        else if (_pName == propVisionSensor_ignoreDepthInfo.name)
+        else if (_pName == prop(PropVisionSensor::ignoreDepthInfo).name)
         {
             retVal = sim_propertyret_ok;
             setIgnoreDepthInfo(pState);
         }
-        else if (_pName == propVisionSensor_omitPacket1.name)
+        else if (_pName == prop(PropVisionSensor::omitPacket1).name)
         {
             retVal = sim_propertyret_ok;
             setComputeImageBasicStats(!pState);
         }
-        else if (_pName == propVisionSensor_emitImageChangedEvent.name)
+        else if (_pName == prop(PropVisionSensor::emitImageChangedEvent).name)
         {
             retVal = sim_propertyret_ok;
             setEmitImageChangedEvent(pState);
         }
-        else if (_pName == propVisionSensor_emitDepthChangedEvent.name)
+        else if (_pName == prop(PropVisionSensor::emitDepthChangedEvent).name)
         {
             retVal = sim_propertyret_ok;
             setEmitDepthChangedEvent(pState);
         }
-        else if (_pName == propVisionSensor_povFocalBlur.name)
+        else if (_pName == prop(PropVisionSensor::povFocalBlur).name)
         {
             retVal = sim_propertyret_ok;
             if (pState)
@@ -3474,47 +3474,47 @@ int CVisionSensor::getBoolProperty(const char* ppName, bool& pState) const
     int retVal = CViewableBase::getBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propVisionSensor_backgroundSameAsEnv.name)
+        if (_pName == prop(PropVisionSensor::backgroundSameAsEnv).name)
         {
             retVal = sim_propertyret_ok;
             pState = _useSameBackgroundAsEnvironment;
         }
-        else if (_pName == propVisionSensor_explicitHandling.name)
+        else if (_pName == prop(PropVisionSensor::explicitHandling).name)
         {
             retVal = sim_propertyret_ok;
             pState = _explicitHandling;
         }
-        else if (_pName == propVisionSensor_useExtImage.name)
+        else if (_pName == prop(PropVisionSensor::useExtImage).name)
         {
             retVal = sim_propertyret_ok;
             pState = _useExternalImage;
         }
-        else if (_pName == propVisionSensor_ignoreRgbInfo.name)
+        else if (_pName == prop(PropVisionSensor::ignoreRgbInfo).name)
         {
             retVal = sim_propertyret_ok;
             pState = _ignoreRGBInfo;
         }
-        else if (_pName == propVisionSensor_ignoreDepthInfo.name)
+        else if (_pName == prop(PropVisionSensor::ignoreDepthInfo).name)
         {
             retVal = sim_propertyret_ok;
             pState = _ignoreDepthInfo;
         }
-        else if (_pName == propVisionSensor_omitPacket1.name)
+        else if (_pName == prop(PropVisionSensor::omitPacket1).name)
         {
             retVal = sim_propertyret_ok;
             pState = !_computeImageBasicStats;
         }
-        else if (_pName == propVisionSensor_emitImageChangedEvent.name)
+        else if (_pName == prop(PropVisionSensor::emitImageChangedEvent).name)
         {
             retVal = sim_propertyret_ok;
             pState = _emitImageChangedEventEnabled;
         }
-        else if (_pName == propVisionSensor_emitDepthChangedEvent.name)
+        else if (_pName == prop(PropVisionSensor::emitDepthChangedEvent).name)
         {
             retVal = sim_propertyret_ok;
             pState = _emitDepthChangedEventEnabled;
         }
-        else if (_pName == propVisionSensor_povFocalBlur.name)
+        else if (_pName == prop(PropVisionSensor::povFocalBlur).name)
         {
             retVal = sim_propertyret_ok;
             std::string val;
@@ -3522,7 +3522,7 @@ int CVisionSensor::getBoolProperty(const char* ppName, bool& pState) const
             if (tt::getValueOfKey("focalBlur@povray", _extensionString.c_str(), val))
                 pState = (tt::getLowerUpperCaseString(val, false).compare("true") == 0);
         }
-        else if (_pName == propVisionSensor_triggerState.name)
+        else if (_pName == prop(PropVisionSensor::triggerState).name)
         {
             retVal = sim_propertyret_ok;
             pState = sensorResult.sensorWasTriggered;
@@ -3538,12 +3538,12 @@ int CVisionSensor::setIntProperty(const char* ppName, int pState)
     int retVal = CViewableBase::setIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propVisionSensor_renderMode.name)
+        if (_pName == prop(PropVisionSensor::renderMode).name)
         {
             retVal = sim_propertyret_ok;
             setRenderMode(pState);
         }
-        else if (_pName == propVisionSensor_povBlurSamples.name)
+        else if (_pName == prop(PropVisionSensor::povBlurSamples).name)
         {
             retVal = sim_propertyret_ok;
             tt::insertKeyAndValue("blurSamples@povray", utils::getIntString(false, pState).c_str(), _extensionString);
@@ -3559,12 +3559,12 @@ int CVisionSensor::getIntProperty(const char* ppName, int& pState) const
     int retVal = CViewableBase::getIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propVisionSensor_renderMode.name)
+        if (_pName == prop(PropVisionSensor::renderMode).name)
         {
             retVal = sim_propertyret_ok;
             pState = _renderMode;
         }
-        else if (_pName == propVisionSensor_povBlurSamples.name)
+        else if (_pName == prop(PropVisionSensor::povBlurSamples).name)
         {
             retVal = sim_propertyret_ok;
             std::string val;
@@ -3585,17 +3585,17 @@ int CVisionSensor::setFloatProperty(const char* ppName, double pState)
         retVal = color.setFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propVisionSensor_size.name)
+        if (_pName == prop(PropVisionSensor::size).name)
         {
             setVisionSensorSize(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propVisionSensor_povBlurDistance.name)
+        else if (_pName == prop(PropVisionSensor::povBlurDistance).name)
         {
             tt::insertKeyAndValue("blurDist@povray", utils::getSizeString(false, pState).c_str(), _extensionString);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propVisionSensor_povAperture.name)
+        else if (_pName == prop(PropVisionSensor::povAperture).name)
         {
             tt::insertKeyAndValue("aperture@povray", utils::getSizeString(false, pState).c_str(), _extensionString);
             retVal = sim_propertyret_ok;
@@ -3613,12 +3613,12 @@ int CVisionSensor::getFloatProperty(const char* ppName, double& pState) const
         retVal = color.getFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propVisionSensor_size.name)
+        if (_pName == prop(PropVisionSensor::size).name)
         {
             pState = _visionSensorSize;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propVisionSensor_povBlurDistance.name)
+        else if (_pName == prop(PropVisionSensor::povBlurDistance).name)
         {
             std::string val;
             pState = 2.0;
@@ -3626,7 +3626,7 @@ int CVisionSensor::getFloatProperty(const char* ppName, double& pState) const
                 tt::getValidFloat(val.c_str(), pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propVisionSensor_povAperture.name)
+        else if (_pName == prop(PropVisionSensor::povAperture).name)
         {
             std::string val;
             pState = 0.05;
@@ -3678,7 +3678,7 @@ int CVisionSensor::setBufferProperty(const char* ppName, const std::string& pSta
     int retVal = CViewableBase::setBufferProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propVisionSensor_imageBuffer.name)
+        if (_pName == prop(PropVisionSensor::imageBuffer).name)
         {
             if (pState.size() == 3 * _resolution[0] * _resolution[1])
             {
@@ -3701,12 +3701,12 @@ int CVisionSensor::getBufferProperty(const char* ppName, std::string& pState) co
     int retVal = CViewableBase::getBufferProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propVisionSensor_imageBuffer.name)
+        if (_pName == prop(PropVisionSensor::imageBuffer).name)
         {
             pState.assign(_rgbBuffer, _rgbBuffer + 3 * _resolution[0] * _resolution[1]);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propVisionSensor_packedDepthBuffer.name)
+        else if (_pName == prop(PropVisionSensor::packedDepthBuffer).name)
         {
             retVal = sim_propertyret_ok;
             pState.assign((char*)_depthBuffer, ((char*)_depthBuffer) + _resolution[0] * _resolution[1] * sizeof(float));
@@ -3724,7 +3724,7 @@ int CVisionSensor::setColorProperty(const char* ppName, const float* pState)
         retVal = color.setColorProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propVisionSensor_backgroundCol.name)
+        if (_pName == prop(PropVisionSensor::backgroundCol).name)
         {
             retVal = sim_propertyret_ok;
             setDefaultBufferValues(pState);
@@ -3741,7 +3741,7 @@ int CVisionSensor::getColorProperty(const char* ppName, float* pState) const
         retVal = color.getColorProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propVisionSensor_backgroundCol.name)
+        if (_pName == prop(PropVisionSensor::backgroundCol).name)
         {
             retVal = sim_propertyret_ok;
             pState[0] = _defaultBufferValues[0];
@@ -3779,7 +3779,7 @@ int CVisionSensor::getMatrixProperty(const char* ppName, CMatrix& pState) const
     int retVal = CViewableBase::getMatrixProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(propVisionSensor_depthBuffer.name, ppName) == 0)
+        if (strcmp(prop(PropVisionSensor::depthBuffer).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState.resize(_resolution[1], _resolution[0], 0.0);
@@ -3809,19 +3809,19 @@ int CVisionSensor::getFloatArrayProperty(const char* ppName, std::vector<double>
     int retVal = CViewableBase::getFloatArrayProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propVisionSensor_DEPRECATED_depthBuffer.name)
+        if (_pName == prop(PropVisionSensor::DEPRECATED_depthBuffer).name)
         {
             retVal = sim_propertyret_ok;
             for (size_t i = 0; i < _resolution[0] * _resolution[1]; i++)
                 pState.push_back(_depthBuffer[i]);
         }
-        else if (_pName == propVisionSensor_packet1.name)
+        else if (_pName == prop(PropVisionSensor::packet1).name)
         {
             retVal = sim_propertyret_ok;
             if (sensorAuxiliaryResult.size() >= 1)
                 pState.assign(sensorAuxiliaryResult[0].begin(), sensorAuxiliaryResult[0].end());
         }
-        else if (_pName == propVisionSensor_packet2.name)
+        else if (_pName == prop(PropVisionSensor::packet2).name)
         {
             retVal = sim_propertyret_ok;
             if (sensorAuxiliaryResult.size() >= 2)
@@ -3900,7 +3900,7 @@ int CVisionSensor::getPropertyInfo(const char* ppName, int& info, std::string& i
                 retVal = allProps_visionSensor[i].type;
                 info = allProps_visionSensor[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_visionSensor[i].info.json.toStdString();
+                    infoTxt = allProps_visionSensor[i].info.json;
                 else
                 {
                     auto w = allProps_visionSensor[i].info.map;
@@ -3917,12 +3917,12 @@ int CVisionSensor::getPropertyInfo(const char* ppName, int& info, std::string& i
         if (retVal != sim_propertyret_unknownproperty)
         {
             const std::string _pName = ppName;
-            if (_pName == propVisionSensor_imageBuffer.name)
+            if (_pName == prop(PropVisionSensor::imageBuffer).name)
             {
                 if (3 * _resolution[0] * _resolution[1] > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;
             }
-            if ((_pName == propVisionSensor_depthBuffer.name) || (_pName == propVisionSensor_DEPRECATED_depthBuffer.name))
+            if ((_pName == prop(PropVisionSensor::depthBuffer).name) || (_pName == prop(PropVisionSensor::DEPRECATED_depthBuffer).name))
             {
                 if (_resolution[0] * _resolution[1] > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;

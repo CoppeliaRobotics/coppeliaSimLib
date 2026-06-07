@@ -850,17 +850,17 @@ int CSceneObjectCustomizationPart::getPropertyName(int& index, std::string& pNam
     }
     if ((retVal == sim_propertyret_unknownproperty) && isClass())
     {
-        const std::vector<SProperty>* prop = &allProps_customSceneObjectClass;
-        for (size_t i = 0; i < prop->size(); i++)
+        auto prope = &allProps_customSceneObjectClass;
+        for (size_t i = 0; i < prope->size(); i++)
         {
-            if ((pName.size() == 0) || utils::startsWith(prop->at(i).name, pName.c_str()))
+            if ((pName.size() == 0) || utils::startsWith(prope->at(i).name, pName.c_str()))
             {
-                if ((prop->at(i).flags & excludeFlags) == 0)
+                if ((prope->at(i).flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
                     {
-                        pName = prop->at(i).name;
+                        pName = prope->at(i).name;
                         retVal = sim_propertyret_ok;
                         break;
                     }
@@ -884,18 +884,18 @@ int CSceneObjectCustomizationPart::getPropertyInfo(const char* pName, int& info,
     }
     if ((retVal == sim_propertyret_unknownproperty) && isClass())
     {
-        const std::vector<SProperty>* prop = &allProps_customObjectClass;
-        for (size_t i = 0; i < prop->size(); i++)
+        auto prope = &allProps_customObjectClass;
+        for (size_t i = 0; i < prope->size(); i++)
         {
-            if (strcmp(prop->at(i).name, pName) == 0)
+            if (strcmp(prope->at(i).name, pName) == 0)
             {
-                retVal = prop->at(i).type;
-                info = prop->at(i).flags;
+                retVal = prope->at(i).type;
+                info = prope->at(i).flags;
                 if (infoTxt == "j")
-                    infoTxt = prop->at(i).info.json.toStdString();
+                    infoTxt = prope->at(i).info.json;
                 else
                 {
-                    auto w = prop->at(i).info.map;
+                    auto w = prope->at(i).info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

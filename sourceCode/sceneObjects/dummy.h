@@ -5,13 +5,6 @@
 #include <simMath/7Vector.h>
 #include <sceneObject.h>
 
-// ----------------------------------------------------------------------------------------------
-#define FUNCX(name, str, v1, v2, w0, w1, w2, w3, w4, t1, t2) extern const SPropertyEx name;
-DUMMY_PROPERTIES
-#undef FUNCX
-extern const std::vector<SPropertyEx> allProps_dummy;
-// ----------------------------------------------------------------------------------------------
-
 enum
 { /* Mujoco dummy double params */
     simi_mujoco_dummy_range1 = 0,

@@ -529,25 +529,6 @@ int CMirror::getPropertyName(int& index, std::string& pName, std::string& appart
     {
         appartenance = _originalObjectTypeStr;
         retVal = clipPlaneColor.getPropertyName(index, pName, excludeFlags);
-        if (retVal == sim_propertyret_unknownproperty)
-        {
-            for (size_t i = 0; i < allProps_mirror.size(); i++)
-            {
-                if ((pName.size() == 0) || utils::startsWith(allProps_mirror[i].name, pName.c_str()))
-                {
-                    if ((allProps_mirror[i].flags & excludeFlags) == 0)
-                    {
-                        index--;
-                        if (index == -1)
-                        {
-                            pName = allProps_mirror[i].name;
-                            retVal = sim_propertyret_ok;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
     }
     return retVal;
 }
@@ -559,27 +540,6 @@ int CMirror::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt
         retVal = clipPlaneColor.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        for (size_t i = 0; i < allProps_mirror.size(); i++)
-        {
-            if (strcmp(allProps_mirror[i].name, ppName) == 0)
-            {
-                retVal = allProps_mirror[i].type;
-                info = allProps_mirror[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_mirror[i].info.json.toStdString();
-                else
-                {
-                    auto w = allProps_mirror[i].info.map;
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
-            }
-        }
     }
     return retVal;
 }

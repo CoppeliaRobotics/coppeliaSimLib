@@ -73,7 +73,7 @@ void CGraph::_setBackgroundColor(const float col[3])
             backgroundColor[i] = col[i];
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propGraph_backgroundColor.name;
+            const char* cmd = prop(PropGraph::backgroundColor).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyFloatArray(cmd, backgroundColor, 3);
@@ -93,7 +93,7 @@ void CGraph::_setForegroundColor(const float col[3])
             foregroundColor[i] = col[i];
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propGraph_foregroundColor.name;
+            const char* cmd = prop(PropGraph::foregroundColor).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyFloatArray(cmd, foregroundColor, 3);
@@ -620,18 +620,18 @@ void CGraph::addObjectEventData(CCbor* ev)
         ev->openKeyMap(_objectTypeStr.c_str());
     else
         color.addGenesisEventData(ev);
-    ev->appendKeyInt64(propGraph_bufferSize.name, bufferSize);
-    ev->appendKeyBool(propGraph_cyclic.name, cyclic);
-    ev->appendKeyDouble(propGraph_size.name, _graphSize);
+    ev->appendKeyInt64(prop(PropGraph::bufferSize).name, bufferSize);
+    ev->appendKeyBool(prop(PropGraph::cyclic).name, cyclic);
+    ev->appendKeyDouble(prop(PropGraph::size).name, _graphSize);
     if (App::getEventProtocolVersion() <= 3)
     {
-        ev->appendKeyFloatArray(propGraph_backgroundColor.name, backgroundColor, 3);
-        ev->appendKeyFloatArray(propGraph_foregroundColor.name, foregroundColor, 3);
+        ev->appendKeyFloatArray(prop(PropGraph::backgroundColor).name, backgroundColor, 3);
+        ev->appendKeyFloatArray(prop(PropGraph::foregroundColor).name, foregroundColor, 3);
     }
     else
     {
-        ev->appendKeyColor(propGraph_backgroundColor.name, backgroundColor);
-        ev->appendKeyColor(propGraph_foregroundColor.name, foregroundColor);
+        ev->appendKeyColor(prop(PropGraph::backgroundColor).name, backgroundColor);
+        ev->appendKeyColor(prop(PropGraph::foregroundColor).name, foregroundColor);
     }
     if (App::getEventProtocolVersion() == 2)
         ev->closeArrayOrMap(); // graph
@@ -919,7 +919,7 @@ void CGraph::setGraphSize(double theNewSize)
         _graphSize = theNewSize;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propGraph_size.name;
+            const char* cmd = prop(PropGraph::size).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _graphSize);
             App::scenes->pushEvent();
@@ -1995,7 +1995,7 @@ void CGraph::setBufferSize(int buffSize)
         bufferSize = buffSize;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propGraph_bufferSize.name;
+            const char* cmd = prop(PropGraph::bufferSize).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, bufferSize);
             App::scenes->pushEvent();
@@ -2016,7 +2016,7 @@ void CGraph::setCyclic(bool isCyclic)
         cyclic = isCyclic;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = propGraph_cyclic.name;
+            const char* cmd = prop(PropGraph::cyclic).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, cyclic);
             App::scenes->pushEvent();
@@ -3617,7 +3617,7 @@ int CGraph::setBoolProperty(const char* ppName, bool pState)
     int retVal = CSceneObject::setBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propGraph_cyclic.name)
+        if (_pName == prop(PropGraph::cyclic).name)
         {
             retVal = sim_propertyret_ok;
             setCyclic(pState);
@@ -3633,7 +3633,7 @@ int CGraph::getBoolProperty(const char* ppName, bool& pState) const
     int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propGraph_cyclic.name)
+        if (_pName == prop(PropGraph::cyclic).name)
         {
             retVal = sim_propertyret_ok;
             pState = cyclic;
@@ -3649,7 +3649,7 @@ int CGraph::setIntProperty(const char* ppName, int pState)
     int retVal = CSceneObject::setIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propGraph_bufferSize.name)
+        if (_pName == prop(PropGraph::bufferSize).name)
         {
             retVal = sim_propertyret_ok;
             setBufferSize(pState);
@@ -3665,7 +3665,7 @@ int CGraph::getIntProperty(const char* ppName, int& pState) const
     int retVal = CSceneObject::getIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propGraph_bufferSize.name)
+        if (_pName == prop(PropGraph::bufferSize).name)
         {
             retVal = sim_propertyret_ok;
             pState = bufferSize;
@@ -3683,7 +3683,7 @@ int CGraph::setFloatProperty(const char* ppName, double pState)
         retVal = color.setFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propGraph_size.name)
+        if (_pName == prop(PropGraph::size).name)
         {
             setGraphSize(pState);
             retVal = sim_propertyret_ok;
@@ -3701,7 +3701,7 @@ int CGraph::getFloatProperty(const char* ppName, double& pState) const
         retVal = color.getFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propGraph_size.name)
+        if (_pName == prop(PropGraph::size).name)
         {
             pState = _graphSize;
             retVal = sim_propertyret_ok;
@@ -3730,12 +3730,12 @@ int CGraph::setColorProperty(const char* ppName, const float* pState)
         retVal = color.setColorProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propGraph_backgroundColor.name)
+        if (_pName == prop(PropGraph::backgroundColor).name)
         {
             _setBackgroundColor(pState);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propGraph_foregroundColor.name)
+        else if (_pName == prop(PropGraph::foregroundColor).name)
         {
             _setForegroundColor(pState);
             retVal = sim_propertyret_ok;
@@ -3752,13 +3752,13 @@ int CGraph::getColorProperty(const char* ppName, float* pState) const
         retVal = color.getColorProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == propGraph_backgroundColor.name)
+        if (_pName == prop(PropGraph::backgroundColor).name)
         {
             for (size_t i = 0; i < 3; i++)
                 pState[i] = backgroundColor[i];
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == propGraph_foregroundColor.name)
+        else if (_pName == prop(PropGraph::foregroundColor).name)
         {
             for (size_t i = 0; i < 3; i++)
                 pState[i] = foregroundColor[i];
@@ -3812,7 +3812,7 @@ int CGraph::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt)
                 retVal = allProps_graph[i].type;
                 info = allProps_graph[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_graph[i].info.json.toStdString();
+                    infoTxt = allProps_graph[i].info.json;
                 else
                 {
                     auto w = allProps_graph[i].info.map;
