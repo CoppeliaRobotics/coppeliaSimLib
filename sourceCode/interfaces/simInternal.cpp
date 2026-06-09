@@ -682,74 +682,78 @@ int enumToString(int64_t target, const char* ppName, int enumVal, std::string& e
     return retVal;
 }
 
-
 std::string checkForDeprecation(const char* funcName, const char* pName, int target)
 {
-    // propDeprecationMapping: std::map<std::string, SDeprecatedProperty> with
-    // struct SDeprecatedProperty {std::vector<std::string> replacements; std::vector<int> types;}
-
-    if (propDeprecationMapping.find(pName) == propDeprecationMapping.end())
-        return pName; // not deprecated
-
-    const std::vector<int>* types = &propDeprecationMapping.find(pName)->second.types;
-    const std::vector<std::string>* repls = &propDeprecationMapping.find(pName)->second.replacements;
-
-    std::string nName;
-    bool found = false;
-    for (size_t i = 0; i < types->size(); i++)
+    const std::map<std::string, std::vector<SDeprecatedProp>>* propDeprecationMapping = &propDeprecationMappings[App::getApiVersion() - 1];
+    if (propDeprecationMapping != nullptr)
     {
-        int type = types->at(i);
-        nName = repls->at(i);
-        if ((target == sim_handle_scene) && (type == sim_objecttype_scene))
-            found = true;
-        else if ((target == sim_handle_app) && (type == sim_objecttype_app))
-            found = true;
-        else if ((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectclassend))
+        if (propDeprecationMapping->find(pName) == propDeprecationMapping->end())
+            return pName; // not deprecated
+        auto items = propDeprecationMapping->find(pName)->second;
+
+        std::string nName;
+        bool found = false;
+        std::string type;
+        bool deprecated = false;
+        for (size_t i = 0; i < items.size(); i++)
         {
-            if (type == sim_objecttype_sceneobject)
+            SDeprecatedProp* item = &items[i];
+            type = item->type;
+            deprecated = item->deprecated;
+            nName = item->replacement;
+            if ((target == sim_handle_scene) && (type == "scene"))
                 found = true;
-            else
+            else if ((target == sim_handle_app) && (type == "app"))
+                found = true;
+            else if ((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectclassend))
             {
-                CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(target);
-                if ((obj != nullptr) && (obj->getObjectType() == type))
+                if (type == "sceneObject")
                     found = true;
+                else
+                {
+                    CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(target);
+                    if ((obj != nullptr) && (obj->getObjectTypeStr() == type))
+                        found = true;
+                }
             }
+            else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend) && (type == "detachedScript"))
+                found = true;
+            else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend) && (type == "stack"))
+                found = true;
+            else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend) && (type == "collection"))
+                found = true;
+            else if ((target >= sim_object_customstart) && (target <= sim_object_customend) && (type == "customObject"))
+                found = true;
+            if (found)
+                break;
         }
-        else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend) && (type == sim_objecttype_detachedscript))
-            found = true;
-        else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend) && (type == sim_objecttype_interfacestack))
-            found = true;
-        else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend) && (type == sim_objecttype_collection))
-            found = true;
-        else if ((target >= sim_object_customstart) && (target <= sim_object_customend) && (type == sim_objecttype_customobject))
-            found = true;
-        if (found)
-            break;
-    }
-    if (!found)
-        return pName;
-    std::string str("property '");
-    str += pName;
-    str += "' is deprecated.";
-    bool replace = true;
-    if (nName.size() > 0)
-    {
-        size_t p = nName.find("__noReplace__");
+        if (!found)
+            return pName;
+
+        bool replace = true;
+        size_t p = nName.find(DEPRECATION_NO_REPLACE);
         if (p != std::string::npos)
         {
-            nName.erase(p, 13);
+            nName.erase(p, strlen(DEPRECATION_NO_REPLACE));
             replace = false;
         }
-        if (nName.size() > 0)
+
+        if (deprecated)
         {
-            str += " Consider using property '";
-            str += nName + "' instead.";
+            std::string str = type +" property '";
+            str += pName;
+            str += "' is deprecated.";
+            if (replace)
+            {
+                str += " Consider using property '";
+                str += nName + "' instead.";
+            }
+            str += "__once__";
+            CApiErrors::setLastWarning(funcName, str.c_str());
         }
+        if (replace)
+            return nName;
     }
-    str += "__once__";
-    CApiErrors::setLastWarning(funcName, str.c_str());
-    if (replace)
-        return nName;
     return pName;
 }
 
