@@ -13550,59 +13550,18 @@ int _simUnpackTable(luaWrap_lua_State* L)
 }
 
 int _simHandleSimulationStart(luaWrap_lua_State* L)
-{
+{ // handled internally since 10.06.2026
     TRACE_LUA_API;
     LUA_START("sim.handleSimulationStart");
-
-    int retVal = -1;
-    int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
-    CDetachedScript* itScrObj = App::scenes->getDetachedScriptFromHandle(currentScriptID);
-    if (itScrObj->getScriptType() == sim_scripttype_main)
-    {
-        // Following is for velocity measurement (initial):
-        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
-            App::scene->sceneObjects->getJointFromIndex(i)->measureJointVelocity(0.0);
-        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
-            App::scene->sceneObjects->getObjectFromIndex(i)->measureVelocity(0.0);
-    }
-    else
-        errorString = SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
+    luaWrap_lua_pushinteger(L, 1);
     LUA_END(1);
 }
 
 int _simHandleSensingStart(luaWrap_lua_State* L)
-{
+{ // handled internally since 10.06.2026
     TRACE_LUA_API;
     LUA_START("sim.handleSensingStart");
-
-    int retVal = -1;
-    int currentScriptID = CDetachedScript::getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(L);
-    CDetachedScript* itScrObj = App::scenes->getDetachedScriptFromHandle(currentScriptID);
-    if (itScrObj->getScriptType() == sim_scripttype_main)
-    {
-        // Following is for camera tracking!
-        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_camera); i++)
-        {
-            CCamera* it = App::scene->sceneObjects->getCameraFromIndex(i);
-            it->handleCameraTracking();
-        }
-
-        // Following is for velocity measurement:
-        double dt = App::scene->simulation->getTimeStep();
-        double t = dt + App::scene->simulation->getSimulationTime();
-        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
-            App::scene->sceneObjects->getJointFromIndex(i)->measureJointVelocity(t);
-        for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(); i++)
-            App::scene->sceneObjects->getObjectFromIndex(i)->measureVelocity(dt); // adapt that func!
-    }
-    else
-        errorString = SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
-
-    LUA_RAISE_ERROR_OR_YIELD_IF_NEEDED(); // we might never return from this!
-    luaWrap_lua_pushinteger(L, retVal);
+    luaWrap_lua_pushinteger(L, 1);
     LUA_END(1);
 }
 

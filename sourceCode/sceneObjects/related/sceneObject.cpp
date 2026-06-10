@@ -2060,6 +2060,8 @@ void CSceneObject::initializeInitialValues(bool simulationAlreadyRunning)
 
     _setMeasuredVelocity(C3Vector::zeroVector, C3Vector::zeroVector, C3Vector::zeroVector, 0.0);
     _previousPositionOrientationIsValid = false;
+    measureVelocity(0.0); // 10.06.2026 (used to be in sim.handleSimulationStart)
+
     if (_userScriptParameters != nullptr)
         _userScriptParameters->initializeInitialValues(simulationAlreadyRunning);
 

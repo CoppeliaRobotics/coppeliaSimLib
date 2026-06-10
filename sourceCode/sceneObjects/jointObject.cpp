@@ -813,6 +813,8 @@ void CJoint::initializeInitialValues(bool simulationAlreadyRunning)
     _initialMaxVelAccelJerk[2] = _maxVelAccelJerk[2];
 
     warningAboutMujocoLoopClosureProblemsIssued = false;
+    _velCalc_prevPosValid = false;
+    measureJointVelocity(0.0); // 10.06.2026 (used to be in sim.handleSimulationStart)
 }
 
 void CJoint::simulationAboutToStart()

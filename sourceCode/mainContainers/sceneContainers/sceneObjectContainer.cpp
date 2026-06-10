@@ -79,6 +79,24 @@ void CSceneObjectContainer::simulationEnded()
     }
 }
 
+void CSceneObjectContainer::sensingAboutToStart()
+{ // 10.06.2026 (used to be in sim.handleSensingStart)
+    // Following is for camera tracking!
+    for (size_t i = 0; i < getObjectCount(sim_sceneobject_camera); i++)
+    {
+        CCamera* it = getCameraFromIndex(i);
+        it->handleCameraTracking();
+    }
+
+    // Following is for velocity measurement:
+    double dt = App::scene->simulation->getTimeStep();
+    double t = dt + App::scene->simulation->getSimulationTime();
+    for (size_t i = 0; i < getObjectCount(sim_sceneobject_joint); i++)
+        getJointFromIndex(i)->measureJointVelocity(t);
+    for (size_t i = 0; i < getObjectCount(); i++)
+        getObjectFromIndex(i)->measureVelocity(dt); // adapt that func!
+}
+
 void CSceneObjectContainer::announceObjectWillBeErased(const CSceneObject* object)
 {
     TRACE_INTERNAL;

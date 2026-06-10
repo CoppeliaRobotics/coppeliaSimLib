@@ -1613,10 +1613,11 @@ int CDetachedScript::systemCallMainScript(int optionalCallType, const CInterface
         int startT = int(VDateTime::getTimeInMs());
 
         if (_scriptState < sim_scriptstate_initialized)
-            retVal = systemCallScript(sim_syscb_init, inStack, outStack);
+            systemCallScript(sim_syscb_init, inStack, outStack);
 
-        retVal = systemCallScript(sim_syscb_actuation, inStack, outStack);
+        systemCallScript(sim_syscb_actuation, inStack, outStack);
         App::scenes->dispatchEvents(); // make sure that remote worlds reflect CoppeliaSim's state before sensing
+        App::scene->sceneObjects->sensingAboutToStart();
         retVal = systemCallScript(sim_syscb_sensing, inStack, outStack);
 
         if (App::scene->simulation->getSimulationState() == sim_simulation_lastbeforestop)
@@ -1627,7 +1628,7 @@ int CDetachedScript::systemCallMainScript(int optionalCallType, const CInterface
     }
     else
         retVal = systemCallScript(optionalCallType, inStack, outStack);
-    return (retVal);
+    return retVal;
 }
 
 int CDetachedScript::systemCallScript(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, bool addOnManuallyStarted /*=false*/)

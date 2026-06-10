@@ -140,6 +140,7 @@ class CSceneObjectContainer
 
     void instancePass();
     void simulationAboutToStart();
+    void sensingAboutToStart();
     void simulationAboutToEnd();
     void simulationEnded();
 
