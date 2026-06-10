@@ -285,24 +285,8 @@ struct SProperty {
     FUNCX(METHOD_unpack, "unpack", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_serialize, "serialize", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_deserialize, "deserialize", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_packDoubleArray, "packDoubleArray", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_packFloatArray, "packFloatArray", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_packInt64Array, "packInt64Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_packInt32Array, "packInt32Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_packUInt32Array, "packUInt32Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_packInt16Array, "packInt16Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_packUInt16Array, "packUInt16Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_packInt8Array, "packInt8Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_packUInt8Array, "packUInt8Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_unpackDoubleArray, "unpackDoubleArray", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_unpackFloatArray, "unpackFloatArray", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_unpackInt64Array, "unpackInt64Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_unpackInt32Array, "unpackInt32Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_unpackUInt32Array, "unpackUInt32Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_unpackInt16Array, "unpackInt16Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_unpackUInt16Array, "unpackUInt16Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_unpackInt8Array, "unpackInt8Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_unpackUInt8Array, "unpackUInt8Array", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(METHOD_packArray, "packArray", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(METHOD_unpackArray, "unpackArray", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_fastIdleLoop, "fastIdleLoop", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_throttle, "throttle", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_scheduleExecution, "scheduleExecution", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
