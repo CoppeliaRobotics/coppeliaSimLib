@@ -604,8 +604,6 @@ const std::vector<SDepr>& getDeprecatedList()
         {"mesh", prop(PropMesh::DEPRECATED_texture),                    prop(PropMesh::texture).name},
         {"mesh", prop(PropMesh::DEPRECATED_textureID),                  prop(PropMesh::textureID).name},
 
-        {"sceneObject", prop(PropSceneObject::DEPRECATED_pose),                 prop(PropSceneObject::pose).name},
-        {"sceneObject", prop(PropSceneObject::DEPRECATED_eulerAngles),          prop(PropSceneObject::eulerAngles).name},
         {"sceneObject", prop(PropSceneObject::DEPRECATED_parentHandle),         std::string(prop(PropSceneObject::parent).name) + DEPRECATION_NO_REPLACE},
         {"sceneObject", prop(PropSceneObject::DEPRECATED_objectUid),            prop(PropSceneObject::uid).name},
         {"sceneObject", prop(PropSceneObject::DEPRECATED_modelProperty),        prop(PropSceneObject::modelProperty).name},
@@ -662,7 +660,7 @@ const std::vector<SDepr>& getDeprecatedList()
         {"camera", prop(PropCamera::DEPRECATED_trackedObject),              std::string(prop(PropCamera::trackedObject).name) + DEPRECATION_NO_REPLACE},
 
         {"light", prop(PropLight::DEPRECATED_size),                         prop(PropLight::size).name},
-        {"light", prop(PropLight::DEPRECATED_lightType),                    prop(PropLight::lightType).name},
+        {"light", prop(PropLight::DEPRECATED_lightType),                    std::string(prop(PropLight::lightType).name) + DEPRECATION_NO_REPLACE},
 
         {"joint", prop(PropJoint::DEPRECATED_position),                     prop(PropJoint::position).name},
         {"joint", prop(PropJoint::DEPRECATED_quaternion),                   prop(PropJoint::quaternion).name},
@@ -671,7 +669,7 @@ const std::vector<SDepr>& getDeprecatedList()
         {"joint", prop(PropJoint::DEPRECATED_targetVel),                    prop(PropJoint::targetPos).name},
         {"joint", prop(PropJoint::DEPRECATED_length),                       prop(PropJoint::length).name},
         {"joint", prop(PropJoint::DEPRECATED_diameter),                     prop(PropJoint::diameter).name},
-        {"joint", prop(PropJoint::DEPRECATED_jointType),                    prop(PropJoint::jointType).name},
+        {"joint", prop(PropJoint::DEPRECATED_jointType),                    std::string(prop(PropJoint::jointType).name) + DEPRECATION_NO_REPLACE},
         {"joint", prop(PropJoint::DEPRECATED_jointForce),                   prop(PropJoint::jointForce).name},
         {"joint", prop(PropJoint::DEPRECATED_averageJointForce),            prop(PropJoint::averageJointForce).name},
         {"joint", prop(PropJoint::DEPRECATED_jointMode),                    prop(PropJoint::jointMode).name},
@@ -760,7 +758,7 @@ const std::vector<SDepr>& getDeprecatedList()
 
         {"dummy", prop(PropDummy::DEPRECATED_size),                         prop(PropDummy::size).name},
         {"dummy", prop(PropDummy::DEPRECATED_linkedDummyHandle),            std::string(prop(PropDummy::linkedDummy).name) + DEPRECATION_NO_REPLACE},
-        {"dummy", prop(PropDummy::DEPRECATED_dummyType),                    prop(PropDummy::dummyType).name},
+        {"dummy", prop(PropDummy::DEPRECATED_dummyType),                    std::string(prop(PropDummy::dummyType).name) + DEPRECATION_NO_REPLACE},
         {"dummy", prop(PropDummy::DEPRECATED_engineProperties),             prop(PropDummy::engineProperties).name},
         {"dummy", prop(PropDummy::DEPRECATED_mujocoLimitsEnabled),          prop(PropDummy::mujocoLimitsEnabled).name},
         {"dummy", prop(PropDummy::DEPRECATED_mujocoLimitsRange),            prop(PropDummy::mujocoLimitsRange).name},
@@ -912,7 +910,7 @@ std::map<std::string, std::vector<SDeprecatedProp>> createDeprecationMapping(int
             it->second.push_back(p);
         }
     }
-
+/*
     if (callingApiVer == 1)
     { // very special here (can't list "position" and "quaternion" in sceneObject properties, as they would get confused with joint properties):
         SDeprecatedProp p;
@@ -938,7 +936,7 @@ std::map<std::string, std::vector<SDeprecatedProp>> createDeprecationMapping(int
         }
         it->second.push_back(p);
     }
-
+*/
     return result;
 }
 

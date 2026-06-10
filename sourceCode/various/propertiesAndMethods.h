@@ -128,7 +128,7 @@ struct SProperty {
 #define SIM_PROPERTYINFO_GROUP (sim_propertyinfo_silent | sim_propertyinfo_constant | sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude)
 
 #define OBJECT_PROPERTIES \
-    FUNCX(objectType, "objectType", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{"label", "Object type"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(objectType, "type", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{"label", "Object type"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(handle, "handle", sim_propertytype_long, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{"label", "Handle"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(metaInfoSuperClass, "metaInfo.superClass", sim_propertytype_stringarray, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{"label", "object super class"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(metaInfoNameSpaces, "metaInfo.namespaces", sim_propertytype_stringarray, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{"label", "object name spaces"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1001,14 +1001,14 @@ struct SProperty {
     FUNCX(modelNotInParentBB, MODELPREFIXDOT "notInParentBB", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Model invisible to other model's bounding boxes"}, {"description", "Model is invisible to other model's bounding boxes"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(modelBBSize, MODELPREFIXDOT "bbSize", sim_propertytype_vector3, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Model bounding box size"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(modelBBPos, MODELPREFIXDOT "bbPos", sim_propertytype_vector3, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Model bounding box position"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(pose, "relative.pose", sim_propertytype_pose, 0,  PropertyInfo({{"label", "Pose"}, {"description", "Scene object local pose"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(position, "relative.position", sim_propertytype_vector3, sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Position"}, {"description", "Scene object local position"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(quaternion, "relative.quaternion", sim_propertytype_quaternion, sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Quaternion"}, {"description", "Scene object local quaternion"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(eulerAngles, "relative.eulerAngles", sim_propertytype_vector3, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Euler angles"}, {"description", "Scene object local Euler angles"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(absPose, "absolute.pose", sim_propertytype_pose, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Pose"}, {"description", "Scene object absolute pose"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(absPosition, "absolute.position", sim_propertytype_vector3, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Position"}, {"description", "Scene object absolute position"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(absQuaternion, "absolute.quaternion", sim_propertytype_quaternion, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Quaternion"}, {"description", "Scene object absolute quaternion"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(absEulerAngles, "absolute.eulerAngles", sim_propertytype_vector3, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Euler angles"}, {"description", "Scene object absolute Euler angles"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(pose, "pose", sim_propertytype_pose, 0,  PropertyInfo({{"label", "Pose"}, {"description", "Scene object local pose"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(position, "position", sim_propertytype_vector3, sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Position"}, {"description", "Scene object local position"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(quaternion, "quaternion", sim_propertytype_quaternion, sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Quaternion"}, {"description", "Scene object local quaternion"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(eulerAngles, "eulerAngles", sim_propertytype_vector3, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Euler angles"}, {"description", "Scene object local Euler angles"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(absPose, "worldPose", sim_propertytype_pose, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Pose"}, {"description", "Scene object absolute pose"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(absPosition, "worldPosition", sim_propertytype_vector3, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Position"}, {"description", "Scene object absolute position"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(absQuaternion, "worldQuaternion", sim_propertytype_quaternion, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Quaternion"}, {"description", "Scene object absolute quaternion"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(absEulerAngles, "worldEulerAngles", sim_propertytype_vector3, sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Euler angles"}, {"description", "Scene object absolute Euler angles"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(name, "name", sim_propertytype_string, 0,  PropertyInfo({{"label", "Name"}, {"description", "Scene object name"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(bbPose, "bbPose", sim_propertytype_pose, sim_propertyinfo_notwritable,  PropertyInfo({{"label", "Bounding box pose"}, {"description", "Bounding box local pose"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(size, "dimension", sim_propertytype_vector3, 0,  PropertyInfo({{"label", "Bounding box size"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1038,8 +1038,6 @@ struct SProperty {
     FUNCX(GROUP_origRefs, ORIGREFSPREFIX, sim_propertytype_group, SIM_PROPERTYINFO_GROUP,PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(GROUP_model, MODELPREFIX, sim_propertytype_group, SIM_PROPERTYINFO_GROUP,PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(GROUP_mov, MOVPREFIX, sim_propertytype_group, SIM_PROPERTYINFO_GROUP,PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(GROUP_absolute, "absolute", sim_propertytype_group, SIM_PROPERTYINFO_GROUP,PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(GROUP_relative, "relative", sim_propertytype_group, SIM_PROPERTYINFO_GROUP,PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_getAncestors, "getAncestors", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_getDescendants, "getDescendants", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_removeModel, "removeModel", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1066,10 +1064,6 @@ struct SProperty {
     FUNCX(METHOD_makeObject, "makeObject", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_getObject, "getObject", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     /* Following for backward compatibility: */ \
-    FUNCX(DEPRECATED_pose, "pose", sim_propertytype_pose, SIM_PROPERTYINFO_DEPRECATED,  PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
-/*    FUNCX(DEPRECATED_position, "position", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED,  PropertyInfo({{"startSupport", 1}, {"startDeprecated", 0}, {"endSupport", 1}})) \
-    FUNCX(DEPRECATED_quaternion, "quaternion", sim_propertytype_quaternion, SIM_PROPERTYINFO_DEPRECATED,  PropertyInfo({{"startSupport", 1}, {"startDeprecated", 0}, {"endSupport", 1}})) */ \
-    FUNCX(DEPRECATED_eulerAngles, "eulerAngles", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED,  PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
     FUNCX(DEPRECATED_parentHandle, "parentHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED,PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
     FUNCX(DEPRECATED_modelProperty, "modelPropertyFlags", /*redund.*/ sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED,PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
     FUNCX(DEPRECATED_modelNotCollidable, "modelNotCollidable", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED,PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
@@ -1102,6 +1096,7 @@ struct SProperty {
     FUNCX(DEPRECATED_movPrefRotZ, "movPrefRotZ", sim_propertytype_bool, SIM_PROPERTYINFO_DEPRECATED,PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
 
 #define SHAPE_PROPERTIES \
+    FUNCX(GROUP_shape, "shape", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(meshes, "meshes", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Meshes"}, {"description", "Mesh handles"}, {"handleType", "mesh"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(applyCulling, "applyCulling", sim_propertytype_bool, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Apply culling"}, {"description", "Enables/disables culling for all contained meshes"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(applyShadingAngle, "applyShadingAngle", sim_propertytype_float, sim_propertyinfo_silent | sim_propertyinfo_notreadable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Apply shading"}, {"description", "Applies a shading angle to all contained meshes"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1148,6 +1143,7 @@ struct SProperty {
     FUNCX(METHOD_divide, "divide", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
 
 #define CAMERA_PROPERTIES \
+    FUNCX(GROUP_camera, "camera", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(size, "size", sim_propertytype_float, 0,  PropertyInfo({{"label", "Size"}, {"description", "Camera size"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(parentAsManipProxy, "parentAsManipulationProxy", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Parent as proxy"}, {"description", "Use parent as manipulation proxy"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(translationEnabled, "translationEnabled", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Translation enabled"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1158,10 +1154,11 @@ struct SProperty {
     FUNCX(DEPRECATED_trackedObject, "trackedObjectHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED,PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
 
 #define DUMMY_PROPERTIES \
+    FUNCX(GROUP_dummy, "dummy", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
+    FUNCX(dummyType, "dummy.type", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{"label", "Type"}, {"description", "Dummy type"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(linkedDummy, "linkedDummy", sim_propertytype_handle, sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Linked dummy"}, {"description", "Handle of the linked dummy"}, {"handleType", "dummy"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(assemblyTag, "assemblyTag", sim_propertytype_string, 0,  PropertyInfo({{"label", "Assembly tag"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(size, "size", sim_propertytype_float, 0,  PropertyInfo({{"label", "Size"}, {"description", "Dummy size"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
-    FUNCX(dummyType, "type", sim_propertytype_int, 0,  PropertyInfo({{"label", "Type"}, {"description", "Dummy type"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(engineProperties, DYNAMICSPREFIXDOT "engineProperties", sim_propertytype_string, sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Engine properties"}, {"description", "Engine properties as JSON text"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(mujocoLimitsEnabled, DYNAMICSPREFIXDOT MUJOCOPREFIXDOT "limitsEnabled", sim_propertytype_bool, 0,  PropertyInfo({{"label", ""}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  sim_mujoco_dummy_limited, -1, -1, -1, -1) \
     FUNCX(mujocoLimitsRange, DYNAMICSPREFIXDOT MUJOCOPREFIXDOT "limitsRange", sim_propertytype_floatarray, 0,  PropertyInfo({{"label", ""}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  sim_mujoco_dummy_range1, sim_mujoco_dummy_range2, -1, -1, -1) \
@@ -1197,6 +1194,7 @@ struct SProperty {
     FUNCX(DEPRECATED_linkedDummyHandle, "linkedDummyHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED, PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}}),  -1, -1, -1, -1, -1) \
 
 #define FORCESENSOR_PROPERTIES \
+    FUNCX(GROUP_forceSensor, "forceSensor", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(size, "size", sim_propertytype_float, 0,  PropertyInfo({{"label", "Size"}, {"description", "Sensor size"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(forceThresholdEnabled, "forceThresholdEnabled", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Force threshold enabled"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(torqueThresholdEnabled, "torqueThresholdEnabled", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Torque threshold enabled"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1218,6 +1216,7 @@ struct SProperty {
     FUNCX(DEPRECATED_sensorAverageTorque, "filterSensorTorque", sim_propertytype_vector3, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_notwritable,PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
 
 #define GRAPH_PROPERTIES \
+    FUNCX(GROUP_graph, "graph", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(size, "size", sim_propertytype_float, 0,  PropertyInfo({{"label", "Size"}, {"description", "Size of the 3D graph representation"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(bufferSize, "bufferSize", sim_propertytype_int, 0,  PropertyInfo({{"label", "Buffer size"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(cyclic, "cyclic", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Cyclic"}, {"description", "Buffer is cyclic"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1234,8 +1233,10 @@ struct SProperty {
     FUNCX(DEPRECATED_size, "graphSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED,  PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
 
 #define JOINT_PROPERTIES \
-    FUNCX(position, "position", sim_propertytype_float, 0,  PropertyInfo({{"label", "Position"}, {"description", "Joint linear/angular displacement"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
-    FUNCX(quaternion, "quaternion", sim_propertytype_quaternion, 0,  PropertyInfo({{"label", "Spherical joint quaternion"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
+    FUNCX(GROUP_joint, "joint", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
+    FUNCX(jointType, "joint.type", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{"label", "Type"}, {"description", "Joint type"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
+    FUNCX(position, "joint.position", sim_propertytype_float, 0,  PropertyInfo({{"label", "Position"}, {"description", "Joint linear/angular displacement"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
+    FUNCX(quaternion, "joint.quaternion", sim_propertytype_quaternion, 0,  PropertyInfo({{"label", "Spherical joint quaternion"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(screwLead, "screwLead", sim_propertytype_float, 0,  PropertyInfo({{"label", "Screw lead"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(intrinsicError, "intrinsicError", sim_propertytype_pose, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Intrinsic error"}, {"description", "Intrinsic error, generated by some physics engines"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(intrinsicPose, "intrinsicPose", sim_propertytype_pose, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Intrinsic pose"}, {"description", "Intrinsic pose (includes a possible intrinsic error)"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
@@ -1248,7 +1249,6 @@ struct SProperty {
     FUNCX(targetForce, "targetForce", sim_propertytype_float, sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Target force"}, {"description", "Maximum force to exert"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(length, "length", sim_propertytype_float, 0,  PropertyInfo({{"label", "Length"}, {"description", "Joint length"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(diameter, "diameter", sim_propertytype_float, 0,  PropertyInfo({{"label", "Diamter"}, {"description", "Joint diameter"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
-    FUNCX(jointType, "type", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  PropertyInfo({{"label", "Type"}, {"description", "Joint type"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(jointForce, "force", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Force"}, {"description", "Force applied"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(averageJointForce, "averageForce", sim_propertytype_float, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Average force"}, {"description", "Force applied on average (in a simulation step)"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(jointMode, "mode", sim_propertytype_int, 0,  PropertyInfo({{"label", "Mode"}, {"description", "Joint mode"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
@@ -1446,9 +1446,10 @@ struct SProperty {
     FUNCX(DEPRECATED_dependencyMaster, "dependencyMasterHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED, PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}}),  -1, -1, -1, -1, -1) \
 
 #define LIGHT_PROPERTIES \
+    FUNCX(GROUP_light, "light", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(lightType, "light.type", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{"label", "Type"}, {"description", "Light type"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(size, "size", sim_propertytype_float, 0,  PropertyInfo({{"label", "Size"}, {"description", "Light size"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(enabled, "enabled", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Enabled"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(lightType, "type", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  PropertyInfo({{"label", "Type"}, {"description", "Light type"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(spotExponent, "spotExponent", sim_propertytype_int, 0,  PropertyInfo({{"label", "Spot exponent"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(spotCutoffAngle, "spotCutoffAngle", sim_propertytype_float, 0,  PropertyInfo({{"label", "Cut off angle"}, {"description", "Spot cut off angle"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(attenuationFactors, "attenuationFactors", sim_propertytype_floatarray, 0,  PropertyInfo({{"label", "Attenuation factor"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1459,6 +1460,7 @@ struct SProperty {
     FUNCX(DEPRECATED_size, "lightSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED,  PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
 
 #define OCTREE_PROPERTIES \
+    FUNCX(GROUP_ocTree, "ocTree", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(voxelSize, "voxelSize", sim_propertytype_float, 0,  PropertyInfo({{"label", "Voxel size"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(randomColors, "randomColors", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Random voxel colors"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(showPoints, "showPoints", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Show points instead of voxels"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1478,6 +1480,7 @@ struct SProperty {
     FUNCX(DEPRECATED_voxels, "voxels", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_notwritable,PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
 
 #define POINTCLOUD_PROPERTIES \
+    FUNCX(GROUP_pointCloud, "pointCloud", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(ocTreeStruct, "octreeStruct", sim_propertytype_bool, 0,  PropertyInfo({{"label", "OC-Tree structure Enabled"}, {"description", "Use an oc-tree structure"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(randomColors, "randomColors", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Random point colors"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(pointSize, "pointSize", sim_propertytype_int, 0,  PropertyInfo({{"label", "Point size"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1498,6 +1501,8 @@ struct SProperty {
     FUNCX(METHOD_intersectPackedPoints, "intersectPackedPoints", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
 
 #define PROXIMITYSENSOR_PROPERTIES \
+    FUNCX(GROUP_proximitySensor, "proximitySensor", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(sensorType, "proximitySensor.type", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{"label", "Type"}, {"description", "Proximity sensor type"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(size, "pointSize", sim_propertytype_float, 0,  PropertyInfo({{"label", "Sensor point size"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(frontFaceDetection, "frontFaceDetection", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Front face detection"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(backFaceDetection, "backFaceDetection", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Back face detection"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1505,7 +1510,6 @@ struct SProperty {
     FUNCX(explicitHandling, "explicitHandling", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Explicit handling"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(showVolume, "showVolume", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Show volume"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(randomizedDetection, "randomizedDetection", sim_propertytype_bool, sim_propertyinfo_notwritable,  PropertyInfo({{"label", "Randomized detection"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(sensorType, "type", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  PropertyInfo({{"label", "Type"}, {"description", "Sensor type"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(detectedObject, "detectedObject", sim_propertytype_handle, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Detected object"}, {"description", "Detected scene object"}, {"handleType", "sceneObject"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(angleThreshold, "angleThreshold", sim_propertytype_float, 0,  PropertyInfo({{"label", "Angle threshold"}, {"description", "Angle threshold, 0.0 to disable"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(detectedPoint, "detectedPoint", sim_propertytype_vector3, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Detected point"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1519,6 +1523,7 @@ struct SProperty {
     FUNCX(DEPRECATED_detectedObjectHandle, "detectedObjectHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_notwritable,PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
 
 #define VISIONSENSOR_PROPERTIES \
+    FUNCX(GROUP_visionSensor, "visionSensor", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(size, "size", sim_propertytype_float, 0,  PropertyInfo({{"label", "Size"}, {"description", "Sensor size"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(backgroundCol, "backgroundColor", sim_propertytype_color, 0,  PropertyInfo({{"label", "Background color"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(renderMode, "renderMode", sim_propertytype_int, 0,  PropertyInfo({{"label", "Render mode"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1552,6 +1557,7 @@ struct SProperty {
     FUNCX(DEPRECATED_depthBuffer, "depthBuffer", sim_propertytype_floatarray, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_notwritable,PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
 
 #define SCRIPT_PROPERTIES \
+    FUNCX(GROUP_script, "script", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(size, "size", sim_propertytype_float, 0,  PropertyInfo({{"label", "Size"}, {"description", "Size of the object"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Reset after simulation error"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(detachedScript, "detachedScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Detached script handle"}, {"description", ""}, {"handleType", "detachedScript"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1570,6 +1576,7 @@ struct SProperty {
     FUNCX(DEPRECATED_addOnMenuPath, "addOnMenuPath", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable,PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
 
 #define MARKER_PROPERTIES \
+    FUNCX(GROUP_marker, "marker", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(itemType, "itemType", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  PropertyInfo({{"label", "Type"}, {"description", "Item type"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(cyclic, "cyclic", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  PropertyInfo({{"label", "Cyclic"}, {"description", "Item buffer is cyclic"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(local, "local", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  PropertyInfo({{"label", "Local"}, {"description", "Coordinates are local to the marker's reference frame"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
