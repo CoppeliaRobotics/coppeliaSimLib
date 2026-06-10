@@ -254,6 +254,7 @@ class CJoint : public CSceneObject
     void getMaxVelAccelJerk(double maxVelAccelJerk[3]) const;
     double getScrewLead() const;
     int getJointType() const;
+    std::string getJointTypeStr() const;
     CQuaternion getSphericalTransformation() const;
     bool getIsCyclic() const;
     bool getEnforceLimits() const;

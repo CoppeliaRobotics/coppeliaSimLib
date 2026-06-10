@@ -115,6 +115,7 @@ class CDummy : public CSceneObject
     bool getAssignedToParentPathOrientation() const;
     int getLinkedDummyHandle() const;
     int getDummyType() const;
+    std::string getDummyTypeStr() const;
     std::string getAssemblyTag() const;
 
     CColorObject* getDummyColor();
@@ -124,6 +125,7 @@ class CDummy : public CSceneObject
     bool setAssignedToParentPathOrientation(bool assigned);
     void setLinkedDummyHandle(int handle, bool check);
     bool setDummyType(int lt, bool check);
+    bool setDummyTypeStr(const std::string& t, bool check);
     void setDummySize(double s);
     void setAssemblyTag(const char* tag);
     void setFreeOnPathTrajectory(bool isFree);

@@ -448,6 +448,8 @@ const std::vector<SDepr>& getDeprecatedList()
 {
     static const std::vector<SDepr> tmpDeprecated =
     {
+        {"object", prop(PropObject::DEPRECATED_objectType),     prop(PropObject::objectType).name},
+
         {"app", prop(PropApp::DEPRECATED_appArg1),              std::string(prop(PropApp::appArgs).name) + DEPRECATION_NO_REPLACE},
         {"app", prop(PropApp::DEPRECATED_appArg2),              std::string(prop(PropApp::appArgs).name) + DEPRECATION_NO_REPLACE},
         {"app", prop(PropApp::DEPRECATED_appArg3),              std::string(prop(PropApp::appArgs).name) + DEPRECATION_NO_REPLACE},

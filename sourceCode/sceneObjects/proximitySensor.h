@@ -86,6 +86,7 @@ class CProxSensor : public CSceneObject
     void setShowDetectionVolume(bool show);
 
     int getSensorType() const;
+    std::string getSensorTypeStr() const;
 
     void setExplicitHandling(bool setExplicit);
     bool getExplicitHandling() const;

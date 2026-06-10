@@ -65,6 +65,7 @@ class CLight : public CSceneObject
     void setSpotCutoffAngle(double co);
     double getSpotCutoffAngle() const;
     int getLightType() const;
+    std::string getLightTypeStr() const;
 
     void setLightIsLocal(bool l);
     bool getLightIsLocal() const;

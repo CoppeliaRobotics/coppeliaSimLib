@@ -305,7 +305,7 @@ void CProxSensor::addObjectEventData(CCbor* ev)
     else
     {
         ev->appendKeyDouble(prop(PropProximitySensor::size).name, _proxSensorSize);
-        ev->appendKeyInt64(prop(PropProximitySensor::sensorType).name, sensorType);
+        ev->appendKeyText(prop(PropProximitySensor::sensorType).name, getSensorTypeStr().c_str());
         ev->appendKeyHandle(prop(PropProximitySensor::detectedObject).name, _detectedObjectHandle);
         ev->appendKeyVector3(prop(PropProximitySensor::detectedPoint).name, _detectedPoint);
         ev->appendKeyVector3(prop(PropProximitySensor::detectedNormal).name, _detectedNormalVector);
@@ -1214,6 +1214,22 @@ int CProxSensor::getSensorType() const
     return sensorType;
 }
 
+std::string CProxSensor::getSensorTypeStr() const
+{
+    std::string retVal = "error";
+    if (sensorType == sim_proximitysensor_ray)
+        retVal = "ray";
+    else if (sensorType == sim_proximitysensor_cylinder)
+        retVal = "cylinder";
+    else if (sensorType == sim_proximitysensor_disc)
+        retVal = "disc";
+    else if (sensorType == sim_proximitysensor_pyramid)
+        retVal = "pyramid";
+    else if (sensorType == sim_proximitysensor_cone)
+        retVal = "cone";
+    return retVal;
+}
+
 #ifdef SIM_WITH_GUI
 void CProxSensor::display(CViewableBase* renderingObject, int displayAttrib)
 {
@@ -1323,7 +1339,7 @@ int CProxSensor::getIntProperty(const char* ppName, int& pState) const
         retVal = convexVolume->getIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == prop(PropProximitySensor::sensorType).name)
+        if (_pName == prop(PropProximitySensor::DEPRECATED_sensorType).name)
         {
             retVal = sim_propertyret_ok;
             pState = sensorType;
@@ -1416,6 +1432,11 @@ int CProxSensor::getStringProperty(const char* ppName, std::string& pState) cons
     int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
+        if (_pName == prop(PropProximitySensor::sensorType).name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = getSensorTypeStr();
+        }
     }
 
     return retVal;

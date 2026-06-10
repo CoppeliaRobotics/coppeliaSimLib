@@ -188,6 +188,8 @@ struct SProperty {
     FUNCX(METHOD_getProperty, "getProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_getPropertyTypeString, "getPropertyTypeString", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_isValid, "isValid", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    /* Following for backward compatibility: */ \
+    FUNCX(DEPRECATED_objectType, "objectType", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable, PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
 
 #define APP_PROPERTIES \
     FUNCX(sessionId, "sessionId", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Session ID"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1155,7 +1157,7 @@ struct SProperty {
 
 #define DUMMY_PROPERTIES \
     FUNCX(GROUP_dummy, "dummy", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
-    FUNCX(dummyType, "dummy.type", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{"label", "Type"}, {"description", "Dummy type"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
+    FUNCX(dummyType, "dummy.type", sim_propertytype_string, 0, PropertyInfo({{"label", "Type"}, {"description", "Dummy type"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(linkedDummy, "linkedDummy", sim_propertytype_handle, sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Linked dummy"}, {"description", "Handle of the linked dummy"}, {"handleType", "dummy"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(assemblyTag, "assemblyTag", sim_propertytype_string, 0,  PropertyInfo({{"label", "Assembly tag"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(size, "size", sim_propertytype_float, 0,  PropertyInfo({{"label", "Size"}, {"description", "Dummy size"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \

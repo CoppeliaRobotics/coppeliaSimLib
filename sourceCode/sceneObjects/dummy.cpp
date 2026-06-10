@@ -273,7 +273,7 @@ void CDummy::addObjectEventData(CCbor* ev)
     else
     {
         ev->appendKeyHandle(prop(PropDummy::linkedDummy).name, _linkedDummyHandle);
-        ev->appendKeyInt64(prop(PropDummy::dummyType).name, _linkType);
+        ev->appendKeyText(prop(PropDummy::dummyType).name, getDummyTypeStr().c_str());
     }
     ev->appendKeyText(prop(PropDummy::assemblyTag).name, _assemblyTag.c_str());
 
@@ -953,7 +953,7 @@ bool CDummy::setDummyType(int lt, bool check)
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyInt64("dummyType", _linkType);
             else
-                ev->appendKeyInt64(cmd, _linkType);
+                ev->appendKeyText(cmd, getDummyTypeStr().c_str());
             App::scenes->pushEvent();
         }
         _setLinkType_sendOldIk(lt);
@@ -1119,6 +1119,34 @@ int CDummy::getDummyType() const
     return (_linkType);
 }
 
+std::string CDummy::getDummyTypeStr() const
+{
+    std::string retVal = "error";
+    if (_linkType == sim_dummytype_dynloopclosure)
+        retVal = "dynLoopClosure";
+    else if (_linkType == sim_dummytype_dyntendon)
+        retVal = "dynTendon";
+    else if (_linkType == sim_dummytype_default)
+        retVal = "default";
+    else if (_linkType == sim_dummytype_assembly)
+        retVal = "assembly";
+    return retVal;
+}
+
+bool CDummy::setDummyTypeStr(const std::string& t, bool check)
+{
+    int tt = sim_dummytype_default;
+    if (t == "dynLoopClosure")
+        tt = sim_dummytype_dynloopclosure;
+    else if (t == "dynTendon")
+        tt = sim_dummytype_dyntendon;
+    else if (t == "default")
+        tt = sim_dummytype_default;
+    else if (t == "assembly")
+        tt = sim_dummytype_assembly;
+    return setDummyType(tt, check);
+}
+
 std::string CDummy::getAssemblyTag() const
 {
     return (_assemblyTag);
@@ -1278,7 +1306,7 @@ int CDummy::setIntProperty(const char* ppName, int pState, CCbor* eev)
                 setLinkedDummyHandle(pState, true);
                 retVal = sim_propertyret_ok;
             }
-            else if (_pName == prop(PropDummy::dummyType).name)
+            else if (_pName == prop(PropDummy::DEPRECATED_dummyType).name)
             {
                 setDummyType(pState, true);
                 retVal = sim_propertyret_ok;
@@ -1332,7 +1360,7 @@ int CDummy::getIntProperty(const char* ppName, int& pState) const
             pState = _linkedDummyHandle;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == prop(PropDummy::dummyType).name)
+        else if (_pName == prop(PropDummy::DEPRECATED_dummyType).name)
         {
             pState = _linkType;
             retVal = sim_propertyret_ok;
@@ -1582,6 +1610,11 @@ int CDummy::setStringProperty(const char* ppName, const std::string& pState)
             retVal = sim_propertyret_ok;
             setAssemblyTag(pState.c_str());
         }
+        else if (_pName == prop(PropDummy::dummyType).name)
+        {
+            retVal = sim_propertyret_ok;
+            setDummyTypeStr(pState, true);
+        }
     }
     if (retVal == sim_propertyret_unknownproperty)
     {
@@ -1612,6 +1645,11 @@ int CDummy::getStringProperty(const char* ppName, std::string& pState) const
         {
             retVal = sim_propertyret_ok;
             pState = _assemblyTag;
+        }
+        else if (_pName == prop(PropDummy::dummyType).name)
+        {
+            retVal = sim_propertyret_ok;
+            pState = getDummyTypeStr();
         }
     }
     if (retVal == sim_propertyret_unknownproperty)

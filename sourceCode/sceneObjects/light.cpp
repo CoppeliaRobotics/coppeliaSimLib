@@ -309,6 +309,18 @@ int CLight::getLightType() const
     return _lightType;
 }
 
+std::string CLight::getLightTypeStr() const
+{
+    std::string retVal = "error";
+    if (_lightType == sim_light_omnidirectional)
+        retVal = "omnidirectional";
+    else if (_lightType == sim_light_spot)
+        retVal = "spot";
+    else if (_lightType == sim_light_directional)
+        retVal = "directional";
+    return retVal;
+}
+
 void CLight::removeSceneDependencies()
 {
     CSceneObject::removeSceneDependencies();
@@ -340,7 +352,7 @@ void CLight::addObjectEventData(CCbor* ev)
     if (App::getEventProtocolVersion() <= 3)
         ev->appendKeyInt64("lightType", _lightType);
     else
-        ev->appendKeyInt64(prop(PropLight::lightType).name, _lightType);
+        ev->appendKeyText(prop(PropLight::lightType).name, getLightTypeStr().c_str());
     ev->appendKeyDouble(prop(PropLight::spotCutoffAngle).name, _spotCutoffAngle);
     ev->appendKeyInt64(prop(PropLight::spotExponent).name, _spotExponent);
     ev->appendKeyBool(prop(PropLight::enabled).name, lightActive);
@@ -872,7 +884,7 @@ int CLight::getIntProperty(const char* ppName, int& pState) const
             retVal = sim_propertyret_ok;
             pState = _spotExponent;
         }
-        else if (_pName == prop(PropLight::lightType).name)
+        else if (_pName == prop(PropLight::DEPRECATED_lightType).name)
         {
             retVal = sim_propertyret_ok;
             pState = _lightType;
@@ -938,6 +950,11 @@ int CLight::getStringProperty(const char* ppName, std::string& pState) const
     int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
+        if (_pName == prop(PropLight::lightType).name)
+        {
+            pState = getLightTypeStr();
+            retVal = sim_propertyret_ok;
+        }
     }
 
     return retVal;

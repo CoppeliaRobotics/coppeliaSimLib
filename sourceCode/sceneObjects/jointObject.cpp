@@ -2051,7 +2051,7 @@ void CJoint::addObjectEventData(CCbor* ev)
     }
     else
     {
-        ev->appendKeyInt64(prop(PropJoint::jointType).name, _jointType);
+        ev->appendKeyText(prop(PropJoint::jointType).name, getJointTypeStr().c_str());
         ev->appendKeyInt64(prop(PropJoint::jointMode).name, _jointMode);
         ev->appendKeyInt64(prop(PropJoint::dynCtrlMode).name, _dynCtrlMode);
         ev->appendKeyInt64(prop(PropJoint::dynVelMode).name, _dynVelocityCtrlType);
@@ -4603,6 +4603,18 @@ int CJoint::getJointType() const
     return (_jointType);
 }
 
+std::string CJoint::getJointTypeStr() const
+{
+    std::string retVal;
+    if (_jointType == sim_joint_revolute)
+        retVal = "revolute";
+    else if (_jointType == sim_joint_prismatic)
+        retVal = "prismatic";
+    else if (_jointType == sim_joint_spherical)
+        retVal = "spherical";
+    return retVal;
+}
+
 double CJoint::getScrewLead() const
 {
     return (_screwLead);
@@ -4916,7 +4928,7 @@ int CJoint::getIntProperty(const char* ppName, int& pState) const
     if (retVal == sim_propertyret_unknownproperty)
     {
         // First non-engine properties:
-        if (_pName == prop(PropJoint::jointType).name)
+        if (_pName == prop(PropJoint::DEPRECATED_jointType).name)
         {
             retVal = sim_propertyret_ok;
             pState = _jointType;
@@ -5761,6 +5773,11 @@ int CJoint::getStringProperty(const char* ppName, std::string& pState) const
     int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
+        if (strcmp(ppName, prop(PropJoint::jointType).name) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = getJointTypeStr();
+        }
         if (strcmp(ppName, prop(PropJoint::engineProperties).name) == 0)
         {
             retVal = sim_propertyret_ok;
