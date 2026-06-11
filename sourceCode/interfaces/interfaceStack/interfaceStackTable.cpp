@@ -994,22 +994,21 @@ CInterfaceStackObject* CInterfaceStackTable::getMapObject(const char* fieldName)
 {
     if (_isTableArray)
         return (nullptr);
-    size_t p = std::string(fieldName).find('.', 0);
-    if (p == std::string::npos)
+    // We first search in the litteral field, even if it contains dots (e.g. map['light.type'])
+    for (size_t i = 0; i < _tableObjects.size() / 2; i++)
     {
-        for (size_t i = 0; i < _tableObjects.size() / 2; i++)
+        CInterfaceStackObject* key = _tableObjects[2 * i + 0];
+        CInterfaceStackObject* obj = _tableObjects[2 * i + 1];
+        if (key->getObjectType() == sim_stackitem_string)
         {
-            CInterfaceStackObject* key = _tableObjects[2 * i + 0];
-            CInterfaceStackObject* obj = _tableObjects[2 * i + 1];
-            if (key->getObjectType() == sim_stackitem_string)
-            {
-                std::string theKey(((CInterfaceStackString*)key)->getValue(0));
-                if (theKey.compare(fieldName) == 0)
-                    return (obj);
-            }
+            std::string theKey(((CInterfaceStackString*)key)->getValue(0));
+            if (theKey.compare(fieldName) == 0)
+                return (obj);
         }
     }
-    else
+    // Now we search in sub-fields (e.g. map.light.type)
+    size_t p = std::string(fieldName).find('.', 0);
+    if (p != std::string::npos)
     {
         std::string tableName1(fieldName, fieldName + p);
         std::string tableName2(fieldName + p + 1);

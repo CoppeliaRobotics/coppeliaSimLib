@@ -6472,13 +6472,25 @@ std::string _method_createLight(int targetObj, const char* method, CDetachedScri
     if (checkInputArguments(method, inStack, &errMsg, {arg_map}))
     {
         CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
-        int lightType = sim_light_omnidirectional;
-        map->fetchInt32FromKey("lightType", lightType, &errMsg);
+        std::string t = "omnidirectional";
+        map->fetchStringFromKey("light.type", t, &errMsg);
         if (errMsg.size() == 0)
         {
-            CLight* it = new CLight(lightType);
-            App::scene->sceneObjects->addObjectToScene(it, false, true);
-            outStack->pushHandleOntoStack(it->getObjectHandle());
+            int lightType = -1;
+            if (t == "omnidirectional")
+                lightType = sim_light_omnidirectional;
+            if (t == "spot")
+                lightType = sim_light_spot;
+            if (t == "directional")
+                lightType = sim_light_directional;
+            if (lightType != -1)
+            {
+                CLight* it = new CLight(lightType);
+                App::scene->sceneObjects->addObjectToScene(it, false, true);
+                outStack->pushHandleOntoStack(it->getObjectHandle());
+            }
+            else
+                errMsg = "invalid light type.";
         }
     }
     return errMsg;

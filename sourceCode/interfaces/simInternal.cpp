@@ -812,7 +812,6 @@ int simSetBoolProperty_internal(int64_t target, const char* ppName, int pState)
 int simGetBoolProperty_internal(int64_t target, const char* ppName, int* pState)
 {
     C_API_START;
-
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = sim_propertyret_unavailable;
