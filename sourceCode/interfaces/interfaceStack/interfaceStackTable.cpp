@@ -1198,16 +1198,21 @@ void CInterfaceStackTable::appendArrayOrMapObject(CInterfaceStackObject* key, CI
     }
     if (!valueInserted)
     {
-        if (_isTableArray)
-        { // we need to convert the table to a map representation:
-            size_t l = _tableObjects.size();
-            for (size_t i = 0; i < l; i++)
-                _tableObjects.insert(_tableObjects.begin() + 2 * i, new CInterfaceStackInteger(i + 1));
-        }
-        _isTableArray = false;
+        toMap();
         removeFromKey(key); // first remove a possibly existing object with the same key
         _tableObjects.push_back(key);
         _tableObjects.push_back(obj);
+    }
+}
+
+void CInterfaceStackTable::toMap()
+{ // we convert the table to a map representation:
+    if (_isTableArray)
+    {
+        size_t l = _tableObjects.size();
+        for (size_t i = 0; i < l; i++)
+            _tableObjects.insert(_tableObjects.begin() + 2 * i, new CInterfaceStackInteger(i + 1));
+        _isTableArray = false;
     }
 }
 

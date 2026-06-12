@@ -436,49 +436,49 @@ const SProperty& prop(PropCustomSceneObject p)
     return allProps_customSceneObject[static_cast<size_t>(p)];
 }
 // ----------------------------------------------------------------------------------------------
-/*
-const std::vector<SProperty> allProps = []{
-    std::vector<SProperty> result;
-bla
-    result.insert(result.end(), allProps_obj.begin(), allProps_obj.end());
-    result.insert(result.end(), allProps_app.begin(), allProps_app.end());
-    result.insert(result.end(), allProps_customObjectClass.begin(), allProps_customObjectClass.end());
-    result.insert(result.end(), allProps_customObject.begin(), allProps_customObject.end());
-    result.insert(result.end(), allProps_detachedScript.begin(), allProps_detachedScript.end());
-    result.insert(result.end(), allProps_stack.begin(), allProps_stack.end());
-    result.insert(result.end(), allProps_collCont.begin(), allProps_collCont.end());
-    result.insert(result.end(), allProps_collection.begin(), allProps_collection.end());
-    result.insert(result.end(), allProps_drawCont.begin(), allProps_drawCont.end());
-    result.insert(result.end(), allProps_drawingObj.begin(), allProps_drawingObj.end());
-    result.insert(result.end(), allProps_col.begin(), allProps_col.end());
-    result.insert(result.end(), allProps_volume.begin(), allProps_volume.end());
-    result.insert(result.end(), allProps_dyn.begin(), allProps_dyn.end());
-    result.insert(result.end(), allProps_scene.begin(), allProps_scene.end());
-    result.insert(result.end(), allProps_sim.begin(), allProps_sim.end());
-    result.insert(result.end(), allProps_meshWrap.begin(), allProps_meshWrap.end());
-    result.insert(result.end(), allProps_mesh.begin(), allProps_mesh.end());
-    result.insert(result.end(), allProps_viewable.begin(), allProps_viewable.end());
-    result.insert(result.end(), allProps_objCont.begin(), allProps_objCont.end());
-    result.insert(result.end(), allProps_material.begin(), allProps_material.end());
-    result.insert(result.end(), allProps_customSceneObjectClass.begin(), allProps_customSceneObjectClass.end());
-    result.insert(result.end(), allProps_sceneObject.begin(), allProps_sceneObject.end());
-    result.insert(result.end(), allProps_shape.begin(), allProps_shape.end());
-    result.insert(result.end(), allProps_camera.begin(), allProps_camera.end());
-    result.insert(result.end(), allProps_dummy.begin(), allProps_dummy.end());
-    result.insert(result.end(), allProps_forceSensor.begin(), allProps_forceSensor.end());
-    result.insert(result.end(), allProps_graph.begin(), allProps_graph.end());
-    result.insert(result.end(), allProps_joint.begin(), allProps_joint.end());
-    result.insert(result.end(), allProps_light.begin(), allProps_light.end());
-    result.insert(result.end(), allProps_ocTree.begin(), allProps_ocTree.end());
-    result.insert(result.end(), allProps_pointCloud.begin(), allProps_pointCloud.end());
-    result.insert(result.end(), allProps_proximitySensor.begin(), allProps_proximitySensor.end());
-    result.insert(result.end(), allProps_visionSensor.begin(), allProps_visionSensor.end());
-    result.insert(result.end(), allProps_script.begin(), allProps_script.end());
-    result.insert(result.end(), allProps_marker.begin(), allProps_marker.end());
-    result.insert(result.end(), allProps_customSceneObject.begin(), allProps_customSceneObject.end());
+
+const std::vector<SProperty*> allProps = []{
+    std::vector<SProperty*> result;
+    for (const auto& prop : allProps_obj) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_app) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_customObjectClass) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_customObject) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_detachedScript) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_stack) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_collCont) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_collection) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_drawCont) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_drawingObj) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_col) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_volume) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_dyn) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_scene) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_sim) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_meshWrap) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_mesh) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_viewable) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_objCont) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_material) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_customSceneObjectClass) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_sceneObject) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_shape) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_camera) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_dummy) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_forceSensor) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_graph) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_joint) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_light) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_ocTree) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_pointCloud) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_proximitySensor) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_visionSensor) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_script) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_marker) result.push_back(const_cast<SProperty*>(&prop));
+    for (const auto& prop : allProps_customSceneObject) result.push_back(const_cast<SProperty*>(&prop));
+
     return result;
 }();
-*/
+
 struct SDepr
 {
     std::string type;
@@ -958,33 +958,3 @@ std::map<std::string, std::vector<SDeprecatedProp>> createDeprecationMapping(int
 }
 
 const std::map<std::string, std::vector<SDeprecatedProp>> propDeprecationMappings[2] = {createDeprecationMapping(1), createDeprecationMapping(2)};
-
-std::map<std::string, bool> createAvailabilityMapping(int callingApiVer)
-{
-    std::map<std::string, bool> result;
-    /*
-    auto tmpDeprecated = getDeprecatedList();
-    for (size_t i = 0; i < tmpDeprecated.size(); i++)
-    {
-        int startSupport = tmpDeprecated[i].oldProp.info.map["startSupport"].toInt();
-        int startDeprecated = tmpDeprecated[i].oldProp.info.map["startDeprecated"].toInt();
-        int endSupport = tmpDeprecated[i].oldProp.info.map["endSupport"].toInt();
-        if ((startSupport <= callingApiVer) && ((endSupport == 0) || (endSupport >= callingApiVer)))
-        {
-            std::string key = tmpDeprecated[i].oldProp.name;
-            SDeprecatedProp p;
-            p.type = tmpDeprecated[i].type;
-            p.replacement = tmpDeprecated[i].newPropName;
-            p.deprecated = (startDeprecated != 0) && (startDeprecated <= callingApiVer);
-            auto it = result.find(key);
-            if (it == result.end())
-            {
-                result[key] = {};
-                it = result.find(key);
-            }
-            it->second.push_back(p);
-        }
-    }
-*/
-    return result;
-}

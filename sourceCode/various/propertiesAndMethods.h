@@ -28,6 +28,15 @@ struct SProperty {
     int oldEnums[5];
 };
 
+template<typename T>
+std::map<int, std::string> buildEnumToStringMap()
+{
+    std::map<int, std::string> enum_to_string;
+    for (auto [enum_val, name_view] : magic_enum::enum_entries<T>())
+        enum_to_string.emplace(static_cast<int>(enum_val), std::string(name_view));
+    return enum_to_string;
+}
+
 #define CUSTOMDATAPREFIX "customData"
 #define CUSTOMDATAPREFIXDOT CUSTOMDATAPREFIX "."
 #define CUSTOMDATAFLAGS (sim_propertyinfo_removable)
@@ -152,7 +161,6 @@ struct SProperty {
     FUNCX(METHOD_getPoseProperty, "getPoseProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_getQuaternionProperty, "getQuaternionProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_getStringProperty, "getStringProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_getStrEnumProperty, "getStrEnumProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_getTableProperty, "getTableProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_getVector3Property, "getVector3Property", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_setBoolProperty, "setBoolProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -171,7 +179,6 @@ struct SProperty {
     FUNCX(METHOD_setPoseProperty, "setPoseProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_setQuaternionProperty, "setQuaternionProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_setStringProperty, "setStringProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_setStrEnumProperty, "setStrEnumProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_setTableProperty, "setTableProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_setVector3Property, "setVector3Property", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_setMatrixProperty, "setMatrixProperty", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -237,6 +244,7 @@ struct SProperty {
     FUNCX(canSave, "canSave", sim_propertytype_bool, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Can save"}, {"description", "Whether save operation is allowed in given state"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(idleFps, "idleFps", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Loaded plugin names"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(pluginNames, "pluginNames", sim_propertytype_stringarray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Plugins"}, {"description", "List of plugins"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(enumTypes, "enumTypes", sim_propertytype_stringarray, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Enum types"}, {"description", "Main enum types"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(addOns, "addOns", sim_propertytype_handlearray, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Add-ons"}, {"description", "List of add-ons"}, {"handleType", "detachedScript"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(customObjects, "customObjects", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Custom objects"}, {"description", "List of app custom objects"}, {"handleType", "customObject"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(customClasses, "customClasses", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Custom classes"}, {"description", "List of app custom classes"}, {"handleType", "customObject"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -302,6 +310,7 @@ struct SProperty {
     FUNCX(METHOD_getPluginInfo, "getPluginInfo", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_setPluginInfo, "setPluginInfo", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_handleMessagePump, "handleMessagePump", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(METHOD_getEnumInfo, "getEnumInfo", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     /* Following for backward compatibility: */ \
     FUNCX(DEPRECATED_dongleID, "dongleID", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable,  PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
     FUNCX(DEPRECATED_machineIDX, "machineIDX", sim_propertytype_string, SIM_PROPERTYINFO_DEPRECATED | sim_propertyinfo_constant | sim_propertyinfo_notwritable,  PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
@@ -1259,7 +1268,7 @@ struct SProperty {
     FUNCX(dependencyMaster, "dependencyMaster", sim_propertytype_handle, sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Dependency master"}, {"description", "Handle of master joint (in a dependency relationship)"}, {"handleType", "joint"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(dependencyParams, "dependencyParams", sim_propertytype_floatarray, 0,  PropertyInfo({{"label", "Dependency parameters"}, {"description", "Dependency parameters (offset and coefficient)"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(maxVelAccelJerk, "maxVelAccelJerk", sim_propertytype_floatarray, 0,  PropertyInfo({{"label", "Maximum velocity, acceleration and jerk"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
-    FUNCX(dynCtrlMode, DYNAMICSPREFIXDOT "ctrlMode", sim_propertytype_enum, 0, PropertyInfo({{"label", "Control mode" }, {"description", "Joint control mode, when in dynamic mode"}, {"enum", "jointDynCtrlMode"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
+    FUNCX(dynCtrlMode, DYNAMICSPREFIXDOT "ctrlMode", sim_propertytype_enum, 0, PropertyInfo({{"label", "Control mode" }, {"description", "Joint control mode, when in dynamic mode"}, {"enum", "SimJointDynCtrlMode"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(springDamperParams, DYNAMICSPREFIXDOT "springDamperParams", sim_propertytype_floatarray, 0,  PropertyInfo({{"label", "Spring damper parameters"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(dynVelMode, DYNAMICSPREFIXDOT "velMode", sim_propertytype_int, 0,  PropertyInfo({{"label", "Dynamic velocity mode"}, {"description", "Dynamic velocity mode (0: default, 1: Ruckig)"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(dynPosMode, DYNAMICSPREFIXDOT "posMode", sim_propertytype_int, 0,  PropertyInfo({{"label", "Dynamic position mode"}, {"description", "Dynamic position mode (0: default, 1: Ruckig)"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \

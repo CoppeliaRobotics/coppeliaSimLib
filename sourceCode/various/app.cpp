@@ -70,6 +70,7 @@ std::vector<int> App::_scriptsToReset;
 VMutex App::_appSemaphore;
 std::map<std::string, SSysSemaphore> App::_systemSemaphores;
 std::vector<std::string> App::_pluginNames;
+std::vector<std::string> App::_enumTypes;
 int App::_eventProtocolVersion = SIM_EVENT_PROTOCOL_VERSION;
 int App::_appWideYieldingForbidLevel = 0;
 std::vector<int> App::_apiVersion = {2}; // default for C-side
@@ -84,6 +85,7 @@ int64_t App::_nextHandle_stack = sim_object_stackstart;
 int64_t App::_nextHandle_texture = sim_object_texturestart;
 int64_t App::_nextHandle_mesh = SIM_IDSTART_MESH;
 #endif
+
 
 #ifdef WIN_SIM
 LONG WINAPI _winExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
@@ -180,6 +182,17 @@ void App::init(const char* appDir, int)
 {
     _appStorage = new CPersistentDataContainer("appStorage.dat");
     instancesList = new InstancesList();
+
+    // -------------------------------------------------
+    using MapFn = std::map<int, std::string>(*)();
+    std::map<std::string, MapFn> builder_map;
+    #define X(type) builder_map.emplace(#type, []() { return buildEnumToStringMap<type>(); });
+    SIM_ENUM_TYPES
+    #undef X
+    for (const auto& [name, mapF] : builder_map)
+        _enumTypes.push_back(name);
+    // -------------------------------------------------
+
     CSimFlavor::run(13);
     gm = new CGm();
     if (appDir)
@@ -3480,6 +3493,11 @@ int App::getStringArrayProperty_t(int64_t target, const char* ppName, std::vecto
                 pState = _pluginNames;
                 retVal = sim_propertyret_ok;
             }
+            else if (strcmp(pName, prop(PropApp::enumTypes).name) == 0)
+            {
+                pState = _enumTypes;
+                retVal = sim_propertyret_ok;
+            }
         }
     }
     else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
@@ -4210,6 +4228,8 @@ void App::pushGenesisEvents()
         ev->appendKeyInt64(prop(PropApp::dialogVerbosity).name, getDlgVerbosity());
         ev->appendKeyTextArray(prop(PropApp::appArgs).name, _applicationArguments);
         ev->appendKeyTextArray(prop(PropApp::pluginNames).name, _pluginNames);
+        ev->appendKeyTextArray(prop(PropApp::enumTypes).name, _enumTypes);
+
         std::vector<int> addOnList(scenes->addOnScriptContainer->getAddOnHandles());
         if (App::getEventProtocolVersion() <= 3)
         {

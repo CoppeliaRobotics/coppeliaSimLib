@@ -946,7 +946,7 @@ int simSetIntProperty_internal(int64_t target, const char* ppName, int pState)
                             CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
                             retVal = sim_propertyret_unknownproperty;
                         }
-                        else if (p == sim_propertytype_int)
+                        else if ((p == sim_propertytype_int) || (p == sim_propertytype_enum))
                         {
                             CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN).c_str());
                             retVal = sim_propertyret_notwritable;
@@ -1024,7 +1024,7 @@ int simGetIntProperty_internal(int64_t target, const char* ppName, int* pState)
                         CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
                         retVal = sim_propertyret_unknownproperty;
                     }
-                    else if (p == sim_propertytype_int)
+                    else if ((p == sim_propertytype_int) || (p == sim_propertytype_enum))
                     {
                         CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_CANNOT_BE_READ).c_str());
                         retVal = sim_propertyret_notreadable;
@@ -1303,7 +1303,7 @@ int simGetLongProperty_internal(int64_t target, const char* ppName, int64_t* pSt
                     }
                     else
                     {
-                        if (p == sim_propertytype_int)
+                        if ((p == sim_propertytype_int) || (p == sim_propertytype_enum))
                         {
                             int w;
                             retVal = App::getIntProperty_t(target, pName.c_str(), w);
@@ -1442,7 +1442,7 @@ int simGetFloatProperty_internal(int64_t target, const char* ppName, double* pSt
                     }
                     else
                     {
-                        if (p == sim_propertytype_int)
+                        if ((p == sim_propertytype_int) || (p == sim_propertytype_enum))
                         {
                             int w;
                             retVal = App::getIntProperty_t(target, pName.c_str(), w);

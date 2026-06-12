@@ -5747,7 +5747,7 @@ int CJoint::setStringProperty(const char* ppName, const std::string& pState)
     int retVal = CSceneObject::setStringProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(ppName, prop(PropJoint::engineProperties).name) == 0)
+        if (_pName == prop(PropJoint::engineProperties).name)
         {
             retVal = 0;
             CEngineProperties prope;
@@ -5760,6 +5760,15 @@ int CJoint::setStringProperty(const char* ppName, const std::string& pState)
                     _sendEngineString();
             }
         }
+        else if (_pName == prop(PropJoint::dynCtrlMode).name)
+        { // Enum
+            retVal = sim_propertyret_ok;
+            auto value = magic_enum::enum_cast<SimJointDynCtrlMode>(pState.c_str());
+            if (value.has_value())
+                setDynCtrlMode(static_cast<int>(*value));
+            else
+                retVal = sim_propertyret_invalidvalue;
+        }
     }
     return retVal;
 }
@@ -5770,16 +5779,25 @@ int CJoint::getStringProperty(const char* ppName, std::string& pState) const
     int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(ppName, prop(PropJoint::jointType).name) == 0)
+        if (_pName == prop(PropJoint::jointType).name)
         {
             retVal = sim_propertyret_ok;
             pState = getJointTypeStr();
         }
-        if (strcmp(ppName, prop(PropJoint::engineProperties).name) == 0)
+        else if (_pName == prop(PropJoint::engineProperties).name)
         {
             retVal = sim_propertyret_ok;
             CEngineProperties prope;
             pState = prope.getObjectProperties(_objectHandle);
+        }
+        else if (_pName == prop(PropJoint::dynCtrlMode).name)
+        { // Enum
+            retVal = sim_propertyret_ok;
+            auto enum_value = magic_enum::enum_cast<SimJointDynCtrlMode>(_dynCtrlMode);
+            if (enum_value.has_value())
+                pState = magic_enum::enum_name(enum_value.value()).data();
+            else
+                retVal = sim_propertyret_invalidvalue;
         }
     }
 

@@ -234,6 +234,8 @@ class App
     static std::map<std::string, SSysSemaphore> _systemSemaphores;
     static VMutex _appSemaphore;
     static std::vector<std::string> _pluginNames;
+    static std::vector<std::string> _enumTypes;
+
 
 #ifdef USE_INT64_HANDLES
     static int64_t _nextHandle_object;

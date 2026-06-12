@@ -149,12 +149,11 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["getIntArray2Property"] = _method_getIntArray2Property;
         funcTable["getIntArrayProperty"] = _method_getIntArrayProperty;
         funcTable["getIntProperty"] = _method_getIntProperty;
-        funcTable["getEnumProperty"] = _method_getIntProperty;
         funcTable["getLongProperty"] = _method_getLongProperty;
         funcTable["getPoseProperty"] = _method_getPoseProperty;
         funcTable["getQuaternionProperty"] = _method_getQuaternionProperty;
         funcTable["getStringProperty"] = _method_getStringProperty;
-        funcTable["getStrEnumProperty"] = _method_getStrEnumProperty;
+        funcTable["getEnumProperty"] = _method_getStringProperty;
         funcTable["getVector3Property"] = _method_getVector3Property;
         funcTable["setBoolProperty"] = _method_setBoolProperty;
         funcTable["setBufferProperty"] = _method_setBufferProperty;
@@ -167,12 +166,11 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["setIntArray2Property"] = _method_setIntArray2Property;
         funcTable["setIntArrayProperty"] = _method_setIntArrayProperty;
         funcTable["setIntProperty"] = _method_setIntProperty;
-        funcTable["setEnumProperty"] = _method_setIntProperty;
         funcTable["setLongProperty"] = _method_setLongProperty;
         funcTable["setPoseProperty"] = _method_setPoseProperty;
         funcTable["setQuaternionProperty"] = _method_setQuaternionProperty;
         funcTable["setStringProperty"] = _method_setStringProperty;
-        funcTable["setStrEnumProperty"] = _method_setStrEnumProperty;
+        funcTable["setEnumProperty"] = _method_setStringProperty;
         funcTable["setVector3Property"] = _method_setVector3Property;
         funcTable["getMatrixProperty"] = _method_getMatrixProperty;
         funcTable["setMatrixProperty"] = _method_setMatrixProperty;
@@ -223,6 +221,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["broadcast"] = _method_broadcast;
         funcTable["texture.setData"] = _method_textureSetData;
         funcTable["texture.getData"] = _method_textureGetData;
+        funcTable["getEnumInfo"] = _method_getEnumInfo;
     }
 
     std::string retVal("__notFound__");
@@ -7031,40 +7030,6 @@ std::string _method_getStringProperty(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_getStrEnumProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
-    {
-        std::string pName = fetchText(inStack, 0);
-        bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
-        {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
-        if (errMsg.size() == 0)
-        {
-            char* pValue = nullptr;
-            int res = CALL_C_API(simGetStrEnumProperty, targetObj, pName.c_str(), &pValue);
-            if (res > 0)
-            {
-                outStack->pushTextOntoStack(pValue);
-                delete[] pValue;
-            }
-            else
-            {
-                errMsg = CApiErrors::getAndClearLastError();
-                if (noError)
-                {
-                    outStack->pushNullOntoStack();
-                    errMsg.clear();
-                }
-            }
-        }
-    }
-    return errMsg;
-}
-
 std::string _method_getVector3Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
@@ -7645,43 +7610,6 @@ std::string _method_setStringProperty(int targetObj, const char* method, CDetach
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetStringProperty, targetObj, pName.c_str(), pValue.c_str()) > 0)
-            {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
-                {
-                    std::string nn(pName);
-                    if (targetObj == sim_handle_app)
-                        nn = "app." + nn;
-                    else if (targetObj != sim_handle_scene)
-                        nn = "obj." + nn;
-                    currentScript->signalSet(nn.c_str(), targetObj);
-                }
-            }
-            else
-            {
-                errMsg = CApiErrors::getAndClearLastError();
-                if (noError)
-                    errMsg.clear();
-            }
-        }
-    }
-    return errMsg;
-}
-
-std::string _method_setStrEnumProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, arg_optional | arg_map}))
-    {
-        std::string pName = fetchText(inStack, 0);
-        std::string pValue = fetchText(inStack, 1);
-        bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
-        {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
-        if (errMsg.size() == 0)
-        {
-            if (CALL_C_API(simSetStrEnumProperty, targetObj, pName.c_str(), pValue.c_str()) > 0)
             {
                 if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {
@@ -9745,6 +9673,36 @@ std::string _method_textureGetData(int targetObj, const char* method, CDetachedS
             else
                 errMsg = SIM_ERROR_TEXTURE_INEXISTANT;
         }
+    }
+    return errMsg;
+}
+
+std::string _method_getEnumInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    {
+        std::string enumT = fetchText(inStack, 0);
+
+        using MapFn = std::map<int, std::string>(*)();
+        std::map<std::string, MapFn> builder_map;
+
+        #define X(type) builder_map.emplace(#type, []() { return buildEnumToStringMap<type>(); });
+        SIM_ENUM_TYPES
+        #undef X
+
+        std::map<int, std::string> enum_to_string;
+        auto it = builder_map.find(enumT);
+        if (it != builder_map.end())
+        {
+            enum_to_string = it->second();
+            CInterfaceStackTable* tbl_strToEnum = new CInterfaceStackTable();
+            for (const auto& [value, name] : enum_to_string)
+                tbl_strToEnum->appendMapObject_int32(name.c_str(), value);
+            outStack->pushObjectOntoStack(tbl_strToEnum);
+        }
+        else
+            errMsg = "unsupported type.";
     }
     return errMsg;
 }
