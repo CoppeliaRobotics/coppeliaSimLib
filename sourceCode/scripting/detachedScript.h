@@ -108,6 +108,7 @@ class CDetachedScript : public Obj
     void flagForDestruction();
     bool getFlaggedForDestruction() const;
     int getScriptType() const;
+    std::string getScriptTypeStr() const;
     void setParentIsProxy(bool isDisabled);
     bool getParentIsProxy() const;
     void setAutoRestartOnError(bool restart);

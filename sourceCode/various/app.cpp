@@ -3936,6 +3936,34 @@ bool App::isTargetValid_t(int64_t target)
     return App::getPropertyName_t(target, ind, pName, appart, 0) > 0;
 }
 
+std::string App::getTargetTypeStr(int64_t target)
+{
+    std::string retVal; // empty = error
+    if (target == sim_handle_scene)
+        retVal = "scene";
+    else if (target == sim_handle_app)
+        retVal = "app";
+    else if ((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectclassend))
+    {
+        CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(target);
+        if (obj != nullptr)
+            retVal = obj->getObjectTypeStr();
+    }
+    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+        retVal = "detachedScript";
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+        retVal = "stack";
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
+        retVal = "collection";
+    else if ((target >= sim_object_customstart) && (target <= sim_object_customend))
+        retVal = "customObject";
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
+        retVal = "drawingObject";
+    else if (target >= sim_object_variousstart)
+        retVal = "mesh";
+    return retVal;
+}
+
 bool App::_resolveTarget(int64_t& target)
 {
     bool retVal = true;

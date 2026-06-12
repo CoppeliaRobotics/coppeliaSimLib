@@ -1113,7 +1113,7 @@ void CDetachedScript::pushObjectCreationEvent()
     else
     {
         ev->appendKeyBool(prop(PropDetachedScript::scriptDisabled).name, _scriptIsDisabled);
-        ev->appendKeyInt64(prop(PropDetachedScript::scriptType).name, _scriptType);
+        ev->appendKeyText(prop(PropDetachedScript::scriptType).name, getScriptTypeStr().c_str());
         ev->appendKeyInt64(prop(PropDetachedScript::scriptState).name, _scriptState);
     }
     ev->appendKeyBool(prop(PropDetachedScript::restartOnError).name, _autoRestartOnError);
@@ -1331,6 +1331,15 @@ bool CDetachedScript::getScriptDisabledAndNoErrorRaised() const
 int CDetachedScript::getScriptType() const
 {
     return _scriptType;
+}
+
+std::string CDetachedScript::getScriptTypeStr() const
+{
+    std::string retVal = "invalidEnum";
+    auto enum_value = magic_enum::enum_cast<SimScriptType>(_scriptType);
+    if (enum_value.has_value())
+        retVal = magic_enum::enum_name(enum_value.value()).data();
+    return retVal;
 }
 
 void CDetachedScript::flagForDestruction()
@@ -4626,7 +4635,7 @@ int CDetachedScript::getIntProperty(const char* pName, int& pState) const
         retVal = sim_propertyret_ok;
         pState = getScriptExecPriority();
     }
-    else if (strcmp(prop(PropDetachedScript::scriptType).name, pName) == 0)
+    else if (strcmp(prop(PropDetachedScript::DEPRECATED_scriptType).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _scriptType;
@@ -4717,7 +4726,12 @@ int CDetachedScript::getStringProperty(const char* pName, std::string& pState) c
     int retVal = Obj::getStringProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropDetachedScript::code).name, pName) == 0)
+        if (strcmp(prop(PropDetachedScript::scriptType).name, pName) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = getScriptTypeStr();
+        }
+        else if (strcmp(prop(PropDetachedScript::code).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
 #ifdef SIM_WITH_GUI

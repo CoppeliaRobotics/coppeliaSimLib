@@ -1216,17 +1216,10 @@ int CProxSensor::getSensorType() const
 
 std::string CProxSensor::getSensorTypeStr() const
 {
-    std::string retVal = "error";
-    if (sensorType == sim_proximitysensor_ray)
-        retVal = "ray";
-    else if (sensorType == sim_proximitysensor_cylinder)
-        retVal = "cylinder";
-    else if (sensorType == sim_proximitysensor_disc)
-        retVal = "disc";
-    else if (sensorType == sim_proximitysensor_pyramid)
-        retVal = "pyramid";
-    else if (sensorType == sim_proximitysensor_cone)
-        retVal = "cone";
+    std::string retVal = "invalidEnum";
+    auto enum_value = magic_enum::enum_cast<SimProximitySensorType>(sensorType);
+    if (enum_value.has_value())
+        retVal = magic_enum::enum_name(enum_value.value()).data();
     return retVal;
 }
 

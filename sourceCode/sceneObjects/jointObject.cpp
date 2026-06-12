@@ -4605,13 +4605,10 @@ int CJoint::getJointType() const
 
 std::string CJoint::getJointTypeStr() const
 {
-    std::string retVal;
-    if (_jointType == sim_joint_revolute)
-        retVal = "revolute";
-    else if (_jointType == sim_joint_prismatic)
-        retVal = "prismatic";
-    else if (_jointType == sim_joint_spherical)
-        retVal = "spherical";
+    std::string retVal = "invalidEnum";
+    auto enum_value = magic_enum::enum_cast<SimJointType>(_jointType);
+    if (enum_value.has_value())
+        retVal = magic_enum::enum_name(enum_value.value()).data();
     return retVal;
 }
 

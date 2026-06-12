@@ -1121,30 +1121,20 @@ int CDummy::getDummyType() const
 
 std::string CDummy::getDummyTypeStr() const
 {
-    std::string retVal = "error";
-    if (_linkType == sim_dummytype_dynloopclosure)
-        retVal = "dynLoopClosure";
-    else if (_linkType == sim_dummytype_dyntendon)
-        retVal = "dynTendon";
-    else if (_linkType == sim_dummytype_default)
-        retVal = "default";
-    else if (_linkType == sim_dummytype_assembly)
-        retVal = "assembly";
+    std::string retVal = "invalidEnum";
+    auto enum_value = magic_enum::enum_cast<SimDummyType>(_linkType);
+    if (enum_value.has_value())
+        retVal = magic_enum::enum_name(enum_value.value()).data();
     return retVal;
 }
 
 bool CDummy::setDummyTypeStr(const std::string& t, bool check)
 {
-    int tt = sim_dummytype_default;
-    if (t == "dynLoopClosure")
-        tt = sim_dummytype_dynloopclosure;
-    else if (t == "dynTendon")
-        tt = sim_dummytype_dyntendon;
-    else if (t == "default")
-        tt = sim_dummytype_default;
-    else if (t == "assembly")
-        tt = sim_dummytype_assembly;
-    return setDummyType(tt, check);
+    bool retVal = false;
+    auto value = magic_enum::enum_cast<SimDummyType>(t);
+    if (value.has_value())
+        retVal = setDummyType(static_cast<int>(*value), check);
+    return retVal;
 }
 
 std::string CDummy::getAssemblyTag() const

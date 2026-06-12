@@ -7,6 +7,7 @@
 #include <QVariantMap>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <magic_enum.hpp>
 
 struct PropertyInfo {
     QVariantMap map;
@@ -339,10 +340,11 @@ struct SProperty {
     FUNCX(METHOD_remove, "remove", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
 
 #define DETACHEDSCRIPT_PROPERTIES \
+    FUNCX(GROUP_detachedScript, "detachedScript", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(scriptDisabled, "disabled", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Disabled"}, {"description", "Distabled state"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(restartOnError, "restartOnError", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Restart"}, {"description", "Restart on error"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(execPriority, "execPriority", sim_propertytype_int, 0,  PropertyInfo({{"label", "Execution priority"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(scriptType, "detachedScript.type", sim_propertytype_int, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  PropertyInfo({{"label", "Type"}, {"description", "Script type"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(scriptType, "detachedScript.type", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  PropertyInfo({{"label", "Type"}, {"description", "Script type"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(executionDepth, "executionDepth", sim_propertytype_int, sim_propertyinfo_silent | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Execution depth"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(scriptState, "state", sim_propertytype_int, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "State"}, {"description", "Script state"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(language, "language", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable,  PropertyInfo({{"label", "Language"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \

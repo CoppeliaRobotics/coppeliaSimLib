@@ -682,6 +682,28 @@ int enumToString(int64_t target, const char* ppName, int enumVal, std::string& e
     return retVal;
 }
 
+std::string checkAltName(const char* pName, int target)
+{ // e.g. from "joint.targetPosition" to "targetPosition"
+    std::string retVal;
+    std::string n(pName);
+    size_t p1 = n.rfind('.');
+    if (p1 != std::string::npos)
+    {
+        std::string objTypeStr = App::getTargetTypeStr(target);
+        if (!objTypeStr.empty())
+        {
+            objTypeStr += "."; // e.g. "joint."
+            size_t p2 = n.rfind(objTypeStr);
+            if (p2 + objTypeStr.size() - 1 == p1)
+            {
+                n.erase(p2, objTypeStr.size());
+                retVal = n;
+            }
+        }
+    }
+    return retVal;
+}
+
 std::string checkForDeprecation(const char* funcName, const char* pName, int target)
 {
     const std::map<std::string, std::vector<SDeprecatedProp>>* propDeprecationMapping = &propDeprecationMappings[App::getApiVersion() - 1];
@@ -723,6 +745,8 @@ std::string checkForDeprecation(const char* funcName, const char* pName, int tar
             else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend) && (type == "collection"))
                 found = true;
             else if ((target >= sim_object_customstart) && (target <= sim_object_customend) && (type == "customObject"))
+                found = true;
+            else if ((target >= sim_object_variousstart) && (type == "mesh"))
                 found = true;
             if (found)
                 break;
@@ -773,6 +797,12 @@ int simSetBoolProperty_internal(int64_t target, const char* ppName, int pState)
             {
                 pName = checkForDeprecation(__func__, pName.c_str(), target);
                 retVal = App::setBoolProperty_t(target, pName.c_str(), pState != 0);
+                if (retVal != sim_propertyret_ok)
+                {
+                    std::string pName2 = checkAltName(pName.c_str(), target);
+                    if (!pName2.empty())
+                        retVal = App::setBoolProperty_t(target, pName2.c_str(), pState != 0);
+                }
                 if (retVal != sim_propertyret_ok)
                 {
                     if (retVal == sim_propertyret_unknowntarget)
@@ -838,6 +868,12 @@ int simGetBoolProperty_internal(int64_t target, const char* ppName, int* pState)
             bool ppState;
             pName = checkForDeprecation(__func__, pName.c_str(), target);
             retVal = App::getBoolProperty_t(target, pName.c_str(), ppState);
+            if (retVal != sim_propertyret_ok)
+            {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getBoolProperty_t(target, pName2.c_str(), ppState);
+            }
             if (retVal == sim_propertyret_ok)
                 pState[0] = int(ppState);
             else if (retVal == -2)
@@ -888,6 +924,12 @@ int simSetIntProperty_internal(int64_t target, const char* ppName, int pState)
             {
                 pName = checkForDeprecation(__func__, pName.c_str(), target);
                 retVal = App::setIntProperty_t(target, pName.c_str(), pState);
+                if (retVal != sim_propertyret_ok)
+                {
+                    std::string pName2 = checkAltName(pName.c_str(), target);
+                    if (!pName2.empty())
+                        retVal = App::setIntProperty_t(target, pName2.c_str(), pState);
+                }
                 if (retVal != sim_propertyret_ok)
                 {
                     if (retVal == sim_propertyret_unknowntarget)
@@ -962,6 +1004,12 @@ int simGetIntProperty_internal(int64_t target, const char* ppName, int* pState)
             retVal = App::getIntProperty_t(target, pName.c_str(), pState[0]);
             if (retVal != sim_propertyret_ok)
             {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getIntProperty_t(target, pName2.c_str(), pState[0]);
+            }
+            if (retVal != sim_propertyret_ok)
+            {
                 if (retVal == sim_propertyret_unknowntarget)
                     CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                 else
@@ -1014,6 +1062,12 @@ int simSetHandleProperty_internal(int64_t target, const char* ppName, int64_t pS
                 {
                     pName = checkForDeprecation(__func__, pName.c_str(), target);
                     retVal = App::setHandleProperty_t(target, pName.c_str(), pState);
+                    if (retVal != sim_propertyret_ok)
+                    {
+                        std::string pName2 = checkAltName(pName.c_str(), target);
+                        if (!pName2.empty())
+                            retVal = App::setHandleProperty_t(target, pName2.c_str(), pState);
+                    }
                     if (retVal != sim_propertyret_ok)
                     {
                         if (retVal == sim_propertyret_unknowntarget)
@@ -1087,6 +1141,12 @@ int simGetHandleProperty_internal(int64_t target, const char* ppName, int64_t* p
             retVal = App::getHandleProperty_t(target, pName.c_str(), pState[0]);
             if (retVal != sim_propertyret_ok)
             {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getHandleProperty_t(target, pName2.c_str(), pState[0]);
+            }
+            if (retVal != sim_propertyret_ok)
+            {
                 if (retVal == sim_propertyret_unknowntarget)
                     CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                 else
@@ -1136,6 +1196,12 @@ int simSetLongProperty_internal(int64_t target, const char* ppName, int64_t pSta
             {
                 pName = checkForDeprecation(__func__, pName.c_str(), target);
                 retVal = App::setLongProperty_t(target, pName.c_str(), pState);
+                if (retVal != sim_propertyret_ok)
+                {
+                    std::string pName2 = checkAltName(pName.c_str(), target);
+                    if (!pName2.empty())
+                        retVal = App::setLongProperty_t(target, pName2.c_str(), pState);
+                }
                 if (retVal != sim_propertyret_ok)
                 {
                     if (retVal == sim_propertyret_unknowntarget)
@@ -1210,6 +1276,12 @@ int simGetLongProperty_internal(int64_t target, const char* ppName, int64_t* pSt
             retVal = App::getLongProperty_t(target, pName.c_str(), pState[0]);
             if (retVal != sim_propertyret_ok)
             {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getLongProperty_t(target, pName2.c_str(), pState[0]);
+            }
+            if (retVal != sim_propertyret_ok)
+            {
                 if (retVal == sim_propertyret_unknowntarget)
                     CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                 else
@@ -1270,6 +1342,12 @@ int simSetFloatProperty_internal(int64_t target, const char* ppName, double pSta
             {
                 pName = checkForDeprecation(__func__, pName.c_str(), target);
                 retVal = App::setFloatProperty_t(target, pName.c_str(), pState);
+                if (retVal != sim_propertyret_ok)
+                {
+                    std::string pName2 = checkAltName(pName.c_str(), target);
+                    if (!pName2.empty())
+                        retVal = App::setFloatProperty_t(target, pName2.c_str(), pState);
+                }
                 if (retVal != sim_propertyret_ok)
                 {
                     if (retVal == sim_propertyret_unknowntarget)
@@ -1337,6 +1415,12 @@ int simGetFloatProperty_internal(int64_t target, const char* ppName, double* pSt
             retVal = App::getFloatProperty_t(target, pName.c_str(), pState[0]);
             if (retVal != sim_propertyret_ok)
             {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getFloatProperty_t(target, pName2.c_str(), pState[0]);
+            }
+            if (retVal != sim_propertyret_ok)
+            {
                 if (retVal == sim_propertyret_unknowntarget)
                     CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                 else
@@ -1395,6 +1479,12 @@ int simSetStringProperty_internal(int64_t target, const char* ppName, const char
             {
                 pName = checkForDeprecation(__func__, pName.c_str(), target);
                 retVal = App::setStringProperty_t(target, pName.c_str(), std::string(pState));
+                if (retVal != sim_propertyret_ok)
+                {
+                    std::string pName2 = checkAltName(pName.c_str(), target);
+                    if (!pName2.empty())
+                        retVal = App::setStringProperty_t(target, pName2.c_str(), std::string(pState));
+                }
                 if (retVal != sim_propertyret_ok)
                 {
                     if (retVal == sim_propertyret_unknowntarget)
@@ -1466,6 +1556,12 @@ int simGetStringProperty_internal(int64_t target, const char* ppName, char** pSt
             std::string s;
             pName = checkForDeprecation(__func__, pName.c_str(), target);
             retVal = App::getStringProperty_t(target, pName.c_str(), s);
+            if (retVal != sim_propertyret_ok)
+            {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getStringProperty_t(target, pName2.c_str(), s);
+            }
             if (retVal == sim_propertyret_ok)
             {
                 pState[0] = new char[s.size() + 1];
@@ -1571,6 +1667,12 @@ int simSetTableProperty_internal(int64_t target, const char* ppName, const char*
                 retVal = App::setTableProperty_t(target, pName.c_str(), pState);
                 if (retVal != sim_propertyret_ok)
                 {
+                    std::string pName2 = checkAltName(pName.c_str(), target);
+                    if (!pName2.empty())
+                        retVal = App::setTableProperty_t(target, pName2.c_str(), pState);
+                }
+                if (retVal != sim_propertyret_ok)
+                {
                     if (retVal == sim_propertyret_unknowntarget)
                         CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                     else
@@ -1620,6 +1722,12 @@ int simGetTableProperty_internal(int64_t target, const char* ppName, char** buff
             std::string s;
             pName = checkForDeprecation(__func__, pName.c_str(), target);
             retVal = App::getTableProperty_t(target, pName.c_str(), s);
+            if (retVal != sim_propertyret_ok)
+            {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getTableProperty_t(target, pName2.c_str(), s);
+            }
             if (retVal == sim_propertyret_ok)
             {
                 buffer[0] = new char[s.size()];
@@ -1674,6 +1782,12 @@ int simSetBufferProperty_internal(int64_t target, const char* ppName, const char
             retVal = App::setBufferProperty_t(target, pName.c_str(), pp);
             if (retVal != sim_propertyret_ok)
             {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::setBufferProperty_t(target, pName2.c_str(), pp);
+            }
+            if (retVal != sim_propertyret_ok)
+            {
                 if (retVal == sim_propertyret_unknowntarget)
                     CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                 else
@@ -1721,6 +1835,12 @@ int simGetBufferProperty_internal(int64_t target, const char* ppName, char** buf
         std::string b;
         std::string pName = checkForDeprecation(__func__, ppName, target);
         retVal = App::getBufferProperty_t(target, pName.c_str(), b);
+        if (retVal != sim_propertyret_ok)
+        {
+            std::string pName2 = checkAltName(pName.c_str(), target);
+            if (!pName2.empty())
+                retVal = App::getBufferProperty_t(target, pName2.c_str(), b);
+        }
         if (retVal == sim_propertyret_ok)
         {
             buffer[0] = new char[b.size()];
@@ -1797,6 +1917,12 @@ int simSetIntArray2Property_internal(int64_t target, const char* ppName, const i
                 retVal = App::setIntArray2Property_t(target, pName.c_str(), pState);
                 if (retVal != sim_propertyret_ok)
                 {
+                    std::string pName2 = checkAltName(pName.c_str(), target);
+                    if (!pName2.empty())
+                        retVal = App::setIntArray2Property_t(target, pName2.c_str(), pState);
+                }
+                if (retVal != sim_propertyret_ok)
+                {
                     if (retVal == sim_propertyret_unknowntarget)
                         CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                     else
@@ -1865,6 +1991,12 @@ int simGetIntArray2Property_internal(int64_t target, const char* ppName, int* pS
             retVal = App::getIntArray2Property_t(target, pName.c_str(), pState);
             if (retVal != sim_propertyret_ok)
             {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getIntArray2Property_t(target, pName2.c_str(), pState);
+            }
+            if (retVal != sim_propertyret_ok)
+            {
                 if (retVal == sim_propertyret_unknowntarget)
                     CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                 else
@@ -1915,6 +2047,12 @@ int simSetVector3Property_internal(int64_t target, const char* ppName, const dou
                 C3Vector v(pState);
                 pName = checkForDeprecation(__func__, pName.c_str(), target);
                 retVal = App::setVector3Property_t(target, pName.c_str(), v);
+                if (retVal != sim_propertyret_ok)
+                {
+                    std::string pName2 = checkAltName(pName.c_str(), target);
+                    if (!pName2.empty())
+                        retVal = App::setVector3Property_t(target, pName2.c_str(), v);
+                }
                 if (retVal != sim_propertyret_ok)
                 {
                     if (retVal == sim_propertyret_unknowntarget)
@@ -1992,6 +2130,12 @@ int simGetVector3Property_internal(int64_t target, const char* ppName, double* p
             C3Vector v;
             pName = checkForDeprecation(__func__, pName.c_str(), target);
             retVal = App::getVector3Property_t(target, pName.c_str(), v);
+            if (retVal != sim_propertyret_ok)
+            {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getVector3Property_t(target, pName2.c_str(), v);
+            }
             if (retVal == sim_propertyret_ok)
                 v.getData(pState);
             else if (retVal == sim_propertyret_unknowntarget)
@@ -2055,6 +2199,12 @@ int simSetMatrixProperty_internal(int64_t target, const char* ppName, const doub
                 CMatrix m(r, c, pState);
                 pName = checkForDeprecation(__func__, pName.c_str(), target);
                 retVal = App::setMatrixProperty_t(target, pName.c_str(), m);
+                if (retVal != sim_propertyret_ok)
+                {
+                    std::string pName2 = checkAltName(pName.c_str(), target);
+                    if (!pName2.empty())
+                        retVal = App::setMatrixProperty_t(target, pName2.c_str(), m);
+                }
                 if (retVal != sim_propertyret_ok)
                 {
                     if (retVal == sim_propertyret_unknowntarget)
@@ -2148,6 +2298,12 @@ int simGetMatrixProperty_internal(int64_t target, const char* ppName, double** p
             CMatrix m;
             pName = checkForDeprecation(__func__, pName.c_str(), target);
             retVal = App::getMatrixProperty_t(target, pName.c_str(), m);
+            if (retVal != sim_propertyret_ok)
+            {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getMatrixProperty_t(target, pName2.c_str(), m);
+            }
             if (retVal == sim_propertyret_ok)
             {
                 pState[0] = new double[m.rows * m.cols];
@@ -2205,6 +2361,12 @@ int simSetQuaternionProperty_internal(int64_t target, const char* ppName, const 
                 CQuaternion q(pState, true);
                 pName = checkForDeprecation(__func__, pName.c_str(), target);
                 retVal = App::setQuaternionProperty_t(target, pName.c_str(), q);
+                if (retVal != sim_propertyret_ok)
+                {
+                    std::string pName2 = checkAltName(pName.c_str(), target);
+                    if (!pName2.empty())
+                        retVal = App::setQuaternionProperty_t(target, pName2.c_str(), q);
+                }
                 if (retVal != sim_propertyret_ok)
                 {
                     if (retVal == sim_propertyret_unknowntarget)
@@ -2282,6 +2444,12 @@ int simGetQuaternionProperty_internal(int64_t target, const char* ppName, double
             CQuaternion q;
             pName = checkForDeprecation(__func__, pName.c_str(), target);
             retVal = App::getQuaternionProperty_t(target, pName.c_str(), q);
+            if (retVal != sim_propertyret_ok)
+            {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getQuaternionProperty_t(target, pName2.c_str(), q);
+            }
             if (retVal == sim_propertyret_ok)
                 q.getData(pState, true);
             else if (retVal == sim_propertyret_unknowntarget)
@@ -2334,6 +2502,12 @@ int simSetPoseProperty_internal(int64_t target, const char* ppName, const double
                 pose.setData(pState, true);
                 pName = checkForDeprecation(__func__, pName.c_str(), target);
                 retVal = App::setPoseProperty_t(target, pName.c_str(), pose);
+                if (retVal != sim_propertyret_ok)
+                {
+                    std::string pName2 = checkAltName(pName.c_str(), target);
+                    if (!pName2.empty())
+                        retVal = App::setPoseProperty_t(target, pName2.c_str(), pose);
+                }
                 if (retVal != sim_propertyret_ok)
                 {
                     if (retVal == sim_propertyret_unknowntarget)
@@ -2414,6 +2588,12 @@ int simGetPoseProperty_internal(int64_t target, const char* ppName, double* pSta
             CPose p;
             pName = checkForDeprecation(__func__, pName.c_str(), target);
             retVal = App::getPoseProperty_t(target, pName.c_str(), p);
+            if (retVal != sim_propertyret_ok)
+            {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getPoseProperty_t(target, pName2.c_str(), p);
+            }
             if (retVal == sim_propertyret_ok)
                 p.getData(pState, true);
             else if (retVal == sim_propertyret_unknowntarget)
@@ -2464,6 +2644,12 @@ int simSetColorProperty_internal(int64_t target, const char* ppName, const float
             {
                 pName = checkForDeprecation(__func__, pName.c_str(), target);
                 retVal = App::setColorProperty_t(target, pName.c_str(), pState);
+                if (retVal != sim_propertyret_ok)
+                {
+                    std::string pName2 = checkAltName(pName.c_str(), target);
+                    if (!pName2.empty())
+                        retVal = App::setColorProperty_t(target, pName2.c_str(), pState);
+                }
                 if (retVal != sim_propertyret_ok)
                 {
                     if (retVal == sim_propertyret_unknowntarget)
@@ -2542,6 +2728,12 @@ int simGetColorProperty_internal(int64_t target, const char* ppName, float* pSta
             retVal = App::getColorProperty_t(target, pName.c_str(), pState);
             if (retVal != sim_propertyret_ok)
             {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getColorProperty_t(target, pName2.c_str(), pState);
+            }
+            if (retVal != sim_propertyret_ok)
+            {
                 if (retVal == sim_propertyret_unknowntarget)
                     CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                 else
@@ -2594,6 +2786,12 @@ int simSetFloatArrayProperty_internal(int64_t target, const char* ppName, const 
                     std::vector<double> pState(v, v + vL);
                     pName = checkForDeprecation(__func__, pName.c_str(), target);
                     retVal = App::setFloatArrayProperty_t(target, pName.c_str(), pState);
+                    if (retVal != sim_propertyret_ok)
+                    {
+                        std::string pName2 = checkAltName(pName.c_str(), target);
+                        if (!pName2.empty())
+                            retVal = App::setFloatArrayProperty_t(target, pName2.c_str(), pState);
+                    }
                     if (retVal != sim_propertyret_ok)
                     {
                         if (retVal == sim_propertyret_unknowntarget)
@@ -2681,6 +2879,12 @@ int simGetFloatArrayProperty_internal(int64_t target, const char* ppName, double
             std::vector<double> vv;
             pName = checkForDeprecation(__func__, pName.c_str(), target);
             retVal = App::getFloatArrayProperty_t(target, pName.c_str(), vv);
+            if (retVal != sim_propertyret_ok)
+            {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getFloatArrayProperty_t(target, pName2.c_str(), vv);
+            }
             if (retVal == sim_propertyret_ok)
             {
                 v[0] = new double[vv.size()];
@@ -2825,6 +3029,12 @@ int simSetIntArrayProperty_internal(int64_t target, const char* ppName, const in
                     retVal = App::setIntArrayProperty_t(target, pName.c_str(), pState);
                     if (retVal != sim_propertyret_ok)
                     {
+                        std::string pName2 = checkAltName(pName.c_str(), target);
+                        if (!pName2.empty())
+                            retVal = App::setIntArrayProperty_t(target, pName2.c_str(), pState);
+                    }
+                    if (retVal != sim_propertyret_ok)
+                    {
                         if (retVal == sim_propertyret_unknowntarget)
                             CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                         else
@@ -2897,6 +3107,12 @@ int simGetIntArrayProperty_internal(int64_t target, const char* ppName, int** v,
             std::vector<int> vv;
             pName = checkForDeprecation(__func__, pName.c_str(), target);
             retVal = App::getIntArrayProperty_t(target, pName.c_str(), vv);
+            if (retVal != sim_propertyret_ok)
+            {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getIntArrayProperty_t(target, pName2.c_str(), vv);
+            }
             if (retVal == sim_propertyret_ok)
             {
                 v[0] = new int[vv.size()];
@@ -2984,6 +3200,12 @@ int simSetHandleArrayProperty_internal(int64_t target, const char* ppName, const
                         retVal = App::setHandleArrayProperty_t(target, pName.c_str(), pState);
                         if (retVal != sim_propertyret_ok)
                         {
+                            std::string pName2 = checkAltName(pName.c_str(), target);
+                            if (!pName2.empty())
+                                retVal = App::setHandleArrayProperty_t(target, pName2.c_str(), pState);
+                        }
+                        if (retVal != sim_propertyret_ok)
+                        {
                             if (retVal == sim_propertyret_unknowntarget)
                                 CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                             else
@@ -3051,6 +3273,12 @@ int simGetHandleArrayProperty_internal(int64_t target, const char* ppName, int64
             std::vector<int64_t> vv;
             pName = checkForDeprecation(__func__, pName.c_str(), target);
             retVal = App::getHandleArrayProperty_t(target, pName.c_str(), vv);
+            if (retVal != sim_propertyret_ok)
+            {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getHandleArrayProperty_t(target, pName2.c_str(), vv);
+            }
             if (retVal == sim_propertyret_ok)
             {
                 v[0] = new int64_t[vv.size()];
@@ -3120,6 +3348,12 @@ int simSetStringArrayProperty_internal(int64_t target, const char* ppName, const
                     retVal = App::setStringArrayProperty_t(target, pName.c_str(), vv);
                     if (retVal != sim_propertyret_ok)
                     {
+                        std::string pName2 = checkAltName(pName.c_str(), target);
+                        if (!pName2.empty())
+                            retVal = App::setStringArrayProperty_t(target, pName2.c_str(), vv);
+                    }
+                    if (retVal != sim_propertyret_ok)
+                    {
                         if (retVal == sim_propertyret_unknowntarget)
                             CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                         else
@@ -3186,6 +3420,12 @@ int simGetStringArrayProperty_internal(int64_t target, const char* ppName, char*
             std::vector<std::string> vv;
             pName = checkForDeprecation(__func__, pName.c_str(), target);
             retVal = App::getStringArrayProperty_t(target, pName.c_str(), vv);
+            if (retVal != sim_propertyret_ok)
+            {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getStringArrayProperty_t(target, pName2.c_str(), vv);
+            }
             if (retVal == sim_propertyret_ok)
             {
                 size_t l = 0;
@@ -3254,6 +3494,12 @@ int simSetMethodProperty_internal(int64_t target, const char* ppName, const void
                 retVal = App::setMethodProperty_t(target, pName.c_str(), v);
                 if (retVal != sim_propertyret_ok)
                 {
+                    std::string pName2 = checkAltName(pName.c_str(), target);
+                    if (!pName2.empty())
+                        retVal = App::setMethodProperty_t(target, pName2.c_str(), v);
+                }
+                if (retVal != sim_propertyret_ok)
+                {
                     if (retVal == sim_propertyret_unknowntarget)
                         CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                     else
@@ -3302,6 +3548,12 @@ int simGetMethodProperty_internal(int64_t target, const char* ppName, void** v)
         {
             pName = checkForDeprecation(__func__, pName.c_str(), target);
             retVal = App::getMethodProperty_t(target, pName.c_str(), v[0]);
+            if (retVal != sim_propertyret_ok)
+            {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getMethodProperty_t(target, pName2.c_str(), v[0]);
+            }
             if (retVal != sim_propertyret_ok)
             {
                 if (retVal == sim_propertyret_unknowntarget)
@@ -3436,6 +3688,12 @@ int simGetPropertyInfo_internal(int64_t target, const char* ppName, SPropertyInf
                 infoTxt = "j";
         }
         retVal = App::getPropertyInfo_t(target, ppName, infos->flags, infoTxt);
+        if (retVal == sim_propertyret_unknowntarget)
+        {
+            std::string pName2 = checkAltName(ppName, target);
+            if (!pName2.empty())
+                retVal = App::getPropertyInfo_t(target, pName2.c_str(), infos->flags, infoTxt);
+        }
         if (retVal == sim_propertyret_unknowntarget)
             CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
         else if (retVal == sim_propertyret_unknownproperty)

@@ -158,6 +158,8 @@ class App
     static int getPropertyInfo_t(int64_t target, const char* pName, int& info, std::string& infoTxt);
     static int setPropertyInfo_t(int64_t target, const char* pName, int info, const char* infoTxt);
     static bool isTargetValid_t(int64_t target);
+    static std::string getTargetTypeStr(int64_t target);
+
 
     static void undoRedo_sceneChanged(const char* txt);
     static void undoRedo_sceneChangedGradual(const char* txt);

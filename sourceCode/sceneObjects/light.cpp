@@ -311,13 +311,10 @@ int CLight::getLightType() const
 
 std::string CLight::getLightTypeStr() const
 {
-    std::string retVal = "error";
-    if (_lightType == sim_light_omnidirectional)
-        retVal = "omnidirectional";
-    else if (_lightType == sim_light_spot)
-        retVal = "spot";
-    else if (_lightType == sim_light_directional)
-        retVal = "directional";
+    std::string retVal = "invalidEnum";
+    auto enum_value = magic_enum::enum_cast<SimLightType>(_lightType);
+    if (enum_value.has_value())
+        retVal = magic_enum::enum_name(enum_value.value()).data();
     return retVal;
 }
 
