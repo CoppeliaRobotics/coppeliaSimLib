@@ -33,6 +33,7 @@ FetchContent_Declare(
     GIT_TAG        v0.9.8
 )
 FetchContent_MakeAvailable(magic_enum)
+add_compile_definitions(MAGIC_ENUM_RANGE_MAX=1000)
 
 set(WITH_QSCINTILLA true CACHE BOOL "Link QScintilla library (you'll need to set QSCINTILLA_DIR, QSCINTILLA_SHARED_LIBRARY and QSCINTILLA_LINK_LIBRARY variables)")
 if(WITH_QSCINTILLA)
