@@ -1,5 +1,4 @@
 #pragma once
-
 #include <string>
 #include <vector>
 #include <map>
@@ -1571,6 +1570,7 @@ std::map<int, std::string> buildEnumToStringMap()
 
 #define SCRIPT_PROPERTIES \
     FUNCX(GROUP_script, "script", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(type, "script.type", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{"label", "Type"}, {"description", "Script/detached script type"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(size, "size", sim_propertytype_float, 0,  PropertyInfo({{"label", "Size"}, {"description", "Size of the object"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Reset after simulation error"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(detachedScript, "detachedScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Detached script handle"}, {"description", ""}, {"handleType", "detachedScript"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \

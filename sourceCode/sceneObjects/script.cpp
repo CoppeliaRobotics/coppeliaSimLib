@@ -704,7 +704,16 @@ int CScript::getStringProperty(const char* ppName, std::string& pState) const
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropScript::DEPRECATED_code).name, ppName) == 0)
+        if (strcmp(prop(PropScript::type).name, ppName) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            auto enum_value = magic_enum::enum_cast<SimScriptType>(detachedScript->getScriptType());
+            if (enum_value.has_value())
+                pState = magic_enum::enum_name(enum_value.value()).data();
+            else
+                retVal = sim_propertyret_invalidvalue;
+        }
+        else if (strcmp(prop(PropScript::DEPRECATED_code).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
 #ifdef SIM_WITH_GUI
