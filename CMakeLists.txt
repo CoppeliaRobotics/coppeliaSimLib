@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.9.0)
 project(coppeliaSim)
+include(FetchContent)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -23,6 +26,13 @@ endif()
 
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
+
+FetchContent_Declare(
+    magic_enum
+    GIT_REPOSITORY https://github.com/Neargye/magic_enum
+    GIT_TAG        v0.9.8
+)
+FetchContent_MakeAvailable(magic_enum)
 
 set(WITH_QSCINTILLA true CACHE BOOL "Link QScintilla library (you'll need to set QSCINTILLA_DIR, QSCINTILLA_SHARED_LIBRARY and QSCINTILLA_LINK_LIBRARY variables)")
 if(WITH_QSCINTILLA)
@@ -690,6 +700,7 @@ if(WITH_GUI)
 endif()
 
 
+target_link_libraries(coppeliaSim magic_enum::magic_enum)
 target_link_libraries(coppeliaSim Boost::boost)
 target_link_libraries(coppeliaSim Eigen3::Eigen)
 target_link_libraries(coppeliaSim tinyxml2::tinyxml2)
