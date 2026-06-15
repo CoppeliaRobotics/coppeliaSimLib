@@ -533,7 +533,7 @@ const std::vector<SDepr>& getDeprecatedList()
         {"scene", prop(PropSceneObjectCont::DEPRECATED_selectionHandles),   std::string(prop(PropSceneObjectCont::selection).name) + DEPRECATION_NO_REPLACE},
         {"scene", prop(PropDynCont::DEPRECATED_dynamicsEnabled),            prop(PropDynCont::dynamicsEnabled).name},
         {"scene", prop(PropDynCont::DEPRECATED_showContactPoints),          prop(PropDynCont::showContactPoints).name},
-        {"scene", prop(PropDynCont::DEPRECATED_dynamicsEngine),             prop(PropDynCont::dynamicsEngine).name},
+        {"scene", prop(PropDynCont::DEPRECATED_dynamicsEngine),             std::string(prop(PropDynCont::dynamicsEngine).name) + DEPRECATION_NO_REPLACE},
         {"scene", prop(PropDynCont::DEPRECATED_dynamicsStepSize),           prop(PropDynCont::dynamicsStepSize).name},
         {"scene", prop(PropDynCont::DEPRECATED_gravity),                    prop(PropDynCont::gravity).name},
         {"scene", prop(PropDynCont::DEPRECATED_engineProperties),           prop(PropDynCont::engineProperties).name},
@@ -639,6 +639,7 @@ const std::vector<SDepr>& getDeprecatedList()
         {"detachedScript", prop(PropDetachedScript::DEPRECATED_scriptDisabled),     prop(PropDetachedScript::scriptDisabled).name},
         {"detachedScript", prop(PropDetachedScript::DEPRECATED_scriptState),        prop(PropDetachedScript::scriptState).name},
 
+        {"mesh", prop(PropMesh::DEPRECATED_primitiveType),              prop(PropMesh::primitiveType).name},
         {"mesh", prop(PropMesh::DEPRECATED_textureResolution),          prop(PropMesh::textureResolution).name},
         {"mesh", prop(PropMesh::DEPRECATED_textureCoordinates),         prop(PropMesh::textureCoordinates).name},
         {"mesh", prop(PropMesh::DEPRECATED_textureApplyMode),           prop(PropMesh::textureApplyMode).name},
@@ -679,6 +680,7 @@ const std::vector<SDepr>& getDeprecatedList()
         {"sceneObject", prop(PropSceneObject::DEPRECATED_movPrefRotZ),          prop(PropSceneObject::movPrefRotZ).name},
         {"sceneObject", prop(PropSceneObject::DEPRECATED_deprecatedName),       DEPRECATION_NO_REPLACE},
 
+        {"forceSensor", prop(PropForceSensor::DEPRECATED_filterType),               prop(PropForceSensor::filterType).name},
         {"forceSensor", prop(PropForceSensor::DEPRECATED_size),                     prop(PropForceSensor::size).name},
         {"forceSensor", prop(PropForceSensor::DEPRECATED_sensorAverageForce),       prop(PropForceSensor::filteredSensorForce).name},
         {"forceSensor", prop(PropForceSensor::DEPRECATED_sensorAverageTorque),      prop(PropForceSensor::filteredSensorTorque).name},

@@ -2567,6 +2567,33 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                 pState = _startupScriptString;
                 retVal = sim_propertyret_ok;
             }
+            else if (strcmp(pName, prop(PropApp::platform).name) == 0)
+            { // Enum
+                retVal = sim_propertyret_ok;
+                auto enum_value = magic_enum::enum_cast<SimPlatform>(getPlatform());
+                if (enum_value.has_value())
+                    pState = magic_enum::enum_name(enum_value.value()).data();
+                else
+                    retVal = sim_propertyret_invalidvalue;
+            }
+            else if (strcmp(pName, prop(PropApp::flavor).name) == 0)
+            { // Enum
+                retVal = sim_propertyret_ok;
+                auto enum_value = magic_enum::enum_cast<SimAppFlavor>(SIM_FL);
+                if (enum_value.has_value())
+                    pState = magic_enum::enum_name(enum_value.value()).data();
+                else
+                    retVal = sim_propertyret_invalidvalue;
+            }
+            else if (strcmp(pName, prop(PropApp::headlessMode).name) == 0)
+            { // Enum
+                retVal = sim_propertyret_ok;
+                auto enum_value = magic_enum::enum_cast<SimHeadlessMode>(getHeadlessMode());
+                if (enum_value.has_value())
+                    pState = magic_enum::enum_name(enum_value.value()).data();
+                else
+                    retVal = sim_propertyret_invalidvalue;
+            }
         }
     }
     else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
@@ -4058,12 +4085,12 @@ bool App::getOpenGlDisplayEnabled()
 }
 
 int App::getHeadlessMode()
-{ // 0: no, 1: suppressed GUI, 2: true headless mode
-    int retVal = 2;
+{
+    int retVal = sim_headlessmode_enabled;
 #ifdef SIM_WITH_GUI
-    retVal = 1;
+    retVal = sim_headlessmode_emulated;
     if (GuiApp::mainWindow != nullptr)
-        retVal = 0;
+        retVal = sim_headlessmode_disabled;
 #endif
     return retVal;
 }
@@ -4162,13 +4189,13 @@ int App::getPlatform()
 {
     int retVal;
 #ifdef WIN_SIM
-    retVal = 0;
+    retVal = sim_platform_windows;
 #endif
 #ifdef MAC_SIM
-    retVal = 1;
+    retVal = sim_platform_macos;
 #endif
 #ifdef LIN_SIM
-    retVal = 2;
+    retVal = sim_platform_linux;
 #endif
     return retVal;
 }

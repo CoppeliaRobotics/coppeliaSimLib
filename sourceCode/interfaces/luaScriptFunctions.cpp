@@ -1043,6 +1043,22 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.primitiveshape_cone", sim_primitiveshape_cone},
     {"sim.primitiveshape_heightfield", sim_primitiveshape_heightfield},
     {"sim.primitiveshape_capsule", sim_primitiveshape_capsule},
+    // platform
+    {"sim.platform_windows", sim_platform_windows},
+    {"sim.platform_macos", sim_platform_macos},
+    {"sim.platform_linux", sim_platform_linux},
+    // app flavor
+    {"sim.appflavor_lite", sim_appflavor_lite},
+    {"sim.appflavor_edu", sim_appflavor_edu},
+    {"sim.appflavor_pro", sim_appflavor_pro},
+    // headless mode
+    {"sim.headlessmode_disabled", sim_headlessmode_disabled},
+    {"sim.headlessmode_emulated", sim_headlessmode_emulated},
+    {"sim.headlessmode_enabled", sim_headlessmode_enabled},
+    // texture apply mode
+    {"sim.textureapplymode_modulate", sim_textureapplymode_modulate},
+    {"sim.textureapplymode_decal", sim_textureapplymode_decal},
+    {"sim.textureapplymode_add", sim_textureapplymode_add},
     // property type
     {"sim.propertytype_bool", sim_propertytype_bool},
     {"sim.propertytype_int", sim_propertytype_int},

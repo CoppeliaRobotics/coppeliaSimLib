@@ -1336,7 +1336,7 @@ int CDetachedScript::getScriptType() const
 std::string CDetachedScript::getScriptTypeStr() const
 {
     std::string retVal = "invalidEnum";
-    auto enum_value = magic_enum::enum_cast<SimDetachedScriptType>(_scriptType);
+    auto enum_value = magic_enum::enum_cast<SimScriptType>(_scriptType);
     if (enum_value.has_value())
         retVal = magic_enum::enum_name(enum_value.value()).data();
     return retVal;
@@ -4717,6 +4717,15 @@ int CDetachedScript::setStringProperty(const char* pName, const std::string& pSt
         retVal = sim_propertyret_ok;
         _addOnMenuPath = pState;
     }
+    else if (strcmp(prop(PropDetachedScript::execPriority).name, pName) == 0)
+    { // Enum
+        retVal = sim_propertyret_ok;
+        auto value = magic_enum::enum_cast<SimScriptExecOrder>(pState.c_str());
+        if (value.has_value())
+            setScriptExecPriority(static_cast<int>(*value));
+        else
+            retVal = sim_propertyret_invalidvalue;
+    }
 
     return retVal;
 }
@@ -4759,6 +4768,24 @@ int CDetachedScript::getStringProperty(const char* pName, std::string& pState) c
         {
             retVal = sim_propertyret_ok;
             pState = _addOnMenuPath;
+        }
+        else if (strcmp(prop(PropDetachedScript::execPriority).name, pName) == 0)
+        { // Enum
+            retVal = sim_propertyret_ok;
+            auto enum_value = magic_enum::enum_cast<SimScriptExecOrder>(getScriptExecPriority());
+            if (enum_value.has_value())
+                pState = magic_enum::enum_name(enum_value.value()).data();
+            else
+                retVal = sim_propertyret_invalidvalue;
+        }
+        else if (strcmp(prop(PropDetachedScript::scriptState).name, pName) == 0)
+        { // Enum
+            retVal = sim_propertyret_ok;
+            auto enum_value = magic_enum::enum_cast<SimScriptState>(_scriptState);
+            if (enum_value.has_value())
+                pState = magic_enum::enum_name(enum_value.value()).data();
+            else
+                retVal = sim_propertyret_invalidvalue;
         }
     }
 

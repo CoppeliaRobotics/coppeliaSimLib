@@ -3639,12 +3639,41 @@ int CVisionSensor::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
+int CVisionSensor::setStringProperty(const char* ppName, const std::string& pState)
+{
+    const std::string _pName = ppName;
+    int retVal = CViewableBase::setStringProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        if (_pName == prop(PropVisionSensor::renderMode).name)
+        { // Enum
+            retVal = sim_propertyret_ok;
+            auto value = magic_enum::enum_cast<SimRenderMode>(pState.c_str());
+            if (value.has_value())
+                setRenderMode(static_cast<int>(*value));
+            else
+                retVal = sim_propertyret_invalidvalue;
+        }
+    }
+
+    return retVal;
+}
+
 int CVisionSensor::getStringProperty(const char* ppName, std::string& pState) const
 {
     const std::string _pName = ppName;
     int retVal = CViewableBase::getStringProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
+        if (_pName == prop(PropVisionSensor::renderMode).name)
+        { // Enum
+            retVal = sim_propertyret_ok;
+            auto enum_value = magic_enum::enum_cast<SimRenderMode>(_renderMode);
+            if (enum_value.has_value())
+                pState = magic_enum::enum_name(enum_value.value()).data();
+            else
+                retVal = sim_propertyret_invalidvalue;
+        }
     }
 
     return retVal;

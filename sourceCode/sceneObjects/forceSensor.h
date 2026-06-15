@@ -42,6 +42,7 @@ class CForceSensor : public CSceneObject
     int getIntProperty(const char* pName, int& pState) const override;
     int setFloatProperty(const char* pName, double pState) override;
     int getFloatProperty(const char* pName, double& pState) const override;
+    int setStringProperty(const char* ppName, const std::string& pState) override;
     int getStringProperty(const char* ppName, std::string& pState) const override;
     int setVector3Property(const char* pName, const C3Vector& pState) override;
     int getVector3Property(const char* pName, C3Vector& pState) const override;

@@ -3082,6 +3082,8 @@ int CScene::getStringProperty_t(int64_t target, const char* ppName, std::string&
             retVal = dynamicsContainer->getStringProperty(ppName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (environment != nullptr))
             retVal = environment->getStringProperty(ppName, pState);
+        if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
+            retVal = simulation->getStringProperty(ppName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getStringProperty_t(-1, ppName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (collections != nullptr))

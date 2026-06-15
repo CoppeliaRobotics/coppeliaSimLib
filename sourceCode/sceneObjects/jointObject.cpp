@@ -5769,6 +5769,15 @@ int CJoint::setStringProperty(const char* ppName, const std::string& pState)
             else
                 retVal = sim_propertyret_invalidvalue;
         }
+        else if (_pName == prop(PropJoint::jointMode).name)
+        { // Enum
+            retVal = sim_propertyret_ok;
+            auto value = magic_enum::enum_cast<SimJointMode>(pState.c_str());
+            if (value.has_value())
+                setJointMode(static_cast<int>(*value));
+            else
+                retVal = sim_propertyret_invalidvalue;
+        }
     }
     return retVal;
 }
@@ -5794,6 +5803,15 @@ int CJoint::getStringProperty(const char* ppName, std::string& pState) const
         { // Enum
             retVal = sim_propertyret_ok;
             auto enum_value = magic_enum::enum_cast<SimJointDynamicsCtrlMode>(_dynCtrlMode);
+            if (enum_value.has_value())
+                pState = magic_enum::enum_name(enum_value.value()).data();
+            else
+                retVal = sim_propertyret_invalidvalue;
+        }
+        else if (_pName == prop(PropJoint::jointMode).name)
+        { // Enum
+            retVal = sim_propertyret_ok;
+            auto enum_value = magic_enum::enum_cast<SimJointMode>(_jointMode);
             if (enum_value.has_value())
                 pState = magic_enum::enum_name(enum_value.value()).data();
             else

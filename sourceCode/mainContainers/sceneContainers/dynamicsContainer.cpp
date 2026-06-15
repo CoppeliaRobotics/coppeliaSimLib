@@ -298,8 +298,16 @@ void CDynamicsContainer::setDynamicEngineType(int t, int version)
         if (App::scenes->getEventsEnabled())
         {
             CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, prop(PropDynCont::dynamicsEngine).name, true);
-            int ar[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
-            ev->appendKeyInt32Array(prop(PropDynCont::dynamicsEngine).name, ar, 2);
+            if (App::getEventProtocolVersion() <= 3)
+            {
+                int ar[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
+                ev->appendKeyInt32Array(prop(PropDynCont::DEPRECATED_dynamicsEngine).name, ar, 2);
+            }
+            else
+            {
+                ev->appendKeyInt64(prop(PropDynCont::dynamicsEngine).name, _dynamicEngineToUse);
+                ev->appendKeyInt64(prop(PropDynCont::dynamicsEngineVersion).name, _dynamicEngineVersionToUse);
+            }
             App::scenes->pushEvent();
         }
         checkIfEngineSettingsAreDefault();
@@ -2298,13 +2306,19 @@ void CDynamicsContainer::appendGenesisData(CCbor* ev)
 {
     ev->appendKeyBool(prop(PropDynCont::dynamicsEnabled).name, _dynamicsEnabled);
     ev->appendKeyBool(prop(PropDynCont::showContactPoints).name, _displayContactPoints);
-    int ar[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
-    ev->appendKeyInt32Array(prop(PropDynCont::dynamicsEngine).name, ar, 2);
     ev->appendKeyDouble(prop(PropDynCont::dynamicsStepSize).name, _stepSize);
     if (App::getEventProtocolVersion() <= 3)
+    {
+        int ar[2] = {_dynamicEngineToUse, _dynamicEngineVersionToUse};
+        ev->appendKeyInt32Array(prop(PropDynCont::DEPRECATED_dynamicsEngine).name, ar, 2);
         ev->appendKeyDoubleArray(prop(PropDynCont::gravity).name, _gravity.data, 3);
+    }
     else
+    {
+        ev->appendKeyInt64(prop(PropDynCont::dynamicsEngine).name, _dynamicEngineToUse);
+        ev->appendKeyInt64(prop(PropDynCont::dynamicsEngineVersion).name, _dynamicEngineVersionToUse);
         ev->appendKeyVector3(prop(PropDynCont::gravity).name, _gravity);
+    }
 
     // Engine properties:
     setBoolProperty(nullptr, false, ev);
@@ -2636,6 +2650,19 @@ int CDynamicsContainer::setIntProperty(const char* pName, int pState, CCbor* eev
 
     if ((eev == nullptr) && (pName != nullptr))
     { // regular properties (i.e. non-engine properties)
+        if (retVal == sim_propertyret_unknownproperty)
+        {
+            if (strcmp(pName, prop(PropDynCont::dynamicsEngine).name) == 0)
+            {
+                setDynamicEngineType(pState, _dynamicEngineVersionToUse);
+                retVal = sim_propertyret_ok;
+            }
+            else if (strcmp(pName, prop(PropDynCont::dynamicsEngineVersion).name) == 0)
+            {
+                setDynamicEngineType(_dynamicEngineToUse, pState);
+                retVal = sim_propertyret_ok;
+            }
+        }
     }
 
     if (retVal == sim_propertyret_unknownproperty)
@@ -2697,14 +2724,21 @@ int CDynamicsContainer::setIntProperty(const char* pName, int pState, CCbor* eev
 int CDynamicsContainer::getIntProperty(const char* pName, int& pState, bool getDefaultValue /*= false*/) const
 {
     int retVal = sim_propertyret_unknownproperty;
+
     // First non-engine properties:
-    /*
-    if (strcmp(pName, prop(PropJoint::length).name) == 0)
+    if (retVal == sim_propertyret_unknownproperty)
     {
-        pState = _length;
-        retVal = sim_propertyret_ok;
+        if (strcmp(pName, prop(PropDynCont::dynamicsEngine).name) == 0)
+        {
+            pState = _dynamicEngineToUse;
+            retVal = sim_propertyret_ok;
+        }
+        else if (strcmp(pName, prop(PropDynCont::dynamicsEngineVersion).name) == 0)
+        {
+            pState = _dynamicEngineVersionToUse;
+            retVal = sim_propertyret_ok;
+        }
     }
-    */
 
     // Engine-only properties:
     // ------------------------
@@ -3107,6 +3141,15 @@ int CDynamicsContainer::setStringProperty(const char* pName, const std::string& 
                 _sendEngineString();
         }
     }
+    else if (strcmp(pName, prop(PropDynCont::dynamicsEngine).name) == 0)
+    { // Enum
+        retVal = sim_propertyret_ok;
+        auto value = magic_enum::enum_cast<SimPhysicsEngine>(pState.c_str());
+        if (value.has_value())
+            setDynamicEngineType(static_cast<int>(*value), _dynamicEngineVersionToUse);
+        else
+            retVal = sim_propertyret_invalidvalue;
+    }
 
     if (retVal == 1)
         checkIfEngineSettingsAreDefault();
@@ -3122,6 +3165,15 @@ int CDynamicsContainer::getStringProperty(const char* pName, std::string& pState
         retVal = sim_propertyret_ok;
         CEngineProperties prope;
         pState = prope.getObjectProperties(-1);
+    }
+    else if (strcmp(pName, prop(PropDynCont::dynamicsEngine).name) == 0)
+    { // Enum
+        retVal = sim_propertyret_ok;
+        auto enum_value = magic_enum::enum_cast<SimPhysicsEngine>(_dynamicEngineToUse);
+        if (enum_value.has_value())
+            pState = magic_enum::enum_name(enum_value.value()).data();
+        else
+            retVal = sim_propertyret_invalidvalue;
     }
 
     return retVal;
@@ -3397,7 +3449,7 @@ int CDynamicsContainer::setIntArrayProperty(const char* pName, const std::vector
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, prop(PropDynCont::dynamicsEngine).name) == 0)
+    if (strcmp(pName, prop(PropDynCont::DEPRECATED_dynamicsEngine).name) == 0)
     {
         if (pState.size() >= 2)
         {
@@ -3419,7 +3471,7 @@ int CDynamicsContainer::getIntArrayProperty(const char* pName, std::vector<int>&
     int retVal = sim_propertyret_unknownproperty;
     pState.clear();
 
-    if (strcmp(pName, prop(PropDynCont::dynamicsEngine).name) == 0)
+    if (strcmp(pName, prop(PropDynCont::DEPRECATED_dynamicsEngine).name) == 0)
     {
         pState.push_back(_dynamicEngineToUse);
         pState.push_back(_dynamicEngineVersionToUse);

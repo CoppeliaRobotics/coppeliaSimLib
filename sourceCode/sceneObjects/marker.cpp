@@ -658,6 +658,7 @@ void CMarker::addObjectEventData(CCbor* ev)
     ev->appendKeyBool(prop(PropMarker::cyclic).name, _itemOptions & sim_markeropts_cyclic);
     ev->appendKeyBool(prop(PropMarker::local).name, _itemOptions & sim_markeropts_local);
     ev->appendKeyBool(prop(PropMarker::overlay).name, _itemOptions & sim_markeropts_overlay);
+    ev->appendKeyVector3(prop(PropMarker::defaultItemSize).name, _itemSize);
     if (_itemType == sim_markertype_custom)
     {
         ev->appendKeyMatrix(prop(PropMarker::vertices).name, _vertices.data(), _vertices.size() / 3, 3);
@@ -1235,6 +1236,21 @@ int CMarker::getFloatArrayProperty(const char* pName, std::vector<double>& pStat
     if (retVal == sim_propertyret_unknownproperty)
     {
     }
+    return retVal;
+}
+
+int CMarker::getVector3Property(const char* pName, C3Vector& pState) const
+{
+    int retVal = CSceneObject::getVector3Property(pName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        if (strcmp(pName, prop(PropMarker::defaultItemSize).name) == 0)
+        {
+            pState.setData(_itemSize);
+            retVal = sim_propertyret_ok;
+        }
+    }
+
     return retVal;
 }
 

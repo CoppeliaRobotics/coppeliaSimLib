@@ -1674,6 +1674,23 @@ int CSimulation::getFloatProperty(const char* pName, double& pState) const
     return retVal;
 }
 
+int CSimulation::getStringProperty(const char* pName, std::string& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (strcmp(pName, prop(PropSimulation::simulationState).name) == 0)
+    { // Enum
+        retVal = sim_propertyret_ok;
+        auto enum_value = magic_enum::enum_cast<SimSimulationState>(_simulationState);
+        if (enum_value.has_value())
+            pState = magic_enum::enum_name(enum_value.value()).data();
+        else
+            retVal = sim_propertyret_invalidvalue;
+    }
+
+    return retVal;
+}
+
 int CSimulation::getPropertyName(int& index, std::string& pName, int excludeFlags) const
 {
     int retVal = sim_propertyret_unknownproperty;

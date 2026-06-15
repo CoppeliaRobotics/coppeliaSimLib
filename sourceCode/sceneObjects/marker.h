@@ -48,6 +48,7 @@ class CMarker : public CSceneObject
     int setStringProperty(const char* pName, const std::string& pState) override;
     int getStringProperty(const char* pName, std::string& pState) const override;
     int getBufferProperty(const char* pName, std::string& pState) const override;
+    int getVector3Property(const char* pName, C3Vector& pState) const  override;
     int getMatrixProperty(const char* pName, CMatrix& pState) const  override;
     int setColorProperty(const char* pName, const float* pState) override;
     int getColorProperty(const char* pName, float* pState) const override;

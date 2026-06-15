@@ -522,11 +522,16 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const CPose& 
     CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
     Obj::addObjectEventData(ev);
     if (App::getEventProtocolVersion() <= 3)
+    {
         ev->appendKeyInt64(prop(PropMesh::shape).name, _isInSceneShapeHandle);
+        ev->appendKeyInt64(prop(PropMesh::DEPRECATED_primitiveType).name, _purePrimitive);
+    }
     else
+    {
         ev->appendKeyHandle(prop(PropMesh::shape).name, _isInSceneShapeHandle);
+        ev->appendKeyInt64(prop(PropMesh::primitiveType).name, _purePrimitive);
+    }
     ev->appendKeyInt64(prop(PropMesh::shapeUid).name, _isInSceneShapeUid);
-    ev->appendKeyInt64(prop(PropMesh::primitiveType).name, _purePrimitive);
     std::vector<float> vertices;
     vertices.resize(_verticesForDisplayAndDisk.size());
     for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)
@@ -2946,7 +2951,7 @@ void CMesh::setTextureApplyMode(int m)
 
 int CMesh::getTextureApplyMode() const
 {
-    int retVal = 0;
+    int retVal = sim_textureapplymode_modulate;
     if (_textureProperty != nullptr)
         retVal = _textureProperty->getApplyMode();
     return retVal;
@@ -3158,6 +3163,15 @@ int CMesh::setStringProperty_mesh(const char* ppName, const std::string& pState,
         retVal = sim_propertyret_ok;
         color.setColorName(pState.c_str());
     }
+    else if ((strcmp(pName, prop(PropMesh::textureApplyMode).name) == 0) && (_textureProperty != nullptr))
+    { // Enum
+        retVal = sim_propertyret_ok;
+        auto value = magic_enum::enum_cast<SimTextureApplyMode>(pState.c_str());
+        if (value.has_value())
+            setTextureApplyMode(static_cast<int>(*value));
+        else
+            retVal = sim_propertyret_invalidvalue;
+    }
 
     return retVal;
 }
@@ -3173,6 +3187,24 @@ int CMesh::getStringProperty_mesh(const char* ppName, std::string& pState, const
         {
             retVal = sim_propertyret_ok;
             pState = color.getColorName();
+        }
+        else if (strcmp(pName, prop(PropMesh::textureApplyMode).name) == 0)
+        { // Enum
+            retVal = sim_propertyret_ok;
+            auto enum_value = magic_enum::enum_cast<SimTextureApplyMode>(getTextureApplyMode());
+            if (enum_value.has_value())
+                pState = magic_enum::enum_name(enum_value.value()).data();
+            else
+                retVal = sim_propertyret_invalidvalue;
+        }
+        else if (strcmp(pName, prop(PropMesh::primitiveType).name) == 0)
+        { // Enum
+            retVal = sim_propertyret_ok;
+            auto enum_value = magic_enum::enum_cast<SimPrimitiveType>(_purePrimitive);
+            if (enum_value.has_value())
+                pState = magic_enum::enum_name(enum_value.value()).data();
+            else
+                retVal = sim_propertyret_invalidvalue;
         }
     }
 

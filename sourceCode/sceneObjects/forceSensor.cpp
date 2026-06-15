@@ -43,7 +43,7 @@ void CForceSensor::commonInit()
     _forceSensorSize = 0.05;
 
     _filterSampleSize = 1;
-    _filterType = 0; // average
+    _filterType = sim_forcesensorfilter_average; // average
 
     _color.setDefaultValues();
     _color.setColor(0.22f, 0.9f, 0.45f, sim_materialcomponent_diffuse);
@@ -102,7 +102,10 @@ void CForceSensor::setFilterType(int t)
         {
             const char* cmd = prop(PropForceSensor::filterType).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            ev->appendKeyInt64(cmd, _filterType);
+            if (App::getEventProtocolVersion() <= 3)
+                ev->appendKeyInt64(prop(PropForceSensor::DEPRECATED_filterType).name, _filterType);
+            else
+                ev->appendKeyInt64(cmd, _filterType);
             App::scenes->pushEvent();
         }
     }
@@ -334,7 +337,7 @@ void CForceSensor::_computeFilteredValues()
     {
         C3Vector f;
         C3Vector t;
-        if (_filterType == 0)
+        if (_filterType == sim_forcesensorfilter_average)
         { // average filter
             C3Vector fo;
             C3Vector to;
@@ -348,7 +351,7 @@ void CForceSensor::_computeFilteredValues()
             f = fo / double(_filterSampleSize);
             t = to / double(_filterSampleSize);
         }
-        if (_filterType == 1)
+        if (_filterType == sim_forcesensorfilter_median)
         {
             std::vector<double> fx;
             std::vector<double> fy;
@@ -673,6 +676,7 @@ void CForceSensor::addObjectEventData(CCbor* ev)
         ev->appendKeyDoubleArray(prop(PropForceSensor::sensorTorque).name, _lastTorque_dynStep.data, 3);
         ev->appendKeyDoubleArray(prop(PropForceSensor::filteredSensorForce).name, _filteredDynamicForces.data, 3);
         ev->appendKeyDoubleArray(prop(PropForceSensor::filteredSensorTorque).name, _filteredDynamicTorques.data, 3);
+        ev->appendKeyInt64(prop(PropForceSensor::DEPRECATED_filterType).name, _filterType);
     }
     else
     {
@@ -681,10 +685,10 @@ void CForceSensor::addObjectEventData(CCbor* ev)
         ev->appendKeyVector3(prop(PropForceSensor::sensorTorque).name, _lastTorque_dynStep);
         ev->appendKeyVector3(prop(PropForceSensor::filteredSensorForce).name, _filteredDynamicForces);
         ev->appendKeyVector3(prop(PropForceSensor::filteredSensorTorque).name, _filteredDynamicTorques);
+        ev->appendKeyInt64(prop(PropForceSensor::filterType).name, _filterType);
     }
     ev->appendKeyBool(prop(PropForceSensor::forceThresholdEnabled).name, _forceThresholdEnabled);
     ev->appendKeyBool(prop(PropForceSensor::torqueThresholdEnabled).name, _torqueThresholdEnabled);
-    ev->appendKeyInt64(prop(PropForceSensor::filterType).name, _filterType);
     ev->appendKeyInt64(prop(PropForceSensor::filterSampleSize).name, _filterSampleSize);
     ev->appendKeyInt64(prop(PropForceSensor::consecutiveViolationsToTrigger).name, _consecutiveViolationsToTrigger);
     ev->appendKeyDouble(prop(PropForceSensor::forceThreshold).name, _forceThreshold);
@@ -907,7 +911,7 @@ void CForceSensor::serialize(CSer& ar)
 
             ar.xmlPushNewNode("filter");
             ar.xmlAddNode_int("sampleSize", _filterSampleSize);
-            ar.xmlAddNode_bool("averageFilter", _filterType == 0); // 0=average, 1=median
+            ar.xmlAddNode_bool("averageFilter", _filterType == sim_forcesensorfilter_average); // 0=average, 1=median
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("force");
@@ -948,9 +952,9 @@ void CForceSensor::serialize(CSer& ar)
                 bool avg;
                 if (ar.xmlGetNode_bool("averageFilter", avg, exhaustiveXml))
                 {
-                    _filterType = 0;
+                    _filterType = sim_forcesensorfilter_average;
                     if (!avg)
-                        _filterType = 1;
+                        _filterType = sim_forcesensorfilter_median;
                 }
                 ar.xmlPopNode();
             }
@@ -1177,12 +1181,41 @@ int CForceSensor::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
+int CForceSensor::setStringProperty(const char* ppName, const std::string& pState)
+{
+    std::string _pName(ppName);
+    int retVal = CSceneObject::setStringProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        if (_pName == prop(PropForceSensor::filterType).name)
+        { // Enum
+            retVal = sim_propertyret_ok;
+            auto value = magic_enum::enum_cast<SimForceSensorFilter>(pState.c_str());
+            if (value.has_value())
+                setFilterType(static_cast<int>(*value));
+            else
+                retVal = sim_propertyret_invalidvalue;
+        }
+    }
+
+    return retVal;
+}
+
 int CForceSensor::getStringProperty(const char* ppName, std::string& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
+        if (_pName == prop(PropForceSensor::filterType).name)
+        { // Enum
+            retVal = sim_propertyret_ok;
+            auto enum_value = magic_enum::enum_cast<SimForceSensorFilter>(_filterType);
+            if (enum_value.has_value())
+                pState = magic_enum::enum_name(enum_value.value()).data();
+            else
+                retVal = sim_propertyret_invalidvalue;
+        }
     }
 
     return retVal;
