@@ -5763,7 +5763,7 @@ int CJoint::setStringProperty(const char* ppName, const std::string& pState)
         else if (_pName == prop(PropJoint::dynCtrlMode).name)
         { // Enum
             retVal = sim_propertyret_ok;
-            auto value = magic_enum::enum_cast<SimJointDynCtrlMode>(pState.c_str());
+            auto value = magic_enum::enum_cast<SimJointDynamicsCtrlMode>(pState.c_str());
             if (value.has_value())
                 setDynCtrlMode(static_cast<int>(*value));
             else
@@ -5793,7 +5793,7 @@ int CJoint::getStringProperty(const char* ppName, std::string& pState) const
         else if (_pName == prop(PropJoint::dynCtrlMode).name)
         { // Enum
             retVal = sim_propertyret_ok;
-            auto enum_value = magic_enum::enum_cast<SimJointDynCtrlMode>(_dynCtrlMode);
+            auto enum_value = magic_enum::enum_cast<SimJointDynamicsCtrlMode>(_dynCtrlMode);
             if (enum_value.has_value())
                 pState = magic_enum::enum_name(enum_value.value()).data();
             else

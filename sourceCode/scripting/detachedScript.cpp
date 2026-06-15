@@ -1336,7 +1336,7 @@ int CDetachedScript::getScriptType() const
 std::string CDetachedScript::getScriptTypeStr() const
 {
     std::string retVal = "invalidEnum";
-    auto enum_value = magic_enum::enum_cast<SimScriptType>(_scriptType);
+    auto enum_value = magic_enum::enum_cast<SimDetachedScriptType>(_scriptType);
     if (enum_value.has_value())
         retVal = magic_enum::enum_name(enum_value.value()).data();
     return retVal;

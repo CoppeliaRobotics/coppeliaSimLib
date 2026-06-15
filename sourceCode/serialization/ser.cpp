@@ -1510,7 +1510,7 @@ void CSer::xmlAddNode_enum(const char* name, int val, int v1, const char* str1, 
                            int v3 /*=-1*/, const char* str3 /*=nullptr*/, int v4 /*=-1*/, const char* str4 /*=nullptr*/,
                            int v5 /*=-1*/, const char* str5 /*=nullptr*/, int v6 /*=-1*/, const char* str6 /*=nullptr*/,
                            int v7 /*=-1*/, const char* str7 /*=nullptr*/, int v8 /*=-1*/, const char* str8 /*=nullptr*/,
-                           int v9 /*=-1*/, const char* str9 /*=nullptr*/)
+                           int v9 /*=-1*/, const char* str9 /*=nullptr*/, int v10 /*=-1*/, const char* str10 /*=nullptr*/)
 {
     std::string tmp;
     if (val == v1)
@@ -1531,6 +1531,8 @@ void CSer::xmlAddNode_enum(const char* name, int val, int v1, const char* str1, 
         tmp = str8;
     if ((str9 != nullptr) && (val == v9))
         tmp = str9;
+    if ((str10 != nullptr) && (val == v10))
+        tmp = str10;
     if (tmp.size() == 0)
         xmlAddNode_int(name, val);
     else
@@ -2165,7 +2167,7 @@ bool CSer::xmlGetNode_enum(const char* name, int& val, bool required, const char
                            int v2, const char* str3 /*=nullptr*/, int v3 /*=-1*/, const char* str4 /*=nullptr*/,
                            int v4 /*=-1*/, const char* str5 /*=nullptr*/, int v5 /*=-1*/, const char* str6 /*=nullptr*/,
                            int v6 /*=-1*/, const char* str7 /*=nullptr*/, int v7 /*=-1*/, const char* str8 /*=nullptr*/,
-                           int v8 /*=-1*/, const char* str9 /*=nullptr*/, int v9 /*=-1*/)
+                           int v8 /*=-1*/, const char* str9 /*=nullptr*/, int v9 /*=-1*/, const char* str10 /*=nullptr*/, int v10 /*=-1*/)
 {
     if (xmlDebug)
         App::logMsg(sim_verbosity_debug, "XML read: xmlGetNode_enum, name: %s", name);
@@ -2217,6 +2219,11 @@ bool CSer::xmlGetNode_enum(const char* name, int& val, bool required, const char
         if ((str9 != nullptr) && (tmp.compare(str9) == 0))
         {
             val = v9;
+            f = true;
+        }
+        if ((str10 != nullptr) && (tmp.compare(str10) == 0))
+        {
+            val = v10;
             f = true;
         }
         if (!f)

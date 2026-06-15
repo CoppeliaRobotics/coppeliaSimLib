@@ -6475,15 +6475,10 @@ std::string _method_createLight(int targetObj, const char* method, CDetachedScri
         map->fetchStringFromKey("light.type", t, &errMsg);
         if (errMsg.size() == 0)
         {
-            int lightType = -1;
-            if (t == "omnidirectional")
-                lightType = sim_light_omnidirectional;
-            if (t == "spot")
-                lightType = sim_light_spot;
-            if (t == "directional")
-                lightType = sim_light_directional;
-            if (lightType != -1)
+            auto value = magic_enum::enum_cast<SimLightType>(t);
+            if (value.has_value())
             {
+                int lightType = static_cast<int>(*value);
                 CLight* it = new CLight(lightType);
                 App::scene->sceneObjects->addObjectToScene(it, false, true);
                 outStack->pushHandleOntoStack(it->getObjectHandle());

@@ -57,6 +57,7 @@ class CMarker : public CSceneObject
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
 
     int getMarkerOptions() const;
+    std::string getMarkerTypeStr() const;
 
     void addItems(const std::vector<float>* pts, const std::vector<float>* quats, const std::vector<unsigned char>* rgbas, const std::vector<float>* sizes, bool transform = true, std::vector<int64_t>* newIds = nullptr);
     void remItems(int itemCnt, bool triggerEvent = true);
@@ -106,6 +107,7 @@ class CMarker : public CSceneObject
     void drawItems(int displayAttrib, const double normalVectorForLinesAndPoints[3], bool overlay) const;
     void _drawPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
     void _drawLines(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
+    void _drawTubeLines(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
     void _drawTriangles(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
     void _drawQuadPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
     void _drawDiscPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;

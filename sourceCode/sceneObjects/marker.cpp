@@ -105,7 +105,7 @@ CMarker::CMarker(int type /*= sim_markertype_points*/, unsigned char col[3] /*= 
 void CMarker::_initialize()
 {
     _itemPointCnt = 1;
-    if (_itemType == sim_markertype_lines)
+    if ((_itemType == sim_markertype_lines) || (_itemType == sim_markertype_tubes))
         _itemPointCnt = 2;
     else if (_itemType == sim_markertype_triangles)
         _itemPointCnt = 3;
@@ -141,7 +141,7 @@ void CMarker::_rebuildMarkerBoundingBox()
     for (size_t i = 0; i < _ids.size(); i++)
     {
         CItemPointIts its;
-        if ( (_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_triangles) )
+        if ( (_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_tubes) && (_itemType != sim_markertype_triangles) )
         {
             if (_itemType != sim_markertype_custom)
             {
@@ -315,7 +315,7 @@ void CMarker::remItems(int itemCntToDelete, bool triggerEvent /*= true*/)
         _pts.erase(_pts.begin(), _pts.begin() + itemCntToDelete * 3 * _itemPointCnt);
         _rgba.erase(_rgba.begin(), _rgba.begin() + itemCntToDelete * 4 * _itemPointCnt);
         _ids.erase(_ids.begin(), _ids.begin() + itemCntToDelete);
-        if ( (_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_triangles) )
+        if ( (_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_tubes) && (_itemType != sim_markertype_triangles) )
         {
             _quats.erase(_quats.begin(), _quats.begin() + itemCntToDelete * 4 * _itemPointCnt);
             _sizes.erase(_sizes.begin(), _sizes.begin() + itemCntToDelete * 3 * _itemPointCnt);
@@ -386,7 +386,7 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
         }
     }
 
-    bool hasDim = ((_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_triangles));
+    bool hasDim = ((_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_tubes) && (_itemType != sim_markertype_triangles));
     for (int i = 0; i < itemCnt; i++)
     {
         bool skip = false;
@@ -654,7 +654,7 @@ void CMarker::removeSceneDependencies()
 
 void CMarker::addObjectEventData(CCbor* ev)
 {
-    ev->appendKeyInt64(prop(PropMarker::itemType).name, _itemType);
+    ev->appendKeyText(prop(PropMarker::type).name, getMarkerTypeStr().c_str());
     ev->appendKeyBool(prop(PropMarker::cyclic).name, _itemOptions & sim_markeropts_cyclic);
     ev->appendKeyBool(prop(PropMarker::local).name, _itemOptions & sim_markeropts_local);
     ev->appendKeyBool(prop(PropMarker::overlay).name, _itemOptions & sim_markeropts_overlay);
@@ -939,7 +939,7 @@ void CMarker::serialize(CSer& ar)
         if (ar.isStoring())
         {
             ar.xmlAddNode_comment(" 'type' tag: can be 'points', 'lines', 'triangles', 'spheres', 'squares', 'discs' or 'cubes' ", exhaustiveXml);
-            ar.xmlAddNode_enum("type", _itemType, sim_markertype_points, "points", sim_markertype_lines, "lines", sim_markertype_triangles, "triangles", sim_markertype_spheres, "spheres", sim_markertype_squares, "squares", sim_markertype_discs, "discs", sim_markertype_cubes, "cubes", sim_markertype_cylinders, "cylinders", sim_markertype_custom, "custom");
+            ar.xmlAddNode_enum("type", _itemType, sim_markertype_points, "points", sim_markertype_lines, "lines", sim_markertype_tubes, "tubes", sim_markertype_triangles, "triangles", sim_markertype_spheres, "spheres", sim_markertype_squares, "squares", sim_markertype_discs, "discs", sim_markertype_cubes, "cubes", sim_markertype_cylinders, "cylinders", sim_markertype_custom, "custom");
 
             ar.xmlAddNode_int("maxCnt", _itemMaxCnt);
             ar.xmlAddNode_int("options", _itemOptions);
@@ -972,7 +972,7 @@ void CMarker::serialize(CSer& ar)
         }
         else
         {
-            ar.xmlGetNode_enum("type", _itemType, exhaustiveXml, "points", sim_markertype_points, "lines", sim_markertype_lines, "triangles", sim_markertype_triangles, "spheres", sim_markertype_spheres, "squares", sim_markertype_squares, "discs", sim_markertype_discs, "cubes", sim_markertype_cubes, "cylinders", sim_markertype_cylinders, "custom", sim_markertype_custom);
+            ar.xmlGetNode_enum("type", _itemType, exhaustiveXml, "points", sim_markertype_points, "lines", sim_markertype_lines, "tubes", sim_markertype_tubes, "triangles", sim_markertype_triangles, "spheres", sim_markertype_spheres, "squares", sim_markertype_squares, "discs", sim_markertype_discs, "cubes", sim_markertype_cubes, "cylinders", sim_markertype_cylinders, "custom", sim_markertype_custom);
 
             if (_itemType == sim_markertype_custom)
             {
@@ -1015,6 +1015,15 @@ void CMarker::serialize(CSer& ar)
 int CMarker::getMarkerOptions() const
 {
     return _itemOptions;
+}
+
+std::string CMarker::getMarkerTypeStr() const
+{
+    std::string retVal = "invalidEnum";
+    auto enum_value = magic_enum::enum_cast<SimMarkerType>(_itemType);
+    if (enum_value.has_value())
+        retVal = magic_enum::enum_name(enum_value.value()).data();
+    return retVal;
 }
 
 int CMarker::setBoolProperty(const char* ppName, bool pState)
@@ -1070,11 +1079,6 @@ int CMarker::getIntProperty(const char* ppName, int& pState) const
     int retVal = CSceneObject::getIntProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == prop(PropMarker::itemType).name)
-        {
-            pState = _itemType;
-            retVal = sim_propertyret_ok;
-        }
     }
 
     return retVal;
@@ -1151,6 +1155,11 @@ int CMarker::getStringProperty(const char* ppName, std::string& pState) const
     int retVal = CSceneObject::getStringProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
+        if (_pName == prop(PropMarker::type).name)
+        {
+            pState = getMarkerTypeStr();
+            retVal = sim_propertyret_ok;
+        }
     }
 
     return retVal;
@@ -1426,7 +1435,7 @@ void CMarker::_drawPoints(int displayAttrib, const double normalVectorForLinesAn
 
 void CMarker::_drawLines(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
 {
-    glLineWidth(2.0f);
+    glLineWidth(1.0f);
     if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
     {
         glEnable(GL_COLOR_MATERIAL);
@@ -1453,7 +1462,6 @@ void CMarker::_drawLines(int displayAttrib, const double normalVectorForLinesAnd
     }
     if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
         glDisable(GL_COLOR_MATERIAL);
-    glLineWidth(1.0f);
 }
 
 void CMarker::_drawTriangles(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
@@ -1830,6 +1838,143 @@ void CMarker::_drawCylinderPoints(int displayAttrib, const double normalVectorFo
         glDisable(GL_COLOR_MATERIAL);
 }
 
+void CMarker::_drawTubeLines(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
+{
+    constexpr int SIDES = 8;
+    constexpr int VERTS = (SIDES + 1) * 2;
+
+    static float v[VERTS][3];
+    static float n[VERTS][3];
+    static bool init = false;
+
+    if (!init)
+    {
+        init = true;
+
+        for (int i = 0; i <= SIDES; i++)
+        {
+            float a = float(2.0 * piValue * i / SIDES);
+            float ca = cosf(a), sa = sinf(a);
+
+                   // unit circle (radius = 0.5 base)
+            float x = ca * 0.5f;
+            float y = sa * 0.5f;
+
+                   // bottom ring
+            v[i * 2 + 0][0] = x;
+            v[i * 2 + 0][1] = y;
+            v[i * 2 + 0][2] = 0.0f;
+
+                   // top ring
+            v[i * 2 + 1][0] = x;
+            v[i * 2 + 1][1] = y;
+            v[i * 2 + 1][2] = 1.0f;
+
+                   // approximate normals for unit cylinder (will still look OK for frustum)
+            n[i * 2 + 0][0] = n[i * 2 + 1][0] = ca;
+            n[i * 2 + 0][1] = n[i * 2 + 1][1] = sa;
+            n[i * 2 + 0][2] = n[i * 2 + 1][2] = 0.0f;
+        }
+    }
+
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+    {
+        glEnable(GL_COLOR_MATERIAL);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+        glColor3f(0.0, 0.0, 0.0);
+    }
+
+    for (size_t i = 0; i < _pts.size() / 6; i++)
+    {
+        const float* p0 = _pts.data() + i * 6 + 0;
+        const float* p1 = _pts.data() + i * 6 + 3;
+
+        float dir[3] =
+            {
+                p1[0] - p0[0],
+                p1[1] - p0[1],
+                p1[2] - p0[2]
+            };
+
+        float len = sqrtf(dir[0]*dir[0] +
+                          dir[1]*dir[1] +
+                          dir[2]*dir[2]);
+
+        if (len < 1e-6f)
+            continue;
+
+        dir[0] /= len;
+        dir[1] /= len;
+        dir[2] /= len;
+
+        float ax[3] = {-dir[1], dir[0], 0.0f};
+        float axLen = sqrtf(ax[0]*ax[0] + ax[1]*ax[1] + ax[2]*ax[2]);
+
+        float angle = 0.0f;
+
+        if (axLen > 1e-6f)
+        {
+            ax[0] /= axLen;
+            ax[1] /= axLen;
+            ax[2] /= axLen;
+
+            float c = fmaxf(-1.0f, fminf(1.0f, dir[2]));
+            angle = acosf(c) * 57.2957795f;
+        }
+        else if (dir[2] < 0.0f)
+        {
+            ax[0] = 1.0f;
+            ax[1] = 0.0f;
+            ax[2] = 0.0f;
+            angle = 180.0f;
+        }
+        float r0 = float(_itemSize[0] * 0.5);
+        float r1 = float(_itemSize[1] * 0.5);
+
+        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+            glColor4ubv((GLubyte*)_rgba.data() + i * 8);
+
+        glPushMatrix();
+        glTranslatef(p0[0], p0[1], p0[2]);
+
+        if (angle != 0.0f)
+            glRotatef(angle, ax[0], ax[1], ax[2]);
+
+        glBegin(GL_TRIANGLE_STRIP);
+
+        for (int j = 0; j < VERTS; j += 2)
+        {
+            float ca = n[j][0];
+            float sa = n[j][1];
+
+            float nx = ca;
+            float ny = sa;
+
+            glNormal3f(nx, ny, 0.0f);
+
+            glVertex3f(v[j][0] * (r0 / 0.5f),
+                       v[j][1] * (r0 / 0.5f),
+                       v[j][2] * len);
+
+            glVertex3f(v[j + 1][0] * (r1 / 0.5f),
+                       v[j + 1][1] * (r1 / 0.5f),
+                       v[j + 1][2] * len);
+        }
+
+        glEnd();
+        glPopMatrix();
+    }
+
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+        glDisable(GL_COLOR_MATERIAL);
+}
+
 void CMarker::_drawCustomPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
 { // we ignore the normals. Those display routines are anyways just temp.
     if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
@@ -1940,6 +2085,8 @@ void CMarker::drawItems(int displayAttrib, const double normalVectorForLinesAndP
         _drawPoints(displayAttrib, normalVectorForLinesAndPoints);
     else if (_itemType == sim_markertype_lines)
         _drawLines(displayAttrib, normalVectorForLinesAndPoints);
+    else if (_itemType == sim_markertype_tubes)
+        _drawTubeLines(displayAttrib, normalVectorForLinesAndPoints);
     else if (_itemType == sim_markertype_triangles)
         _drawTriangles(displayAttrib, normalVectorForLinesAndPoints);
     else if (_itemType == sim_markertype_squares)

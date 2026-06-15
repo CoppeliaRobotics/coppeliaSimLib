@@ -140,7 +140,7 @@ class CSer
                          const char* str3 = nullptr, int v4 = -1, const char* str4 = nullptr, int v5 = -1,
                          const char* str5 = nullptr, int v6 = -1, const char* str6 = nullptr, int v7 = -1,
                          const char* str7 = nullptr, int v8 = -1, const char* str8 = nullptr, int v9 = -1,
-                         const char* str9 = nullptr);
+                         const char* str9 = nullptr, int v10 = -1, const char* str10 = nullptr);
     void xmlAddNode_enum(const char* name, int val, const std::vector<int>& vals,
                          const std::vector<std::string>& strings);
     void xmlAddNode_int(const char* name, int val);
@@ -185,7 +185,7 @@ class CSer
                          const char* str3 = nullptr, int v3 = -1, const char* str4 = nullptr, int v4 = -1,
                          const char* str5 = nullptr, int v5 = -1, const char* str6 = nullptr, int v6 = -1,
                          const char* str7 = nullptr, int v7 = -1, const char* str8 = nullptr, int v8 = -1,
-                         const char* str9 = nullptr, int v9 = -1);
+                         const char* str9 = nullptr, int v9 = -1, const char* str10 = nullptr, int v10 = -1);
     bool xmlGetNode_enum(const char* name, int& val, bool required, const std::vector<int>& vals,
                          const std::vector<std::string>& strings);
     bool xmlGetNode_int(const char* name, int& val, bool required = true);
