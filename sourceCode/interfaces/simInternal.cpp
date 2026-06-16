@@ -670,18 +670,6 @@ bool isPropertyNameValid(const char* functionName, const char* pName)
     return true;
 }
 
-int enumFromString(int64_t target, const char* ppName, const char* enumStr, int& enumVal)
-{
-    int retVal = sim_propertyret_unknowntarget;
-    return retVal;
-}
-
-int enumToString(int64_t target, const char* ppName, int enumVal, std::string& enumStr)
-{
-    int retVal = sim_propertyret_unknowntarget;
-    return retVal;
-}
-
 std::string checkAltName(const char* pName, int target)
 { // e.g. from "joint.targetPosition" to "targetPosition"
     std::string retVal;
@@ -1596,52 +1584,6 @@ int simGetStringProperty_internal(int64_t target, const char* ppName, char** pSt
                 }
             }
         }
-        return retVal;
-    }
-    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return -1;
-}
-
-int simSetStrEnumProperty_internal(int64_t target, const char* ppName, const char* pState)
-{
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        int enumVal;
-        int retVal = enumFromString(target, ppName, pState, enumVal);
-        if (retVal == sim_propertyret_ok)
-            retVal = simSetIntProperty_internal(target, ppName, enumVal);
-        if (retVal != sim_propertyret_ok)
-            CApiErrors::setLastError(__func__, SIM_ERROR_OPERATION_UNAVAILABLE);
-        return retVal;
-    }
-    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return -1;
-}
-
-int simGetStrEnumProperty_internal(int64_t target, const char* ppName, char** pState)
-{
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        int enumVal;
-        int retVal = simGetIntProperty_internal(target, ppName, &enumVal);
-        if (retVal == sim_propertyret_ok)
-        {
-            std::string enumStrVal;
-            retVal = enumToString(target, ppName, enumVal, enumStrVal);
-            if (retVal == sim_propertyret_ok)
-            {
-                pState[0] = new char[enumStrVal.size() + 1];
-                for (size_t i = 0; i < enumStrVal.size(); i++)
-                    pState[0][i] = enumStrVal[i];
-                pState[0][enumStrVal.size()] = 0;
-            }
-        }
-        if (retVal != sim_propertyret_ok)
-            CApiErrors::setLastError(__func__, SIM_ERROR_OPERATION_UNAVAILABLE);
         return retVal;
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);

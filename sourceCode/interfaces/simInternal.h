@@ -57,8 +57,6 @@ int simSetFloatProperty_internal(int64_t target, const char* pName, double pStat
 int simGetFloatProperty_internal(int64_t target, const char* pName, double* pState);
 int simSetStringProperty_internal(int64_t target, const char* pName, const char* pState);
 int simGetStringProperty_internal(int64_t target, const char* pName, char** pState);
-int simSetStrEnumProperty_internal(int64_t target, const char* pName, const char* pState);
-int simGetStrEnumProperty_internal(int64_t target, const char* pName, char** pState);
 int simSetTableProperty_internal(int64_t target, const char* pName, const char* buffer, int bufferL);
 int simGetTableProperty_internal(int64_t target, const char* pName, char** buffer, int* bufferL);
 int simSetBufferProperty_internal(int64_t target, const char* pName, const char* buffer, int bufferL);

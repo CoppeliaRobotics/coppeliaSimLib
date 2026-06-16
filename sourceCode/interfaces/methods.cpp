@@ -153,7 +153,6 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["getPoseProperty"] = _method_getPoseProperty;
         funcTable["getQuaternionProperty"] = _method_getQuaternionProperty;
         funcTable["getStringProperty"] = _method_getStringProperty;
-        funcTable["getEnumProperty"] = _method_getStringProperty;
         funcTable["getVector3Property"] = _method_getVector3Property;
         funcTable["setBoolProperty"] = _method_setBoolProperty;
         funcTable["setBufferProperty"] = _method_setBufferProperty;
@@ -170,7 +169,6 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["setPoseProperty"] = _method_setPoseProperty;
         funcTable["setQuaternionProperty"] = _method_setQuaternionProperty;
         funcTable["setStringProperty"] = _method_setStringProperty;
-        funcTable["setEnumProperty"] = _method_setStringProperty;
         funcTable["setVector3Property"] = _method_setVector3Property;
         funcTable["getMatrixProperty"] = _method_getMatrixProperty;
         funcTable["setMatrixProperty"] = _method_setMatrixProperty;
@@ -9746,6 +9744,13 @@ std::string _method_getData(int targetObj, const char* method, CDetachedScript* 
                     float* buff = sensor->readPortionOfImage(0, 0, resolution[0], resolution[1], 2);
                     if (buff != nullptr)
                     {
+                        double np, fp;
+                        sensor->getClippingPlanes(np, fp);
+                        float n = (float)np;
+                        float f = (float)fp;
+                        float fmn = f - n;
+                        for (int i = 0; i < resolution[0] * resolution[1]; i++)
+                            buff[i] = n + fmn * buff[i];
                         outStack->pushBufferOntoStack((char*)img, 3 * resolution[0] * resolution[1]);
                         outStack->pushBufferOntoStack((char*)buff, resolution[0] * resolution[1] * sizeof(float));
                         outStack->pushInt32ArrayOntoStack(resolution, 2);
