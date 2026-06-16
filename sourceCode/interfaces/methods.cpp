@@ -222,6 +222,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["texture.setData"] = _method_textureSetData;
         funcTable["texture.getData"] = _method_textureGetData;
         funcTable["getEnumInfo"] = _method_getEnumInfo;
+        funcTable["getData"] = _method_getData;
     }
 
     std::string retVal("__notFound__");
@@ -9698,6 +9699,67 @@ std::string _method_getEnumInfo(int targetObj, const char* method, CDetachedScri
         }
         else
             errMsg = "unsupported type.";
+    }
+    return errMsg;
+}
+
+std::string _method_getData(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CCamera* target = (CCamera*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_camera, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
+    {
+        int resolution[2] = {1920, 1080};
+        double clippingPlanes[2] = {0.05, 30.0};
+        double viewAngle = 60.0 * degToRad;
+        double viewSize = 2.0;
+        bool hasViewAngle = false;
+        bool hasViewSize = false;
+        std::string rendMode = "openGl";
+        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+        {
+            map->fetchInt32ArrayFromKey("resolution", resolution, 2, &errMsg);
+            map->fetchDoubleArrayFromKey("clippingPlanes", clippingPlanes, 2, &errMsg);
+            map->fetchStringFromKey("renderMode", rendMode, &errMsg);
+            hasViewAngle = map->fetchDoubleFromKey("viewAngle", viewAngle, &errMsg);
+            hasViewSize = map->fetchDoubleFromKey("viewSize", viewSize, &errMsg);
+        }
+        if (errMsg.empty())
+        {
+            auto rmValue = magic_enum::enum_cast<renderMode>(rendMode.c_str());
+            if (rmValue.has_value())
+            {
+                int rm = static_cast<int>(*rmValue);
+                CVisionSensor* sensor = new CVisionSensor();
+                App::scene->sceneObjects->addObjectToScene(sensor, false, false);
+                sensor->setPerspective(hasViewAngle || (!hasViewSize));
+                sensor->setViewAngle(viewAngle);
+                sensor->setOrthoViewSize(viewSize);
+                sensor->setResolution(resolution);
+                sensor->setClippingPlanes(clippingPlanes[0], clippingPlanes[1]);
+                sensor->setRenderMode(rm);
+                sensor->setLocalTransformation(target->getCumulativeTransformation());
+                sensor->handleSensor();
+                unsigned char* img = sensor->readPortionOfCharImage(0, 0, resolution[0], resolution[1], 1.0, 0);
+                if (img != nullptr)
+                {
+                    float* buff = sensor->readPortionOfImage(0, 0, resolution[0], resolution[1], 2);
+                    if (buff != nullptr)
+                    {
+                        outStack->pushBufferOntoStack((char*)img, 3 * resolution[0] * resolution[1]);
+                        outStack->pushBufferOntoStack((char*)buff, resolution[0] * resolution[1] * sizeof(float));
+                        outStack->pushInt32ArrayOntoStack(resolution, 2);
+                        delete[]((char*)buff);
+                    }
+                    delete[]((char*)img);
+                }
+                else
+                    errMsg = SIM_ERROR_INVALID_ARGUMENTS;
+                App::scene->sceneObjects->eraseObject(sensor, false, false);
+            }
+            else
+                errMsg = "invalid render mode.";
+        }
     }
     return errMsg;
 }

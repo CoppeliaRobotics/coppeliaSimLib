@@ -1163,6 +1163,7 @@ std::map<int, std::string> buildEnumToStringMap()
     FUNCX(translationEnabled, "translationEnabled", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Translation enabled"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(rotationEnabled, "rotationEnabled", sim_propertytype_bool, 0,  PropertyInfo({{"label", "Rotation enabled"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(trackedObject, "trackedObject", sim_propertytype_handle, sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Tracked object"}, {"description", "Tracked scene object"}, {"handleType", "sceneObject"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(METHOD_getData, "getData", sim_propertytype_method, SIM_PROPERTYINFO_METHOD, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     /* Following for backward compatibility: */ \
     FUNCX(DEPRECATED_size, "cameraSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED,  PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
     FUNCX(DEPRECATED_trackedObject, "trackedObjectHandle", sim_propertytype_int, SIM_PROPERTYINFO_DEPRECATED,PropertyInfo({{"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
