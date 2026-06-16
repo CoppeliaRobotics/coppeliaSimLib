@@ -17,8 +17,8 @@ double fetchDouble(const CInterfaceStack* inStack, int index, double defaultValu
 std::string fetchText(const CInterfaceStack* inStack, int index, const char* txt = "");
 std::string fetchBuffer(const CInterfaceStack* inStack, int index);
 void fetchBuffer(const CInterfaceStack* inStack, int index, std::vector<char>& buff);
-void fetchColor(const CInterfaceStack* inStack, int index, float outArr[3], std::initializer_list<float> arr = {});
-void fetchColor(const CInterfaceStack* inStack, int index, float outArr[3], const float defaultArr[3]);
+void fetchColor(const CInterfaceStack* inStack, int index, float outArr[4], std::initializer_list<float> arr = {});
+void fetchColor(const CInterfaceStack* inStack, int index, float outArr[4], const float defaultArr[4]);
 CQuaternion fetchQuaternion(const CInterfaceStack* inStack, int index, std::initializer_list<double> wxyz = {});
 CQuaternion fetchQuaternion(const CInterfaceStack* inStack, int index, const double wxyz[4]);
 CPose fetchPose(const CInterfaceStack* inStack, int index, std::initializer_list<double> xyzqwqxqyqz = {});

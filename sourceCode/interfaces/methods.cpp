@@ -396,7 +396,7 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                                         else if (desiredArgType == arg_pose)
                                             retVal = (tbl->getArraySize() == 7);
                                         else if (desiredArgType == arg_color)
-                                            retVal = (tbl->getArraySize() == 3);
+                                            retVal = ((tbl->getArraySize() == 3) || (tbl->getArraySize() == 4));
                                         else if (desiredArgType == arg_vector)
                                             retVal = (tbl->getArraySize() >= 1);
                                         else if (desiredArgType == arg_vector3)
@@ -745,31 +745,33 @@ void fetchHandleArray(const CInterfaceStack* inStack, int index, std::vector<int
     }
 }
 
-void fetchColor(const CInterfaceStack* inStack, int index, float outArr[3], std::initializer_list<float> arr /*= {}*/)
+void fetchColor(const CInterfaceStack* inStack, int index, float outArr[4], std::initializer_list<float> arr /*= {}*/)
 {
-    float def[3] = {0.0f, 0.0f, 0.0f};
+    float def[4] = {0.0f, 0.0f, 0.0f, 1.0f};
     int i = 0;
     for (float x : arr)
     {
-        if (i < 3)
+        if (i < 4)
             def[i++] = x;
     }
     fetchColor(inStack, index, outArr, def);
 }
 
-void fetchColor(const CInterfaceStack* inStack, int index, float outArr[3], const float defaultArr[3])
+void fetchColor(const CInterfaceStack* inStack, int index, float outArr[4], const float defaultArr[4])
 {
     if (defaultArr)
     {
         outArr[0] = defaultArr[0];
         outArr[1] = defaultArr[1];
         outArr[2] = defaultArr[2];
+        outArr[3] = defaultArr[3];
     }
     else
     {
         outArr[0] = 0.0f;
         outArr[1] = 0.0f;
         outArr[2] = 0.0f;
+        outArr[3] = 1.0f;
     }
     int argCnt = inStack->getStackSize();
     if (argCnt > index)
@@ -778,7 +780,7 @@ void fetchColor(const CInterfaceStack* inStack, int index, float outArr[3], cons
         if (obj->getObjectType() == sim_stackitem_table)
         {
             const CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-            tbl->getFloatArray(outArr, 3);
+            tbl->getFloatArray(outArr, std::min<int>(4, tbl->getArraySize()));
         }
         else if (obj->getObjectType() == sim_stackitem_color)
         {

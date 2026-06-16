@@ -426,6 +426,7 @@ void CCbor::appendColor3(const float c[3])
     appendColor(cc);
 }
 
+/*
 void CCbor::appendColor(const float c[4])
 {
     _handleDataField();
@@ -448,6 +449,29 @@ void CCbor::appendColor(const float c[4])
         appendDouble(c[3]);
         closeArrayOrMap();
     });
+}
+*/
+void CCbor::appendColor(const float c[4])
+{
+    _handleDataField();
+
+    _buff.push_back(0xDB); // Tag header (219)
+    int64_t w = 4294970000; // Type info (color)
+    _buff.push_back(((unsigned char*)&w)[7]);
+    _buff.push_back(((unsigned char*)&w)[6]);
+    _buff.push_back(((unsigned char*)&w)[5]);
+    _buff.push_back(((unsigned char*)&w)[4]);
+    _buff.push_back(((unsigned char*)&w)[3]);
+    _buff.push_back(((unsigned char*)&w)[2]);
+    _buff.push_back(((unsigned char*)&w)[1]);
+    _buff.push_back(((unsigned char*)&w)[0]);
+
+    _buff.push_back((uint8_t)(0x44));
+
+    _buff.push_back((uint8_t)(c[0] * 255.1f));
+    _buff.push_back((uint8_t)(c[1] * 255.1f));
+    _buff.push_back((uint8_t)(c[2] * 255.1f));
+    _buff.push_back((uint8_t)(c[3] * 255.1f));
 }
 
 void CCbor::appendNull()
