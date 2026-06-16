@@ -898,11 +898,11 @@ int CCustomProperties::setColorProperty(const char* pName, const float* pState, 
             return sim_propertyret_unavailable;
         if (propType != sim_propertytype_color)
             return sim_propertyret_unavailable;
-        valueChange = _updatePropertyData(pName, (const char*)pState, 3 * sizeof(float));
+        valueChange = _updatePropertyData(pName, (const char*)pState, 4 * sizeof(float));
     }
     else
     {
-        _setPropertyRaw(pName, sim_propertytype_color, sim_propertyinfo_removable, "", (const char*)pState, 3 * sizeof(float));
+        _setPropertyRaw(pName, sim_propertytype_color, sim_propertyinfo_removable, "", (const char*)pState, 4 * sizeof(float));
         valueChange = true;
     }
     if (valueChange)
@@ -924,8 +924,8 @@ int CCustomProperties::getColorProperty(const char* pName, float* pState) const
         return sim_propertyret_unavailable;
     if (propType != sim_propertytype_color)
         return sim_propertyret_unavailable;
-    if (dataLen >= 3 * sizeof(float))
-        std::memcpy(pState, dataPtr, 3 * sizeof(float));
+    if (dataLen >= 4 * sizeof(float))
+        std::memcpy(pState, dataPtr, 4 * sizeof(float));
     return sim_propertyret_ok;
 }
 

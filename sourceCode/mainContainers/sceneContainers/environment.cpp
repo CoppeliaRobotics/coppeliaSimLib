@@ -173,7 +173,7 @@ void CEnvironment::appendGenesisData(CCbor* ev) const
         ev->appendKeyInt64(prop(PropScene::sceneUid).name, _sceneUniqueID);
         ev->appendKeyText(prop(PropScene::sceneUidString).name, _sceneUniquePersistentIdString.c_str());
         ev->appendKeyHandle(prop(PropScene::mainScript).name, msh);
-        ev->appendKeyColor(prop(PropScene::ambientLight).name, ambientLightColor);
+        ev->appendKeyColor3(prop(PropScene::ambientLight).name, ambientLightColor);
     }
 }
 
@@ -191,7 +191,7 @@ void CEnvironment::setAmbientLight(const float c[3])
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyFloatArray(cmd, ambientLightColor, 3);
             else
-                ev->appendKeyColor(cmd, ambientLightColor);
+                ev->appendKeyColor3(cmd, ambientLightColor);
             App::scenes->pushEvent();
         }
     }

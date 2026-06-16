@@ -414,6 +414,12 @@ void CPersistentDataContainer::appendEventData(const char* dataName, CCbor* ev, 
                 int c = ((int*)dat.data())[1];
                 ev->appendKeyMatrix(tg.c_str(), (double*)(dat.data() + 2 * sizeof(int)), r, c);
             }
+            else if (tg.find(proptypetag_color3) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                tg = CUSTOMDATAPREFIXDOT + tg;
+                ev->appendKeyColor3(tg.c_str(), (float*)dat.data());
+            }
             else if (tg.find(proptypetag_color) != std::string::npos)
             {
                 tg.erase(0, p + 2);

@@ -1071,6 +1071,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertytype_quaternion", sim_propertytype_quaternion},
     {"sim.propertytype_pose", sim_propertytype_pose},
     {"sim.propertytype_color", sim_propertytype_color},
+    {"sim.propertytype_color3", sim_propertytype_color3},
     {"sim.propertytype_floatarray", sim_propertytype_floatarray},
     {"sim.propertytype_intarray", sim_propertytype_intarray},
     {"sim.propertytype_table", sim_propertytype_table},
@@ -5816,7 +5817,7 @@ int _simSetColorProperty(luaWrap_lua_State* L)
             stack->getStackMapBoolValue("noError", noError);
             App::scenes->interfaceStackContainer->destroyStack(stack);
         }
-        if (CALL_C_API(simSetColorProperty, target, pName.c_str(), pValue) > 0)
+        if (CALL_C_API(simSetColor3Property, target, pName.c_str(), pValue) > 0)
         {
             if (utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
             {
@@ -5858,7 +5859,7 @@ int _simGetColorProperty(luaWrap_lua_State* L)
             App::scenes->interfaceStackContainer->destroyStack(stack);
         }
         float pValue[3];
-        if (CALL_C_API(simGetColorProperty, target, pName.c_str(), pValue) > 0)
+        if (CALL_C_API(simGetColor3Property, target, pName.c_str(), pValue) > 0)
         {
             pushFloatArrayAsTable(L, 3, pValue);
             LUA_END(1);

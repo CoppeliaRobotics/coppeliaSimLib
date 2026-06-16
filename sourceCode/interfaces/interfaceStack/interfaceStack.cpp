@@ -354,7 +354,7 @@ int CInterfaceStack::getStackTableInfo(int infoType) const
         else if (it->getObjectType() == sim_stackitem_color)
         { // can also identify as a table
             if (infoType == 0)
-                retVal = 3;
+                retVal = 4;
             else if (infoType == 2)
                 retVal = 1;
             else
@@ -470,7 +470,7 @@ bool CInterfaceStack::getStackUCharArray(unsigned char* array, int count) const
         { // can also be seen as an array
             CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
             const float* C = c->getValue();
-            size_t ml = std::min<size_t>(3, size_t(count));
+            size_t ml = std::min<size_t>(4, size_t(count));
             for (size_t i = 0; i < ml; i++)
                 array[i] = (unsigned char)C[i];
             for (size_t i = ml; i < size_t(count); i++)
@@ -561,7 +561,7 @@ bool CInterfaceStack::getStackInt32Array(int* array, int count) const
         { // can also be seen as an array
             CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
             const float* C = c->getValue();
-            size_t ml = std::min<size_t>(3, size_t(count));
+            size_t ml = std::min<size_t>(4, size_t(count));
             for (size_t i = 0; i < ml; i++)
                 array[i] = (int)C[i];
             for (size_t i = ml; i < size_t(count); i++)
@@ -652,7 +652,7 @@ bool CInterfaceStack::getStackInt64Array(int64_t* array, int count) const
         { // can also be seen as an array
             CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
             const float* C = c->getValue();
-            size_t ml = std::min<size_t>(3, size_t(count));
+            size_t ml = std::min<size_t>(4, size_t(count));
             for (size_t i = 0; i < ml; i++)
                 array[i] = C[i];
             for (size_t i = ml; i < size_t(count); i++)
@@ -789,7 +789,7 @@ bool CInterfaceStack::getStackFloatArray(float* array, int count) const
         { // can also be seen as an array
             CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
             const float* C = c->getValue();
-            size_t ml = std::min<size_t>(3, size_t(count));
+            size_t ml = std::min<size_t>(4, size_t(count));
             for (size_t i = 0; i < ml; i++)
                 array[i] = (float)C[i];
             for (size_t i = ml; i < size_t(count); i++)
@@ -880,7 +880,7 @@ bool CInterfaceStack::getStackDoubleArray(double* array, int count) const
         { // can also be seen as an array
             CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
             const float* C = c->getValue();
-            size_t ml = std::min<size_t>(3, size_t(count));
+            size_t ml = std::min<size_t>(4, size_t(count));
             for (size_t i = 0; i < ml; i++)
                 array[i] = (double)C[i];
             for (size_t i = ml; i < size_t(count); i++)
@@ -905,7 +905,7 @@ bool CInterfaceStack::getStackDoubleArray(double* array, int count) const
     return retVal;
 }
 
-bool CInterfaceStack::getStackColor(float array[3]) const
+bool CInterfaceStack::getStackColor(float array[4]) const
 {
     bool retVal = false;
     if (_stackObjects.size() > 0)
@@ -917,6 +917,7 @@ bool CInterfaceStack::getStackColor(float array[3]) const
             array[0] = f[0];
             array[1] = f[1];
             array[2] = f[2];
+            array[3] = f[3];
             retVal = true;
         }
     }
@@ -1034,7 +1035,7 @@ bool CInterfaceStack::getStackMapDoubleArray(const char* fieldName, double* arra
     return (false);
 }
 
-bool CInterfaceStack::getStackMapColor(const char* fieldName, float array[3]) const
+bool CInterfaceStack::getStackMapColor(const char* fieldName, float array[4]) const
 {
     const CInterfaceStackObject* obj = getStackMapObject(fieldName);
     if (obj != nullptr)
@@ -1046,6 +1047,7 @@ bool CInterfaceStack::getStackMapColor(const char* fieldName, float array[3]) co
                 array[0] = c[0];
                 array[1] = c[1];
                 array[2] = c[2];
+                array[3] = c[3];
                 return true;
             }
         }
@@ -1528,7 +1530,7 @@ void CInterfaceStack::pushPoseOntoStack(const double* p, bool toFront /*= false*
         _stackObjects.push_back(new CInterfaceStackPose(p, xyzqxqyqzqwLayout));
 }
 
-void CInterfaceStack::pushColorOntoStack(const float c[3], bool toFront /*= false*/)
+void CInterfaceStack::pushColorOntoStack(const float c[4], bool toFront /*= false*/)
 {
     if (toFront)
         _stackObjects.insert(_stackObjects.begin(), new CInterfaceStackColor(c));
@@ -2907,6 +2909,7 @@ int CInterfaceStack::getColorProperty(const char*ppName, float* pState) const
                     pState[0] = c->getValue()[0];
                     pState[1] = c->getValue()[1];
                     pState[2] = c->getValue()[2];
+                    pState[3] = c->getValue()[3];
                     retVal = sim_propertyret_ok;
                 }
             }
@@ -2930,6 +2933,7 @@ int CInterfaceStack::getColorProperty(const char*ppName, float* pState) const
                         pState[0] = c->getValue()[0];
                         pState[1] = c->getValue()[1];
                         pState[2] = c->getValue()[2];
+                        pState[3] = c->getValue()[3];
                         retVal = sim_propertyret_ok;
                     }
                 }

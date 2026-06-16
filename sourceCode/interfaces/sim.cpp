@@ -1261,12 +1261,22 @@ SIM_DLLEXPORT int simGetPoseProperty(int64_t target, const char* pName, double* 
 
 SIM_DLLEXPORT int simSetColorProperty(int64_t target, const char* pName, const float* pState)
 {
-    return simSetColorProperty_internal(target, pName, pState);
+    return simSetColor3Property_internal(target, pName, pState);
 }
 
 SIM_DLLEXPORT int simGetColorProperty(int64_t target, const char* pName, float* pState)
 {
-    return simGetColorProperty_internal(target, pName, pState);
+    return simGetColor3Property_internal(target, pName, pState);
+}
+
+SIM_DLLEXPORT int simSetColor4Property(int64_t target, const char* pName, const float* pState)
+{
+    return simSetColor4Property_internal(target, pName, pState);
+}
+
+SIM_DLLEXPORT int simGetColor4Property(int64_t target, const char* pName, float* pState)
+{
+    return simGetColor4Property_internal(target, pName, pState);
 }
 
 SIM_DLLEXPORT int simSetFloatArrayProperty(int64_t target, const char* pName, const double* v, int vL)

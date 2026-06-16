@@ -203,7 +203,17 @@ bool CColorObject::setColor(const float theColor[3], unsigned char colorMode)
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyFloatArray(cmd.c_str(), col + offset, 3);
             else
-                ev->appendKeyColor(cmd.c_str(), col + offset);
+            {
+                if (offset == 0)
+                {
+                    float cc[4] = {col[0], col[1], col[2], 1.0f};
+                    if (_translucid)
+                        cc[3] = _opacity;
+                    ev->appendKeyColor(cmd.c_str(), cc);
+                }
+                else
+                    ev->appendKeyColor3(cmd.c_str(), col + offset);
+            }
             App::scenes->pushEvent();
         }
     }
@@ -219,7 +229,12 @@ void CColorObject::addGenesisEventData(CCbor* ev) const
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyFloatArray(c.c_str(), _colors, 3);
         else
-            ev->appendKeyColor(c.c_str(), _colors);
+        {
+            float cc[4] = {_colors[0], _colors[1], _colors[2], 1.0f};
+            if (_translucid)
+                cc[3] = _opacity;
+            ev->appendKeyColor(c.c_str(), cc);
+        }
     }
     if (_eventFlags & 2)
     { // lights only (no objects)
@@ -227,7 +242,7 @@ void CColorObject::addGenesisEventData(CCbor* ev) const
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyFloatArray(c.c_str(), _colors + 3, 3);
         else
-            ev->appendKeyColor(c.c_str(), _colors + 3);
+            ev->appendKeyColor3(c.c_str(), _colors + 3);
     }
     if (_eventFlags & 4)
     {
@@ -235,7 +250,7 @@ void CColorObject::addGenesisEventData(CCbor* ev) const
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyFloatArray(c.c_str(), _colors + 6, 3);
         else
-            ev->appendKeyColor(c.c_str(), _colors + 6);
+            ev->appendKeyColor3(c.c_str(), _colors + 6);
     }
     if (_eventFlags & 8)
     {
@@ -243,7 +258,7 @@ void CColorObject::addGenesisEventData(CCbor* ev) const
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyFloatArray(c.c_str(), _colors + 9, 3);
         else
-            ev->appendKeyColor(c.c_str(), _colors + 9);
+            ev->appendKeyColor3(c.c_str(), _colors + 9);
     }
 
     if (_eventFlags & 16)
@@ -925,6 +940,14 @@ int CColorObject::setColorProperty(const char* ppName, const float* pState)
         if ((pName == prop(PropColor::colDiffuse).name) && (_eventFlags & 1))
         { // objects only (no lights)
             setColor(pState, sim_materialcomponent_diffuse);
+            if (pState[3] < 1.0f)
+            {
+                setTranslucid(true);
+                setOpacity(pState[3]);
+            }
+            else
+                setTranslucid(false);
+
             retVal = sim_propertyret_ok;
         }
         else if ((pName == prop(PropColor::colDiffuse).name) && (_eventFlags & 2))
@@ -956,6 +979,8 @@ int CColorObject::getColorProperty(const char* ppName, float* pState) const
         if ((pName == prop(PropColor::colDiffuse).name) && (_eventFlags & 1))
         { // objects only (no lights)
             getColor(pState, sim_materialcomponent_diffuse);
+            if (_translucid)
+                pState[3] = _opacity;
             retVal = sim_propertyret_ok;
         }
         else if ((pName == prop(PropColor::colDiffuse).name) && (_eventFlags & 2))

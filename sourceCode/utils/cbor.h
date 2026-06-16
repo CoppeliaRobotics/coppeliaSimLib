@@ -55,7 +55,8 @@ class CCbor
     void appendQuaternion(const CQuaternion& q);
     void appendPose(const double* v, bool xyzqxqyqzqwLayout = false);
     void appendPose(const CPose& p);
-    void appendColor(const float c[3]);
+    void appendColor3(const float c[3]);
+    void appendColor(const float c[4]);
     void appendNull();
     void appendBool(bool v);
     void appendBuff(const unsigned char* v, size_t l);
@@ -86,6 +87,7 @@ class CCbor
     void appendKeyQuaternion(const char* key, const CQuaternion& q);
     void appendKeyPose(const char* key, const double* v, bool xyzqxqyqzqwLayout = false);
     void appendKeyPose(const char* key, const CPose& p);
+    void appendKeyColor3(const char* key, const float* c);
     void appendKeyColor(const char* key, const float* c);
     void appendKeyBuff(const char* key, const unsigned char* v, size_t l);
     void appendKeyText(const char* key, const char* v, int l = -1);

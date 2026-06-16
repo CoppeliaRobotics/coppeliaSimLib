@@ -420,7 +420,13 @@ void CCbor::appendPose(const CPose& p)
     appendPose(w, true);
 }
 
-void CCbor::appendColor(const float c[3])
+void CCbor::appendColor3(const float c[3])
+{
+    float cc[4] = {c[0], c[1], c[2], 1.0f};
+    appendColor(cc);
+}
+
+void CCbor::appendColor(const float c[4])
 {
     _handleDataField();
 
@@ -435,10 +441,11 @@ void CCbor::appendColor(const float c[3])
     _buff.push_back(((unsigned char*)&w)[1]);
     _buff.push_back(((unsigned char*)&w)[0]);
     NO_DATAFIELD_HANDLE({
-        openArray(3);
+        openArray(4);
         appendDouble(c[0]);
         appendDouble(c[1]);
         appendDouble(c[2]);
+        appendDouble(c[3]);
         closeArrayOrMap();
     });
 }
@@ -896,6 +903,12 @@ void CCbor::appendKeyPose(const char* key, const CPose& p)
 {
     appendText(key);
     appendPose(p);
+}
+
+void CCbor::appendKeyColor3(const char* key, const float* c)
+{
+    appendText(key);
+    appendColor3(c);
 }
 
 void CCbor::appendKeyColor(const char* key, const float* c)

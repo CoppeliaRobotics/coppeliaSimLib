@@ -5791,7 +5791,7 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                         break;
                     }
                     case sim_propertytype_color: {
-                        float state[3];
+                        float state[4];
                         result = obj->getColorProperty(name.c_str(), state);
                         dnaString.append(reinterpret_cast<const char*>(state), sizeof(state));
                         break;

@@ -62,7 +62,7 @@ void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t r
 void luaWrap_lua_pushvector3(luaWrap_lua_State* L, const double* vector3);
 void luaWrap_lua_pushquaternion(luaWrap_lua_State* L, const double* quaternion);
 void luaWrap_lua_pushpose(luaWrap_lua_State* L, const double* pose);
-void luaWrap_lua_pushcolor(luaWrap_lua_State* L, const float c[3]);
+void luaWrap_lua_pushcolor(luaWrap_lua_State* L, const float c[4]);
 void luaWrap_lua_pushcclosure(luaWrap_lua_State* L, luaWrap_lua_CFunction func, int n);
 void luaWrap_lua_pushvalue(luaWrap_lua_State* L, int idx);
 void luaWrap_lua_pushcfunction(luaWrap_lua_State* L, luaWrap_lua_CFunction func);

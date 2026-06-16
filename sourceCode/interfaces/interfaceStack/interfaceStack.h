@@ -52,7 +52,7 @@ class CInterfaceStack : public Obj
     void pushQuaternionOntoStack(const double* q, bool toFront = false, bool xyzwLayout = false);
     void pushPoseOntoStack(const CPose& pose, bool toFront = false);
     void pushPoseOntoStack(const double* q, bool toFront = false, bool xyzqxqyqzqwLayout = false);
-    void pushColorOntoStack(const float c[3], bool toFront = false);
+    void pushColorOntoStack(const float c[4], bool toFront = false);
 
     void insertKeyNullIntoStackTable(const char* key);
     void insertKeyBoolIntoStackTable(const char* key, bool value);
@@ -107,7 +107,7 @@ class CInterfaceStack : public Obj
     bool getStackFloatArray(float* array, int count) const;
     bool getStackDoubleArray(double* array, int count) const;
     bool getStackTextArray(std::vector<std::string>& array) const;
-    bool getStackColor(float array[3]) const;
+    bool getStackColor(float array[4]) const;
     bool getStackMatrix(CMatrix& m) const;
     bool getStackQuaternion(CQuaternion& q) const;
     bool getStackPose(CPose& p) const;
@@ -129,7 +129,7 @@ class CInterfaceStack : public Obj
     bool getStackMapStringValue(const char* fieldName, std::string& val) const;
     bool getStackMapFloatArray(const char* fieldName, float* array, int count) const;
     bool getStackMapDoubleArray(const char* fieldName, double* array, int count) const;
-    bool getStackMapColor(const char* fieldName, float array[3]) const;
+    bool getStackMapColor(const char* fieldName, float array[4]) const;
     const CMatrix* getStackMapMatrix(const char* fieldName) const;
     const CQuaternion* getStackMapQuaternion(const char* fieldName) const;
     const CPose* getStackMapPose(const char* fieldName) const;

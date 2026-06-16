@@ -485,6 +485,12 @@ void CCustomData::appendEventData(const char* tag, CCbor* ev, bool remove /*= fa
                 tg = _eventPrefix + tg;
                 ev->appendKeyColor(tg.c_str(), (float*)dat.data());
             }
+            else if (tg.find(proptypetag_color3) != std::string::npos)
+            {
+                tg.erase(0, p + 2);
+                tg = _eventPrefix + tg;
+                ev->appendKeyColor3(tg.c_str(), (float*)dat.data());
+            }
             else if (tg.find(proptypetag_floatarray) != std::string::npos)
             {
                 tg.erase(0, p + 2);

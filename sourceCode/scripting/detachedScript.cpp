@@ -4510,7 +4510,7 @@ void CDetachedScript::_pushOntoInterpreterStack_lua(void* LL, CInterfaceStackObj
     {
         const float* col = ((CInterfaceStackColor*)obj)->getValue();
         if (pushOnlySimpleTypes)
-            pushFloatArrayAsTable(L, 3, col);
+            pushFloatArrayAsTable(L, 4, col);
         else
             luaWrap_lua_pushcolor(L, col);
     }

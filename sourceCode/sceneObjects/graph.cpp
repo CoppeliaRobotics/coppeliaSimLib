@@ -78,7 +78,7 @@ void CGraph::_setBackgroundColor(const float col[3])
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyFloatArray(cmd, backgroundColor, 3);
             else
-                ev->appendKeyColor(cmd, backgroundColor);
+                ev->appendKeyColor3(cmd, backgroundColor);
             App::scenes->pushEvent();
         }
     }
@@ -98,7 +98,7 @@ void CGraph::_setForegroundColor(const float col[3])
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyFloatArray(cmd, foregroundColor, 3);
             else
-                ev->appendKeyColor(cmd, foregroundColor);
+                ev->appendKeyColor3(cmd, foregroundColor);
             App::scenes->pushEvent();
         }
     }
@@ -630,8 +630,8 @@ void CGraph::addObjectEventData(CCbor* ev)
     }
     else
     {
-        ev->appendKeyColor(prop(PropGraph::backgroundColor).name, backgroundColor);
-        ev->appendKeyColor(prop(PropGraph::foregroundColor).name, foregroundColor);
+        ev->appendKeyColor3(prop(PropGraph::backgroundColor).name, backgroundColor);
+        ev->appendKeyColor3(prop(PropGraph::foregroundColor).name, foregroundColor);
     }
     if (App::getEventProtocolVersion() == 2)
         ev->closeArrayOrMap(); // graph

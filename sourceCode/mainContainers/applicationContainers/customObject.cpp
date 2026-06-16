@@ -162,9 +162,9 @@ void CustomObject::_triggerEvent(const char* pName, CCbor* evv /*= nullptr*/)
                 }
                 else if (t == sim_propertytype_color)
                 {
-                    float v[3];
+                    float v[4];
                     if (getColorProperty(pName, v) == sim_propertyret_ok)
-                        ev->appendKeyFloatArray(pName, v, 3);
+                        ev->appendKeyColor(pName, v);
                 }
                 else if (t == sim_propertytype_floatarray)
                 {
@@ -796,9 +796,9 @@ int CustomObject::setColorProperty(const char* pName, const float* pState)
     {
         if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_color))
         { // property already exists (with correct type), or we want to set it to a class
-            float pp[3] = {pState[0], pState[1], pState[2]};
+            float pp[4] = {pState[0], pState[1], pState[2], pState[3]};
             if ((!_ignoreSetterGetter) && (!isClass()))
-                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const float (&v)[3]) { s->pushColorOntoStack(v); }, [](CInterfaceStack* s, float (&v)[3]) { return s->getStackColor(v); });
+                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const float (&v)[4]) { s->pushColorOntoStack(v); }, [](CInterfaceStack* s, float (&v)[4]) { return s->getStackColor(v); });
             bool changed = false;
             retVal = _customProperties.setColorProperty(pName, pp, changed);
             if (changed)
@@ -816,11 +816,12 @@ int CustomObject::getColorProperty(const char* pName, float* pState) const
         retVal = _customProperties.getColorProperty(pName, pState);
         if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
         {
-            float pp[3] = {pState[0], pState[1], pState[2]};
-            _callPropertySetterGetter(pName, GET_SUFFIX, pp, [](CInterfaceStack* s, const float (&v)[3]) { s->pushColorOntoStack(v); }, [](CInterfaceStack* s, float (&v)[3]) { return s->getStackColor(v); });
+            float pp[4] = {pState[0], pState[1], pState[2], pState[3]};
+            _callPropertySetterGetter(pName, GET_SUFFIX, pp, [](CInterfaceStack* s, const float (&v)[4]) { s->pushColorOntoStack(v); }, [](CInterfaceStack* s, float (&v)[4]) { return s->getStackColor(v); });
             pState[0] = pp[0];
             pState[1] = pp[1];
             pState[2] = pp[2];
+            pState[3] = pp[3];
         }
     }
     return retVal;

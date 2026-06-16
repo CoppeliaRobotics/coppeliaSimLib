@@ -71,8 +71,10 @@ int simSetQuaternionProperty_internal(int64_t target, const char* pName, const d
 int simGetQuaternionProperty_internal(int64_t target, const char* pName, double* pState);
 int simSetPoseProperty_internal(int64_t target, const char* pName, const double* pState);
 int simGetPoseProperty_internal(int64_t target, const char* pName, double* pState);
-int simSetColorProperty_internal(int64_t target, const char* pName, const float* pState);
-int simGetColorProperty_internal(int64_t target, const char* pName, float* pState);
+int simSetColor3Property_internal(int64_t target, const char* pName, const float* pState);
+int simGetColor3Property_internal(int64_t target, const char* pName, float* pState);
+int simSetColor4Property_internal(int64_t target, const char* pName, const float* pState);
+int simGetColor4Property_internal(int64_t target, const char* pName, float* pState);
 int simSetFloatArrayProperty_internal(int64_t target, const char* pName, const double* v, int vL);
 int simGetFloatArrayProperty_internal(int64_t target, const char* pName, double** v, int* vL);
 int simSetIntArrayProperty_internal(int64_t target, const char* pName, const int* v, int vL);

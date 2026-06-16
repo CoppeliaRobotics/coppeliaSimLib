@@ -5,7 +5,7 @@
 class CInterfaceStackColor : public CInterfaceStackObject
 {
   public:
-    CInterfaceStackColor(const float c[3]);
+    CInterfaceStackColor(const float c[4]);
     virtual ~CInterfaceStackColor();
 
     CInterfaceStackObject* copyYourself() const override;
@@ -16,8 +16,8 @@ class CInterfaceStackColor : public CInterfaceStackObject
     static bool checkCreateFromData(const char* data, unsigned int& w, unsigned int l, unsigned char version);
 
     const float* getValue() const;
-    void setValue(const float c[3]);
+    void setValue(const float c[4]);
 
   protected:
-    float _color[3];
+    float _color[4];
 };

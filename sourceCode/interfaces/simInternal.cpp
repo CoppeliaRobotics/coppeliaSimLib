@@ -2570,7 +2570,75 @@ int simGetPoseProperty_internal(int64_t target, const char* ppName, double* pSta
     return -1;
 }
 
-int simSetColorProperty_internal(int64_t target, const char* ppName, const float* pState)
+int simSetColor3Property_internal(int64_t target, const char* ppName, const float* pState)
+{
+    C_API_START;
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = sim_propertyret_invalidname;
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
+        {
+            std::string pName(ppName);
+            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_color3)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_color3)))
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 3 * sizeof(float));
+            else
+            {
+                float ppState[4] = {pState[0], pState[1], pState[2], 1.0f};
+                retVal = simSetColor4Property_internal(target, ppName, ppState);
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetColor3Property_internal(int64_t target, const char* ppName, float* pState)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = sim_propertyret_unavailable;
+        std::string pName(ppName);
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_color3)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_color3)))
+        {
+            int l;
+            char* data;
+            retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
+            if (retVal > 0)
+            {
+                if (l == 3 * sizeof(float))
+                {
+                    for (size_t i = 0; i < 3; i++)
+                        pState[i] = ((float*)data)[i];
+                }
+                else
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
+                    retVal = sim_propertyret_corrupt;
+                }
+                delete[] data;
+            }
+        }
+        else
+        {
+            float ppState[4];
+            int retVal = simGetColor4Property_internal(target, ppName, ppState);
+            if (retVal == sim_propertyret_ok)
+            {
+                pState[0] = ppState[0];
+                pState[1] = ppState[1];
+                pState[2] = ppState[2];
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
+int simSetColor4Property_internal(int64_t target, const char* ppName, const float* pState)
 {
     C_API_START;
 
@@ -2581,7 +2649,7 @@ int simSetColorProperty_internal(int64_t target, const char* ppName, const float
         {
             std::string pName(ppName);
             if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_color)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_color)))
-                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 3 * sizeof(float));
+                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 4 * sizeof(float));
             else
             {
                 pName = checkForDeprecation(__func__, pName.c_str(), target);
@@ -2617,7 +2685,7 @@ int simSetColorProperty_internal(int64_t target, const char* ppName, const float
                         {
                             if (p == sim_propertytype_floatarray)
                             {
-                                std::vector<double> w{(double)pState[0], (double)pState[1], (double)pState[2]};
+                                std::vector<double> w{(double)pState[0], (double)pState[1], (double)pState[2], (double)pState[3]};
                                 retVal = App::setFloatArrayProperty_t(target, pName.c_str(), w);
                             }
                             if (retVal != sim_propertyret_ok)
@@ -2636,7 +2704,7 @@ int simSetColorProperty_internal(int64_t target, const char* ppName, const float
     return -1;
 }
 
-int simGetColorProperty_internal(int64_t target, const char* ppName, float* pState)
+int simGetColor4Property_internal(int64_t target, const char* ppName, float* pState)
 {
     C_API_START;
 
@@ -2651,9 +2719,9 @@ int simGetColorProperty_internal(int64_t target, const char* ppName, float* pSta
             retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
             if (retVal > 0)
             {
-                if (l == 3 * sizeof(float))
+                if (l == 4 * sizeof(float))
                 {
-                    for (size_t i = 0; i < 3; i++)
+                    for (size_t i = 0; i < 4; i++)
                         pState[i] = ((float*)data)[i];
                 }
                 else
@@ -2667,14 +2735,23 @@ int simGetColorProperty_internal(int64_t target, const char* ppName, float* pSta
         else
         {
             pName = checkForDeprecation(__func__, pName.c_str(), target);
-            retVal = App::getColorProperty_t(target, pName.c_str(), pState);
+            float ppState[4];
+            ppState[3] = 1.0f;
+            retVal = App::getColorProperty_t(target, pName.c_str(), ppState);
             if (retVal != sim_propertyret_ok)
             {
                 std::string pName2 = checkAltName(pName.c_str(), target);
                 if (!pName2.empty())
-                    retVal = App::getColorProperty_t(target, pName2.c_str(), pState);
+                    retVal = App::getColorProperty_t(target, pName2.c_str(), ppState);
             }
-            if (retVal != sim_propertyret_ok)
+            if (retVal == sim_propertyret_ok)
+            {
+                pState[0] = ppState[0];
+                pState[1] = ppState[1];
+                pState[2] = ppState[2];
+                pState[3] = ppState[3];
+            }
+            else
             {
                 if (retVal == sim_propertyret_unknowntarget)
                     CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
@@ -2773,9 +2850,9 @@ int simSetFloatArrayProperty_internal(int64_t target, const char* ppName, const 
                                     w.setData(v, true);
                                     retVal = App::setPoseProperty_t(target, pName.c_str(), w);
                                 }
-                                else if ((p == sim_propertytype_color) && (vL == 3))
+                                else if ((p == sim_propertytype_color) && (vL == 4))
                                 {
-                                    float w[3] = {(float)v[0], (float)v[1], (float)v[2]};
+                                    float w[4] = {(float)v[0], (float)v[1], (float)v[2], (float)v[3]};
                                     retVal = App::setColorProperty_t(target, pName.c_str(), w);
                                 }
                                 if (retVal != sim_propertyret_ok)
@@ -2914,14 +2991,14 @@ int simGetFloatArrayProperty_internal(int64_t target, const char* ppName, double
                     }
                     else if ((p & 0xff) == sim_propertytype_color)
                     {
-                        float w[3];
+                        float w[4];
                         retVal = App::getColorProperty_t(target, pName.c_str(), w);
                         if (retVal == sim_propertyret_ok)
                         {
-                            v[0] = new double[3];
-                            for (size_t i = 0; i < 3; i++)
+                            v[0] = new double[4];
+                            for (size_t i = 0; i < 4; i++)
                                 v[0][i] = (double)w[i];
-                            vL[0] = 3;
+                            vL[0] = 4;
                         }
                     }
                     else if ((p & 0xff) == sim_propertytype_matrix)
@@ -11918,13 +11995,14 @@ float* simGetStackColor_internal(int stackHandle)
         {
             if (stack->getStackSize() > 0)
             {
-                float c[3];
+                float c[4];
                 if (stack->getStackColor(c))
                 {
-                    float* buff = new float[3];
+                    float* buff = new float[4];
                     buff[0] = c[0];
                     buff[1] = c[1];
                     buff[2] = c[2];
+                    buff[3] = c[3];
                     return buff;
                 }
                 return nullptr;

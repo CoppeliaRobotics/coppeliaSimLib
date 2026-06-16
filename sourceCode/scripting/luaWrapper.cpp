@@ -957,7 +957,7 @@ void luaWrap_lua_pushpose(luaWrap_lua_State* L, const double* dat)
     lua_pcall((lua_State*)L, 1, 1, 0);
 }
 
-void luaWrap_lua_pushcolor(luaWrap_lua_State* L, const float c[3])
+void luaWrap_lua_pushcolor(luaWrap_lua_State* L, const float c[4])
 {
     lua_getglobal((lua_State*)L, "_Color__");
     if (lua_isnil((lua_State*)L, -1))
@@ -966,8 +966,8 @@ void luaWrap_lua_pushcolor(luaWrap_lua_State* L, const float c[3])
         luaL_dostring((lua_State*)L, "_Color__ = require('Color')");
         lua_getglobal((lua_State*)L, "_Color__");
     }
-    lua_createtable((lua_State*)L, 3, 0);
-    for (size_t i = 0; i < 3; i++)
+    lua_createtable((lua_State*)L, 4, 0);
+    for (size_t i = 0; i < 4; i++)
     {
         lua_pushnumber((lua_State*)L, c[i]);
         lua_rawseti((lua_State*)L, -2, i + 1);

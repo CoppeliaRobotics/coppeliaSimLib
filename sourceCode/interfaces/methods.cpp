@@ -784,7 +784,7 @@ void fetchColor(const CInterfaceStack* inStack, int index, float outArr[3], cons
         {
             const CInterfaceStackColor* col = (CInterfaceStackColor*)obj;
             const float* f = col->getValue();
-            for (size_t i = 0; i < 3; i++)
+            for (size_t i = 0; i < 4; i++)
                 outArr[i] = f[i];
         }
     }
@@ -6609,8 +6609,8 @@ std::string _method_getColorProperty(int targetObj, const char* method, CDetache
         }
         if (errMsg.size() == 0)
         {
-            float pValue[3];
-            if (CALL_C_API(simGetColorProperty, targetObj, pName.c_str(), pValue) > 0)
+            float pValue[4];
+            if (CALL_C_API(simGetColor4Property, targetObj, pName.c_str(), pValue) > 0)
                 outStack->pushColorOntoStack(pValue);
             else
             {
@@ -7134,7 +7134,7 @@ std::string _method_setColorProperty(int targetObj, const char* method, CDetache
     if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_color, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
-        float pValue[3];
+        float pValue[4];
         fetchColor(inStack, 1, pValue);
         bool noError = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 2))
@@ -7143,7 +7143,7 @@ std::string _method_setColorProperty(int targetObj, const char* method, CDetache
         }
         if (errMsg.size() == 0)
         {
-            if (CALL_C_API(simSetColorProperty, targetObj, pName.c_str(), pValue) > 0)
+            if (CALL_C_API(simSetColor4Property, targetObj, pName.c_str(), pValue) > 0)
             {
                 if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {

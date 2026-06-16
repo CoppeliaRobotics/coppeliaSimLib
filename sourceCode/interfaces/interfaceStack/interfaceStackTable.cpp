@@ -254,6 +254,7 @@ void CInterfaceStackTable::getItemsAsConsecutiveFloats(std::vector<float>& array
                 array.push_back(col[0]);
                 array.push_back(col[1]);
                 array.push_back(col[2]);
+                array.push_back(col[3]);
             }
             else if (t == sim_stackitem_quaternion)
             { // as qx,qy,qz,qw
@@ -316,6 +317,7 @@ void CInterfaceStackTable::getItemsAsConsecutiveDoubles(std::vector<double>& arr
                 array.push_back((double)col[0]);
                 array.push_back((double)col[1]);
                 array.push_back((double)col[2]);
+                array.push_back((double)col[3]);
             }
             else if (t == sim_stackitem_quaternion)
             { // as qx,qy,qz,qw
@@ -628,13 +630,14 @@ bool CInterfaceStackTable::fetchDoubleArrayFromKey(const char* fieldName, double
             P->getData(arr, true);
             retVal = true;
         }
-        else if ((obj->getObjectType() == sim_stackitem_color) && (cnt == 3))
+        else if ((obj->getObjectType() == sim_stackitem_color) && (cnt == 4))
         {
             const CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
             const float* C = c->getValue();
             arr[0] = (double)C[0];
             arr[1] = (double)C[1];
             arr[2] = (double)C[2];
+            arr[3] = (double)C[3];
             retVal = true;
         }
     }
@@ -697,7 +700,7 @@ bool CInterfaceStackTable::fetchFloatArrayFromKey(const char* fieldName, float* 
                 arr[i] = (float)dat[i];
             retVal = true;
         }
-        else if ((obj->getObjectType() == sim_stackitem_color) && (cnt == 3))
+        else if ((obj->getObjectType() == sim_stackitem_color) && (cnt == 4))
         {
             const CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
             const float* C = c->getValue();
@@ -1799,7 +1802,7 @@ bool CInterfaceStackTable::_isEquivalent(int what, CInterfaceStackObject* obj)
             if (obj->getObjectType() == sim_stackitem_table)
             {
                 CInterfaceStackTable* t = (CInterfaceStackTable*)obj;
-                if ( (!t->isTableArray()) || (t->getArraySize() != 3) || (!t->areAllValuesThis(sim_stackitem_double, true)) )
+                if ( (!t->isTableArray()) || (t->getArraySize() != 4) || (!t->areAllValuesThis(sim_stackitem_double, true)) )
                     return false;
             }
             else

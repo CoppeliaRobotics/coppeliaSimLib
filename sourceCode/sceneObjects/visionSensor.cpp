@@ -816,7 +816,7 @@ void CVisionSensor::setDefaultBufferValues(const float v[3])
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyFloatArray(cmd, _defaultBufferValues, 3);
             else
-                ev->appendKeyColor(cmd, _defaultBufferValues);
+                ev->appendKeyColor3(cmd, _defaultBufferValues);
             App::scenes->pushEvent();
         }
     }
@@ -2151,7 +2151,7 @@ void CVisionSensor::addObjectEventData(CCbor* ev)
     if (App::getEventProtocolVersion() <= 3)
         ev->appendKeyFloatArray(prop(PropVisionSensor::backgroundCol).name, _defaultBufferValues, 3);
     else
-        ev->appendKeyColor(prop(PropVisionSensor::backgroundCol).name, _defaultBufferValues);
+        ev->appendKeyColor3(prop(PropVisionSensor::backgroundCol).name, _defaultBufferValues);
     ev->appendKeyInt64(prop(PropVisionSensor::renderMode).name, _renderMode);
     ev->appendKeyBool(prop(PropVisionSensor::backgroundSameAsEnv).name, _useSameBackgroundAsEnvironment);
     ev->appendKeyBool(prop(PropVisionSensor::explicitHandling).name, _explicitHandling);
