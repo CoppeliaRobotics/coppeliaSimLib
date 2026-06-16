@@ -1021,7 +1021,7 @@ int CMarker::getMarkerOptions() const
 std::string CMarker::getMarkerTypeStr() const
 {
     std::string retVal = "invalidEnum";
-    auto enum_value = magic_enum::enum_cast<SimMarkerType>(_itemType);
+    auto enum_value = magic_enum::enum_cast<markerType>(_itemType);
     if (enum_value.has_value())
         retVal = magic_enum::enum_name(enum_value.value()).data();
     return retVal;

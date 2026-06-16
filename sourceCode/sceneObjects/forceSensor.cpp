@@ -1190,7 +1190,7 @@ int CForceSensor::setStringProperty(const char* ppName, const std::string& pStat
         if (_pName == prop(PropForceSensor::filterType).name)
         { // Enum
             retVal = sim_propertyret_ok;
-            auto value = magic_enum::enum_cast<SimForceSensorFilter>(pState.c_str());
+            auto value = magic_enum::enum_cast<forceSensorFilter>(pState.c_str());
             if (value.has_value())
                 setFilterType(static_cast<int>(*value));
             else
@@ -1210,7 +1210,7 @@ int CForceSensor::getStringProperty(const char* ppName, std::string& pState) con
         if (_pName == prop(PropForceSensor::filterType).name)
         { // Enum
             retVal = sim_propertyret_ok;
-            auto enum_value = magic_enum::enum_cast<SimForceSensorFilter>(_filterType);
+            auto enum_value = magic_enum::enum_cast<forceSensorFilter>(_filterType);
             if (enum_value.has_value())
                 pState = magic_enum::enum_name(enum_value.value()).data();
             else

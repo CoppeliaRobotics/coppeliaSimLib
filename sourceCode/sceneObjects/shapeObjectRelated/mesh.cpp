@@ -3166,7 +3166,7 @@ int CMesh::setStringProperty_mesh(const char* ppName, const std::string& pState,
     else if ((strcmp(pName, prop(PropMesh::textureApplyMode).name) == 0) && (_textureProperty != nullptr))
     { // Enum
         retVal = sim_propertyret_ok;
-        auto value = magic_enum::enum_cast<SimTextureApplyMode>(pState.c_str());
+        auto value = magic_enum::enum_cast<textureApplyMode>(pState.c_str());
         if (value.has_value())
             setTextureApplyMode(static_cast<int>(*value));
         else
@@ -3191,7 +3191,7 @@ int CMesh::getStringProperty_mesh(const char* ppName, std::string& pState, const
         else if (strcmp(pName, prop(PropMesh::textureApplyMode).name) == 0)
         { // Enum
             retVal = sim_propertyret_ok;
-            auto enum_value = magic_enum::enum_cast<SimTextureApplyMode>(getTextureApplyMode());
+            auto enum_value = magic_enum::enum_cast<textureApplyMode>(getTextureApplyMode());
             if (enum_value.has_value())
                 pState = magic_enum::enum_name(enum_value.value()).data();
             else
@@ -3200,7 +3200,7 @@ int CMesh::getStringProperty_mesh(const char* ppName, std::string& pState, const
         else if (strcmp(pName, prop(PropMesh::primitiveType).name) == 0)
         { // Enum
             retVal = sim_propertyret_ok;
-            auto enum_value = magic_enum::enum_cast<SimPrimitiveType>(_purePrimitive);
+            auto enum_value = magic_enum::enum_cast<primitiveType>(_purePrimitive);
             if (enum_value.has_value())
                 pState = magic_enum::enum_name(enum_value.value()).data();
             else

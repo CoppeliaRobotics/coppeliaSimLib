@@ -6475,7 +6475,7 @@ std::string _method_createLight(int targetObj, const char* method, CDetachedScri
         map->fetchStringFromKey("light.type", t, &errMsg);
         if (errMsg.size() == 0)
         {
-            auto value = magic_enum::enum_cast<SimLightType>(t);
+            auto value = magic_enum::enum_cast<lightType>(t);
             if (value.has_value())
             {
                 int lightType = static_cast<int>(*value);
@@ -9065,7 +9065,7 @@ std::string _method_setTargetPosition(int targetObj, const char* method, CDetach
             {
                 if ((target->getJointMode() == sim_jointmode_kinematic) || (target->getJointMode() == sim_jointmode_dynamic))
                 {
-                    if ((target->getJointMode() != sim_jointmode_kinematic) && (target->getDynPosCtrlType() != 1)) // getDynPosCtrlType: built-in position mode + pos PID (0) or Ruckig (1)
+                    if ((target->getJointMode() != sim_jointmode_kinematic) && (!target->getDynSmoothMotionProfile()))
                     {
                         maxVelAccelJerk[1] = origMaxVelAccelJerk[1];
                         maxVelAccelJerk[2] = origMaxVelAccelJerk[2];
@@ -9120,7 +9120,7 @@ std::string _method_setTargetVelocity(int targetObj, const char* method, CDetach
             {
                 if ((target->getJointMode() == sim_jointmode_kinematic) || (target->getJointMode() == sim_jointmode_dynamic))
                 {
-                    if ((target->getJointMode() != sim_jointmode_kinematic) && (target->getDynPosCtrlType() != 1)) // getDynPosCtrlType: built-in position mode + pos PID (0) or Ruckig (1)
+                    if ((target->getJointMode() != sim_jointmode_kinematic) && (!target->getDynSmoothMotionProfile()))
                     {
                         maxVelAccelJerk[0] = origMaxVelAccelJerk[0];
                         maxVelAccelJerk[1] = origMaxVelAccelJerk[1];

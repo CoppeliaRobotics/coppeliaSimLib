@@ -3144,7 +3144,7 @@ int CDynamicsContainer::setStringProperty(const char* pName, const std::string& 
     else if (strcmp(pName, prop(PropDynCont::dynamicsEngine).name) == 0)
     { // Enum
         retVal = sim_propertyret_ok;
-        auto value = magic_enum::enum_cast<SimPhysicsEngine>(pState.c_str());
+        auto value = magic_enum::enum_cast<physicsEngine>(pState.c_str());
         if (value.has_value())
             setDynamicEngineType(static_cast<int>(*value), _dynamicEngineVersionToUse);
         else
@@ -3169,7 +3169,7 @@ int CDynamicsContainer::getStringProperty(const char* pName, std::string& pState
     else if (strcmp(pName, prop(PropDynCont::dynamicsEngine).name) == 0)
     { // Enum
         retVal = sim_propertyret_ok;
-        auto enum_value = magic_enum::enum_cast<SimPhysicsEngine>(_dynamicEngineToUse);
+        auto enum_value = magic_enum::enum_cast<physicsEngine>(_dynamicEngineToUse);
         if (enum_value.has_value())
             pState = magic_enum::enum_name(enum_value.value()).data();
         else

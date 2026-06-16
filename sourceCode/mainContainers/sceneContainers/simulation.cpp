@@ -1681,7 +1681,7 @@ int CSimulation::getStringProperty(const char* pName, std::string& pState) const
     if (strcmp(pName, prop(PropSimulation::simulationState).name) == 0)
     { // Enum
         retVal = sim_propertyret_ok;
-        auto enum_value = magic_enum::enum_cast<SimSimulationState>(_simulationState);
+        auto enum_value = magic_enum::enum_cast<simulationState>(_simulationState);
         if (enum_value.has_value())
             pState = magic_enum::enum_name(enum_value.value()).data();
         else

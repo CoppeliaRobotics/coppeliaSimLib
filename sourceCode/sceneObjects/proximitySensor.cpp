@@ -1217,7 +1217,7 @@ int CProxSensor::getSensorType() const
 std::string CProxSensor::getSensorTypeStr() const
 {
     std::string retVal = "invalidEnum";
-    auto enum_value = magic_enum::enum_cast<SimProximitySensorType>(sensorType);
+    auto enum_value = magic_enum::enum_cast<proximitySensorType>(sensorType);
     if (enum_value.has_value())
         retVal = magic_enum::enum_name(enum_value.value()).data();
     return retVal;

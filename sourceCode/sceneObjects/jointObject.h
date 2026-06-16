@@ -238,8 +238,7 @@ class CJoint : public CSceneObject
     bool getMotorLock() const;
     double getTargetForce(bool signedValue) const;
     int getDynCtrlMode() const;
-    int getDynVelCtrlType() const;
-    int getDynPosCtrlType() const;
+    bool getDynSmoothMotionProfile() const;
     double getEngineFloatParam_old(int what, bool* ok) const;
     int getEngineIntParam_old(int what, bool* ok) const;
     bool getEngineBoolParam_old(int what, bool* ok) const;
@@ -292,8 +291,7 @@ class CJoint : public CSceneObject
     void setKc(double k_param, double c_param);
     void setTargetForce(double f, bool isSigned);
     void setDynCtrlMode(int mode);
-    void setDynVelCtrlType(int mode);
-    void setDynPosCtrlType(int mode);
+    void setDynSmoothMotionProfile(bool enabled);
 
     bool setJointMode_noDynMotorTargetPosCorrection(int newMode);
 
@@ -365,8 +363,7 @@ class CJoint : public CSceneObject
     int _initialJointMode;
 
     int _initialDynCtrlMode;
-    int _initialDynVelocityCtrlType;
-    int _initialDynPositionCtrlType;
+    bool _initialDynSmoothMotionProfile;
     bool _initialDynCtrl_lockAtVelZero;
     double _initialDynCtrl_force;
     double _initialDynCtrl_kc[3];
@@ -418,8 +415,7 @@ class CJoint : public CSceneObject
 
     double _dynCtrl_kc[2];
     int _dynCtrlMode;
-    int _dynPositionCtrlType; // built-in position mode + pos PID (0) or Ruckig (1)
-    int _dynVelocityCtrlType; // built-in velocity mode (0) or Ruckig (1)
+    bool _dynSmoothMotionProfile; // false: built-in position mode + pos PID / velocity mode, true: using Ruckig
 
     bool _jointHasHybridFunctionality;
 

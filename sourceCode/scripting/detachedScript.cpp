@@ -1336,7 +1336,7 @@ int CDetachedScript::getScriptType() const
 std::string CDetachedScript::getScriptTypeStr() const
 {
     std::string retVal = "invalidEnum";
-    auto enum_value = magic_enum::enum_cast<SimScriptType>(_scriptType);
+    auto enum_value = magic_enum::enum_cast<scriptType>(_scriptType);
     if (enum_value.has_value())
         retVal = magic_enum::enum_name(enum_value.value()).data();
     return retVal;
@@ -4720,7 +4720,7 @@ int CDetachedScript::setStringProperty(const char* pName, const std::string& pSt
     else if (strcmp(prop(PropDetachedScript::execPriority).name, pName) == 0)
     { // Enum
         retVal = sim_propertyret_ok;
-        auto value = magic_enum::enum_cast<SimScriptExecOrder>(pState.c_str());
+        auto value = magic_enum::enum_cast<scriptExecOrder>(pState.c_str());
         if (value.has_value())
             setScriptExecPriority(static_cast<int>(*value));
         else
@@ -4772,7 +4772,7 @@ int CDetachedScript::getStringProperty(const char* pName, std::string& pState) c
         else if (strcmp(prop(PropDetachedScript::execPriority).name, pName) == 0)
         { // Enum
             retVal = sim_propertyret_ok;
-            auto enum_value = magic_enum::enum_cast<SimScriptExecOrder>(getScriptExecPriority());
+            auto enum_value = magic_enum::enum_cast<scriptExecOrder>(getScriptExecPriority());
             if (enum_value.has_value())
                 pState = magic_enum::enum_name(enum_value.value()).data();
             else
@@ -4781,7 +4781,7 @@ int CDetachedScript::getStringProperty(const char* pName, std::string& pState) c
         else if (strcmp(prop(PropDetachedScript::scriptState).name, pName) == 0)
         { // Enum
             retVal = sim_propertyret_ok;
-            auto enum_value = magic_enum::enum_cast<SimScriptState>(_scriptState);
+            auto enum_value = magic_enum::enum_cast<scriptState>(_scriptState);
             if (enum_value.has_value())
                 pState = magic_enum::enum_name(enum_value.value()).data();
             else

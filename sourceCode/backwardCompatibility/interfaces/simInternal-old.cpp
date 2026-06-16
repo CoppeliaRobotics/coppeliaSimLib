@@ -9561,13 +9561,17 @@ int simGetObjectInt32Param_internal(int objectHandle, int parameterID, int* para
                 retVal = 1;
             }
             if (parameterID == sim_jointintparam_dynvelctrltype)
-            {
-                parameter[0] = joint->getDynVelCtrlType();
+            { // for backw. compatibility (16.06.2026)
+                parameter[0] = 0;
+                if ((joint->getDynCtrlMode() == sim_jointdynctrl_velocity) && joint->getDynSmoothMotionProfile())
+                    parameter[0] = 1;
                 retVal = 1;
             }
             if (parameterID == sim_jointintparam_dynposctrltype)
-            {
-                parameter[0] = joint->getDynPosCtrlType();
+            { // for backw. compatibility (16.06.2026)
+                parameter[0] = 0;
+                if ((joint->getDynCtrlMode() == sim_jointdynctrl_position) && joint->getDynSmoothMotionProfile())
+                    parameter[0] = 1;
                 retVal = 1;
             }
         }
@@ -9996,13 +10000,15 @@ int simSetObjectInt32Param_internal(int objectHandle, int parameterID, int param
                 retVal = 1;
             }
             if (parameterID == sim_jointintparam_dynvelctrltype)
-            {
-                joint->setDynVelCtrlType(parameter);
+            { // for backw. compatibility (16.06.2026)
+                if (joint->getDynCtrlMode() == sim_jointdynctrl_velocity)
+                    joint->setDynSmoothMotionProfile(parameter != 0);
                 retVal = 1;
             }
             if (parameterID == sim_jointintparam_dynposctrltype)
-            {
-                joint->setDynPosCtrlType(parameter);
+            { // for backw. compatibility (16.06.2026)
+                if (joint->getDynCtrlMode() == sim_jointdynctrl_position)
+                    joint->setDynSmoothMotionProfile(parameter != 0);
                 retVal = 1;
             }
         }

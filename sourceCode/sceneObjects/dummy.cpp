@@ -1122,7 +1122,7 @@ int CDummy::getDummyType() const
 std::string CDummy::getDummyTypeStr() const
 {
     std::string retVal = "invalidEnum";
-    auto enum_value = magic_enum::enum_cast<SimDummyType>(_linkType);
+    auto enum_value = magic_enum::enum_cast<dummyType>(_linkType);
     if (enum_value.has_value())
         retVal = magic_enum::enum_name(enum_value.value()).data();
     return retVal;
@@ -1131,7 +1131,7 @@ std::string CDummy::getDummyTypeStr() const
 bool CDummy::setDummyTypeStr(const std::string& t, bool check)
 {
     bool retVal = false;
-    auto value = magic_enum::enum_cast<SimDummyType>(t);
+    auto value = magic_enum::enum_cast<dummyType>(t);
     if (value.has_value())
         retVal = setDummyType(static_cast<int>(*value), check);
     return retVal;

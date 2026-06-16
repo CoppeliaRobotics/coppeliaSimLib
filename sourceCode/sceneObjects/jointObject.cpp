@@ -97,8 +97,7 @@ void CJoint::_commonInit()
     _intrinsicTransformationError.setIdentity();
 
     _dynCtrlMode = sim_jointdynctrl_free;
-    _dynPositionCtrlType = 0; // engine velocity mode + Pos PID, by default
-    _dynVelocityCtrlType = 0; // engine velocity mode, by default
+    _dynSmoothMotionProfile = false;
     _motorLock = false;
     _targetForce = 1000.0; // This value has to be adjusted according to the joint type
     _dynCtrl_kc[0] = 0.1;
@@ -788,8 +787,7 @@ void CJoint::initializeInitialValues(bool simulationAlreadyRunning)
     _initialJointMode = _jointMode;
 
     _initialDynCtrlMode = _dynCtrlMode;
-    _initialDynVelocityCtrlType = _dynVelocityCtrlType;
-    _initialDynPositionCtrlType = _dynPositionCtrlType;
+    _initialDynSmoothMotionProfile = _dynSmoothMotionProfile;
     _initialDynCtrl_lockAtVelZero = _motorLock;
     _initialDynCtrl_force = _targetForce;
     _initialDynCtrl_kc[0] = _dynCtrl_kc[0];
@@ -837,8 +835,8 @@ void CJoint::simulationEnded()
 
             setJointMode(_initialJointMode);
             setDynCtrlMode(_initialDynCtrlMode);
-            setDynVelCtrlType(_initialDynVelocityCtrlType);
-            setDynPosCtrlType(_initialDynPositionCtrlType);
+
+            setDynSmoothMotionProfile(_initialDynSmoothMotionProfile);
 
             setMotorLock(_initialDynCtrl_lockAtVelZero);
             setTargetForce(_initialDynCtrl_force, true);
@@ -1454,14 +1452,14 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
     else if (_dynCtrlMode == sim_jointdynctrl_velocity)
     {
         outputWarningAboutPossibleLoopClosureProblemsWithMujoco = (flags & 8);
-        if (_dynVelocityCtrlType == 0)
+        if (!_dynSmoothMotionProfile)
         { // engine internal velocity ctrl
             velAndForce[0] = _targetVel;
             velAndForce[1] = _targetForce;
             if (_motorLock && (_targetVel == 0.0))
                 retVal |= 2;
         }
-        if (_dynVelocityCtrlType == 1)
+        else
         { // motion profile
             if (dynStepSize != 0.0)
             {
@@ -1528,7 +1526,7 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
             outputWarningAboutPossibleLoopClosureProblemsWithMujoco = (flags & 8);
             if (dynStepSize != 0.0)
             {
-                if ((_dynPositionCtrlType == 1) && (_dynCtrlMode == sim_jointdynctrl_position))
+                if (_dynSmoothMotionProfile && (_dynCtrlMode == sim_jointdynctrl_position))
                 { // motion profile
                     double dynPosCtrlCurrentVelAccel[2] = {_dynPosCtrl_currentVelAccel[0],
                                                            _dynPosCtrl_currentVelAccel[1]};
@@ -2046,25 +2044,18 @@ void CJoint::addObjectEventData(CCbor* ev)
         ev->appendKeyInt64("jointType", _jointType);
         ev->appendKeyInt64("jointMode", _jointMode);
         ev->appendKeyInt64("dynCtrlMode", _dynCtrlMode);
-        ev->appendKeyInt64("dynVelMode", _dynVelocityCtrlType);
-        ev->appendKeyInt64("dynPosMode", _dynPositionCtrlType);
-    }
-    else
-    {
-        ev->appendKeyText(prop(PropJoint::jointType).name, getJointTypeStr().c_str());
-        ev->appendKeyInt64(prop(PropJoint::jointMode).name, _jointMode);
-        ev->appendKeyInt64(prop(PropJoint::dynCtrlMode).name, _dynCtrlMode);
-        ev->appendKeyInt64(prop(PropJoint::dynVelMode).name, _dynVelocityCtrlType);
-        ev->appendKeyInt64(prop(PropJoint::dynPosMode).name, _dynPositionCtrlType);
-    }
-    if (App::getEventProtocolVersion() <= 3)
-    {
+        ev->appendKeyInt64("dynVelMode", _dynSmoothMotionProfile);
+        ev->appendKeyInt64("dynPosMode", _dynSmoothMotionProfile);
         ev->appendKeyInt64("dependencyMasterHandle", _dependencyMasterJointHandle);
         ev->appendKeyDouble("targetPos", _targetPos);
         ev->appendKeyDouble("targetVel", _targetVel);
     }
     else
     {
+        ev->appendKeyText(prop(PropJoint::jointType).name, getJointTypeStr().c_str());
+        ev->appendKeyInt64(prop(PropJoint::jointMode).name, _jointMode);
+        ev->appendKeyInt64(prop(PropJoint::dynCtrlMode).name, _dynCtrlMode);
+        ev->appendKeyBool(prop(PropJoint::dynSmoothMotionProfile).name, _dynSmoothMotionProfile);
         ev->appendKeyHandle(prop(PropJoint::dependencyMaster).name, _dependencyMasterJointHandle);
         ev->appendKeyDouble(prop(PropJoint::targetPos).name, _targetPos);
         ev->appendKeyDouble(prop(PropJoint::targetVel).name, _targetVel);
@@ -2160,8 +2151,7 @@ CSceneObject* CJoint::copyYourself()
     _color.copyYourselfInto(&newJoint->_color);
 
     newJoint->_dynCtrlMode = _dynCtrlMode;
-    newJoint->_dynPositionCtrlType = _dynPositionCtrlType;
-    newJoint->_dynVelocityCtrlType = _dynVelocityCtrlType;
+    newJoint->_dynSmoothMotionProfile = _dynSmoothMotionProfile;
     newJoint->_motorLock = _motorLock;
     newJoint->_targetForce = _targetForce;
 
@@ -2409,12 +2399,24 @@ void CJoint::serialize(CSer& ar)
             ar << _dynCtrlMode;
             ar.flush();
 
-            ar.storeDataName("Dpm");
-            ar << _dynPositionCtrlType;
+            ar.storeDataName("Dpm"); // for backw. compatibility (16.06.2026)
+            int dummy1 = 0;
+            if (_dynCtrlMode == sim_jointdynctrl_position)
+                dummy1 = int(_dynSmoothMotionProfile);
+            ar << dummy1;
             ar.flush();
 
-            ar.storeDataName("Dvm");
-            ar << _dynVelocityCtrlType;
+            ar.storeDataName("Dvm"); // for backw. compatibility (16.06.2026)
+            int dummy2 = 0;
+            if (_dynCtrlMode == sim_jointdynctrl_velocity)
+                dummy2 = int(_dynSmoothMotionProfile);
+            ar << dummy2;
+            ar.flush();
+
+            ar.storeDataName("V10");
+            uint8_t bitCoded = 0;
+            SIM_SET_CLEAR_BIT(bitCoded, 0, _dynSmoothMotionProfile);
+            ar << bitCoded;
             ar.flush();
 
             ar.storeDataName(SER_END_OF_OBJECT);
@@ -3119,16 +3121,30 @@ void CJoint::serialize(CSer& ar)
                         usingDynCtrlMode = true;
                     }
                     if (theName.compare("Dpm") == 0)
-                    {
+                    { // for backw. compatibility (16.06.2026)
                         noHit = false;
                         ar >> byteQuantity;
-                        ar >> _dynPositionCtrlType;
+                        int dummy;
+                        ar >> dummy;
+                        if (_dynCtrlMode == sim_jointdynctrl_position)
+                           _dynSmoothMotionProfile = (dummy != 0);
                     }
                     if (theName.compare("Dvm") == 0)
+                    { // for backw. compatibility (16.06.2026)
+                        noHit = false;
+                        ar >> byteQuantity;
+                        int dummy;
+                        ar >> dummy;
+                        if (_dynCtrlMode == sim_jointdynctrl_velocity)
+                           _dynSmoothMotionProfile = (dummy != 0);
+                    }
+                    if (theName.compare("V10") == 0)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        ar >> _dynVelocityCtrlType;
+                        uint8_t dummy;
+                        ar >> dummy;
+                        _dynSmoothMotionProfile = SIM_IS_BIT_SET(dummy, 0);
                     }
                     if (noHit)
                         ar.loadUnknownData();
@@ -3276,10 +3292,20 @@ void CJoint::serialize(CSer& ar)
 
             ar.xmlPushNewNode("dynamics");
             ar.xmlAddNode_int("ctrlMode", _dynCtrlMode);
-            ar.xmlAddNode_comment(" 'posController' tag: can be 'pid' or 'motionProfile' ", exhaustiveXml);
-            ar.xmlAddNode_enum("posController", _dynPositionCtrlType, 0, "pid", 1, "motionProfile");
-            ar.xmlAddNode_comment(" 'velController' tag: can be 'none' or 'motionProfile' ", exhaustiveXml);
-            ar.xmlAddNode_enum("velController", _dynVelocityCtrlType, 0, "none", 1, "motionProfile");
+
+            // Following for backw. compatibility (16.06.2026):
+            // ******
+            int val = 0;
+            if ((_dynCtrlMode == sim_jointdynctrl_position) && _dynSmoothMotionProfile)
+               val = 1;
+            ar.xmlAddNode_enum("posController", val, 0, "pid", 1, "motionProfile");
+            val = 0;
+            if ((_dynCtrlMode == sim_jointdynctrl_velocity) && _dynSmoothMotionProfile)
+               val = 1;
+            ar.xmlAddNode_enum("velController", val, 0, "none", 1, "motionProfile");
+            // ******
+
+            ar.xmlAddNode_bool("smoothMotionProfile", _dynSmoothMotionProfile);
             ar.xmlAddNode_float("maxForce", _targetForce);
             ar.xmlAddNode_comment(" 'upperVelocityLimit' tag only provided for backward compatibility", exhaustiveXml);
             ar.xmlAddNode_float("upperVelocityLimit",
@@ -3609,9 +3635,22 @@ void CJoint::serialize(CSer& ar)
                 if (ar.xmlGetNode_int("ctrlMode", _dynCtrlMode, exhaustiveXml))
                     usingDynCtrlMode = true;
 
-                ar.xmlGetNode_enum("posController", _dynPositionCtrlType, exhaustiveXml, "pid", 0, "motionProfile", 1);
-                ar.xmlGetNode_enum("velController", _dynVelocityCtrlType, exhaustiveXml, "none", 0, "motionProfile", 1);
+                // Following for backw. compatibility (16.06.2026):
+                // ******
+                int val2;
+                if (ar.xmlGetNode_enum("posController", val2, exhaustiveXml, "pid", 0, "motionProfile", 1))
+                {
+                    if ((_dynCtrlMode == sim_jointdynctrl_position) && (val2 == 1))
+                        _dynSmoothMotionProfile = true;
+                }
+                if (ar.xmlGetNode_enum("velController", val2, exhaustiveXml, "none", 0, "motionProfile", 1))
+                {
+                    if ((_dynCtrlMode == sim_jointdynctrl_velocity) && (val2 == 1))
+                        _dynSmoothMotionProfile = true;
+                }
+                // ******
 
+                ar.xmlGetNode_bool("smoothMotionProfile", _dynSmoothMotionProfile, exhaustiveXml);
                 ar.xmlGetNode_float("maxForce", _targetForce, exhaustiveXml);
                 if (_targetVel * _targetForce < 0.0)
                     _targetForce = -_targetForce;
@@ -4284,61 +4323,41 @@ void CJoint::setDynCtrlMode(int mode)
     }
 }
 
-int CJoint::getDynVelCtrlType() const
+void CJoint::setDynSmoothMotionProfile(bool enabled)
 {
-    return _dynVelocityCtrlType;
-}
-
-int CJoint::getDynPosCtrlType() const
-{
-    return _dynPositionCtrlType;
-}
-
-void CJoint::setDynVelCtrlType(int mode)
-{
-    if (mode != _dynVelocityCtrlType)
+    if (enabled != _dynSmoothMotionProfile)
     {
         if (_dynCtrlMode == sim_jointdynctrl_velocity)
         {
             _dynVelCtrl_currentVelAccel[0] = double(_velCalc_vel);
             _dynVelCtrl_currentVelAccel[1] = 0.0;
         }
-        _dynVelocityCtrlType = mode;
-        if (_isInScene && App::scenes->getEventsEnabled())
-        {
-            const char* cmd = prop(PropJoint::dynVelMode).name;
-            CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            if (App::getEventProtocolVersion() <= 3)
-                ev->appendKeyInt64("dynVelMode", _dynVelocityCtrlType);
-            else
-                ev->appendKeyInt64(cmd, _dynVelocityCtrlType);
-            App::scenes->pushEvent();
-        }
-    }
-}
-
-void CJoint::setDynPosCtrlType(int mode)
-{
-    if (mode != _dynPositionCtrlType)
-    {
         if (_dynCtrlMode == sim_jointdynctrl_position)
         {
             _dynPosCtrl_currentVelAccel[0] = double(_velCalc_vel);
             _dynPosCtrl_currentVelAccel[1] = 0.0;
             _dynCtrl_pid_cumulErr = 0.0;
         }
-        _dynPositionCtrlType = mode;
+        _dynSmoothMotionProfile = enabled;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = prop(PropJoint::dynPosMode).name;
+            const char* cmd = prop(PropJoint::dynSmoothMotionProfile).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
-                ev->appendKeyInt64("dynPosMode", _dynPositionCtrlType);
+            {
+                ev->appendKeyInt64("dynVelMode", _dynSmoothMotionProfile);
+                ev->appendKeyInt64("dynPosMode", _dynSmoothMotionProfile);
+            }
             else
-                ev->appendKeyInt64(cmd, _dynPositionCtrlType);
+                ev->appendKeyBool(cmd, _dynSmoothMotionProfile);
             App::scenes->pushEvent();
         }
     }
+}
+
+bool CJoint::getDynSmoothMotionProfile() const
+{
+    return _dynSmoothMotionProfile;
 }
 
 double CJoint::getTargetVelocity() const
@@ -4606,7 +4625,7 @@ int CJoint::getJointType() const
 std::string CJoint::getJointTypeStr() const
 {
     std::string retVal = "invalidEnum";
-    auto enum_value = magic_enum::enum_cast<SimJointType>(_jointType);
+    auto enum_value = magic_enum::enum_cast<jointType>(_jointType);
     if (enum_value.has_value())
         retVal = magic_enum::enum_name(enum_value.value()).data();
     return retVal;
@@ -4755,6 +4774,11 @@ int CJoint::setBoolProperty(const char* ppName, bool pState, CCbor* eev)
                 setEnforceLimits(pState);
                 retVal = sim_propertyret_ok;
             }
+            else if (_pName == prop(PropJoint::dynSmoothMotionProfile).name)
+            {
+                setDynSmoothMotionProfile(pState);
+                retVal = sim_propertyret_ok;
+            }
         }
     }
 
@@ -4809,6 +4833,11 @@ int CJoint::getBoolProperty(const char* ppName, bool& pState) const
         else if (_pName == prop(PropJoint::enforceLimits).name)
         {
             pState = _enforceLimits;
+            retVal = sim_propertyret_ok;
+        }
+        else if (_pName == prop(PropJoint::dynSmoothMotionProfile).name)
+        {
+            pState = _dynSmoothMotionProfile;
             retVal = sim_propertyret_ok;
         }
 
@@ -4869,14 +4898,14 @@ int CJoint::setIntProperty(const char* ppName, int pState, CCbor* eev)
                 setDependencyMasterJointHandle(pState);
                 retVal = sim_propertyret_ok;
             }
-            else if (_pName == prop(PropJoint::dynVelMode).name)
+            else if (_pName == prop(PropJoint::DEPRECATED_dynVelMode).name)
             {
-                setDynVelCtrlType(pState);
+                setDynSmoothMotionProfile(pState != 0);
                 retVal = sim_propertyret_ok;
             }
-            else if (_pName == prop(PropJoint::dynPosMode).name)
+            else if (_pName == prop(PropJoint::DEPRECATED_dynPosMode).name)
             {
-                setDynPosCtrlType(pState);
+                setDynSmoothMotionProfile(pState != 0);
                 retVal = sim_propertyret_ok;
             }
         }
@@ -4945,14 +4974,14 @@ int CJoint::getIntProperty(const char* ppName, int& pState) const
             retVal = sim_propertyret_ok;
             pState = _dependencyMasterJointHandle;
         }
-        else if (_pName == prop(PropJoint::dynVelMode).name)
+        else if (_pName == prop(PropJoint::DEPRECATED_dynVelMode).name)
         {
-            pState = _dynVelocityCtrlType;
+            pState = _dynSmoothMotionProfile;
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == prop(PropJoint::dynPosMode).name)
+        else if (_pName == prop(PropJoint::DEPRECATED_dynPosMode).name)
         {
-            pState = _dynPositionCtrlType;
+            pState = _dynSmoothMotionProfile;
             retVal = sim_propertyret_ok;
         }
 
@@ -5763,7 +5792,7 @@ int CJoint::setStringProperty(const char* ppName, const std::string& pState)
         else if (_pName == prop(PropJoint::dynCtrlMode).name)
         { // Enum
             retVal = sim_propertyret_ok;
-            auto value = magic_enum::enum_cast<SimJointDynamicsCtrlMode>(pState.c_str());
+            auto value = magic_enum::enum_cast<jointDynamicsCtrlMode>(pState.c_str());
             if (value.has_value())
                 setDynCtrlMode(static_cast<int>(*value));
             else
@@ -5772,7 +5801,7 @@ int CJoint::setStringProperty(const char* ppName, const std::string& pState)
         else if (_pName == prop(PropJoint::jointMode).name)
         { // Enum
             retVal = sim_propertyret_ok;
-            auto value = magic_enum::enum_cast<SimJointMode>(pState.c_str());
+            auto value = magic_enum::enum_cast<jointMode>(pState.c_str());
             if (value.has_value())
                 setJointMode(static_cast<int>(*value));
             else
@@ -5802,7 +5831,7 @@ int CJoint::getStringProperty(const char* ppName, std::string& pState) const
         else if (_pName == prop(PropJoint::dynCtrlMode).name)
         { // Enum
             retVal = sim_propertyret_ok;
-            auto enum_value = magic_enum::enum_cast<SimJointDynamicsCtrlMode>(_dynCtrlMode);
+            auto enum_value = magic_enum::enum_cast<jointDynamicsCtrlMode>(_dynCtrlMode);
             if (enum_value.has_value())
                 pState = magic_enum::enum_name(enum_value.value()).data();
             else
@@ -5811,7 +5840,7 @@ int CJoint::getStringProperty(const char* ppName, std::string& pState) const
         else if (_pName == prop(PropJoint::jointMode).name)
         { // Enum
             retVal = sim_propertyret_ok;
-            auto enum_value = magic_enum::enum_cast<SimJointMode>(_jointMode);
+            auto enum_value = magic_enum::enum_cast<jointMode>(_jointMode);
             if (enum_value.has_value())
                 pState = magic_enum::enum_name(enum_value.value()).data();
             else

@@ -707,7 +707,7 @@ int CScript::getStringProperty(const char* ppName, std::string& pState) const
         if (strcmp(prop(PropScript::type).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            auto enum_value = magic_enum::enum_cast<SimScriptType>(detachedScript->getScriptType());
+            auto enum_value = magic_enum::enum_cast<scriptType>(detachedScript->getScriptType());
             if (enum_value.has_value())
                 pState = magic_enum::enum_name(enum_value.value()).data();
             else

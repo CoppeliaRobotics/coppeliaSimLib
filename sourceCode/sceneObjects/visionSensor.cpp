@@ -3648,7 +3648,7 @@ int CVisionSensor::setStringProperty(const char* ppName, const std::string& pSta
         if (_pName == prop(PropVisionSensor::renderMode).name)
         { // Enum
             retVal = sim_propertyret_ok;
-            auto value = magic_enum::enum_cast<SimRenderMode>(pState.c_str());
+            auto value = magic_enum::enum_cast<renderMode>(pState.c_str());
             if (value.has_value())
                 setRenderMode(static_cast<int>(*value));
             else
@@ -3668,7 +3668,7 @@ int CVisionSensor::getStringProperty(const char* ppName, std::string& pState) co
         if (_pName == prop(PropVisionSensor::renderMode).name)
         { // Enum
             retVal = sim_propertyret_ok;
-            auto enum_value = magic_enum::enum_cast<SimRenderMode>(_renderMode);
+            auto enum_value = magic_enum::enum_cast<renderMode>(_renderMode);
             if (enum_value.has_value())
                 pState = magic_enum::enum_name(enum_value.value()).data();
             else

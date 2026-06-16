@@ -4016,7 +4016,7 @@ int _simSetJointTargetPosition(luaWrap_lua_State* L)
                         double maxVelAccelJerk[3];
                         joint->getMaxVelAccelJerk(maxVelAccelJerk);
                         int cnt = 1; // only max. vel. with primitive, built-in controller
-                        if ((joint->getJointMode() == sim_jointmode_kinematic) || (joint->getDynPosCtrlType() == 1))
+                        if ((joint->getJointMode() == sim_jointmode_kinematic) || joint->getDynSmoothMotionProfile())
                             cnt = 3; // Motion profile (max. vel, max. accel and max. jerk)
                         getDoubleArrayFromTable(L, 3, std::min<size_t>(luaWrap_lua_rawlen(L, 3), cnt), maxVelAccelJerk);
                         joint->setMaxVelAccelJerk(maxVelAccelJerk);
@@ -4113,7 +4113,7 @@ int _simSetJointTargetVelocity(luaWrap_lua_State* L)
                     if ((joint->getJointMode() == sim_jointmode_kinematic) ||
                         (joint->getJointMode() == sim_jointmode_dynamic))
                     {
-                        if ((joint->getJointMode() == sim_jointmode_kinematic) || (joint->getDynPosCtrlType() == 1))
+                        if ((joint->getJointMode() == sim_jointmode_kinematic) || joint->getDynSmoothMotionProfile())
                         {
                             double maxVelAccelJerk[3];
                             joint->getMaxVelAccelJerk(maxVelAccelJerk);

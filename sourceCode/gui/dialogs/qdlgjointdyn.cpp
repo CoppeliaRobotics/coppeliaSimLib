@@ -150,9 +150,9 @@ void CQDlgJointDyn::refresh()
         ui->qqVelocityMode_force->setText(utils::getForceTorqueString(false, it->getTargetForce(false)).c_str());
         ui->qqVelocityMode_motorLock->setVisible(it->getMotorLock());
         ui->qqVelocityMode_motorLock->setChecked(it->getMotorLock());
-        ui->qqVelocityMode_ruckig->setChecked(it->getDynVelCtrlType() == 1);
-        ui->qqVelocityMode_maxAccel->setEnabled(it->getDynVelCtrlType() == 1);
-        ui->qqVelocityMode_maxJerk->setEnabled(it->getDynVelCtrlType() == 1);
+        ui->qqVelocityMode_ruckig->setChecked(it->getDynSmoothMotionProfile());
+        ui->qqVelocityMode_maxAccel->setEnabled(it->getDynSmoothMotionProfile());
+        ui->qqVelocityMode_maxJerk->setEnabled(it->getDynSmoothMotionProfile());
     }
     else
     {
@@ -167,7 +167,7 @@ void CQDlgJointDyn::refresh()
 
     if (dynamic && (ctrlMode == sim_jointdynctrl_position))
     {
-        ui->qqPositionMode_ruckig->setChecked(it->getDynPosCtrlType() == 1);
+        ui->qqPositionMode_ruckig->setChecked(it->getDynSmoothMotionProfile());
 
         if (it->getJointType() == sim_joint_revolute)
             ui->qqPositionMode_position->setText(utils::getAngleString(true, it->getTargetPosition()).c_str());
@@ -189,11 +189,11 @@ void CQDlgJointDyn::refresh()
             ui->qqPositionMode_maxJerk->setText(utils::getLinJerkString(false, maxVelAccelJerk[2]).c_str());
         }
 
-        ui->qqPositionMode_cb->setEnabled(it->getDynPosCtrlType() == 0);
+        ui->qqPositionMode_cb->setEnabled(!it->getDynSmoothMotionProfile());
 
         // Always enabled   ui->qqPositionMode_maxVel->setEnabled(it->getDynPosCtrlType()==1);
-        ui->qqPositionMode_maxAccel->setEnabled(it->getDynPosCtrlType() == 1);
-        ui->qqPositionMode_maxJerk->setEnabled(it->getDynPosCtrlType() == 1);
+        ui->qqPositionMode_maxAccel->setEnabled(it->getDynSmoothMotionProfile());
+        ui->qqPositionMode_maxJerk->setEnabled(it->getDynSmoothMotionProfile());
         ui->qqPositionMode_cb->setChecked(it->getDynCtrlMode() == sim_jointdynctrl_positioncb);
     }
     else

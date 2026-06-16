@@ -2570,7 +2570,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
             else if (strcmp(pName, prop(PropApp::platform).name) == 0)
             { // Enum
                 retVal = sim_propertyret_ok;
-                auto enum_value = magic_enum::enum_cast<SimPlatform>(getPlatform());
+                auto enum_value = magic_enum::enum_cast<platform>(getPlatform());
                 if (enum_value.has_value())
                     pState = magic_enum::enum_name(enum_value.value()).data();
                 else
@@ -2579,7 +2579,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
             else if (strcmp(pName, prop(PropApp::flavor).name) == 0)
             { // Enum
                 retVal = sim_propertyret_ok;
-                auto enum_value = magic_enum::enum_cast<SimAppFlavor>(SIM_FL);
+                auto enum_value = magic_enum::enum_cast<appFlavor>(SIM_FL);
                 if (enum_value.has_value())
                     pState = magic_enum::enum_name(enum_value.value()).data();
                 else
@@ -2588,7 +2588,7 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
             else if (strcmp(pName, prop(PropApp::headlessMode).name) == 0)
             { // Enum
                 retVal = sim_propertyret_ok;
-                auto enum_value = magic_enum::enum_cast<SimHeadlessMode>(getHeadlessMode());
+                auto enum_value = magic_enum::enum_cast<headlessMode>(getHeadlessMode());
                 if (enum_value.has_value())
                     pState = magic_enum::enum_name(enum_value.value()).data();
                 else

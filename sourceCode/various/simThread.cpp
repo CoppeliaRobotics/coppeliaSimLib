@@ -3064,7 +3064,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     if ((it->getJointMode() == last->getJointMode()) || (last->getHybridFunctionality_old() && it->getHybridFunctionality_old()))
                     {
                         it->setDynCtrlMode(last->getDynCtrlMode());
-                        it->setDynPosCtrlType(last->getDynPosCtrlType());
+                        it->setDynSmoothMotionProfile(last->getDynSmoothMotionProfile());
                         it->setTargetForce(last->getTargetForce(true), true);
                         it->setTargetVelocity(last->getTargetVelocity());
                         it->setMotorLock(last->getMotorLock());
@@ -3114,23 +3114,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         CJoint* it = App::scene->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-        {
-            if (it->getDynPosCtrlType() == 0)
-                it->setDynPosCtrlType(1);
-            else
-                it->setDynPosCtrlType(0);
-        }
+            it->setDynSmoothMotionProfile(!it->getDynSmoothMotionProfile());
     }
     if (cmd.cmdId == TOGGLE_JOINTVELCTRLMODETYPE_JOINTDYNGUITRIGGEREDCMD)
     {
         CJoint* it = App::scene->sceneObjects->getJointFromHandle(cmd.intParams[0]);
         if (it != nullptr)
-        {
-            if (it->getDynVelCtrlType() == 0)
-                it->setDynVelCtrlType(1);
-            else
-                it->setDynVelCtrlType(0);
-        }
+            it->setDynSmoothMotionProfile(!it->getDynSmoothMotionProfile());
     }
 
     if (cmd.cmdId == TOGGLE_LOCKMOTOR_JOINTDYNGUITRIGGEREDCMD)
