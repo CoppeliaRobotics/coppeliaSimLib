@@ -2940,20 +2940,16 @@ std::string _method_addItems(int targetObj, const char* method, CDetachedScript*
         std::vector<float> sizes;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            map->fetchArrayAsConsecutiveFloatsFromKey("colors", ccols, &errMsg);
-            map->fetchMatrixDataFromKey("quaternions", quats, -1, 4, true, &errMsg);
-            map->fetchMatrixDataFromKey("sizes", sizes, -1, 3, true, &errMsg);
+            map->fetchMatrixDataFromKey("colors", ccols, pts.size() / 3, 4, true, &errMsg);
+            map->fetchMatrixDataFromKey("quaternions", quats, pts.size() / 3, 4, true, &errMsg);
+            map->fetchMatrixDataFromKey("sizes", sizes, pts.size() / 3, 3, true, &errMsg);
         }
         if (errMsg.empty())
         {
             std::vector<unsigned char> cols;
-            for (size_t i = 0; i < ccols.size() / 3; i++)
-            {
-                cols.push_back((unsigned char)(ccols[3 * i + 0] * 255.1f));
-                cols.push_back((unsigned char)(ccols[3 * i + 1] * 255.1f));
-                cols.push_back((unsigned char)(ccols[3 * i + 2] * 255.1f));
-                cols.push_back(255);
-            }
+            cols.resize(ccols.size());
+            for (size_t i = 0; i < ccols.size(); i++)
+                cols[i] = (uint8_t)(ccols[i] * 255.1f);
             std::vector<int64_t> newIds;
             target->addItems(&pts, &quats, &cols, &sizes, true, &newIds);
             outStack->pushInt64ArrayOntoStack(newIds.data(), newIds.size());

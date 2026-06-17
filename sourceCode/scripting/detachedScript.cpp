@@ -4290,7 +4290,7 @@ CInterfaceStackObject* CDetachedScript::_getObjectFromInterpreterStack_lua(void*
             size_t rows, cols;
             std::vector<double> dat;
             std::vector<int64_t> handleArray;
-            float color[3];
+            float color[4];
             double ddat[7];
             if (luaWrap_lua_isbuffer(L, index))
             {
