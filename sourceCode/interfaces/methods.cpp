@@ -191,8 +191,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["step"] = _method_step;
         funcTable["makeClass"] = _method_makeClass;
         funcTable["makeObject"] = _method_makeObject;
-        funcTable["addFromObject"] = _method_addFromObject;
-        funcTable["subtractFromObject"] = _method_subtractFromObject;
+        funcTable["addFromObjects"] = _method_addFromObjects;
+        funcTable["subtractFromObjects"] = _method_subtractFromObjects;
         funcTable["clear"] = _method_clear;
         funcTable["addVoxels"] = _method_addVoxels;
         funcTable["addPackedVoxels"] = _method_addPackedVoxels;
@@ -386,7 +386,11 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                                 if (desiredArgType == arg_handlearray)
                                     retVal = tbl->areAllValuesThis(arg_handle, true);
                                 else if (desiredArgType == arg_matrix)
-                                    retVal =tbl->isMatrixEquivalent(rows, cols);
+                                {
+                                    retVal = tbl->isMatrixEquivalent(rows, cols);
+                                    if (!retVal)
+                                        retVal = tbl->isMatrixDataEquivalent(rows, cols);
+                                }
                                 else
                                 {
                                     if (tbl->areAllValuesThis(arg_double, true))
@@ -780,7 +784,7 @@ void fetchColor(const CInterfaceStack* inStack, int index, float outArr[4], cons
         if (obj->getObjectType() == sim_stackitem_table)
         {
             const CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
-            tbl->getFloatArray(outArr, std::min<int>(4, tbl->getArraySize()));
+            tbl->getFloatArray(outArr, std::min<int>(4, int(tbl->getArraySize())));
         }
         else if (obj->getObjectType() == sim_stackitem_color)
         {
@@ -8357,7 +8361,7 @@ std::string _method_makeObject(int targetObj, const char* method, CDetachedScrip
     return errMsg;
 }
 
-std::string _method_addFromObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addFromObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
@@ -8458,7 +8462,7 @@ std::string _method_addFromObject(int targetObj, const char* method, CDetachedSc
     return errMsg;
 }
 
-std::string _method_subtractFromObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_subtractFromObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
@@ -8551,38 +8555,42 @@ std::string _method_addVoxels(int targetObj, const char* method, CDetachedScript
         tags.resize(pts.size() / 3);
         bool hasColors = false;
         bool hasTags = false;
-        float color[3];
+        float color[4];
         int tag = 0;
         bool hasColor = false;
         bool relative = false;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            hasColors = map->fetchArrayAsConsecutiveFloatsFromKey("colors", colors, &errMsg);
-            if (hasColors && (colors.size() != pts.size()))
-                errMsg = "invalid 'colors' field.";
+            hasColors = map->fetchMatrixDataFromKey("colors", colors, pts.size() / 3, 4, true, &errMsg);
+            hasColor = map->fetchFloatArrayFromKey("color", color, 4, &errMsg);
             hasTags = map->fetchUInt32ArrayFromKey("tags", tags.data(), tags.size(), &errMsg);
-            hasColor = map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
             map->fetchInt32FromKey("tag", tag, &errMsg);
             map->fetchBoolFromKey("relative", relative, &errMsg);
         }
         if (errMsg.size() == 0)
         {
-            std::vector<unsigned char> _cols;
-            _cols.resize(pts.size());
+            std::vector<uint8_t> _cols;
+            _cols.resize(4 * (pts.size() / 3));
             if (hasColors)
             {
-                for (size_t i = 0; i < pts.size(); i++)
-                    _cols[i] = (unsigned char)(colors[i] * 255.1f);
+                for (size_t i = 0; i < 4 * (pts.size() / 3); i++)
+                    _cols[i] = (uint8_t)(colors[i] * 255.1f);
             }
             else
             {
                 if (!hasColor)
+                {
                     target->getColor()->getColor(color, sim_materialcomponent_diffuse);
+                    color[3] = 255;
+                    if (target->getColor()->getTranslucid())
+                        color[3] = target->getColor()->getOpacity() * 255.1f;
+                }
                 for (size_t i = 0; i < pts.size() / 3; i++)
                 {
-                    _cols[3 * i + 0] = (unsigned char)(color[0] * 255.1f);
-                    _cols[3 * i + 1] = (unsigned char)(color[1] * 255.1f);
-                    _cols[3 * i + 2] = (unsigned char)(color[2] * 255.1f);
+                    _cols[4 * i + 0] = (uint8_t)(color[0] * 255.1f);
+                    _cols[4 * i + 1] = (uint8_t)(color[1] * 255.1f);
+                    _cols[4 * i + 2] = (uint8_t)(color[2] * 255.1f);
+                    _cols[4 * i + 3] = (uint8_t)(color[3] * 255.1f);
                 }
             }
             if (!hasTags)
@@ -8613,7 +8621,7 @@ std::string _method_addPackedVoxels(int targetObj, const char* method, CDetached
         tags.resize(pts.size() / 3);
         bool hasColors = false;
         bool hasTags = false;
-        float color[3];
+        float color[4];
         int tag = 0;
         bool hasColor = false;
         bool relative = false;
@@ -8624,7 +8632,7 @@ std::string _method_addPackedVoxels(int targetObj, const char* method, CDetached
             if (hasColors)
             {
                 l = buff.size() / sizeof(float);
-                if ( l != pts.size())
+                if ( (l / 4) != (pts.size() / 3))
                     errMsg = "invalid 'colors' field.";
                 else
                 {
@@ -8647,28 +8655,34 @@ std::string _method_addPackedVoxels(int targetObj, const char* method, CDetached
                         tags[i] = ((unsigned int*)buff.data())[i];
                 }
             }
-            hasColor = map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
+            hasColor = map->fetchFloatArrayFromKey("color", color, 4, &errMsg);
             map->fetchInt32FromKey("tag", tag, &errMsg);
             map->fetchBoolFromKey("relative", relative, &errMsg);
         }
         if (errMsg.size() == 0)
         {
-            std::vector<unsigned char> _cols;
-            _cols.resize(pts.size());
+            std::vector<uint8_t> _cols;
+            _cols.resize(4 * (pts.size() / 3));
             if (hasColors)
             {
-                for (size_t i = 0; i < pts.size(); i++)
-                    _cols[i] = (unsigned char)(colors[i] * 255.1f);
+                for (size_t i = 0; i < 4 * (pts.size() / 3); i++)
+                    _cols[i] = (uint8_t)(colors[i] * 255.1f);
             }
             else
             {
                 if (!hasColor)
+                {
                     target->getColor()->getColor(color, sim_materialcomponent_diffuse);
+                    color[3] = 255;
+                    if (target->getColor()->getTranslucid())
+                        color[3] = target->getColor()->getOpacity() * 255.1f;
+                }
                 for (size_t i = 0; i < pts.size() / 3; i++)
                 {
-                    _cols[3 * i + 0] = (unsigned char)(color[0] * 255.1f);
-                    _cols[3 * i + 1] = (unsigned char)(color[1] * 255.1f);
-                    _cols[3 * i + 2] = (unsigned char)(color[2] * 255.1f);
+                    _cols[4 * i + 0] = (uint8_t)(color[0] * 255.1f);
+                    _cols[4 * i + 1] = (uint8_t)(color[1] * 255.1f);
+                    _cols[4 * i + 2] = (uint8_t)(color[2] * 255.1f);
+                    _cols[4 * i + 3] = (uint8_t)(color[3] * 255.1f);
                 }
             }
             if (!hasTags)
@@ -8838,37 +8852,41 @@ std::string _method_addPoints(int targetObj, const char* method, CDetachedScript
         fetchMatrixData(inStack, 0, pts, true);
         std::vector<float> colors;
         bool hasColors = false;
-        float color[3];
+        float color[4];
         bool hasColor = false;
         bool relative = false;
         double tolerance = target->getInsertionDistanceTolerance();
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            hasColors = map->fetchArrayAsConsecutiveFloatsFromKey("colors", colors, &errMsg);
-            if (hasColors && (colors.size() != pts.size()))
-                errMsg = "invalid 'colors' field.";
-            hasColor = map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
+            hasColors = map->fetchMatrixDataFromKey("colors", colors, pts.size() / 3, 4, true, &errMsg);
+            hasColor = map->fetchFloatArrayFromKey("color", color, 4, &errMsg);
             map->fetchBoolFromKey("relative", relative, &errMsg);
             map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
         }
         if (errMsg.size() == 0)
         {
-            std::vector<unsigned char> _cols;
-            _cols.resize(pts.size());
+            std::vector<uint8_t> _cols;
+            _cols.resize(4 * (pts.size() / 3));
             if (hasColors)
             {
-                for (size_t i = 0; i < pts.size(); i++)
-                    _cols[i] = (unsigned char)(colors[i] * 255.1f);
+                for (size_t i = 0; i < 4 * (pts.size() / 3); i++)
+                    _cols[i] = (uint8_t)(colors[i] * 255.1f);
             }
             else
             {
                 if (!hasColor)
+                {
                     target->getColor()->getColor(color, sim_materialcomponent_diffuse);
+                    color[3] = 255;
+                    if (target->getColor()->getTranslucid())
+                        color[3] = target->getColor()->getOpacity() * 255.1f;
+                }
                 for (size_t i = 0; i < pts.size() / 3; i++)
                 {
-                    _cols[3 * i + 0] = (unsigned char)(color[0] * 255.1f);
-                    _cols[3 * i + 1] = (unsigned char)(color[1] * 255.1f);
-                    _cols[3 * i + 2] = (unsigned char)(color[2] * 255.1f);
+                    _cols[4 * i + 0] = (uint8_t)(color[0] * 255.1f);
+                    _cols[4 * i + 1] = (uint8_t)(color[1] * 255.1f);
+                    _cols[4 * i + 2] = (uint8_t)(color[2] * 255.1f);
+                    _cols[4 * i + 3] = (uint8_t)(color[3] * 255.1f);
                 }
             }
             double insertionToleranceSaved = target->getInsertionDistanceTolerance();
@@ -8894,7 +8912,7 @@ std::string _method_addPackedPoints(int targetObj, const char* method, CDetached
             pts[i] = (double)((float*)buff.data())[i];
         std::vector<float> colors;
         bool hasColors = false;
-        float color[3];
+        float color[4];
         bool hasColor = false;
         bool relative = false;
         double tolerance = target->getInsertionDistanceTolerance();
@@ -8905,7 +8923,7 @@ std::string _method_addPackedPoints(int targetObj, const char* method, CDetached
             if (hasColors)
             {
                 l = buff.size() / sizeof(float);
-                if ( l != pts.size())
+                if ( (l / 4) != (pts.size() / 3))
                     errMsg = "invalid 'colors' field.";
                 else
                 {
@@ -8914,28 +8932,34 @@ std::string _method_addPackedPoints(int targetObj, const char* method, CDetached
                         colors[i] = ((float*)buff.data())[i];
                 }
             }
-            hasColor = map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
+            hasColor = map->fetchFloatArrayFromKey("color", color, 4, &errMsg);
             map->fetchBoolFromKey("relative", relative, &errMsg);
             map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
         }
         if (errMsg.size() == 0)
         {
             std::vector<unsigned char> _cols;
-            _cols.resize(pts.size());
+            _cols.resize(4 * (pts.size() / 3));
             if (hasColors)
             {
-                for (size_t i = 0; i < pts.size(); i++)
-                    _cols[i] = (unsigned char)(colors[i] * 255.1f);
+                for (size_t i = 0; i < 4 * (pts.size() / 3); i++)
+                    _cols[i] = (uint8_t)(colors[i] * 255.1f);
             }
             else
             {
                 if (!hasColor)
+                {
                     target->getColor()->getColor(color, sim_materialcomponent_diffuse);
+                    color[3] = 255;
+                    if (target->getColor()->getTranslucid())
+                        color[3] = target->getColor()->getOpacity() * 255.1f;
+                }
                 for (size_t i = 0; i < pts.size() / 3; i++)
                 {
-                    _cols[3 * i + 0] = (unsigned char)(color[0] * 255.1f);
-                    _cols[3 * i + 1] = (unsigned char)(color[1] * 255.1f);
-                    _cols[3 * i + 2] = (unsigned char)(color[2] * 255.1f);
+                    _cols[4 * i + 0] = (uint8_t)(color[0] * 255.1f);
+                    _cols[4 * i + 1] = (uint8_t)(color[1] * 255.1f);
+                    _cols[4 * i + 2] = (uint8_t)(color[2] * 255.1f);
+                    _cols[4 * i + 3] = (uint8_t)(color[3] * 255.1f);
                 }
             }
             double insertionToleranceSaved = target->getInsertionDistanceTolerance();

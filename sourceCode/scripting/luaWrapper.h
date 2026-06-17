@@ -91,7 +91,7 @@ bool luaWrap_lua_isvector3(luaWrap_lua_State* L, int idx, double* vectorData = n
 bool luaWrap_lua_isvector(luaWrap_lua_State* L, int idx, std::vector<double>* vectorData = nullptr, bool strict = false);
 bool luaWrap_lua_isquaternion(luaWrap_lua_State* L, int idx, double* quaternionData = nullptr, bool strict = false);
 bool luaWrap_lua_ispose(luaWrap_lua_State* L, int idx, double* poseData = nullptr, bool strict = false);
-bool luaWrap_lua_iscolor(luaWrap_lua_State* L, int idx, float colorData[3] = nullptr, bool strict = false);
+bool luaWrap_lua_iscolor(luaWrap_lua_State* L, int idx, float colorData[4] = nullptr, bool strict = false);
 int luaWrap_lua_getmetatable(luaWrap_lua_State* L, int idx);
 int luaWrap_lua_rawequal(luaWrap_lua_State* L, int idx1, int idx2);
 bool luaWrap_lua_isfunction(luaWrap_lua_State* L, int idx);

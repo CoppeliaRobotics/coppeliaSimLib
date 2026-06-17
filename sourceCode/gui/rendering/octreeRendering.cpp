@@ -198,6 +198,8 @@ void displayOctree(COcTree* octree, CViewableBase* renderingObject, int displayA
                 octree->setNormalBufferId(-1);
             }
 
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             const float blk[4] = {0.0, 0.0, 0.0, 0.0};
             glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, blk);
             if (octree->getUsePointsInsteadOfCubes())
@@ -252,6 +254,7 @@ void displayOctree(COcTree* octree, CViewableBase* renderingObject, int displayA
                     }
                 }
             }
+            glDisable(GL_BLEND);
         }
 
         glDisable(GL_CULL_FACE);

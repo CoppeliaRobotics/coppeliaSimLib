@@ -750,7 +750,7 @@ bool luaWrap_lua_ispose(luaWrap_lua_State* L, int idx, double* poseData /*= null
     return retVal;
 }
 
-bool luaWrap_lua_iscolor(luaWrap_lua_State* L, int idx, float colorData[3] /*= nullptr*/, bool strict /*= false*/)
+bool luaWrap_lua_iscolor(luaWrap_lua_State* L, int idx, float colorData[4] /*= nullptr*/, bool strict /*= false*/)
 {
     bool retVal = false;
     int abs_idx = lua_absindex((lua_State*)L, idx);
@@ -764,7 +764,7 @@ bool luaWrap_lua_iscolor(luaWrap_lua_State* L, int idx, float colorData[3] /*= n
             {
                 if (luaL_callmeta((lua_State*)L, abs_idx, "data") == 1)
                 {
-                    for (size_t i = 1; i <= 3; i++)
+                    for (size_t i = 1; i <= 4; i++)
                     {
                         lua_rawgeti((lua_State*)L, -1, (lua_Integer)i);
                         colorData[i - 1] = float(lua_tonumber((lua_State*)L, -1));
@@ -780,14 +780,15 @@ bool luaWrap_lua_iscolor(luaWrap_lua_State* L, int idx, float colorData[3] /*= n
         if (luaWrap_lua_isnonbuffertable(L, abs_idx))
         {
             int s = int(lua_rawlen((lua_State*)L, abs_idx));
-            if (s == 3)
+            if ((s == 3) || (s == 4))
             {
-                float c[3];
+                float c[4];
+                c[3] = 1.0f;
                 if (getFloatArrayFromTable(L, abs_idx, s, c))
                 {
                     if (colorData != nullptr)
                     {
-                        for (size_t i = 0; i < 3; i++)
+                        for (size_t i = 0; i < 4; i++)
                             colorData[i] = c[i];
                     }
                     retVal = true;

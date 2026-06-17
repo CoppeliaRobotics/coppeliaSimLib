@@ -118,6 +118,8 @@ void displayPointCloud(CPointCloud* pointCloud, CViewableBase* renderingObject, 
             }
             else
             {
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 // note: glMaterialfv has some bugs in some geForce drivers, use glColor instead
                 glEnable(GL_COLOR_MATERIAL);
                 glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
@@ -139,6 +141,7 @@ void displayPointCloud(CPointCloud* pointCloud, CViewableBase* renderingObject, 
                     glVertex3dv(&(pts[0])[3 * i]);
                 }
                 glEnd();
+                glDisable(GL_BLEND);
                 glDisable(GL_COLOR_MATERIAL);
             }
             glPointSize(1.0);

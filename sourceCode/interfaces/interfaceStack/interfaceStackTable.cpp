@@ -951,6 +951,11 @@ bool CInterfaceStackTable::fetchMatrixDataFromKey(const char* fieldName, std::ve
                 table->getItemsAsConsecutiveDoubles(arr);
                 retVal = true;
             }
+            else if (table->isMatrixDataEquivalent(rows, cols))
+            {
+                table->getItemsAsConsecutiveDoubles(arr);
+                retVal = true;
+            }
         }
     }
     if (retVal)
@@ -1718,6 +1723,30 @@ bool CInterfaceStackTable::isMatrixEquivalent(int rows, int cols) const
     }
     else
         retVal = false;
+    return retVal;
+}
+
+bool CInterfaceStackTable::isMatrixDataEquivalent(int rows, int cols) const
+{
+    bool retVal = false;
+    size_t s = getArraySize();
+    if (areAllValuesThis(sim_stackitem_double, true))
+    {
+        if ((rows != -1) && (cols != -1))
+            retVal = (s == rows * cols);
+        else
+        {
+            int v = -1;
+            if (rows != -1)
+                v = rows;
+            else if (cols != -1)
+                v = cols;
+            if (v == -1)
+                retVal = true;
+            else
+                retVal = (s % v == 0);
+        }
+    }
     return retVal;
 }
 

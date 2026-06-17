@@ -12344,6 +12344,28 @@ int simInsertVoxelsIntoOctree_internal(int octreeHandle, int options, const doub
             return (-1);
         }
         COcTree* it = App::scene->sceneObjects->getOctreeFromHandle(octreeHandle);
+        std::vector<uint8_t> col;
+        if (color != nullptr)
+        {
+            if (options & 2)
+            {
+                col.resize(ptCnt * 4);
+                for (int i = 0; i < ptCnt; i++)
+                {
+                    col[4 * i + 0] = color[3 * i + 0];
+                    col[4 * i + 1] = color[3 * i + 1];
+                    col[4 * i + 2] = color[3 * i + 2];
+                    col[4 * i + 3] = 255;
+                }
+            }
+            else
+            {
+                col.push_back(color[0]);
+                col.push_back(color[1]);
+                col.push_back(color[2]);
+                col.push_back(255);
+            }
+        }
         if ((tag == nullptr) || (color == nullptr))
         {
             if (color == nullptr)
@@ -12355,11 +12377,11 @@ int simInsertVoxelsIntoOctree_internal(int octreeHandle, int options, const doub
                     tags.resize(ptCnt, 0);
                 else
                     tags.push_back(0);
-                it->insertPoints(pts, ptCnt, options & 1, color, options & 2, &tags[0], 0);
+                it->insertPoints(pts, ptCnt, options & 1, col.data(), options & 2, &tags[0], 0);
             }
         }
         else
-            it->insertPoints(pts, ptCnt, options & 1, color, options & 2, tag, 0);
+            it->insertPoints(pts, ptCnt, options & 1, col.data(), options & 2, tag, 0);
         int retVal = int(it->getCubePositions()->size()) / 3;
         return (retVal);
     }
@@ -12415,7 +12437,27 @@ int simInsertPointsIntoPointCloud_internal(int pointCloudHandle, int options, co
             optionalValuesBits = ((int*)optionalValues)[0];
         if (optionalValuesBits & 1)
             it->setInsertionDistanceTolerance((double)((float*)optionalValues)[1]);
-        it->insertPoints(pts, ptCnt, options & 1, color, options & 2);
+        std::vector<uint8_t> col;
+        if (options & 2)
+        {
+            col.resize(ptCnt * 4);
+            for (int i = 0; i < ptCnt; i++)
+            {
+                col[4 * i + 0] = color[3 * i + 0];
+                col[4 * i + 1] = color[3 * i + 1];
+                col[4 * i + 2] = color[3 * i + 2];
+                col[4 * i + 3] = 255;
+            }
+        }
+        else
+        {
+            col.push_back(color[0]);
+            col.push_back(color[1]);
+            col.push_back(color[2]);
+            col.push_back(255);
+        }
+
+        it->insertPoints(pts, ptCnt, options & 1, col.data(), options & 2);
         it->setInsertionDistanceTolerance(insertionToleranceSaved);
         int retVal = int(it->getPoints()->size()) / 3;
         return (retVal);

@@ -77,7 +77,7 @@ class CPointCloud : public CSceneObject
     double getCellSize() const;
     void setMaxPointCountPerCell(int cnt);
     int getMaxPointCountPerCell() const;
-    void insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToPointCloud, const unsigned char* optionalColors3, bool colorsAreIndividual);
+    void insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToPointCloud, const unsigned char* optionalColors4, bool colorsAreIndividual);
     void insertShape(CShape* shape);
     void insertOctree(const COcTree* octree);
     void insertDummy(const CDummy* dummy);
@@ -130,7 +130,6 @@ class CPointCloud : public CSceneObject
     void _remBBPts(const unsigned int* ids, int ptCnt);
     void _updatePointCloudEvent(bool incremental, CCbor* evv = nullptr);
     void _readPositionsAndColorsAndSetDimensions();
-    void _getCharRGB3Colors(const std::vector<double>& floatRGBA, std::vector<unsigned char>& charRGB);
 
     // Variables which need to be serialized & copied
     CColorObject color;
@@ -138,10 +137,10 @@ class CPointCloud : public CSceneObject
     int _maxPointCountPerCell;
     void* _pointCloudInfo;
     std::vector<double> _points;
-    std::vector<double> _colors;
+    std::vector<double> _colors; // rgba
     std::vector<double> _displayPoints;
-    std::vector<double> _displayColors;
-    std::vector<unsigned char> _displayColorsByte;
+    std::vector<double> _displayColors; // rgba
+    std::vector<unsigned char> _displayColorsByte; // rgba
     bool _showOctreeStructure;
     bool _useRandomColors;
     int _pointSize;

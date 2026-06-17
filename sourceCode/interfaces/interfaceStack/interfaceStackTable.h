@@ -124,6 +124,7 @@ class CInterfaceStackTable : public CInterfaceStackObject
     int getTableInfo(int infoType) const;
     bool areAllValuesThis(int what, bool tolerant) const;
     bool isMatrixEquivalent(int rows, int cols) const;
+    bool isMatrixDataEquivalent(int rows, int cols) const;
 
 
   protected:

@@ -74,9 +74,7 @@ class COcTree : public CSceneObject
     void setCellSizeForDisplay(double theNewSizeForDisplay);
     double getCellSizeForDisplay() const;
 
-    void insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToOctree, const unsigned char* optionalColors3,
-                      bool colorsAreIndividual, const unsigned int* optionalTags,
-                      unsigned int theTagWhenOptionalTagsIsNull);
+    void insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToOctree, const unsigned char* optionalColors4, bool colorsAreIndividual, const unsigned int* optionalTags, unsigned int theTagWhenOptionalTagsIsNull);
     void insertShape(CShape* shape, unsigned int theTag);
     void insertOctree(const COcTree* octree, unsigned int theTag);
     void insertDummy(const CDummy* dummy, unsigned int theTag);
@@ -130,8 +128,8 @@ class COcTree : public CSceneObject
     int _pointSize;
     void* _octreeInfo;
     std::vector<double> _voxelPositions;
-    std::vector<float> _colors;
-    std::vector<unsigned char> _colorsByte;
+    std::vector<float> _colors; // RGBA
+    std::vector<unsigned char> _colorsByte; // RGBA
     bool _showOctreeStructure;
     bool _useRandomColors;
     bool _usePointsInsteadOfCubes;

@@ -320,9 +320,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
     }
 }
 
-void COcTree::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToOctree,
-                           const unsigned char* optionalColors3, bool colorsAreIndividual,
-                           const unsigned int* optionalTags, unsigned int theTagWhenOptionalTagsIsNull)
+void COcTree::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToOctree, const unsigned char* optionalColors4, bool colorsAreIndividual, const unsigned int* optionalTags, unsigned int theTagWhenOptionalTagsIsNull)
 {
     TRACE_INTERNAL;
     const double* _pts = pts;
@@ -342,42 +340,36 @@ void COcTree::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativeToO
     }
     if (_octreeInfo == nullptr)
     {
-        if (optionalColors3 == nullptr)
+        if (optionalColors4 == nullptr)
         {
-            unsigned char cols[3] = {(unsigned char)(color.getColorsPtr()[0] * 255.1),
-                                     (unsigned char)(color.getColorsPtr()[1] * 255.1),
-                                     (unsigned char)(color.getColorsPtr()[2] * 255.1)};
-            _octreeInfo = App::scenes->pluginContainer->geomPlugin_createOctreeFromPoints_rgb(
-                _pts, ptsCnt, nullptr, _cellSize, cols, theTagWhenOptionalTagsIsNull);
+            uint8_t cols[4] = {(uint8_t)(color.getColorsPtr()[0] * 255.1), (uint8_t)(color.getColorsPtr()[1] * 255.1), (uint8_t)(color.getColorsPtr()[2] * 255.1), 255};
+            if (color.getTranslucid())
+                cols[3] = (uint8_t)color.getOpacity() * 255.1;
+            _octreeInfo = App::scenes->pluginContainer->geomPlugin_createOctreeFromPoints_rgba(_pts, ptsCnt, nullptr, _cellSize, cols, theTagWhenOptionalTagsIsNull);
         }
         else
         {
             if (colorsAreIndividual)
-                _octreeInfo = App::scenes->pluginContainer->geomPlugin_createOctreeFromColorPoints_rgb(
-                    _pts, ptsCnt, nullptr, _cellSize, optionalColors3, optionalTags);
+                _octreeInfo = App::scenes->pluginContainer->geomPlugin_createOctreeFromColorPoints_rgba(_pts, ptsCnt, nullptr, _cellSize, optionalColors4, optionalTags);
             else
-                _octreeInfo = App::scenes->pluginContainer->geomPlugin_createOctreeFromPoints_rgb(
-                    _pts, ptsCnt, nullptr, _cellSize, optionalColors3, optionalTags[0]);
+                _octreeInfo = App::scenes->pluginContainer->geomPlugin_createOctreeFromPoints_rgba(_pts, ptsCnt, nullptr, _cellSize, optionalColors4, optionalTags[0]);
         }
     }
     else
     {
-        if (optionalColors3 == nullptr)
+        if (optionalColors4 == nullptr)
         {
-            unsigned char cols[3] = {(unsigned char)(color.getColorsPtr()[0] * 255.1),
-                                     (unsigned char)(color.getColorsPtr()[1] * 255.1),
-                                     (unsigned char)(color.getColorsPtr()[2] * 255.1)};
-            App::scenes->pluginContainer->geomPlugin_insertPointsIntoOctree_rgb(
-                _octreeInfo, CPose::identityTransformation, _pts, ptsCnt, cols, theTagWhenOptionalTagsIsNull);
+            uint8_t cols[4] = {(uint8_t)(color.getColorsPtr()[0] * 255.1), (uint8_t)(color.getColorsPtr()[1] * 255.1), (uint8_t)(color.getColorsPtr()[2] * 255.1), 255};
+            if (color.getTranslucid())
+                cols[3] = (uint8_t)(color.getOpacity() * 255.1f);
+            App::scenes->pluginContainer->geomPlugin_insertPointsIntoOctree_rgba(_octreeInfo, CPose::identityTransformation, _pts, ptsCnt, cols, theTagWhenOptionalTagsIsNull);
         }
         else
         {
             if (colorsAreIndividual)
-                App::scenes->pluginContainer->geomPlugin_insertColorPointsIntoOctree_rgb(
-                    _octreeInfo, CPose::identityTransformation, _pts, ptsCnt, optionalColors3, optionalTags);
+                App::scenes->pluginContainer->geomPlugin_insertColorPointsIntoOctree_rgba(_octreeInfo, CPose::identityTransformation, _pts, ptsCnt, optionalColors4, optionalTags);
             else
-                App::scenes->pluginContainer->geomPlugin_insertPointsIntoOctree_rgb(
-                    _octreeInfo, CPose::identityTransformation, _pts, ptsCnt, optionalColors3, optionalTags[0]);
+                App::scenes->pluginContainer->geomPlugin_insertPointsIntoOctree_rgba(_octreeInfo, CPose::identityTransformation, _pts, ptsCnt, optionalColors4, optionalTags[0]);
         }
     }
     _readPositionsAndColorsAndSetDimensions();
@@ -1088,7 +1080,7 @@ void COcTree::serialize(CSer& ar)
                         std::vector<double> pts;
                         pts.resize(cnt * 3);
                         std::vector<unsigned char> cols;
-                        cols.resize(cnt * 3);
+                        cols.resize(cnt * 4);
                         std::vector<unsigned int> tags;
                         tags.resize(cnt, 0);
                         float bla;
@@ -1100,9 +1092,10 @@ void COcTree::serialize(CSer& ar)
                             pts[3 * i + 1] = (double)bla;
                             ar >> bla;
                             pts[3 * i + 2] = (double)bla;
-                            ar >> cols[3 * i + 0];
-                            ar >> cols[3 * i + 1];
-                            ar >> cols[3 * i + 2];
+                            ar >> cols[4 * i + 0];
+                            ar >> cols[4 * i + 1];
+                            ar >> cols[4 * i + 2];
+                            cols[4 * i + 3] = 255;
                         }
                         // Now we need to rebuild the octree:
                         if (cnt > 0)
@@ -1118,7 +1111,7 @@ void COcTree::serialize(CSer& ar)
                         std::vector<double> pts;
                         pts.resize(cnt * 3);
                         std::vector<unsigned char> cols;
-                        cols.resize(cnt * 3);
+                        cols.resize(cnt * 4);
                         std::vector<unsigned int> tags;
                         tags.resize(cnt, 0);
                         for (int i = 0; i < cnt; i++)
@@ -1126,9 +1119,10 @@ void COcTree::serialize(CSer& ar)
                             ar >> pts[3 * i + 0];
                             ar >> pts[3 * i + 1];
                             ar >> pts[3 * i + 2];
-                            ar >> cols[3 * i + 0];
-                            ar >> cols[3 * i + 1];
-                            ar >> cols[3 * i + 2];
+                            ar >> cols[4 * i + 0];
+                            ar >> cols[4 * i + 1];
+                            ar >> cols[4 * i + 2];
+                            cols[4 * i + 3] = 255;
                         }
                         // Now we need to rebuild the octree:
                         clear(); // we might also have read "Pt2"
@@ -1309,9 +1303,14 @@ void COcTree::serialize(CSer& ar)
                             w[0] >> bla;
                             pts[i] = (double)bla;
                         }
-                        cols.resize(cnt);
-                        for (int i = 0; i < cnt; i++)
-                            w[0] >> cols[i];
+                        cols.resize(4 * (cnt / 3));
+                        for (int i = 0; i < cnt / 3; i++)
+                        {
+                            w[0] >> cols[4 * i + 0];
+                            w[0] >> cols[4 * i + 1];
+                            w[0] >> cols[4 * i + 2];
+                            cols[4 * i + 3] = 255;
+                        }
                         w->readClose();
                         delete w;
                     }
@@ -1332,12 +1331,13 @@ void COcTree::serialize(CSer& ar)
                         pts.pop_back();
                     if (cols.size() < pts.size())
                     {
-                        cols.resize(pts.size());
+                        cols.resize(4 * (pts.size() / 3));
                         for (size_t i = 0; i < pts.size() / 3; i++)
                         {
-                            cols[3 * i + 0] = (unsigned char)(color.getColorsPtr()[0] * 255.1);
-                            cols[3 * i + 1] = (unsigned char)(color.getColorsPtr()[1] * 255.1);
-                            cols[3 * i + 2] = (unsigned char)(color.getColorsPtr()[2] * 255.1);
+                            cols[4 * i + 0] = (unsigned char)(color.getColorsPtr()[0] * 255.1);
+                            cols[4 * i + 1] = (unsigned char)(color.getColorsPtr()[1] * 255.1);
+                            cols[4 * i + 2] = (unsigned char)(color.getColorsPtr()[2] * 255.1);
+                            cols[4 * i + 3] = 255;
                         }
                     }
                     tags.resize(pts.size() / 3, 0);
