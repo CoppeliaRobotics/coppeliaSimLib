@@ -2208,11 +2208,11 @@ void CPathCont_old::serialize(CSer& ar)
             ar.xmlAddNode_comment(" 'pathLengthCalcMethod' tag: can be 'dl', 'dac', 'max_dl_dac', 'dl_and_dac', "
                                   "'sqrt_dl2_and_dac2', 'dl_if_nonzero' or 'dac_if_nonzero' ",
                                   exhaustiveXml);
-            ar.xmlAddNode_enum("pathLengthCalcMethod", _pathLengthCalculationMethod, sim_distcalcmethod_dl, "dl",
-                               sim_distcalcmethod_dac, "dac", sim_distcalcmethod_max_dl_dac, "max_dl_dac",
-                               sim_distcalcmethod_dl_and_dac, "dl_and_dac", sim_distcalcmethod_sqrt_dl2_and_dac2,
-                               "sqrt_dl2_and_dac2", sim_distcalcmethod_dl_if_nonzero, "dl_if_nonzero",
-                               sim_distcalcmethod_dac_if_nonzero, "dac_if_nonzero");
+            ar.xmlAddNode_enum("pathLengthCalcMethod", _pathLengthCalculationMethod, {{sim_distcalcmethod_dl, "dl"},
+                               {sim_distcalcmethod_dac, "dac"}, {sim_distcalcmethod_max_dl_dac, "max_dl_dac"},
+                               {sim_distcalcmethod_dl_and_dac, "dl_and_dac"}, {sim_distcalcmethod_sqrt_dl2_and_dac2,
+                               "sqrt_dl2_and_dac2"}, {sim_distcalcmethod_dl_if_nonzero, "dl_if_nonzero"},
+                               {sim_distcalcmethod_dac_if_nonzero, "dac_if_nonzero"}});
 
             if (exhaustiveXml)
                 ar.xmlAddNode_int("attributes", _attributes);
@@ -2273,11 +2273,16 @@ void CPathCont_old::serialize(CSer& ar)
                 }
                 ar.xmlPopNode();
             }
-            ar.xmlGetNode_enum("pathLengthCalcMethod", _pathLengthCalculationMethod, exhaustiveXml, "dl",
-                               sim_distcalcmethod_dl, "dac", sim_distcalcmethod_dac, "max_dl_dac",
-                               sim_distcalcmethod_max_dl_dac, "dl_and_dac", sim_distcalcmethod_dl_and_dac,
-                               "sqrt_dl2_and_dac2", sim_distcalcmethod_sqrt_dl2_and_dac2, "dl_if_nonzero",
-                               sim_distcalcmethod_dl_if_nonzero, "dac_if_nonzero", sim_distcalcmethod_dac_if_nonzero);
+            ar.xmlGetNode_enum("pathLengthCalcMethod", _pathLengthCalculationMethod, exhaustiveXml,
+                               {
+                                   {"dl", sim_distcalcmethod_dl},
+                                   {"dac", sim_distcalcmethod_dac},
+                                   {"max_dl_dac", sim_distcalcmethod_max_dl_dac},
+                                   {"dl_and_dac", sim_distcalcmethod_dl_and_dac},
+                                   {"sqrt_dl2_and_dac2", sim_distcalcmethod_sqrt_dl2_and_dac2},
+                                   {"dl_if_nonzero", sim_distcalcmethod_dl_if_nonzero},
+                                   {"dac_if_nonzero", sim_distcalcmethod_dac_if_nonzero}
+                               });
 
             if (ar.xmlPushChildNode("color", exhaustiveXml))
             {

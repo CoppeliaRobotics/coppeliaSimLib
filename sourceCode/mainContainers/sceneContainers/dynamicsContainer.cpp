@@ -1519,9 +1519,9 @@ void CDynamicsContainer::serialize(CSer& ar)
         if (ar.isStoring())
         {
             ar.xmlAddNode_comment(" 'engine' tag: can be 'bullet', 'ode', 'vortex' or 'newton' ", exhaustiveXml);
-            ar.xmlAddNode_enum("engine", _dynamicEngineToUse, sim_physics_bullet, "bullet", sim_physics_ode, "ode",
-                               sim_physics_vortex, "vortex", sim_physics_newton, "newton", sim_physics_mujoco,
-                               "mujoco");
+            ar.xmlAddNode_enum("engine", _dynamicEngineToUse, {{sim_physics_bullet, "bullet"}, {sim_physics_ode, "ode"},
+                                                               {sim_physics_vortex, "vortex"}, {sim_physics_newton, "newton"}, {sim_physics_mujoco,
+                               "mujoco"}});
 
             ar.xmlAddNode_int("engineVersion", _dynamicEngineVersionToUse);
 
@@ -1685,9 +1685,14 @@ void CDynamicsContainer::serialize(CSer& ar)
             int oldDynamicsSettingsMode = 5; // i.e. custom
             _stepSize = 0.005;               // just in case
 
-            ar.xmlGetNode_enum("engine", _dynamicEngineToUse, exhaustiveXml, "bullet", sim_physics_bullet, "ode",
-                               sim_physics_ode, "vortex", sim_physics_vortex, "newton", sim_physics_newton, "mujoco",
-                               sim_physics_mujoco);
+            ar.xmlGetNode_enum("engine", _dynamicEngineToUse, exhaustiveXml,
+                               {
+                                   {"bullet", sim_physics_bullet},
+                                   {"ode", sim_physics_ode},
+                                   {"vortex", sim_physics_vortex},
+                                   {"newton", sim_physics_newton},
+                                   {"mujoco", sim_physics_mujoco}
+                               });
 
             if (ar.xmlGetNode_int("engineVersion", _dynamicEngineVersionToUse, exhaustiveXml))
             {
@@ -1697,13 +1702,26 @@ void CDynamicsContainer::serialize(CSer& ar)
 
             bool hasStepSizeTag = ar.xmlGetNode_float("stepsize", _stepSize, exhaustiveXml);
 
-            bool engMod = ar.xmlGetNode_enum("engineMode", oldDynamicsSettingsMode, false, "veryAccurate", 0,
-                                             "accurate", 1, "fast", 2, "veryFast", 3, "customized", 4);
+            bool engMod = ar.xmlGetNode_enum("engineMode", oldDynamicsSettingsMode, false,
+                                             {
+                                                 {"veryAccurate", 0},
+                                                 {"accurate", 1},
+                                                 {"fast", 2},
+                                                 {"veryFast", 3},
+                                                 {"customized", 4}
+                                             });
             if (engMod)
                 oldDynamicsSettingsMode++;
 
-            ar.xmlGetNode_enum("settingsMode", oldDynamicsSettingsMode, exhaustiveXml && (!engMod), "veryAccurate", 0,
-                               "accurate", 1, "balanced", 2, "fast", 3, "veryFast", 4, "custom", 5);
+            ar.xmlGetNode_enum("settingsMode", oldDynamicsSettingsMode, exhaustiveXml && (!engMod),
+                               {
+                                   {"veryAccurate", 0},
+                                   {"accurate", 1},
+                                   {"balanced", 2},
+                                   {"fast", 3},
+                                   {"veryFast", 4},
+                                   {"custom", 5}
+                               });
 
             ar.xmlGetNode_floats("gravity", _gravity.data, 3, exhaustiveXml);
 

@@ -365,8 +365,8 @@ void CMill::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {
-            ar.xmlAddNode_enum("type", _millType, sim_mill_pyramid_subtype, "pyramid", sim_mill_cylinder_subtype,
-                               "cylinder", sim_mill_disc_subtype, "disc", sim_mill_cone_subtype, "cone");
+            ar.xmlAddNode_enum("type", _millType, {{sim_mill_pyramid_subtype, "pyramid"}, {sim_mill_cylinder_subtype,
+                               "cylinder"}, {sim_mill_disc_subtype, "disc"}, {sim_mill_cone_subtype, "cone"}});
 
             ar.xmlAddNode_float("size", _size);
 
@@ -391,8 +391,8 @@ void CMill::serialize(CSer& ar)
         }
         else
         {
-            ar.xmlGetNode_enum("type", _millType, true, "pyramid", sim_mill_pyramid_subtype, "cylinder",
-                               sim_mill_cylinder_subtype, "disc", sim_mill_disc_subtype, "cone", sim_mill_cone_subtype);
+            ar.xmlGetNode_enum("type", _millType, true, {{"pyramid", sim_mill_pyramid_subtype}, {"cylinder",
+                               sim_mill_cylinder_subtype}, {"disc", sim_mill_disc_subtype}, {"cone", sim_mill_cone_subtype}});
 
             ar.xmlGetNode_float("size", _size);
 

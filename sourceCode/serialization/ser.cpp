@@ -1506,49 +1506,18 @@ void CSer::xmlAddNode_cdata(const char* name, const char* str)
     node->InsertEndChild(txt);
 }
 
-void CSer::xmlAddNode_enum(const char* name, int val, int v1, const char* str1, int v2, const char* str2,
-                           int v3 /*=-1*/, const char* str3 /*=nullptr*/, int v4 /*=-1*/, const char* str4 /*=nullptr*/,
-                           int v5 /*=-1*/, const char* str5 /*=nullptr*/, int v6 /*=-1*/, const char* str6 /*=nullptr*/,
-                           int v7 /*=-1*/, const char* str7 /*=nullptr*/, int v8 /*=-1*/, const char* str8 /*=nullptr*/,
-                           int v9 /*=-1*/, const char* str9 /*=nullptr*/, int v10 /*=-1*/, const char* str10 /*=nullptr*/)
+void CSer::xmlAddNode_enum(const char* name, int val, std::initializer_list<std::pair<int, const char*>> pairs)
 {
     std::string tmp;
-    if (val == v1)
-        tmp = str1;
-    if (val == v2)
-        tmp = str2;
-    if ((str3 != nullptr) && (val == v3))
-        tmp = str3;
-    if ((str4 != nullptr) && (val == v4))
-        tmp = str4;
-    if ((str5 != nullptr) && (val == v5))
-        tmp = str5;
-    if ((str6 != nullptr) && (val == v6))
-        tmp = str6;
-    if ((str7 != nullptr) && (val == v7))
-        tmp = str7;
-    if ((str8 != nullptr) && (val == v8))
-        tmp = str8;
-    if ((str9 != nullptr) && (val == v9))
-        tmp = str9;
-    if ((str10 != nullptr) && (val == v10))
-        tmp = str10;
-    if (tmp.size() == 0)
-        xmlAddNode_int(name, val);
-    else
-        xmlAddNode_string(name, tmp.c_str());
-}
 
-void CSer::xmlAddNode_enum(const char* name, int val, const std::vector<int>& vals,
-                           const std::vector<std::string>& strings)
-{
-    std::string tmp;
-    for (size_t i = 0; i < vals.size(); i++)
-    {
-        if (val == vals[i])
-            tmp = strings[i];
+    for (const auto& [int_val, str_val] : pairs) {
+        if (str_val != nullptr && val == int_val) {
+            tmp = str_val;
+            break;
+        }
     }
-    if (tmp.size() == 0)
+
+    if (tmp.empty())
         xmlAddNode_int(name, val);
     else
         xmlAddNode_string(name, tmp.c_str());
@@ -2163,113 +2132,38 @@ bool CSer::xmlGetNode_cdata(const char* name, std::string& val, bool required /*
     return (false);
 }
 
-bool CSer::xmlGetNode_enum(const char* name, int& val, bool required, const char* str1, int v1, const char* str2,
-                           int v2, const char* str3 /*=nullptr*/, int v3 /*=-1*/, const char* str4 /*=nullptr*/,
-                           int v4 /*=-1*/, const char* str5 /*=nullptr*/, int v5 /*=-1*/, const char* str6 /*=nullptr*/,
-                           int v6 /*=-1*/, const char* str7 /*=nullptr*/, int v7 /*=-1*/, const char* str8 /*=nullptr*/,
-                           int v8 /*=-1*/, const char* str9 /*=nullptr*/, int v9 /*=-1*/, const char* str10 /*=nullptr*/, int v10 /*=-1*/)
+bool CSer::xmlGetNode_enum(const char* name, int& val, bool required, std::initializer_list<std::pair<const char*, int>> pairs)
 {
     if (xmlDebug)
         App::logMsg(sim_verbosity_debug, "XML read: xmlGetNode_enum, name: %s", name);
     std::string tmp;
-    bool f = false;
+    bool found = false;
     bool retVal = false;
-    if (xmlGetNode_string(name, tmp, required))
-    {
-        if (tmp.compare(str1) == 0)
-        {
-            val = v1;
-            f = true;
-        }
-        if (tmp.compare(str2) == 0)
-        {
-            val = v2;
-            f = true;
-        }
-        if ((str3 != nullptr) && (tmp.compare(str3) == 0))
-        {
-            val = v3;
-            f = true;
-        }
-        if ((str4 != nullptr) && (tmp.compare(str4) == 0))
-        {
-            val = v4;
-            f = true;
-        }
-        if ((str5 != nullptr) && (tmp.compare(str5) == 0))
-        {
-            val = v5;
-            f = true;
-        }
-        if ((str6 != nullptr) && (tmp.compare(str6) == 0))
-        {
-            val = v6;
-            f = true;
-        }
-        if ((str7 != nullptr) && (tmp.compare(str7) == 0))
-        {
-            val = v7;
-            f = true;
-        }
-        if ((str8 != nullptr) && (tmp.compare(str8) == 0))
-        {
-            val = v8;
-            f = true;
-        }
-        if ((str9 != nullptr) && (tmp.compare(str9) == 0))
-        {
-            val = v9;
-            f = true;
-        }
-        if ((str10 != nullptr) && (tmp.compare(str10) == 0))
-        {
-            val = v10;
-            f = true;
-        }
-        if (!f)
-            retVal = xmlGetNode_int(name, val, required);
-        else
-            retVal = true;
-    }
-    else
-    {
-        if (required)
-            warnMissingNode(name);
-    }
-    return (retVal);
-}
 
-bool CSer::xmlGetNode_enum(const char* name, int& val, bool required, const std::vector<int>& vals,
-                           const std::vector<std::string>& strings)
-{
-    if (xmlDebug)
-        App::logMsg(sim_verbosity_debug, "XML read: xmlGetNode_enum, name: %s", name);
-    std::string tmp;
-    bool f = false;
-    bool retVal = false;
     if (xmlGetNode_string(name, tmp, required))
     {
-        for (size_t i = 0; i < vals.size(); i++)
-        {
-            if (tmp.compare(strings[i]) == 0)
-            {
-                val = vals[i];
-                f = true;
+        // Search for matching string in pairs
+        for (const auto& [str_val, int_val] : pairs) {
+            if (str_val != nullptr && tmp.compare(str_val) == 0) {
+                val = int_val;
+                found = true;
+                retVal = true;
                 break;
             }
         }
-        if (!f)
+
+        // If no string match found, try parsing as integer
+        if (!found) {
             retVal = xmlGetNode_int(name, val, required);
-        else
-            retVal = true;
+        }
     }
     else
     {
         if (required)
             warnMissingNode(name);
     }
-    return (retVal);
-}
+
+    return retVal;}
 
 bool CSer::xmlGetNode_int(const char* name, int& val, bool required /*=true*/)
 {

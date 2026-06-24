@@ -492,9 +492,9 @@ void CConvexVolume::serialize(CSer& ar)
         if (ar.isStoring())
         {
             if (exhaustiveXml)
-                ar.xmlAddNode_enum("type", _volumeType, PYRAMID_TYPE_CONVEX_VOLUME, "pyramid",
-                                   CYLINDER_TYPE_CONVEX_VOLUME, "cylinder", DISC_TYPE_CONVEX_VOLUME, "disc",
-                                   CONE_TYPE_CONVEX_VOLUME, "cone", RAY_TYPE_CONVEX_VOLUME, "ray");
+                ar.xmlAddNode_enum("type", _volumeType, {{PYRAMID_TYPE_CONVEX_VOLUME, "pyramid"},
+                                   {CYLINDER_TYPE_CONVEX_VOLUME, "cylinder"}, {DISC_TYPE_CONVEX_VOLUME, "disc"},
+                                   {CONE_TYPE_CONVEX_VOLUME, "cone"}, {RAY_TYPE_CONVEX_VOLUME, "ray"}});
 
             ar.xmlAddNode_float("offset", offset);
             ar.xmlAddNode_float("range", range);
@@ -517,10 +517,14 @@ void CConvexVolume::serialize(CSer& ar)
         else
         {
             if (exhaustiveXml)
-                ar.xmlGetNode_enum("type", _volumeType, true, "pyramid", PYRAMID_TYPE_CONVEX_VOLUME, "cylinder",
-                                   CYLINDER_TYPE_CONVEX_VOLUME, "disc", DISC_TYPE_CONVEX_VOLUME, "cone",
-                                   CONE_TYPE_CONVEX_VOLUME, "ray", RAY_TYPE_CONVEX_VOLUME);
-
+                ar.xmlGetNode_enum("type", _volumeType, true,
+                                   {
+                                       {"pyramid", PYRAMID_TYPE_CONVEX_VOLUME},
+                                       {"cylinder", CYLINDER_TYPE_CONVEX_VOLUME},
+                                       {"disc", DISC_TYPE_CONVEX_VOLUME},
+                                       {"cone", CONE_TYPE_CONVEX_VOLUME},
+                                       {"ray", RAY_TYPE_CONVEX_VOLUME}
+                                   });
             double v, w;
             int k, l;
             if (ar.xmlGetNode_float("offset", v, exhaustiveXml))

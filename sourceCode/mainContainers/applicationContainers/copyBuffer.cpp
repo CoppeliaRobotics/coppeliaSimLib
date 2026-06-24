@@ -258,12 +258,13 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
     std::vector<int> hand;
     for (size_t i = 0; i < objectCopy.size(); i++)
         hand.push_back(objectCopy[i]->getObjectHandle());
-    stack->pushTextOntoStack("objects");
+
+    stack->insertKeyHandleArrayIntoStackTable("objectList", hand.data(), hand.size());
+
+    stack->pushTextOntoStack("objects"); // deprecated
     stack->pushInt32ArrayOntoStack(hand.data(), hand.size());
     stack->insertDataIntoStackTable();
-
-    // Following for backward compatibility:
-    stack->pushTextOntoStack("objectHandles");
+    stack->pushTextOntoStack("objectHandles"); // deprecated
     stack->pushTableOntoStack();
     for (size_t i = 0; i < objectCopy.size(); i++)
     {
@@ -321,12 +322,21 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
     stack->pushTableOntoStack();
 
-    stack->pushTextOntoStack("objects");
-    stack->pushInt32ArrayOntoStack(sel.data(), sel.size());
+    stack->insertKeyHandleArrayIntoStackTable("objectList", sel.data(), sel.size());
+    stack->pushTextOntoStack("handleMap");
+    stack->pushTableOntoStack();
+    for (size_t i = 0; i < sel.size(); i++)
+    {
+        stack->pushInt32OntoStack(sel[i]); // key
+        stack->pushHandleOntoStack(sel[i]);
+        stack->insertDataIntoStackTable();
+    }
     stack->insertDataIntoStackTable();
 
-    // Following for backward compatibility:
-    stack->pushTextOntoStack("objectHandles");
+    stack->pushTextOntoStack("objects"); // deprecated
+    stack->pushInt32ArrayOntoStack(sel.data(), sel.size());
+    stack->insertDataIntoStackTable();
+    stack->pushTextOntoStack("objectHandles"); // deprecated
     stack->pushTableOntoStack();
     for (size_t i = 0; i < sel.size(); i++)
     {

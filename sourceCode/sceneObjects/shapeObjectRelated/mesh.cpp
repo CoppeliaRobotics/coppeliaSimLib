@@ -2386,11 +2386,11 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const CPose& parentCumulI
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("primitive");
-            ar.xmlAddNode_enum("type", _purePrimitive, sim_primitiveshape_none, "none", sim_primitiveshape_plane,
-                               "plane", sim_primitiveshape_disc, "disc", sim_primitiveshape_cuboid, "cuboid",
-                               sim_primitiveshape_spheroid, "spheroid", sim_primitiveshape_cylinder, "cylinder",
-                               sim_primitiveshape_cone, "cone", sim_primitiveshape_heightfield, "heightfield",
-                               sim_primitiveshape_capsule, "capsule");
+            ar.xmlAddNode_enum("type", _purePrimitive, {{sim_primitiveshape_none, "none"}, {sim_primitiveshape_plane,
+                               "plane"}, {sim_primitiveshape_disc, "disc"}, {sim_primitiveshape_cuboid, "cuboid"},
+                               {sim_primitiveshape_spheroid, "spheroid"}, {sim_primitiveshape_cylinder, "cylinder"},
+                               {sim_primitiveshape_cone, "cone"}, {sim_primitiveshape_heightfield, "heightfield"},
+                               {sim_primitiveshape_capsule, "capsule"}});
             ar.xmlAddNode_float("insideScaling", _purePrimitiveInsideScaling);
             ar.xmlAddNode_3float("sizes", _purePrimitiveXSizeOrDiameter, _purePrimitiveYSize,
                                  _purePrimitiveZSizeOrHeight);
@@ -2459,11 +2459,18 @@ bool CMesh::serialize(CSer& ar, const char* shapeName, const CPose& parentCumulI
 
             if (ar.xmlPushChildNode("primitive"))
             {
-                ar.xmlGetNode_enum("type", _purePrimitive, true, "none", sim_primitiveshape_none, "plane",
-                                   sim_primitiveshape_plane, "disc", sim_primitiveshape_disc, "cuboid",
-                                   sim_primitiveshape_cuboid, "spheroid", sim_primitiveshape_spheroid, "cylinder",
-                                   sim_primitiveshape_cylinder, "cone", sim_primitiveshape_cone, "heightfield",
-                                   sim_primitiveshape_heightfield, "capsule", sim_primitiveshape_capsule);
+                ar.xmlGetNode_enum("type", _purePrimitive, true,
+                                   {
+                                       {"none", sim_primitiveshape_none},
+                                       {"plane", sim_primitiveshape_plane},
+                                       {"disc", sim_primitiveshape_disc},
+                                       {"cuboid", sim_primitiveshape_cuboid},
+                                       {"spheroid", sim_primitiveshape_spheroid},
+                                       {"cylinder", sim_primitiveshape_cylinder},
+                                       {"cone", sim_primitiveshape_cone},
+                                       {"heightfield", sim_primitiveshape_heightfield},
+                                       {"capsule", sim_primitiveshape_capsule}
+                                   });
                 ar.xmlGetNode_float("insideScaling", _purePrimitiveInsideScaling);
                 ar.xmlGetNode_3float("sizes", _purePrimitiveXSizeOrDiameter, _purePrimitiveYSize,
                                      _purePrimitiveZSizeOrHeight);

@@ -939,8 +939,8 @@ void CMarker::serialize(CSer& ar)
                               (ar.getFileType() != CSer::filetype_csim_xml_simplemodel_file));
         if (ar.isStoring())
         {
-            ar.xmlAddNode_comment(" 'type' tag: can be 'points', 'lines', 'triangles', 'spheres', 'squares', 'discs' or 'cubes' ", exhaustiveXml);
-            ar.xmlAddNode_enum("type", _itemType, sim_markertype_points, "points", sim_markertype_lines, "lines", sim_markertype_tubes, "tubes", sim_markertype_triangles, "triangles", sim_markertype_spheres, "spheres", sim_markertype_squares, "squares", sim_markertype_discs, "discs", sim_markertype_cubes, "cubes", sim_markertype_cylinders, "cylinders", sim_markertype_custom, "custom");
+            ar.xmlAddNode_comment(" 'type' tag: can be 'points', 'lines', 'triangles', 'spheres', 'squares', 'discs', 'cubes', 'tube' or 'axes' ", exhaustiveXml);
+            ar.xmlAddNode_enum("type", _itemType, {{sim_markertype_points, "points"}, {sim_markertype_lines, "lines"}, {sim_markertype_tubes, "tubes"}, {sim_markertype_axes, "axes"}, {sim_markertype_triangles, "triangles"}, {sim_markertype_spheres, "spheres"}, {sim_markertype_squares, "squares"}, {sim_markertype_discs, "discs"}, {sim_markertype_cubes, "cubes"}, {sim_markertype_cylinders, "cylinders"}, {sim_markertype_custom, "custom"}});
 
             ar.xmlAddNode_int("maxCnt", _itemMaxCnt);
             ar.xmlAddNode_int("options", _itemOptions);
@@ -973,7 +973,20 @@ void CMarker::serialize(CSer& ar)
         }
         else
         {
-            ar.xmlGetNode_enum("type", _itemType, exhaustiveXml, "points", sim_markertype_points, "lines", sim_markertype_lines, "tubes", sim_markertype_tubes, "triangles", sim_markertype_triangles, "spheres", sim_markertype_spheres, "squares", sim_markertype_squares, "discs", sim_markertype_discs, "cubes", sim_markertype_cubes, "cylinders", sim_markertype_cylinders, "custom", sim_markertype_custom);
+            ar.xmlGetNode_enum("type", _itemType, exhaustiveXml,
+                               {
+                                   {"points", sim_markertype_points},
+                                   {"lines", sim_markertype_lines},
+                                   {"tubes", sim_markertype_tubes},
+                                   {"axes", sim_markertype_axes},
+                                   {"triangles", sim_markertype_triangles},
+                                   {"spheres", sim_markertype_spheres},
+                                   {"squares", sim_markertype_squares},
+                                   {"discs", sim_markertype_discs},
+                                   {"cubes", sim_markertype_cubes},
+                                   {"cylinders", sim_markertype_cylinders},
+                                   {"custom", sim_markertype_custom}
+                               });
 
             if (_itemType == sim_markertype_custom)
             {
@@ -1710,6 +1723,63 @@ void CMarker::_drawCubePoints(int displayAttrib, const double normalVectorForLin
         glDisable(GL_COLOR_MATERIAL);
 }
 
+void CMarker::_drawAxesPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
+{
+    glLineWidth(1.0f);
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+    {
+        glEnable(GL_COLOR_MATERIAL);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+        glColor3f(0.0, 0.0, 0.0);
+    }
+    for (size_t i = 0; i < _pts.size() / 3; i++)
+    {
+        glPushMatrix();
+        glTranslatef(_pts[3 * i + 0], _pts[3 * i + 1], _pts[3 * i + 2]);
+        const float* q = _quats.data() + 4 * i;
+        float angle = 2.0f * acosf(q[3]);
+        float s_inv = 1.0f / sqrtf(q[0]*q[0]+q[1]*q[1]+q[2]*q[2]);
+        if (s_inv != INFINITY && angle != 0.0f)
+        {
+            float ax = q[0] * s_inv;
+            float ay = q[1] * s_inv;
+            float az = q[2] * s_inv;
+            glRotatef(angle * 180.0f / piValue, ax, ay, az);
+        }
+        glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
+
+        glBegin(GL_LINES);
+        glNormal3dv(normalVectorForLinesAndPoints);
+
+        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+            glColor3ub(255, 0, 0);
+        glVertex3f(0.0, 0.0, 0.0);
+        glVertex3f(1.0, 0.0, 0.0);
+
+        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+            glColor3ub(0, 255, 0);
+        glVertex3f(0.0, 0.0, 0.0);
+        glVertex3f(0.0, 1.0, 0.0);
+
+        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+            glColor3ub(0, 0, 255);
+        glVertex3f(0.0, 0.0, 0.0);
+        glVertex3f(0.0, 0.0, 1.0);
+
+        glEnd();
+
+        glPopMatrix();
+    }
+    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+        glDisable(GL_COLOR_MATERIAL);
+}
+
 void CMarker::_drawSpherePoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
 {
     if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
@@ -2111,6 +2181,8 @@ void CMarker::drawItems(int displayAttrib, const double normalVectorForLinesAndP
         _drawDiscPoints(displayAttrib, normalVectorForLinesAndPoints);
     else if (_itemType == sim_markertype_cubes)
         _drawCubePoints(displayAttrib, normalVectorForLinesAndPoints);
+    else if (_itemType == sim_markertype_axes)
+        _drawAxesPoints(displayAttrib, normalVectorForLinesAndPoints);
     else if (_itemType == sim_markertype_spheres)
         _drawSpherePoints(displayAttrib, normalVectorForLinesAndPoints);
     else if (_itemType == sim_markertype_cylinders)

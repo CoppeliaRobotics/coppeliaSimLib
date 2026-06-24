@@ -682,8 +682,8 @@ void CLight::serialize(CSer& ar)
         {
             ar.xmlAddNode_comment(" 'type' tag: can be 'omnidirectional', 'spotlight' or 'directional' ",
                                   exhaustiveXml);
-            ar.xmlAddNode_enum("type", _lightType, sim_light_omnidirectional, "omnidirectional",
-                               sim_light_spot, "spotlight", sim_light_directional, "directional");
+            ar.xmlAddNode_enum("type", _lightType, {{sim_light_omnidirectional, "omnidirectional"},
+                                                    {sim_light_spot, "spotlight"}, {sim_light_directional, "directional"}});
 
             ar.xmlAddNode_float("size", _lightSize);
 
@@ -732,8 +732,12 @@ void CLight::serialize(CSer& ar)
         }
         else
         {
-            ar.xmlGetNode_enum("type", _lightType, exhaustiveXml, "omnidirectional", sim_light_omnidirectional,
-                               "spotlight", sim_light_spot, "directional", sim_light_directional);
+            ar.xmlGetNode_enum("type", _lightType, exhaustiveXml,
+                               {
+                                   {"omnidirectional", sim_light_omnidirectional},
+                                   {"spotlight", sim_light_spot},
+                                   {"directional", sim_light_directional}
+                               });
 
             if (ar.xmlGetNode_float("size", _lightSize, exhaustiveXml))
                 setLightSize(_lightSize);

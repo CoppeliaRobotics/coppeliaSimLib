@@ -2270,19 +2270,23 @@ int CDetachedScript::_callScriptFunction(int sysCallType, const char* functionNa
 
         stack->pushTableOntoStack();
 
-        stack->pushTextOntoStack("id"); // key or index
+        stack->pushTextOntoStack("id");
         stack->pushTextOntoStack("systemCall");
         stack->insertDataIntoStackTable();
 
         stack->pushTextOntoStack("data");
         stack->pushTableOntoStack();
 
-        stack->pushTextOntoStack("callType"); // key or index
+        stack->pushTextOntoStack("callType");
         stack->pushInt32OntoStack(sysCallType);
         stack->insertDataIntoStackTable();
 
-        stack->pushTextOntoStack("script"); // key or index
+        stack->pushTextOntoStack("script"); // deprecated
         stack->pushInt32OntoStack(_sceneObjectOrDetachedScriptHandle);
+        stack->insertDataIntoStackTable();
+
+        stack->pushTextOntoStack("detachedScript");
+        stack->pushHandleOntoStack(_objectHandle);
         stack->insertDataIntoStackTable();
 
         stack->insertDataIntoStackTable();
@@ -4077,9 +4081,9 @@ void CDetachedScript::serialize(CSer& ar)
                 ar.xmlAddNode_int("handle", _sceneObjectOrDetachedScriptHandle);
                 ar.xmlAddNode_int("objectHandle", _sceneObjectHandle);
 
-                ar.xmlAddNode_enum("type", _scriptType, sim_scripttype_main, "mainScript",
-                                   sim_scripttype_simulation, "childScript", sim_scripttype_customization,
-                                   "customizationScript");
+                ar.xmlAddNode_enum("type", _scriptType, {{sim_scripttype_main, "mainScript"},
+                                   {sim_scripttype_simulation, "childScript"}, {sim_scripttype_customization,
+                                   "customizationScript"}});
             }
 
             ar.xmlPushNewNode("switches");
@@ -4124,9 +4128,12 @@ void CDetachedScript::serialize(CSer& ar)
                 ar.xmlGetNode_int("handle", previousScriptHandle);
                 ar.xmlGetNode_int("objectHandle", _sceneObjectHandle);
 
-                ar.xmlGetNode_enum("type", _scriptType, true, "mainScript", sim_scripttype_main, "childScript",
-                                   sim_scripttype_simulation, "customizationScript",
-                                   sim_scripttype_customization);
+                ar.xmlGetNode_enum("type", _scriptType, true,
+                                   {
+                                       {"mainScript", sim_scripttype_main},
+                                       {"childScript", sim_scripttype_simulation},
+                                       {"customizationScript", sim_scripttype_customization}
+                                   });
             }
 
             if (ar.xmlPushChildNode("switches", exhaustiveXml))

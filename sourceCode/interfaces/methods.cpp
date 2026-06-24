@@ -2570,7 +2570,7 @@ std::string _method_checkCollision(int targetObj, const char* method, CDetachedS
             if (otherEntity == sim_handle_all)
                 otherEntity = -1;
             outStack->pushBoolOntoStack( CCollisionRoutine::doEntitiesCollide(targetObj, otherEntity, nullptr, true, true, collidingIds));
-            outStack->pushShortHandleArrayOntoStack(collidingIds, 2);
+            outStack->pushHandleArrayOntoStack(collidingIds, 2);
         }
     }
     return errMsg;
@@ -2610,7 +2610,7 @@ std::string _method_checkDistance(int targetObj, const char* method, CDetachedSc
                 outStack->pushDoubleOntoStack(distanceData[6]);
                 outStack->pushVector3OntoStack(C3Vector(distanceData));
                 outStack->pushVector3OntoStack(C3Vector(distanceData + 3));
-                outStack->pushShortHandleArrayOntoStack(distIds, 2);
+                outStack->pushHandleArrayOntoStack(distIds, 2);
             }
         }
     }
@@ -2919,7 +2919,7 @@ std::string _method_getObjects(int targetObj, const char* method, CDetachedScrip
                     }
                 }
                 if (errMsg == "")
-                    outStack->pushShortHandleArrayOntoStack(objects.data(), objects.size());
+                    outStack->pushHandleArrayOntoStack(objects.data(), objects.size());
             }
         }
     }
@@ -2940,9 +2940,9 @@ std::string _method_addItems(int targetObj, const char* method, CDetachedScript*
         std::vector<float> sizes;
         if (CInterfaceStackTable* map = fetchMap(inStack, 1))
         {
-            map->fetchMatrixDataFromKey("colors", ccols, pts.size() / 3, 4, true, &errMsg);
-            map->fetchMatrixDataFromKey("quaternions", quats, pts.size() / 3, 4, true, &errMsg);
-            map->fetchMatrixDataFromKey("sizes", sizes, pts.size() / 3, 3, true, &errMsg);
+            map->fetchMatrixDataFromKey("colors", ccols, int(pts.size() / 3), 4, true, &errMsg);
+            map->fetchMatrixDataFromKey("quaternions", quats, int(pts.size() / 3), 4, true, &errMsg);
+            map->fetchMatrixDataFromKey("sizes", sizes, int(pts.size() / 3), 3, true, &errMsg);
         }
         if (errMsg.empty())
         {
@@ -5495,7 +5495,7 @@ std::string _method_ungroup(int targetObj, const char* method, CDetachedScript* 
             CSceneObjectOperations::ungroupSelection(&sel, true);
         if (sel.size() <= 1)
             sel.clear();
-        outStack->pushShortHandleArrayOntoStack(sel.data(), sel.size());
+        outStack->pushHandleArrayOntoStack(sel.data(), sel.size());
     }
     return errMsg;
 }
@@ -5513,7 +5513,7 @@ std::string _method_divide(int targetObj, const char* method, CDetachedScript* c
             CSceneObjectOperations::divideSelection(&sel);
             if (sel.size() <= 1)
                 sel.clear();
-            outStack->pushShortHandleArrayOntoStack(sel.data(), sel.size());
+            outStack->pushHandleArrayOntoStack(sel.data(), sel.size());
         }
         else
             errMsg = SIM_ERROR_CANNOT_DIVIDE_COMPOUND_SHAPE;

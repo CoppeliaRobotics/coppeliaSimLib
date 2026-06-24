@@ -719,9 +719,9 @@ void CGraphData_old::serialize(CSer& ar, void* it)
             ar.xmlAddNode_floats("color", ambientColor, 3);
 
             ar.xmlPushNewNode("transformation");
-            ar.xmlAddNode_enum("value", _derivativeIntegralAndCumulative, sim_stream_transf_raw, "original",
-                               sim_stream_transf_derivative, "derivative", sim_stream_transf_integral, "integral",
-                               sim_stream_transf_cumulative, "cumulative");
+            ar.xmlAddNode_enum("value", _derivativeIntegralAndCumulative, {{sim_stream_transf_raw, "original"},
+                               {sim_stream_transf_derivative, "derivative"}, {sim_stream_transf_integral, "integral"},
+                                                                           {sim_stream_transf_cumulative, "cumulative"}});
             ar.xmlAddNode_float("scaling", zoomFactor);
             ar.xmlAddNode_float("offset", addCoeff);
             ar.xmlAddNode_int("movingAveragePeriod", _movingAverageCount);
@@ -782,9 +782,13 @@ void CGraphData_old::serialize(CSer& ar, void* it)
 
             if (ar.xmlPushChildNode("transformation"))
             {
-                ar.xmlGetNode_enum("value", _derivativeIntegralAndCumulative, true, "original", sim_stream_transf_raw,
-                                   "derivative", sim_stream_transf_derivative, "integral", sim_stream_transf_integral,
-                                   "cumulative", sim_stream_transf_cumulative);
+                ar.xmlGetNode_enum("value", _derivativeIntegralAndCumulative, true,
+                                   {
+                                       {"original", sim_stream_transf_raw},
+                                       {"derivative", sim_stream_transf_derivative},
+                                       {"integral", sim_stream_transf_integral},
+                                       {"cumulative", sim_stream_transf_cumulative}
+                                   });
                 ar.xmlGetNode_float("scaling", zoomFactor);
                 ar.xmlGetNode_float("offset", addCoeff);
                 ar.xmlGetNode_int("movingAveragePeriod", _movingAverageCount);

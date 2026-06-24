@@ -184,10 +184,10 @@ void CCollectionElement::serialize(CSer& ar)
                 "'fromTipIncludingTip', 'fromTipExcludingTip' or 'everything' ",
                 exhaustiveXml);
             ar.xmlAddNode_enum(
-                "type", _elementType, sim_collectionelement_loose, "looseObjects",
-                sim_collectionelement_frombaseincluded, "fromBaseIncludingBase", sim_collectionelement_frombaseexcluded,
-                "fromBaseExcludingBase", sim_collectionelement_fromtipincluded, "fromTipIncludingTip",
-                sim_collectionelement_fromtipexcluded, "fromTipExcludingTip", sim_collectionelement_all, "everything");
+                "type", _elementType, {{sim_collectionelement_loose, "looseObjects"},
+                {sim_collectionelement_frombaseincluded, "fromBaseIncludingBase"}, {sim_collectionelement_frombaseexcluded,
+                "fromBaseExcludingBase"}, {sim_collectionelement_fromtipincluded, "fromTipIncludingTip"},
+                {sim_collectionelement_fromtipexcluded, "fromTipExcludingTip"}, {sim_collectionelement_all, "everything"}});
 
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("additive", _additive);
@@ -203,11 +203,15 @@ void CCollectionElement::serialize(CSer& ar)
             else
                 ar.xmlGetNode_string("objectName", _objectTempName, exhaustiveXml);
 
-            ar.xmlGetNode_enum("type", _elementType, exhaustiveXml, "looseObjects", sim_collectionelement_loose,
-                               "fromBaseIncludingBase", sim_collectionelement_frombaseincluded, "fromBaseExcludingBase",
-                               sim_collectionelement_frombaseexcluded, "fromTipIncludingTip",
-                               sim_collectionelement_fromtipincluded, "fromTipExcludingTip",
-                               sim_collectionelement_fromtipexcluded, "everything", sim_collectionelement_all);
+            ar.xmlGetNode_enum("type", _elementType, exhaustiveXml,
+                               {
+                                   {"looseObjects", sim_collectionelement_loose},
+                                   {"fromBaseIncludingBase", sim_collectionelement_frombaseincluded},
+                                   {"fromBaseExcludingBase", sim_collectionelement_frombaseexcluded},
+                                   {"fromTipIncludingTip", sim_collectionelement_fromtipincluded},
+                                   {"fromTipExcludingTip", sim_collectionelement_fromtipexcluded},
+                                   {"everything", sim_collectionelement_all}
+                               });
 
             if (ar.xmlPushChildNode("switches", exhaustiveXml))
             {

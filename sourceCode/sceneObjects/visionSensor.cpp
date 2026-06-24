@@ -2482,7 +2482,8 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         CInterfaceStack* inStack = App::scenes->interfaceStackContainer->createStack();
         inStack->pushTableOntoStack();
 
-        inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle());
+        inStack->insertKeyHandleIntoStackTable("visionSensor", getObjectHandle());
+        inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle()); // deprecated
         int res[2] = {_resolution[0], _resolution[1]};
         inStack->insertKeyInt32ArrayIntoStackTable("resolution", res, 2);
         double clip[2] = {_nearClippingPlane, _farClippingPlane};
@@ -2544,7 +2545,8 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         {
             inStack = App::scenes->interfaceStackContainer->createStack();
             inStack->pushTableOntoStack();
-            inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle());
+            inStack->insertKeyHandleIntoStackTable("visionSensor", _objectHandle);
+            inStack->insertKeyInt32IntoStackTable("handle", _objectHandle); // deprecated
 
             inStack->pushTextOntoStack("packedPackets");
             inStack->pushTableOntoStack();
@@ -2864,11 +2866,11 @@ void CVisionSensor::serialize(CSer& ar)
             ar.xmlAddNode_comment(
                 " 'renderMode' tag: can be 'openGL', 'colorCoded', 'PovRay', 'externalRenderer' or 'openGL3'",
                 exhaustiveXml);
-            ar.xmlAddNode_enum("renderMode", _renderMode, sim_rendermode_opengl, "openGL", sim_rendermode_auxchannels,
-                               "auxiliaryChannels", sim_rendermode_colorcoded, "colorCoded", sim_rendermode_povray,
-                               "PovRay", sim_rendermode_extrenderer, "externalRenderer",
-                               sim_rendermode_extrendererwindowed, "externalRendererWindowed", sim_rendermode_opengl3,
-                               "openGL3", sim_rendermode_opengl3windowed, "openGL3Windowed");
+            ar.xmlAddNode_enum("renderMode", _renderMode, {{sim_rendermode_opengl, "openGL"}, {sim_rendermode_auxchannels,
+                               "auxiliaryChannels"}, {sim_rendermode_colorcoded, "colorCoded"}, {sim_rendermode_povray,
+                               "PovRay"}, {sim_rendermode_extrenderer, "externalRenderer"},
+                               {sim_rendermode_extrendererwindowed, "externalRendererWindowed"}, {sim_rendermode_opengl3,
+                               "openGL3"}, {sim_rendermode_opengl3windowed, "openGL3Windowed"}});
 
             if (exhaustiveXml)
                 ar.xmlAddNode_int("renderAttributes", _attributesForRendering);
@@ -2961,11 +2963,17 @@ void CVisionSensor::serialize(CSer& ar)
                 }
             }
 
-            ar.xmlGetNode_enum("renderMode", _renderMode, exhaustiveXml, "openGL", sim_rendermode_opengl,
-                               "auxiliaryChannels", sim_rendermode_auxchannels, "colorCoded", sim_rendermode_colorcoded,
-                               "PovRay", sim_rendermode_povray, "externalRenderer", sim_rendermode_extrenderer,
-                               "externalRendererWindowed", sim_rendermode_extrendererwindowed, "openGL3",
-                               sim_rendermode_opengl3, "openGL3Windowed", sim_rendermode_opengl3windowed);
+            ar.xmlGetNode_enum("renderMode", _renderMode, exhaustiveXml,
+                               {
+                                   {"openGL", sim_rendermode_opengl},
+                                   {"auxiliaryChannels", sim_rendermode_auxchannels},
+                                   {"colorCoded", sim_rendermode_colorcoded},
+                                   {"PovRay", sim_rendermode_povray},
+                                   {"externalRenderer", sim_rendermode_extrenderer},
+                                   {"externalRendererWindowed", sim_rendermode_extrendererwindowed},
+                                   {"openGL3", sim_rendermode_opengl3},
+                                   {"openGL3Windowed", sim_rendermode_opengl3windowed}
+                               });
             if (_renderMode == sim_rendermode_extrendererwindowed)
                 _renderMode = sim_rendermode_extrenderer;
             if (_renderMode == sim_rendermode_opengl3windowed)

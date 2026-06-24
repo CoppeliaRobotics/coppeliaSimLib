@@ -38,7 +38,7 @@ class CInterfaceStack : public Obj
     void pushInt32ArrayOntoStack(const int* arr, size_t l, bool toFront = false);
     void pushInt64ArrayOntoStack(const int64_t* arr, size_t l, bool toFront = false);
     void pushHandleArrayOntoStack(const int64_t* arr, size_t l, bool toFront = false);
-    void pushShortHandleArrayOntoStack(const int* arr, size_t l, bool toFront = false);
+    void pushHandleArrayOntoStack(const int* arr, size_t l, bool toFront = false);
     void pushFloatArrayOntoStack(const float* arr, size_t l, bool toFront = false);
     void pushDoubleArrayOntoStack(const double* arr, size_t l, bool toFront = false);
     void pushTextArrayOntoStack(const std::string* arr, size_t l, bool toFront = false);
@@ -66,9 +66,11 @@ class CInterfaceStack : public Obj
     void insertKeyBufferIntoStackTable(const char* key, const char* value, size_t l);
     void insertKeyInt32ArrayIntoStackTable(const char* key, const int* arr, size_t l);
     void insertKeyInt64ArrayIntoStackTable(const char* key, const int64_t* arr, size_t l);
+    void insertKeyHandleArrayIntoStackTable(const char* key, const int* arr, size_t l);
     void insertKeyHandleArrayIntoStackTable(const char* key, const int64_t* arr, size_t l);
     void insertKeyFloatArrayIntoStackTable(const char* key, const float* arr, size_t l);
     void insertKeyDoubleArrayIntoStackTable(const char* key, const double* arr, size_t l);
+    void insertKeyVector3IntoStackTable(const char* key, const double* v);
     void insertKeyMatrixIntoStackTable(const char* key, const double* matrix, size_t rows, size_t cols);
     void insertKeyQuaternionIntoStackTable(const char* key, const double* q, bool xyzwLayout = false);
     void insertKeyPoseIntoStackTable(const char* key, const double* p, bool xyzqxqyqzqwLayout = false);

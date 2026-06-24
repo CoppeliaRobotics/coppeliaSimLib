@@ -1731,12 +1731,12 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
         std::vector<int> hand;
         for (size_t i = 0; i < loadedObjectList.size(); i++)
             hand.push_back(loadedObjectList[i]->getObjectHandle());
-        stack->pushTextOntoStack("objects");
+        stack->insertKeyHandleArrayIntoStackTable("objectList", hand.data(), hand.size());
+
+        stack->pushTextOntoStack("objects"); // deprecated
         stack->pushInt32ArrayOntoStack(hand.data(), hand.size());
         stack->insertDataIntoStackTable();
-
-        // Following for backward compatibility:
-        stack->pushTextOntoStack("objectHandles");
+        stack->pushTextOntoStack("objectHandles"); // deprecated
         stack->pushTableOntoStack();
         for (size_t i = 0; i < loadedObjectList.size(); i++)
         {

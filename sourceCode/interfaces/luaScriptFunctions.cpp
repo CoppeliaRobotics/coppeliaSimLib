@@ -1002,6 +1002,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.markertype_points", sim_markertype_points},
     {"sim.markertype_lines", sim_markertype_lines},
     {"sim.markertype_tubes", sim_markertype_tubes},
+    {"sim.markertype_axes", sim_markertype_axes},
     {"sim.markertype_triangles", sim_markertype_triangles},
     {"sim.markertype_spheres", sim_markertype_spheres},
     {"sim.markertype_squares", sim_markertype_squares},

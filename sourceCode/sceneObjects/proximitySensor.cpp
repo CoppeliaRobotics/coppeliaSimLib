@@ -651,10 +651,10 @@ void CProxSensor::serialize(CSer& ar)
         if (ar.isStoring())
         {
             ar.xmlAddNode_comment(" 'type' tag: can be 'pyramid', 'cylinder', 'disc', 'cone' or 'ray' ", exhaustiveXml);
-            ar.xmlAddNode_enum("type", sensorType, sim_proximitysensor_pyramid, "pyramid",
-                               sim_proximitysensor_cylinder, "cylinder", sim_proximitysensor_disc,
-                               "disc", sim_proximitysensor_cone, "cone", sim_proximitysensor_ray,
-                               "ray");
+            ar.xmlAddNode_enum("type", sensorType, {{sim_proximitysensor_pyramid, "pyramid"},
+                               {sim_proximitysensor_cylinder, "cylinder"}, {sim_proximitysensor_disc,
+                               "disc"}, {sim_proximitysensor_cone, "cone"}, {sim_proximitysensor_ray,
+                               "ray"}});
 
             ar.xmlAddNode_float("size", _proxSensorSize);
 
@@ -687,11 +687,11 @@ void CProxSensor::serialize(CSer& ar)
             ar.xmlAddNode_comment(
                 " 'detectionType' tag: can be 'ultrasonic', 'infrared', 'laser', 'inductive' or 'capacitive' ",
                 exhaustiveXml);
-            ar.xmlAddNode_enum("detectionType", _sensableType_deprecated, sim_objectspecialproperty_detectable_ultrasonic,
-                               "ultrasonic", sim_objectspecialproperty_detectable_infrared, "infrared",
-                               sim_objectspecialproperty_detectable_laser, "laser",
-                               sim_objectspecialproperty_detectable_inductive, "inductive",
-                               sim_objectspecialproperty_detectable_capacitive, "capacitive");
+            ar.xmlAddNode_enum("detectionType", _sensableType_deprecated, {{sim_objectspecialproperty_detectable_ultrasonic,
+                               "ultrasonic"}, {sim_objectspecialproperty_detectable_infrared, "infrared"},
+                               {sim_objectspecialproperty_detectable_laser, "laser"},
+                               {sim_objectspecialproperty_detectable_inductive, "inductive"},
+                               {sim_objectspecialproperty_detectable_capacitive, "capacitive"}});
 
             ar.xmlAddNode_float("allowedAngle", _angleThreshold * 180.0 / piValue);
             ar.xmlAddNode_comment(" 'allowedNormalAngle' tag: used for backward compatibility ", exhaustiveXml);
@@ -742,10 +742,14 @@ void CProxSensor::serialize(CSer& ar)
         }
         else
         {
-            ar.xmlGetNode_enum("type", sensorType, exhaustiveXml, "pyramid", sim_proximitysensor_pyramid,
-                               "cylinder", sim_proximitysensor_cylinder, "disc",
-                               sim_proximitysensor_disc, "cone", sim_proximitysensor_cone, "ray",
-                               sim_proximitysensor_ray);
+            ar.xmlGetNode_enum("type", sensorType, exhaustiveXml,
+                               {
+                                   {"pyramid", sim_proximitysensor_pyramid},
+                                   {"cylinder", sim_proximitysensor_cylinder},
+                                   {"disc", sim_proximitysensor_disc},
+                                   {"cone", sim_proximitysensor_cone},
+                                   {"ray", sim_proximitysensor_ray}
+                               });
 
             ar.xmlGetNode_float("size", _proxSensorSize, exhaustiveXml);
 
@@ -757,12 +761,14 @@ void CProxSensor::serialize(CSer& ar)
                 ar.xmlGetNode_string("detectableEntity", _sensableObjectLoadName_old, exhaustiveXml);
             }
 
-            ar.xmlGetNode_enum("detectionType", _sensableType_deprecated, exhaustiveXml, "ultrasonic",
-                               sim_objectspecialproperty_detectable_ultrasonic, "infrared",
-                               sim_objectspecialproperty_detectable_infrared, "laser",
-                               sim_objectspecialproperty_detectable_laser, "inductive",
-                               sim_objectspecialproperty_detectable_inductive, "capacitive",
-                               sim_objectspecialproperty_detectable_capacitive);
+            ar.xmlGetNode_enum("detectionType", _sensableType_deprecated, exhaustiveXml,
+                               {
+                                   {"ultrasonic", sim_objectspecialproperty_detectable_ultrasonic},
+                                   {"infrared", sim_objectspecialproperty_detectable_infrared},
+                                   {"laser", sim_objectspecialproperty_detectable_laser},
+                                   {"inductive", sim_objectspecialproperty_detectable_inductive},
+                                   {"capacitive", sim_objectspecialproperty_detectable_capacitive}
+                               });
 
             bool usingAllowedAngle = ar.xmlGetNode_float("allowedAngle", _angleThreshold, exhaustiveXml);
             if (usingAllowedAngle)
@@ -994,10 +1000,14 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int& detectedObjectH
             CInterfaceStack* inStack = App::scenes->interfaceStackContainer->createStack();
             inStack->pushTableOntoStack();
 
-            inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle());
-            inStack->insertKeyInt32IntoStackTable("detectedObjectHandle", detectedObject);
-            inStack->insertKeyDoubleArrayIntoStackTable("detectedPoint", detectedP.data, 3);
-            inStack->insertKeyDoubleArrayIntoStackTable("normalVector", detectedN.data, 3);
+            inStack->insertKeyHandleIntoStackTable("proximitySensor", _objectHandle);
+            inStack->insertKeyHandleIntoStackTable("object", detectedObject);
+            inStack->insertKeyVector3IntoStackTable("point", detectedP.data);
+            inStack->insertKeyVector3IntoStackTable("normal", detectedN.data);
+            inStack->insertKeyInt32IntoStackTable("handle", _objectHandle); // deprecated
+            inStack->insertKeyInt32IntoStackTable("detectedObjectHandle", detectedObject); // deprecated
+            inStack->insertKeyDoubleArrayIntoStackTable("detectedPoint", detectedP.data, 3); // deprecated
+            inStack->insertKeyDoubleArrayIntoStackTable("normalVector", detectedN.data, 3); // deprecated
 
             for (size_t i = 0; i < scripts.size(); i++)
             {

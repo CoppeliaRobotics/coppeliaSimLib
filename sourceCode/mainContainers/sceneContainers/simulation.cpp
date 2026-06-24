@@ -1160,8 +1160,15 @@ void CSimulation::serialize(CSer& ar)
             if (ar.xmlGetNode_int("simulationPassesPerRendering", _simulationPassesPerRendering, exhaustiveXml))
                 tt::limitValue(1, 100, _simulationPassesPerRendering);
 
-            ar.xmlGetNode_enum("simulationMode", oldDefautParamsIndex, exhaustiveXml, "200ms", 0, "100ms", 1, "50ms", 2,
-                               "25ms", 3, "10ms", 4, "custom", 5);
+            ar.xmlGetNode_enum("simulationMode", oldDefautParamsIndex, exhaustiveXml,
+                               {
+                                   {"200ms", 0},
+                                   {"100ms", 1},
+                                   {"50ms", 2},
+                                   {"25ms", 3},
+                                   {"10ms", 4},
+                                   {"custom", 5}
+                               });
 
             if (ar.xmlGetNode_float("realTimeCoefficient", _realTimeCoefficient, exhaustiveXml))
                 tt::limitDoubleValue(0.01, 100.0, _realTimeCoefficient);

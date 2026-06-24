@@ -262,12 +262,12 @@ int CSceneObjectContainer::addObjectToSceneWithSuffixOffset(CSceneObject* newObj
 
         std::vector<int> hand;
         hand.push_back(newObject->getObjectHandle());
-        stack->pushTextOntoStack("objects");
+        stack->insertKeyHandleArrayIntoStackTable("objectList", hand.data(), hand.size());
+
+        stack->pushTextOntoStack("objects"); // deprecated
         stack->pushInt32ArrayOntoStack(hand.data(), hand.size());
         stack->insertDataIntoStackTable();
-
-        // Following for backward compatibility:
-        stack->pushTextOntoStack("objectHandles");
+        stack->pushTextOntoStack("objectHandles"); // deprecated
         stack->pushTableOntoStack();
         stack->pushInt32OntoStack(1); // key or index
         stack->pushInt32OntoStack(newObject->getObjectHandle());
@@ -342,16 +342,32 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                     stack = App::scenes->interfaceStackContainer->createStack();
                     stack->pushTableOntoStack();
 
-                    stack->pushTextOntoStack("objects");
+                    stack->insertKeyHandleArrayIntoStackTable("objectList", toDestroy.data(), toDestroy.size());
+                    stack->pushTextOntoStack("handleMap");
+                    stack->pushTableOntoStack();
+                    for (size_t i = 0; i < toDestroyPtr.size(); i++)
+                    {
+                        CSceneObject* it = toDestroyPtr[i];
+                        if ((it != nullptr) && it->setBeforeDeleteCallbackSent()) // send the message only once. This routine can be reentrant!
+                        {
+                            stack->pushInt32OntoStack(it->getObjectHandle()); // key
+                            stack->pushHandleOntoStack(it->getObjectHandle());
+                            stack->insertDataIntoStackTable();
+                        }
+                    }
+                    stack->insertDataIntoStackTable();
+
+
+                    stack->pushTextOntoStack("objects"); // deprecated
                     stack->pushInt32ArrayOntoStack(toDestroy.data(), toDestroy.size());
                     stack->insertDataIntoStackTable();
 
-                    stack->pushTextOntoStack("allObjects");
+                    stack->pushTextOntoStack("allObjects"); // deprecated
                     stack->pushBoolOntoStack(toDestroy.size() == getObjectCount());
                     stack->insertDataIntoStackTable();
 
                     // Following for backward compatibility:
-                    stack->pushTextOntoStack("objectHandles");
+                    stack->pushTextOntoStack("objectHandles"); // deprecated
                     stack->pushTableOntoStack();
                     for (size_t i = 0; i < toDestroyPtr.size(); i++)
                     {
@@ -2345,8 +2361,17 @@ CShape* CSceneObjectContainer::_createSimpleXmlShape(CSer& ar, bool noHeightfiel
     {
         loadVisualAttributes = true;
         int primitiveType = 0;
-        ar.xmlGetNode_enum("type", primitiveType, false, "cuboid", 0, "sphere", 1, "cylinder", 2, "cone", 3, "plane", 4,
-                           "disc", 5, "capsule", 6);
+        ar.xmlGetNode_enum("type", primitiveType, false,
+                           {
+                               {"cuboid", 0},
+                               {"sphere", 1},
+                               {"cylinder", 2},
+                               {"cone", 3},
+                               {"plane", 4},
+                               {"disc", 5},
+                               {"capsule", 6}
+                           });
+
         double sizes[3] = {0.1, 0.1, 0.1};
         ar.xmlGetNode_floats("size", sizes, 3, false);
         CPose tr;

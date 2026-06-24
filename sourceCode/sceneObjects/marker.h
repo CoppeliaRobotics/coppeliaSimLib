@@ -109,6 +109,7 @@ class CMarker : public CSceneObject
     void _drawPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
     void _drawLines(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
     void _drawTubeLines(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
+    void _drawAxesPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
     void _drawTriangles(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
     void _drawQuadPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;
     void _drawDiscPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const;

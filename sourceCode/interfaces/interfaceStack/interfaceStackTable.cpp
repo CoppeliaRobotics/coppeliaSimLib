@@ -700,11 +700,11 @@ bool CInterfaceStackTable::fetchFloatArrayFromKey(const char* fieldName, float* 
                 arr[i] = (float)dat[i];
             retVal = true;
         }
-        else if ((obj->getObjectType() == sim_stackitem_color) && (cnt == 4))
+        else if ((obj->getObjectType() == sim_stackitem_color) && (cnt <= 4))
         {
             const CInterfaceStackColor* c = (CInterfaceStackColor*)obj;
             const float* C = c->getValue();
-            std::memcpy(arr, C, cnt * sizeof(float));
+            std::memcpy(arr, C, std::min<int>(cnt, 4) * sizeof(float));
             retVal = true;
         }
     }

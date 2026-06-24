@@ -825,7 +825,7 @@ void CEnvironment::serialize(CSer& ar)
             ar.xmlPushNewNode("fog");
             ar.xmlAddNode_bool("enabled", fogEnabled);
             ar.xmlAddNode_comment(" 'type' tag: can be 'linear', 'exp' or 'exp2' ", exhaustiveXml);
-            ar.xmlAddNode_enum("type", fogType, 0, "linear", 1, "exp", 2, "exp2");
+            ar.xmlAddNode_enum("type", fogType, {{0, "linear"}, {1, "exp"}, {2, "exp2"}});
             ar.xmlAddNode_2float("startEnd", fogStart, fogEnd);
             ar.xmlAddNode_float("density", fogDensity);
             if (exhaustiveXml)
@@ -927,7 +927,7 @@ void CEnvironment::serialize(CSer& ar)
             if (ar.xmlPushChildNode("fog", exhaustiveXml))
             {
                 ar.xmlGetNode_bool("enabled", fogEnabled, exhaustiveXml);
-                if (ar.xmlGetNode_enum("type", fogType, exhaustiveXml, "linear", 0, "exp", 1, "exp2", 2))
+                if (ar.xmlGetNode_enum("type", fogType, exhaustiveXml, {{"linear", 0}, {"exp", 1}, {"exp2", 2}}))
                     setFogType(fogType);
                 ar.xmlGetNode_2float("startEnd", fogStart, fogEnd, exhaustiveXml);
                 ar.xmlGetNode_float("density", fogDensity, exhaustiveXml);

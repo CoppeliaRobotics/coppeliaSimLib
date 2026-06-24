@@ -1646,8 +1646,11 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
                 inStack->pushTextOntoStack("cyclic");
                 inStack->pushBoolOntoStack(cycl);
                 inStack->insertDataIntoStackTable();
-                inStack->pushTextOntoStack("handle");
+                inStack->pushTextOntoStack("handle"); // deprecated
                 inStack->pushInt32OntoStack(getObjectHandle());
+                inStack->insertDataIntoStackTable();
+                inStack->pushTextOntoStack("joint");
+                inStack->pushHandleOntoStack(getObjectHandle());
                 inStack->insertDataIntoStackTable();
                 inStack->pushTextOntoStack("lowLimit");
                 inStack->pushFloatOntoStack(lowL);
@@ -1834,7 +1837,10 @@ void CJoint::handleMotion()
             inStack->pushTextOntoStack("cyclic");
             inStack->pushBoolOntoStack(_isCyclic && rev);
             inStack->insertDataIntoStackTable();
-            inStack->pushTextOntoStack("handle");
+            inStack->pushTextOntoStack("joint");
+            inStack->pushHandleOntoStack(_objectHandle);
+            inStack->insertDataIntoStackTable();
+            inStack->pushTextOntoStack("handle"); // deprecated
             inStack->pushInt32OntoStack(_objectHandle);
             inStack->insertDataIntoStackTable();
             inStack->pushTextOntoStack("lowLimit");
@@ -3207,11 +3213,11 @@ void CJoint::serialize(CSer& ar)
             if (_jointType != sim_joint_prismatic)
                 mult = 180.0 / piValue;
             ar.xmlAddNode_comment(" 'type' tag: can be 'revolute', 'prismatic' or 'spherical' ", exhaustiveXml);
-            ar.xmlAddNode_enum("type", _jointType, sim_joint_revolute, "revolute", sim_joint_prismatic,
-                               "prismatic", sim_joint_spherical, "spherical");
+            ar.xmlAddNode_enum("type", _jointType, {{sim_joint_revolute, "revolute"}, {sim_joint_prismatic,
+                               "prismatic"}, {sim_joint_spherical, "spherical"}});
             ar.xmlAddNode_comment(" 'mode' tag: can be 'kinematic', 'dependent' or 'dynamic' ", exhaustiveXml);
-            ar.xmlAddNode_enum("mode", _jointMode, sim_jointmode_kinematic, "kinematic", sim_jointmode_ik_deprecated,
-                               "ik", sim_jointmode_dependent, "dependent", sim_jointmode_dynamic, "dynamic");
+            ar.xmlAddNode_enum("mode", _jointMode, {{sim_jointmode_kinematic, "kinematic"}, {sim_jointmode_ik_deprecated,
+                               "ik"}, {sim_jointmode_dependent, "dependent"}, {sim_jointmode_dynamic, "dynamic"}});
 
             ar.xmlAddNode_float("minPosition", _posMin * mult);
             ar.xmlAddNode_float("range", _posRange * mult);
@@ -3298,11 +3304,11 @@ void CJoint::serialize(CSer& ar)
             int val = 0;
             if ((_dynCtrlMode == sim_jointdynctrl_position) && _dynSmoothMotionProfile)
                val = 1;
-            ar.xmlAddNode_enum("posController", val, 0, "pid", 1, "motionProfile");
+            ar.xmlAddNode_enum("posController", val, {{0, "pid"}, {1, "motionProfile"}});
             val = 0;
             if ((_dynCtrlMode == sim_jointdynctrl_velocity) && _dynSmoothMotionProfile)
                val = 1;
-            ar.xmlAddNode_enum("velController", val, 0, "none", 1, "motionProfile");
+            ar.xmlAddNode_enum("velController", val, {{0, "none"}, {1, "motionProfile"}});
             // ******
 
             ar.xmlAddNode_bool("smoothMotionProfile", _dynSmoothMotionProfile);
@@ -3495,17 +3501,26 @@ void CJoint::serialize(CSer& ar)
             bool usingDynCtrlMode = false;
             bool motorEnabled_old, ctrlEnabled_old, springMode_old;
             double mult = 1.0;
-            if (ar.xmlGetNode_enum("type", _jointType, exhaustiveXml, "revolute", sim_joint_revolute,
-                                   "prismatic", sim_joint_prismatic, "spherical", sim_joint_spherical))
+            if (ar.xmlGetNode_enum("type", _jointType, exhaustiveXml,
+                                   {
+                                       {"revolute", sim_joint_revolute},
+                                       {"prismatic", sim_joint_prismatic},
+                                       {"spherical", sim_joint_spherical}
+                                   }))
             {
                 if (_jointType == sim_joint_revolute)
                     mult = piValue / 180.0;
             }
 
-            ar.xmlGetNode_enum("mode", _jointMode, exhaustiveXml, "kinematic", sim_jointmode_kinematic, "ik",
-                               sim_jointmode_ik_deprecated, "dependent", sim_jointmode_dependent, "dynamic",
-                               sim_jointmode_dynamic, "passive", sim_jointmode_kinematic, "force",
-                               sim_jointmode_dynamic);
+            ar.xmlGetNode_enum("mode", _jointMode, exhaustiveXml,
+                               {
+                                   {"kinematic", sim_jointmode_kinematic},
+                                   {"ik", sim_jointmode_ik_deprecated},
+                                   {"dependent", sim_jointmode_dependent},
+                                   {"dynamic", sim_jointmode_dynamic},
+                                   {"passive", sim_jointmode_kinematic},
+                                   {"force", sim_jointmode_dynamic}
+                               });
 
             if (ar.xmlGetNode_float("minPosition", _posMin, exhaustiveXml))
             {
@@ -3638,12 +3653,12 @@ void CJoint::serialize(CSer& ar)
                 // Following for backw. compatibility (16.06.2026):
                 // ******
                 int val2;
-                if (ar.xmlGetNode_enum("posController", val2, exhaustiveXml, "pid", 0, "motionProfile", 1))
+                if (ar.xmlGetNode_enum("posController", val2, exhaustiveXml, {{"pid", 0}, {"motionProfile", 1}}))
                 {
                     if ((_dynCtrlMode == sim_jointdynctrl_position) && (val2 == 1))
                         _dynSmoothMotionProfile = true;
                 }
-                if (ar.xmlGetNode_enum("velController", val2, exhaustiveXml, "none", 0, "motionProfile", 1))
+                if (ar.xmlGetNode_enum("velController", val2, exhaustiveXml, {{"none", 0}, {"motionProfile", 1}}))
                 {
                     if ((_dynCtrlMode == sim_jointdynctrl_velocity) && (val2 == 1))
                         _dynSmoothMotionProfile = true;
@@ -4746,22 +4761,18 @@ int CJoint::setBoolProperty(const char* ppName, bool pState)
 
 int CJoint::setBoolProperty(const char* ppName, bool pState, CCbor* eev)
 {
-    const char* pName = nullptr;
     std::string _pName;
     if (ppName != nullptr)
-    {
-        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint.");
-        pName = _pName.c_str();
-    }
+        _pName = ppName;
 
     int retVal = sim_propertyret_unknownproperty;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    if ((eev == nullptr) && (pName != nullptr))
+    if ((eev == nullptr) && (ppName != nullptr))
     { // regular properties (i.e. non-engine properties)
-        retVal = CSceneObject::setBoolProperty(pName, pState);
+        retVal = CSceneObject::setBoolProperty(ppName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
             if (_pName == prop(PropJoint::cyclic).name)
@@ -4787,20 +4798,20 @@ int CJoint::setBoolProperty(const char* ppName, bool pState, CCbor* eev)
         // Following only for engine properties:
         // -------------------------------------
         auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndexBitCoded, int simiIndex) {
-            if ((pName == nullptr) || (propertyName == pName))
+            if ((ppName == nullptr) || (propertyName == ppName))
             {
                 retVal = sim_propertyret_ok;
                 int nv = (arr[simiIndexBitCoded] | simiIndex) - (1 - pState) * simiIndex;
-                if ((nv != arr[simiIndexBitCoded]) || (pName == nullptr))
+                if ((nv != arr[simiIndexBitCoded]) || (ppName == nullptr))
                 {
-                    if (pName != nullptr)
+                    if (ppName != nullptr)
                         arr[simiIndexBitCoded] = nv;
                     if (_isInScene && App::scenes->getEventsEnabled())
                     {
                         if (ev == nullptr)
                             ev = App::scenes->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                         ev->appendKeyBool(propertyName.c_str(), arr[simiIndexBitCoded] & simiIndex);
-                        if (pName != nullptr)
+                        if (ppName != nullptr)
                             _sendEngineString(ev);
                     }
                 }
@@ -4865,22 +4876,18 @@ int CJoint::setIntProperty(const char* ppName, int pState)
 
 int CJoint::setIntProperty(const char* ppName, int pState, CCbor* eev)
 {
-    const char* pName = nullptr;
     std::string _pName;
     if (ppName != nullptr)
-    {
-        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint.");
-        pName = _pName.c_str();
-    }
+        _pName = ppName;
 
     int retVal = sim_propertyret_unknownproperty;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    if ((eev == nullptr) && (pName != nullptr))
+    if ((eev == nullptr) && (ppName != nullptr))
     { // regular properties (i.e. non-engine properties)
-        retVal = CSceneObject::setIntProperty(pName, pState);
+        retVal = CSceneObject::setIntProperty(ppName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
             if (_pName == prop(PropJoint::jointMode).name)
@@ -4916,19 +4923,19 @@ int CJoint::setIntProperty(const char* ppName, int pState, CCbor* eev)
         // Following only for engine properties:
         // -------------------------------------
         auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex) {
-            if ((pName == nullptr) || (propertyName == pName))
+            if ((ppName == nullptr) || (propertyName == ppName))
             {
                 retVal = sim_propertyret_ok;
-                if ((pState != arr[simiIndex]) || (pName == nullptr))
+                if ((pState != arr[simiIndex]) || (ppName == nullptr))
                 {
-                    if (pName != nullptr)
+                    if (ppName != nullptr)
                         arr[simiIndex] = pState;
                     if (_isInScene && App::scenes->getEventsEnabled())
                     {
                         if (ev == nullptr)
                             ev = App::scenes->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                         ev->appendKeyInt64(propertyName.c_str(), arr[simiIndex]);
-                        if (pName != nullptr)
+                        if (ppName != nullptr)
                             _sendEngineString(ev);
                     }
                 }
@@ -5015,19 +5022,15 @@ int CJoint::setHandleProperty(const char* ppName, int64_t pState)
 
 int CJoint::setHandleProperty(const char* ppName, int64_t pState, CCbor* eev)
 {
-    const char* pName = nullptr;
     std::string _pName;
     if (ppName != nullptr)
-    {
-        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint.");
-        pName = _pName.c_str();
-    }
+        _pName = ppName;
 
     int retVal = sim_propertyret_unknownproperty;
 
-    if ((eev == nullptr) && (pName != nullptr))
+    if ((eev == nullptr) && (ppName != nullptr))
     { // regular properties (i.e. non-engine properties)
-        retVal = CSceneObject::setHandleProperty(pName, pState);
+        retVal = CSceneObject::setHandleProperty(ppName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
             if (_pName == prop(PropJoint::dependencyMaster).name)
@@ -5064,24 +5067,20 @@ int CJoint::setFloatProperty(const char* ppName, double pState)
 
 int CJoint::setFloatProperty(const char* ppName, double pState, CCbor* eev)
 {
-    const char* pName = nullptr;
     std::string _pName;
     if (ppName != nullptr)
-    {
-        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint.");
-        pName = _pName.c_str();
-    }
+        _pName = ppName;
 
     int retVal = sim_propertyret_unknownproperty;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    if ((eev == nullptr) && (pName != nullptr))
+    if ((eev == nullptr) && (ppName != nullptr))
     { // regular properties (i.e. non-engine properties)
-        retVal = CSceneObject::setFloatProperty(pName, pState);
+        retVal = CSceneObject::setFloatProperty(ppName, pState);
         if (retVal == sim_propertyret_unknownproperty)
-            retVal = _color.setFloatProperty(pName, pState);
+            retVal = _color.setFloatProperty(ppName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
             if (_pName == prop(PropJoint::position).name)
@@ -5127,19 +5126,19 @@ int CJoint::setFloatProperty(const char* ppName, double pState, CCbor* eev)
         // Following only for engine properties:
         // -------------------------------------
         auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex) {
-            if ((pName == nullptr) || (propertyName == pName))
+            if ((ppName == nullptr) || (propertyName == ppName))
             {
                 retVal = sim_propertyret_ok;
-                if ((pState != arr[simiIndex]) || (pName == nullptr))
+                if ((pState != arr[simiIndex]) || (ppName == nullptr))
                 {
-                    if (pName != nullptr)
+                    if (ppName != nullptr)
                         arr[simiIndex] = pState;
                     if (_isInScene && App::scenes->getEventsEnabled())
                     {
                         if (ev == nullptr)
                             ev = App::scenes->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                         ev->appendKeyDouble(propertyName.c_str(), arr[simiIndex]);
-                        if (pName != nullptr)
+                        if (ppName != nullptr)
                             _sendEngineString(ev);
                     }
                 }
@@ -5597,22 +5596,14 @@ int CJoint::setIntArray2Property(const char* ppName, const int* pState)
 
 int CJoint::setIntArray2Property(const char* ppName, const int* pState, CCbor* eev)
 {
-    const char* pName = nullptr;
-    std::string _pName;
-    if (ppName != nullptr)
-    {
-        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint.");
-        pName = _pName.c_str();
-    }
-
     int retVal = sim_propertyret_unknownproperty;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    if ((eev == nullptr) && (pName != nullptr))
+    if ((eev == nullptr) && (ppName != nullptr))
     { // regular properties (i.e. non-engine properties)
-        retVal = CSceneObject::setIntArray2Property(pName, pState);
+        retVal = CSceneObject::setIntArray2Property(ppName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
         }
@@ -5623,7 +5614,7 @@ int CJoint::setIntArray2Property(const char* ppName, const int* pState, CCbor* e
         // Following only for engine properties:
         // -------------------------------------
         auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex1) {
-            if ((pName == nullptr) || (propertyName == pName))
+            if ((ppName == nullptr) || (propertyName == ppName))
             {
                 retVal = sim_propertyret_ok;
                 bool pa = false;
@@ -5632,9 +5623,9 @@ int CJoint::setIntArray2Property(const char* ppName, const int* pState, CCbor* e
                     for (size_t i = 0; i < 2; i++)
                         pa = pa || (arr[simiIndex1 + i] != pState[i]);
                 }
-                if ((pName == nullptr) || pa)
+                if ((ppName == nullptr) || pa)
                 {
-                    if (pName != nullptr)
+                    if (ppName != nullptr)
                     {
                         for (size_t i = 0; i < 2; i++)
                             arr[simiIndex1 + i] = pState[i];
@@ -5644,7 +5635,7 @@ int CJoint::setIntArray2Property(const char* ppName, const int* pState, CCbor* e
                         if (ev == nullptr)
                             ev = App::scenes->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                         ev->appendKeyInt32Array(propertyName.c_str(), arr.data() + simiIndex1, 2);
-                        if (pName != nullptr)
+                        if (ppName != nullptr)
                             _sendEngineString(ev);
                     }
                 }
@@ -5691,22 +5682,14 @@ int CJoint::setVector3Property(const char* ppName, const C3Vector& pState)
 
 int CJoint::setVector3Property(const char* ppName, const C3Vector& pState, CCbor* eev)
 {
-    const char* pName = nullptr;
-    std::string _pName;
-    if (ppName != nullptr)
-    {
-        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint.");
-        pName = _pName.c_str();
-    }
-
     int retVal = sim_propertyret_unknownproperty;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    if ((eev == nullptr) && (pName != nullptr))
+    if ((eev == nullptr) && (ppName != nullptr))
     { // regular properties (i.e. non-engine properties)
-        retVal = CSceneObject::setVector3Property(pName, pState);
+        retVal = CSceneObject::setVector3Property(ppName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
         }
@@ -5717,15 +5700,15 @@ int CJoint::setVector3Property(const char* ppName, const C3Vector& pState, CCbor
         // Following only for engine properties:
         // -------------------------------------
         auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1) {
-            if ((pName == nullptr) || (propertyName == pName))
+            if ((ppName == nullptr) || (propertyName == ppName))
             {
                 retVal = sim_propertyret_ok;
                 bool pa = false;
                 for (size_t i = 0; i < 3; i++)
                     pa = pa || (arr[simiIndex1 + i] != pState(i));
-                if ((pName == nullptr) || pa)
+                if ((ppName == nullptr) || pa)
                 {
-                    if (pName != nullptr)
+                    if (ppName != nullptr)
                     {
                         for (size_t i = 0; i < 3; i++)
                             arr[simiIndex1 + i] = pState(i);
@@ -5735,7 +5718,7 @@ int CJoint::setVector3Property(const char* ppName, const C3Vector& pState, CCbor
                         if (ev == nullptr)
                             ev = App::scenes->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                         ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, 3);
-                        if (pName != nullptr)
+                        if (ppName != nullptr)
                             _sendEngineString(ev);
                     }
                 }
@@ -5928,22 +5911,18 @@ int CJoint::setFloatArrayProperty(const char* ppName, const std::vector<double>&
 
 int CJoint::setFloatArrayProperty(const char* ppName, const std::vector<double>& pState, CCbor* eev)
 {
-    const char* pName = nullptr;
     std::string _pName;
     if (ppName != nullptr)
-    {
-        _pName = utils::getWithoutPrefix(utils::getWithoutPrefix(ppName, "object.").c_str(), "joint.");
-        pName = _pName.c_str();
-    }
+        _pName = ppName;
 
     int retVal = sim_propertyret_unknownproperty;
     CCbor* ev = nullptr;
     if (eev != nullptr)
         ev = eev;
 
-    if ((eev == nullptr) && (pName != nullptr))
+    if ((eev == nullptr) && (ppName != nullptr))
     { // regular properties (i.e. non-engine properties)
-        retVal = CSceneObject::setFloatArrayProperty(pName, pState);
+        retVal = CSceneObject::setFloatArrayProperty(ppName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
             if (_pName == prop(PropJoint::maxVelAccelJerk).name)
@@ -5994,15 +5973,15 @@ int CJoint::setFloatArrayProperty(const char* ppName, const std::vector<double>&
         // Following only for engine properties:
         // -------------------------------------
         auto handleProp = [&](const std::string& propertyName, std::vector<double>& arr, int simiIndex1, size_t n) {
-            if ((pName == nullptr) || (propertyName == pName))
+            if ((ppName == nullptr) || (propertyName == ppName))
             {
                 retVal = sim_propertyret_ok;
                 bool pa = false;
                 for (size_t i = 0; i < n; i++)
                     pa = pa || ((pState.size() > i) && (arr[simiIndex1 + i] != pState[i]));
-                if ((pName == nullptr) || pa)
+                if ((ppName == nullptr) || pa)
                 {
-                    if (pName != nullptr)
+                    if (ppName != nullptr)
                     {
                         for (size_t i = 0; i < n; i++)
                         {
@@ -6015,7 +5994,7 @@ int CJoint::setFloatArrayProperty(const char* ppName, const std::vector<double>&
                         if (ev == nullptr)
                             ev = App::scenes->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
                         ev->appendKeyDoubleArray(propertyName.c_str(), arr.data() + simiIndex1, n);
-                        if (pName != nullptr)
+                        if (ppName != nullptr)
                             _sendEngineString(ev);
                     }
                 }

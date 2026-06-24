@@ -682,7 +682,7 @@ void CTextureProperty::serialize(CSer& ar)
         if (ar.isStoring())
         {
             ar.xmlAddNode_int("id", _textureOrVisionSensorObjectID);
-            ar.xmlAddNode_enum("applyMode", _applyMode, 0, "modulate", 1, "decal", 2, "add");
+            ar.xmlAddNode_enum("applyMode", _applyMode, {{0, "modulate"}, {1, "decal"}, {2, "add"}});
 
             ar.xmlPushNewNode("switches");
             ar.xmlAddNode_bool("interpolate", _interpolateColor);
@@ -691,8 +691,8 @@ void CTextureProperty::serialize(CSer& ar)
             ar.xmlPopNode();
 
             ar.xmlPushNewNode("textureMapping");
-            ar.xmlAddNode_enum("mode", _textureCoordinateMode, sim_texturemap_plane, "plane", sim_texturemap_cylinder,
-                               "cylinder", sim_texturemap_sphere, "sphere", sim_texturemap_cube, "cube");
+            ar.xmlAddNode_enum("mode", _textureCoordinateMode, {{sim_texturemap_plane, "plane"}, {sim_texturemap_cylinder,
+                               "cylinder"}, {sim_texturemap_sphere, "sphere"}, {sim_texturemap_cube, "cube"}});
             ar.xmlAddNode_2float("scaling", _textureScalingX, _textureScalingY);
             ar.xmlPopNode();
 
@@ -706,7 +706,7 @@ void CTextureProperty::serialize(CSer& ar)
         else
         {
             ar.xmlGetNode_int("id", _textureOrVisionSensorObjectID);
-            ar.xmlGetNode_enum("applyMode", _applyMode, true, "modulate", 0, "decal", 1, "add", 2);
+            ar.xmlGetNode_enum("applyMode", _applyMode, true, {{"modulate", 0}, {"decal", 1}, {"add", 2}});
 
             if (ar.xmlPushChildNode("switches"))
             {
@@ -718,9 +718,13 @@ void CTextureProperty::serialize(CSer& ar)
 
             if (ar.xmlPushChildNode("textureMapping"))
             {
-                ar.xmlGetNode_enum("mode", _textureCoordinateMode, true, "plane", sim_texturemap_plane, "cylinder",
-                                   sim_texturemap_cylinder, "sphere", sim_texturemap_sphere, "cube",
-                                   sim_texturemap_cube);
+                ar.xmlGetNode_enum("mode", _textureCoordinateMode, true,
+                                   {
+                                       {"plane", sim_texturemap_plane},
+                                       {"cylinder", sim_texturemap_cylinder},
+                                       {"sphere", sim_texturemap_sphere},
+                                       {"cube", sim_texturemap_cube}
+                                   });
                 ar.xmlGetNode_2float("scaling", _textureScalingX, _textureScalingY);
                 ar.xmlPopNode();
             }

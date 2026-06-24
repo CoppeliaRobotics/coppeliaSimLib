@@ -454,11 +454,16 @@ void CForceSensor::_handleSensorTriggering()
             {
                 CInterfaceStack* inStack = App::scenes->interfaceStackContainer->createStack();
                 inStack->pushTableOntoStack();
-                inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle());
-                inStack->insertKeyDoubleArrayIntoStackTable("force", _lastForce_dynStep.data, 3);
-                inStack->insertKeyDoubleArrayIntoStackTable("torque", _lastTorque_dynStep.data, 3);
-                inStack->insertKeyDoubleArrayIntoStackTable("filteredForce", _filteredDynamicForces.data, 3);
-                inStack->insertKeyDoubleArrayIntoStackTable("filteredTorque", _filteredDynamicTorques.data, 3);
+                inStack->insertKeyHandleIntoStackTable("forceSensor", getObjectHandle());
+                inStack->insertKeyVector3IntoStackTable("forceVector", _lastForce_dynStep.data);
+                inStack->insertKeyVector3IntoStackTable("torqueVector", _lastTorque_dynStep.data);
+                inStack->insertKeyVector3IntoStackTable("filteredForceVector", _filteredDynamicForces.data);
+                inStack->insertKeyVector3IntoStackTable("filteredTorqueVector", _filteredDynamicTorques.data);
+                inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle()); // deprecated
+                inStack->insertKeyDoubleArrayIntoStackTable("force", _lastForce_dynStep.data, 3); // deprecated
+                inStack->insertKeyDoubleArrayIntoStackTable("torque", _lastTorque_dynStep.data, 3); // deprecated
+                inStack->insertKeyDoubleArrayIntoStackTable("filteredForce", _filteredDynamicForces.data, 3); // deprecated
+                inStack->insertKeyDoubleArrayIntoStackTable("filteredTorque", _filteredDynamicTorques.data, 3); // deprecated
                 for (size_t i = 0; i < scripts.size(); i++)
                 {
                     CDetachedScript* script = scripts[i];

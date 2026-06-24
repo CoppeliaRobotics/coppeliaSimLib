@@ -431,11 +431,15 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     App::scene->sceneObjects->handleDataCallbacks();
     if (scene->sceneObjects->hasSelectionChanged())
     {
-        CInterfaceStack* stack = scenes->interfaceStackContainer->createStack();
-        stack->pushTableOntoStack();
-        stack->pushTextOntoStack("sel");
         std::vector<int> sel;
         scene->sceneObjects->getSelectedObjectHandles(sel);
+
+        CInterfaceStack* stack = scenes->interfaceStackContainer->createStack();
+        stack->pushTableOntoStack();
+        stack->pushTextOntoStack("selection");
+        stack->pushHandleArrayOntoStack(sel.data(), sel.size());
+        stack->insertDataIntoStackTable();
+        stack->pushTextOntoStack("sel"); // deprecated
         stack->pushInt32ArrayOntoStack(sel.data(), sel.size());
         stack->insertDataIntoStackTable();
         scenes->callScripts(sim_syscb_selchange, stack, nullptr);

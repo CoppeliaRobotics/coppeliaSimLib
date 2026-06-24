@@ -1416,7 +1416,7 @@ void CInterfaceStack::pushHandleArrayOntoStack(const int64_t* arr, size_t l, boo
         _stackObjects.push_back(new CInterfaceStackHandleArray(arr, l));
 }
 
-void CInterfaceStack::pushShortHandleArrayOntoStack(const int* arr, size_t l, bool toFront /*=false*/)
+void CInterfaceStack::pushHandleArrayOntoStack(const int* arr, size_t l, bool toFront /*=false*/)
 {
     CInterfaceStackHandleArray* o = new CInterfaceStackHandleArray(nullptr, 0);
     o->setValue(arr, l);
@@ -1622,6 +1622,13 @@ void CInterfaceStack::insertKeyInt64ArrayIntoStackTable(const char* key, const i
     insertDataIntoStackTable();
 }
 
+void CInterfaceStack::insertKeyHandleArrayIntoStackTable(const char* key, const int* arr, size_t l)
+{
+    pushTextOntoStack(key);
+    pushHandleArrayOntoStack(arr, l);
+    insertDataIntoStackTable();
+}
+
 void CInterfaceStack::insertKeyHandleArrayIntoStackTable(const char* key, const int64_t* arr, size_t l)
 {
     pushTextOntoStack(key);
@@ -1640,6 +1647,13 @@ void CInterfaceStack::insertKeyDoubleArrayIntoStackTable(const char* key, const 
 {
     pushTextOntoStack(key);
     pushDoubleArrayOntoStack(arr, l);
+    insertDataIntoStackTable();
+}
+
+void CInterfaceStack::insertKeyVector3IntoStackTable(const char* key, const double* v)
+{
+    pushTextOntoStack(key);
+    pushMatrixOntoStack(v, 3, 1);
     insertDataIntoStackTable();
 }
 
