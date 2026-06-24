@@ -3707,7 +3707,7 @@ int simGetPropertyInfo_internal(int64_t target, const char* ppName, SPropertyInf
                 infoTxt = "j";
         }
         retVal = App::getPropertyInfo_t(target, ppName, infos->flags, infoTxt);
-        if (retVal == sim_propertyret_unknowntarget)
+        if (retVal == sim_propertyret_unknownproperty)
         {
             std::string pName2 = checkAltName(ppName, target);
             if (!pName2.empty())
