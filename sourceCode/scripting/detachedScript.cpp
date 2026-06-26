@@ -4415,26 +4415,38 @@ CInterfaceStackTable* CDetachedScript::_getTableFromInterpreterStack_lua(void* L
             else if (keyT == sim_stackitem_string)
                 key = new CInterfaceStackString(luaWrap_lua_tostring(L, keyInd));
             else
-            { // the key is something else, e.g. a table, a thread, etc. Convert this to a string:
-                void* p = (void*)luaWrap_lua_topointer(L, keyInd);
-                char num[21];
-                snprintf(num, 20, "%p", p);
-                std::string str;
+            { // the key is something else...
                 if (keyT == sim_stackitem_table)
-                    str = "<TABLE ";
-                else if (keyT == sim_stackitem_userdat)
-                    str = "<USERDATA ";
-                else if (keyT == sim_stackitem_func)
-                    str = "<FUNCTION ";
-                else if (keyT == sim_stackitem_thread)
-                    str = "<THREAD ";
-                else if (keyT == sim_stackitem_lightuserdat)
-                    str = "<LIGHTUSERDATA ";
-                else
-                    str = "<UNKNOWNTYPE ";
-                str += num;
-                str += ">";
-                key = new CInterfaceStackString(str.c_str());
+                {
+                    if (luaWrap_lua_hasmetatable(L, keyInd))
+                    { // we have a metatable:
+                        int handleVal;
+                        if (luaWrap_lua_ishandle(L, keyInd, &handleVal))
+                            key = new CInterfaceStackInteger(luaWrap_lua_tohandle(L, keyInd));
+                    }
+                }
+                if (key == nullptr)
+                { // here the key is a table/metatable(that cannot be converted to a handle), a thread, etc. Convert this to a string:
+                    void* p = (void*)luaWrap_lua_topointer(L, keyInd);
+                    char num[21];
+                    snprintf(num, 20, "%p", p);
+                    std::string str;
+                    if (keyT == sim_stackitem_table)
+                        str = "<TABLE ";
+                    else if (keyT == sim_stackitem_userdat)
+                        str = "<USERDATA ";
+                    else if (keyT == sim_stackitem_func)
+                        str = "<FUNCTION ";
+                    else if (keyT == sim_stackitem_thread)
+                        str = "<THREAD ";
+                    else if (keyT == sim_stackitem_lightuserdat)
+                        str = "<LIGHTUSERDATA ";
+                    else
+                        str = "<UNKNOWNTYPE ";
+                    str += num;
+                    str += ">";
+                    key = new CInterfaceStackString(str.c_str());
+                }
             }
             luaWrap_lua_remove(L, keyInd); // remove the key. Stack (top-down): (type), value, key, table copy
             table->appendArrayOrMapObject(key, _getObjectFromInterpreterStack_lua(L, -1, visitedTables));

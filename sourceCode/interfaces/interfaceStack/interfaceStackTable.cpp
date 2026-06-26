@@ -989,7 +989,6 @@ void CInterfaceStackTable::getMapKeys(std::vector<std::string>* stringKeys, std:
         for (size_t i = 0; i < _tableObjects.size() / 2; i++)
         {
             CInterfaceStackObject* key = _tableObjects[2 * i + 0];
-            CInterfaceStackObject* obj = _tableObjects[2 * i + 1];
             if ((key->getObjectType() == sim_stackitem_string) && (stringKeys != nullptr))
                 stringKeys->push_back(((CInterfaceStackString*)key)->getValue(0));
             else if ((key->getObjectType() == sim_stackitem_integer) && (intKeys != nullptr))

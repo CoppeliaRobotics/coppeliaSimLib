@@ -1733,11 +1733,15 @@ void CMarker::_drawAxesPoints(int displayAttrib, const double normalVectorForLin
         glColor3f(0.0, 0.0, 0.0);
         glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
         glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);
+        glColor3f(0.0, 0.0, 0.0);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
         glColor3f(0.0, 0.0, 0.0);
         glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
         glColor3f(0.0, 0.0, 0.0);
     }
+    GLboolean lightingEnabled = glIsEnabled(GL_LIGHTING);
+    glDisable(GL_LIGHTING);
     for (size_t i = 0; i < _pts.size() / 3; i++)
     {
         glPushMatrix();
@@ -1776,6 +1780,8 @@ void CMarker::_drawAxesPoints(int displayAttrib, const double normalVectorForLin
 
         glPopMatrix();
     }
+    if (lightingEnabled)
+        glEnable(GL_LIGHTING);
     if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
         glDisable(GL_COLOR_MATERIAL);
 }
