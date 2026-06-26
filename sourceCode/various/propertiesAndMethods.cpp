@@ -649,6 +649,9 @@ const std::vector<SDepr>& getDeprecatedList()
         {"mesh", prop(PropMesh::DEPRECATED_texture),                    prop(PropMesh::texture).name},
         {"mesh", prop(PropMesh::DEPRECATED_textureID),                  prop(PropMesh::textureID).name},
 
+        {"sceneObject", prop(PropSceneObject::DEPRECATED_calcLinearVelocity),   prop(PropSceneObject::calcLinearVelocity).name},
+        {"sceneObject", prop(PropSceneObject::DEPRECATED_calcRotationAxis),     prop(PropSceneObject::calcRotationAxis).name},
+        {"sceneObject", prop(PropSceneObject::DEPRECATED_calcRotationVelocity), prop(PropSceneObject::calcRotationVelocity).name},
         {"sceneObject", prop(PropSceneObject::DEPRECATED_parentHandle),         std::string(prop(PropSceneObject::parent).name) + DEPRECATION_NO_REPLACE},
         {"sceneObject", prop(PropSceneObject::DEPRECATED_objectUid),            prop(PropSceneObject::uid).name},
         {"sceneObject", prop(PropSceneObject::DEPRECATED_modelProperty),        prop(PropSceneObject::modelProperty).name},
@@ -708,6 +711,7 @@ const std::vector<SDepr>& getDeprecatedList()
         {"light", prop(PropLight::DEPRECATED_size),                         prop(PropLight::size).name},
         {"light", prop(PropLight::DEPRECATED_lightType),                    std::string(prop(PropLight::lightType).name) + DEPRECATION_NO_REPLACE},
 
+        {"joint", prop(PropJoint::DEPRECATED_calcVelocity),                 prop(PropJoint::calcVelocity).name},
         {"joint", prop(PropJoint::DEPRECATED_position),                     prop(PropJoint::position).name},
         {"joint", prop(PropJoint::DEPRECATED_quaternion),                   prop(PropJoint::quaternion).name},
         {"joint", prop(PropJoint::DEPRECATED_dependencyMaster),             std::string(prop(PropJoint::dependencyMaster).name) + DEPRECATION_NO_REPLACE},
@@ -819,6 +823,8 @@ const std::vector<SDepr>& getDeprecatedList()
         {"dummy", prop(PropDummy::DEPRECATED_mujocoOverlapConstrSolimp),    prop(PropDummy::mujocoOverlapConstrSolimp).name},
         {"dummy", prop(PropDummy::DEPRECATED_mujocoOverlapConstrTorqueScale),   prop(PropDummy::mujocoOverlapConstrTorqueScale).name},
 
+        {"shape", prop(PropShape::DEPRECATED_dynLinearVelocity),                prop(PropShape::dynLinearVelocity).name},
+        {"shape", prop(PropShape::DEPRECATED_dynAngularVelocity),               prop(PropShape::dynAngularVelocity).name},
         {"shape", prop(PropMeshWrapper::DEPRECATED_pmi),                        std::string(prop(PropMeshWrapper::pmi).name) + DEPRECATION_NO_REPLACE},
         {"shape", prop(PropMeshWrapper::DEPRECATED_inertia),                    std::string(prop(PropMeshWrapper::inertiaMatrix).name) + DEPRECATION_NO_REPLACE},
         {"shape", prop(PropMaterial::DEPRECATED_engineProperties),              prop(PropMaterial::engineProperties).name},
