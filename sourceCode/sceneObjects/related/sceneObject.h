@@ -482,7 +482,7 @@ class CSceneObject : public Obj
     int _dynamicFlag; // 1=respondableShape, 2=nonStaticShape, 4=dynJoint, 32=dynForceSensor, 64=dynDummy
 
     double _measuredAngularVelocity_velocityMeasurement;
-    C3Vector _measuredAngularVelocity3_velocityMeasurement;
+    C3Vector _measuredAngularVelocity3_velocityMeasurement; // this is old I believe and not correct
     C3Vector _measuredAngularVelocityAxis_velocityMeasurement;
     C3Vector _measuredLinearVelocity_velocityMeasurement;
     CPose _previousAbsTransf_velocityMeasurement;

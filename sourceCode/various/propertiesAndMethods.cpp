@@ -650,8 +650,8 @@ const std::vector<SDepr>& getDeprecatedList()
         {"mesh", prop(PropMesh::DEPRECATED_textureID),                  prop(PropMesh::textureID).name},
 
         {"sceneObject", prop(PropSceneObject::DEPRECATED_calcLinearVelocity),   prop(PropSceneObject::calcLinearVelocity).name},
-        {"sceneObject", prop(PropSceneObject::DEPRECATED_calcRotationAxis),     prop(PropSceneObject::calcRotationAxis).name},
-        {"sceneObject", prop(PropSceneObject::DEPRECATED_calcRotationVelocity), prop(PropSceneObject::calcRotationVelocity).name},
+        {"sceneObject", prop(PropSceneObject::DEPRECATED_calcRotationAxis),     prop(PropSceneObject::calcLinearVelocity).name},
+        {"sceneObject", prop(PropSceneObject::DEPRECATED_calcRotationVelocity), std::string(prop(PropSceneObject::calcLinearVelocity).name) + DEPRECATION_NO_REPLACE},
         {"sceneObject", prop(PropSceneObject::DEPRECATED_parentHandle),         std::string(prop(PropSceneObject::parent).name) + DEPRECATION_NO_REPLACE},
         {"sceneObject", prop(PropSceneObject::DEPRECATED_objectUid),            prop(PropSceneObject::uid).name},
         {"sceneObject", prop(PropSceneObject::DEPRECATED_modelProperty),        prop(PropSceneObject::modelProperty).name},

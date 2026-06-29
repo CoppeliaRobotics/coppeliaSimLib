@@ -5935,6 +5935,30 @@ int CJoint::setFloatArrayProperty(const char* ppName, const std::vector<double>&
                 else
                     retVal = 0;
             }
+            else if (_pName == prop(PropJoint::configuration).name)
+            {
+                if (_jointType == sim_joint_spherical)
+                {
+                    if (pState.size() >= 4)
+                    {
+                        CQuaternion q(pState.data(), true);
+                        setSphericalTransformation(q);
+                        retVal = sim_propertyret_ok;
+                    }
+                    else
+                        retVal = 0;
+                }
+                else
+                {
+                    if (pState.size() >= 1)
+                    {
+                        setPosition(pState[0]);
+                        retVal = sim_propertyret_ok;
+                    }
+                    else
+                        retVal = 0;
+                }
+            }
             else if (_pName == prop(PropJoint::interval).name)
             {
                 if (pState.size() >= 2)
@@ -5945,6 +5969,7 @@ int CJoint::setFloatArrayProperty(const char* ppName, const std::vector<double>&
                 else
                     retVal = 0;
             }
+
             else if (_pName == prop(PropJoint::dependencyParams).name)
             {
                 if (pState.size() >= 2)
@@ -6033,6 +6058,21 @@ int CJoint::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
             pState.push_back(_maxVelAccelJerk[0]);
             pState.push_back(_maxVelAccelJerk[1]);
             pState.push_back(_maxVelAccelJerk[2]);
+            retVal = sim_propertyret_ok;
+        }
+        else if (_pName == prop(PropJoint::configuration).name)
+        {
+            if (_jointType == sim_joint_spherical)
+            {
+                double dat[4];
+                _sphericalTransf.getData(dat, true);
+                pState.push_back(dat[0]);
+                pState.push_back(dat[1]);
+                pState.push_back(dat[2]);
+                pState.push_back(dat[3]);
+            }
+            else
+                pState.push_back(_pos);
             retVal = sim_propertyret_ok;
         }
         else if (_pName == prop(PropJoint::interval).name)

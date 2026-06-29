@@ -169,14 +169,14 @@ void CSceneObject::_setMeasuredVelocity(const C3Vector& lin, const C3Vector& ang
             if (App::getEventProtocolVersion() <= 3)
             {
                 ev->appendKeyDoubleArray(cmd, _measuredLinearVelocity_velocityMeasurement.data, 3);
-                ev->appendKeyDoubleArray(prop(PropSceneObject::calcRotationAxis).name, _measuredAngularVelocityAxis_velocityMeasurement.data, 3);
+                ev->appendKeyDoubleArray(prop(PropSceneObject::DEPRECATED_calcRotationAxis).name, _measuredAngularVelocityAxis_velocityMeasurement.data, 3);
+                ev->appendKeyDouble(prop(PropSceneObject::DEPRECATED_calcRotationVelocity).name, _measuredAngularVelocity_velocityMeasurement);
             }
             else
             {
-                ev->appendKeyVector3(cmd, _measuredLinearVelocity_velocityMeasurement);
-                ev->appendKeyVector3(prop(PropSceneObject::calcRotationAxis).name, _measuredAngularVelocityAxis_velocityMeasurement);
+                ev->appendKeyVector3(prop(PropSceneObject::calcLinearVelocity).name, _measuredLinearVelocity_velocityMeasurement);
+                ev->appendKeyVector3(prop(PropSceneObject::calcAngularVelocity).name, _measuredAngularVelocityAxis_velocityMeasurement);
             }
-            ev->appendKeyDouble(prop(PropSceneObject::calcRotationVelocity).name, _measuredAngularVelocity_velocityMeasurement);
             App::scenes->pushEvent();
         }
     }
@@ -1543,14 +1543,14 @@ void CSceneObject::addObjectEventData(CCbor* ev)
     if (App::getEventProtocolVersion() <= 3)
     {
         ev->appendKeyDoubleArray(prop(PropSceneObject::calcLinearVelocity).name, _measuredLinearVelocity_velocityMeasurement.data, 3);
-        ev->appendKeyDoubleArray(prop(PropSceneObject::calcRotationAxis).name, _measuredAngularVelocityAxis_velocityMeasurement.data, 3);
+        ev->appendKeyDoubleArray(prop(PropSceneObject::DEPRECATED_calcRotationAxis).name, _measuredAngularVelocityAxis_velocityMeasurement.data, 3);
+        ev->appendKeyDouble(prop(PropSceneObject::DEPRECATED_calcRotationVelocity).name, _measuredAngularVelocity_velocityMeasurement);
     }
     else
     {
         ev->appendKeyVector3(prop(PropSceneObject::calcLinearVelocity).name, _measuredLinearVelocity_velocityMeasurement);
-        ev->appendKeyVector3(prop(PropSceneObject::calcRotationAxis).name, _measuredAngularVelocityAxis_velocityMeasurement);
+        ev->appendKeyVector3(prop(PropSceneObject::calcAngularVelocity).name, _measuredAngularVelocityAxis_velocityMeasurement);
     }
-    ev->appendKeyDouble(prop(PropSceneObject::calcRotationVelocity).name, _measuredAngularVelocity_velocityMeasurement);
     ev->appendKeyInt64(prop(PropSceneObject::dynamicIcon).name, _dynamicSimulationIconCode);
     ev->appendKeyInt64(prop(PropSceneObject::dynamicFlag).name, _dynamicFlag);
 
@@ -6416,7 +6416,7 @@ int CSceneObject::getFloatProperty(const char* ppName, double& pState) const
     if (retVal == sim_propertyret_unknownproperty)
     {
         std::string _pName(ppName);
-        if (_pName == prop(PropSceneObject::calcRotationVelocity).name)
+        if (_pName == prop(PropSceneObject::DEPRECATED_calcRotationVelocity).name)
         {
             pState = _measuredAngularVelocity_velocityMeasurement;
             retVal = sim_propertyret_ok;
@@ -6677,7 +6677,7 @@ int CSceneObject::getVector3Property(const char* ppName, C3Vector& pState) const
             retVal = sim_propertyret_ok;
             pState = _measuredLinearVelocity_velocityMeasurement;
         }
-        else if (_pName == prop(PropSceneObject::calcRotationAxis).name)
+        else if (_pName == prop(PropSceneObject::calcAngularVelocity).name)
         {
             retVal = sim_propertyret_ok;
             pState = _measuredAngularVelocityAxis_velocityMeasurement;
