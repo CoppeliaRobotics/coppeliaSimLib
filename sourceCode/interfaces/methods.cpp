@@ -1892,25 +1892,57 @@ std::string _method_loadModelThumbnail(int targetObj, const char* method, CDetac
             std::string path = fetchText(inStack, 0);
             std::string infoStr;
             std::vector<int> sel = App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0];
-            if (CFileOperations::loadModel(path.c_str(), false, false, nullptr, true, false, &infoStr, &errMsg))
+//            if (CFileOperations::loadModel(path.c_str(), false, false, nullptr, true, false, &infoStr, &errMsg))
+//            {
+
+            if (VFile::doesFileExist(path.c_str()))
             {
-                App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
-                setLastInfo(infoStr.c_str());
-#ifdef SIM_WITH_GUI
-                GuiApp::setRebuildHierarchyFlag();
-#endif
-                char* buff = new char[128 * 128 * 4];
-                bool opRes = App::scene->environment->modelThumbnail_notSerializedHere.copyUncompressedImageToBuffer(buff);
-                if (opRes)
+                CSer serObj(path.c_str(), CSer::getFileTypeFromName(path.c_str()));
+                int result = serObj.readOpenBinary(1, true, &infoStr, &errMsg);
+                if (result == 1)
                 {
-                    outStack->pushBufferOntoStack(buff, 128 * 128 * 4);
+                    CThumbnail* thumbO = App::scene->environment->modelThumbnail_notSerializedHere.copyYourself();
+                    CPose modelTr;
+                    modelTr.setIdentity();
+                    C3Vector modelBoundingBoxSize;
+                    modelBoundingBoxSize.clear();
+                    double modelNonDefaultTranslationStepSize = 0.0;
+                    App::scene->loadModel(serObj, true, false, &modelTr, &modelBoundingBoxSize, &modelNonDefaultTranslationStepSize);
+                    CThumbnail* retThumbnail = App::scene->environment->modelThumbnail_notSerializedHere.copyYourself();
+                    App::scene->environment->modelThumbnail_notSerializedHere.copyFrom(thumbO);
+                    delete thumbO;
+                    if (retThumbnail->getPointerToUncompressedImage() != nullptr)
+                        result = 1;
+                    serObj.readClose();
+
+                    char* buff = new char[128 * 128 * 4];
+                    bool opRes = retThumbnail->copyUncompressedImageToBuffer(buff);
+                    delete retThumbnail;
+                    if (opRes)
+                    {
+                        outStack->pushBufferOntoStack(buff, 128 * 128 * 4);
+                        delete[] buff;
+                        outStack->pushTextOntoStack(infoStr.c_str());
+                        outStack->pushVector3OntoStack(modelBoundingBoxSize);
+                        outStack->pushPoseOntoStack(modelTr);
+                        return errMsg;
+                    }
                     delete[] buff;
                     return errMsg;
                 }
-                delete[] buff;
-                return errMsg;
+                else
+                    errMsg = "File could not be read.";
             }
+            else
+                errMsg = SIM_ERROR_FILE_NOT_FOUND;
+
+            App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
             setLastInfo(infoStr.c_str());
+#ifdef SIM_WITH_GUI
+            GuiApp::setRebuildHierarchyFlag();
+#endif
+//            }
+//            setLastInfo(infoStr.c_str());
         }
     }
     else
