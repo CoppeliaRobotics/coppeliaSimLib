@@ -64,8 +64,8 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["handleSimulationScripts"] = _method_handleSimulationScripts;
         funcTable["loadModel"] = _method_loadModel;
         funcTable["loadModelFromBuffer"] = _method_loadModelFromBuffer;
-        funcTable["loadModelThumbnail"] = _method_loadModelThumbnail;
-        funcTable["loadModelThumbnailFromBuffer"] = _method_loadModelThumbnailFromBuffer;
+        funcTable["loadModelInfo"] = _method_loadModelInfo;
+        funcTable["loadModelInfoFromBuffer"] = _method_loadModelInfoFromBuffer;
         funcTable["saveModel"] = _method_saveModel;
         funcTable["saveModelToBuffer"] = _method_saveModelToBuffer;
         funcTable["loadScene"] = _method_loadScene;
@@ -1882,7 +1882,7 @@ std::string _method_loadModelFromBuffer(int targetObj, const char* method, CDeta
     return errMsg;
 }
 
-std::string _method_loadModelThumbnail(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadModelInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (targetObj == sim_handle_app)
@@ -1892,9 +1892,6 @@ std::string _method_loadModelThumbnail(int targetObj, const char* method, CDetac
             std::string path = fetchText(inStack, 0);
             std::string infoStr;
             std::vector<int> sel = App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0];
-//            if (CFileOperations::loadModel(path.c_str(), false, false, nullptr, true, false, &infoStr, &errMsg))
-//            {
-
             if (VFile::doesFileExist(path.c_str()))
             {
                 CSer serObj(path.c_str(), CSer::getFileTypeFromName(path.c_str()));
@@ -1922,9 +1919,9 @@ std::string _method_loadModelThumbnail(int targetObj, const char* method, CDetac
                     {
                         outStack->pushBufferOntoStack(buff, 128 * 128 * 4);
                         delete[] buff;
-                        outStack->pushTextOntoStack(infoStr.c_str());
                         outStack->pushVector3OntoStack(modelBoundingBoxSize);
                         outStack->pushPoseOntoStack(modelTr);
+                        outStack->pushTextOntoStack(infoStr.c_str());
                         return errMsg;
                     }
                     delete[] buff;
@@ -1941,8 +1938,6 @@ std::string _method_loadModelThumbnail(int targetObj, const char* method, CDetac
 #ifdef SIM_WITH_GUI
             GuiApp::setRebuildHierarchyFlag();
 #endif
-//            }
-//            setLastInfo(infoStr.c_str());
         }
     }
     else
@@ -1950,7 +1945,7 @@ std::string _method_loadModelThumbnail(int targetObj, const char* method, CDetac
     return errMsg;
 }
 
-std::string _method_loadModelThumbnailFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadModelInfoFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (targetObj == sim_handle_app)
@@ -1961,25 +1956,46 @@ std::string _method_loadModelThumbnailFromBuffer(int targetObj, const char* meth
             std::vector<char> buffer(data.data(), data.data() + data.size());
             std::string infoStr;
             std::vector<int> sel = App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0];
-            if (CFileOperations::loadModel(nullptr, false, false, &buffer, true, false, &infoStr, &errMsg))
+            CSer serObj(buffer, CSer::filetype_csim_bin_model_buff);
+            int result = serObj.readOpenBinary(1, true, &infoStr, &errMsg);
+            if (result == 1)
             {
-                App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
-                setLastInfo(infoStr.c_str());
-#ifdef SIM_WITH_GUI
-                GuiApp::setRebuildHierarchyFlag();
-#endif
+                CThumbnail* thumbO = App::scene->environment->modelThumbnail_notSerializedHere.copyYourself();
+                CPose modelTr;
+                modelTr.setIdentity();
+                C3Vector modelBoundingBoxSize;
+                modelBoundingBoxSize.clear();
+                double modelNonDefaultTranslationStepSize = 0.0;
+                App::scene->loadModel(serObj, true, false, &modelTr, &modelBoundingBoxSize, &modelNonDefaultTranslationStepSize);
+                CThumbnail* retThumbnail = App::scene->environment->modelThumbnail_notSerializedHere.copyYourself();
+                App::scene->environment->modelThumbnail_notSerializedHere.copyFrom(thumbO);
+                delete thumbO;
+                if (retThumbnail->getPointerToUncompressedImage() != nullptr)
+                    result = 1;
+                serObj.readClose();
+
                 char* buff = new char[128 * 128 * 4];
-                bool opRes = App::scene->environment->modelThumbnail_notSerializedHere.copyUncompressedImageToBuffer(buff);
+                bool opRes = retThumbnail->copyUncompressedImageToBuffer(buff);
+                delete retThumbnail;
                 if (opRes)
                 {
                     outStack->pushBufferOntoStack(buff, 128 * 128 * 4);
                     delete[] buff;
+                    outStack->pushVector3OntoStack(modelBoundingBoxSize);
+                    outStack->pushPoseOntoStack(modelTr);
+                    outStack->pushTextOntoStack(infoStr.c_str());
                     return errMsg;
                 }
                 delete[] buff;
                 return errMsg;
             }
+            else
+                errMsg = "File could not be read.";
+            App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
             setLastInfo(infoStr.c_str());
+#ifdef SIM_WITH_GUI
+            GuiApp::setRebuildHierarchyFlag();
+#endif
         }
     }
     else

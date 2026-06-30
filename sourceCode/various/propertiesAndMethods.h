@@ -274,8 +274,8 @@ std::map<int, std::string> buildEnumToStringMap()
     FUNCX(GROUP_paths, PATHSPREFIX, sim_propertytype_group, SIM_PROPERTYINFO_GROUP,PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_handleAddOnScripts, "handleAddOnScripts", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_handleSandboxScript, "handleSandboxScript", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_loadModelThumbnail, "loadModelThumbnail", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
-    FUNCX(METHOD_loadModelThumbnailFromBuffer, "loadModelThumbnailFromBuffer", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(METHOD_loadModelInfo, "loadModelInfo", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(METHOD_loadModelInfoFromBuffer, "loadModelInfoFromBuffer", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_loadScene, "loadScene", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_loadSceneFromBuffer, "loadSceneFromBuffer", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(METHOD_getObjects, "getObjects", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
