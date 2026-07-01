@@ -1836,12 +1836,19 @@ std::string _method_loadModel(int targetObj, const char* method, CDetachedScript
         {
             std::string path = fetchText(inStack, 0);
             C3Vector offset;
+            int assemblyDummy = -1;
             offset.clear();
             if (CInterfaceStackTable* map = fetchMap(inStack, 1))
             {
                 std::vector<double> arr;
                 if (map->fetchMatrixDataFromKey("offset", arr, 3, 1, true, &errMsg))
                     offset.setData(arr.data());
+                if (map->fetchInt32FromKey("assemblyDummy", assemblyDummy, &errMsg))
+                {
+                    CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(assemblyDummy);
+                    if (obj == nullptr)
+                        errMsg = "invalid assembly dummy";
+                }
             }
             if (errMsg.empty())
             {
@@ -1853,9 +1860,17 @@ std::string _method_loadModel(int targetObj, const char* method, CDetachedScript
                     outStack->pushHandleOntoStack(handle);
                     outStack->pushTextOntoStack(infoStr.c_str());
                     CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(handle);
-                    CPose tr = it->getLocalTransformation();
-                    tr.X += offset;
-                    it->setLocalTransformation(tr);
+                    if (assemblyDummy == -1)
+                    {
+                        CPose tr = it->getLocalTransformation();
+                        tr.X += offset;
+                        it->setLocalTransformation(tr);
+                    }
+                    else
+                    {
+                        if (!App::assemble(assemblyDummy, handle, false))
+                            errMsg = "failed assembling model onto dummy";
+                    }
                     App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
 #ifdef SIM_WITH_GUI
                     GuiApp::setRebuildHierarchyFlag();
@@ -1879,12 +1894,19 @@ std::string _method_loadModelFromBuffer(int targetObj, const char* method, CDeta
             std::string data = fetchBuffer(inStack, 0);
             std::vector<char> buffer(data.data(), data.data() + data.size());
             C3Vector offset;
+            int assemblyDummy = -1;
             offset.clear();
             if (CInterfaceStackTable* map = fetchMap(inStack, 1))
             {
                 std::vector<double> arr;
                 if (map->fetchMatrixDataFromKey("offset", arr, 3, 1, true, &errMsg))
                     offset.setData(arr.data());
+                if (map->fetchInt32FromKey("assemblyDummy", assemblyDummy, &errMsg))
+                {
+                    CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(assemblyDummy);
+                    if (obj == nullptr)
+                        errMsg = "invalid assembly dummy";
+                }
             }
             if (errMsg.empty())
             {
@@ -1896,9 +1918,17 @@ std::string _method_loadModelFromBuffer(int targetObj, const char* method, CDeta
                     outStack->pushHandleOntoStack(handle);
                     outStack->pushTextOntoStack(infoStr.c_str());
                     CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(handle);
-                    CPose tr = it->getLocalTransformation();
-                    tr.X += offset;
-                    it->setLocalTransformation(tr);
+                    if (assemblyDummy == -1)
+                    {
+                        CPose tr = it->getLocalTransformation();
+                        tr.X += offset;
+                        it->setLocalTransformation(tr);
+                    }
+                    else
+                    {
+                        if (!App::assemble(assemblyDummy, handle, false))
+                            errMsg = "failed assembling model onto dummy";
+                    }
                     App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
 #ifdef SIM_WITH_GUI
                     GuiApp::setRebuildHierarchyFlag();
