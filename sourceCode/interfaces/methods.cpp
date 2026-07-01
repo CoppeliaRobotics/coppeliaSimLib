@@ -1832,21 +1832,36 @@ std::string _method_loadModel(int targetObj, const char* method, CDetachedScript
     std::string errMsg;
     if (targetObj == sim_handle_scene)
     {
-        if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+        if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
         {
             std::string path = fetchText(inStack, 0);
-            std::string infoStr;
-            std::vector<int> sel = App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0];
-            if (CFileOperations::loadModel(path.c_str(), false, false, nullptr, false, false, &infoStr, &errMsg))
+            C3Vector offset;
+            offset.clear();
+            if (CInterfaceStackTable* map = fetchMap(inStack, 1))
             {
-                outStack->pushHandleOntoStack(App::scene->sceneObjects->getLastSelectionHandle());
-                App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
-                setLastInfo(infoStr.c_str());
-#ifdef SIM_WITH_GUI
-                GuiApp::setRebuildHierarchyFlag();
-#endif
+                std::vector<double> arr;
+                if (map->fetchMatrixDataFromKey("offset", arr, 3, 1, true, &errMsg))
+                    offset.setData(arr.data());
             }
-            setLastInfo(infoStr.c_str());
+            if (errMsg.empty())
+            {
+                std::string infoStr;
+                std::vector<int> sel = App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0];
+                if (CFileOperations::loadModel(path.c_str(), false, false, nullptr, false, false, &infoStr, &errMsg))
+                {
+                    int handle = App::scene->sceneObjects->getLastSelectionHandle();
+                    outStack->pushHandleOntoStack(handle);
+                    outStack->pushTextOntoStack(infoStr.c_str());
+                    CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(handle);
+                    CPose tr = it->getLocalTransformation();
+                    tr.X += offset;
+                    it->setLocalTransformation(tr);
+                    App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
+#ifdef SIM_WITH_GUI
+                    GuiApp::setRebuildHierarchyFlag();
+#endif
+                }
+            }
         }
     }
     else
@@ -1859,22 +1874,37 @@ std::string _method_loadModelFromBuffer(int targetObj, const char* method, CDeta
     std::string errMsg;
     if (targetObj == sim_handle_scene)
     {
-        if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+        if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
         {
             std::string data = fetchBuffer(inStack, 0);
             std::vector<char> buffer(data.data(), data.data() + data.size());
-            std::string infoStr;
-            std::vector<int> sel = App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0];
-            if (CFileOperations::loadModel(nullptr, false, false, &buffer, false, false, &infoStr, &errMsg))
+            C3Vector offset;
+            offset.clear();
+            if (CInterfaceStackTable* map = fetchMap(inStack, 1))
             {
-                outStack->pushHandleOntoStack(App::scene->sceneObjects->getLastSelectionHandle());
-                App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
-                setLastInfo(infoStr.c_str());
-#ifdef SIM_WITH_GUI
-                GuiApp::setRebuildHierarchyFlag();
-#endif
+                std::vector<double> arr;
+                if (map->fetchMatrixDataFromKey("offset", arr, 3, 1, true, &errMsg))
+                    offset.setData(arr.data());
             }
-            setLastInfo(infoStr.c_str());
+            if (errMsg.empty())
+            {
+                std::string infoStr;
+                std::vector<int> sel = App::scene->sceneObjects->getSelectedObjectHandlesPtr()[0];
+                if (CFileOperations::loadModel(nullptr, false, false, &buffer, false, false, &infoStr, &errMsg))
+                {
+                    int handle = App::scene->sceneObjects->getLastSelectionHandle();
+                    outStack->pushHandleOntoStack(handle);
+                    outStack->pushTextOntoStack(infoStr.c_str());
+                    CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(handle);
+                    CPose tr = it->getLocalTransformation();
+                    tr.X += offset;
+                    it->setLocalTransformation(tr);
+                    App::scene->sceneObjects->setSelectedObjectHandles(sel.data(), sel.size());
+#ifdef SIM_WITH_GUI
+                    GuiApp::setRebuildHierarchyFlag();
+#endif
+                }
+            }
         }
     }
     else

@@ -2749,8 +2749,7 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
         glTranslated(x + info->modelTr.X(0), y + info->modelTr.X(1), info->modelTr.X(2));
         CQuaternion axis = info->modelTr.Q.getAngleAndAxis();
         glRotated(axis(0) * radToDeg, axis(1), axis(2), axis(3));
-        ogl::drawBox(info->modelBoundingBoxSize(0), info->modelBoundingBoxSize(1), info->modelBoundingBoxSize(2), true,
-                     nullptr);
+        ogl::drawBox(info->modelBoundingBoxSize(0), info->modelBoundingBoxSize(1), info->modelBoundingBoxSize(2), true, nullptr);
         glPopMatrix();
         ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, pink);
         glPushMatrix();
