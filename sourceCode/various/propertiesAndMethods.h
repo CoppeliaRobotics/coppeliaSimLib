@@ -1176,7 +1176,7 @@ std::map<int, std::string> buildEnumToStringMap()
 
 #define DUMMY_PROPERTIES \
     FUNCX(GROUP_dummy, "dummy", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
-    FUNCX(dummyType, "dummy.type", sim_propertytype_string, 0, PropertyInfo({{"label", "Type"}, {"description", "Dummy type"}, {"validItems", {"dynLoopClosure", "dynTendon", "neutral", "assembly"}}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
+    FUNCX(dummyType, "dummy.type", sim_propertytype_string, 0, PropertyInfo({{"label", "Type"}, {"description", "Dummy type"}, {"enum", "dummyType"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(linkedDummy, "linkedDummy", sim_propertytype_handle, sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Linked dummy"}, {"description", "Handle of the linked dummy"}, {"handleType", "dummy"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(assemblyTag, "assemblyTag", sim_propertytype_string, 0,  PropertyInfo({{"label", "Assembly tag"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
     FUNCX(size, "size", sim_propertytype_float, 0,  PropertyInfo({{"label", "Size"}, {"description", "Dummy size"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}),  -1, -1, -1, -1, -1) \
