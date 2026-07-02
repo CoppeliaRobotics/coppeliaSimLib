@@ -711,6 +711,7 @@ const std::vector<SDepr>& getDeprecatedList()
         {"light", prop(PropLight::DEPRECATED_size),                         prop(PropLight::size).name},
         {"light", prop(PropLight::DEPRECATED_lightType),                    std::string(prop(PropLight::lightType).name) + DEPRECATION_NO_REPLACE},
 
+        {"joint", prop(PropJoint::DEPRECATED_interval),                     std::string(prop(PropJoint::bounds).name) + DEPRECATION_NO_REPLACE},
         {"joint", prop(PropJoint::DEPRECATED_calcVelocity),                 prop(PropJoint::calcVelocity).name},
         {"joint", prop(PropJoint::DEPRECATED_position),                     prop(PropJoint::position).name},
         {"joint", prop(PropJoint::DEPRECATED_quaternion),                   prop(PropJoint::quaternion).name},

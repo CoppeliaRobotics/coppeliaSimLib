@@ -1196,15 +1196,22 @@ void CJoint::setInterval(double minV, double maxV)
         _posRange = dv;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = prop(PropJoint::interval).name;
+            const char* cmd = prop(PropJoint::bounds).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
-            if (App::getEventProtocolVersion() == 2)
+            double arr[2] = {_posMin, _posMin + _posRange};
+            if (App::getEventProtocolVersion() <= 3)
             {
                 ev->appendKeyDouble("min", _posMin);
                 ev->appendKeyDouble("range", _posRange);
+                ev->appendKeyDoubleArray("interval", arr, 2);
             }
-            double arr[2] = {_posMin, _posMin + _posRange};
-            ev->appendKeyDoubleArray(cmd, arr, 2);
+            else
+            {
+                if ((_isCyclic && (_jointType == sim_joint_revolute)) || (_jointType == sim_joint_spherical))
+                    ev->appendKeyDoubleArray(cmd, nullptr, 0);
+                else
+                    ev->appendKeyDoubleArray(cmd, arr, 2);
+            }
             App::scenes->pushEvent();
         }
         _setPositionIntervalMin_sendOldIk(_posMin);
@@ -2088,6 +2095,8 @@ void CJoint::addObjectEventData(CCbor* ev)
     }
     ev->appendKeyDouble(prop(PropJoint::position).name, _pos);
     ev->appendKeyDouble(prop(PropJoint::screwLead).name, _screwLead);
+    double interv[2];
+    getInterval(interv[0], interv[1]);
     if (App::getEventProtocolVersion() <= 3)
     {
         double p[7];
@@ -2099,6 +2108,7 @@ void CJoint::addObjectEventData(CCbor* ev)
         ev->appendKeyDouble("jointLength", _length);
         ev->appendKeyDouble("jointDiameter", _diameter);
         ev->appendKeyDoubleArray("springDamperParams", _dynCtrl_kc, 2);
+        ev->appendKeyDoubleArray("interval", interv, 2);
     }
     else
     {
@@ -2107,12 +2117,13 @@ void CJoint::addObjectEventData(CCbor* ev)
         ev->appendKeyDouble(prop(PropJoint::length).name, _length);
         ev->appendKeyDouble(prop(PropJoint::diameter).name, _diameter);
         ev->appendKeyDoubleArray(prop(PropJoint::springDamperParams).name, _dynCtrl_kc, 2);
+        if ((_isCyclic && (_jointType == sim_joint_revolute)) || (_jointType == sim_joint_spherical))
+            ev->appendKeyDoubleArray(prop(PropJoint::bounds).name, nullptr, 0);
+        else
+            ev->appendKeyDoubleArray(prop(PropJoint::bounds).name, arr, 2);
     }
 
     ev->appendKeyDoubleArray(prop(PropJoint::maxVelAccelJerk).name, _maxVelAccelJerk, 3);
-    double interv[2];
-    getInterval(interv[0], interv[1]);
-    ev->appendKeyDoubleArray(prop(PropJoint::interval).name, interv, 2);
     ev->appendKeyDouble(prop(PropJoint::calcVelocity).name, _velCalc_vel);
 
     // Engine properties:
@@ -5959,7 +5970,7 @@ int CJoint::setFloatArrayProperty(const char* ppName, const std::vector<double>&
                         retVal = 0;
                 }
             }
-            else if (_pName == prop(PropJoint::interval).name)
+            else if (_pName == prop(PropJoint::DEPRECATED_interval).name)
             {
                 if (pState.size() >= 2)
                 {
@@ -5969,7 +5980,28 @@ int CJoint::setFloatArrayProperty(const char* ppName, const std::vector<double>&
                 else
                     retVal = 0;
             }
-
+            else if (_pName == prop(PropJoint::bounds).name)
+            {
+                retVal = sim_propertyret_ok;
+                if (pState.size() >= 2)
+                {
+                    if (_jointType == sim_joint_spherical)
+                        retVal = 0;
+                    else
+                    {
+                        setInterval(pState[0], pState[1]);
+                        if (_jointType == sim_joint_revolute)
+                            setIsCyclic(false);
+                    }
+                }
+                else
+                {
+                    if (_jointType == sim_joint_revolute)
+                        setIsCyclic(true);
+                    else if (_jointType == sim_joint_prismatic)
+                        retVal = 0;
+                }
+            }
             else if (_pName == prop(PropJoint::dependencyParams).name)
             {
                 if (pState.size() >= 2)
@@ -6075,13 +6107,24 @@ int CJoint::getFloatArrayProperty(const char* ppName, std::vector<double>& pStat
                 pState.push_back(_pos);
             retVal = sim_propertyret_ok;
         }
-        else if (_pName == prop(PropJoint::interval).name)
+        else if (_pName == prop(PropJoint::DEPRECATED_interval).name)
         {
             double minV, maxV;
             getInterval(minV, maxV);
             pState.push_back(minV);
             pState.push_back(maxV);
             retVal = sim_propertyret_ok;
+        }
+        else if (_pName == prop(PropJoint::bounds).name)
+        {
+            retVal = sim_propertyret_ok;
+            if (((!_isCyclic) || (_jointType != sim_joint_revolute)) && (_jointType != sim_joint_spherical))
+            {
+                double minV, maxV;
+                getInterval(minV, maxV);
+                pState.push_back(minV);
+                pState.push_back(maxV);
+            }
         }
         else if (_pName == prop(PropJoint::dependencyParams).name)
         {
