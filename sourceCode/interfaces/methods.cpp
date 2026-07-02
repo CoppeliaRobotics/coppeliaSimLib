@@ -135,6 +135,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["groupShapes"] = _method_groupShapes;
         funcTable["mergeShapes"] = _method_mergeShapes;
         funcTable["createCamera"] = _method_createCamera;
+        funcTable["createShapeFromPath"] = _method_createShapeFromPath;
         funcTable["createLight"] = _method_createLight;
         funcTable["createGraph"] = _method_createGraph;
         funcTable["createCustomSceneObject"] = _method_createCustomSceneObject;
@@ -9894,6 +9895,183 @@ std::string _method_getData(int targetObj, const char* method, CDetachedScript* 
             }
             else
                 errMsg = "invalid render mode.";
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_createShapeFromPath(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_matrix, -1, 7, arg_map | arg_optional}))
+    {
+        std::vector<double> pppath;
+        fetchMatrixData(inStack, 0, pppath, true);
+        std::vector<double> section = {-0.01, -0.01, 0.01, -0.01, 0.01, 0.01, -0.01, 0.01, -0.01, -0.01};
+        C3Vector zvect = C3Vector::unitZVector;
+        int axis = 0;
+        bool closedPath = false;
+        if (pppath.size() >= 21)
+        {
+            closedPath = true;
+            for (size_t i = 0; i < 7; i++)
+            {
+                if (pppath[i] != pppath[pppath.size() - 7 + i])
+                {
+                    closedPath = false;
+                    break;
+                }
+            }
+        }
+        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        {
+            std::vector<double> s;
+            if (map->fetchArrayAsConsecutiveDoublesFromKey("section", s, &errMsg))
+                section = s;
+            std::vector<double> arr;
+            if (map->fetchMatrixDataFromKey("upVector", arr, 1, 3, true, &errMsg))
+                zvect.setData(arr.data());
+            map->fetchInt32FromKey("axis", axis, &errMsg);
+        }
+        if (errMsg.size() == 0)
+        {
+            int pathSize = pppath.size();
+            int sectionSize = section.size();
+            // First make sure the points are not coincident:
+            std::vector<double> ppath;
+            C3Vector prevV;
+            prevV.clear();
+            CQuaternion prevQ;
+            prevQ.clear();
+            for (int i = 0; i < pathSize / 7; i++)
+            {
+                C3Vector v(pppath.data() + 7 * i);
+                CQuaternion q(pppath.data() + 7 * i + 3, true);
+                q.normalize();
+                double d = (prevV - v).getLength();
+                if ((d >= 0.0005) || (i == 0))
+                {
+                    prevV = v;
+                    prevQ = q;
+                    for (size_t j = 0; j < 3; j++)
+                        ppath.push_back(v(j));
+                    for (size_t j = 0; j < 4; j++)
+                        ppath.push_back(q(j));
+                }
+            }
+            pathSize = int(ppath.size());
+            if (pathSize >= 7 * 2)
+            {
+                size_t confCnt = size_t(pathSize) / 7;
+                size_t elementCount = confCnt;
+                size_t secVertCnt = size_t(sectionSize) / 2;
+                std::vector<double> path;
+                for (size_t i = 0; i < confCnt; i++)
+                {
+                    C3Vector p0, p1, p2;
+                    if (i != 0)
+                        p0 = C3Vector(&ppath[0] + 7 * (i - 1));
+                    else
+                    {
+                        if (closedPath)
+                            p0 = C3Vector(&ppath[0] + pathSize - 7);
+                    }
+                    p1 = C3Vector(&ppath[0] + 7 * i);
+                    CQuaternion q(&ppath[0] + 7 * i + 3, false); // Quaternion notation was changed above!
+                    if (axis != 0)
+                        zvect = q.getAxis(axis - 1);
+                    if (i != (confCnt - 1))
+                        p2 = C3Vector(&ppath[0] + 7 * (i + 1));
+                    else
+                    {
+                        if (closedPath)
+                            p2 = C3Vector(&ppath[0] + 7 * 1);
+                    }
+                    C3Vector vy;
+                    if (closedPath || ((i != 0) && (i != (confCnt - 1))))
+                        vy = (p1 - p0) + (p2 - p1);
+                    else
+                    {
+                        if (i == 0)
+                            vy = (p2 - p1);
+                        else
+                            vy = (p1 - p0);
+                    }
+                    vy.normalize();
+                    C3Vector vx = vy ^ zvect;
+                    vx.normalize();
+                    C4X4Matrix m;
+                    m.X = p1;
+                    m.M.axis[0] = vx;
+                    m.M.axis[1] = vy;
+                    m.M.axis[2] = vx ^ vy;
+                    CPose p(m.getTransformation());
+                    for (size_t j = 0; j < 7; j++)
+                        path.push_back(p(j));
+                }
+
+                bool sectionClosed = ((section[0] == section[sectionSize - 2]) && (section[1] == section[sectionSize - 1]));
+                if (sectionClosed)
+                    secVertCnt--;
+
+                std::vector<double> vertices;
+                std::vector<int> indices;
+                CPose tr0;
+                tr0.setData(&path[0]);
+                for (size_t i = 0; i <= secVertCnt - 1; i++)
+                {
+                    C3Vector v(section[i * 2 + 0], 0.0, section[i * 2 + 1]);
+                    v = tr0 * v;
+                    vertices.push_back(v(0));
+                    vertices.push_back(v(1));
+                    vertices.push_back(v(2));
+                }
+
+                int previousVerticesOffset = 0;
+                for (size_t ec = 1; ec < elementCount; ec++)
+                {
+                    CPose tr;
+                    tr.setData(&path[ec * 7]);
+                    int forwOff = int(secVertCnt);
+                    for (int i = 0; i <= int(secVertCnt) - 1; i++)
+                    {
+                        C3Vector v(section[i * 2 + 0], 0.0, section[i * 2 + 1]);
+                        if (closedPath && (ec == (elementCount - 1)))
+                            forwOff = -previousVerticesOffset;
+                        else
+                        {
+                            v = tr * v;
+                            vertices.push_back(v(0));
+                            vertices.push_back(v(1));
+                            vertices.push_back(v(2));
+                        }
+                        if (i != int(secVertCnt - 1))
+                        {
+                            indices.push_back(previousVerticesOffset + 0 + i);
+                            indices.push_back(previousVerticesOffset + forwOff + i);
+                            indices.push_back(previousVerticesOffset + 1 + i);
+                            indices.push_back(previousVerticesOffset + 1 + i);
+                            indices.push_back(previousVerticesOffset + forwOff + i);
+                            indices.push_back(previousVerticesOffset + forwOff + i + 1);
+                        }
+                        else
+                        {
+                            if (sectionClosed)
+                            {
+                                indices.push_back(previousVerticesOffset + 0 + i);
+                                indices.push_back(previousVerticesOffset + forwOff + i);
+                                indices.push_back(previousVerticesOffset + 0);
+                                indices.push_back(previousVerticesOffset + 0);
+                                indices.push_back(previousVerticesOffset + forwOff + i);
+                                indices.push_back(previousVerticesOffset + forwOff + 0);
+                            }
+                        }
+                    }
+                    previousVerticesOffset += int(secVertCnt);
+                }
+                int h = simCreateShape_internal(0, 0.0, &vertices[0], int(vertices.size()), &indices[0], int(indices.size()), nullptr, nullptr, nullptr, nullptr);
+                outStack->pushHandleOntoStack(h);
+            }
         }
     }
     return errMsg;
