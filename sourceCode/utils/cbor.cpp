@@ -268,7 +268,7 @@ void CCbor::appendDoubleArray(const double* v, size_t cnt)
     }
 }
 
-void CCbor::appendMatrix(const float* v, size_t rows, size_t cols)
+void CCbor::appendMatrix(const float* v, size_t rows, size_t cols, bool dataIsRowMajor /*= true*/)
 {
     _handleDataField();
     _buff.push_back(0xD8); // major type 6, tag header (216)
@@ -279,13 +279,24 @@ void CCbor::appendMatrix(const float* v, size_t rows, size_t cols)
     _appendItemTypeAndLength(0, cols);
     NO_DATAFIELD_HANDLE({
         openArray(int(rows * cols));
-        for (size_t i = 0; i < rows * cols; i++)
-            appendFloat(v[i]);
+        if (dataIsRowMajor)
+        {
+            for (size_t i = 0; i < rows * cols; i++)
+                appendFloat(v[i]);
+        }
+        else
+        {
+            for (size_t r = 0; r < rows; r++)
+            {
+                for (size_t c = 0; c < cols; c++)
+                    appendFloat(v[c * rows + r]);
+            }
+        }
         closeArrayOrMap();
     });
 }
 
-void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
+void CCbor::appendMatrix(const double* v, size_t rows, size_t cols, bool dataIsRowMajor /*= true*/)
 {
     _handleDataField();
     _buff.push_back(0xD8); // major type 6, tag header (216)
@@ -296,8 +307,19 @@ void CCbor::appendMatrix(const double* v, size_t rows, size_t cols)
     _appendItemTypeAndLength(0, cols);
     NO_DATAFIELD_HANDLE({
         openArray(int(rows * cols));
-        for (size_t i = 0; i < rows * cols; i++)
-            appendDouble(v[i]);
+        if (dataIsRowMajor)
+        {
+            for (size_t i = 0; i < rows * cols; i++)
+                appendDouble(v[i]);
+        }
+        else
+        {
+            for (size_t r = 0; r < rows; r++)
+            {
+                for (size_t c = 0; c < cols; c++)
+                    appendDouble(v[c * rows + r]);
+            }
+        }
         closeArrayOrMap();
     });
 }
@@ -869,16 +891,16 @@ void CCbor::appendKeyBool(const char* key, bool v)
     appendBool(v);
 }
 
-void CCbor::appendKeyMatrix(const char* key, const float* v, size_t rows, size_t cols)
+void CCbor::appendKeyMatrix(const char* key, const float* v, size_t rows, size_t cols, bool dataIsRowMajor /*= true*/)
 {
     appendText(key);
-    appendMatrix(v, rows, cols);
+    appendMatrix(v, rows, cols, dataIsRowMajor);
 }
 
-void CCbor::appendKeyMatrix(const char* key, const double* v, size_t rows, size_t cols)
+void CCbor::appendKeyMatrix(const char* key, const double* v, size_t rows, size_t cols, bool dataIsRowMajor /*= true*/)
 {
     appendText(key);
-    appendMatrix(v, rows, cols);
+    appendMatrix(v, rows, cols, dataIsRowMajor);
 }
 
 void CCbor::appendKeyMatrix(const char* key, const CMatrix& m)

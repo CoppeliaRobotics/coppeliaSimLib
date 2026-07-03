@@ -562,7 +562,7 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const CPose& 
     }
     else
     {
-        ev->appendKeyMatrix(prop(PropMesh::vertices).name, vertices.data(), vertices.size() / 3, 3);
+        ev->appendKeyMatrix(prop(PropMesh::vertices).name, vertices.data(), 3, vertices.size() / 3, false);
         ev->appendKeyMatrix(prop(PropMesh::normals).name, normals.data(), normals.size() / 3, 3);
     }
     ev->appendKeyInt32Array(prop(PropMesh::indices).name, _indices.data(), _indices.size());
@@ -3289,15 +3289,16 @@ int CMesh::getMatrixProperty_mesh(const char* ppName, CMatrix& pState, const CPo
     if (strcmp(ppName, prop(PropMesh::vertices).name) == 0)
     {
         retVal = sim_propertyret_ok;
-        pState.resize(_verticesForDisplayAndDisk.size() / 3, 3, 0.0);
-        for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)
+        size_t n = _verticesForDisplayAndDisk.size() / 3;
+        pState.resize(3, n, 0.0);
+        for (size_t j = 0; j < n; j++)
         {
             C3Vector v;
             v.setData(_verticesForDisplayAndDisk.data() + j * 3);
             v = shapeRelTr * v;
-            pState.data[3 * j + 0] = v(0);
-            pState.data[3 * j + 1] = v(1);
-            pState.data[3 * j + 2] = v(2);
+            pState.data[n * 0 + j] = v(0);
+            pState.data[n * 1 + j] = v(1);
+            pState.data[n * 2 + j] = v(2);
         }
     }
     else if (strcmp(ppName, prop(PropMesh::normals).name) == 0)

@@ -136,6 +136,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["mergeShapes"] = _method_mergeShapes;
         funcTable["createCamera"] = _method_createCamera;
         funcTable["createShapeFromPath"] = _method_createShapeFromPath;
+        funcTable["getClosestOnPath"] = _method_getClosestOnPath;
         funcTable["createLight"] = _method_createLight;
         funcTable["createGraph"] = _method_createGraph;
         funcTable["createCustomSceneObject"] = _method_createCustomSceneObject;
@@ -9936,144 +9937,402 @@ std::string _method_createShapeFromPath(int targetObj, const char* method, CDeta
         if (errMsg.size() == 0)
         {
             int pathSize = pppath.size();
-            int sectionSize = section.size();
-            // First make sure the points are not coincident:
-            std::vector<double> ppath;
-            C3Vector prevV;
-            prevV.clear();
-            CQuaternion prevQ;
-            prevQ.clear();
-            for (int i = 0; i < pathSize / 7; i++)
+            if (pathSize >= 14)
             {
-                C3Vector v(pppath.data() + 7 * i);
-                CQuaternion q(pppath.data() + 7 * i + 3, true);
-                q.normalize();
-                double d = (prevV - v).getLength();
-                if ((d >= 0.0005) || (i == 0))
+                int sectionSize = section.size();
+                // First make sure the points are not coincident:
+                std::vector<double> ppath;
+                C3Vector prevV;
+                prevV.clear();
+                CQuaternion prevQ;
+                prevQ.clear();
+                for (int i = 0; i < pathSize / 7; i++)
                 {
-                    prevV = v;
-                    prevQ = q;
-                    for (size_t j = 0; j < 3; j++)
-                        ppath.push_back(v(j));
-                    for (size_t j = 0; j < 4; j++)
-                        ppath.push_back(q(j));
+                    C3Vector v(pppath.data() + 7 * i);
+                    CQuaternion q(pppath.data() + 7 * i + 3, true);
+                    q.normalize();
+                    double d = (prevV - v).getLength();
+                    if ((d >= 0.0005) || (i == 0))
+                    {
+                        prevV = v;
+                        prevQ = q;
+                        for (size_t j = 0; j < 3; j++)
+                            ppath.push_back(v(j));
+                        for (size_t j = 0; j < 4; j++)
+                            ppath.push_back(q(j));
+                    }
                 }
-            }
-            pathSize = int(ppath.size());
-            if (pathSize >= 7 * 2)
-            {
-                size_t confCnt = size_t(pathSize) / 7;
-                size_t elementCount = confCnt;
-                size_t secVertCnt = size_t(sectionSize) / 2;
-                std::vector<double> path;
-                for (size_t i = 0; i < confCnt; i++)
+                pathSize = int(ppath.size());
+                if (pathSize >= 7 * 2)
                 {
-                    C3Vector p0, p1, p2;
-                    if (i != 0)
-                        p0 = C3Vector(&ppath[0] + 7 * (i - 1));
-                    else
+                    size_t confCnt = size_t(pathSize) / 7;
+                    size_t elementCount = confCnt;
+                    size_t secVertCnt = size_t(sectionSize) / 2;
+                    std::vector<double> path;
+                    for (size_t i = 0; i < confCnt; i++)
                     {
-                        if (closedPath)
-                            p0 = C3Vector(&ppath[0] + pathSize - 7);
-                    }
-                    p1 = C3Vector(&ppath[0] + 7 * i);
-                    CQuaternion q(&ppath[0] + 7 * i + 3, false); // Quaternion notation was changed above!
-                    if (axis != 0)
-                        zvect = q.getAxis(axis - 1);
-                    if (i != (confCnt - 1))
-                        p2 = C3Vector(&ppath[0] + 7 * (i + 1));
-                    else
-                    {
-                        if (closedPath)
-                            p2 = C3Vector(&ppath[0] + 7 * 1);
-                    }
-                    C3Vector vy;
-                    if (closedPath || ((i != 0) && (i != (confCnt - 1))))
-                        vy = (p1 - p0) + (p2 - p1);
-                    else
-                    {
-                        if (i == 0)
-                            vy = (p2 - p1);
+                        C3Vector p0, p1, p2;
+                        if (i != 0)
+                            p0 = C3Vector(&ppath[0] + 7 * (i - 1));
                         else
-                            vy = (p1 - p0);
+                        {
+                            if (closedPath)
+                                p0 = C3Vector(&ppath[0] + pathSize - 7);
+                        }
+                        p1 = C3Vector(&ppath[0] + 7 * i);
+                        CQuaternion q(&ppath[0] + 7 * i + 3, false); // Quaternion notation was changed above!
+                        if (axis != 0)
+                            zvect = q.getAxis(axis - 1);
+                        if (i != (confCnt - 1))
+                            p2 = C3Vector(&ppath[0] + 7 * (i + 1));
+                        else
+                        {
+                            if (closedPath)
+                                p2 = C3Vector(&ppath[0] + 7 * 1);
+                        }
+                        C3Vector vy;
+                        if (closedPath || ((i != 0) && (i != (confCnt - 1))))
+                            vy = (p1 - p0) + (p2 - p1);
+                        else
+                        {
+                            if (i == 0)
+                                vy = (p2 - p1);
+                            else
+                                vy = (p1 - p0);
+                        }
+                        vy.normalize();
+                        C3Vector vx = vy ^ zvect;
+                        vx.normalize();
+                        C4X4Matrix m;
+                        m.X = p1;
+                        m.M.axis[0] = vx;
+                        m.M.axis[1] = vy;
+                        m.M.axis[2] = vx ^ vy;
+                        CPose p(m.getTransformation());
+                        for (size_t j = 0; j < 7; j++)
+                            path.push_back(p(j));
                     }
-                    vy.normalize();
-                    C3Vector vx = vy ^ zvect;
-                    vx.normalize();
-                    C4X4Matrix m;
-                    m.X = p1;
-                    m.M.axis[0] = vx;
-                    m.M.axis[1] = vy;
-                    m.M.axis[2] = vx ^ vy;
-                    CPose p(m.getTransformation());
-                    for (size_t j = 0; j < 7; j++)
-                        path.push_back(p(j));
-                }
 
-                bool sectionClosed = ((section[0] == section[sectionSize - 2]) && (section[1] == section[sectionSize - 1]));
-                if (sectionClosed)
-                    secVertCnt--;
+                    bool sectionClosed = ((section[0] == section[sectionSize - 2]) && (section[1] == section[sectionSize - 1]));
+                    if (sectionClosed)
+                        secVertCnt--;
 
-                std::vector<double> vertices;
-                std::vector<int> indices;
-                CPose tr0;
-                tr0.setData(&path[0]);
-                for (size_t i = 0; i <= secVertCnt - 1; i++)
-                {
-                    C3Vector v(section[i * 2 + 0], 0.0, section[i * 2 + 1]);
-                    v = tr0 * v;
-                    vertices.push_back(v(0));
-                    vertices.push_back(v(1));
-                    vertices.push_back(v(2));
-                }
-
-                int previousVerticesOffset = 0;
-                for (size_t ec = 1; ec < elementCount; ec++)
-                {
-                    CPose tr;
-                    tr.setData(&path[ec * 7]);
-                    int forwOff = int(secVertCnt);
-                    for (int i = 0; i <= int(secVertCnt) - 1; i++)
+                    std::vector<double> vertices;
+                    std::vector<int> indices;
+                    CPose tr0;
+                    tr0.setData(&path[0]);
+                    for (size_t i = 0; i <= secVertCnt - 1; i++)
                     {
                         C3Vector v(section[i * 2 + 0], 0.0, section[i * 2 + 1]);
-                        if (closedPath && (ec == (elementCount - 1)))
-                            forwOff = -previousVerticesOffset;
-                        else
+                        v = tr0 * v;
+                        vertices.push_back(v(0));
+                        vertices.push_back(v(1));
+                        vertices.push_back(v(2));
+                    }
+
+                    int previousVerticesOffset = 0;
+                    for (size_t ec = 1; ec < elementCount; ec++)
+                    {
+                        CPose tr;
+                        tr.setData(&path[ec * 7]);
+                        int forwOff = int(secVertCnt);
+                        for (int i = 0; i <= int(secVertCnt) - 1; i++)
                         {
-                            v = tr * v;
-                            vertices.push_back(v(0));
-                            vertices.push_back(v(1));
-                            vertices.push_back(v(2));
-                        }
-                        if (i != int(secVertCnt - 1))
-                        {
-                            indices.push_back(previousVerticesOffset + 0 + i);
-                            indices.push_back(previousVerticesOffset + forwOff + i);
-                            indices.push_back(previousVerticesOffset + 1 + i);
-                            indices.push_back(previousVerticesOffset + 1 + i);
-                            indices.push_back(previousVerticesOffset + forwOff + i);
-                            indices.push_back(previousVerticesOffset + forwOff + i + 1);
-                        }
-                        else
-                        {
-                            if (sectionClosed)
+                            C3Vector v(section[i * 2 + 0], 0.0, section[i * 2 + 1]);
+                            if (closedPath && (ec == (elementCount - 1)))
+                                forwOff = -previousVerticesOffset;
+                            else
+                            {
+                                v = tr * v;
+                                vertices.push_back(v(0));
+                                vertices.push_back(v(1));
+                                vertices.push_back(v(2));
+                            }
+                            if (i != int(secVertCnt - 1))
                             {
                                 indices.push_back(previousVerticesOffset + 0 + i);
                                 indices.push_back(previousVerticesOffset + forwOff + i);
-                                indices.push_back(previousVerticesOffset + 0);
-                                indices.push_back(previousVerticesOffset + 0);
+                                indices.push_back(previousVerticesOffset + 1 + i);
+                                indices.push_back(previousVerticesOffset + 1 + i);
                                 indices.push_back(previousVerticesOffset + forwOff + i);
-                                indices.push_back(previousVerticesOffset + forwOff + 0);
+                                indices.push_back(previousVerticesOffset + forwOff + i + 1);
+                            }
+                            else
+                            {
+                                if (sectionClosed)
+                                {
+                                    indices.push_back(previousVerticesOffset + 0 + i);
+                                    indices.push_back(previousVerticesOffset + forwOff + i);
+                                    indices.push_back(previousVerticesOffset + 0);
+                                    indices.push_back(previousVerticesOffset + 0);
+                                    indices.push_back(previousVerticesOffset + forwOff + i);
+                                    indices.push_back(previousVerticesOffset + forwOff + 0);
+                                }
                             }
                         }
+                        previousVerticesOffset += int(secVertCnt);
                     }
-                    previousVerticesOffset += int(secVertCnt);
+                    int h = simCreateShape_internal(0, 0.0, &vertices[0], int(vertices.size()), &indices[0], int(indices.size()), nullptr, nullptr, nullptr, nullptr);
+                    outStack->pushHandleOntoStack(h);
                 }
-                int h = simCreateShape_internal(0, 0.0, &vertices[0], int(vertices.size()), &indices[0], int(indices.size()), nullptr, nullptr, nullptr, nullptr);
-                outStack->pushHandleOntoStack(h);
             }
+            else
+                errMsg = "not enough path points.";
         }
     }
     return errMsg;
 }
 
+std::string _method_getClosestOnPath(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(method, inStack, &errMsg, {arg_matrix, -1, -1, arg_vector, arg_map | arg_optional}))
+    {
+        CMatrix matr = fetchMatrix(inStack, 0);
+        std::vector<double> points = matr.data;
+        int dim = int(matr.cols);
+        std::vector<double> point;
+        fetchDoubleArray(inStack, 1, point);
+        if (int(point.size()) == dim)
+        {
+            std::vector<double> metric;
+            metric.resize(dim, 1.0);
+            std::vector<int> types; // 0 = linear, 1 = revolute, 2 = quaternions (4 values)
+            types.resize(dim, 0); // linear is default
+            if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+            {
+                map->fetchDoubleArrayFromKey("metric", metric.data(), dim, &errMsg);
+                map->fetchInt32ArrayFromKey("types", types.data(), dim, &errMsg);
+            }
+            if (errMsg.size() == 0)
+            {
+                // Validate the types vector: values in {0,1,2}, quaternions in blocks of 4:
+                bool typesOk = true;
+                bool allLinear = true;
+                {
+                    int j = 0;
+                    while (j < dim)
+                    {
+                        if (types[j] == 0)
+                            j++;
+                        else if (types[j] == 1)
+                        {
+                            allLinear = false;
+                            j++;
+                        }
+                        else if (types[j] == 2)
+                        {
+                            allLinear = false;
+                            if ((j + 3 < dim) && (types[j + 1] == 2) && (types[j + 2] == 2) && (types[j + 3] == 2))
+                                j += 4;
+                            else
+                            {
+                                typesOk = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            typesOk = false;
+                            break;
+                        }
+                    }
+                }
+                if (typesOk)
+                {
+                    const size_t n = points.size() / dim;
+                    if (n >= 2)
+                    {
+                        std::vector<double> foundPoint;
+                        const size_t segCount = n - 1;
+
+                        // Wrap an angle to (-pi, pi]:
+                        auto wrapAngle = [](double a) -> double
+                        {
+                            a = fmod(a, 2.0 * piValue);
+                            if (a > piValue)
+                                a -= 2.0 * piValue;
+                            else if (a <= -piValue)
+                                a += 2.0 * piValue;
+                            return a;
+                        };
+
+                        // Angular distance between two quaternions stored as (qx,qy,qz,qw):
+                        auto quatAngle = [&](const double* qA, const double* qB) -> double
+                        {
+                            simReal a[4], b[4];
+                            for (int j = 0; j < 4; j++)
+                            {
+                                a[j] = (simReal)qA[j];
+                                b[j] = (simReal)qB[j];
+                            }
+                            CQuaternion Qa(a, true), Qb(b, true);
+                            Qa.normalize();
+                            Qb.normalize();
+                            return (double)Qa.getAngleBetweenQuaternions(Qb);
+                        };
+
+                        // Interpolate a configuration on segment [A,B] at t in [0,1]:
+                        auto interp = [&](const double* A, const double* B, double t, std::vector<double>& out)
+                        {
+                            out.resize(dim);
+                            int j = 0;
+                            while (j < dim)
+                            {
+                                if (types[j] == 0)
+                                {   // linear: plain lerp
+                                    out[j] = A[j] + t * (B[j] - A[j]);
+                                    j++;
+                                }
+                                else if (types[j] == 1)
+                                {   // revolute: lerp along the shortest arc, wrapped result
+                                    double d = wrapAngle(B[j] - A[j]);
+                                    out[j] = wrapAngle(A[j] + t * d);
+                                    j++;
+                                }
+                                else
+                                {   // quaternion block (4 values): slerp
+                                    simReal a[4], b[4], r[4];
+                                    for (int k = 0; k < 4; k++)
+                                    {
+                                        a[k] = (simReal)A[j + k];
+                                        b[k] = (simReal)B[j + k];
+                                    }
+                                    CQuaternion qa(a, true), qb(b, true);
+                                    qa.normalize(); // be safe about input
+                                    qb.normalize();
+                                    CQuaternion q;
+                                    q.buildInterpolation(qa, qb, (simReal)t);
+                                    q.getData(r, true);
+                                    for (int k = 0; k < 4; k++)
+                                        out[j + k] = (double)r[k];
+                                    j += 4;
+                                }
+                            }
+                        };
+
+                        // Weighted squared distance between a configuration and 'point'.
+                        // For quaternion blocks, metric[j] (first value of the block) weights
+                        // the angular distance; the 3 following metric values are ignored.
+                        auto dist2 = [&](const std::vector<double>& q) -> double
+                        {
+                            double d = 0.0;
+                            int j = 0;
+                            while (j < dim)
+                            {
+                                if (types[j] == 0)
+                                {
+                                    double dd = q[j] - point[j];
+                                    d += metric[j] * dd * dd;
+                                    j++;
+                                }
+                                else if (types[j] == 1)
+                                {
+                                    double dd = wrapAngle(q[j] - point[j]);
+                                    d += metric[j] * dd * dd;
+                                    j++;
+                                }
+                                else
+                                {
+                                    double ang = quatAngle(&q[j], &point[j]);
+                                    d += metric[j] * ang * ang;
+                                    j += 4;
+                                }
+                            }
+                            return d;
+                        };
+
+                        // Golden-section search on [lo,hi] for the given segment:
+                        auto goldenSection = [&](const double* A, const double* B,
+                                                 double lo, double hi, std::vector<double>& cand) -> double
+                        {
+                            const double invPhi = (sqrt(5.0) - 1.0) / 2.0;
+                            double t1 = hi - invPhi * (hi - lo);
+                            double t2 = lo + invPhi * (hi - lo);
+                            interp(A, B, t1, cand); double c1 = dist2(cand);
+                            interp(A, B, t2, cand); double c2 = dist2(cand);
+                            while (hi - lo > 1e-8)
+                            {
+                                if (c1 < c2)
+                                {
+                                    hi = t2; t2 = t1; c2 = c1;
+                                    t1 = hi - invPhi * (hi - lo);
+                                    interp(A, B, t1, cand); c1 = dist2(cand);
+                                }
+                                else
+                                {
+                                    lo = t1; t1 = t2; c1 = c2;
+                                    t2 = lo + invPhi * (hi - lo);
+                                    interp(A, B, t2, cand); c2 = dist2(cand);
+                                }
+                            }
+                            return (lo + hi) / 2.0;
+                        };
+
+                        double globalBestDist = std::numeric_limits<double>::max();
+                        int globalBestDistSegmentIndex = 0;
+                        std::vector<double> cand;
+
+                        for (size_t i = 0; i < segCount; i++)
+                        {
+                            const double* A = &points[dim * i];
+                            const double* B = &points[dim * (i + 1)];
+
+                            double tOpt;
+                            if (allLinear)
+                            {   // closed-form weighted projection onto the segment
+                                double num = 0.0, den = 0.0;
+                                for (int j = 0; j < dim; j++)
+                                {
+                                    double ab = B[j] - A[j];
+                                    num += metric[j] * (point[j] - A[j]) * ab;
+                                    den += metric[j] * ab * ab;
+                                }
+                                tOpt = (den > 0.0) ? (num / den) : 0.0;
+                                if (tOpt < 0.0) tOpt = 0.0;
+                                if (tOpt > 1.0) tOpt = 1.0;
+                            }
+                            else
+                            {   // revolute/quaternion terms make the cost non-quadratic
+                                // (and possibly multimodal, e.g. when a wrapped angular
+                                // difference crosses +/-pi). Coarse scan to bracket the
+                                // global minimum, then golden-section refinement:
+                                const int coarseSamples = 20;
+                                double bestT = 0.0, bestC = std::numeric_limits<double>::max();
+                                for (int k = 0; k <= coarseSamples; k++)
+                                {
+                                    double t = double(k) / double(coarseSamples);
+                                    interp(A, B, t, cand);
+                                    double c = dist2(cand);
+                                    if (c < bestC) { bestC = c; bestT = t; }
+                                }
+                                double lo = std::max(0.0, bestT - 1.0 / coarseSamples);
+                                double hi = std::min(1.0, bestT + 1.0 / coarseSamples);
+                                tOpt = goldenSection(A, B, lo, hi, cand);
+                            }
+
+                            // Keep this segment's best only if it beats the global best:
+                            interp(A, B, tOpt, cand);
+                            double c = dist2(cand);
+                            if (c < globalBestDist)
+                            {
+                                globalBestDist = c;
+                                globalBestDistSegmentIndex = int(i);
+                                foundPoint = cand;
+                            }
+                        }
+                        outStack->pushVectorOntoStack(foundPoint.data(), foundPoint.size());
+                        outStack->pushInt32OntoStack(globalBestDistSegmentIndex);
+                    }
+                    else
+                        errMsg = "not enough path points.";
+                }
+                else
+                    errMsg = "invalid types (values must be 0, 1 or 2, and quaternions require 4 consecutive values of type 2).";
+            }
+        }
+        else
+            errMsg = "mismatch between path and point dimensions.";
+    }
+    return errMsg;
+}
