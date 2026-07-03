@@ -228,7 +228,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                 if (evv == nullptr)
                     ev = App::scenes->createSceneObjectChangedEvent(this, false, "set", true);
                 ev->openKeyMap("set");
-                ev->appendKeyMatrix(prop(PropOctree::points).name, (float*)nullptr, 0, 3);
+                ev->appendKeyMatrix(prop(PropOctree::points).name, (float*)nullptr, 3, 0, false);
                 ev->appendKeyUint8Array(prop(PropOctree::colors).name, nullptr, 0);
                 ev->appendKeyUint32Array("ids", nullptr, 0);
                 ev->closeArrayOrMap();
@@ -261,7 +261,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                         if (evv == nullptr)
                             ev = App::scenes->createSceneObjectChangedEvent(this, false, "set", true);
                         ev->openKeyMap("set");
-                        ev->appendKeyMatrix(prop(PropOctree::points).name, pts, newCnt, 3);
+                        ev->appendKeyMatrix(prop(PropOctree::points).name, pts, 3, newCnt, false);
                         ev->appendKeyUint8Array(prop(PropOctree::colors).name, cols, newCnt * 4);
                         ev->appendKeyUint32Array("ids", ids, newCnt);
                         ev->closeArrayOrMap();
@@ -291,7 +291,7 @@ void COcTree::_updateOctreeEvent(bool incremental, CCbor* evv /*= nullptr*/)
                             if (evv == nullptr)
                                 ev = App::scenes->createSceneObjectChangedEvent(this, false, "addRemove", true);
                             ev->openKeyMap("add");
-                            ev->appendKeyMatrix(prop(PropOctree::points).name, pts, newCnt, 3);
+                            ev->appendKeyMatrix(prop(PropOctree::points).name, pts, 3, newCnt, false);
                             ev->appendKeyUint8Array(prop(PropOctree::colors).name, cols, newCnt * 4);
                             ev->appendKeyUint32Array("ids", ids, newCnt);
                             ev->closeArrayOrMap();
@@ -1548,9 +1548,14 @@ int COcTree::getMatrixProperty(const char* pName, CMatrix& pState) const
         if (_pName == prop(PropOctree::points).name)
         {
             retVal = sim_propertyret_ok;
-            pState.resize(_voxelPositions.size() / 3, 3, 0.0);
-            for (size_t i = 0; i < _voxelPositions.size(); i++)
-                pState.data[i] = (double)_voxelPositions[i];
+            size_t n = _voxelPositions.size() / 3;
+            pState.resize(3, n, 0.0);
+            for (size_t i = 0; i < n; i++)
+            {
+                pState.data[n * 0 + i] = (double)_voxelPositions[3 * i + 0];
+                pState.data[n * 1 + i] = (double)_voxelPositions[3 * i + 1];
+                pState.data[n * 2 + i] = (double)_voxelPositions[3 * i + 2];
+            }
         }
     }
 

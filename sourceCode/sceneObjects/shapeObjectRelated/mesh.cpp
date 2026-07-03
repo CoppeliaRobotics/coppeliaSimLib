@@ -563,7 +563,7 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const CPose& 
     else
     {
         ev->appendKeyMatrix(prop(PropMesh::vertices).name, vertices.data(), 3, vertices.size() / 3, false);
-        ev->appendKeyMatrix(prop(PropMesh::normals).name, normals.data(), normals.size() / 3, 3);
+        ev->appendKeyMatrix(prop(PropMesh::normals).name, normals.data(), 3, normals.size() / 3, false);
     }
     ev->appendKeyInt32Array(prop(PropMesh::indices).name, _indices.data(), _indices.size());
 
@@ -3304,15 +3304,16 @@ int CMesh::getMatrixProperty_mesh(const char* ppName, CMatrix& pState, const CPo
     else if (strcmp(ppName, prop(PropMesh::normals).name) == 0)
     {
         retVal = sim_propertyret_ok;
-        pState.resize(_indices.size(), 3, 0.0);
-        for (size_t j = 0; j < _indices.size(); j++)
+        size_t n = _indices.size();
+        pState.resize(3, n, 0.0);
+        for (size_t j = 0; j < n; j++)
         {
-            C3Vector n;
-            n.setData(&_normalsForDisplayAndDisk[0] + j * 3);
-            n = shapeRelTr.Q * n; // only orientation
-            pState.data[3 * j + 0] = n(0);
-            pState.data[3 * j + 1] = n(1);
-            pState.data[3 * j + 2] = n(2);
+            C3Vector nor;
+            nor.setData(&_normalsForDisplayAndDisk[0] + j * 3);
+            nor = shapeRelTr.Q * nor; // only orientation
+            pState.data[n * 0 + j] = nor(0);
+            pState.data[n * 1 + j] = nor(1);
+            pState.data[n * 2 + j] = nor(2);
         }
     }
 

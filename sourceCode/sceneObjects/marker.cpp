@@ -640,9 +640,9 @@ void CMarker::scaleObject(double scalingFactor)
     if ( (_isInScene && App::scenes->getEventsEnabled()) && (_itemType == sim_markertype_custom) )
     {
         CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, "vertices", true);
-        ev->appendKeyMatrix(prop(PropMarker::vertices).name, _vertices.data(), _vertices.size() / 3, 3);
+        ev->appendKeyMatrix(prop(PropMarker::vertices).name, _vertices.data(), 3, _vertices.size() / 3, false);
         ev->appendKeyInt32Array(prop(PropMarker::indices).name, _indices.data(), _indices.size());
-        ev->appendKeyMatrix(prop(PropMarker::normals).name, _normals.data(), _normals.size() / 3, 3);
+        ev->appendKeyMatrix(prop(PropMarker::normals).name, _normals.data(), 3, _normals.size() / 3, false);
         App::scenes->pushEvent();
     }
 }
@@ -661,9 +661,9 @@ void CMarker::addObjectEventData(CCbor* ev)
     ev->appendKeyVector3(prop(PropMarker::defaultItemSize).name, _itemSize);
     if (_itemType == sim_markertype_custom)
     {
-        ev->appendKeyMatrix(prop(PropMarker::vertices).name, _vertices.data(), _vertices.size() / 3, 3);
+        ev->appendKeyMatrix(prop(PropMarker::vertices).name, _vertices.data(), 3, _vertices.size() / 3, false);
         ev->appendKeyInt32Array(prop(PropMarker::indices).name, _indices.data(), _indices.size());
-        ev->appendKeyMatrix(prop(PropMarker::normals).name, _normals.data(), _normals.size() / 3, 3);
+        ev->appendKeyMatrix(prop(PropMarker::normals).name, _normals.data(), 3, _normals.size() / 3, false);
     }
     _updateMarkerEvent(false, ev);
     CSceneObject::addObjectEventData(ev);
@@ -1274,37 +1274,63 @@ int CMarker::getMatrixProperty(const char* pName, CMatrix& pState) const
     {
         if (strcmp(pName, prop(PropMarker::points).name) == 0)
         {
-            pState.resize(_pts.size() / 3, 3, 0.0);
-            for (size_t i = 0; i < _pts.size(); i++)
-                pState.data[i] = (double)_pts[i];
+            size_t n = _pts.size() / 3;
+            pState.resize(3, n, 0.0);
+            for (size_t i = 0; i < n; i++)
+            {
+                pState.data[n * 0 + i] = (double)_pts[3 * i + 0];
+                pState.data[n * 1 + i] = (double)_pts[3 * i + 1];
+                pState.data[n * 2 + i] = (double)_pts[3 * i + 2];
+            }
             retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, prop(PropMarker::quaternions).name) == 0)
         {
-            pState.resize(_quats.size() / 4, 4, 0.0);
-            for (size_t i = 0; i < _quats.size(); i++)
-                pState.data[i] = (double)_quats[i];
+            size_t n = _quats.size() / 4;
+            pState.resize(4, n, 0.0);
+            for (size_t i = 0; i < n; i++)
+            {
+                pState.data[n * 0 + i] = (double)_quats[4 * i + 0];
+                pState.data[n * 1 + i] = (double)_quats[4 * i + 1];
+                pState.data[n * 2 + i] = (double)_quats[4 * i + 2];
+                pState.data[n * 3 + i] = (double)_quats[4 * i + 3];
+            }
             retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, prop(PropMarker::sizes).name) == 0)
         {
-            pState.resize(_sizes.size() / 3, 3, 0.0);
-            for (size_t i = 0; i < _sizes.size(); i++)
-                pState.data[i] = (double)_sizes[i];
+            size_t n = _sizes.size() / 3;
+            pState.resize(3, n, 0.0);
+            for (size_t i = 0; i < n; i++)
+            {
+                pState.data[n * 0 + i] = (double)_sizes[3 * i + 0];
+                pState.data[n * 1 + i] = (double)_sizes[3 * i + 1];
+                pState.data[n * 2 + i] = (double)_sizes[3 * i + 2];
+            }
             retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, prop(PropMarker::vertices).name) == 0)
         {
-            pState.resize(_vertices.size() / 3, 3, 0.0);
-            for (size_t i = 0; i < _vertices.size(); i++)
-                pState.data[i] = (double)_vertices[i];
+            size_t n = _vertices.size() / 3;
+            pState.resize(3, n, 0.0);
+            for (size_t i = 0; i < n; i++)
+            {
+                pState.data[n * 0 + i] = (double)_vertices[3 * i + 0];
+                pState.data[n * 1 + i] = (double)_vertices[3 * i + 1];
+                pState.data[n * 2 + i] = (double)_vertices[3 * i + 2];
+            }
             retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, prop(PropMarker::normals).name) == 0)
         {
-            pState.resize(_normals.size() / 3, 3, 0.0);
-            for (size_t i = 0; i < _normals.size(); i++)
-                pState.data[i] = (double)_normals[i];
+            size_t n = _normals.size() / 3;
+            pState.resize(3, n, 0.0);
+            for (size_t i = 0; i < n; i++)
+            {
+                pState.data[n * 0 + i] = (double)_normals[3 * i + 0];
+                pState.data[n * 1 + i] = (double)_normals[3 * i + 1];
+                pState.data[n * 2 + i] = (double)_normals[3 * i + 2];
+            }
             retVal = sim_propertyret_ok;
         }
     }
@@ -1381,9 +1407,9 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
             if (evv == nullptr)
                 ev = App::scenes->createSceneObjectChangedEvent(this, false, "set", true);
             ev->openKeyMap("set");
-            ev->appendKeyMatrix(prop(PropMarker::points).name, _pts.data(), _pts.size() / 3, 3);
-            ev->appendKeyMatrix(prop(PropMarker::quaternions).name, _quats.data(), _quats.size() / 4, 4);
-            ev->appendKeyMatrix(prop(PropMarker::sizes).name, _sizes.data(), _sizes.size() / 3, 3);
+            ev->appendKeyMatrix(prop(PropMarker::points).name, _pts.data(), 3, _pts.size() / 3, false);
+            ev->appendKeyMatrix(prop(PropMarker::quaternions).name, _quats.data(), 4, _quats.size() / 4, false);
+            ev->appendKeyMatrix(prop(PropMarker::sizes).name, _sizes.data(), 3, _sizes.size() / 3, false);
             ev->appendKeyUint8Array(prop(PropMarker::colors).name, _rgba.data(), _rgba.size());
             ev->appendKeyInt64Array("ids", _ids.data(), _ids.size());
             ev->closeArrayOrMap();
@@ -1399,15 +1425,15 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
                 if (_newItemsCnt > 0)
                 {
                     ev->openKeyMap("add");
-                    ev->appendKeyMatrix(prop(PropMarker::points).name, _pts.data() + _pts.size() - (_newItemsCnt * 3 * _itemPointCnt), _newItemsCnt * _itemPointCnt, 3);
+                    ev->appendKeyMatrix(prop(PropMarker::points).name, _pts.data() + _pts.size() - (_newItemsCnt * 3 * _itemPointCnt), 3, _newItemsCnt * _itemPointCnt, false);
                     if (_quats.size() > 0)
-                        ev->appendKeyMatrix(prop(PropMarker::quaternions).name, _quats.data() + _quats.size() - (_newItemsCnt * 4 * _itemPointCnt), _newItemsCnt * _itemPointCnt, 4);
+                        ev->appendKeyMatrix(prop(PropMarker::quaternions).name, _quats.data() + _quats.size() - (_newItemsCnt * 4 * _itemPointCnt), 4, _newItemsCnt * _itemPointCnt, false);
                     else
-                        ev->appendKeyMatrix(prop(PropMarker::quaternions).name, (float*)nullptr, 0, 4);
+                        ev->appendKeyMatrix(prop(PropMarker::quaternions).name, (float*)nullptr, 4, 0, false);
                     if (_sizes.size() > 0)
-                        ev->appendKeyMatrix(prop(PropMarker::sizes).name, _sizes.data() + _sizes.size() - (_newItemsCnt * 3 * _itemPointCnt), _newItemsCnt * _itemPointCnt, 3);
+                        ev->appendKeyMatrix(prop(PropMarker::sizes).name, _sizes.data() + _sizes.size() - (_newItemsCnt * 3 * _itemPointCnt), 3, _newItemsCnt * _itemPointCnt, false);
                     else
-                        ev->appendKeyMatrix(prop(PropMarker::sizes).name, (float*)nullptr, 0, 3);
+                        ev->appendKeyMatrix(prop(PropMarker::sizes).name, (float*)nullptr, 3, 0);
                     ev->appendKeyUint8Array(prop(PropMarker::colors).name, (unsigned char*)(_rgba.data() + _rgba.size() - (_newItemsCnt * 4 * _itemPointCnt)), _newItemsCnt * 4 * _itemPointCnt);
                     ev->appendKeyInt64Array("ids", _ids.data() + _ids.size() - _newItemsCnt, _newItemsCnt);
                     ev->closeArrayOrMap();
