@@ -980,7 +980,7 @@ bool CAddOperations::processCommand(int commandID, CSView* subView)
                     txt += "\nlocal closed = true";
                 txt += "\nlocal n = #pathData // 7";
                 txt += "\nsimEigen = require'simEigen'";
-                txt += "\nlocal path = __2.locals.createObject(sim.scene, 'createObject', {objectType = 'path', closed = closed, ctrlPts = simEigen.Matrix(n, 7, pathData)})\nsim.scene.selection = {path}";
+                txt += "\nlocal path = __2.locals.createObject(sim.scene, 'createObject', {type = 'path', closed = closed, ctrlPts = simEigen.Matrix(n, 7, pathData).T})\nsim.scene.selection = {path}";
             }
             else
             {
