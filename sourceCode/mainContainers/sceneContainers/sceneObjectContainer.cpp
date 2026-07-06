@@ -336,27 +336,21 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
 
             if (toDestroy.size() > 0)
             {
-                CInterfaceStack* stack = nullptr;
                 if (generateBeforeAfterDeleteCallback)
                 {
-                    stack = App::scenes->interfaceStackContainer->createStack();
+                    CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
                     stack->pushTableOntoStack();
 
                     stack->insertKeyHandleArrayIntoStackTable("objectList", toDestroy.data(), toDestroy.size());
                     stack->pushTextOntoStack("handleMap");
                     stack->pushTableOntoStack();
-                    for (size_t i = 0; i < toDestroyPtr.size(); i++)
+                    for (size_t i = 0; i < toDestroy.size(); i++)
                     {
-                        CSceneObject* it = toDestroyPtr[i];
-                        if ((it != nullptr) && it->setBeforeDeleteCallbackSent()) // send the message only once. This routine can be reentrant!
-                        {
-                            stack->pushInt32OntoStack(it->getObjectHandle()); // key
-                            stack->pushHandleOntoStack(it->getObjectHandle());
-                            stack->insertDataIntoStackTable();
-                        }
+                        stack->pushInt32OntoStack(toDestroy[i]); // key
+                        stack->pushHandleOntoStack(toDestroy[i]);
+                        stack->insertDataIntoStackTable();
                     }
                     stack->insertDataIntoStackTable();
-
 
                     stack->pushTextOntoStack("objects"); // deprecated
                     stack->pushInt32ArrayOntoStack(toDestroy.data(), toDestroy.size());
@@ -369,20 +363,16 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                     // Following for backward compatibility:
                     stack->pushTextOntoStack("objectHandles"); // deprecated
                     stack->pushTableOntoStack();
-                    for (size_t i = 0; i < toDestroyPtr.size(); i++)
+                    for (size_t i = 0; i < toDestroy.size(); i++)
                     {
-                        CSceneObject* it = toDestroyPtr[i];
-                        if ((it != nullptr) && it->setBeforeDeleteCallbackSent())
-                        {                                                     // send the message only once. This routine can be reentrant!
-                            stack->pushInt32OntoStack(it->getObjectHandle()); // key or index
-                            stack->pushBoolOntoStack(true);
-                            stack->insertDataIntoStackTable();
-                        }
+                        stack->pushInt32OntoStack(toDestroy[i]); // key or index
+                        stack->pushBoolOntoStack(true);
+                        stack->insertDataIntoStackTable();
                     }
                     stack->insertDataIntoStackTable();
-                    // --------------------------------------
 
                     App::scenes->callScripts(sim_syscb_beforedelete, stack, nullptr);
+                    App::scenes->interfaceStackContainer->destroyStack(stack);
                 }
 
                 for (size_t i = 0; i < toDestroyPtr.size(); i++)
@@ -411,7 +401,40 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                 }
 
                 if (generateBeforeAfterDeleteCallback)
-                {
+                { // Here we need to push handles, instead of objects (as they are already gone):
+                    CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
+                    stack->pushTableOntoStack();
+
+                    stack->insertKeyInt32ArrayIntoStackTable("objectList", toDestroy.data(), toDestroy.size());
+                    stack->pushTextOntoStack("handleMap");
+                    stack->pushTableOntoStack();
+                    for (size_t i = 0; i < toDestroy.size(); i++)
+                    {
+                        stack->pushInt32OntoStack(toDestroy[i]); // key
+                        stack->pushInt32OntoStack(toDestroy[i]);
+                        stack->insertDataIntoStackTable();
+                    }
+                    stack->insertDataIntoStackTable();
+
+                    stack->pushTextOntoStack("objects"); // deprecated
+                    stack->pushInt32ArrayOntoStack(toDestroy.data(), toDestroy.size());
+                    stack->insertDataIntoStackTable();
+
+                    stack->pushTextOntoStack("allObjects"); // deprecated
+                    stack->pushBoolOntoStack(toDestroy.size() == getObjectCount());
+                    stack->insertDataIntoStackTable();
+
+                    // Following for backward compatibility:
+                    stack->pushTextOntoStack("objectHandles"); // deprecated
+                    stack->pushTableOntoStack();
+                    for (size_t i = 0; i < toDestroy.size(); i++)
+                    {
+                        stack->pushInt32OntoStack(toDestroy[i]); // key or index
+                        stack->pushBoolOntoStack(true);
+                        stack->insertDataIntoStackTable();
+                    }
+                    stack->insertDataIntoStackTable();
+
                     App::scenes->callScripts(sim_syscb_afterdelete, stack, nullptr);
                     App::scenes->interfaceStackContainer->destroyStack(stack);
                 }

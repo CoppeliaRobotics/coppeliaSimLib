@@ -449,7 +449,7 @@ void CDrawingObject::pushAddEvent()
 {
     if ((otherFloatsPerItem == 0) && App::scenes->getEventsEnabled())
     {
-        if (App::getEventProtocolVersion()  >= 3)
+        if (App::getEventProtocolVersion()  > 3)
         {
             CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
             Obj::addObjectEventData(ev);
@@ -485,11 +485,8 @@ void CDrawingObject::pushAddEvent()
                 break;
             }
             ev->appendKeyInt64(prop(PropObject::handle).name, _objectHandle);
-            if (App::getEventProtocolVersion() <= 3)
-                ev->appendKeyInt64(prop(PropDrawingObject::parent).name, _sceneObjectId);
-            else
-                ev->appendKeyHandle(prop(PropDrawingObject::parent).name, _sceneObjectId);
-            ev->appendKeyText("type", tp.c_str());
+            ev->appendKeyHandle(prop(PropDrawingObject::parent).name, _sceneObjectId);
+            ev->appendKeyText("itemType", tp.c_str());
             ev->appendKeyInt64("maxCnt", _maxItemCount);
             ev->appendKeyDouble("size", _size);
             ev->appendKeyInt64("parentUid", _sceneObjectUid);
