@@ -365,7 +365,7 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                     else if (desiredArgType == arg_double)
                         retVal = (t == arg_integer);
                     else if (desiredArgType == arg_handle)
-                        retVal = (t == arg_integer);
+                        retVal = ((t == arg_integer) || (t == arg_null));
                     else if (desiredArgType == arg_map)
                         retVal = (t == arg_table);
                     else if (t == arg_matrix)
