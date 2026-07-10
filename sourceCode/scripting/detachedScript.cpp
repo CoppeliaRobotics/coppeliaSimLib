@@ -1112,7 +1112,7 @@ void CDetachedScript::pushObjectCreationEvent()
     }
     else
     {
-        ev->appendKeyBool(prop(PropDetachedScript::scriptDisabled).name, _scriptIsDisabled);
+        ev->appendKeyBool(prop(PropDetachedScript::scriptEnabled).name, !_scriptIsDisabled);
         ev->appendKeyText(prop(PropDetachedScript::scriptType).name, getScriptTypeStr().c_str());
         ev->appendKeyInt64(prop(PropDetachedScript::scriptState).name, _scriptState);
     }
@@ -1248,13 +1248,13 @@ void CDetachedScript::setScriptIsDisabled(bool isDisabled)
         _scriptIsDisabled = isDisabled;
         if (isNotInCopyBuffer() && App::scenes->getEventsEnabled())
         {
-            const char* cmd = prop(PropDetachedScript::scriptDisabled).name;
+            const char* cmd = prop(PropDetachedScript::scriptEnabled).name;
             CCbor* ev;
             ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyBool("scriptDisabled", _scriptIsDisabled);
             else
-                ev->appendKeyBool(cmd, _scriptIsDisabled);
+                ev->appendKeyBool(cmd, !_scriptIsDisabled);
             App::scenes->pushEvent();
         }
     }
@@ -4600,10 +4600,10 @@ int CDetachedScript::setBoolProperty(const char* pName, bool pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(prop(PropDetachedScript::scriptDisabled).name, pName) == 0)
+    if (strcmp(prop(PropDetachedScript::scriptEnabled).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
-        setScriptIsDisabled(pState);
+        setScriptIsDisabled(!pState);
     }
     else if (strcmp(prop(PropDetachedScript::restartOnError).name, pName) == 0)
     {
@@ -4618,10 +4618,10 @@ int CDetachedScript::getBoolProperty(const char* pName, bool& pState) const
 {
     int retVal = Obj::getBoolProperty(pName, pState);
 
-    if (strcmp(prop(PropDetachedScript::scriptDisabled).name, pName) == 0)
+    if (strcmp(prop(PropDetachedScript::scriptEnabled).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
-        pState = _scriptIsDisabled;
+        pState = !_scriptIsDisabled;
     }
     else if (strcmp(prop(PropDetachedScript::restartOnError).name, pName) == 0)
     {

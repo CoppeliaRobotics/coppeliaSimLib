@@ -736,6 +736,8 @@ std::string checkForDeprecation(const char* funcName, const char* pName, int tar
                 found = true;
             else if ((target >= sim_object_variousstart) && (type == "mesh"))
                 found = true;
+            if (type == "object") // special
+                found = true;
             if (found)
                 break;
         }
@@ -755,7 +757,7 @@ std::string checkForDeprecation(const char* funcName, const char* pName, int tar
             std::string str = type +" property '";
             str += pName;
             str += "' is deprecated.";
-            if (replace)
+            if (!nName.empty())
             {
                 str += " Consider using property '";
                 str += nName + "' instead.";
