@@ -1593,9 +1593,9 @@ std::map<int, std::string> buildEnumToStringMap()
 
 #define SCRIPT_PROPERTIES \
     FUNCX(GROUP_script, "script", sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(type, "script.type", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{META_LABEL, "Type"}, {META_DESCRIPTION, "Script/detached script type"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(type, "script.type", sim_propertytype_string, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{META_LABEL, "Type"}, {META_DESCRIPTION, "Script/detached script type"}, {META_SUPERSEDES, "sim.scriptintparam_type"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
     FUNCX(size, "size", sim_propertytype_float, 0,  PropertyInfo({{META_LABEL, "Size"}, {META_DESCRIPTION, "Size of the object"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0,  PropertyInfo({{META_LABEL, "Reset after simulation error"}, {META_DESCRIPTION, ""}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(resetAfterSimError, "resetAfterSimError", sim_propertytype_bool, 0,  PropertyInfo({{META_LABEL, "Reset after simulation error"}, {META_DESCRIPTION, ""}, {META_SUPERSEDES, "sim.scriptintparam_autorestartonerror"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
     FUNCX(detachedScript, "detachedScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{META_LABEL, "Detached script handle"}, {META_DESCRIPTION, ""}, {META_HANDLETYPE, "detachedScript"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
     /* Following for backward compatibility: */ \
     FUNCX(DEPRECATED_size, "scriptSize", sim_propertytype_float, SIM_PROPERTYINFO_DEPRECATED,  PropertyInfo({{META_REPLACEDBY, "size"}, {META_STARTSUPPORT, 1}, {META_STARTDEPRECATED, 2}, {META_ENDSUPPORT, 2}})) \
@@ -1628,9 +1628,9 @@ std::map<int, std::string> buildEnumToStringMap()
     FUNCX(vertices, "vertices", sim_propertytype_matrix, sim_propertyinfo_notwritable,  PropertyInfo({{META_LABEL, "Vertices"}, {META_DESCRIPTION, "Vertices for custom marker"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
     FUNCX(indices, "indices", sim_propertytype_intarray, sim_propertyinfo_notwritable,  PropertyInfo({{META_LABEL, "Indices"}, {META_DESCRIPTION, "Indices for custom marker"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
     FUNCX(normals, "normals", sim_propertytype_matrix, sim_propertyinfo_notwritable,  PropertyInfo({{META_LABEL, "Normals"}, {META_DESCRIPTION, "Normals for custom marker"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(METHOD_addItems, "addItems", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(METHOD_clearItems, "clearItems", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(METHOD_removeItems, "removeItems", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(METHOD_addItems, "addItems", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_SUPERSEDES, "sim.addDrawingObjectItem"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(METHOD_clearItems, "clearItems", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_SUPERSEDES, "sim.addDrawingObjectItem"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(METHOD_removeItems, "removeItems", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_SUPERSEDES, "sim.addDrawingObjectItem"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
 
 #define CUSTOMSCENEOBJECT_PROPERTIES \
     FUNCX(size, "size", sim_propertytype_float, 0,  PropertyInfo({{META_LABEL, "Size"}, {META_DESCRIPTION, "Custom scene object size"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
