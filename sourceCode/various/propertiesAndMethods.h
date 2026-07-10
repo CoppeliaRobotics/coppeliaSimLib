@@ -404,27 +404,27 @@ std::map<int, std::string> buildEnumToStringMap()
     FUNCX(collections, "collections", sim_propertytype_handlearray, sim_propertyinfo_notwritable,  PropertyInfo({{META_LABEL, "Collections"}, {META_DESCRIPTION, "Handles of all collections"}, {"handleType", "collection"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
 
 #define COLLECTION_PROPERTIES \
-    FUNCX(objects, "objects", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{META_LABEL, "Children handles"}, {META_DESCRIPTION, ""}, {"handleType", "sceneObject"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(METHOD_addItem, "addItem", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(METHOD_removeItem, "removeItem", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(METHOD_checkCollision, "checkCollision", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(METHOD_remove, "remove", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(METHOD_changeColor, "changeColor", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(METHOD_restoreColor, "restoreColor", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(METHOD_checkDistance, "checkDistance", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(objects, "objects", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{META_LABEL, "Children handles"}, {META_DESCRIPTION, ""}, {"handleType", "sceneObject"}, {META_SUPERSEDES, "sim.getCollectionObjects"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(METHOD_addItem, "addItem", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_SUPERSEDES, "sim.addItemToCollection"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(METHOD_removeItem, "removeItem", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_SUPERSEDES, "sim.addItemToCollection"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(METHOD_checkCollision, "checkCollision", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_SUPERSEDES, "sim.checkCollision,sim.checkCollisionEx"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(METHOD_remove, "remove", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_SUPERSEDES, "sim.destroyCollection"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(METHOD_changeColor, "changeColor", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_SUPERSEDES, "sim.changeEntityColor"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(METHOD_restoreColor, "restoreColor", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_SUPERSEDES, "sim.restoreEntityColor"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(METHOD_checkDistance, "checkDistance", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_SUPERSEDES, "sim.checkDistance"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
 
 #define DRAWINGOBJECTCONT_PROPERTIES \
     FUNCX(drawingObjects, "drawingObjects", sim_propertytype_handlearray, sim_propertyinfo_notwritable,  PropertyInfo({{META_LABEL, "Drawing objects"}, {META_DESCRIPTION, "Handles of all drawing objects"}, {"handleType", "drawingObject"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
 
 #define DRAWINGOBJECT_PROPERTIES \
     FUNCX(parent, "parent", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{META_LABEL, "Parent handle"}, {META_DESCRIPTION, ""}, {"handleType", "sceneObject"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(METHOD_remove, "remove", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(METHOD_remove, "remove", sim_propertytype_method, SIM_PROPERTYINFO_METHOD,  PropertyInfo({{META_SUPERSEDES, "sim.removeDrawingObject"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
 
 #define COLOR_PROPERTIES /* do not change order of following 5 properties!! */ \
-    FUNCX(colDiffuse, "diffuse", sim_propertytype_color, 0,  PropertyInfo({{META_LABEL, "Diffuse color"}, {META_DESCRIPTION, ""}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(colSpecular, "specular", sim_propertytype_color, 0,  PropertyInfo({{META_LABEL, "Specular color"}, {META_DESCRIPTION, ""}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(colEmission, "emission", sim_propertytype_color, 0,  PropertyInfo({{META_LABEL, "Emission color"}, {META_DESCRIPTION, ""}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
-    FUNCX(transparency, "transparency", sim_propertytype_float, 0,  PropertyInfo({{META_LABEL, "Transparency"}, {META_DESCRIPTION, ""}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(colDiffuse, "diffuse", sim_propertytype_color, 0,  PropertyInfo({{META_LABEL, "Diffuse color"}, {META_DESCRIPTION, ""}, {META_SUPERSEDES, "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(colSpecular, "specular", sim_propertytype_color, 0,  PropertyInfo({{META_LABEL, "Specular color"}, {META_DESCRIPTION, ""}, {META_SUPERSEDES, "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(colEmission, "emission", sim_propertytype_color, 0,  PropertyInfo({{META_LABEL, "Emission color"}, {META_DESCRIPTION, ""}, {META_SUPERSEDES, "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
+    FUNCX(transparency, "transparency", sim_propertytype_float, 0,  PropertyInfo({{META_LABEL, "Transparency"}, {META_DESCRIPTION, ""}, {META_SUPERSEDES, "sim.setShapeColor,sim.getShapeColor"}, {META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
     FUNCX(GROUP_prefix, COLORPREFIXTAG, sim_propertytype_group, SIM_PROPERTYINFO_GROUP, PropertyInfo({{META_STARTSUPPORT, 2}, {META_STARTDEPRECATED, 0}, {META_ENDSUPPORT, 0}})) \
 
 #define CONVEXVOLUME_PROPERTIES \
