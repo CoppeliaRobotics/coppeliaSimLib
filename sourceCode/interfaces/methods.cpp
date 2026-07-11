@@ -47,7 +47,7 @@ namespace {
 
 std::string callMethod(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
-    static std::map<std::string, std::function<std::string(int, const char*, CDetachedScript*, const CInterfaceStack*, CInterfaceStack*)>> funcTable;
+    static std::map<std::string, std::function<std::string(int, CDetachedScript*, const CInterfaceStack*, CInterfaceStack*)>> funcTable;
     if (funcTable.size() == 0)
     {
         funcTable["getPosition"] = _method_getPosition;
@@ -219,6 +219,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["setModuleEntry"] = _method_setModuleEntry;
         funcTable["dynamics.step"] = _method_dynamicsStep;
         funcTable["broadcast"] = _method_broadcast;
+        funcTable["texture.set"] = _method_textureSet;
         funcTable["texture.setData"] = _method_textureSetData;
         funcTable["texture.getData"] = _method_textureGetData;
         funcTable["getEnumInfo"] = _method_getEnumInfo;
@@ -227,7 +228,11 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
 
     std::string retVal("__notFound__");
     if (funcTable.find(method) != funcTable.end())
-        retVal = funcTable[method](targetObj, method, currentScript, inStack, outStack); // hard-coded method
+    {
+        retVal = funcTable[method](targetObj, currentScript, inStack, outStack); // hard-coded method
+        if (!retVal.empty())
+            retVal = std::string("in method '") + method + "': " + retVal;
+    }
     else
     {
         void* func;
@@ -251,7 +256,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
     return retVal;
 }
 
-bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std::string* errStr, std::vector<int> inargs)
+bool checkInputArguments(const CInterfaceStack* inStack, std::string* errStr, std::vector<int> inargs)
 { // inargs: a list of desired types. Following 3 types are special:
     // arg_table is followed by 2 auxiliary values: size (-1 for any) and type of content (arg_any for any)
     // arg_matrix is followed by 2 auxiliary values: rows (-1 for any) and cols (-1 for any)
@@ -303,9 +308,7 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                                     retVal = false;
                                     if (errStr != nullptr)
                                     {
-                                        std::string msg("in method '");
-                                        msg += method;
-                                        msg += "': bad argument #";
+                                        std::string msg("bad argument #");
                                         msg += std::to_string(argC);
                                         msg += " (invalid table content).";
                                         errStr->assign(msg.c_str());
@@ -317,9 +320,7 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                                 retVal = false;
                                 if (errStr != nullptr)
                                 {
-                                    std::string msg("in method '");
-                                    msg += method;
-                                    msg += "': bad argument #";
+                                    std::string msg("bad argument #");
                                     msg += std::to_string(argC);
                                     msg += " (expected an array-like table of size ";
                                     msg += std::to_string(tableSize);
@@ -333,9 +334,7 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                             retVal = false;
                             if (errStr != nullptr)
                             {
-                                std::string msg("in method '");
-                                msg += method;
-                                msg += "': bad argument #";
+                                std::string msg("bad argument #");
                                 msg += std::to_string(argC);
                                 msg += " (expected an array-like table).";
                                 errStr->assign(msg.c_str());
@@ -347,9 +346,7 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                 {
                     if (errStr != nullptr)
                     {
-                        std::string msg("in method '");
-                        msg += method;
-                        msg += "': bad argument #";
+                        std::string msg("bad argument #");
                         msg += std::to_string(argC);
                         msg += " (expected a table).";
                         errStr->assign(msg.c_str());
@@ -422,9 +419,7 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                     {
                         if (errStr != nullptr)
                         {
-                            std::string msg("in method '");
-                            msg += method;
-                            msg += "': bad argument #";
+                            std::string msg("bad argument #");
                             msg += std::to_string(argC);
                             msg += " (expected ";
                             if (desiredArgType == arg_null)
@@ -476,9 +471,7 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
                         {
                             if (errStr != nullptr)
                             {
-                                std::string msg("in method '");
-                                msg += method;
-                                msg += "': bad argument #";
+                                std::string msg("bad argument #");
                                 msg += std::to_string(argC);
                                 msg += " (expected a ";
                                 if (rows > 0)
@@ -516,9 +509,7 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
             {
                 if (errStr != nullptr)
                 {
-                    std::string msg("in method '");
-                    msg += method;
-                    msg += "': the function requires more arguments.";
+                    std::string msg("the method requires more arguments.");
                     errStr[0] = msg;
                 }
                 retVal = false;
@@ -527,6 +518,18 @@ bool checkInputArguments(const char* method, const CInterfaceStack* inStack, std
         }
     }
     return retVal;
+}
+
+template <typename F>
+void withOptionalMap(const CInterfaceStack* inStack, int pos, std::string& errMsg, F&& worker)
+{
+    if (CInterfaceStackTable* map = fetchMap(inStack, pos))
+    {
+        std::string localErr;
+        worker(map, localErr);
+        if (!localErr.empty())
+            errMsg = "bad argument #" + std::to_string(pos + 1) + ": " + localErr;
+    }
 }
 
 bool hasNonNullArg(const CInterfaceStack* inStack, int index)
@@ -1074,22 +1077,16 @@ void fetchArrayAsConsecutiveNumbers(const CInterfaceStack* inStack, int index, s
     }
 }
 
-CSceneObject* getSceneObject(int identifier, const char* method, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
+CSceneObject* getSceneObject(int identifier, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
 {
     CSceneObject* retVal = App::scene->sceneObjects->getObjectFromHandle(identifier);
     if ( (retVal == nullptr) && (errMsg != nullptr) )
     {
         if (argPos == -1)
-        {
-            errMsg[0] = "in method '";
-            errMsg[0] += method;
-            errMsg[0] += "': target object does not exist."; // can happen when calling from C
-        }
+            errMsg[0] = "target object does not exist."; // can happen when calling from C
         else
         {
-            std::string msg("in method '");
-            msg += method;
-            msg += "': bad argument #";
+            std::string msg("bad argument #");
             msg += std::to_string(argPos + 1);
             msg += " (object does not exist).";
             errMsg->assign(msg.c_str());
@@ -1098,9 +1095,9 @@ CSceneObject* getSceneObject(int identifier, const char* method, std::string* er
     return retVal;
 }
 
-CSceneObject* getSpecificSceneObjectType(int identifier, const char* method, int type, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
+CSceneObject* getSpecificSceneObjectType(int identifier, int type, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
 {
-    CSceneObject* retVal = getSceneObject(identifier, method, errMsg, argPos);
+    CSceneObject* retVal = getSceneObject(identifier, errMsg, argPos);
     if (retVal != nullptr)
     {
         if (retVal->getObjectType() != type)
@@ -1109,16 +1106,10 @@ CSceneObject* getSpecificSceneObjectType(int identifier, const char* method, int
             if (errMsg != nullptr)
             {
                 if (argPos == -1)
-                {
-                    errMsg[0] = "in method '";
-                    errMsg[0] += method;
-                    errMsg[0] = "': target object is not the correct type."; // can happen when calling from C
-                }
+                    errMsg[0] = "target object is not the correct type."; // can happen when calling from C
                 else
                 {
-                    std::string msg("in method '");
-                    msg += method;
-                    msg += "': bad argument #";
+                    std::string msg("bad argument #");
                     msg += std::to_string(argPos + 1);
                     msg += " (object is not the correct type).";
                     errMsg->assign(msg.c_str());
@@ -1129,22 +1120,16 @@ CSceneObject* getSpecificSceneObjectType(int identifier, const char* method, int
     return retVal;
 }
 
-CCollection* getCollection(int identifier, const char* method, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
+CCollection* getCollection(int identifier, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
 {
     CCollection* retVal = App::scene->collections->getObjectFromHandle(identifier);
     if ( (retVal == nullptr) && (errMsg != nullptr) )
     {
         if (argPos == -1)
-        {
-            errMsg[0] = "in method '";
-            errMsg[0] += method;
-            errMsg[0] = "': target object does not exist."; // can happen when calling from C
-        }
+            errMsg[0] = "target object does not exist."; // can happen when calling from C
         else
         {
-            std::string msg("in method '");
-            msg += method;
-            msg += "': bad argument #";
+            std::string msg("bad argument #");
             msg += std::to_string(argPos + 1);
             msg += " (object does not exist).";
             errMsg->assign(msg.c_str());
@@ -1153,22 +1138,16 @@ CCollection* getCollection(int identifier, const char* method, std::string* errM
     return retVal;
 }
 
-CDrawingObject* getDrawingObject(int identifier, const char* method, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
+CDrawingObject* getDrawingObject(int identifier, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
 {
     CDrawingObject* retVal = App::scene->drawingCont->getObjectFromHandle(identifier);
     if ( (retVal == nullptr) && (errMsg != nullptr) )
     {
         if (argPos == -1)
-        {
-            errMsg[0] = "in method '";
-            errMsg[0] += method;
-            errMsg[0] = "': target object does not exist."; // can happen when calling from C
-        }
+            errMsg[0] = "target object does not exist."; // can happen when calling from C
         else
         {
-            std::string msg("in method '");
-            msg += method;
-            msg += "': bad argument #";
+            std::string msg("bad argument #");
             msg += std::to_string(argPos + 1);
             msg += " (object does not exist).";
             errMsg->assign(msg.c_str());
@@ -1177,7 +1156,7 @@ CDrawingObject* getDrawingObject(int identifier, const char* method, std::string
     return retVal;
 }
 
-CDetachedScript* getDetachedScript(int identifier, const char* method, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
+CDetachedScript* getDetachedScript(int identifier, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
 {
     CDetachedScript* retVal = nullptr;
     if (identifier > sim_object_sceneobjectend)
@@ -1185,16 +1164,10 @@ CDetachedScript* getDetachedScript(int identifier, const char* method, std::stri
     if ( (retVal == nullptr) && (errMsg != nullptr) )
     {
         if (argPos == -1)
-        {
-            errMsg[0] = "in method '";
-            errMsg[0] += method;
-            errMsg[0] = "': target object does not exist."; // can happen when calling from C
-        }
+            errMsg[0] = "target object does not exist."; // can happen when calling from C
         else
         {
-            std::string msg("in method '");
-            msg += method;
-            msg += "': bad argument #";
+            std::string msg("bad argument #");
             msg += std::to_string(argPos + 1);
             msg += " (object does not exist).";
             errMsg->assign(msg.c_str());
@@ -1203,22 +1176,16 @@ CDetachedScript* getDetachedScript(int identifier, const char* method, std::stri
     return retVal;
 }
 
-CMesh* getMesh(int identifier, const char* method, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
+CMesh* getMesh(int identifier, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
 {
     CMesh* retVal = App::scene->sceneObjects->getMeshFromUid(identifier);
     if ( (retVal == nullptr) && (errMsg != nullptr) )
     {
         if (argPos == -1)
-        {
-            errMsg[0] = "in method '";
-            errMsg[0] += method;
-            errMsg[0] += "': target object does not exist."; // can happen when calling from C
-        }
+            errMsg[0] = "target object does not exist."; // can happen when calling from C
         else
         {
-            std::string msg("in method '");
-            msg += method;
-            msg += "': bad argument #";
+            std::string msg("bad argument #");
             msg += std::to_string(argPos + 1);
             msg += " (object does not exist).";
             errMsg->assign(msg.c_str());
@@ -1227,7 +1194,7 @@ CMesh* getMesh(int identifier, const char* method, std::string* errMsg /*= nullp
     return retVal;
 }
 
-bool doesEntityExist(int identifier, const char* method, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
+bool doesEntityExist(int identifier, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
 {
     bool retVal = false;
     if ((App::scene->sceneObjects->getObjectFromHandle(identifier) != nullptr) || (App::scene->collections->getObjectFromHandle(identifier) != nullptr))
@@ -1235,16 +1202,10 @@ bool doesEntityExist(int identifier, const char* method, std::string* errMsg /*=
     else if (errMsg != nullptr)
     {
         if (argPos == -1)
-        {
-            errMsg[0] = "in method '";
-            errMsg[0] += method;
-            errMsg[0] = "': target object does not exist."; // can happen when calling from C
-        }
+            errMsg[0] = "target object does not exist."; // can happen when calling from C
         else
         {
-            std::string msg("in method '");
-            msg += method;
-            msg += "': bad argument #";
+            std::string msg("bad argument #");
             msg += std::to_string(argPos + 1);
             msg += " (object does not exist).";
             errMsg->assign(msg.c_str());
@@ -1261,19 +1222,19 @@ std::string getInvalidArgString(size_t argPos)
     return retVal;
 }
 
-std::string _method_getPosition(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getPosition(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
     {
         int64_t relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+        withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
-            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
-        }
+            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &err);
+            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &err);
+        });
         if (errMsg.empty())
         {
             if (relativeToObjectHandle == sim_handle_parent)
@@ -1285,11 +1246,11 @@ std::string _method_getPosition(int targetObj, const char* method, CDetachedScri
             }
             if (relativeToObjectHandle != sim_handle_world)
             {
-                CSceneObject* it2 = getSceneObject(relativeToObjectHandle, method, &errMsg, 0);
+                CSceneObject* it2 = getSceneObject(relativeToObjectHandle, &errMsg, 0);
                 if (it2 == nullptr)
                     return errMsg;
             }
-            CSceneObject* relObj = getSceneObject(relativeToObjectHandle, method);
+            CSceneObject* relObj = getSceneObject(relativeToObjectHandle);
             CPose tr;
             if (relObj == nullptr)
                 tr = target->getCumulativeTransformation();
@@ -1317,20 +1278,20 @@ std::string _method_getPosition(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_setPosition(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setPosition(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_vector3, arg_map | arg_optional}))
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_vector3, arg_map | arg_optional}))
     {
         C3Vector position = fetchVector3(inStack, 0);
         int64_t relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
-            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
-        }
+            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &err);
+            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &err);
+        });
         if (errMsg.empty())
         {
             if (isFloatArrayOk(position.data, 3))
@@ -1344,13 +1305,13 @@ std::string _method_setPosition(int targetObj, const char* method, CDetachedScri
                 }
                 if (relativeToObjectHandle != sim_handle_world)
                 {
-                    CSceneObject* it2 = getSceneObject(relativeToObjectHandle, method, &errMsg, 1);
+                    CSceneObject* it2 = getSceneObject(relativeToObjectHandle, &errMsg, 1);
                     if (it2 == nullptr)
                         return errMsg;
                 }
                 if (target->getDynamicFlag() > 1) // for non-static shapes, and other objects that are in the dyn. world
                     target->setDynamicsResetFlag(true, true);
-                CSceneObject* relObj =getSceneObject(relativeToObjectHandle, method);
+                CSceneObject* relObj =getSceneObject(relativeToObjectHandle);
                 if (relObj == nullptr)
                     App::scene->sceneObjects->setObjectAbsolutePosition(target->getObjectHandle(), position);
                 else
@@ -1391,19 +1352,19 @@ std::string _method_setPosition(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_getQuaternion(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getQuaternion(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
     {
         int64_t relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+        withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
-            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
-        }
+            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &err);
+            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &err);
+        });
         if (errMsg.empty())
         {
             if (relativeToObjectHandle == sim_handle_parent)
@@ -1421,10 +1382,10 @@ std::string _method_getQuaternion(int targetObj, const char* method, CDetachedSc
             }
             if (relativeToObjectHandle != sim_handle_world)
             {
-                if (getSceneObject(relativeToObjectHandle, method, &errMsg, 0) == nullptr)
+                if (getSceneObject(relativeToObjectHandle, &errMsg, 0) == nullptr)
                     return errMsg;
             }
-            CSceneObject* relObj = getSceneObject(relativeToObjectHandle, method);
+            CSceneObject* relObj = getSceneObject(relativeToObjectHandle);
             CPose tr;
             if (relObj == nullptr)
                 tr = target->getCumulativeTransformation();
@@ -1454,20 +1415,20 @@ std::string _method_getQuaternion(int targetObj, const char* method, CDetachedSc
     return errMsg;
 }
 
-std::string _method_setQuaternion(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setQuaternion(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_quaternion, arg_map | arg_optional}))
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_quaternion, arg_map | arg_optional}))
     {
         CQuaternion quaternion = fetchQuaternion(inStack, 0);
         int64_t relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
-            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
-        }
+            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &err);
+            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &err);
+        });
         if (errMsg.empty())
         {
             if (isFloatArrayOk(quaternion.data, 4))
@@ -1487,12 +1448,12 @@ std::string _method_setQuaternion(int targetObj, const char* method, CDetachedSc
                 }
                 if (relativeToObjectHandle != sim_handle_world)
                 {
-                    if (getSceneObject(relativeToObjectHandle, method, &errMsg, 1) == nullptr)
+                    if (getSceneObject(relativeToObjectHandle, &errMsg, 1) == nullptr)
                         return errMsg;
                 }
                 if (target->getDynamicFlag() > 1) // for non-static shapes, and other objects that are in the dyn. world
                     target->setDynamicsResetFlag(true, true);
-                CSceneObject* relObj = getSceneObject(relativeToObjectHandle, method);
+                CSceneObject* relObj = getSceneObject(relativeToObjectHandle);
                 if (relObj == nullptr)
                 {
                     quaternion.normalize();
@@ -1536,19 +1497,19 @@ std::string _method_setQuaternion(int targetObj, const char* method, CDetachedSc
     return errMsg;
 }
 
-std::string _method_getPose(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getPose(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
     {
         int64_t relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+        withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
-            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
-        }
+            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &err);
+            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &err);
+        });
         if (errMsg.empty())
         {
             if (relativeToObjectHandle == sim_handle_parent)
@@ -1566,10 +1527,10 @@ std::string _method_getPose(int targetObj, const char* method, CDetachedScript* 
             }
             if (relativeToObjectHandle != sim_handle_world)
             {
-                if (getSceneObject(relativeToObjectHandle, method, &errMsg, 0) == nullptr)
+                if (getSceneObject(relativeToObjectHandle, &errMsg, 0) == nullptr)
                     return errMsg;
             }
-            CSceneObject* relObj = getSceneObject(relativeToObjectHandle, method);
+            CSceneObject* relObj = getSceneObject(relativeToObjectHandle);
             CPose tr;
             if (relObj == nullptr)
                 tr = target->getCumulativeTransformation();
@@ -1590,20 +1551,20 @@ std::string _method_getPose(int targetObj, const char* method, CDetachedScript* 
     return errMsg;
 }
 
-std::string _method_setPose(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setPose(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_pose, arg_map | arg_optional}))
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_pose, arg_map | arg_optional}))
     {
         CPose tr = fetchPose(inStack, 0);
         int64_t relativeToObjectHandle = sim_handle_world;
         bool relToJointBase = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &errMsg);
-            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &errMsg);
-        }
+            map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &err);
+            map->fetchBoolFromKey("relativeToJointBase", relToJointBase, &err);
+        });
         if (errMsg.empty())
         {
             if (isFloatArrayOk(tr.X.data, 3) && isFloatArrayOk(tr.Q.data, 4))
@@ -1623,7 +1584,7 @@ std::string _method_setPose(int targetObj, const char* method, CDetachedScript* 
                 }
                 if (relativeToObjectHandle != sim_handle_world)
                 {
-                    if (getSceneObject(relativeToObjectHandle, method, &errMsg, 1) == nullptr)
+                    if (getSceneObject(relativeToObjectHandle, &errMsg, 1) == nullptr)
                         return errMsg;
                 }
                 if (target->getDynamicFlag() > 1) // for non-static shapes, and other objects that are in the dyn. world
@@ -1631,7 +1592,7 @@ std::string _method_setPose(int targetObj, const char* method, CDetachedScript* 
                 tr.Q.normalize();
                 if (inverse)
                     tr.inverse();
-                CSceneObject* objRel = getSceneObject(relativeToObjectHandle, method);
+                CSceneObject* objRel = getSceneObject(relativeToObjectHandle);
                 if (objRel == nullptr)
                     App::scene->sceneObjects->setObjectAbsolutePose(target->getObjectHandle(), tr, false);
                 else
@@ -1651,18 +1612,18 @@ std::string _method_setPose(int targetObj, const char* method, CDetachedScript* 
     return errMsg;
 }
 
-std::string _method_setParent(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setParent(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional, arg_map | arg_optional}))
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_handle | arg_optional, arg_map | arg_optional}))
     {
         int parentObjectHandle = fetchHandle(inStack, 0, -1);
         std::string parentingMode = "keepAbsolutePose";
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchStringFromKey("mode", parentingMode, &errMsg);
-        }
+            map->fetchStringFromKey("mode", parentingMode, &err);
+        });
         if (errMsg.empty())
         {
             int pMode = -1;
@@ -1676,10 +1637,10 @@ std::string _method_setParent(int targetObj, const char* method, CDetachedScript
             {
                 if (parentObjectHandle != -1)
                 {
-                    if (getSceneObject(parentObjectHandle, method, &errMsg, 0) == nullptr)
+                    if (getSceneObject(parentObjectHandle, &errMsg, 0) == nullptr)
                         return errMsg;
                 }
-                CSceneObject* parentIt = getSceneObject(parentObjectHandle, method);
+                CSceneObject* parentIt = getSceneObject(parentObjectHandle);
                 CSceneObject* pp = parentIt;
                 while (pp != nullptr)
                 {
@@ -1721,18 +1682,18 @@ std::string _method_setParent(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_handleMessagePump(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_handleMessagePump(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {}))
+    if (checkInputArguments(inStack, &errMsg, {}))
         App::simThread->handleExtCalls();
     return errMsg;
 }
 
-std::string _method_handleSandboxScript(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_handleSandboxScript(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if ((currentScript != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer}))
+    if ((currentScript != nullptr) && checkInputArguments(inStack, &errMsg, {arg_integer}))
     {
         if (currentScript->getScriptType() == sim_scripttype_main)
         {
@@ -1750,10 +1711,10 @@ std::string _method_handleSandboxScript(int targetObj, const char* method, CDeta
     return errMsg;
 }
 
-std::string _method_handleAddOnScripts(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_handleAddOnScripts(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if ((currentScript != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer}))
+    if ((currentScript != nullptr) && checkInputArguments(inStack, &errMsg, {arg_integer}))
     {
         if (currentScript->getScriptType() == sim_scripttype_main)
         {
@@ -1773,10 +1734,10 @@ std::string _method_handleAddOnScripts(int targetObj, const char* method, CDetac
     return errMsg;
 }
 
-std::string _method_handleSimulationScripts(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_handleSimulationScripts(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if ((currentScript != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer}))
+    if ((currentScript != nullptr) && checkInputArguments(inStack, &errMsg, {arg_integer}))
     {
         if (currentScript->getScriptType() == sim_scripttype_main)
         {
@@ -1801,10 +1762,10 @@ std::string _method_handleSimulationScripts(int targetObj, const char* method, C
     return errMsg;
 }
 
-std::string _method_handleCustomizationScripts(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_handleCustomizationScripts(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if ((currentScript != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer}))
+    if ((currentScript != nullptr) && checkInputArguments(inStack, &errMsg, {arg_integer}))
     {
         if (currentScript->getScriptType() == sim_scripttype_main)
         {
@@ -1829,29 +1790,29 @@ std::string _method_handleCustomizationScripts(int targetObj, const char* method
     return errMsg;
 }
 
-std::string _method_loadModel(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadModel(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (targetObj == sim_handle_scene)
     {
-        if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+        if (checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
         {
             std::string path = fetchText(inStack, 0);
             C3Vector offset;
             int assemblyDummy = -1;
             offset.clear();
-            if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+            withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
             {
                 std::vector<double> arr;
-                if (map->fetchMatrixDataFromKey("offset", arr, 3, 1, true, &errMsg))
+                if (map->fetchMatrixDataFromKey("offset", arr, 3, 1, true, &err))
                     offset.setData(arr.data());
-                if (map->fetchInt32FromKey("assemblyDummy", assemblyDummy, &errMsg))
+                if (map->fetchInt32FromKey("assemblyDummy", assemblyDummy, &err))
                 {
                     CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(assemblyDummy);
                     if (obj == nullptr)
                         errMsg = "invalid assembly dummy";
                 }
-            }
+            });
             if (errMsg.empty())
             {
                 std::string infoStr;
@@ -1886,30 +1847,30 @@ std::string _method_loadModel(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_loadModelFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadModelFromBuffer(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (targetObj == sim_handle_scene)
     {
-        if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+        if (checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
         {
             std::string data = fetchBuffer(inStack, 0);
             std::vector<char> buffer(data.data(), data.data() + data.size());
             C3Vector offset;
             int assemblyDummy = -1;
             offset.clear();
-            if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+            withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
             {
                 std::vector<double> arr;
-                if (map->fetchMatrixDataFromKey("offset", arr, 3, 1, true, &errMsg))
+                if (map->fetchMatrixDataFromKey("offset", arr, 3, 1, true, &err))
                     offset.setData(arr.data());
-                if (map->fetchInt32FromKey("assemblyDummy", assemblyDummy, &errMsg))
+                if (map->fetchInt32FromKey("assemblyDummy", assemblyDummy, &err))
                 {
                     CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(assemblyDummy);
                     if (obj == nullptr)
                         errMsg = "invalid assembly dummy";
                 }
-            }
+            });
             if (errMsg.empty())
             {
                 std::string infoStr;
@@ -1944,12 +1905,12 @@ std::string _method_loadModelFromBuffer(int targetObj, const char* method, CDeta
     return errMsg;
 }
 
-std::string _method_loadModelInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadModelInfo(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (targetObj == sim_handle_app)
     {
-        if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+        if (checkInputArguments(inStack, &errMsg, {arg_string}))
         {
             std::string path = fetchText(inStack, 0);
             std::string infoStr;
@@ -2007,12 +1968,12 @@ std::string _method_loadModelInfo(int targetObj, const char* method, CDetachedSc
     return errMsg;
 }
 
-std::string _method_loadModelInfoFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadModelInfoFromBuffer(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (targetObj == sim_handle_app)
     {
-        if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+        if (checkInputArguments(inStack, &errMsg, {arg_string}))
         {
             std::string data = fetchBuffer(inStack, 0);
             std::vector<char> buffer(data.data(), data.data() + data.size());
@@ -2065,11 +2026,11 @@ std::string _method_loadModelInfoFromBuffer(int targetObj, const char* method, C
     return errMsg;
 }
 
-std::string _method_saveModel(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_saveModel(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string}))
     {
         std::string filename = fetchText(inStack, 0);
         if (!App::scene->environment->getSceneLocked())
@@ -2089,11 +2050,11 @@ std::string _method_saveModel(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_saveModelToBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_saveModelToBuffer(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {}))
     {
         if (!App::scene->environment->getSceneLocked())
         {
@@ -2118,21 +2079,21 @@ std::string _method_saveModelToBuffer(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_loadScene(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadScene(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (targetObj == sim_handle_app)
     {
         if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation) && (currentScript->getScriptType() != sim_scripttype_customization)))
         {
-            if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+            if (checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
             {
                 std::string path = fetchText(inStack, 0);
                 bool createNewScene = false;
-                if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+                withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
                 {
-                    map->fetchBoolFromKey("createNew", createNewScene, &errMsg);
-                }
+                    map->fetchBoolFromKey("createNew", createNewScene, &err);
+                });
                 if (errMsg.empty())
                 {
                     if (App::scene->simulation->isSimulationStopped())
@@ -2166,22 +2127,22 @@ std::string _method_loadScene(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_loadSceneFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadSceneFromBuffer(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (targetObj == sim_handle_app)
     {
         if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation) && (currentScript->getScriptType() != sim_scripttype_customization)))
         {
-            if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+            if (checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
             {
                 std::vector<char> buff;
                 fetchBuffer(inStack, 0, buff);
                 bool createNewScene = false;
-                if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+                withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
                 {
-                    map->fetchBoolFromKey("createNew", createNewScene, &errMsg);
-                }
+                    map->fetchBoolFromKey("createNew", createNewScene, &err);
+                });
                 if (errMsg.empty())
                 {
                     if (App::scene->simulation->isSimulationStopped())
@@ -2203,14 +2164,14 @@ std::string _method_loadSceneFromBuffer(int targetObj, const char* method, CDeta
     return errMsg;
 }
 
-std::string _method_save(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_save(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (targetObj == sim_handle_scene)
     {
         if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation)))
         {
-            if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+            if (checkInputArguments(inStack, &errMsg, {arg_string}))
             {
                 std::string path = fetchText(inStack, 0);
                 if (App::scene->simulation->isSimulationStopped())
@@ -2242,14 +2203,14 @@ std::string _method_save(int targetObj, const char* method, CDetachedScript* cur
     return errMsg;
 }
 
-std::string _method_saveToBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_saveToBuffer(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if (targetObj == sim_handle_scene)
     {
         if ((currentScript == nullptr) || ((currentScript->getScriptType() != sim_scripttype_simulation)))
         {
-            if (checkInputArguments(method, inStack, &errMsg, {}))
+            if (checkInputArguments(inStack, &errMsg, {}))
             {
                 if (App::scene->simulation->isSimulationStopped())
                 {
@@ -2283,19 +2244,19 @@ std::string _method_saveToBuffer(int targetObj, const char* method, CDetachedScr
     return errMsg;
 }
 
-std::string _method_removeModel(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_removeModel(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
     {
         bool delayed = false;
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+        withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("delayed", delayed, &errMsg);
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("delayed", delayed, &err);
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (target->getModelBase())
@@ -2313,10 +2274,10 @@ std::string _method_removeModel(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_remove(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_remove(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
     {
         if (targetObj == sim_handle_scene)
         {
@@ -2334,17 +2295,17 @@ std::string _method_remove(int targetObj, const char* method, CDetachedScript* c
         {
             bool delayed = false;
             bool noError = false;
-            if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+            withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
             {
-                map->fetchBoolFromKey("delayed", delayed, &errMsg);
-                map->fetchBoolFromKey("noError", noError, &errMsg);
-            }
+                map->fetchBoolFromKey("delayed", delayed, &err);
+                map->fetchBoolFromKey("noError", noError, &err);
+            });
             if (errMsg.size() == 0)
             {
-                CSceneObject* sceneObj = getSceneObject(targetObj, method);
-                CCollection* coll = getCollection(targetObj, method);
-                CDrawingObject* draw = getDrawingObject(targetObj, method);
-                CDetachedScript* script = getDetachedScript(targetObj, method);
+                CSceneObject* sceneObj = getSceneObject(targetObj);
+                CCollection* coll = getCollection(targetObj);
+                CDrawingObject* draw = getDrawingObject(targetObj);
+                CDetachedScript* script = getDetachedScript(targetObj);
                 if (sceneObj != nullptr)
                 {
                     std::vector<int> sel;
@@ -2389,30 +2350,30 @@ std::string _method_remove(int targetObj, const char* method, CDetachedScript* c
     return errMsg;
 }
 
-std::string _method_removeObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_removeObjects(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
     {
         std::vector<int64_t> objectHandles;
         fetchHandleArray(inStack, 0, objectHandles);
         bool delayed = false;
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("delayed", delayed, &errMsg);
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("delayed", delayed, &err);
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             std::vector<int> sceneObjectHandles;
             for (size_t i = 0; i < objectHandles.size(); i ++)
             {
                 int objectHandle = int(objectHandles[i]);
-                CSceneObject* sceneObj = getSceneObject(objectHandle, method);
-                CCollection* coll = getCollection(objectHandle, method);
-                CDrawingObject* draw = getDrawingObject(objectHandle, method);
-                CDetachedScript* script = getDetachedScript(objectHandle, method);
+                CSceneObject* sceneObj = getSceneObject(objectHandle);
+                CCollection* coll = getCollection(objectHandle);
+                CDrawingObject* draw = getDrawingObject(objectHandle);
+                CDetachedScript* script = getDetachedScript(objectHandle);
                 if (sceneObj != nullptr)
                     sceneObjectHandles.push_back(objectHandle);
                 else if (coll != nullptr)
@@ -2442,10 +2403,10 @@ std::string _method_removeObjects(int targetObj, const char* method, CDetachedSc
     return errMsg;
 }
 
-std::string _method_duplicateObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_duplicateObjects(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
     {
         std::vector<int64_t> objectHandles;
         fetchHandleArray(inStack, 0, objectHandles);
@@ -2455,15 +2416,15 @@ std::string _method_duplicateObjects(int targetObj, const char* method, CDetache
         bool noObjectRefs = false;
         bool noTextures = false;
         bool noDna = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("models", models, &errMsg);
-            map->fetchBoolFromKey("noScripts", noScripts, &errMsg);
-            map->fetchBoolFromKey("noCustomData", noCustomData, &errMsg);
-            map->fetchBoolFromKey("noObjectRefs", noObjectRefs, &errMsg);
-            map->fetchBoolFromKey("noTextures", noTextures, &errMsg);
-            map->fetchBoolFromKey("noDna", noDna, &errMsg);
-        }
+            map->fetchBoolFromKey("models", models, &err);
+            map->fetchBoolFromKey("noScripts", noScripts, &err);
+            map->fetchBoolFromKey("noCustomData", noCustomData, &err);
+            map->fetchBoolFromKey("noObjectRefs", noObjectRefs, &err);
+            map->fetchBoolFromKey("noTextures", noTextures, &err);
+            map->fetchBoolFromKey("noDna", noDna, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (objectHandles.size() > 0)
@@ -2572,25 +2533,25 @@ std::string _method_duplicateObjects(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
-std::string _method_addItem(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addItem(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CCollection* target = getCollection(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_handle, arg_map | arg_optional}))
+    CCollection* target = getCollection(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_handle, arg_map | arg_optional}))
     {
         int objectHandle = fetchHandle(inStack, 0);
         int what = sim_handle_single;
         bool excludeObj = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt32FromKey("mode", what, &errMsg);
-            map->fetchBoolFromKey("excludeObject", excludeObj, &errMsg);
-        }
+            map->fetchInt32FromKey("mode", what, &err);
+            map->fetchBoolFromKey("excludeObject", excludeObj, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (what != sim_handle_all)
             {
-                if (getSceneObject(objectHandle, method, &errMsg, 0) == nullptr)
+                if (getSceneObject(objectHandle, &errMsg, 0) == nullptr)
                     return errMsg;
             }
             CCollectionElement* el = nullptr;
@@ -2620,25 +2581,25 @@ std::string _method_addItem(int targetObj, const char* method, CDetachedScript* 
     return errMsg;
 }
 
-std::string _method_removeItem(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_removeItem(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CCollection* target = getCollection(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_handle, arg_map | arg_optional}))
+    CCollection* target = getCollection(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_handle, arg_map | arg_optional}))
     {
         int objectHandle = fetchHandle(inStack, 0);
         int what = sim_handle_single;
         bool excludeObj = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt32FromKey("mode", what, &errMsg);
-            map->fetchBoolFromKey("excludeObject", excludeObj, &errMsg);
-        }
+            map->fetchInt32FromKey("mode", what, &err);
+            map->fetchBoolFromKey("excludeObject", excludeObj, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (what != sim_handle_all)
             {
-                if (getSceneObject(objectHandle, method, &errMsg, 0) == nullptr)
+                if (getSceneObject(objectHandle, &errMsg, 0) == nullptr)
                     return errMsg;
             }
             CCollectionElement* el = nullptr;
@@ -2668,13 +2629,13 @@ std::string _method_removeItem(int targetObj, const char* method, CDetachedScrip
     return errMsg;
 }
 
-std::string _method_checkCollision(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_checkCollision(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (doesEntityExist(targetObj, method, &errMsg, -1) && checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional}))
+    if (doesEntityExist(targetObj, &errMsg, -1) && checkInputArguments(inStack, &errMsg, {arg_handle | arg_optional}))
     {
         int otherEntity = fetchHandle(inStack, 0, sim_handle_all);
-        if ((otherEntity == sim_handle_all) || doesEntityExist(otherEntity, method, &errMsg, 0))
+        if ((otherEntity == sim_handle_all) || doesEntityExist(otherEntity, &errMsg, 0))
         {
             int collidingIds[2] = {-1, -1};
             if (otherEntity == sim_handle_all)
@@ -2686,20 +2647,20 @@ std::string _method_checkCollision(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_checkDistance(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_checkDistance(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (doesEntityExist(targetObj, method, &errMsg, -1) && checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional, arg_map | arg_optional}))
+    if (doesEntityExist(targetObj, &errMsg, -1) && checkInputArguments(inStack, &errMsg, {arg_handle | arg_optional, arg_map | arg_optional}))
     {
         int otherEntity = fetchHandle(inStack, 0, sim_handle_all);
         double threshold = 0.0;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchDoubleFromKey("threshold", threshold, &errMsg);
-        }
+            map->fetchDoubleFromKey("threshold", threshold, &err);
+        });
         if (errMsg.size() == 0)
         {
-            if ((otherEntity == sim_handle_all) || doesEntityExist(otherEntity, method, &errMsg, 0))
+            if ((otherEntity == sim_handle_all) || doesEntityExist(otherEntity, &errMsg, 0))
             {
                 int distIds[2] = {-1, -1};
                 if (otherEntity == sim_handle_all)
@@ -2727,18 +2688,18 @@ std::string _method_checkDistance(int targetObj, const char* method, CDetachedSc
     return errMsg;
 }
 
-std::string _method_checkSensor(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_checkSensor(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CVisionSensor* visionSensor = (CVisionSensor*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_visionsensor, nullptr, -1);
+    CVisionSensor* visionSensor = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, nullptr, -1);
     CProxSensor* proxSensor = nullptr;
     if (visionSensor == nullptr)
-        proxSensor = (CProxSensor*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_proximitysensor, &errMsg, -1);
+        proxSensor = (CProxSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_proximitysensor, &errMsg, -1);
     if ((visionSensor != nullptr) || (proxSensor != nullptr))
     {
         if (proxSensor != nullptr)
         {
-            if (checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional, arg_map | arg_optional}))
+            if (checkInputArguments(inStack, &errMsg, {arg_handle | arg_optional, arg_map | arg_optional}))
             {
                 int entity = fetchHandle(inStack, 0, sim_handle_all);
                 bool frontFaces;
@@ -2749,16 +2710,16 @@ std::string _method_checkSensor(int targetObj, const char* method, CDetachedScri
                 bool hasExact = false;
                 double maxNormal = 0.0;
                 bool hasMaxNormal = false;
-                if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+                withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
                 {
-                    hasFrontFaces = map->fetchBoolFromKey("frontFaces", frontFaces, &errMsg);
-                    hasBackFaces = map->fetchBoolFromKey("backFaces", backFaces, &errMsg);
-                    hasExact = map->fetchBoolFromKey("exact", exact, &errMsg);
-                    hasMaxNormal = map->fetchDoubleFromKey("maxNormal", maxNormal, &errMsg);
-                }
+                    hasFrontFaces = map->fetchBoolFromKey("frontFaces", frontFaces, &err);
+                    hasBackFaces = map->fetchBoolFromKey("backFaces", backFaces, &err);
+                    hasExact = map->fetchBoolFromKey("exact", exact, &err);
+                    hasMaxNormal = map->fetchDoubleFromKey("maxNormal", maxNormal, &err);
+                });
                 if (errMsg.size() == 0)
                 {
-                    if ((entity == sim_handle_all) || doesEntityExist(entity, method, &errMsg, 0))
+                    if ((entity == sim_handle_all) || doesEntityExist(entity, &errMsg, 0))
                     {
                         if (entity == sim_handle_all)
                             entity = -1;
@@ -2793,10 +2754,10 @@ std::string _method_checkSensor(int targetObj, const char* method, CDetachedScri
         }
         if (visionSensor != nullptr)
         {
-            if (checkInputArguments(method, inStack, &errMsg, {arg_handle | arg_optional}))
+            if (checkInputArguments(inStack, &errMsg, {arg_handle | arg_optional}))
             {
                 int entity = fetchHandle(inStack, 0, sim_handle_all);
-                if ((entity == sim_handle_all) || doesEntityExist(entity, method, &errMsg, 0))
+                if ((entity == sim_handle_all) || doesEntityExist(entity, &errMsg, 0))
                 {
                     bool detection;
                     std::vector<std::vector<double>> packets;
@@ -2819,16 +2780,16 @@ std::string _method_checkSensor(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_resetSensor(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_resetSensor(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CVisionSensor* visionSensor = (CVisionSensor*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_visionsensor, nullptr, -1);
+    CVisionSensor* visionSensor = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, nullptr, -1);
     CProxSensor* proxSensor = nullptr;
     if (visionSensor == nullptr)
-        proxSensor = (CProxSensor*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_proximitysensor, &errMsg, -1);
+        proxSensor = (CProxSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_proximitysensor, &errMsg, -1);
     if ((visionSensor != nullptr) || (proxSensor != nullptr))
     {
-        if (checkInputArguments(method, inStack, &errMsg, {}))
+        if (checkInputArguments(inStack, &errMsg, {}))
         {
             if (visionSensor != nullptr)
                 visionSensor->resetSensor();
@@ -2841,16 +2802,16 @@ std::string _method_resetSensor(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_handleSensor(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_handleSensor(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CVisionSensor* visionSensor = (CVisionSensor*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_visionsensor, nullptr, -1);
+    CVisionSensor* visionSensor = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, nullptr, -1);
     CProxSensor* proxSensor = nullptr;
     if (visionSensor == nullptr)
-        proxSensor = (CProxSensor*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_proximitysensor, &errMsg, -1);
+        proxSensor = (CProxSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_proximitysensor, &errMsg, -1);
     if ((visionSensor != nullptr) || (proxSensor != nullptr))
     {
-        if (checkInputArguments(method, inStack, &errMsg, {}))
+        if (checkInputArguments(inStack, &errMsg, {}))
         {
             if (proxSensor != nullptr)
             {
@@ -2892,18 +2853,18 @@ std::string _method_handleSensor(int targetObj, const char* method, CDetachedScr
     return errMsg;
 }
 
-std::string _method_getObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getObjects(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if ((targetObj == sim_handle_app) || (targetObj == sim_handle_scene))
     {
-        if (checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
+        if (checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
         {
             std::vector<std::string> types;
-            if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+            withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
             {
-                map->fetchStringArrayFromKey("types", types, &errMsg);
-            }
+                map->fetchStringArrayFromKey("types", types, &err);
+            });
             if (errMsg.empty())
             {
                 std::vector<int> objects;
@@ -3037,23 +2998,23 @@ std::string _method_getObjects(int targetObj, const char* method, CDetachedScrip
     return errMsg;
 }
 
-std::string _method_addItems(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addItems(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_marker, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, sim_sceneobject_marker, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
     {
         std::vector<float> pts;
         fetchMatrixData(inStack, 0, pts, false);
         std::vector<float> ccols;
         std::vector<float> quats;
         std::vector<float> sizes;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchMatrixDataFromKey("colors", ccols, 4, int(pts.size() / 3), false, &errMsg);
-            map->fetchMatrixDataFromKey("quaternions", quats, 4, int(pts.size() / 3), false, &errMsg);
-            map->fetchMatrixDataFromKey("sizes", sizes, 3, int(pts.size() / 3), false, &errMsg);
-        }
+            map->fetchMatrixDataFromKey("colors", ccols, 4, int(pts.size() / 3), false, &err);
+            map->fetchMatrixDataFromKey("quaternions", quats, 4, int(pts.size() / 3), false, &err);
+            map->fetchMatrixDataFromKey("sizes", sizes, 3, int(pts.size() / 3), false, &err);
+        });
         if (errMsg.empty())
         {
             std::vector<unsigned char> cols;
@@ -3068,22 +3029,22 @@ std::string _method_addItems(int targetObj, const char* method, CDetachedScript*
     return errMsg;
 }
 
-std::string _method_clearItems(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_clearItems(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_marker, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, sim_sceneobject_marker, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {}))
     {
         target->remItems(0);
     }
     return errMsg;
 }
 
-std::string _method_removeItems(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_removeItems(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_marker, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_integer}))
+    CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, sim_sceneobject_marker, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_table, -1, arg_integer}))
     {
         std::vector<int64_t> ids;
         fetchInt64Array(inStack, 0, ids);
@@ -3092,11 +3053,11 @@ std::string _method_removeItems(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_callFunction(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_callFunction(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CDetachedScript* target = getDetachedScript(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string}))
     {
         std::string funcName = fetchText(inStack, 0);
         if (target->hasInterpreterState())
@@ -3151,11 +3112,11 @@ std::string _method_callFunction(int targetObj, const char* method, CDetachedScr
     return errMsg;
 }
 
-std::string _method_executeString(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_executeString(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CDetachedScript* target = getDetachedScript(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string}))
     {
         std::string stringToExecute = fetchText(inStack, 0);
         if (target->hasInterpreterState())
@@ -3213,11 +3174,11 @@ std::string _method_executeString(int targetObj, const char* method, CDetachedSc
     return errMsg;
 }
 /*
-std::string _method_getApiInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getApiInfo(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CDetachedScript* target = getDetachedScript(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string}))
     {
         std::string apiWord = fetchText(inStack, 0);
         if (apiWord.size() > 0)
@@ -3231,11 +3192,11 @@ std::string _method_getApiInfo(int targetObj, const char* method, CDetachedScrip
     return errMsg;
 }
 
-std::string _method_getApiFunc(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getApiFunc(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CDetachedScript* target = getDetachedScript(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string}))
     {
         std::string apiW = fetchText(inStack, 0);
         bool funcs = true;
@@ -3262,22 +3223,22 @@ std::string _method_getApiFunc(int targetObj, const char* method, CDetachedScrip
     return errMsg;
 }
 */
-std::string _method_getStackTraceback(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getStackTraceback(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CDetachedScript* target = getDetachedScript(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {}))
     {
         outStack->pushTextOntoStack(target->getAndClearLastStackTraceback().c_str());
     }
     return errMsg;
 }
 
-std::string _method_init(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_init(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CDetachedScript* target = getDetachedScript(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {}))
     {
         if (currentScript == target)
             App::asyncResetScript(targetObj); // delayed
@@ -3287,11 +3248,11 @@ std::string _method_init(int targetObj, const char* method, CDetachedScript* cur
     return errMsg;
 }
 
-std::string _method_scale(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_scale(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_vector3}))
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_vector3}))
     {
         C3Vector s = fetchVector3(inStack, 0);
         if ((s(0) >= 0.0001) && (s(1) >= 0.0001) && (s(2) >= 0.0001))
@@ -3302,18 +3263,18 @@ std::string _method_scale(int targetObj, const char* method, CDetachedScript* cu
     return errMsg;
 }
 
-std::string _method_scaleTree(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_scaleTree(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if (checkInputArguments(method, inStack, &errMsg, {arg_double, arg_map | arg_optional}))
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if (checkInputArguments(inStack, &errMsg, {arg_double, arg_map | arg_optional}))
     {
         double scalingFactor = fetchDouble(inStack, 0);
         bool rootPositionIsScaled = true;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("scaleRootPosition", rootPositionIsScaled, &errMsg);
-        }
+            map->fetchBoolFromKey("scaleRootPosition", rootPositionIsScaled, &err);
+        });
         if (errMsg.empty())
         {
             std::vector<int> sel;
@@ -3332,10 +3293,10 @@ std::string _method_scaleTree(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_startSimulation(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_startSimulation(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {}))
+    if (checkInputArguments(inStack, &errMsg, {}))
     {
         if (!App::scene->simulation->isSimulationRunning())
             App::scene->simulation->startOrResumeSimulation();
@@ -3343,10 +3304,10 @@ std::string _method_startSimulation(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_pauseSimulation(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_pauseSimulation(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {}))
+    if (checkInputArguments(inStack, &errMsg, {}))
     {
         if (App::scene->simulation->isSimulationRunning())
             App::scene->simulation->pauseSimulation();
@@ -3354,10 +3315,10 @@ std::string _method_pauseSimulation(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_stopSimulation(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_stopSimulation(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {}))
+    if (checkInputArguments(inStack, &errMsg, {}))
     {
         if (!App::scene->simulation->isSimulationStopped())
         {
@@ -3368,14 +3329,14 @@ std::string _method_stopSimulation(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_getName(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getName(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* targetTemplate = App::scenes->customSceneObjectClasses->getClass(targetObj);
     if (targetTemplate == nullptr)
     {
-        CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-        if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional}))
+        CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+        if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string | arg_optional}))
         {
             std::string t = fetchText(inStack, 0, "name");
             std::string nm;
@@ -3433,27 +3394,27 @@ std::string _method_getName(int targetObj, const char* method, CDetachedScript* 
     return errMsg;
 }
 
-std::string _method_dynamicReset(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_dynamicReset(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
     {
         bool tree = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+        withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("tree", tree, &errMsg);
-        }
+            map->fetchBoolFromKey("tree", tree, &err);
+        });
         if (errMsg.empty())
             target->setDynamicsResetFlag(true, tree);
     }
     return errMsg;
 }
 
-std::string _method_loadImage(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadImage(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string}))
     {
         std::string filename = fetchText(inStack, 0);
         int res[2];
@@ -3475,10 +3436,10 @@ std::string _method_loadImage(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_loadImageFromBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_loadImageFromBuffer(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string}))
     {
         std::string buff = fetchBuffer(inStack, 0);
         int res[2];
@@ -3501,10 +3462,10 @@ std::string _method_loadImageFromBuffer(int targetObj, const char* method, CDeta
     return errMsg;
 }
 
-std::string _method_saveImage(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_saveImage(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_string, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_string, arg_map | arg_optional}))
     {
         std::string img = fetchBuffer(inStack, 0);
         std::vector<int> res;
@@ -3523,10 +3484,10 @@ std::string _method_saveImage(int targetObj, const char* method, CDetachedScript
             channels = 4;
             options = 1;
         }
-        if (CInterfaceStackTable* map = fetchMap(inStack, 3))
+        withOptionalMap(inStack, 3, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt32FromKey("quality", quality, &errMsg);
-        }
+            map->fetchInt32FromKey("quality", quality, &err);
+        });
         if (errMsg.empty())
         {
             if ((img.size() == res[0] * res[1] * channels) && (res[0] > 0) && (res[1] > 0))
@@ -3546,10 +3507,10 @@ std::string _method_saveImage(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_saveImageToBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_saveImageToBuffer(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_map | arg_optional}))
     {
         std::string img = fetchBuffer(inStack, 0);
         std::vector<int> res;
@@ -3568,11 +3529,11 @@ std::string _method_saveImageToBuffer(int targetObj, const char* method, CDetach
             channels = 4;
             options = 1;
         }
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt32FromKey("quality", quality, &errMsg);
-            map->fetchStringFromKey("format", ext, &errMsg);
-        }
+            map->fetchInt32FromKey("quality", quality, &err);
+            map->fetchStringFromKey("format", ext, &err);
+        });
         if (errMsg.empty())
         {
             ext = "." + ext;
@@ -3591,10 +3552,10 @@ std::string _method_saveImageToBuffer(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_transformImage(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_transformImage(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_table, 2, arg_integer, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_table, 2, arg_integer, arg_table, 2, arg_integer, arg_map | arg_optional}))
     {
         std::string img = fetchBuffer(inStack, 0);
         std::vector<int> inRes;
@@ -3606,14 +3567,14 @@ std::string _method_transformImage(int targetObj, const char* method, CDetachedS
         bool smooth = true;
         bool flipAxisX = false;
         bool flipAxisY = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 3))
+        withOptionalMap(inStack, 3, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchStringFromKey("type", type, &errMsg);
-            map->fetchStringFromKey("aspectRatio", aspectRatio, &errMsg);
-            map->fetchBoolFromKey("smooth", smooth, &errMsg);
-            map->fetchBoolFromKey("flipAxisX", flipAxisX, &errMsg);
-            map->fetchBoolFromKey("flipAxisY", flipAxisY, &errMsg);
-        }
+            map->fetchStringFromKey("type", type, &err);
+            map->fetchStringFromKey("aspectRatio", aspectRatio, &err);
+            map->fetchBoolFromKey("smooth", smooth, &err);
+            map->fetchBoolFromKey("flipAxisX", flipAxisX, &err);
+            map->fetchBoolFromKey("flipAxisY", flipAxisY, &err);
+        });
         if (errMsg.empty())
         {
             int options = 0;
@@ -3704,10 +3665,10 @@ std::string _method_transformImage(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_transformBuffer(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_transformBuffer(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, arg_string, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_string, arg_string, arg_map | arg_optional}))
     {
         std::string inBuff = fetchBuffer(inStack, 0);
         std::string inFormat = fetchBuffer(inStack, 1);
@@ -3717,12 +3678,12 @@ std::string _method_transformBuffer(int targetObj, const char* method, CDetached
         bool hasScale = false;
         bool hasOffset = false;
         bool clamp = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 3))
+        withOptionalMap(inStack, 3, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            hasScale = map->fetchDoubleFromKey("scale", scale, &errMsg);
-            hasOffset = map->fetchDoubleFromKey("offset", offset, &errMsg);
-            map->fetchBoolFromKey("clamp", clamp, &errMsg);
-        }
+            hasScale = map->fetchDoubleFromKey("scale", scale, &err);
+            hasOffset = map->fetchDoubleFromKey("offset", offset, &err);
+            map->fetchBoolFromKey("clamp", clamp, &err);
+        });
         if (errMsg.empty())
         {
             bool noScalingNorOffset = !(hasScale | hasOffset);
@@ -4971,23 +4932,23 @@ std::string _method_transformBuffer(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_getImage(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getImage(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_visionsensor, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
+    CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
     {
         std::vector<int> pos = {0, 0};
         std::vector<int> size = {0, 0};
         std::string type("rgb");
         double rgbaCutOff = 0.999;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+        withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt32ArrayFromKey("position", pos.data(), 2, &errMsg);
-            map->fetchInt32ArrayFromKey("size", size.data(), 2, &errMsg);
-            map->fetchStringFromKey("type", type, &errMsg);
-            map->fetchDoubleFromKey("rgbaCutOff", rgbaCutOff, &errMsg);
-        }
+            map->fetchInt32ArrayFromKey("position", pos.data(), 2, &err);
+            map->fetchInt32ArrayFromKey("size", size.data(), 2, &err);
+            map->fetchStringFromKey("type", type, &err);
+            map->fetchDoubleFromKey("rgbaCutOff", rgbaCutOff, &err);
+        });
         if (errMsg.empty())
         {
             int options = 0;
@@ -5020,21 +4981,21 @@ std::string _method_getImage(int targetObj, const char* method, CDetachedScript*
     return errMsg;
 }
 
-std::string _method_setImage(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setImage(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_visionsensor, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::vector<char> img;
         fetchBuffer(inStack, 0, img);
         std::vector<int> pos = {0, 0};
         std::vector<int> size = {0, 0};
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt32ArrayFromKey("position", pos.data(), 2, &errMsg);
-            map->fetchInt32ArrayFromKey("size", size.data(), 2, &errMsg);
-        }
+            map->fetchInt32ArrayFromKey("position", pos.data(), 2, &err);
+            map->fetchInt32ArrayFromKey("size", size.data(), 2, &err);
+        });
         if (errMsg.empty())
         {
             int res[2];
@@ -5069,19 +5030,19 @@ std::string _method_setImage(int targetObj, const char* method, CDetachedScript*
     return errMsg;
 }
 
-std::string _method_getDepth(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getDepth(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_visionsensor, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
+    CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
     {
         std::vector<int> pos = {0, 0};
         std::vector<int> size = {0, 0};
-        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+        withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt32ArrayFromKey("position", pos.data(), 2, &errMsg);
-            map->fetchInt32ArrayFromKey("size", size.data(), 2, &errMsg);
-        }
+            map->fetchInt32ArrayFromKey("position", pos.data(), 2, &err);
+            map->fetchInt32ArrayFromKey("size", size.data(), 2, &err);
+        });
         if (errMsg.empty())
         {
             int res[2];
@@ -5112,11 +5073,11 @@ std::string _method_getDepth(int targetObj, const char* method, CDetachedScript*
     return errMsg;
 }
 
-std::string _method_relocateFrame(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_relocateFrame(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CShape* target = (CShape*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_shape, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_pose | arg_optional}))
+    CShape* target = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_pose | arg_optional}))
     {
         CPose tr = fetchPose(inStack, 0);
         if ((!target->getMesh()->isPure()) || (target->isCompound()))
@@ -5141,11 +5102,11 @@ std::string _method_relocateFrame(int targetObj, const char* method, CDetachedSc
     return errMsg;
 }
 
-std::string _method_alignBoundingBox(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_alignBoundingBox(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CShape* target = (CShape*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_shape, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_quaternion | arg_optional}))
+    CShape* target = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_quaternion | arg_optional}))
     {
         CQuaternion q = fetchQuaternion(inStack, 0);
         if ((!target->getMesh()->isPure()) || (target->isCompound()))
@@ -5170,36 +5131,34 @@ std::string _method_alignBoundingBox(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
-std::string _method_logInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_logInfo(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string | arg_optional, arg_map | arg_optional}))
     {
         std::string msg = fetchText(inStack, 0);
         if (hasNonNullArg(inStack, 0))
         {
             int verb = 0;
-            if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+            withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
             {
-                CInterfaceStackObject* obj = map->getMapObject("undecorated");
-                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                bool val;
+                if (map->fetchBoolFromKey("undecorated", val, &err))
                 {
-                    if (((CInterfaceStackBool*)obj)->getValue())
+                    if (val)
                         verb |= sim_verbosity_undecorated;
                 }
-                obj = map->getMapObject("onlyterminal");
-                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                if (map->fetchBoolFromKey("onlyTerminal", val, &err))
                 {
-                    if (((CInterfaceStackBool*)obj)->getValue())
+                    if (val)
                         verb |= sim_verbosity_onlyterminal;
                 }
-                obj = map->getMapObject("once");
-                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                if (map->fetchBoolFromKey("once", val, &err))
                 {
-                    if (((CInterfaceStackBool*)obj)->getValue())
+                    if (val)
                         verb |= sim_verbosity_once;
                 }
-            }
+            });
             if (currentScript != nullptr)
             {
                 verb += sim_verbosity_scriptinfos;
@@ -5219,36 +5178,34 @@ std::string _method_logInfo(int targetObj, const char* method, CDetachedScript* 
     return errMsg;
 }
 
-std::string _method_logWarn(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_logWarn(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string | arg_optional, arg_map | arg_optional}))
     {
         std::string msg = fetchText(inStack, 0);
         if (hasNonNullArg(inStack, 0))
         {
             int verb = 0;
-            if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+            withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
             {
-                CInterfaceStackObject* obj = map->getMapObject("undecorated");
-                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                bool val;
+                if (map->fetchBoolFromKey("undecorated", val, &err))
                 {
-                    if (((CInterfaceStackBool*)obj)->getValue())
+                    if (val)
                         verb |= sim_verbosity_undecorated;
                 }
-                obj = map->getMapObject("onlyterminal");
-                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                if (map->fetchBoolFromKey("onlyTerminal", val, &err))
                 {
-                    if (((CInterfaceStackBool*)obj)->getValue())
+                    if (val)
                         verb |= sim_verbosity_onlyterminal;
                 }
-                obj = map->getMapObject("once");
-                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                if (map->fetchBoolFromKey("once", val, &err))
                 {
-                    if (((CInterfaceStackBool*)obj)->getValue())
+                    if (val)
                         verb |= sim_verbosity_once;
                 }
-            }
+            });
             if (currentScript != nullptr)
             {
                 verb += sim_verbosity_scriptwarnings;
@@ -5268,36 +5225,34 @@ std::string _method_logWarn(int targetObj, const char* method, CDetachedScript* 
     return errMsg;
 }
 
-std::string _method_logError(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_logError(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string | arg_optional, arg_map | arg_optional}))
     {
         std::string msg = fetchText(inStack, 0);
         if (hasNonNullArg(inStack, 0))
         {
             int verb = 0;
-            if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+            withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
             {
-                CInterfaceStackObject* obj = map->getMapObject("undecorated");
-                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                bool val;
+                if (map->fetchBoolFromKey("undecorated", val, &err))
                 {
-                    if (((CInterfaceStackBool*)obj)->getValue())
+                    if (val)
                         verb |= sim_verbosity_undecorated;
                 }
-                obj = map->getMapObject("onlyterminal");
-                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                if (map->fetchBoolFromKey("onlyTerminal", val, &err))
                 {
-                    if (((CInterfaceStackBool*)obj)->getValue())
+                    if (val)
                         verb |= sim_verbosity_onlyterminal;
                 }
-                obj = map->getMapObject("once");
-                if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
+                if (map->fetchBoolFromKey("once", val, &err))
                 {
-                    if (((CInterfaceStackBool*)obj)->getValue())
+                    if (val)
                         verb |= sim_verbosity_once;
                 }
-            }
+            });
             if (currentScript != nullptr)
             {
                 verb += sim_verbosity_scripterrors;
@@ -5317,10 +5272,10 @@ std::string _method_logError(int targetObj, const char* method, CDetachedScript*
     return errMsg;
 }
 
-std::string _method_quit(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_quit(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {}))
+    if (checkInputArguments(inStack, &errMsg, {}))
     {
 #ifdef SIM_WITH_GUI
         SSimulationThreadCommand cmd;
@@ -5333,10 +5288,10 @@ std::string _method_quit(int targetObj, const char* method, CDetachedScript* cur
     return errMsg;
 }
 
-std::string _method_systemLock(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_systemLock(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_bool}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_bool}))
     {
         std::string key = fetchText(inStack, 0);
         bool acquire = fetchBool(inStack, 1);
@@ -5345,11 +5300,11 @@ std::string _method_systemLock(int targetObj, const char* method, CDetachedScrip
     return errMsg;
 }
 
-std::string _method_setStepping(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setStepping(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CDetachedScript* target = getDetachedScript(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_bool}))
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_bool}))
     {
         bool enable = fetchBool(inStack, 0);
         if (enable)
@@ -5360,21 +5315,21 @@ std::string _method_setStepping(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_getStepping(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getStepping(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CDetachedScript* target = getDetachedScript(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {}))
     {
         outStack->pushBoolOntoStack(target->getAutoYieldingForbidLevel() > 0);
     }
     return errMsg;
 }
 
-std::string _method_getObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getObject(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string origPath = fetchText(inStack, 0);
         std::string path(origPath);
@@ -5382,18 +5337,11 @@ std::string _method_getObject(int targetObj, const char* method, CDetachedScript
             path = "./" + path;
         int index = -1;
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            CInterfaceStackObject* obj = map->getMapObject("index");
-            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_integer))
-                index = (int)((CInterfaceStackInteger*)obj)->getValue();
-            obj = map->getMapObject("noError");
-            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
-            {
-                if (((CInterfaceStackBool*)obj)->getValue())
-                    noError = true;
-            }
-        }
+            map->fetchInt32FromKey("index", index, &err);
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         CSceneObject* it = nullptr;
         CSceneObject* prox = nullptr;
         if (targetObj >= 0)
@@ -5440,10 +5388,10 @@ std::string _method_getObject(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_announceChange(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_announceChange(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string | arg_optional}))
     {
         std::string changeName = fetchText(inStack, 0);
         App::scene->undoBufferContainer->announceChange();
@@ -5451,19 +5399,19 @@ std::string _method_announceChange(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_getObjectFromUid(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getObjectFromUid(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_integer, arg_map | arg_optional}))
     {
         int64_t uid = fetchInt64(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
             CInterfaceStackObject* obj = map->getMapObject("noError");
             if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
                 noError = ((CInterfaceStackBool*)obj)->getValue();
-        }
+        });
         CSceneObject* it = App::scene->sceneObjects->getObjectFromUid(uid);
         if (it != nullptr)
             outStack->pushHandleOntoStack(it->getObjectHandle());
@@ -5478,11 +5426,11 @@ std::string _method_getObjectFromUid(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
-std::string _method_getInertia(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getInertia(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_shape, &errMsg, -1);
-    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((shape != nullptr) && checkInputArguments(inStack, &errMsg, {}))
     {
         C3X3Matrix m(shape->getMesh()->getInertia());
         m *= shape->getMesh()->getMass();
@@ -5492,11 +5440,11 @@ std::string _method_getInertia(int targetObj, const char* method, CDetachedScrip
     return errMsg;
 }
 
-std::string _method_setInertia(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setInertia(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_shape, &errMsg, -1);
-    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, 3, arg_pose}))
+    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((shape != nullptr) && checkInputArguments(inStack, &errMsg, {arg_matrix, 3, 3, arg_pose}))
     {
         CMatrix _m = fetchMatrix(inStack, 0);
         C3X3Matrix m;
@@ -5515,11 +5463,11 @@ std::string _method_setInertia(int targetObj, const char* method, CDetachedScrip
     return errMsg;
 }
 
-std::string _method_computeInertia(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_computeInertia(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_shape, &errMsg, -1);
-    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_double}))
+    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((shape != nullptr) && checkInputArguments(inStack, &errMsg, {arg_double}))
     {
         double density = fetchDouble(inStack, 0);
         shape->computeMassAndInertia(density);
@@ -5527,28 +5475,23 @@ std::string _method_computeInertia(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_addForce(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addForce(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_shape, &errMsg, -1);
-    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_vector3, arg_vector3 | arg_optional, arg_map | arg_optional}))
+    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((shape != nullptr) && checkInputArguments(inStack, &errMsg, {arg_vector3, arg_map | arg_optional}))
     {
         C3Vector force = fetchVector3(inStack, 0);
         C3Vector pos;
         pos.clear();
-        if (hasNonNullArg(inStack, 1))
-            pos = fetchVector3(inStack, 1);
         bool reset = false;
         bool relative = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            CInterfaceStackObject* obj = map->getMapObject("reset");
-            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
-                reset = ((CInterfaceStackBool*)obj)->getValue();
-            obj = map->getMapObject("relative");
-            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
-                relative = ((CInterfaceStackBool*)obj)->getValue();
-        }
+            map->fetchBoolFromKey("reset", reset, &err);
+            map->fetchBoolFromKey("relative", relative, &err);
+            map->fetchDoubleArrayFromKey("offset", pos.data, 3, &err);
+        });
         C3Vector t(pos ^ force);
         // force & t are relative to the shape's frame now
         if (relative)
@@ -5564,24 +5507,20 @@ std::string _method_addForce(int targetObj, const char* method, CDetachedScript*
     return errMsg;
 }
 
-std::string _method_addTorque(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addTorque(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_shape, &errMsg, -1);
-    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_vector3, arg_map | arg_optional}))
+    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((shape != nullptr) && checkInputArguments(inStack, &errMsg, {arg_vector3, arg_map | arg_optional}))
     {
         C3Vector torque = fetchVector3(inStack, 0);
         bool reset = false;
         bool relative = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            CInterfaceStackObject* obj = map->getMapObject("reset");
-            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
-                reset = ((CInterfaceStackBool*)obj)->getValue();
-            obj = map->getMapObject("relative");
-            if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_bool))
-                relative = ((CInterfaceStackBool*)obj)->getValue();
-        }
+            map->fetchBoolFromKey("reset", reset, &err);
+            map->fetchBoolFromKey("relative", relative, &err);
+        });
         C3Vector force;
         force.clear();
         if (relative)
@@ -5593,11 +5532,11 @@ std::string _method_addTorque(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_ungroup(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_ungroup(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_shape, &errMsg, -1);
-    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((shape != nullptr) && checkInputArguments(inStack, &errMsg, {}))
     {
         std::vector<int> sel;
         sel.push_back(shape->getObjectHandle());
@@ -5610,11 +5549,11 @@ std::string _method_ungroup(int targetObj, const char* method, CDetachedScript* 
     return errMsg;
 }
 
-std::string _method_divide(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_divide(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_shape, &errMsg, -1);
-    if ((shape != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
+    if ((shape != nullptr) && checkInputArguments(inStack, &errMsg, {}))
     {
         std::vector<int> sel;
         sel.push_back(shape->getObjectHandle());
@@ -5631,10 +5570,10 @@ std::string _method_divide(int targetObj, const char* method, CDetachedScript* c
     return errMsg;
 }
 
-std::string _method_groupShapes(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_groupShapes(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray}))
+    if (checkInputArguments(inStack, &errMsg, {arg_handlearray}))
     {
         std::vector<int64_t> objectHandles;
         fetchHandleArray(inStack, 0, objectHandles);
@@ -5656,10 +5595,10 @@ std::string _method_groupShapes(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_mergeShapes(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_mergeShapes(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray}))
+    if (checkInputArguments(inStack, &errMsg, {arg_handlearray}))
     {
         std::vector<int64_t> objectHandles;
         fetchHandleArray(inStack, 0, objectHandles);
@@ -5681,10 +5620,10 @@ std::string _method_mergeShapes(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 /*
-std::string _method_packTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packTable(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 { // use pack instead
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_any}))
+    if (checkInputArguments(inStack, &errMsg, {arg_any}))
     {
         if (inStack->getStackObjectFromIndex(0)->getObjectType() == sim_stackitem_table)
         {
@@ -5708,10 +5647,10 @@ std::string _method_packTable(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_unpackTable(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackTable(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 { // use unpack instead
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string}))
     {
         std::string data = fetchBuffer(inStack, 0);
         if (data.size() > 0)
@@ -5751,10 +5690,10 @@ std::string _method_unpackTable(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 */
-std::string _method_pack(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_pack(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_any}))
+    if (checkInputArguments(inStack, &errMsg, {arg_any}))
     {
         CInterfaceStackTable* table = new CInterfaceStackTable();
         table->appendArrayObject(inStack->getStackObjectFromIndex(0)->copyYourself());
@@ -5774,10 +5713,10 @@ std::string _method_pack(int targetObj, const char* method, CDetachedScript* cur
     return errMsg;
 }
 
-std::string _method_unpack(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpack(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string}))
     {
         std::string data = fetchBuffer(inStack, 0);
         if (data.size() > 0)
@@ -5817,20 +5756,20 @@ std::string _method_unpack(int targetObj, const char* method, CDetachedScript* c
     return errMsg;
 }
 
-std::string _method_packArray(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_packArray(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_table, -1, arg_any, arg_map | arg_optional}))
     {
         std::string theType = "double";
         int startIndex = 0;
         int count = 0;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchStringFromKey("type", theType, &errMsg);
-            map->fetchInt32FromKey("start", startIndex, &errMsg);
-            map->fetchInt32FromKey("count", count, &errMsg);
-        }
+            map->fetchStringFromKey("type", theType, &err);
+            map->fetchInt32FromKey("start", startIndex, &err);
+            map->fetchInt32FromKey("count", count, &err);
+        });
         if (errMsg.empty())
         {
             if (theType == "double")
@@ -6175,23 +6114,23 @@ std::string _method_packArray(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_unpackArray(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_unpackArray(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string dat = fetchBuffer(inStack, 0);
         std::string theType = "double";
         int startIndex = 0;
         int count = 0;
         int additionalCharOffset = 0;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchStringFromKey("type", theType, &errMsg);
-            map->fetchInt32FromKey("start", startIndex, &errMsg);
-            map->fetchInt32FromKey("count", count, &errMsg);
-            map->fetchInt32FromKey("byteOffset", additionalCharOffset, &errMsg);
-        }
+            map->fetchStringFromKey("type", theType, &err);
+            map->fetchInt32FromKey("start", startIndex, &err);
+            map->fetchInt32FromKey("count", count, &err);
+            map->fetchInt32FromKey("byteOffset", additionalCharOffset, &err);
+        });
         if (errMsg.empty())
         {
             if (theType == "double")
@@ -6550,10 +6489,10 @@ std::string _method_unpackArray(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_createCamera(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_createCamera(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_map}))
     {
         CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
         double clipp[2] = {0.05, 30.0};
@@ -6576,10 +6515,10 @@ std::string _method_createCamera(int targetObj, const char* method, CDetachedScr
     return errMsg;
 }
 
-std::string _method_createLight(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_createLight(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_map}))
     {
         CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
         std::string t = "omnidirectional";
@@ -6601,10 +6540,10 @@ std::string _method_createLight(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_createGraph(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_createGraph(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_map}))
     {
         float backgroundColor[3] = {0.1f, 0.1f, 0.1f};
         float foregroundColor[3] = {0.8f, 0.8f, 0.8f};
@@ -6632,10 +6571,10 @@ std::string _method_createGraph(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_createCustomSceneObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_createCustomSceneObject(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_optional | arg_map}))
     {
         CCustomSceneObject* it = new CCustomSceneObject();
         App::scene->sceneObjects->addObjectToScene(it, false, true);
@@ -6644,17 +6583,17 @@ std::string _method_createCustomSceneObject(int targetObj, const char* method, C
     return errMsg;
 }
 
-std::string _method_getBoolProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getBoolProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             int pValue;
@@ -6674,17 +6613,17 @@ std::string _method_getBoolProperty(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_getBufferProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getBufferProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             char* pValue;
@@ -6708,17 +6647,17 @@ std::string _method_getBufferProperty(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_getColorProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getColorProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             float pValue[4];
@@ -6738,17 +6677,17 @@ std::string _method_getColorProperty(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
-std::string _method_getFloatArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getFloatArrayProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             double* pValue;
@@ -6772,17 +6711,17 @@ std::string _method_getFloatArrayProperty(int targetObj, const char* method, CDe
     return errMsg;
 }
 
-std::string _method_getFloatProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getFloatProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             double pValue;
@@ -6802,17 +6741,17 @@ std::string _method_getFloatProperty(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
-std::string _method_getStringArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getStringArrayProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             int cnt;
@@ -6845,17 +6784,17 @@ std::string _method_getStringArrayProperty(int targetObj, const char* method, CD
     return errMsg;
 }
 
-std::string _method_getHandleArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getHandleArrayProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             int64_t* pValue = nullptr;
@@ -6880,17 +6819,17 @@ std::string _method_getHandleArrayProperty(int targetObj, const char* method, CD
     return errMsg;
 }
 
-std::string _method_getHandleProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getHandleProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             int64_t pValue;
@@ -6910,17 +6849,17 @@ std::string _method_getHandleProperty(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_getIntArray2Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getIntArray2Property(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             int pValue[2];
@@ -6940,17 +6879,17 @@ std::string _method_getIntArray2Property(int targetObj, const char* method, CDet
     return errMsg;
 }
 
-std::string _method_getIntArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getIntArrayProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             int* pValue;
@@ -6974,17 +6913,17 @@ std::string _method_getIntArrayProperty(int targetObj, const char* method, CDeta
     return errMsg;
 }
 
-std::string _method_getIntProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getIntProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             int pValue;
@@ -7004,17 +6943,17 @@ std::string _method_getIntProperty(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_getLongProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getLongProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             int64_t pValue;
@@ -7034,17 +6973,17 @@ std::string _method_getLongProperty(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_getPoseProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getPoseProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             double pValue[7];
@@ -7068,17 +7007,17 @@ std::string _method_getPoseProperty(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_getQuaternionProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getQuaternionProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             double pValue[4];
@@ -7102,17 +7041,17 @@ std::string _method_getQuaternionProperty(int targetObj, const char* method, CDe
     return errMsg;
 }
 
-std::string _method_getStringProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getStringProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             char* pValue = nullptr;
@@ -7136,17 +7075,17 @@ std::string _method_getStringProperty(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_getVector3Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getVector3Property(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             double pValue[3];
@@ -7166,18 +7105,18 @@ std::string _method_getVector3Property(int targetObj, const char* method, CDetac
     return errMsg;
 }
 
-std::string _method_setBoolProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setBoolProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_bool, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_bool, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool pValue = fetchBool(inStack, 1);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetBoolProperty, targetObj, pName.c_str(), pValue) > 0)
@@ -7203,18 +7142,18 @@ std::string _method_setBoolProperty(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_setBufferProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setBufferProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::string pValue = fetchBuffer(inStack, 1);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetBufferProperty, targetObj, pName.c_str(), pValue.c_str(), pValue.size()) > 0)
@@ -7240,19 +7179,19 @@ std::string _method_setBufferProperty(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_setColorProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setColorProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_color, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_color, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         float pValue[4];
         fetchColor(inStack, 1, pValue);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetColor4Property, targetObj, pName.c_str(), pValue) > 0)
@@ -7278,19 +7217,19 @@ std::string _method_setColorProperty(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
-std::string _method_setFloatArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setFloatArrayProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, -1, arg_double, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_table, -1, arg_double, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::vector<double> pValue;
         fetchDoubleArray(inStack, 1, pValue);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetFloatArrayProperty, targetObj, pName.c_str(), pValue.data(), pValue.size()) > 0)
@@ -7316,18 +7255,18 @@ std::string _method_setFloatArrayProperty(int targetObj, const char* method, CDe
     return errMsg;
 }
 
-std::string _method_setFloatProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setFloatProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_double, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_double, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         double pValue = fetchDouble(inStack, 1);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetFloatProperty, targetObj, pName.c_str(), pValue) > 0)
@@ -7353,19 +7292,19 @@ std::string _method_setFloatProperty(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
-std::string _method_setStringArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setStringArrayProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, -1, arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_table, -1, arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::vector<std::string> pValue;
         fetchTextArray(inStack, 1, pValue);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             std::vector<char> v;
@@ -7398,19 +7337,19 @@ std::string _method_setStringArrayProperty(int targetObj, const char* method, CD
     return errMsg;
 }
 
-std::string _method_setHandleArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setHandleArrayProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_handlearray, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_handlearray, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::vector<int64_t> pValue;
         fetchHandleArray(inStack, 1, pValue);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetHandleArrayProperty, targetObj, pName.c_str(), pValue.data(), pValue.size()) > 0)
@@ -7436,18 +7375,18 @@ std::string _method_setHandleArrayProperty(int targetObj, const char* method, CD
     return errMsg;
 }
 
-std::string _method_setHandleProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setHandleProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_handle, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_handle, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         int64_t pValue = fetchHandle(inStack, 1);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetHandleProperty, targetObj, pName.c_str(), pValue) > 0)
@@ -7473,19 +7412,19 @@ std::string _method_setHandleProperty(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_setIntArray2Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setIntArray2Property(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, -1, arg_integer, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_table, -1, arg_integer, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::vector<int> pValue;
         fetchIntArray(inStack, 1, pValue);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetIntArray2Property, targetObj, pName.c_str(), pValue.data()) > 0)
@@ -7511,19 +7450,19 @@ std::string _method_setIntArray2Property(int targetObj, const char* method, CDet
     return errMsg;
 }
 
-std::string _method_setIntArrayProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setIntArrayProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_table, -1, arg_integer, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_table, -1, arg_integer, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::vector<int> pValue;
         fetchIntArray(inStack, 1, pValue);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetIntArrayProperty, targetObj, pName.c_str(), pValue.data(), pValue.size()) > 0)
@@ -7549,18 +7488,18 @@ std::string _method_setIntArrayProperty(int targetObj, const char* method, CDeta
     return errMsg;
 }
 
-std::string _method_setIntProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setIntProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_integer, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         int pValue = fetchInt(inStack, 1);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetIntProperty, targetObj, pName.c_str(), pValue) > 0)
@@ -7586,18 +7525,18 @@ std::string _method_setIntProperty(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_setLongProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setLongProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_integer, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         int64_t pValue = fetchInt64(inStack, 1);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetLongProperty, targetObj, pName.c_str(), pValue) > 0)
@@ -7623,18 +7562,18 @@ std::string _method_setLongProperty(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_setPoseProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setPoseProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_pose, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_pose, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         CPose pState = fetchPose(inStack, 1);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             double p[7];
@@ -7662,18 +7601,18 @@ std::string _method_setPoseProperty(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_setQuaternionProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setQuaternionProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_quaternion, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_quaternion, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         CQuaternion pState = fetchQuaternion(inStack, 1);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             double q[4];
@@ -7701,18 +7640,18 @@ std::string _method_setQuaternionProperty(int targetObj, const char* method, CDe
     return errMsg;
 }
 
-std::string _method_setStringProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setStringProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::string pValue = fetchText(inStack, 1);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetStringProperty, targetObj, pName.c_str(), pValue.c_str()) > 0)
@@ -7738,18 +7677,18 @@ std::string _method_setStringProperty(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_setVector3Property(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setVector3Property(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_vector3, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_vector3, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         C3Vector pValue = fetchVector3(inStack, 1);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetVector3Property, targetObj, pName.c_str(), pValue.data) > 0)
@@ -7775,17 +7714,17 @@ std::string _method_setVector3Property(int targetObj, const char* method, CDetac
     return errMsg;
 }
 
-std::string _method_getMatrixProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getMatrixProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             double* pValue;
@@ -7811,18 +7750,18 @@ std::string _method_getMatrixProperty(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_setMatrixProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setMatrixProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_matrix, -1, -1, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_matrix, -1, -1, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         CMatrix pValue = fetchMatrix(inStack, 1);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetMatrixProperty, targetObj, pName.c_str(), pValue.data.data(), pValue.rows, pValue.cols) > 0)
@@ -7848,17 +7787,17 @@ std::string _method_setMatrixProperty(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_getMethodProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getMethodProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             std::string byteCode;
@@ -7892,18 +7831,18 @@ std::string _method_getMethodProperty(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_setMethodProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setMethodProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::string pValue = fetchBuffer(inStack, 1); // can be nil, in which case we register a dummy function
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             int res = App::setMethodProperty_t(targetObj, pName.c_str(), pValue);
@@ -7931,17 +7870,17 @@ std::string _method_setMethodProperty(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_getTableProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getTableProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             int pValueL;
@@ -7966,18 +7905,18 @@ std::string _method_getTableProperty(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
-std::string _method_setTableProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setTableProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         std::string pValue = fetchBuffer(inStack, 1);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetTableProperty, targetObj, pName.c_str(), pValue.c_str(), int(pValue.size())) > 0)
@@ -8003,17 +7942,17 @@ std::string _method_setTableProperty(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
-std::string _method_removeProperty(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_removeProperty(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simRemoveProperty, targetObj, pName.c_str()) == sim_propertyret_ok)
@@ -8035,19 +7974,19 @@ std::string _method_removeProperty(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_getPropertyName(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getPropertyName(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_integer, arg_optional | arg_map}))
     {
         int index = fetchInt(inStack, 0);
         SPropertyOptions opt;
         std::string propertyPrefix;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchStringFromKey("prefix", propertyPrefix, &errMsg);
-            map->fetchInt32FromKey("excludeFlags", opt.excludeFlags, &errMsg);
-        }
+            map->fetchStringFromKey("prefix", propertyPrefix, &err);
+            map->fetchInt32FromKey("excludeFlags", opt.excludeFlags, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (propertyPrefix.size() > 0)
@@ -8077,19 +8016,19 @@ std::string _method_getPropertyName(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_getPropertyInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getPropertyInfo(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string pName = fetchText(inStack, 0);
         bool noError = false;
         SPropertyOptions opt;
         opt.bitCoded = 1;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("noError", noError, &errMsg);
-        }
+            map->fetchBoolFromKey("noError", noError, &err);
+        });
         if (errMsg.empty())
         {
             SPropertyInfo infos;
@@ -8122,10 +8061,10 @@ std::string _method_getPropertyInfo(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_setPropertyInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setPropertyInfo(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_integer, arg_string}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_integer, arg_string}))
     {
         std::string pName = fetchText(inStack, 0);
         SPropertyInfo infos;
@@ -8139,27 +8078,27 @@ std::string _method_setPropertyInfo(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_createCustomObjectClass(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_createCustomObjectClass(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_optional | arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
     {
         std::string typeStr = fetchText(inStack, 0);
         bool hasSuperClassInfo = false;
         std::vector<std::string> superClass = {};
         std::vector<std::string> nameSpaces = {};
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
             CInterfaceStackObject* obj = map->getMapObject("metaInfo");
             if (obj->getObjectType() == sim_stackitem_table)
             {
                 CInterfaceStackTable* mInfo = (CInterfaceStackTable*)obj;
-                hasSuperClassInfo = mInfo->fetchStringArrayFromKey("superClass", superClass, &errMsg);
-                mInfo->fetchStringArrayFromKey("namespaces", nameSpaces, &errMsg);
+                hasSuperClassInfo = mInfo->fetchStringArrayFromKey("superClass", superClass, &err);
+                mInfo->fetchStringArrayFromKey("namespaces", nameSpaces, &err);
             }
             else
                 errMsg = "invalid 'metaInfo' field.";
-        }
+        });
         if (errMsg.size() == 0)
         {
             if (!hasSuperClassInfo)
@@ -8174,18 +8113,18 @@ std::string _method_createCustomObjectClass(int targetObj, const char* method, C
     return errMsg;
 }
 
-std::string _method_isValid(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_isValid(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     outStack->pushBoolOntoStack(App::isTargetValid_t(targetObj));
     return errMsg;
 }
 
-std::string _method_addCurve(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addCurve(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_graph, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_table, 2, arg_integer, arg_optional | arg_map}))
+    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_table, 2, arg_integer, arg_optional | arg_map}))
     {
         std::vector<int> streamIds;
         fetchIntArray(inStack, 0, streamIds);
@@ -8196,16 +8135,16 @@ std::string _method_addCurve(int targetObj, const char* method, CDetachedScript*
         int width = 2;
         bool hideLabel = false;
         bool drawLine = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
-            map->fetchStringFromKey("name", name, &errMsg);
-            map->fetchStringFromKey("unit", unitStr, &errMsg);
-            map->fetchDoubleArrayFromKey("default", defaultVals, 2, &errMsg);
-            map->fetchInt32FromKey("width", width, &errMsg);
-            map->fetchBoolFromKey("hideLabel", hideLabel, &errMsg);
-            map->fetchBoolFromKey("drawLine", drawLine, &errMsg);
-        }
+            map->fetchFloatArrayFromKey("color", color, 3, &err);
+            map->fetchStringFromKey("name", name, &err);
+            map->fetchStringFromKey("unit", unitStr, &err);
+            map->fetchDoubleArrayFromKey("default", defaultVals, 2, &err);
+            map->fetchInt32FromKey("width", width, &err);
+            map->fetchBoolFromKey("hideLabel", hideLabel, &err);
+            map->fetchBoolFromKey("drawLine", drawLine, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (name.size() == 0)
@@ -8233,11 +8172,11 @@ std::string _method_addCurve(int targetObj, const char* method, CDetachedScript*
     return errMsg;
 }
 
-std::string _method_addSignal(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addSignal(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_graph, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_optional | arg_map}))
+    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_optional | arg_map}))
     {
         float color[3] = {1.0f, 0.0f, 0.0f};
         std::string name("signal");
@@ -8250,25 +8189,25 @@ std::string _method_addSignal(int targetObj, const char* method, CDetachedScript
         double scale = 1.0;
         double offset = 0.0;
         int smoothing = 1;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+        withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
-            map->fetchStringFromKey("name", name, &errMsg);
-            map->fetchStringFromKey("unit", unitStr, &errMsg);
-            map->fetchBoolFromKey("hideSignal", hideSignal, &errMsg);
-            map->fetchBoolFromKey("hideLabel", hideLabel, &errMsg);
-            map->fetchBoolFromKey("drawLine", drawLine, &errMsg);
-            map->fetchDoubleFromKey("cyclicRange", cyclicRange, &errMsg);
+            map->fetchFloatArrayFromKey("color", color, 3, &err);
+            map->fetchStringFromKey("name", name, &err);
+            map->fetchStringFromKey("unit", unitStr, &err);
+            map->fetchBoolFromKey("hideSignal", hideSignal, &err);
+            map->fetchBoolFromKey("hideLabel", hideLabel, &err);
+            map->fetchBoolFromKey("drawLine", drawLine, &err);
+            map->fetchDoubleFromKey("cyclicRange", cyclicRange, &err);
             CInterfaceStackObject* obj = map->getMapObject("transformation");
             if ((obj != nullptr) && (obj->getObjectType() == sim_stackitem_table))
             {
                 CInterfaceStackTable* transf = (CInterfaceStackTable*)obj;
-                transf->fetchStringFromKey("type", trType, &errMsg);
-                transf->fetchDoubleFromKey("scale", scale, &errMsg);
-                transf->fetchDoubleFromKey("offset", offset, &errMsg);
-                transf->fetchInt32FromKey("smoothing", smoothing, &errMsg);
+                transf->fetchStringFromKey("type", trType, &err);
+                transf->fetchDoubleFromKey("scale", scale, &err);
+                transf->fetchDoubleFromKey("offset", offset, &err);
+                transf->fetchInt32FromKey("smoothing", smoothing, &err);
             }
-        }
+        });
         if (errMsg.size() == 0)
         {
             if (name.size() == 0)
@@ -8308,22 +8247,22 @@ std::string _method_addSignal(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_reset(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_reset(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_graph, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {}))
+    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {}))
     {
         target->resetGraph();
     }
     return errMsg;
 }
 
-std::string _method_setSignalPoint(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setSignalPoint(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_graph, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_double}))
+    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_integer, arg_double}))
     {
         int signal = fetchInt(inStack, 0);
         double v = fetchDouble(inStack, 1);
@@ -8333,11 +8272,11 @@ std::string _method_setSignalPoint(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_removeTrace(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_removeTrace(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_graph, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer}))
+    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_integer}))
     {
         int trace = fetchInt(inStack, 0);
         if (trace == -1)
@@ -8357,20 +8296,20 @@ std::string _method_removeTrace(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_snapshotTrace(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_snapshotTrace(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_graph, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_optional | arg_map}))
+    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_integer, arg_optional | arg_map}))
     {
         int trace = fetchInt(inStack, 0);
         float color[3] = {1.0f, 1.0f, 1.0f};
         std::string name("snapshot");
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
-            map->fetchStringFromKey("name", name, &errMsg);
-        }
+            map->fetchFloatArrayFromKey("color", color, 3, &err);
+            map->fetchStringFromKey("name", name, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (name.size() == 0)
@@ -8386,11 +8325,11 @@ std::string _method_snapshotTrace(int targetObj, const char* method, CDetachedSc
     return errMsg;
 }
 
-std::string _method_step(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_step(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_graph, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_double}))
+    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_double}))
     {
         double t = fetchDouble(inStack, 0);
         target->addNextPoint(t);
@@ -8398,11 +8337,11 @@ std::string _method_step(int targetObj, const char* method, CDetachedScript* cur
     return errMsg;
 }
 
-std::string _method_makeClass(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_makeClass(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string}))
     {
         std::string className = fetchText(inStack, 0);
         if (!className.empty())
@@ -8419,14 +8358,14 @@ std::string _method_makeClass(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_makeObject(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_makeObject(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CSceneObject* customSceneObjectClass = App::scenes->customSceneObjectClasses->getClass(targetObj);
     CustomObject* customObjectClass = App::scenes->customObjects->getClass(targetObj);
     if (customSceneObjectClass != nullptr)
     {
-        if (checkInputArguments(method, inStack, &errMsg, {}))
+        if (checkInputArguments(inStack, &errMsg, {}))
         {
             int retVal = App::scenes->customSceneObjectClasses->makeObject(targetObj);
             if (retVal >= 0)
@@ -8437,17 +8376,17 @@ std::string _method_makeObject(int targetObj, const char* method, CDetachedScrip
     }
     else if (customObjectClass != nullptr)
     {
-        if (checkInputArguments(method, inStack, &errMsg, {arg_optional | arg_map}))
+        if (checkInputArguments(inStack, &errMsg, {arg_optional | arg_map}))
         {
             bool appScope = true;
             bool scriptPersistent = false;
             bool isVolatile = true;
-            if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+            withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
             {
-                map->fetchBoolFromKey("appScope", appScope, &errMsg);
-                map->fetchBoolFromKey("scriptPersistent", scriptPersistent, &errMsg);
-                map->fetchBoolFromKey("volatile", isVolatile, &errMsg);
-            }
+                map->fetchBoolFromKey("appScope", appScope, &err);
+                map->fetchBoolFromKey("scriptPersistent", scriptPersistent, &err);
+                map->fetchBoolFromKey("volatile", isVolatile, &err);
+            });
             if (errMsg.size() == 0)
             {
                 int h = -1;
@@ -8467,10 +8406,10 @@ std::string _method_makeObject(int targetObj, const char* method, CDetachedScrip
     return errMsg;
 }
 
-std::string _method_addFromObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addFromObjects(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
     if (target != nullptr)
     {
         COcTree* ocTree = nullptr;
@@ -8481,7 +8420,7 @@ std::string _method_addFromObjects(int targetObj, const char* method, CDetachedS
             ptCloud = (CPointCloud*)target;
         if ((ocTree != nullptr) || (ptCloud != nullptr))
         {
-            if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
+            if (checkInputArguments(inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
             {
                 std::vector<int> objects;
                 fetchHandleArray(inStack, 0, objects);
@@ -8490,11 +8429,11 @@ std::string _method_addFromObjects(int targetObj, const char* method, CDetachedS
                     float color[3];
                     bool hasColor = false;
                     int tag = 0;
-                    if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+                    withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
                     {
-                        hasColor = map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
-                        map->fetchInt32FromKey("tag", tag, &errMsg);
-                    }
+                        hasColor = map->fetchFloatArrayFromKey("color", color, 3, &err);
+                        map->fetchInt32FromKey("tag", tag, &err);
+                    });
                     if (errMsg.size() == 0)
                     {
                         float savedCols[3];
@@ -8524,12 +8463,12 @@ std::string _method_addFromObjects(int targetObj, const char* method, CDetachedS
                     double gridSize = 0.02;
                     double duplicateTolerance;
                     bool hasDuplicateTolerance = false;
-                    if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+                    withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
                     {
-                        hasColor = map->fetchFloatArrayFromKey("color", color, 3, &errMsg);
-                        map->fetchDoubleFromKey("gridSize", gridSize, &errMsg);
-                        hasDuplicateTolerance = map->fetchDoubleFromKey("duplicateTolerance", duplicateTolerance, &errMsg);
-                    }
+                        hasColor = map->fetchFloatArrayFromKey("color", color, 3, &err);
+                        map->fetchDoubleFromKey("gridSize", gridSize, &err);
+                        hasDuplicateTolerance = map->fetchDoubleFromKey("duplicateTolerance", duplicateTolerance, &err);
+                    });
                     if (errMsg.size() == 0)
                     {
                         double savedGridSize = ptCloud->getBuildResolution();
@@ -8568,10 +8507,10 @@ std::string _method_addFromObjects(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_subtractFromObjects(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_subtractFromObjects(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
     if (target != nullptr)
     {
         COcTree* ocTree = nullptr;
@@ -8582,7 +8521,7 @@ std::string _method_subtractFromObjects(int targetObj, const char* method, CDeta
             ptCloud = (CPointCloud*)target;
         if ((ocTree != nullptr) || (ptCloud != nullptr))
         {
-            if (checkInputArguments(method, inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
+            if (checkInputArguments(inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
             {
                 std::vector<int> objects;
                 fetchHandleArray(inStack, 0, objects);
@@ -8598,10 +8537,10 @@ std::string _method_subtractFromObjects(int targetObj, const char* method, CDeta
                 if (ptCloud != nullptr)
                 {
                     double tolerance = 0.02;
-                    if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+                    withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
                     {
-                        map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
-                    }
+                        map->fetchDoubleFromKey("tolerance", tolerance, &err);
+                    });
                     if (errMsg.size() == 0)
                     {
                         for (size_t i = 0; i < objects.size(); i++)
@@ -8620,10 +8559,10 @@ std::string _method_subtractFromObjects(int targetObj, const char* method, CDeta
     return errMsg;
 }
 
-std::string _method_clear(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_clear(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CSceneObject* target = getSceneObject(targetObj, method, &errMsg, -1);
+    CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
     if (target != nullptr)
     {
         COcTree* ocTree = nullptr;
@@ -8634,7 +8573,7 @@ std::string _method_clear(int targetObj, const char* method, CDetachedScript* cu
             ptCloud = (CPointCloud*)target;
         if ((ocTree != nullptr) || (ptCloud != nullptr))
         {
-            if (checkInputArguments(method, inStack, &errMsg, {}))
+            if (checkInputArguments(inStack, &errMsg, {}))
             {
                 if (ocTree != nullptr)
                     ocTree->clear();
@@ -8648,11 +8587,11 @@ std::string _method_clear(int targetObj, const char* method, CDetachedScript* cu
     return errMsg;
 }
 
-std::string _method_addVoxels(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addVoxels(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, sim_sceneobject_octree, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
     {
         std::vector<double> pts;
         fetchMatrixData(inStack, 0, pts, false);
@@ -8665,14 +8604,14 @@ std::string _method_addVoxels(int targetObj, const char* method, CDetachedScript
         int tag = 0;
         bool hasColor = false;
         bool relative = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            hasColors = map->fetchMatrixDataFromKey("colors", colors, 4, pts.size() / 3, false, &errMsg);
-            hasColor = map->fetchFloatArrayFromKey("color", color, 4, &errMsg);
-            hasTags = map->fetchUInt32ArrayFromKey("tags", tags.data(), tags.size(), &errMsg);
-            map->fetchInt32FromKey("tag", tag, &errMsg);
-            map->fetchBoolFromKey("relative", relative, &errMsg);
-        }
+            hasColors = map->fetchMatrixDataFromKey("colors", colors, 4, pts.size() / 3, false, &err);
+            hasColor = map->fetchFloatArrayFromKey("color", color, 4, &err);
+            hasTags = map->fetchUInt32ArrayFromKey("tags", tags.data(), tags.size(), &err);
+            map->fetchInt32FromKey("tag", tag, &err);
+            map->fetchBoolFromKey("relative", relative, &err);
+        });
         if (errMsg.size() == 0)
         {
             std::vector<uint8_t> _cols;
@@ -8710,11 +8649,11 @@ std::string _method_addVoxels(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_addPackedVoxels(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addPackedVoxels(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, sim_sceneobject_octree, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string buff = fetchBuffer(inStack, 0);
         size_t l = buff.size() / sizeof(float);
@@ -8731,10 +8670,10 @@ std::string _method_addPackedVoxels(int targetObj, const char* method, CDetached
         int tag = 0;
         bool hasColor = false;
         bool relative = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
             buff.clear();
-            hasColors = map->fetchStringFromKey("colors", buff, &errMsg);
+            hasColors = map->fetchStringFromKey("colors", buff, &err);
             if (hasColors)
             {
                 l = buff.size() / sizeof(float);
@@ -8748,7 +8687,7 @@ std::string _method_addPackedVoxels(int targetObj, const char* method, CDetached
                 }
             }
             buff.clear();
-            hasTags = map->fetchStringFromKey("tags", buff, &errMsg);
+            hasTags = map->fetchStringFromKey("tags", buff, &err);
             if (hasTags)
             {
                 l = buff.size() / sizeof(unsigned int);
@@ -8761,10 +8700,10 @@ std::string _method_addPackedVoxels(int targetObj, const char* method, CDetached
                         tags[i] = ((unsigned int*)buff.data())[i];
                 }
             }
-            hasColor = map->fetchFloatArrayFromKey("color", color, 4, &errMsg);
-            map->fetchInt32FromKey("tag", tag, &errMsg);
-            map->fetchBoolFromKey("relative", relative, &errMsg);
-        }
+            hasColor = map->fetchFloatArrayFromKey("color", color, 4, &err);
+            map->fetchInt32FromKey("tag", tag, &err);
+            map->fetchBoolFromKey("relative", relative, &err);
+        });
         if (errMsg.size() == 0)
         {
             std::vector<uint8_t> _cols;
@@ -8802,19 +8741,19 @@ std::string _method_addPackedVoxels(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_subtractVoxels(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_subtractVoxels(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, sim_sceneobject_octree, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
     {
         std::vector<double> pts;
         fetchMatrixData(inStack, 0, pts, false);
         bool relative = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("relative", relative, &errMsg);
-        }
+            map->fetchBoolFromKey("relative", relative, &err);
+        });
         if (errMsg.size() == 0)
         {
             target->subtractPoints(pts.data(), int(pts.size()) / 3, relative);
@@ -8823,11 +8762,11 @@ std::string _method_subtractVoxels(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_subtractPackedVoxels(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_subtractPackedVoxels(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, sim_sceneobject_octree, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string buff = fetchBuffer(inStack, 0);
         size_t l = buff.size() / sizeof(float);
@@ -8836,10 +8775,10 @@ std::string _method_subtractPackedVoxels(int targetObj, const char* method, CDet
         for (size_t i = 0; i < l; i++)
             pts[i] = (double)((float*)buff.data())[i];
         bool relative = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("relative", relative, &errMsg);
-        }
+            map->fetchBoolFromKey("relative", relative, &err);
+        });
         if (errMsg.size() == 0)
         {
             target->subtractPoints(pts.data(), int(pts.size()) / 3, relative);
@@ -8848,19 +8787,19 @@ std::string _method_subtractPackedVoxels(int targetObj, const char* method, CDet
     return errMsg;
 }
 
-std::string _method_checkPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_checkPoints(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, sim_sceneobject_octree, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
     {
         std::vector<double> pts;
         fetchMatrixData(inStack, 0, pts, false);
         bool relative = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("relative", relative, &errMsg);
-        }
+            map->fetchBoolFromKey("relative", relative, &err);
+        });
         if (errMsg.size() == 0)
         {
             unsigned int tag = 0;
@@ -8896,11 +8835,11 @@ std::string _method_checkPoints(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_checkPackedPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_checkPackedPoints(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_octree, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    COcTree* target = (COcTree*)getSpecificSceneObjectType(targetObj, sim_sceneobject_octree, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string buff = fetchBuffer(inStack, 0);
         size_t l = buff.size() / sizeof(float);
@@ -8909,10 +8848,10 @@ std::string _method_checkPackedPoints(int targetObj, const char* method, CDetach
         for (size_t i = 0; i < l; i++)
             pts[i] = (double)((float*)buff.data())[i];
         bool relative = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("relative", relative, &errMsg);
-        }
+            map->fetchBoolFromKey("relative", relative, &err);
+        });
         if (errMsg.size() == 0)
         {
             unsigned int tag = 0;
@@ -8948,11 +8887,11 @@ std::string _method_checkPackedPoints(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_addPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addPoints(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, sim_sceneobject_pointcloud, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
     {
         std::vector<double> pts;
         fetchMatrixData(inStack, 0, pts, false);
@@ -8962,13 +8901,13 @@ std::string _method_addPoints(int targetObj, const char* method, CDetachedScript
         bool hasColor = false;
         bool relative = false;
         double tolerance = target->getInsertionDistanceTolerance();
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            hasColors = map->fetchMatrixDataFromKey("colors", colors, 4, pts.size() / 3, false, &errMsg);
-            hasColor = map->fetchFloatArrayFromKey("color", color, 4, &errMsg);
-            map->fetchBoolFromKey("relative", relative, &errMsg);
-            map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
-        }
+            hasColors = map->fetchMatrixDataFromKey("colors", colors, 4, pts.size() / 3, false, &err);
+            hasColor = map->fetchFloatArrayFromKey("color", color, 4, &err);
+            map->fetchBoolFromKey("relative", relative, &err);
+            map->fetchDoubleFromKey("tolerance", tolerance, &err);
+        });
         if (errMsg.size() == 0)
         {
             std::vector<uint8_t> _cols;
@@ -9004,11 +8943,11 @@ std::string _method_addPoints(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_addPackedPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_addPackedPoints(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, sim_sceneobject_pointcloud, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string buff = fetchBuffer(inStack, 0);
         size_t l = buff.size() / sizeof(float);
@@ -9022,10 +8961,10 @@ std::string _method_addPackedPoints(int targetObj, const char* method, CDetached
         bool hasColor = false;
         bool relative = false;
         double tolerance = target->getInsertionDistanceTolerance();
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
             buff.clear();
-            hasColors = map->fetchStringFromKey("colors", buff, &errMsg);
+            hasColors = map->fetchStringFromKey("colors", buff, &err);
             if (hasColors)
             {
                 l = buff.size() / sizeof(float);
@@ -9038,10 +8977,10 @@ std::string _method_addPackedPoints(int targetObj, const char* method, CDetached
                         colors[i] = ((float*)buff.data())[i];
                 }
             }
-            hasColor = map->fetchFloatArrayFromKey("color", color, 4, &errMsg);
-            map->fetchBoolFromKey("relative", relative, &errMsg);
-            map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
-        }
+            hasColor = map->fetchFloatArrayFromKey("color", color, 4, &err);
+            map->fetchBoolFromKey("relative", relative, &err);
+            map->fetchDoubleFromKey("tolerance", tolerance, &err);
+        });
         if (errMsg.size() == 0)
         {
             std::vector<unsigned char> _cols;
@@ -9077,32 +9016,32 @@ std::string _method_addPackedPoints(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_intersectPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_intersectPoints(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, sim_sceneobject_pointcloud, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
     {
         std::vector<double> pts;
         fetchMatrixData(inStack, 0, pts, false);
         bool relative = false;
         double tolerance = 0.01;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("relative", relative, &errMsg);
-            map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
-        }
+            map->fetchBoolFromKey("relative", relative, &err);
+            map->fetchDoubleFromKey("tolerance", tolerance, &err);
+        });
         if (errMsg.size() == 0)
             target->intersectPoints(pts.data(), int(pts.size()) / 3, relative, tolerance);
     }
     return errMsg;
 }
 
-std::string _method_intersectPackedPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_intersectPackedPoints(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, sim_sceneobject_pointcloud, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string buff = fetchBuffer(inStack, 0);
         size_t l = buff.size() / sizeof(float);
@@ -9112,32 +9051,32 @@ std::string _method_intersectPackedPoints(int targetObj, const char* method, CDe
             pts[i] = (double)((float*)buff.data())[i];
         bool relative = false;
         double tolerance = 0.01;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("relative", relative, &errMsg);
-            map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
-        }
+            map->fetchBoolFromKey("relative", relative, &err);
+            map->fetchDoubleFromKey("tolerance", tolerance, &err);
+        });
         if (errMsg.size() == 0)
             target->intersectPoints(pts.data(), int(pts.size()) / 3, relative, tolerance);
     }
     return errMsg;
 }
 
-std::string _method_subtractPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_subtractPoints(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, sim_sceneobject_pointcloud, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
     {
         std::vector<double> pts;
         fetchMatrixData(inStack, 0, pts, false);
         bool relative = false;
         double tolerance = 0.01;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("relative", relative, &errMsg);
-            map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
-        }
+            map->fetchBoolFromKey("relative", relative, &err);
+            map->fetchDoubleFromKey("tolerance", tolerance, &err);
+        });
         if (errMsg.size() == 0)
         {
             target->removePoints(pts.data(), int(pts.size()) / 3, relative, tolerance);
@@ -9146,11 +9085,11 @@ std::string _method_subtractPoints(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_subtractPackedPoints(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_subtractPackedPoints(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_pointcloud, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    CPointCloud* target = (CPointCloud*)getSpecificSceneObjectType(targetObj, sim_sceneobject_pointcloud, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string buff = fetchBuffer(inStack, 0);
         size_t l = buff.size() / sizeof(float);
@@ -9160,11 +9099,11 @@ std::string _method_subtractPackedPoints(int targetObj, const char* method, CDet
             pts[i] = (double)((float*)buff.data())[i];
         bool relative = false;
         double tolerance = 0.01;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchBoolFromKey("relative", relative, &errMsg);
-            map->fetchDoubleFromKey("tolerance", tolerance, &errMsg);
-        }
+            map->fetchBoolFromKey("relative", relative, &err);
+            map->fetchDoubleFromKey("tolerance", tolerance, &err);
+        });
         if (errMsg.size() == 0)
         {
             target->removePoints(pts.data(), int(pts.size()) / 3, relative, tolerance);
@@ -9173,23 +9112,23 @@ std::string _method_subtractPackedPoints(int targetObj, const char* method, CDet
     return errMsg;
 }
 
-std::string _method_setTargetPosition(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setTargetPosition(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CJoint* target = (CJoint*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_joint, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_double, arg_map | arg_optional}))
+    CJoint* target = (CJoint*)getSpecificSceneObjectType(targetObj, sim_sceneobject_joint, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_double, arg_map | arg_optional}))
     {
         double targetPos = fetchDouble(inStack, 0);
         double origMaxVelAccelJerk[3];
         double maxVelAccelJerk[3];
         target->getMaxVelAccelJerk(maxVelAccelJerk);
         target->getMaxVelAccelJerk(origMaxVelAccelJerk);
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchDoubleFromKey("maxVelocity", maxVelAccelJerk[0], &errMsg);
-            map->fetchDoubleFromKey("maxAcceleration", maxVelAccelJerk[1], &errMsg);
-            map->fetchDoubleFromKey("maxJerk", maxVelAccelJerk[2], &errMsg);
-        }
+            map->fetchDoubleFromKey("maxVelocity", maxVelAccelJerk[0], &err);
+            map->fetchDoubleFromKey("maxAcceleration", maxVelAccelJerk[1], &err);
+            map->fetchDoubleFromKey("maxJerk", maxVelAccelJerk[2], &err);
+        });
         if (errMsg.size() == 0)
         {
             if (target->getJointType() != sim_joint_spherical)
@@ -9226,11 +9165,11 @@ std::string _method_setTargetPosition(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_setTargetVelocity(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setTargetVelocity(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CJoint* target = (CJoint*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_joint, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_double, arg_map | arg_optional}))
+    CJoint* target = (CJoint*)getSpecificSceneObjectType(targetObj, sim_sceneobject_joint, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_double, arg_map | arg_optional}))
     {
         double targetVel = fetchDouble(inStack, 0);
         double origMaxVelAccelJerk[3];
@@ -9239,12 +9178,12 @@ std::string _method_setTargetVelocity(int targetObj, const char* method, CDetach
         target->getMaxVelAccelJerk(origMaxVelAccelJerk);
         double initVel;
         bool hasInitVel = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            hasInitVel = map->fetchDoubleFromKey("initVelocity", initVel, &errMsg);
-            map->fetchDoubleFromKey("maxAcceleration", maxVelAccelJerk[1], &errMsg);
-            map->fetchDoubleFromKey("maxJerk", maxVelAccelJerk[2], &errMsg);
-        }
+            hasInitVel = map->fetchDoubleFromKey("initVelocity", initVel, &err);
+            map->fetchDoubleFromKey("maxAcceleration", maxVelAccelJerk[1], &err);
+            map->fetchDoubleFromKey("maxJerk", maxVelAccelJerk[2], &err);
+        });
         if (errMsg.size() == 0)
         {
             if (target->getJointType() != sim_joint_spherical)
@@ -9286,22 +9225,22 @@ std::string _method_setTargetVelocity(int targetObj, const char* method, CDetach
     return errMsg;
 }
 
-std::string _method_pushEvent(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_pushEvent(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_map, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_map, arg_map | arg_optional}))
     {
         std::string eventName("userEvent");
         int64_t eventHandle = -1;
         int64_t eventUid = -1;
         bool mergeable = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchStringFromKey("name", eventName, &errMsg);
-            map->fetchInt64FromKey("handle", eventHandle, &errMsg);
-            map->fetchInt64FromKey("uid", eventUid, &errMsg);
-            map->fetchBoolFromKey("mergeable", mergeable, &errMsg);
-        }
+            map->fetchStringFromKey("name", eventName, &err);
+            map->fetchInt64FromKey("handle", eventHandle, &err);
+            map->fetchInt64FromKey("uid", eventUid, &err);
+            map->fetchBoolFromKey("mergeable", mergeable, &err);
+        });
         if (errMsg.size() == 0)
         {
             if (App::scenes->getEventsEnabled())
@@ -9317,21 +9256,21 @@ std::string _method_pushEvent(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_getContacts(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getContacts(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* target = nullptr;
     if (targetObj != sim_handle_scene)
-        target = (CShape*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_shape, &errMsg, -1);
+        target = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
     if (errMsg.empty())
     {
-        if (checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
+        if (checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
         {
             int dynPass = App::scenes->pluginContainer->dyn_getDynamicStepDivider() - 1;
-            if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+            withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
             {
-                map->fetchInt32FromKey("dynPass", dynPass, &errMsg);
-            }
+                map->fetchInt32FromKey("dynPass", dynPass, &err);
+            });
             if (errMsg.size() == 0)
             {
                 int obj = sim_handle_all;
@@ -9409,10 +9348,10 @@ std::string _method_getContacts(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_getGenesisEvents(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getGenesisEvents(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {}))
+    if (checkInputArguments(inStack, &errMsg, {}))
     {
         std::vector<unsigned char> genesisEvents;
         App::scenes->getGenesisEvents(&genesisEvents, nullptr);
@@ -9421,11 +9360,11 @@ std::string _method_getGenesisEvents(int targetObj, const char* method, CDetache
     return errMsg;
 }
 
-std::string _method_setEventFilters(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setEventFilters(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CDetachedScript* target = getDetachedScript(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map}))
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map}))
     {
         CInterfaceStackTable* map = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
         std::vector<int64_t> intKeys;
@@ -9501,10 +9440,10 @@ std::string _method_setEventFilters(int targetObj, const char* method, CDetached
     return errMsg;
 }
 
-std::string _method_getPluginInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getPluginInfo(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string}))
     {
         std::string pluginName = fetchText(inStack, 0);
         CPlugin* plug = App::scenes->pluginContainer->getPluginFromName(pluginName.c_str());
@@ -9526,10 +9465,10 @@ std::string _method_getPluginInfo(int targetObj, const char* method, CDetachedSc
     return errMsg;
 }
 
-std::string _method_setPluginInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setPluginInfo(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_map}))
     {
         CPlugin* plug = nullptr;
         std::string pluginName = fetchText(inStack, 0);
@@ -9551,14 +9490,14 @@ std::string _method_setPluginInfo(int targetObj, const char* method, CDetachedSc
             bool hasVersion = false;
             bool hasConsoleVerbosity = false;
             bool hasStatusbarVerbosity = false;
-            if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+            withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
             {
-                map->fetchStringFromKey("versionStr", versionStr, &errMsg);
-                map->fetchStringFromKey("buildDate", buildDate, &errMsg);
-                hasVersion = map->fetchInt32FromKey("version", version, &errMsg);
-                hasConsoleVerbosity = map->fetchInt32FromKey("consoleVerbosity", consoleVerbosity, &errMsg);
-                hasStatusbarVerbosity = map->fetchInt32FromKey("statusbarVerbosity", statusbarVerbosity, &errMsg);
-            }
+                map->fetchStringFromKey("versionStr", versionStr, &err);
+                map->fetchStringFromKey("buildDate", buildDate, &err);
+                hasVersion = map->fetchInt32FromKey("version", version, &err);
+                hasConsoleVerbosity = map->fetchInt32FromKey("consoleVerbosity", consoleVerbosity, &err);
+                hasStatusbarVerbosity = map->fetchInt32FromKey("statusbarVerbosity", statusbarVerbosity, &err);
+            });
             if (errMsg.empty())
             {
                 if (hasVersion)
@@ -9579,11 +9518,11 @@ std::string _method_setPluginInfo(int targetObj, const char* method, CDetachedSc
     return errMsg;
 }
 
-std::string _method_setModuleEntry(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_setModuleEntry(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CDetachedScript* target = getDetachedScript(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_integer, arg_map}))
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_integer, arg_map}))
     {
         int handle = fetchInt(inStack, 0);
         std::string label;
@@ -9594,14 +9533,14 @@ std::string _method_setModuleEntry(int targetObj, const char* method, CDetachedS
         bool checkableSet = false;
         bool checkedSet = false;
         bool remove = false;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchStringFromKey("label", label, &errMsg);
-            enabledSet = map->fetchBoolFromKey("enabled", enabled, &errMsg);
-            checkedSet = map->fetchBoolFromKey("checked", checked, &errMsg);
-            checkableSet = map->fetchBoolFromKey("checkable", checkable, &errMsg);
-             map->fetchBoolFromKey("remove", remove, &errMsg);
-        }
+            map->fetchStringFromKey("label", label, &err);
+            enabledSet = map->fetchBoolFromKey("enabled", enabled, &err);
+            checkedSet = map->fetchBoolFromKey("checked", checked, &err);
+            checkableSet = map->fetchBoolFromKey("checkable", checkable, &err);
+             map->fetchBoolFromKey("remove", remove, &err);
+        });
         if (errMsg.empty())
         {
             bool first = false;
@@ -9649,10 +9588,10 @@ std::string _method_setModuleEntry(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_dynamicsStep(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_dynamicsStep(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_double | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_double | arg_optional}))
     {
         if ((currentScript != nullptr) && (currentScript->getScriptType() == sim_scripttype_main))
         {
@@ -9673,11 +9612,11 @@ std::string _method_dynamicsStep(int targetObj, const char* method, CDetachedScr
     return errMsg;
 }
 
-std::string _method_broadcast(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_broadcast(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CDetachedScript* target = getDetachedScript(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map}))
+    CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map}))
     {
         CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStackCopy(inStack);
         if (stack->getStackSize() > 1)
@@ -9689,24 +9628,111 @@ std::string _method_broadcast(int targetObj, const char* method, CDetachedScript
     return errMsg;
 }
 
-std::string _method_textureSetData(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_textureSet(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CMesh* target = getMesh(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_string, arg_map | arg_optional}))
+    CMesh* target = getMesh(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string | arg_optional, arg_table | arg_optional, 2, arg_integer, arg_map | arg_optional}))
+    {
+        std::string img = fetchBuffer(inStack, 0);
+        std::vector<int> resolution;
+        fetchIntArray(inStack, 1, resolution);
+        double uvScaling[2] = {1.0, 1.0};
+        bool repeatU = false;
+        bool repeatV = false;
+        bool interpolate = false;
+        bool decal = false;
+        bool flipH = false;
+        bool flipV = false;
+        CPose pose;
+        pose.setIdentity();
+        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
+        {
+            map->fetchDoubleArrayFromKey("scalingUV", uvScaling, 2, &err);
+            map->fetchBoolFromKey("repeatU", repeatU, &err);
+            map->fetchBoolFromKey("repeatV", repeatV, &err);
+            map->fetchBoolFromKey("interpolate", interpolate, &err);
+            map->fetchBoolFromKey("decal", decal, &err);
+            map->fetchBoolFromKey("flipH", flipH, &err);
+            map->fetchBoolFromKey("flipV", flipV, &err);
+            double poseDat[7];
+            if (map->fetchDoubleArrayFromKey("pose", poseDat, 7, &err))
+                pose.setData(poseDat, true);
+        });
+        if (errMsg.empty())
+        {
+            int64_t shapeHandle;
+            CPose dummyPose;
+            target->getHandleProperty_mesh(prop(PropMesh::shape).name, shapeHandle, dummyPose);
+            CTextureProperty* tp = target->getTextureProperty();
+            if (tp != nullptr)
+            {
+                delete tp;
+                target->setTextureProperty(nullptr);
+            }
+            if (!img.empty())
+            {
+                if ((resolution.size() == 2) && (resolution[0] > 0) && (resolution[1] > 0) && (resolution[0] <= 8192) && (resolution[1] <= 8192))
+                {
+                    if ((img.size() == resolution[0] * resolution[1] * 3) || (img.size() == resolution[0] * resolution[1] * 4))
+                    {
+                        int n = int(img.size() / (resolution[0] * resolution[1]));
+                        CTextureObject* textureObj = new CTextureObject(resolution[0], resolution[1]);
+                        textureObj->setImage(n == 4, flipH, flipV, (unsigned char*)img.data());
+                        textureObj->addDependentObject(shapeHandle, target->getObjectHandle());
+                        int texID = App::scene->textureContainer->addObject(textureObj, false); // might erase the textureObj and return a similar object already present!!
+                        CTextureProperty* tp = new CTextureProperty(texID);
+                        target->setTextureProperty(tp);
+                        tp->setInterpolateColors(interpolate);
+                        if (decal)
+                            tp->setApplyMode(1);
+                        else
+                            tp->setApplyMode(0);
+                        tp->setRepeatU(repeatU);
+                        tp->setRepeatV(repeatV);
+                        tp->setTextureScaling(uvScaling[0], uvScaling[1]);
+                        tp->setTextureRelativeConfig(pose);
+                    }
+                    else
+                        errMsg = SIM_ERROR_INVALID_RESOLUTION;
+                }
+                else
+                    errMsg = SIM_ERROR_INVALID_RESOLUTION;
+            }
+
+            // send texture update event:
+            std::vector<CMesh*> all;
+            std::vector<CPose> allTr;
+            CShape* shape = App::scene->sceneObjects->getShapeFromHandle(shapeHandle);
+            shape->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, all, &allTr);
+            for (size_t i = 0; i < all.size(); i++)
+            {
+                if (all[i] == target)
+                    target->pushObjectCreationOrChangeEvent(shapeHandle, shape->getObjectUid(), allTr[i], 2);
+            }
+        }
+    }
+    return errMsg;
+}
+
+std::string _method_textureSetData(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CMesh* target = getMesh(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string data = fetchBuffer(inStack, 0);
         int position[2] = {0, 0};
         int size[2] = {0, 0};
         double interpolation = 0.0;
         bool rectangular = true;
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt32ArrayFromKey("position", position, 2, &errMsg);
-            map->fetchInt32ArrayFromKey("size", size, 2, &errMsg);
-            map->fetchDoubleFromKey("interpolation", interpolation, &errMsg);
-            map->fetchBoolFromKey("rectangular", rectangular, &errMsg);
-        }
+            map->fetchInt32ArrayFromKey("position", position, 2, &err);
+            map->fetchInt32ArrayFromKey("size", size, 2, &err);
+            map->fetchDoubleFromKey("interpolation", interpolation, &err);
+            map->fetchBoolFromKey("rectangular", rectangular, &err);
+        });
         if (errMsg.empty())
         {
             CTextureProperty* tp = target->getTextureProperty();
@@ -9741,6 +9767,20 @@ std::string _method_textureSetData(int targetObj, const char* method, CDetachedS
                             }
                         }
                         to->writePortionOfTexture((unsigned char*)data.data(), position[0], position[1], size[0], size[1], !rectangular, interpolation);
+
+                        // send texture update event:
+                        int64_t shapeHandle;
+                        CPose dummyPose;
+                        target->getHandleProperty_mesh(prop(PropMesh::shape).name, shapeHandle, dummyPose);
+                        std::vector<CMesh*> all;
+                        std::vector<CPose> allTr;
+                        CShape* shape = App::scene->sceneObjects->getShapeFromHandle(shapeHandle);
+                        shape->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, all, &allTr);
+                        for (size_t i = 0; i < all.size(); i++)
+                        {
+                            if (all[i] == target)
+                                target->pushObjectCreationOrChangeEvent(shapeHandle, shape->getObjectUid(), allTr[i], 2);
+                        }
                     }
                     else
                         errMsg = SIM_ERROR_INVALID_ARGUMENTS;
@@ -9755,19 +9795,19 @@ std::string _method_textureSetData(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_textureGetData(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_textureGetData(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CMesh* target = getMesh(targetObj, method, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
+    CMesh* target = getMesh(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
     {
         int position[2] = {0, 0};
         int size[2] = {0, 0};
-        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+        withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt32ArrayFromKey("position", position, 2, &errMsg);
-            map->fetchInt32ArrayFromKey("size", size, 2, &errMsg);
-        }
+            map->fetchInt32ArrayFromKey("position", position, 2, &err);
+            map->fetchInt32ArrayFromKey("size", size, 2, &err);
+        });
         if (errMsg.empty())
         {
             CTextureProperty* tp = target->getTextureProperty();
@@ -9806,10 +9846,10 @@ std::string _method_textureGetData(int targetObj, const char* method, CDetachedS
     return errMsg;
 }
 
-std::string _method_getEnumInfo(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getEnumInfo(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_string}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string}))
     {
         std::string enumT = fetchText(inStack, 0);
 
@@ -9836,11 +9876,11 @@ std::string _method_getEnumInfo(int targetObj, const char* method, CDetachedScri
     return errMsg;
 }
 
-std::string _method_getData(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getData(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CCamera* target = (CCamera*)getSpecificSceneObjectType(targetObj, method, sim_sceneobject_camera, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(method, inStack, &errMsg, {arg_map | arg_optional}))
+    CCamera* target = (CCamera*)getSpecificSceneObjectType(targetObj, sim_sceneobject_camera, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
     {
         int resolution[2] = {1920, 1080};
         double clippingPlanes[2] = {0.05, 30.0};
@@ -9849,14 +9889,14 @@ std::string _method_getData(int targetObj, const char* method, CDetachedScript* 
         bool hasViewAngle = false;
         bool hasViewSize = false;
         std::string rendMode = "openGl";
-        if (CInterfaceStackTable* map = fetchMap(inStack, 0))
+        withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt32ArrayFromKey("resolution", resolution, 2, &errMsg);
-            map->fetchDoubleArrayFromKey("clippingPlanes", clippingPlanes, 2, &errMsg);
-            map->fetchStringFromKey("renderMode", rendMode, &errMsg);
-            hasViewAngle = map->fetchDoubleFromKey("viewAngle", viewAngle, &errMsg);
-            hasViewSize = map->fetchDoubleFromKey("viewSize", viewSize, &errMsg);
-        }
+            map->fetchInt32ArrayFromKey("resolution", resolution, 2, &err);
+            map->fetchDoubleArrayFromKey("clippingPlanes", clippingPlanes, 2, &err);
+            map->fetchStringFromKey("renderMode", rendMode, &err);
+            hasViewAngle = map->fetchDoubleFromKey("viewAngle", viewAngle, &err);
+            hasViewSize = map->fetchDoubleFromKey("viewSize", viewSize, &err);
+        });
         if (errMsg.empty())
         {
             auto rmValue = magic_enum::enum_cast<renderMode>(rendMode.c_str());
@@ -9904,10 +9944,10 @@ std::string _method_getData(int targetObj, const char* method, CDetachedScript* 
     return errMsg;
 }
 
-std::string _method_createShapeFromPath(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_createShapeFromPath(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_matrix, 7, -1, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_matrix, 7, -1, arg_map | arg_optional}))
     {
         std::vector<double> pppath;
         fetchMatrixData(inStack, 0, pppath, false);
@@ -9927,21 +9967,21 @@ std::string _method_createShapeFromPath(int targetObj, const char* method, CDeta
                 }
             }
         }
-        if (CInterfaceStackTable* map = fetchMap(inStack, 1))
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
             std::vector<double> s;
-            if (map->fetchArrayAsConsecutiveDoublesFromKey("section", s, &errMsg))
+            if (map->fetchArrayAsConsecutiveDoublesFromKey("section", s, &err))
             {
                 int ss = s.size();
                 s.clear();
-                if (map->fetchMatrixDataFromKey("section", s, 2, ss / 2, false, &errMsg))
+                if (map->fetchMatrixDataFromKey("section", s, 2, ss / 2, false, &err))
                     section = s;
             }
             std::vector<double> arr;
-            if (map->fetchMatrixDataFromKey("upVector", arr, 3, 1, true, &errMsg))
+            if (map->fetchMatrixDataFromKey("upVector", arr, 3, 1, true, &err))
                 zvect.setData(arr.data());
-            map->fetchInt32FromKey("axis", axis, &errMsg);
-        }
+            map->fetchInt32FromKey("axis", axis, &err);
+        });
         if (errMsg.size() == 0)
         {
             int pathSize = pppath.size();
@@ -10091,10 +10131,10 @@ std::string _method_createShapeFromPath(int targetObj, const char* method, CDeta
     return errMsg;
 }
 
-std::string _method_getClosestOnPath(int targetObj, const char* method, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_getClosestOnPath(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(method, inStack, &errMsg, {arg_matrix, -1, -1, arg_vector, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_matrix, -1, -1, arg_vector, arg_map | arg_optional}))
     {
         CMatrix matr = fetchMatrix(inStack, 0);
         matr.transpose();
@@ -10108,11 +10148,11 @@ std::string _method_getClosestOnPath(int targetObj, const char* method, CDetache
             metric.resize(dim, 1.0);
             std::vector<int> types; // 0 = linear, 1 = revolute, 2 = quaternions (4 values)
             types.resize(dim, 0); // linear is default
-            if (CInterfaceStackTable* map = fetchMap(inStack, 2))
+            withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
             {
-                map->fetchDoubleArrayFromKey("metric", metric.data(), dim, &errMsg);
-                map->fetchInt32ArrayFromKey("types", types.data(), dim, &errMsg);
-            }
+                map->fetchDoubleArrayFromKey("metric", metric.data(), dim, &err);
+                map->fetchInt32ArrayFromKey("types", types.data(), dim, &err);
+            });
             if (errMsg.size() == 0)
             {
                 // Validate the types vector: values in {0,1,2}, quaternions in blocks of 4:

@@ -1665,7 +1665,7 @@ void CSceneObject::pushObjectCreationEvent()
             std::vector<CPose> allTr;
             ((CShape*)this)->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, all, &allTr);
             for (size_t i = 0; i < all.size(); i++)
-                all[i]->pushObjectCreationEvent(_objectHandle, _objectUid, allTr[i]);
+                all[i]->pushObjectCreationOrChangeEvent(_objectHandle, _objectUid, allTr[i], 0);
         }
         if (_objectType == sim_sceneobject_script)
             ((CScript*)this)->detachedScript->pushObjectCreationEvent();

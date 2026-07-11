@@ -8,8 +8,7 @@ class CMesh : public CMeshWrapper
 {
   public:
     CMesh();
-    CMesh(const CPose& meshFrame, const std::vector<double>& vertices, const std::vector<int>& indices,
-          const std::vector<double>* optNormals, const std::vector<float>* optTexCoords, int options);
+    CMesh(const CPose& meshFrame, const std::vector<double>& vertices, const std::vector<int>& indices, const std::vector<double>* optNormals, const std::vector<float>* optTexCoords, int options);
     virtual ~CMesh();
 
     void prepareVerticesIndicesNormalsAndEdgesForSerialization() override;
@@ -31,7 +30,7 @@ class CMesh : public CMeshWrapper
     CMesh* getFirstMesh() override;
     CMesh* getMeshFromUid(int64_t meshUid, const CPose& parentCumulTr, CPose& shapeRelTr) override;
     void appendMeshes(std::vector<CMesh*>& meshes) override;
-    void pushObjectCreationEvent(int shapeHandle, int shapeUid, const CPose& shapeRelTr);
+    void pushObjectCreationOrChangeEvent(int shapeHandle, int shapeUid, const CPose& shapeRelTr, int eventType);
     void pushObjectRemoveEvent();
 
     int countTriangles() const override;

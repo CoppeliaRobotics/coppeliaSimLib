@@ -515,57 +515,105 @@ void CMesh::pushObjectRemoveEvent()
     App::scenes->pushEvent();
 }
 
-void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const CPose& shapeRelTr)
-{
+void CMesh::pushObjectCreationOrChangeEvent(int shapeHandle, int shapeUid, const CPose& shapeRelTr, int eventType)
+{ // eventType: 0=creation, 1=change (full), 2=change(texture only + color and similar), 3=color and similar only
     _isInSceneShapeHandle = shapeHandle;
     _isInSceneShapeUid = shapeUid;
-    CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
-    Obj::addObjectEventData(ev);
-    if (App::getEventProtocolVersion() <= 3)
-    {
-        ev->appendKeyInt64(prop(PropMesh::shape).name, _isInSceneShapeHandle);
-        ev->appendKeyInt64(prop(PropMesh::DEPRECATED_primitiveType).name, _purePrimitive);
-    }
+    std::string eventTypeStr;
+    if (eventType == 0)
+        eventTypeStr = EVENTTYPE_OBJECTADDED;
     else
+        eventTypeStr = EVENTTYPE_OBJECTCHANGED;
+    CCbor* ev = App::scenes->createEvent(eventTypeStr.c_str(), _objectHandle, _objectHandle, nullptr, false);
+    if (eventType < 2)
     {
-        ev->appendKeyHandle(prop(PropMesh::shape).name, _isInSceneShapeHandle);
-        ev->appendKeyInt64(prop(PropMesh::primitiveType).name, _purePrimitive);
-    }
-    ev->appendKeyInt64(prop(PropMesh::shapeUid).name, _isInSceneShapeUid);
-    std::vector<float> vertices;
-    vertices.resize(_verticesForDisplayAndDisk.size());
-    for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)
-    {
-        C3Vector v;
-        v.setData(_verticesForDisplayAndDisk.data() + j * 3);
-        v = shapeRelTr * v;
-        vertices[3 * j + 0] = (float)v(0);
-        vertices[3 * j + 1] = (float)v(1);
-        vertices[3 * j + 2] = (float)v(2);
+        Obj::addObjectEventData(ev);
+        if (App::getEventProtocolVersion() <= 3)
+        {
+            ev->appendKeyInt64(prop(PropMesh::shape).name, _isInSceneShapeHandle);
+            ev->appendKeyInt64(prop(PropMesh::DEPRECATED_primitiveType).name, _purePrimitive);
+        }
+        else
+        {
+            ev->appendKeyHandle(prop(PropMesh::shape).name, _isInSceneShapeHandle);
+            ev->appendKeyInt64(prop(PropMesh::primitiveType).name, _purePrimitive);
+        }
+        ev->appendKeyInt64(prop(PropMesh::shapeUid).name, _isInSceneShapeUid);
+        std::vector<float> vertices;
+        vertices.resize(_verticesForDisplayAndDisk.size());
+        for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)
+        {
+            C3Vector v;
+            v.setData(_verticesForDisplayAndDisk.data() + j * 3);
+            v = shapeRelTr * v;
+            vertices[3 * j + 0] = (float)v(0);
+            vertices[3 * j + 1] = (float)v(1);
+            vertices[3 * j + 2] = (float)v(2);
+        }
+
+        std::vector<float> normals;
+        normals.resize(_indices.size() * 3);
+        for (size_t j = 0; j < _indices.size(); j++)
+        {
+            C3Vector n;
+            n.setData(&_normalsForDisplayAndDisk[0] + j * 3);
+            n = shapeRelTr.Q * n; // only orientation
+            normals[3 * j + 0] = (float)n(0);
+            normals[3 * j + 1] = (float)n(1);
+            normals[3 * j + 2] = (float)n(2);
+        }
+        if (App::getEventProtocolVersion() <= 3)
+        {
+            ev->appendKeyFloatArray(prop(PropMesh::vertices).name, vertices.data(), vertices.size());
+            ev->appendKeyFloatArray(prop(PropMesh::normals).name, normals.data(), normals.size());
+        }
+        else
+        {
+            ev->appendKeyMatrix(prop(PropMesh::vertices).name, vertices.data(), 3, vertices.size() / 3, false);
+            ev->appendKeyMatrix(prop(PropMesh::normals).name, normals.data(), 3, normals.size() / 3, false);
+        }
+        ev->appendKeyInt32Array(prop(PropMesh::indices).name, _indices.data(), _indices.size());
     }
 
-    std::vector<float> normals;
-    normals.resize(_indices.size() * 3);
-    for (size_t j = 0; j < _indices.size(); j++)
+
+    if (eventType < 3)
     {
-        C3Vector n;
-        n.setData(&_normalsForDisplayAndDisk[0] + j * 3);
-        n = shapeRelTr.Q * n; // only orientation
-        normals[3 * j + 0] = (float)n(0);
-        normals[3 * j + 1] = (float)n(1);
-        normals[3 * j + 2] = (float)n(2);
+        CTextureObject* to = nullptr;
+        const std::vector<float>* tc = nullptr;
+        if (_textureProperty != nullptr)
+        {
+            to = _textureProperty->getTextureObject();
+            tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
+        }
+
+        if ((to != nullptr) && (tc != nullptr))
+        {
+            int tRes[2];
+            to->getTextureSize(tRes[0], tRes[1]);
+            if (App::getEventProtocolVersion() <= 3)
+            {
+                ev->appendKeyBuff("rawTexture", to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
+                ev->appendKeyInt32Array("textureResolution", tRes, 2);
+                ev->appendKeyFloatArray("textureCoordinates", tc->data(), tc->size());
+                ev->appendKeyInt64("textureApplyMode", _textureProperty->getApplyMode());
+                ev->appendKeyBool("textureRepeatU", _textureProperty->getRepeatU());
+                ev->appendKeyBool("textureRepeatV", _textureProperty->getRepeatV());
+                ev->appendKeyBool("textureInterpolate", _textureProperty->getInterpolateColors());
+                ev->appendKeyInt64("textureID", _textureProperty->getTextureObjectID());
+            }
+            else
+            {
+                ev->appendKeyUint8Array(prop(PropMesh::texture).name, to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
+                ev->appendKeyInt32Array(prop(PropMesh::textureResolution).name, tRes, 2);
+                ev->appendKeyFloatArray(prop(PropMesh::textureCoordinates).name, tc->data(), tc->size());
+                ev->appendKeyInt64(prop(PropMesh::textureApplyMode).name, _textureProperty->getApplyMode());
+                ev->appendKeyBool(prop(PropMesh::textureRepeatU).name, _textureProperty->getRepeatU());
+                ev->appendKeyBool(prop(PropMesh::textureRepeatV).name, _textureProperty->getRepeatV());
+                ev->appendKeyBool(prop(PropMesh::textureInterpolate).name, _textureProperty->getInterpolateColors());
+                ev->appendKeyInt64(prop(PropMesh::textureID).name, _textureProperty->getTextureObjectID());
+            }
+        }
     }
-    if (App::getEventProtocolVersion() <= 3)
-    {
-        ev->appendKeyFloatArray(prop(PropMesh::vertices).name, vertices.data(), vertices.size());
-        ev->appendKeyFloatArray(prop(PropMesh::normals).name, normals.data(), normals.size());
-    }
-    else
-    {
-        ev->appendKeyMatrix(prop(PropMesh::vertices).name, vertices.data(), 3, vertices.size() / 3, false);
-        ev->appendKeyMatrix(prop(PropMesh::normals).name, normals.data(), 3, normals.size() / 3, false);
-    }
-    ev->appendKeyInt32Array(prop(PropMesh::indices).name, _indices.data(), _indices.size());
 
     color.addGenesisEventData(ev);
     ev->appendKeyDouble(prop(PropMesh::shadingAngle).name, _shadingAngle);
@@ -574,42 +622,6 @@ void CMesh::pushObjectCreationEvent(int shapeHandle, int shapeUid, const CPose& 
     ev->appendKeyBool(prop(PropMesh::wireframe).name, _wireframe);
     ev->appendKeyBool(prop(PropMesh::convex).name, _convex);
     ev->appendKeyText(prop(PropMesh::colorName).name, color.getColorName().c_str());
-
-    CTextureObject* to = nullptr;
-    const std::vector<float>* tc = nullptr;
-    if (_textureProperty != nullptr)
-    {
-        to = _textureProperty->getTextureObject();
-        tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
-    }
-
-    if ((to != nullptr) && (tc != nullptr))
-    {
-        int tRes[2];
-        to->getTextureSize(tRes[0], tRes[1]);
-        if (App::getEventProtocolVersion() <= 3)
-        {
-            ev->appendKeyBuff("rawTexture", to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
-            ev->appendKeyInt32Array("textureResolution", tRes, 2);
-            ev->appendKeyFloatArray("textureCoordinates", tc->data(), tc->size());
-            ev->appendKeyInt64("textureApplyMode", _textureProperty->getApplyMode());
-            ev->appendKeyBool("textureRepeatU", _textureProperty->getRepeatU());
-            ev->appendKeyBool("textureRepeatV", _textureProperty->getRepeatV());
-            ev->appendKeyBool("textureInterpolate", _textureProperty->getInterpolateColors());
-            ev->appendKeyInt64("textureID", _textureProperty->getTextureObjectID());
-        }
-        else
-        {
-            ev->appendKeyUint8Array(prop(PropMesh::texture).name, to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
-            ev->appendKeyInt32Array(prop(PropMesh::textureResolution).name, tRes, 2);
-            ev->appendKeyFloatArray(prop(PropMesh::textureCoordinates).name, tc->data(), tc->size());
-            ev->appendKeyInt64(prop(PropMesh::textureApplyMode).name, _textureProperty->getApplyMode());
-            ev->appendKeyBool(prop(PropMesh::textureRepeatU).name, _textureProperty->getRepeatU());
-            ev->appendKeyBool(prop(PropMesh::textureRepeatV).name, _textureProperty->getRepeatV());
-            ev->appendKeyBool(prop(PropMesh::textureInterpolate).name, _textureProperty->getInterpolateColors());
-            ev->appendKeyInt64(prop(PropMesh::textureID).name, _textureProperty->getTextureObjectID());
-        }
-    }
 
     App::scenes->pushEvent();
 }
