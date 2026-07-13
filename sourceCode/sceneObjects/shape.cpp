@@ -94,8 +94,7 @@ void CShape::replaceMesh(CMeshWrapper* newMesh, bool keepMeshAttributes)
     pushObjectRefreshEvent();
 }
 
-CShape::CShape(const CPose& transformation, const std::vector<double>& vertices, const std::vector<int>& indices,
-               const std::vector<double>* optNormals, const std::vector<float>* optTexCoords, int options)
+CShape::CShape(const CPose& transformation, const std::vector<double>& vertices, const std::vector<int>& indices, const std::vector<double>* optNormals, const std::vector<float>* optTexCoords, int options)
 { // all types of meshes, except heightfields
     commonInit();
     _localTransformation = transformation;

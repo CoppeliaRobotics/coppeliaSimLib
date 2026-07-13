@@ -357,6 +357,7 @@ bool checkInputArguments(const CInterfaceStack* inStack, std::string* errStr, st
             {
                 if (t != desiredArgType)
                 { // we have a different type than expected. Check if we tolerate that other type
+ //                   printf("XXX %i, %i\n", t, desiredArgType);
                     if (desiredArgType == arg_any)
                         retVal = true;
                     else if (desiredArgType == arg_double)
@@ -9644,6 +9645,7 @@ std::string _method_textureSet(int targetObj, CDetachedScript* currentScript, co
         bool decal = false;
         bool flipH = false;
         bool flipV = false;
+        std::vector<float> texCoords;
         CPose pose;
         pose.setIdentity();
         withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
@@ -9655,6 +9657,14 @@ std::string _method_textureSet(int targetObj, CDetachedScript* currentScript, co
             map->fetchBoolFromKey("decal", decal, &err);
             map->fetchBoolFromKey("flipH", flipH, &err);
             map->fetchBoolFromKey("flipV", flipV, &err);
+            texCoords.resize(target->getIndices()->size() * 2);
+            if (map->fetchFloatArrayFromKey("coordinates", texCoords.data(), target->getIndices()->size() * 2, &err))
+            {
+                flipH = false;
+                flipV = false;
+            }
+            else
+                texCoords.clear();
             double poseDat[7];
             if (map->fetchDoubleArrayFromKey("pose", poseDat, 7, &err))
                 pose.setData(poseDat, true);
@@ -9678,7 +9688,7 @@ std::string _method_textureSet(int targetObj, CDetachedScript* currentScript, co
                     {
                         int n = int(img.size() / (resolution[0] * resolution[1]));
                         CTextureObject* textureObj = new CTextureObject(resolution[0], resolution[1]);
-                        textureObj->setImage(n == 4, flipH, flipV, (unsigned char*)img.data());
+                        textureObj->setImage(n == 4, flipH, !flipV, (unsigned char*)img.data());
                         textureObj->addDependentObject(shapeHandle, target->getObjectHandle());
                         int texID = App::scene->textureContainer->addObject(textureObj, false); // might erase the textureObj and return a similar object already present!!
                         CTextureProperty* tp = new CTextureProperty(texID);
@@ -9688,10 +9698,15 @@ std::string _method_textureSet(int targetObj, CDetachedScript* currentScript, co
                             tp->setApplyMode(1);
                         else
                             tp->setApplyMode(0);
-                        tp->setRepeatU(repeatU);
-                        tp->setRepeatV(repeatV);
-                        tp->setTextureScaling(uvScaling[0], uvScaling[1]);
-                        tp->setTextureRelativeConfig(pose);
+                        if (texCoords.size() > 0)
+                            tp->setFixedCoordinates(&texCoords);
+                        else
+                        {
+                            tp->setRepeatU(repeatU);
+                            tp->setRepeatV(repeatV);
+                            tp->setTextureScaling(uvScaling[0], uvScaling[1]);
+                            tp->setTextureRelativeConfig(pose);
+                        }
                     }
                     else
                         errMsg = SIM_ERROR_INVALID_RESOLUTION;

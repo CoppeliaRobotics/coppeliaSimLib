@@ -28,8 +28,7 @@ CMesh::CMesh()
     _commonInit();
 }
 
-CMesh::CMesh(const CPose& meshFrame, const std::vector<double>& vertices, const std::vector<int>& indices,
-             const std::vector<double>* optNormals, const std::vector<float>* optTexCoords, int options)
+CMesh::CMesh(const CPose& meshFrame, const std::vector<double>& vertices, const std::vector<int>& indices, const std::vector<double>* optNormals, const std::vector<float>* optTexCoords, int options)
 {
     _commonInit();
     _vertices.assign(vertices.begin(), vertices.end());

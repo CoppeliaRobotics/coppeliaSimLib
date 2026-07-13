@@ -8044,10 +8044,9 @@ int simCreateShape_internal(int options, double shadingAngle, const double* vert
             textCoords = &_textCoords;
             img = texture;
         }
-        else
+        else if ((options & 128) == 0)
         { // Simplify meshes only at import, and only if there are no textures (for now):
-            CMeshRoutines::removeDuplicateVerticesAndTriangles(vert, &ind, norm, nullptr,
-                                                               App::userSettings->identicalVertexTolerance);
+            CMeshRoutines::removeDuplicateVerticesAndTriangles(vert, &ind, norm, nullptr, App::userSettings->identicalVertexTolerance);
         }
 
         CShape* shape = new CShape(CPose::identityTransformation, vert, ind, norm, textCoords, options);
