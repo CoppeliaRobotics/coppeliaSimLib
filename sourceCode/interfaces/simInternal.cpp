@@ -1047,7 +1047,19 @@ int simSetHandleProperty_internal(int64_t target, const char* ppName, int64_t pS
             {
                 std::string pName(ppName);
                 if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_handle)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_handle)))
-                    retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(pState));
+                {
+                    if (pName.find(CUSTOMDATAPREFIXDOT) == 0)
+                    {
+                        retVal = sim_propertyret_notwritable;
+                        CApiErrors::setLastError(__func__, "handles cannot be written to 'customData.*'");
+                    }
+                    else
+                    {
+                        if (target == sim_handle_app)
+                            CApiErrors::setLastWarning(__func__, "writing handle to app.signal.*");
+                        retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)&pState, sizeof(pState));
+                    }
+                }
                 else
                 {
                     pName = checkForDeprecation(__func__, pName.c_str(), target);
@@ -3213,7 +3225,19 @@ int simSetHandleArrayProperty_internal(int64_t target, const char* ppName, const
                 {
                     std::string pName(ppName);
                     if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_handlearray)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_handlearray)))
-                        retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(int64_t));
+                    {
+                        if (pName.find(CUSTOMDATAPREFIXDOT) == 0)
+                        {
+                            retVal = sim_propertyret_notwritable;
+                            CApiErrors::setLastError(__func__, "handles cannot be written to 'customData.*'");
+                        }
+                        else
+                        {
+                            if (target == sim_handle_app)
+                                CApiErrors::setLastWarning(__func__, "writing handles to app.signal.*");
+                            retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(int64_t));
+                        }
+                    }
                     else
                     {
                         std::vector<int64_t> pState(v, v + vL);;
