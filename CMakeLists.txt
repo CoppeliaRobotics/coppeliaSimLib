@@ -12,6 +12,8 @@ set(CMAKE_MACOSX_RPATH 1)
 
 set(CMAKE_AUTOUIC_SEARCH_PATHS ui)
 
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
 if(NOT LUA_INCLUDE_DIR OR NOT LUA_LIBRARIES)
     find_package(Lua 5.4 EXACT REQUIRED)
 endif()
@@ -699,6 +701,33 @@ if(WITH_GUI)
         sourceCode/gui/visual/glBufferObjects.cpp
     )
 endif()
+
+
+add_custom_command(
+    OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/propertiesAndMethods.h
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/generated
+    COMMAND ${Python3_EXECUTABLE}
+        ${COPPELIASIM_INCLUDE_DIR}/tools/pycpp.py
+        --input-file ${CMAKE_CURRENT_SOURCE_DIR}/sourceCode/various/propertiesAndMethods.h.in
+        --output-file ${CMAKE_CURRENT_BINARY_DIR}/generated/propertiesAndMethods.h
+        --param objects_xml=${COPPELIASIM_INCLUDE_DIR}/sim/objects.xml
+        --python-path ${CMAKE_CURRENT_SOURCE_DIR}/sourceCode/various
+        --python-path ${COPPELIASIM_INCLUDE_DIR}/tools
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS
+        ${COPPELIASIM_INCLUDE_DIR}/sim/objects.xml
+        ${CMAKE_CURRENT_SOURCE_DIR}/sourceCode/various/propertiesAndMethods.h.in
+        ${COPPELIASIM_INCLUDE_DIR}/tools/cplusplus.py
+        ${COPPELIASIM_INCLUDE_DIR}/tools/objects.py
+        ${COPPELIASIM_INCLUDE_DIR}/tools/pycpp.py
+)
+add_custom_target(
+    generate_propertiesAndMethods_h
+    DEPENDS
+        ${CMAKE_CURRENT_BINARY_DIR}/generated/propertiesAndMethods.h
+)
+add_dependencies(coppeliaSim generate_propertiesAndMethods_h)
 
 
 target_link_libraries(coppeliaSim magic_enum::magic_enum)
