@@ -223,7 +223,6 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["texture.setData"] = _method_textureSetData;
         funcTable["texture.getData"] = _method_textureGetData;
         funcTable["getEnumInfo"] = _method_getEnumInfo;
-        funcTable["getData"] = _method_getData;
     }
 
     std::string retVal("__notFound__");
@@ -2305,7 +2304,6 @@ std::string _method_remove(int targetObj, CDetachedScript* currentScript, const 
             {
                 CSceneObject* sceneObj = getSceneObject(targetObj);
                 CCollection* coll = getCollection(targetObj);
-                CDrawingObject* draw = getDrawingObject(targetObj);
                 CDetachedScript* script = getDetachedScript(targetObj);
                 if (sceneObj != nullptr)
                 {
@@ -2315,8 +2313,6 @@ std::string _method_remove(int targetObj, CDetachedScript* currentScript, const 
                 }
                 else if (coll != nullptr)
                     App::scene->collections->removeCollection(targetObj);
-                else if (draw != nullptr)
-                    App::scene->drawingCont->removeObject(targetObj);
                 else if (script != nullptr)
                 {
                     if (!App::scenes->addOnScriptContainer->removeAddOn(targetObj))
@@ -4936,49 +4932,116 @@ std::string _method_transformBuffer(int targetObj, CDetachedScript* currentScrip
 std::string _method_getImage(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CVisionSensor* target = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
+    CCamera* cTarget = (CCamera*)getSpecificSceneObjectType(targetObj, sim_sceneobject_camera);
+    CVisionSensor* vTarget = (CVisionSensor*)getSpecificSceneObjectType(targetObj, sim_sceneobject_visionsensor);
+    if ((vTarget != nullptr) || (cTarget != nullptr))
     {
-        std::vector<int> pos = {0, 0};
-        std::vector<int> size = {0, 0};
-        std::string type("rgb");
-        double rgbaCutOff = 0.999;
-        withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
+        if ((vTarget != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
         {
-            map->fetchInt32ArrayFromKey("position", pos.data(), 2, &err);
-            map->fetchInt32ArrayFromKey("size", size.data(), 2, &err);
-            map->fetchStringFromKey("type", type, &err);
-            map->fetchDoubleFromKey("rgbaCutOff", rgbaCutOff, &err);
-        });
-        if (errMsg.empty())
-        {
-            int options = 0;
-            int res[2];
-            target->getResolution(res);
-            if (type == "rgba")
-                options = 2;
-            else if (type == "grey")
-                options = 1;
-            if (size[0] == 0)
-                size[0] = res[0];
-            if (size[1] == 0)
-                size[1] = res[1];
-            unsigned char* img = target->readPortionOfCharImage(pos[0], pos[1], size[0], size[1], rgbaCutOff, options);
-            if (img != nullptr)
+            std::vector<int> pos = {0, 0};
+            std::vector<int> size = {0, 0};
+            std::string type("rgb");
+            double rgbaCutOff = 0.999;
+            withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
             {
-                int s = 3;
-                if (type == "grey")
-                    s = 1; // greyscale
+                map->fetchInt32ArrayFromKey("position", pos.data(), 2, &err);
+                map->fetchInt32ArrayFromKey("size", size.data(), 2, &err);
+                map->fetchStringFromKey("type", type, &err);
+                map->fetchDoubleFromKey("rgbaCutOff", rgbaCutOff, &err);
+            });
+            if (errMsg.empty())
+            {
+                int options = 0;
+                int res[2];
+                vTarget->getResolution(res);
                 if (type == "rgba")
-                    s = 4; // + alpha channel
-                outStack->pushBufferOntoStack((char*)img, s * size[0] * size[1]);
-                delete[]((char*)img);
-                outStack->pushInt32ArrayOntoStack(res, 2);
+                    options = 2;
+                else if (type == "grey")
+                    options = 1;
+                if (size[0] == 0)
+                    size[0] = res[0];
+                if (size[1] == 0)
+                    size[1] = res[1];
+                unsigned char* img = vTarget->readPortionOfCharImage(pos[0], pos[1], size[0], size[1], rgbaCutOff, options);
+                if (img != nullptr)
+                {
+                    int s = 3;
+                    if (type == "grey")
+                        s = 1; // greyscale
+                    if (type == "rgba")
+                        s = 4; // + alpha channel
+                    outStack->pushBufferOntoStack((char*)img, s * size[0] * size[1]);
+                    delete[]((char*)img);
+                    outStack->pushInt32ArrayOntoStack(res, 2);
+                }
+                else
+                    errMsg = SIM_ERROR_INVALID_ARGUMENTS;
             }
-            else
-                errMsg = SIM_ERROR_INVALID_ARGUMENTS;
+        }
+        if (errMsg.empty() && (cTarget != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
+        {
+            int resolution[2] = {1920, 1080};
+            double clippingPlanes[2] = {0.05, 30.0};
+            double viewAngle = 60.0 * degToRad;
+            double viewSize = 2.0;
+            bool hasViewAngle = false;
+            bool hasViewSize = false;
+            std::string rendMode = "openGl";
+            withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
+            {
+                map->fetchInt32ArrayFromKey("resolution", resolution, 2, &err);
+                map->fetchDoubleArrayFromKey("clippingPlanes", clippingPlanes, 2, &err);
+                map->fetchStringFromKey("renderMode", rendMode, &err);
+                hasViewAngle = map->fetchDoubleFromKey("viewAngle", viewAngle, &err);
+                hasViewSize = map->fetchDoubleFromKey("viewSize", viewSize, &err);
+            });
+            if (errMsg.empty())
+            {
+                auto rmValue = magic_enum::enum_cast<renderMode>(rendMode.c_str());
+                if (rmValue.has_value())
+                {
+                    int rm = static_cast<int>(*rmValue);
+                    CVisionSensor* sensor = new CVisionSensor();
+                    App::scene->sceneObjects->addObjectToScene(sensor, false, false);
+                    sensor->setPerspective(hasViewAngle || (!hasViewSize));
+                    sensor->setViewAngle(viewAngle);
+                    sensor->setOrthoViewSize(viewSize);
+                    sensor->setResolution(resolution);
+                    sensor->setClippingPlanes(clippingPlanes[0], clippingPlanes[1]);
+                    sensor->setRenderMode(rm);
+                    sensor->setLocalTransformation(cTarget->getCumulativeTransformation());
+                    sensor->handleSensor();
+                    unsigned char* img = sensor->readPortionOfCharImage(0, 0, resolution[0], resolution[1], 1.0, 0);
+                    if (img != nullptr)
+                    {
+                        float* buff = sensor->readPortionOfImage(0, 0, resolution[0], resolution[1], 2);
+                        if (buff != nullptr)
+                        {
+                            double np, fp;
+                            sensor->getClippingPlanes(np, fp);
+                            float n = (float)np;
+                            float f = (float)fp;
+                            float fmn = f - n;
+                            for (int i = 0; i < resolution[0] * resolution[1]; i++)
+                                buff[i] = n + fmn * buff[i];
+                            outStack->pushBufferOntoStack((char*)img, 3 * resolution[0] * resolution[1]);
+                            outStack->pushBufferOntoStack((char*)buff, resolution[0] * resolution[1] * sizeof(float));
+                            outStack->pushInt32ArrayOntoStack(resolution, 2);
+                            delete[]((char*)buff);
+                        }
+                        delete[]((char*)img);
+                    }
+                    else
+                        errMsg = SIM_ERROR_INVALID_ARGUMENTS;
+                    App::scene->sceneObjects->eraseObject(sensor, false, false);
+                }
+                else
+                    errMsg = "invalid render mode.";
+            }
         }
     }
+    else
+        errMsg = "invalid object.";
     return errMsg;
 }
 
@@ -9887,74 +9950,6 @@ std::string _method_getEnumInfo(int targetObj, CDetachedScript* currentScript, c
         }
         else
             errMsg = "unsupported type.";
-    }
-    return errMsg;
-}
-
-std::string _method_getData(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    std::string errMsg;
-    CCamera* target = (CCamera*)getSpecificSceneObjectType(targetObj, sim_sceneobject_camera, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
-    {
-        int resolution[2] = {1920, 1080};
-        double clippingPlanes[2] = {0.05, 30.0};
-        double viewAngle = 60.0 * degToRad;
-        double viewSize = 2.0;
-        bool hasViewAngle = false;
-        bool hasViewSize = false;
-        std::string rendMode = "openGl";
-        withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
-        {
-            map->fetchInt32ArrayFromKey("resolution", resolution, 2, &err);
-            map->fetchDoubleArrayFromKey("clippingPlanes", clippingPlanes, 2, &err);
-            map->fetchStringFromKey("renderMode", rendMode, &err);
-            hasViewAngle = map->fetchDoubleFromKey("viewAngle", viewAngle, &err);
-            hasViewSize = map->fetchDoubleFromKey("viewSize", viewSize, &err);
-        });
-        if (errMsg.empty())
-        {
-            auto rmValue = magic_enum::enum_cast<renderMode>(rendMode.c_str());
-            if (rmValue.has_value())
-            {
-                int rm = static_cast<int>(*rmValue);
-                CVisionSensor* sensor = new CVisionSensor();
-                App::scene->sceneObjects->addObjectToScene(sensor, false, false);
-                sensor->setPerspective(hasViewAngle || (!hasViewSize));
-                sensor->setViewAngle(viewAngle);
-                sensor->setOrthoViewSize(viewSize);
-                sensor->setResolution(resolution);
-                sensor->setClippingPlanes(clippingPlanes[0], clippingPlanes[1]);
-                sensor->setRenderMode(rm);
-                sensor->setLocalTransformation(target->getCumulativeTransformation());
-                sensor->handleSensor();
-                unsigned char* img = sensor->readPortionOfCharImage(0, 0, resolution[0], resolution[1], 1.0, 0);
-                if (img != nullptr)
-                {
-                    float* buff = sensor->readPortionOfImage(0, 0, resolution[0], resolution[1], 2);
-                    if (buff != nullptr)
-                    {
-                        double np, fp;
-                        sensor->getClippingPlanes(np, fp);
-                        float n = (float)np;
-                        float f = (float)fp;
-                        float fmn = f - n;
-                        for (int i = 0; i < resolution[0] * resolution[1]; i++)
-                            buff[i] = n + fmn * buff[i];
-                        outStack->pushBufferOntoStack((char*)img, 3 * resolution[0] * resolution[1]);
-                        outStack->pushBufferOntoStack((char*)buff, resolution[0] * resolution[1] * sizeof(float));
-                        outStack->pushInt32ArrayOntoStack(resolution, 2);
-                        delete[]((char*)buff);
-                    }
-                    delete[]((char*)img);
-                }
-                else
-                    errMsg = SIM_ERROR_INVALID_ARGUMENTS;
-                App::scene->sceneObjects->eraseObject(sensor, false, false);
-            }
-            else
-                errMsg = "invalid render mode.";
-        }
     }
     return errMsg;
 }

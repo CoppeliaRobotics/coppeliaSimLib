@@ -366,6 +366,12 @@ const std::vector<std::pair<std::string, SProperty*>> allProps = []{
     return result;
 }();
 
+#define META_STARTSUPPORT "startSupport"
+#define META_ENDSUPPORT "endSupport"
+#define META_STARTDEPRECATED "startDeprecated"
+#define META_REPLACEDBY "replacedBy"
+#define META_MIGRATETO "migrateTo"
+
 std::map<std::string, std::vector<SDeprecatedProp>> createDeprecationMapping(int callingApiVer)
 {
     std::map<std::string, std::vector<SDeprecatedProp>> result;
