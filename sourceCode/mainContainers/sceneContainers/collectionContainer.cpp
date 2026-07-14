@@ -332,7 +332,7 @@ int CCollectionContainer::getHandleArrayProperty_t(int64_t target, const char* p
     pState.clear();
     if (target == -1)
     {
-        if (strcmp(pName, prop(PropCollectionCont::collections).name) == 0)
+        if (strcmp(pName, prop(PropScene::collections).name) == 0)
         {
             for (size_t i = 0; i < _allCollections.size(); i++)
                 pState.push_back(_allCollections[i]->getObjectHandle());
@@ -368,26 +368,7 @@ int CCollectionContainer::getStringArrayProperty_t(int64_t target, const char* p
 int CCollectionContainer::getPropertyName_t(int64_t target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (target == -1)
-    {
-        for (size_t i = 0; i < allProps_collCont.size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(allProps_collCont[i].name, pName.c_str()))
-            {
-                if ((allProps_collCont[i].flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_collCont[i].name;
-                        retVal = sim_propertyret_ok;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    else
+    if (target != -1)
     {
         CCollection* it = getObjectFromHandle(int(target));
         if (it != nullptr)
@@ -403,31 +384,7 @@ int CCollectionContainer::getPropertyName_t(int64_t target, int& index, std::str
 int CCollectionContainer::getPropertyInfo_t(int64_t target, const char* pName, int& info, std::string& infoTxt) const
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (target == -1)
-    {
-        for (size_t i = 0; i < allProps_collCont.size(); i++)
-        {
-            if (strcmp(allProps_collCont[i].name, pName) == 0)
-            {
-                retVal = allProps_collCont[i].type;
-                info = allProps_collCont[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_collCont[i].info.json;
-                else
-                {
-                    auto w = allProps_collCont[i].info.map;
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
-            }
-        }
-    }
-    else
+    if (target != -1)
     {
         CCollection* it = getObjectFromHandle(int(target));
         if (it != nullptr)
@@ -479,7 +436,7 @@ void CCollectionContainer::_addCollection(CCollection* collection)
         std::vector<int64_t> handles;
         for (size_t i = 0; i < _allCollections.size(); i++)
             handles.push_back(_allCollections[i]->getObjectHandle());
-        const char* cmd = prop(PropCollectionCont::collections).name;
+        const char* cmd = prop(PropScene::collections).name;
         CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt64Array(cmd, handles.data(), handles.size());
@@ -540,7 +497,7 @@ void CCollectionContainer::pushGenesisEvents() const
 
         // We need to "fake" adding that collection:
         addedCollections.push_back(coll->getObjectHandle());
-        const char* cmd = prop(PropCollectionCont::collections).name;
+        const char* cmd = prop(PropScene::collections).name;
         CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, addedCollections.data(), addedCollections.size());

@@ -289,7 +289,7 @@ void CMeshWrapper::setMass(double m)
         _mass = m;
         if ((_parentObjectHandle >= 0) && App::scenes->getEventsEnabled())
         {
-            const char* cmd = prop(PropMeshWrapper::mass).name;
+            const char* cmd = prop(PropShape::mass).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
             ev->appendKeyDouble(cmd, _mass);
             App::scenes->pushEvent();
@@ -447,7 +447,7 @@ void CMeshWrapper::setCOM(const C3Vector& com)
         _com = com;
         if ((_parentObjectHandle >= 0) && App::scenes->getEventsEnabled())
         {
-            const char* cmd = prop(PropMeshWrapper::com).name;
+            const char* cmd = prop(PropShape::com).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(_parentObjectHandle, false, cmd, true);
             if (App::getEventProtocolVersion() <= 3)
                 ev->appendKeyDoubleArray(cmd, _com.data, 3);
@@ -489,22 +489,22 @@ void CMeshWrapper::setInertiaAndComputePMI(const C3X3Matrix& inertia, bool force
         getPMIFromInertia(_iMatrix, _pmiRotFrame, _pmi);
         if ((_parentObjectHandle >= 0) && App::scenes->getEventsEnabled())
         {
-            CCbor* ev = App::scenes->createSceneObjectChangedEvent(_parentObjectHandle, false, prop(PropMeshWrapper::inertiaMatrix).name, true);
+            CCbor* ev = App::scenes->createSceneObjectChangedEvent(_parentObjectHandle, false, prop(PropShape::inertiaMatrix).name, true);
             C3Vector pmi(_pmi * _mass);
-            ev->appendKeyMatrix(prop(PropMeshWrapper::inertiaMatrix).name, _iMatrix * _mass);
-            ev->appendKeyVector3(prop(PropMeshWrapper::pmi).name, pmi.data);
+            ev->appendKeyMatrix(prop(PropShape::inertiaMatrix).name, _iMatrix * _mass);
+            ev->appendKeyVector3(prop(PropShape::pmi).name, pmi.data);
             if (App::getEventProtocolVersion() <= 3)
             {
-                ev->appendKeyDoubleArray(prop(PropMeshWrapper::DEPRECATED_pmi).name, pmi.data, 3);
+                ev->appendKeyDoubleArray(prop(PropShape::DEPRECATED_pmi).name, pmi.data, 3);
                 double dat[9];
                 _in *= _mass;
                 _in.getData(dat);
                 ev->appendKeyDoubleArray("inertia", dat, 9);
                 _pmiRotFrame.getData(dat, true);
-                ev->appendKeyDoubleArray(prop(PropMeshWrapper::pmiQuaternion).name, dat, 4);
+                ev->appendKeyDoubleArray(prop(PropShape::pmiQuaternion).name, dat, 4);
             }
             else
-                ev->appendKeyQuaternion(prop(PropMeshWrapper::pmiQuaternion).name, _pmiRotFrame);
+                ev->appendKeyQuaternion(prop(PropShape::pmiQuaternion).name, _pmiRotFrame);
             App::scenes->pushEvent();
         }
     }
@@ -1265,26 +1265,26 @@ void CMeshWrapper::addObjectEventData(int parentObjectHandle, CCbor* ev)
 
     if (_parentObjectHandle >= 0)
     {
-        ev->appendKeyDouble(prop(PropMeshWrapper::mass).name, _mass);
+        ev->appendKeyDouble(prop(PropShape::mass).name, _mass);
         if (App::getEventProtocolVersion() <= 3)
-            ev->appendKeyDoubleArray(prop(PropMeshWrapper::com).name, _com.data, 3);
+            ev->appendKeyDoubleArray(prop(PropShape::com).name, _com.data, 3);
         else
-            ev->appendKeyVector3(prop(PropMeshWrapper::com).name, _com);
-        ev->appendKeyMatrix(prop(PropMeshWrapper::inertiaMatrix).name, _iMatrix * _mass);
+            ev->appendKeyVector3(prop(PropShape::com).name, _com);
+        ev->appendKeyMatrix(prop(PropShape::inertiaMatrix).name, _iMatrix * _mass);
         C3Vector pmi(_pmi * _mass);
-        ev->appendKeyVector3(prop(PropMeshWrapper::pmi).name, pmi.data);
+        ev->appendKeyVector3(prop(PropShape::pmi).name, pmi.data);
         if (App::getEventProtocolVersion() <= 3)
         {
-            ev->appendKeyDoubleArray(prop(PropMeshWrapper::DEPRECATED_pmi).name, pmi.data, 3);
+            ev->appendKeyDoubleArray(prop(PropShape::DEPRECATED_pmi).name, pmi.data, 3);
             C3X3Matrix inertia(_iMatrix * _mass);
             double dat[9];
             inertia.getData(dat);
             ev->appendKeyDoubleArray("inertia", dat, 9);
             _pmiRotFrame.getData(dat, true);
-            ev->appendKeyDoubleArray(prop(PropMeshWrapper::pmiQuaternion).name, dat, 4);
+            ev->appendKeyDoubleArray(prop(PropShape::pmiQuaternion).name, dat, 4);
         }
         else
-            ev->appendKeyQuaternion(prop(PropMeshWrapper::pmiQuaternion).name, _pmiRotFrame);
+            ev->appendKeyQuaternion(prop(PropShape::pmiQuaternion).name, _pmiRotFrame);
     }
 }
 
@@ -1292,7 +1292,7 @@ int CMeshWrapper::setFloatProperty_wrapper(const char* pName, double pState)
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(prop(PropMeshWrapper::mass).name, pName) == 0)
+    if (strcmp(prop(PropShape::mass).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         setMass(pState);
@@ -1305,7 +1305,7 @@ int CMeshWrapper::getFloatProperty_wrapper(const char* pName, double& pState) co
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(prop(PropMeshWrapper::mass).name, pName) == 0)
+    if (strcmp(prop(PropShape::mass).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _mass;
@@ -1318,7 +1318,7 @@ int CMeshWrapper::setVector3Property_wrapper(const char* pName, const C3Vector& 
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(prop(PropMeshWrapper::com).name, pName) == 0)
+    if (strcmp(prop(PropShape::com).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         setCOM(pState);
@@ -1331,12 +1331,12 @@ int CMeshWrapper::getVector3Property_wrapper(const char* pName, C3Vector& pState
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(prop(PropMeshWrapper::com).name, pName) == 0)
+    if (strcmp(prop(PropShape::com).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _com;
     }
-    else if (strcmp(prop(PropMeshWrapper::pmi).name, pName) == 0)
+    else if (strcmp(prop(PropShape::pmi).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState.data[0] = _pmi.data[0];
@@ -1351,7 +1351,7 @@ int CMeshWrapper::setMatrixProperty_wrapper(const char* pName, const CMatrix& pS
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(prop(PropMeshWrapper::inertiaMatrix).name, pName) == 0)
+    if (strcmp(prop(PropShape::inertiaMatrix).name, pName) == 0)
     {
         if ((pState.rows == 3) && (pState.cols == 3))
         {
@@ -1376,7 +1376,7 @@ int CMeshWrapper::getMatrixProperty_wrapper(const char* pName, CMatrix& pState) 
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(prop(PropMeshWrapper::inertiaMatrix).name, pName) == 0)
+    if (strcmp(prop(PropShape::inertiaMatrix).name, pName) == 0)
     {
         pState = CMatrix(_iMatrix * _mass);
         retVal = sim_propertyret_ok;
@@ -1396,7 +1396,7 @@ int CMeshWrapper::getQuaternionProperty_wrapper(const char* pName, CQuaternion& 
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(prop(PropMeshWrapper::pmiQuaternion).name, pName) == 0)
+    if (strcmp(prop(PropShape::pmiQuaternion).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState = _pmiRotFrame;
@@ -1409,7 +1409,7 @@ int CMeshWrapper::setFloatArrayProperty_wrapper(const char* pName, const std::ve
 {
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(prop(PropMeshWrapper::DEPRECATED_inertia).name, pName) == 0)
+    if (strcmp(prop(PropShape::DEPRECATED_inertia).name, pName) == 0)
     {
         if (pState.size() >= 9)
         {
@@ -1430,13 +1430,13 @@ int CMeshWrapper::getFloatArrayProperty_wrapper(const char* pName, std::vector<d
     int retVal = sim_propertyret_unknownproperty;
     pState.clear();
 
-    if (strcmp(prop(PropMeshWrapper::DEPRECATED_inertia).name, pName) == 0)
+    if (strcmp(prop(PropShape::DEPRECATED_inertia).name, pName) == 0)
     {
         pState.resize(9, 0.0);
         _iMatrix.getData(pState.data());
         retVal = sim_propertyret_ok;
     }
-    else if (strcmp(prop(PropMeshWrapper::DEPRECATED_pmi).name, pName) == 0)
+    else if (strcmp(prop(PropShape::DEPRECATED_pmi).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
         pState.push_back(_pmi(0));
@@ -1450,48 +1450,11 @@ int CMeshWrapper::getFloatArrayProperty_wrapper(const char* pName, std::vector<d
 int CMeshWrapper::getPropertyName_wrapper(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = sim_propertyret_unknownproperty;
-    for (size_t i = 0; i < allProps_meshWrap.size(); i++)
-    {
-        if ((pName.size() == 0) || utils::startsWith(allProps_meshWrap[i].name, pName.c_str()))
-        {
-            if ((allProps_meshWrap[i].flags & excludeFlags) == 0)
-            {
-                index--;
-                if (index == -1)
-                {
-                    pName = allProps_meshWrap[i].name;
-                    retVal = sim_propertyret_ok;
-                    break;
-                }
-            }
-        }
-    }
     return retVal;
 }
 
 int CMeshWrapper::getPropertyInfo_wrapper(const char* pName, int& info, std::string& infoTxt) const
 {
     int retVal = sim_propertyret_unknownproperty;
-    for (size_t i = 0; i < allProps_meshWrap.size(); i++)
-    {
-        if (strcmp(allProps_meshWrap[i].name, pName) == 0)
-        {
-            retVal = allProps_meshWrap[i].type;
-            info = allProps_meshWrap[i].flags;
-            if (infoTxt == "j")
-                infoTxt = allProps_meshWrap[i].info.json;
-            else
-            {
-                auto w = allProps_meshWrap[i].info.map;
-                std::string descr = w["description"].toString().toStdString();
-                std::string label = w["label"].toString().toStdString();
-                if ( (infoTxt == "s") || (descr == "") )
-                    infoTxt = label;
-                else
-                    infoTxt = descr;
-            }
-            break;
-        }
-    }
     return retVal;
 }

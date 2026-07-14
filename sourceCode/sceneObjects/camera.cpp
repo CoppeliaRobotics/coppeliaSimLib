@@ -985,15 +985,15 @@ void CCamera::addObjectEventData(CCbor* ev)
     ev->appendKeyBool(prop(PropCamera::rotationEnabled).name, _allowRotation);
     if (App::getEventProtocolVersion() == 2)
     {
-        ev->appendKeyDouble(prop(PropViewableBase::viewAngle).name, _viewAngle);
-        ev->appendKeyDouble(prop(PropViewableBase::viewSize).name, _orthoViewSize);
+        ev->appendKeyDouble(prop(PropCamera::viewAngle).name, _viewAngle);
+        ev->appendKeyDouble(prop(PropCamera::viewSize).name, _orthoViewSize);
         double arr[2] = {_nearClippingPlane, _farClippingPlane};
-        ev->appendKeyDoubleArray(prop(PropViewableBase::clippingPlanes).name, arr, 2);
-        ev->appendKeyBool(prop(PropViewableBase::perspective).name, _perspective);
-        ev->appendKeyBool(prop(PropViewableBase::showFrustum).name, _showVolume);
-        ev->appendKeyDoubleArray(prop(PropViewableBase::frustumCornerNear).name, _volumeVectorNear.data, 3);
-        ev->appendKeyDoubleArray(prop(PropViewableBase::frustumCornerFar).name, _volumeVectorFar.data, 3);
-        ev->appendKeyInt32Array(prop(PropViewableBase::resolution).name, _resolution, 2);
+        ev->appendKeyDoubleArray(prop(PropCamera::clippingPlanes).name, arr, 2);
+        ev->appendKeyBool(prop(PropCamera::perspective).name, _perspective);
+        ev->appendKeyBool(prop(PropCamera::showFrustum).name, _showVolume);
+        ev->appendKeyDoubleArray(prop(PropCamera::frustumCornerNear).name, _volumeVectorNear.data, 3);
+        ev->appendKeyDoubleArray(prop(PropCamera::frustumCornerFar).name, _volumeVectorFar.data, 3);
+        ev->appendKeyInt32Array(prop(PropCamera::resolution).name, _resolution, 2);
         ev->closeArrayOrMap(); //"camera"
         CSceneObject::addObjectEventData(ev);
     }

@@ -65,7 +65,7 @@ void CDrawingContainer::_publishAllDrawingObjectHandlesEvent() const
             CDrawingObject* dr = _allObjects[i];
             handles.push_back(dr->getObjectHandle());
         }
-        const char* cmd = prop(PropDrawingObjectCont::drawingObjects).name;
+        const char* cmd = prop(PropScene::drawingObjects).name;
         CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, handles.data(), handles.size());
@@ -143,7 +143,7 @@ void CDrawingContainer::pushGenesisEvents()
         dr->pushAddEvent();
         // We need to "fake" adding that drawing object:
         addedObjects.push_back(dr->getObjectHandle());
-        const char* cmd = prop(PropDrawingObjectCont::drawingObjects).name;
+        const char* cmd = prop(PropScene::drawingObjects).name;
         CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
         if (App::getEventProtocolVersion() <= 3)
             ev->appendKeyInt32Array(cmd, addedObjects.data(), addedObjects.size());
@@ -229,7 +229,7 @@ int CDrawingContainer::getHandleArrayProperty_t(int64_t target, const char* pNam
     pState.clear();
     if (target == -1)
     {
-        if (strcmp(pName, prop(PropDrawingObjectCont::drawingObjects).name) == 0)
+        if (strcmp(pName, prop(PropScene::drawingObjects).name) == 0)
         {
             for (size_t i = 0; i < _allObjects.size(); i++)
                 pState.push_back(_allObjects[i]->getObjectHandle());
@@ -258,26 +258,7 @@ int CDrawingContainer::getStringArrayProperty_t(int64_t target, const char* pNam
 int CDrawingContainer::getPropertyName_t(int64_t target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (target == -1)
-    {
-        for (size_t i = 0; i < allProps_drawCont.size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(allProps_drawCont[i].name, pName.c_str()))
-            {
-                if ((allProps_drawCont[i].flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_drawCont[i].name;
-                        retVal = sim_propertyret_ok;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    else
+    if (target != -1)
     {
         CDrawingObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)
@@ -293,31 +274,7 @@ int CDrawingContainer::getPropertyName_t(int64_t target, int& index, std::string
 int CDrawingContainer::getPropertyInfo_t(int64_t target, const char* pName, int& info, std::string& infoTxt) const
 {
     int retVal = sim_propertyret_unknownproperty;
-    if (target == -1)
-    {
-        for (size_t i = 0; i < allProps_drawCont.size(); i++)
-        {
-            if (strcmp(allProps_drawCont[i].name, pName) == 0)
-            {
-                retVal = allProps_drawCont[i].type;
-                info = allProps_drawCont[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_drawCont[i].info.json;
-                else
-                {
-                    auto w = allProps_drawCont[i].info.map;
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
-            }
-        }
-    }
-    else
+    if (target != -1)
     {
         CDrawingObject* it = getObjectFromHandle(int(target));
         if (it != nullptr)

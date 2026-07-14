@@ -903,9 +903,9 @@ int CScene::addGeneralObjectsToSceneAndPerformMappings(
                 if (mat->getEngineBoolParam_old(sim_bullet_body_sticky, nullptr))
                 { // Formely sticky contact objects need to be adjusted for the new Bullet:
                     if (shape->getStatic())
-                        mat->setFloatProperty(prop(PropMaterial::bulletFriction).name, mat->getFloatPropertyValue(prop(PropMaterial::bulletFriction0).name)); // the new Bullet friction
+                        mat->setFloatProperty(prop(PropShape::bulletFriction).name, mat->getFloatPropertyValue(prop(PropShape::bulletFriction0).name)); // the new Bullet friction
                     else
-                        mat->setFloatProperty(prop(PropMaterial::bulletFriction).name, 0.25); // the new Bullet friction
+                        mat->setFloatProperty(prop(PropShape::bulletFriction).name, 0.25); // the new Bullet friction
                 }
             }
             shape->getMesh()->setDynMaterialId_old(-1);

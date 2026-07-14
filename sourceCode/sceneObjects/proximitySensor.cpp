@@ -174,6 +174,8 @@ void CProxSensor::commonInit()
     _sensableObject_deprecated = -1;
     _sensableType_deprecated = sim_objectspecialproperty_detectable_ultrasonic;
     _detectedObjectHandle = -1;
+    _detectedPoint.clear();
+    _detectedNormalVector.clear();
     _calcTimeInMs = 0;
 
     volumeColor.setColorsAllBlack();

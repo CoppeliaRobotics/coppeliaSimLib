@@ -155,7 +155,7 @@ void CViewableBase::setClippingPlanes(double nearPlane, double farPlane)
             }
             else
             {
-                const char* cmd = prop(PropViewableBase::clippingPlanes).name;
+                const char* cmd = prop(PropCamera::clippingPlanes).name;
                 CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
                 double arr[2] = {_nearClippingPlane, _farClippingPlane};
                 ev->appendKeyDoubleArray(cmd, arr, 2);
@@ -182,7 +182,7 @@ void CViewableBase::setViewAngle(double angle)
         computeVolumeVectors();
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = prop(PropViewableBase::viewAngle).name;
+            const char* cmd = prop(PropCamera::viewAngle).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _viewAngle);
             App::scenes->pushEvent();
@@ -208,7 +208,7 @@ void CViewableBase::setOrthoViewSize(double theSize)
             if (App::getEventProtocolVersion() == 2)
                 cmd = "orthoSize";
             else
-                cmd = prop(PropViewableBase::viewSize).name;
+                cmd = prop(PropCamera::viewSize).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd.c_str(), true);
             ev->appendKeyDouble(cmd.c_str(), _orthoViewSize);
             App::scenes->pushEvent();
@@ -482,7 +482,7 @@ void CViewableBase::setPerspective(bool p)
             if (App::getEventProtocolVersion() == 2)
                 cmd = "perspectiveMode";
             else
-                cmd = prop(PropViewableBase::perspective).name;
+                cmd = prop(PropCamera::perspective).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd.c_str(), true);
             ev->appendKeyBool(cmd.c_str(), _perspective);
             App::scenes->pushEvent();
@@ -498,7 +498,7 @@ void CViewableBase::setResolution(const int r[2])
         _resolution[1] = r[1];
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = prop(PropViewableBase::resolution).name;
+            const char* cmd = prop(PropCamera::resolution).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyInt32Array(cmd, _resolution, 2);
             App::scenes->pushEvent();
@@ -575,17 +575,17 @@ void CViewableBase::computeVolumeVectors()
                 }
                 else
                 {
-                    const char* cmd = prop(PropViewableBase::frustumCornerNear).name;
+                    const char* cmd = prop(PropCamera::frustumCornerNear).name;
                     CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
                     if (App::getEventProtocolVersion() <= 3)
                     {
                         ev->appendKeyDoubleArray(cmd, _volumeVectorNear.data, 3);
-                        ev->appendKeyDoubleArray(prop(PropViewableBase::frustumCornerFar).name, _volumeVectorFar.data, 3);
+                        ev->appendKeyDoubleArray(prop(PropCamera::frustumCornerFar).name, _volumeVectorFar.data, 3);
                     }
                     else
                     {
                         ev->appendKeyVector3(cmd, _volumeVectorNear);
-                        ev->appendKeyVector3(prop(PropViewableBase::frustumCornerFar).name, _volumeVectorFar);
+                        ev->appendKeyVector3(prop(PropCamera::frustumCornerFar).name, _volumeVectorFar);
                     }
                 }
                 App::scenes->pushEvent();
@@ -602,7 +602,7 @@ void CViewableBase::setShowVolume(bool s)
         _showVolume = s;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = prop(PropViewableBase::showFrustum).name;
+            const char* cmd = prop(PropCamera::showFrustum).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _showVolume);
             App::scenes->pushEvent();
@@ -623,23 +623,23 @@ void CViewableBase::getVolumeVectors(C3Vector& n, C3Vector& f) const
 
 void CViewableBase::addObjectEventData(CCbor* ev)
 {
-    ev->appendKeyDouble(prop(PropViewableBase::viewAngle).name, _viewAngle);
-    ev->appendKeyDouble(prop(PropViewableBase::viewSize).name, _orthoViewSize);
+    ev->appendKeyDouble(prop(PropCamera::viewAngle).name, _viewAngle);
+    ev->appendKeyDouble(prop(PropCamera::viewSize).name, _orthoViewSize);
     double arr[2] = {_nearClippingPlane, _farClippingPlane};
-    ev->appendKeyDoubleArray(prop(PropViewableBase::clippingPlanes).name, arr, 2);
-    ev->appendKeyBool(prop(PropViewableBase::perspective).name, _perspective);
-    ev->appendKeyBool(prop(PropViewableBase::showFrustum).name, _showVolume);
+    ev->appendKeyDoubleArray(prop(PropCamera::clippingPlanes).name, arr, 2);
+    ev->appendKeyBool(prop(PropCamera::perspective).name, _perspective);
+    ev->appendKeyBool(prop(PropCamera::showFrustum).name, _showVolume);
     if (App::getEventProtocolVersion() <= 3)
     {
-        ev->appendKeyDoubleArray(prop(PropViewableBase::frustumCornerNear).name, _volumeVectorNear.data, 3);
-        ev->appendKeyDoubleArray(prop(PropViewableBase::frustumCornerFar).name, _volumeVectorFar.data, 3);
+        ev->appendKeyDoubleArray(prop(PropCamera::frustumCornerNear).name, _volumeVectorNear.data, 3);
+        ev->appendKeyDoubleArray(prop(PropCamera::frustumCornerFar).name, _volumeVectorFar.data, 3);
     }
     else
     {
-        ev->appendKeyVector3(prop(PropViewableBase::frustumCornerNear).name, _volumeVectorNear);
-        ev->appendKeyVector3(prop(PropViewableBase::frustumCornerFar).name, _volumeVectorFar);
+        ev->appendKeyVector3(prop(PropCamera::frustumCornerNear).name, _volumeVectorNear);
+        ev->appendKeyVector3(prop(PropCamera::frustumCornerFar).name, _volumeVectorFar);
     }
-    ev->appendKeyInt32Array(prop(PropViewableBase::resolution).name, _resolution, 2);
+    ev->appendKeyInt32Array(prop(PropCamera::resolution).name, _resolution, 2);
     CSceneObject::addObjectEventData(ev);
 }
 
@@ -648,7 +648,7 @@ int CViewableBase::setBoolProperty(const char* pName, bool pState)
     int retVal = CSceneObject::setBoolProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropViewableBase::showFrustum).name, pName) == 0)
+        if (strcmp(prop(PropCamera::showFrustum).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
             setShowVolume(pState);
@@ -663,12 +663,12 @@ int CViewableBase::getBoolProperty(const char* pName, bool& pState) const
     int retVal = CSceneObject::getBoolProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropViewableBase::perspective).name, pName) == 0)
+        if (strcmp(prop(PropCamera::perspective).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = _perspective;
         }
-        else if (strcmp(prop(PropViewableBase::showFrustum).name, pName) == 0)
+        else if (strcmp(prop(PropCamera::showFrustum).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = _showVolume;
@@ -683,12 +683,12 @@ int CViewableBase::setFloatProperty(const char* pName, double pState)
     int retVal = CSceneObject::setFloatProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropViewableBase::viewAngle).name, pName) == 0)
+        if (strcmp(prop(PropCamera::viewAngle).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
             setViewAngle(pState);
         }
-        else if (strcmp(prop(PropViewableBase::viewSize).name, pName) == 0)
+        else if (strcmp(prop(PropCamera::viewSize).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
             setOrthoViewSize(pState);
@@ -703,12 +703,12 @@ int CViewableBase::getFloatProperty(const char* pName, double& pState) const
     int retVal = CSceneObject::getFloatProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropViewableBase::viewAngle).name, pName) == 0)
+        if (strcmp(prop(PropCamera::viewAngle).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = _viewAngle;
         }
-        else if (strcmp(prop(PropViewableBase::viewSize).name, pName) == 0)
+        else if (strcmp(prop(PropCamera::viewSize).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = _orthoViewSize;
@@ -723,7 +723,7 @@ int CViewableBase::setIntArray2Property(const char* pName, const int* pState)
     int retVal = CSceneObject::setIntArray2Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropViewableBase::resolution).name, pName) == 0)
+        if (strcmp(prop(PropCamera::resolution).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
             setResolution(pState);
@@ -738,7 +738,7 @@ int CViewableBase::getIntArray2Property(const char* pName, int* pState) const
     int retVal = CSceneObject::getIntArray2Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropViewableBase::resolution).name, pName) == 0)
+        if (strcmp(prop(PropCamera::resolution).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState[0] = _resolution[0];
@@ -764,12 +764,12 @@ int CViewableBase::getVector3Property(const char* pName, C3Vector& pState) const
     int retVal = CSceneObject::getVector3Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropViewableBase::frustumCornerNear).name, pName) == 0)
+        if (strcmp(prop(PropCamera::frustumCornerNear).name, pName) == 0)
         {
             pState = _volumeVectorNear;
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(prop(PropViewableBase::frustumCornerFar).name, pName) == 0)
+        else if (strcmp(prop(PropCamera::frustumCornerFar).name, pName) == 0)
         {
             pState = _volumeVectorFar;
             retVal = sim_propertyret_ok;
@@ -784,7 +784,7 @@ int CViewableBase::setFloatArrayProperty(const char* pName, const std::vector<do
     int retVal = CSceneObject::setFloatArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropViewableBase::clippingPlanes).name, pName) == 0)
+        if (strcmp(prop(PropCamera::clippingPlanes).name, pName) == 0)
         {
             if (pState.size() >= 2)
             {
@@ -805,7 +805,7 @@ int CViewableBase::getFloatArrayProperty(const char* pName, std::vector<double>&
     int retVal = CSceneObject::getFloatArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropViewableBase::clippingPlanes).name, pName) == 0)
+        if (strcmp(prop(PropCamera::clippingPlanes).name, pName) == 0)
         {
             pState.push_back(_nearClippingPlane);
             pState.push_back(_farClippingPlane);
@@ -840,54 +840,11 @@ int CViewableBase::getIntArrayProperty(const char* pName, std::vector<int>& pSta
 int CViewableBase::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
-    if (_isInScene && (retVal == sim_propertyret_unknownproperty))
-    {
-        for (size_t i = 0; i < allProps_viewable.size(); i++)
-        {
-            if ((pName.size() == 0) || utils::startsWith(allProps_viewable[i].name, pName.c_str()))
-            {
-                if ((allProps_viewable[i].flags & excludeFlags) == 0)
-                {
-                    index--;
-                    if (index == -1)
-                    {
-                        pName = allProps_viewable[i].name;
-                        retVal = sim_propertyret_ok;
-                        break;
-                    }
-                }
-            }
-        }
-    }
     return retVal;
 }
 
 int CViewableBase::getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const
 {
     int retVal = CSceneObject::getPropertyInfo(pName, info, infoTxt);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        for (size_t i = 0; i < allProps_viewable.size(); i++)
-        {
-            if (strcmp(allProps_viewable[i].name, pName) == 0)
-            {
-                retVal = allProps_viewable[i].type;
-                info = allProps_viewable[i].flags;
-                if (infoTxt == "j")
-                    infoTxt = allProps_viewable[i].info.json;
-                else
-                {
-                    auto w = allProps_viewable[i].info.map;
-                    std::string descr = w["description"].toString().toStdString();
-                    std::string label = w["label"].toString().toStdString();
-                    if ( (infoTxt == "s") || (descr == "") )
-                        infoTxt = label;
-                    else
-                        infoTxt = descr;
-                }
-                break;
-            }
-        }
-    }
     return retVal;
 }

@@ -2166,15 +2166,15 @@ void CVisionSensor::addObjectEventData(CCbor* ev)
     _emitTriggerStateAndPacketChangeEvents(ev);
     if (App::getEventProtocolVersion() == 2)
     {
-        ev->appendKeyDouble(prop(PropViewableBase::viewAngle).name, _viewAngle);
-        ev->appendKeyDouble(prop(PropViewableBase::viewSize).name, _orthoViewSize);
+        ev->appendKeyDouble(prop(PropVisionSensor::viewAngle).name, _viewAngle);
+        ev->appendKeyDouble(prop(PropVisionSensor::viewSize).name, _orthoViewSize);
         double arr[2] = {_nearClippingPlane, _farClippingPlane};
-        ev->appendKeyDoubleArray(prop(PropViewableBase::clippingPlanes).name, arr, 2);
-        ev->appendKeyBool(prop(PropViewableBase::perspective).name, _perspective);
-        ev->appendKeyBool(prop(PropViewableBase::showFrustum).name, _showVolume);
-        ev->appendKeyDoubleArray(prop(PropViewableBase::frustumCornerNear).name, _volumeVectorNear.data, 3);
-        ev->appendKeyDoubleArray(prop(PropViewableBase::frustumCornerFar).name, _volumeVectorFar.data, 3);
-        ev->appendKeyInt32Array(prop(PropViewableBase::resolution).name, _resolution, 2);
+        ev->appendKeyDoubleArray(prop(PropVisionSensor::clippingPlanes).name, arr, 2);
+        ev->appendKeyBool(prop(PropVisionSensor::perspective).name, _perspective);
+        ev->appendKeyBool(prop(PropVisionSensor::showFrustum).name, _showVolume);
+        ev->appendKeyDoubleArray(prop(PropVisionSensor::frustumCornerNear).name, _volumeVectorNear.data, 3);
+        ev->appendKeyDoubleArray(prop(PropVisionSensor::frustumCornerFar).name, _volumeVectorFar.data, 3);
+        ev->appendKeyInt32Array(prop(PropVisionSensor::resolution).name, _resolution, 2);
         ev->closeArrayOrMap(); // visionSensor
         CSceneObject::addObjectEventData(ev);
     }
