@@ -27,7 +27,7 @@ def flags(p):
     if p.flags.modelhashexclude: f.append('modelhashexclude')
     if p.flags.deprecated: f.append('deprecated')
     constName = lambda n: f'sim_propertyinfo_{n}'
-    return ' | '.join(map(constName, f))
+    return ' | '.join(map(constName, f)) if f else '0'
 
 def propertyInfo(p):
     info = {}
