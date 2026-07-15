@@ -107,6 +107,16 @@ std::map<int, std::string> buildEnumToStringMap()
 #define CUSTOMSCENEOBJECT_PROPERTIES \
     FUNCX(size, "size", sim_propertytype_float, 0,  PropertyInfo({{"label", "Size"}, {"description", "Custom scene object size"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
 
+#define STACK_PROPERTIES  \
+    FUNCX(content, "content", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Content"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+
+#define COLOR_PROPERTIES \
+    FUNCX(colDiffuse, "diffuse", sim_propertytype_color, 0,  PropertyInfo({{"label", "Diffuse color"}, {"description", ""}, {"supersedes", "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+    FUNCX(colSpecular, "specular", sim_propertytype_color, 0,  PropertyInfo({{"label", "Specular color"}, {"description", ""}, {"supersedes", "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+    FUNCX(colEmission, "emission", sim_propertytype_color, 0,  PropertyInfo({{"label", "Emission color"}, {"description", ""}, {"supersedes", "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+    FUNCX(transparency, "transparency", sim_propertytype_float, 0,  PropertyInfo({{"label", "Transparency"}, {"description", ""}, {"supersedes", "sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+    FUNCX(GROUP_prefix, "__--__", sim_propertytype_group, sim_propertyinfo_silent | sim_propertyinfo_constant | sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+
 // ----------------------------------------------------------------------------------------------
 
 #define OBJECT_PROPERTIES \
@@ -351,9 +361,6 @@ std::map<int, std::string> buildEnumToStringMap()
     FUNCX(DEPRECATED_scriptDisabled, "scriptDisabled", sim_propertytype_bool, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"migrateTo", "enabled"}, {"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}}), -1, -1, -1, -1, -1) \
     FUNCX(DEPRECATED_scriptState, "scriptState", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude | sim_propertyinfo_notwritable,  PropertyInfo({{"replacedBy", "state"}, {"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}}), -1, -1, -1, -1, -1) \
 
-#define STACK_PROPERTIES  \
-    FUNCX(content, "content", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Content"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
-
 #define COLLECTION_PROPERTIES  \
     FUNCX(objects, "objects", sim_propertytype_handlearray, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"seeAlsoProperties", "collection.collections"}, {"label", "Children handles"}, {"description", ""}, {"handleType", "sceneObject"}, {"supersedes", "sim.getCollectionObjects"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
     FUNCX(METHOD_addItem, "addItem", sim_propertytype_method, sim_propertyinfo_silent | sim_propertyinfo_constant | sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"supersedes", "sim.addItemToCollection"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
@@ -363,13 +370,6 @@ std::map<int, std::string> buildEnumToStringMap()
     FUNCX(METHOD_changeColor, "changeColor", sim_propertytype_method, sim_propertyinfo_silent | sim_propertyinfo_constant | sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"supersedes", "sim.changeEntityColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
     FUNCX(METHOD_restoreColor, "restoreColor", sim_propertytype_method, sim_propertyinfo_silent | sim_propertyinfo_constant | sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"supersedes", "sim.restoreEntityColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
     FUNCX(METHOD_checkDistance, "checkDistance", sim_propertytype_method, sim_propertyinfo_silent | sim_propertyinfo_constant | sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"supersedes", "sim.checkDistance"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
-
-#define COLOR_PROPERTIES \
-    FUNCX(colDiffuse, "diffuse", sim_propertytype_color, 0,  PropertyInfo({{"label", "Diffuse color"}, {"description", ""}, {"supersedes", "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
-    FUNCX(colSpecular, "specular", sim_propertytype_color, 0,  PropertyInfo({{"label", "Specular color"}, {"description", ""}, {"supersedes", "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
-    FUNCX(colEmission, "emission", sim_propertytype_color, 0,  PropertyInfo({{"label", "Emission color"}, {"description", ""}, {"supersedes", "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
-    FUNCX(transparency, "transparency", sim_propertytype_float, 0,  PropertyInfo({{"label", "Transparency"}, {"description", ""}, {"supersedes", "sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
-    FUNCX(GROUP_prefix, "__--__", sim_propertytype_group, sim_propertyinfo_silent | sim_propertyinfo_constant | sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
 
 #define MESH_PROPERTIES \
     FUNCX(textureResolution, "texture.resolution", sim_propertytype_intarray2, sim_propertyinfo_notwritable,  PropertyInfo({{"seeAlsoProperties", "mesh.texture.image"}, {"label", "Texture resolution"}, {"description", ""}, {"supersedes", "sim.getTextureId"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \

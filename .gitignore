@@ -18,4 +18,4 @@ release
 mocinclude.opt
 object_script.*.Debug
 object_script.*.Release
-
+__pycache__
