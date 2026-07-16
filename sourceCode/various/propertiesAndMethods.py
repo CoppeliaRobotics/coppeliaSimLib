@@ -840,6 +840,8 @@ def varName(p):
         n = 'METHOD_' + n
     elif p.__class__.__name__ == 'PropertyInfo' and p.type == 'group':
         n = 'GROUP_' + n
+    elif p.flags.deprecated:
+        n = 'DEPRECATED_' + n
     return n
 
 def flags(p):
