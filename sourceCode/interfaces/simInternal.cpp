@@ -11431,7 +11431,7 @@ int simPushPoseOntoStack_internal(int stackHandle, const double* value)
     return (-1);
 }
 
-int simPushColorOntoStack_internal(int stackHandle, const float* value)
+int simPushColor4OntoStack_internal(int stackHandle, const float* value)
 {
     C_API_START;
 
@@ -12009,7 +12009,7 @@ double* simGetStackPose_internal(int stackHandle)
     return nullptr;
 }
 
-float* simGetStackColor_internal(int stackHandle)
+float* simGetStackColor4_internal(int stackHandle)
 {
     C_API_START;
 
