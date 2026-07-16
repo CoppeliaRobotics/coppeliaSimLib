@@ -1,6 +1,3 @@
-#py from propertiesAndMethods import *
-#py from objects import *
-#py classes = get_classes(pycpp.params['objects_xml'])
 #pragma once
 #include <string>
 #include <vector>
@@ -110,9 +107,21 @@ std::map<int, std::string> buildEnumToStringMap()
 #define CUSTOMSCENEOBJECT_PROPERTIES \
     FUNCX(size, "size", sim_propertytype_float, 0,  PropertyInfo({{"label", "Size"}, {"description", "Custom scene object size"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
 
+#define STACK_PROPERTIES  \
+    FUNCX(content, "content", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Content"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+
+#define COLOR_PROPERTIES \
+    FUNCX(colDiffuse, "diffuse", sim_propertytype_color, 0,  PropertyInfo({{"label", "Diffuse color"}, {"description", ""}, {"supersedes", "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+    FUNCX(colSpecular, "specular", sim_propertytype_color, 0,  PropertyInfo({{"label", "Specular color"}, {"description", ""}, {"supersedes", "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+    FUNCX(colEmission, "emission", sim_propertytype_color, 0,  PropertyInfo({{"label", "Emission color"}, {"description", ""}, {"supersedes", "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+    FUNCX(transparency, "transparency", sim_propertytype_float, 0,  PropertyInfo({{"label", "Transparency"}, {"description", ""}, {"supersedes", "sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+    FUNCX(GROUP_prefix, "__--__", sim_propertytype_group, sim_propertyinfo_silent | sim_propertyinfo_constant | sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+
 // ----------------------------------------------------------------------------------------------
 
-// BEGIN-GENERATED
+#py from propertiesAndMethods import *
+#py from objects import *
+#py classes = get_classes(pycpp.params['objects_xml'])
 #py for c in classes.values():
 #define `c.name.upper()`_PROPERTIES \
 #py for p in [p for p in c.properties.values() if not p.flags.deprecated]:
@@ -123,7 +132,6 @@ std::map<int, std::string> buildEnumToStringMap()
 #py endfor
 
 #py endfor
-// END-GENERATED
 
 // ----------------------------------------------------------------------------------------------
 enum class PropCustomObjectClass {
