@@ -124,7 +124,7 @@ std::map<int, std::string> buildEnumToStringMap()
 #py classes = get_classes(pycpp.params['objects_xml'])
 #py for c in classes.values():
 #define `c.name.upper()`_PROPERTIES \
-#py for p in [p for p in c.properties.values() if not p.flags.deprecated and p.var]:
+#py for p in [p for p in c.properties.values() if p.var]:
     FUNCX(`p.var`, "`p.name`", sim_propertytype_`p.type`, `flags(p)`, `propertyInfo(p)`, `', '.join(str(x) for x in p.aux or [-1, -1, -1, -1, -1])`) \
 #py endfor
 #py for m in [m for m in c.methods.values() if m.var]:
