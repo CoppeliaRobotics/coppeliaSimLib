@@ -12320,7 +12320,7 @@ int _simHandleJointMotion(luaWrap_lua_State* L)
             {
                 CJoint* it = App::scene->sceneObjects->getJointFromIndex(i);
                 if (it->getJointMode() == sim_jointmode_kinematic)
-                    it->handleMotion();
+                    it->handleKinematicMotion();
             }
         }
         else

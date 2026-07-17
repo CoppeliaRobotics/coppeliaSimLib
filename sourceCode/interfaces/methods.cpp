@@ -210,6 +210,7 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["intersectPackedPoints"] = _method_intersectPackedPoints;
         funcTable["setTargetPosition"] = _method_setTargetPosition;
         funcTable["setTargetVelocity"] = _method_setTargetVelocity;
+        funcTable["stepKinematicJoints"] = _method_stepKinematicJoints;
         funcTable["pushEvent"] = _method_pushEvent;
         funcTable["getContacts"] = _method_getContacts;
         funcTable["getGenesisEvents"] = _method_getGenesisEvents;
@@ -9668,6 +9669,28 @@ std::string _method_dynamicsStep(int targetObj, CDetachedScript* currentScript, 
                 CApiErrors::getAndClearLastError();
                 if (!App::scene->dynamicsContainer->isWorldThere())
                     App::scene->dynamicsContainer->markForWarningDisplay_physicsEngineNotSupported();
+            }
+        }
+        else
+            errMsg = SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
+    }
+    return errMsg;
+}
+
+std::string _method_stepKinematicJoints(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(inStack, &errMsg, {}))
+    {
+        if ((currentScript != nullptr) && (currentScript->getScriptType() == sim_scripttype_main))
+        {
+            for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_joint); i++)
+            {
+                CJoint* it = App::scene->sceneObjects->getJointFromIndex(i);
+                if (it->getJointMode() == sim_jointmode_kinematic)
+                {
+                    it->handleKinematicMotion();
+                }
             }
         }
         else

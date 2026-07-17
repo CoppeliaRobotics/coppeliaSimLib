@@ -212,6 +212,7 @@ extern std::string _method_getPluginInfo(int targetObj, CDetachedScript* current
 extern std::string _method_setPluginInfo(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_setModuleEntry(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_dynamicsStep(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_stepKinematicJoints(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_broadcast(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_textureSet(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_textureSetData(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

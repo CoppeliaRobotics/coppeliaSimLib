@@ -1818,10 +1818,9 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
     return (retVal);
 }
 
-void CJoint::handleMotion()
+void CJoint::handleKinematicMotion()
 {
-    if ((_jointMode == sim_jointmode_kinematic) && (_jointType != sim_joint_spherical) &&
-        ((_kinematicMotionType & 3) != 0))
+    if ((_jointMode == sim_jointmode_kinematic) && (_jointType != sim_joint_spherical) && ((_kinematicMotionType & 3) != 0))
     {
         if (App::scenes->getSysFuncAndHookCnt(sim_syscb_joint) > 0)
         { // a script might want to handle the joint

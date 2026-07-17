@@ -52,12 +52,7 @@ WITH_GUI {
 
 *-msvc* {
     QMAKE_CXXFLAGS += /std:c++17
-    QMAKE_CFLAGS += /O2 /fp:precise
-    QMAKE_CXXFLAGS += /O2 /fp:precise
     QMAKE_CXXFLAGS += /we4715 # "error when no return value"
-
-    #QMAKE_CXXFLAGS += /Zi
-    #QMAKE_LFLAGS += /DEBUG
 
     QMAKE_CFLAGS_WARN_ON = /W3
     QMAKE_CFLAGS_WARN_ON += /wd4100 # "unreferenced formal parameter"
@@ -68,6 +63,29 @@ WITH_GUI {
     QMAKE_CXXFLAGS_WARN_ON += /wd4100 # "unreferenced formal parameter"
     QMAKE_CXXFLAGS_WARN_ON += /wd4996 # "function or variable may be unsafe..."
     QMAKE_CXXFLAGS_WARN_ON += /wd4101 # "unreferenced local variable"
+
+    # debug info for all builds:
+    QMAKE_CFLAGS   += /Zi
+    QMAKE_CXXFLAGS += /Zi
+    QMAKE_LFLAGS   += /DEBUG:FULL
+    QMAKE_LFLAGS   += /MAP
+    QMAKE_LFLAGS += /MAPINFO:EXPORTS
+
+    CONFIG(debug, debug|release) {
+        QMAKE_CFLAGS   += /Od /MDd
+        QMAKE_CXXFLAGS += /Od /MDd
+    } else {
+        QMAKE_CFLAGS   += /O2 /fp:precise
+        QMAKE_CXXFLAGS += /O2 /fp:precise
+        QMAKE_LFLAGS   += /OPT:REF /OPT:ICF   # only needed in release
+    }
+
+    LIBS += -ldbghelp # Make sure dbghelp is linked for the crash handler
+
+    # With following, disable above /O2 options
+    #QMAKE_CXXFLAGS += /fsanitize=address
+    #QMAKE_CFLAGS += /fsanitize=address
+    #QMAKE_LFLAGS += /fsanitize=address
 }
 
 *-g++* { #includes MinGW

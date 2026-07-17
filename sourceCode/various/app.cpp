@@ -88,21 +88,64 @@ int64_t App::_nextHandle_mesh = SIM_IDSTART_MESH;
 
 
 #ifdef WIN_SIM
+#include <windows.h>
+#include <dbghelp.h>
+#pragma comment(lib, "dbghelp.lib")   // or link it in your build system
+
 LONG WINAPI _winExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
 {
-    void* stack[62];
     HANDLE process = GetCurrentProcess();
-    SymInitialize(process, 0, TRUE);
-    uint16_t fr = CaptureStackBackTrace(0, 62, stack, nullptr);
-    SYMBOL_INFO* symb = (SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO) + 1024 * sizeof(char), 1);
-    symb->MaxNameLen = 1023;
-    symb->SizeOfStruct = sizeof(SYMBOL_INFO);
-    for (size_t i = 0; i < fr; i++)
+
+           // Configure BEFORE SymInitialize
+    SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_LOAD_LINES);
+
+    if (!SymInitialize(process, nullptr, TRUE))
     {
-        SymFromAddr(process, (DWORD64)(stack[i]), 0, symb);
-        printf("CoppeliaSim: debug: %zu: %s - 0x%0I64X\n", fr - i - 1, symb->Name, symb->Address);
+        printf("CoppeliaSim: debug: SymInitialize failed: %lu\n", GetLastError());
+        return EXCEPTION_EXECUTE_HANDLER;
     }
+
+    void* stack[62];
+    USHORT fr = CaptureStackBackTrace(0, 62, stack, nullptr);
+
+    SYMBOL_INFO* symb =
+        (SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO) + 1024 * sizeof(char), 1);
+    symb->MaxNameLen   = 1023;
+    symb->SizeOfStruct = sizeof(SYMBOL_INFO);
+
+    IMAGEHLP_LINE64 line;
+    line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+
+    for (USHORT i = 0; i < fr; i++)
+    {
+        DWORD64 addr = (DWORD64)(stack[i]);
+        DWORD64 displacement = 0;
+
+        if (SymFromAddr(process, addr, &displacement, symb))
+        {
+            DWORD lineDisp = 0;
+            if (SymGetLineFromAddr64(process, addr, &lineDisp, &line))
+            {
+                printf("CoppeliaSim: debug: %u: %s - 0x%0I64X (%s:%lu)\n",
+                       fr - i - 1, symb->Name, symb->Address,
+                       line.FileName, line.LineNumber);
+            }
+            else
+            {
+                printf("CoppeliaSim: debug: %u: %s - 0x%0I64X\n",
+                       fr - i - 1, symb->Name, symb->Address);
+            }
+        }
+        else
+        {
+            // Symbol not found — print the address so it's not gibberish
+            printf("CoppeliaSim: debug: %u: <no symbol> - 0x%0I64X (err %lu)\n",
+                   fr - i - 1, addr, GetLastError());
+        }
+    }
+
     free(symb);
+    SymCleanup(process);
     return EXCEPTION_EXECUTE_HANDLER;
 }
 #else
