@@ -61,6 +61,16 @@ if(NOT COPPELIASIM_INCLUDE_DIR)
     endif()
 endif()
 
+if(NOT COPPELIASIM_PYTHON_DIR)
+    FetchContent_Declare(
+        coppeliaSim_python
+        GIT_REPOSITORY https://github.com/CoppeliaRobotics/python
+    )
+    FetchContent_MakeAvailable(coppeliaSim_python)
+    set(COPPELIASIM_PYTHON_DIR ${coppeliasim_python_SOURCE_DIR})
+    message(STATUS "COPPELIASIM_PYTHON_DIR=${COPPELIASIM_PYTHON_DIR}")
+endif()
+
 add_library(coppeliaSim SHARED "")
 
 set(WITH_GUI true CACHE BOOL "Enable gui")
@@ -708,19 +718,19 @@ add_custom_command(
         ${CMAKE_CURRENT_BINARY_DIR}/generated/propertiesAndMethods.h
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/generated
     COMMAND ${Python3_EXECUTABLE}
-        ${COPPELIASIM_INCLUDE_DIR}/tools/pycpp.py
+        ${COPPELIASIM_PYTHON_DIR}/pycpp.py
         --input-file ${CMAKE_CURRENT_SOURCE_DIR}/sourceCode/various/propertiesAndMethods.h.in
         --output-file ${CMAKE_CURRENT_BINARY_DIR}/generated/propertiesAndMethods.h
         --param objects_xml=${COPPELIASIM_INCLUDE_DIR}/sim/objects.xml
         --python-path ${CMAKE_CURRENT_SOURCE_DIR}/sourceCode/various
-        --python-path ${COPPELIASIM_INCLUDE_DIR}/tools
+        --python-path ${COPPELIASIM_PYTHON_DIR}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS
         ${COPPELIASIM_INCLUDE_DIR}/sim/objects.xml
         ${CMAKE_CURRENT_SOURCE_DIR}/sourceCode/various/propertiesAndMethods.h.in
-        ${COPPELIASIM_INCLUDE_DIR}/tools/cplusplus.py
-        ${COPPELIASIM_INCLUDE_DIR}/tools/objects.py
-        ${COPPELIASIM_INCLUDE_DIR}/tools/pycpp.py
+        ${COPPELIASIM_PYTHON_DIR}/cplusplus.py
+        ${COPPELIASIM_PYTHON_DIR}/sim/apidoc.py
+        ${COPPELIASIM_PYTHON_DIR}/pycpp.py
 )
 add_custom_target(
     generate_propertiesAndMethods_h

@@ -105,24 +105,21 @@ std::map<int, std::string> buildEnumToStringMap()
     FUNCX(content, "content", sim_propertytype_string, sim_propertyinfo_notwritable | sim_propertyinfo_silent | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Content"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
 
 #define COLOR_PROPERTIES \
-    FUNCX(colDiffuse, "diffuse", sim_propertytype_color, 0,  PropertyInfo({{"label", "Diffuse color"}, {"description", ""}, {"supersedes", "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
-    FUNCX(colSpecular, "specular", sim_propertytype_color, 0,  PropertyInfo({{"label", "Specular color"}, {"description", ""}, {"supersedes", "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
-    FUNCX(colEmission, "emission", sim_propertytype_color, 0,  PropertyInfo({{"label", "Emission color"}, {"description", ""}, {"supersedes", "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
-    FUNCX(transparency, "transparency", sim_propertytype_float, 0,  PropertyInfo({{"label", "Transparency"}, {"description", ""}, {"supersedes", "sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
     FUNCX(GROUP_prefix, "__--__", sim_propertytype_group, sim_propertyinfo_silent | sim_propertyinfo_constant | sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude, PropertyInfo({{"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+    FUNCX(colDiffuse, "diffuse", sim_propertytype_color, 0,  PropertyInfo({{"label", "Diffuse color"}, {"description", ""}, {"supersedes", "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+    FUNCX(colEmission, "emission", sim_propertytype_color, 0,  PropertyInfo({{"label", "Emission color"}, {"description", ""}, {"supersedes", "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+    FUNCX(colSpecular, "specular", sim_propertytype_color, 0,  PropertyInfo({{"label", "Specular color"}, {"description", ""}, {"supersedes", "sim.setObjectColor,sim.getObjectColor,sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+    FUNCX(transparency, "transparency", sim_propertytype_float, 0,  PropertyInfo({{"label", "Transparency"}, {"description", ""}, {"supersedes", "sim.setShapeColor,sim.getShapeColor"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
 
 // ----------------------------------------------------------------------------------------------
 
 #py from propertiesAndMethods import *
-#py from objects import *
+#py from sim.apidoc import *
 #py classes = get_classes(pycpp.params['objects_xml'])
 #py for c in classes.values():
 #define `c.name.upper()`_PROPERTIES \
-#py for p in [p for p in c.properties.values() if p.var]:
-    FUNCX(`p.var`, "`p.name`", sim_propertytype_`p.type`, `flags(p)`, `propertyInfo(p)`, `', '.join(str(x) for x in p.aux or [-1, -1, -1, -1, -1])`) \
-#py endfor
-#py for m in [m for m in c.methods.values() if m.var]:
-    FUNCX(`m.var`, "`m.name`", sim_propertytype_method, sim_propertyinfo_silent | sim_propertyinfo_constant | sim_propertyinfo_notreadable | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"supersedes", "sim.getBoolProperty"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}}), -1, -1, -1, -1, -1) \
+#py for x in sorted([p for p in c.properties.values() if p.var] + [m for m in c.methods.values() if m.var], key=lambda x: x.var):
+    FUNCX(`x.var`, "`x.name`", sim_propertytype_`x.type`, `flags(x)`, `propertyInfo(x)`, `', '.join(str(i) for i in x.aux or [-1, -1, -1, -1, -1])`) \
 #py endfor
 
 #py endfor

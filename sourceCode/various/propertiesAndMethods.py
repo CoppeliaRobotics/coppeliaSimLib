@@ -12,9 +12,10 @@ def flags(p):
 
 def propertyInfo(p):
     info = {}
-    def outputInfo(keyName, attrName):
+    def outputInfo(keyName, attrName, trim=False):
         if hasattr(p, attrName):
             if v := getattr(p, attrName):
+                if isinstance(v, list): v = ','.join(v)
                 info[keyName] = v
     outputInfo('label', 'label')
     outputInfo('description', 'description')
@@ -26,4 +27,4 @@ def propertyInfo(p):
     outputInfo('startDeprecated', 'start_deprecated')
     outputInfo('handleType', 'handle_type')
     outputInfo('enum', 'enum')
-    return 'PropertyInfo({{' + '}, {'.join(f'"{k}", "{v}"' for k, v in info.items()) + '}})'
+    return 'PropertyInfo({{' + '}, {'.join(f'"{k}", "{v.replace("\n", "\\n").strip()}"' for k, v in info.items()) + '}})'
