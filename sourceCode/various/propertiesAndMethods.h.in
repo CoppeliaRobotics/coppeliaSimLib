@@ -114,7 +114,7 @@ std::map<int, std::string> buildEnumToStringMap()
 
 #py from propertiesAndMethods import *
 #py from sim.apidoc import *
-#py classes = get_classes(pycpp.params['objects_xml'])
+#py classes = get_classes()
 #py for c in classes.values():
 #define `c.name.upper()`_PROPERTIES \
 #py for x in sorted([p for p in c.properties.values() if p.var] + [m for m in c.methods.values() if m.var], key=lambda x: (x.var.startswith('DEPRECATED'), x.var.startswith('METHOD_'), x.var)):
