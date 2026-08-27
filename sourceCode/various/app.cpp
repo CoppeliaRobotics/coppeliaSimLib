@@ -4277,6 +4277,16 @@ void App::pushGenesisEvents()
         if (scenes->addOnScriptContainer != nullptr)
             scenes->addOnScriptContainer->pushNakedGenesisEvents();
 
+        std::vector<int64_t> l;
+        scenes->customObjects->getAllObjectHandles(l);
+        ev->appendKeyHandleArray(prop(PropApp::customObjects).name, l.data(), l.size());
+        std::vector<int64_t> customClassList;
+        scenes->customObjects->getAllClassHandles(l);
+        ev->appendKeyHandleArray(prop(PropApp::customClasses).name, l.data(), l.size());
+        l.clear();
+        scenes->customSceneObjectClasses->getAllClassHandles(l);
+        ev->appendKeyHandleArray(prop(PropApp::customSceneObjectClasses).name, l.data(), l.size());
+
         ev = scenes->createEvent(EVENTTYPE_OBJECTCHANGED, sim_handle_app, sim_handle_app, nullptr, false);
         _obj->pushNakedGenesisEvents(ev);
         ev->appendKeyText(prop(PropApp::sessionId).name, scenes->getSessionId().c_str());
@@ -4312,15 +4322,6 @@ void App::pushGenesisEvents()
         std::vector<int> addOnList(scenes->addOnScriptContainer->getAddOnHandles());
         ev->appendKeyHandleArray(prop(PropApp::addOns).name, addOnList.data(), addOnList.size());
 
-        std::vector<int64_t> l;
-        scenes->customObjects->getAllObjectHandles(l);
-        ev->appendKeyHandleArray(prop(PropApp::customObjects).name, l.data(), l.size());
-        std::vector<int64_t> customClassList;
-        scenes->customObjects->getAllClassHandles(l);
-        ev->appendKeyHandleArray(prop(PropApp::customClasses).name, l.data(), l.size());
-        l.clear();
-        scenes->customSceneObjectClasses->getAllClassHandles(l);
-        ev->appendKeyHandleArray(prop(PropApp::customSceneObjectClasses).name, l.data(), l.size());
 
         for (const auto& pair : _applicationNamedParams)
         {

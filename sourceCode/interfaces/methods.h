@@ -218,6 +218,9 @@ extern std::string _method_textureSet(int targetObj, CDetachedScript* currentScr
 extern std::string _method_textureSetData(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_textureGetData(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getEnumInfo(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_copyObjects(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_cutObjects(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_pasteObjects(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 
 extern std::string _method_remove(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_removeObjects(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

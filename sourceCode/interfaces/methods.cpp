@@ -224,6 +224,9 @@ std::string callMethod(int targetObj, const char* method, CDetachedScript* curre
         funcTable["texture.setData"] = _method_textureSetData;
         funcTable["texture.getData"] = _method_textureGetData;
         funcTable["getEnumInfo"] = _method_getEnumInfo;
+        funcTable["copyObjects"] = _method_copyObjects;
+        funcTable["cutObjects"] = _method_cutObjects;
+        funcTable["pasteObjects"] = _method_pasteObjects;
     }
 
     std::string retVal("__notFound__");
@@ -10416,5 +10419,89 @@ std::string _method_getClosestOnPath(int targetObj, CDetachedScript* currentScri
         else
             errMsg = "mismatch between path and point dimensions.";
     }
+    return errMsg;
+}
+
+std::string _method_copyObjects(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (targetObj == sim_handle_scene)
+    {
+        if (checkInputArguments(inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
+        {
+            std::vector<int> objectHandles;
+            fetchHandleArray(inStack, 0, objectHandles);
+            bool models = false;
+            withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
+            {
+                map->fetchBoolFromKey("models", models, &err);
+            });
+            if (errMsg.size() == 0)
+            {
+                std::vector<int> initSel;
+                for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
+                    initSel.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+                if (models)
+                    App::scene->sceneObjects->addModelObjects(objectHandles);
+                App::scenes->copyBuffer->copyCurrentSelection(objectHandles, App::scene->environment->getSceneLocked(), 0);
+                App::scene->sceneObjects->setSelectedObjectHandles(initSel.data(), initSel.size());
+            }
+        }
+    }
+    else
+        errMsg = SIM_ERROR_INVALID_TARGET;
+    return errMsg;
+}
+
+std::string _method_cutObjects(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (targetObj == sim_handle_scene)
+    {
+        if (checkInputArguments(inStack, &errMsg, {arg_handlearray, arg_map | arg_optional}))
+        {
+            std::vector<int> objectHandles;
+            fetchHandleArray(inStack, 0, objectHandles);
+            bool models = false;
+            withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
+            {
+                map->fetchBoolFromKey("models", models, &err);
+            });
+            if (errMsg.size() == 0)
+            {
+                std::vector<int> initSel;
+                for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
+                    initSel.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+                if (models)
+                    App::scene->sceneObjects->addModelObjects(objectHandles);
+                App::scenes->copyBuffer->copyCurrentSelection(objectHandles, App::scene->environment->getSceneLocked(), 0);
+                App::scene->sceneObjects->eraseObjects(&objectHandles, true);
+                App::undoRedo_sceneChanged("");
+            }
+        }
+    }
+    else
+        errMsg = SIM_ERROR_INVALID_TARGET;
+    return errMsg;
+}
+
+std::string _method_pasteObjects(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (targetObj == sim_handle_scene)
+    {
+        if (checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
+        {
+            std::vector<int> initSel;
+            for (size_t i = 0; i < App::scene->sceneObjects->getSelectionCount(); i++)
+                initSel.push_back(App::scene->sceneObjects->getObjectHandleFromSelectionIndex(i));
+            bool failed = (App::scenes->copyBuffer->pasteBuffer(App::scene->environment->getSceneLocked(), 3) == -1);
+            App::scene->sceneObjects->setSelectedObjectHandles(initSel.data(), initSel.size());
+            if (!failed)
+                App::undoRedo_sceneChanged("");
+        }
+    }
+    else
+        errMsg = SIM_ERROR_INVALID_TARGET;
     return errMsg;
 }
