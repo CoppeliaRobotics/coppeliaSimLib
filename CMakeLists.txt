@@ -721,7 +721,6 @@ add_custom_command(
         ${COPPELIASIM_PYTHON_DIR}/pycpp.py
         --input-file ${CMAKE_CURRENT_SOURCE_DIR}/sourceCode/various/propertiesAndMethods.h.in
         --output-file ${CMAKE_CURRENT_BINARY_DIR}/generated/propertiesAndMethods.h
-        --param objects_xml=${COPPELIASIM_INCLUDE_DIR}/sim/objects.xml
         --python-path ${CMAKE_CURRENT_SOURCE_DIR}/sourceCode/various
         --python-path ${COPPELIASIM_PYTHON_DIR}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
