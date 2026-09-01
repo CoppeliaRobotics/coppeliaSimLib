@@ -2102,6 +2102,7 @@ std::string _method_loadScene(int targetObj, CDetachedScript* currentScript, con
                 {
                     if (App::scene->simulation->isSimulationStopped())
                     {
+                        App::scenes->disableEvents();
                         if (path.size() > 0)
                         {
                             if (createNewScene)
@@ -2117,6 +2118,8 @@ std::string _method_loadScene(int targetObj, CDetachedScript* currentScript, con
                         }
                         else
                             CFileOperations::createNewScene(createNewScene);
+                        App::scenes->enableEvents();
+                        App::pushGenesisEvents();
                     }
                     else
                         errMsg = SIM_ERROR_SIMULATION_NOT_STOPPED;
@@ -5401,8 +5404,10 @@ std::string _method_getObject(int targetObj, CDetachedScript* currentScript, con
     {
         std::string origPath = fetchText(inStack, 0);
         std::string path(origPath);
-        if ((path.size() == 0) || ((path[0] != '.') && (path[0] != '/')))
+        if ((path.size() != 0) && (path[0] != '.') && (path[0] != ':') && (path[0] != '/'))
             path = "./" + path;
+        if (path.size() == 0)
+            path = "." + path;
         int index = -1;
         bool noError = false;
         withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)

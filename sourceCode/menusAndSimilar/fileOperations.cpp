@@ -27,11 +27,12 @@ void CFileOperations::createNewScene(bool keepCurrentScene)
 {
     TRACE_INTERNAL;
     App::appSemaphore(true);
+    App::scene->simulation->stopSimulation();
+    App::scenes->disableEvents();
     if (keepCurrentScene)
         App::scenes->createNewScene();
     else
-        App::scene->simulation->stopSimulation();
-    App::scene->clearScene(true);
+        App::scene->clearScene(true);
     std::string fullPathAndFilename = App::folders->getSystemPath() + "/";
     fullPathAndFilename += CSimFlavor::getStringVal(16);
     loadScene(fullPathAndFilename.c_str(), false);
@@ -39,6 +40,8 @@ void CFileOperations::createNewScene(bool keepCurrentScene)
     App::scene->environment->generateNewUniquePersistentIdString();
     App::scene->undoBufferContainer->memorizeState(); // so that we can come back to the initial state!
     App::scene->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
+    App::scenes->enableEvents();
+    App::pushGenesisEvents();
     App::appSemaphore(false);
 }
 
@@ -82,6 +85,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename, bool setCurrentDir,
         App::scene->simulation->stopSimulation(); // should be anyway stopped!
         if ((pathAndFilename == nullptr) || VFile::doesFileExist(pathAndFilename))
         {
+            App::scenes->disableEvents();
             App::scene->clearScene(true);
             if (pathAndFilename != nullptr)
                 App::scene->environment->setScenePathAndName(pathAndFilename);
@@ -137,6 +141,8 @@ bool CFileOperations::loadScene(const char* pathAndFilename, bool setCurrentDir,
                 }
             }
             App::scene->undoBufferContainer->memorizeState(); // so that we can come back to the initial state!
+            App::scenes->enableEvents();
+            App::pushGenesisEvents();
         }
         else
         {

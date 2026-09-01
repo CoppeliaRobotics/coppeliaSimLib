@@ -481,12 +481,15 @@ void App::loop(void (*callback)(), bool stepIfRunning)
 
         CInterfaceStack* stack = scenes->interfaceStackContainer->createStack();
         stack->pushTableOntoStack();
+
         stack->pushTextOntoStack("selection");
         stack->pushHandleArrayOntoStack(sel.data(), sel.size());
         stack->insertDataIntoStackTable();
+
         stack->pushTextOntoStack("sel"); // deprecated
         stack->pushInt32ArrayOntoStack(sel.data(), sel.size());
         stack->insertDataIntoStackTable();
+
         scenes->callScripts(sim_syscb_selchange, stack, nullptr);
         scenes->interfaceStackContainer->destroyStack(stack);
     }

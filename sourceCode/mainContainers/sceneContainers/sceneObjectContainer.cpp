@@ -346,7 +346,7 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                     stack->pushTableOntoStack();
 
                     stack->insertKeyHandleArrayIntoStackTable("objectList", toDestroy.data(), toDestroy.size());
-                    stack->pushTextOntoStack("handleMap");
+                    stack->pushTextOntoStack("objectMap");
                     stack->pushTableOntoStack();
                     for (size_t i = 0; i < toDestroy.size(); i++)
                     {
@@ -417,8 +417,8 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                     CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
                     stack->pushTableOntoStack();
 
-                    stack->insertKeyInt32ArrayIntoStackTable("objectList", toDestroy.data(), toDestroy.size());
-                    stack->pushTextOntoStack("handleMap");
+                    stack->insertKeyInt32ArrayIntoStackTable("objectHandleList", toDestroy.data(), toDestroy.size());
+                    stack->pushTextOntoStack("objectHandleMap");
                     stack->pushTableOntoStack();
                     for (size_t i = 0; i < toDestroy.size(); i++)
                     {
