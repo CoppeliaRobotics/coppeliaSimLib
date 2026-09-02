@@ -2544,38 +2544,38 @@ std::string _method_addItem(int targetObj, CDetachedScript* currentScript, const
     if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_handle, arg_map | arg_optional}))
     {
         int objectHandle = fetchHandle(inStack, 0);
-        int what = sim_handle_single;
+        std::string what = "single";
         bool excludeObj = false;
         withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt32FromKey("mode", what, &err);
+            map->fetchStringFromKey("mode", what, &err);
             map->fetchBoolFromKey("excludeObject", excludeObj, &err);
         });
         if (errMsg.size() == 0)
         {
-            if (what != sim_handle_all)
+            if (what != "all")
             {
                 if (getSceneObject(objectHandle, &errMsg, 0) == nullptr)
                     return errMsg;
             }
             CCollectionElement* el = nullptr;
-            if (what == sim_handle_all)
+            if (what == "all")
                 el = new CCollectionElement(-1, sim_collectionelement_all, true);
-            if (what == sim_handle_single)
+            if (what == "single")
                 el = new CCollectionElement(objectHandle, sim_collectionelement_loose, true);
-            if (what == sim_handle_tree)
+            if (what == "tree")
             {
-                int what = sim_collectionelement_frombaseincluded;
+                int w = sim_collectionelement_frombaseincluded;
                 if (excludeObj)
-                    what = sim_collectionelement_frombaseexcluded;
-                el = new CCollectionElement(objectHandle, what, true);
+                    w = sim_collectionelement_frombaseexcluded;
+                el = new CCollectionElement(objectHandle, w, true);
             }
-            if (what == sim_handle_chain)
+            if (what == "chain")
             {
-                int what = sim_collectionelement_fromtipincluded;
+                int w = sim_collectionelement_fromtipincluded;
                 if (excludeObj)
-                    what = sim_collectionelement_fromtipexcluded;
-                el = new CCollectionElement(objectHandle, what, true);
+                    w = sim_collectionelement_fromtipexcluded;
+                el = new CCollectionElement(objectHandle, w, true);
             }
             if (el == nullptr)
                 return getInvalidArgString(1);
@@ -2592,38 +2592,38 @@ std::string _method_removeItem(int targetObj, CDetachedScript* currentScript, co
     if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_handle, arg_map | arg_optional}))
     {
         int objectHandle = fetchHandle(inStack, 0);
-        int what = sim_handle_single;
+        std::string what = "single";
         bool excludeObj = false;
         withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            map->fetchInt32FromKey("mode", what, &err);
+            map->fetchStringFromKey("mode", what, &err);
             map->fetchBoolFromKey("excludeObject", excludeObj, &err);
         });
         if (errMsg.size() == 0)
         {
-            if (what != sim_handle_all)
+            if (what != "all")
             {
                 if (getSceneObject(objectHandle, &errMsg, 0) == nullptr)
                     return errMsg;
             }
             CCollectionElement* el = nullptr;
-            if (what == sim_handle_all)
+            if (what == "all")
                 el = new CCollectionElement(-1, sim_collectionelement_all, false);
-            if (what == sim_handle_single)
+            if (what == "single")
                 el = new CCollectionElement(objectHandle, sim_collectionelement_loose, false);
-            if (what == sim_handle_tree)
+            if (what == "tree")
             {
-                int what = sim_collectionelement_frombaseincluded;
+                int w = sim_collectionelement_frombaseincluded;
                 if (excludeObj)
-                    what = sim_collectionelement_frombaseexcluded;
-                el = new CCollectionElement(objectHandle, what, false);
+                    w = sim_collectionelement_frombaseexcluded;
+                el = new CCollectionElement(objectHandle, w, false);
             }
-            if (what == sim_handle_chain)
+            if (what == "chain")
             {
-                int what = sim_collectionelement_fromtipincluded;
+                int w = sim_collectionelement_fromtipincluded;
                 if (excludeObj)
-                    what = sim_collectionelement_fromtipexcluded;
-                el = new CCollectionElement(objectHandle, what, false);
+                    w = sim_collectionelement_fromtipexcluded;
+                el = new CCollectionElement(objectHandle, w, false);
             }
             if (el == nullptr)
                 return getInvalidArgString(1);
