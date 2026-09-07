@@ -176,6 +176,8 @@ class App
     static void asyncResetScript(int scriptHandle);
     static bool appSemaphore(bool acquire, bool block = true);
     static bool systemSemaphore(const char* key, bool acquire);
+    static int64_t getCurrentObject();
+    static void setCurrentObject(int64_t c);
 
     static CFolderSystem* folders;
     static CUserSettings* userSettings;
@@ -235,6 +237,7 @@ class App
     static VMutex _appSemaphore;
     static std::vector<std::string> _pluginNames;
     static std::vector<std::string> _enumTypes;
+    static int64_t _currentObject;
 
 
 #ifdef USE_INT64_HANDLES
