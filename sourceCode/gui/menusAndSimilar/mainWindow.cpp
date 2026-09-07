@@ -1820,6 +1820,7 @@ void CMainWindow::onKeyPress(SMouseOrKeyboardOrResizeEvent e)
             oglSurface->setFocusObject(FOCUS_ON_PAGE);
             setFocusObject(oglSurface->getFocusObject());
             oglSurface->keyPress(ESC_KEY, this);
+            App::setCurrentObject(sim_handle_app);
             processed = true;
         }
         if (e.key == Qt::Key_Tab)

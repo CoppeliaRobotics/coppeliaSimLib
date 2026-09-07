@@ -1992,7 +1992,7 @@ void CSceneObjectContainer::addCompatibilityScripts(std::vector<int>& selection)
     }
 }
 
-void CSceneObjectContainer::addObjectToSelection(int objectHandle)
+void CSceneObjectContainer::addObjectToSelection(int objectHandle, bool uiAction /*= false*/)
 {
     if (objectHandle >= 0)
     {
@@ -2009,6 +2009,8 @@ void CSceneObjectContainer::addObjectToSelection(int objectHandle)
             CSceneObject* it = getObjectFromHandle(objectHandle);
             if (it != nullptr)
             {
+                if (uiAction)
+                    App::setCurrentObject(objectHandle);
                 if (!it->getSelected())
                 {
                     std::vector<int> _sel(getSelectedObjectHandlesPtr()[0]);
@@ -2058,7 +2060,7 @@ void CSceneObjectContainer::removeObjectFromSelection(int objectHandle)
     }
 }
 
-void CSceneObjectContainer::xorAddObjectToSelection(int objectHandle)
+void CSceneObjectContainer::xorAddObjectToSelection(int objectHandle, bool uiAction /*= false*/)
 {
     if (objectHandle != -1)
     {
@@ -2076,7 +2078,7 @@ void CSceneObjectContainer::xorAddObjectToSelection(int objectHandle)
             if (theObject != nullptr)
             {
                 if (!theObject->getSelected())
-                    addObjectToSelection(objectHandle);
+                    addObjectToSelection(objectHandle, uiAction);
                 else
                     removeObjectFromSelection(objectHandle);
             }

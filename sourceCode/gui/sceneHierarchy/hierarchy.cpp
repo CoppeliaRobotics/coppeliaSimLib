@@ -826,12 +826,12 @@ bool CHierarchy::leftMouseDown(int x, int y, int selectionStatus)
                 {
                     if (selectionStatus == CTRLSELECTION)
                     {
-                        App::scene->sceneObjects->xorAddObjectToSelection(objID); // Normal selection/deselection
+                        App::scene->sceneObjects->xorAddObjectToSelection(objID, true); // Normal selection/deselection
                     }
                     else
                     {
                         App::scene->sceneObjects->deselectObjects();
-                        App::scene->sceneObjects->addObjectToSelection(objID); // Normal selection
+                        App::scene->sceneObjects->addObjectToSelection(objID, true); // Normal selection
                         int dxv[2];
                         if (getLineObjectID(mouseDownRelativePosition[1], dxv) == objID)
                         {
@@ -848,6 +848,7 @@ bool CHierarchy::leftMouseDown(int x, int y, int selectionStatus)
                     App::scene->sceneObjects->deselectObjects();
                 else
                 {
+                    App::setCurrentObject(sim_handle_scene);
                     _worldSelectID_down = objID;
                     _worldSelectID_moving = objID;
                 }

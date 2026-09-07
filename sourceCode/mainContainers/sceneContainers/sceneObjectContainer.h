@@ -270,9 +270,9 @@ class CSceneObjectContainer
     void selectObject(int objectHandle);
     void selectAllObjects();
     void deselectObjects();
-    void addObjectToSelection(int objectHandle);
+    void addObjectToSelection(int objectHandle, bool uiAction = false);
     void removeObjectFromSelection(int objectHandle);
-    void xorAddObjectToSelection(int objectHandle);
+    void xorAddObjectToSelection(int objectHandle, bool uiAction = false);
     void removeFromSelectionAllExceptModelBase(bool keepObjectsSelectedThatAreNotBuiltOnAModelBase);
 
     void resetScriptFlagCalledInThisSimulationStep();
