@@ -1706,8 +1706,13 @@ std::string _method_handleSandboxScript(int targetObj, CDetachedScript* currentS
 #ifdef SIM_WITH_GUI
             editMode = GuiApp::getEditModeType();
 #endif
-            if ((editMode == NO_EDIT_MODE) && (App::scenes->sandboxScript != nullptr))
-                App::scenes->sandboxScript->systemCallScript(callType, nullptr, nullptr);
+            if (editMode == NO_EDIT_MODE)
+            {
+                if (App::scenes->pySandboxScript != nullptr)
+                    App::scenes->pySandboxScript->systemCallScript(callType, nullptr, nullptr);
+                if (App::scenes->sandboxScript != nullptr)
+                    App::scenes->sandboxScript->systemCallScript(callType, nullptr, nullptr);
+            }
         }
         else
             errMsg = SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
@@ -2976,6 +2981,8 @@ std::string _method_getObjects(int targetObj, CDetachedScript* currentScript, co
                     {
                         if (App::scenes->sandboxScript != nullptr)
                             objects.push_back(App::scenes->sandboxScript->getSceneObjectOrDetachedScriptHandle());
+                        if (App::scenes->pySandboxScript != nullptr)
+                            objects.push_back(App::scenes->pySandboxScript->getSceneObjectOrDetachedScriptHandle());
                         std::vector<int> addOns = App::scenes->addOnScriptContainer->getAddOnHandles();
                         objects.insert(objects.end(), addOns.begin(), addOns.end());
                         objects.push_back(App::scene->sceneObjects->embeddedScriptContainer->getMainScript()->getSceneObjectOrDetachedScriptHandle());

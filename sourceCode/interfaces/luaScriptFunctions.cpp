@@ -12858,8 +12858,13 @@ int _simHandleSandboxScript(luaWrap_lua_State* L)
 #ifdef SIM_WITH_GUI
             editMode = GuiApp::getEditModeType();
 #endif
-            if ((editMode == NO_EDIT_MODE) && (App::scenes->sandboxScript != nullptr))
-                App::scenes->sandboxScript->systemCallScript(callType, nullptr, nullptr);
+            if (editMode == NO_EDIT_MODE)
+            {
+                if (App::scenes->pySandboxScript != nullptr)
+                    App::scenes->pySandboxScript->systemCallScript(callType, nullptr, nullptr);
+                if (App::scenes->sandboxScript != nullptr)
+                    App::scenes->sandboxScript->systemCallScript(callType, nullptr, nullptr);
+            }
         }
     }
     else

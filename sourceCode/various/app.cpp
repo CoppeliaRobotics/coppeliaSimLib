@@ -71,7 +71,7 @@ VMutex App::_appSemaphore;
 std::map<std::string, SSysSemaphore> App::_systemSemaphores;
 std::vector<std::string> App::_pluginNames;
 std::vector<std::string> App::_enumTypes;
-int64_t App::_currentObject = -1;
+int64_t App::_currentObject = sim_handle_app;
 int App::_eventProtocolVersion = SIM_EVENT_PROTOCOL_VERSION;
 int App::_appWideYieldingForbidLevel = 0;
 std::vector<int> App::_apiVersion = {2}; // default for C-side
@@ -315,6 +315,8 @@ void App::init(const char* appDir, int)
     // Some items below require the GUI to be initialized (e.g. the Commander plugin):
     scenes->sandboxScript = new CDetachedScript(sim_scripttype_sandbox);
     scenes->sandboxScript->initScript();
+    scenes->pySandboxScript = new CDetachedScript(sim_scripttype_sandbox);
+    scenes->pySandboxScript->initScript();
 
     std::string autoLoadAddOns("true");
     getAppNamedParam("addOns.autoLoad", autoLoadAddOns);
@@ -392,6 +394,9 @@ void App::cleanup()
     scenes->copyBuffer->clearBuffer();
 
     scenes->addOnScriptContainer->removeAllAddOns();
+    scenes->pySandboxScript->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
+    CDetachedScript::destroy(scenes->pySandboxScript, true);
+    scenes->pySandboxScript = nullptr;
     scenes->sandboxScript->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
     CDetachedScript::destroy(scenes->sandboxScript, true);
     scenes->sandboxScript = nullptr;
@@ -2075,6 +2080,14 @@ int App::getHandleProperty_t(int64_t target, const char* ppName, int64_t& pState
         {
             if ( (scenes != nullptr) && (scenes->sandboxScript != nullptr) )
                 pState = scenes->sandboxScript->getSceneObjectOrDetachedScriptHandle();
+            else
+                pState = -1;
+            retVal = sim_propertyret_ok;
+        }
+        else if (strcmp(pName, prop(PropApp::pySandbox).name) == 0)
+        {
+            if ( (scenes != nullptr) && (scenes->pySandboxScript != nullptr) )
+                pState = scenes->pySandboxScript->getSceneObjectOrDetachedScriptHandle();
             else
                 pState = -1;
             retVal = sim_propertyret_ok;
@@ -4309,6 +4322,9 @@ void App::pushGenesisEvents()
         if (scenes->sandboxScript != nullptr)
             scenes->sandboxScript->pushNakedGenesisEvents();
 
+        if (scenes->pySandboxScript != nullptr)
+            scenes->pySandboxScript->pushNakedGenesisEvents();
+
         if (scenes->addOnScriptContainer != nullptr)
             scenes->addOnScriptContainer->pushNakedGenesisEvents();
 
@@ -4342,6 +4358,10 @@ void App::pushGenesisEvents()
         if (scenes->sandboxScript != nullptr)
             sbh = scenes->sandboxScript->getSceneObjectOrDetachedScriptHandle();
         ev->appendKeyHandle(prop(PropApp::sandbox).name, sbh);
+        sbh = -1;
+        if (scenes->pySandboxScript != nullptr)
+            sbh = scenes->pySandboxScript->getSceneObjectOrDetachedScriptHandle();
+        ev->appendKeyHandle(prop(PropApp::pySandbox).name, sbh);
         ev->appendKeyHandle(prop(PropApp::current).name, _currentObject);
         if (instancesList != nullptr)
         {

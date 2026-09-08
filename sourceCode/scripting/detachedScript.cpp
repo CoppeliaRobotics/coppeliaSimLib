@@ -2559,51 +2559,37 @@ bool CDetachedScript::resetScript()
 void CDetachedScript::initScript()
 { // add-on scripts won't reload, just reinitialize
     resetScript();
-//    if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization) || (_scriptType == sim_scripttype_sandbox))
     {
-        if (_scriptType == sim_scripttype_sandbox)
+        if (this == App::scenes->sandboxScript)
         {
-            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "initializing the sandbox script...");
+            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "initializing the Lua sandbox...");
             _initInterpreterState(nullptr);
-            if (App::userSettings->preferredSandboxLang == "bareLua")
+            _lang = "lua";
+            if (setScriptTextFromFile((App::folders->getLuaPath() + "/sandboxScript.lua").c_str()))
             {
-                _lang = "lua";
-                if (setScriptTextFromFile((App::folders->getLuaPath() + "/" + BASE_SANDBOX_SCRIPT).c_str()))
-                {
-                    if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
-                        App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "'bareLua' sandbox script initialized.");
-                }
-                else
-                {
-                    _scriptIsDisabled = true;
-                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, (std::string(BASE_SANDBOX_SCRIPT) + " was not found.").c_str());
-                }
+                if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
+                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "Lua sandbox initialized.");
             }
             else
             {
-                _lang = "python";
-                if (setScriptTextFromFile((App::folders->getPythonPath() + "/sandboxScript.py").c_str()))
-                {
-                    if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
-                        App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox script initialized.");
-                    else
-                    { // we revert to bareLua
-                        _lang = "lua";
-                        if (setScriptTextFromFile((App::folders->getLuaPath() + "/" + BASE_SANDBOX_SCRIPT).c_str()))
-                        {
-                            resetScript();
-                            if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
-                                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "'bareLua' sandbox script initialized (Python sandbox failed).");
-                        }
-                        else
-                        {
-                            _scriptIsDisabled = true;
-                            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, (std::string(BASE_SANDBOX_SCRIPT) + " was not found (Python sandbox failed).").c_str());
-                        }
-                    }
-                }
-                else
-                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandboxScript.py was not found.");
+                _scriptIsDisabled = true;
+                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandboxScript.lua was not found.");
+            }
+        }
+        else if (this == App::scenes->pySandboxScript)
+        {
+            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "initializing the Python sandbox...");
+            _initInterpreterState(nullptr);
+            _lang = "python";
+            if (setScriptTextFromFile((App::folders->getPythonPath() + "/sandboxScript.py").c_str()))
+            {
+                if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
+                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "Python sandbox initialized.");
+            }
+            else
+            {
+                _scriptIsDisabled = true;
+                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandboxScript.py was not found.");
             }
         }
         else

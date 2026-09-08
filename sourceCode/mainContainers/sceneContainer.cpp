@@ -25,6 +25,7 @@ CSceneContainer::CSceneContainer()
     customSceneObjectClasses = nullptr;
     copyBuffer = nullptr;
     sandboxScript = nullptr;
+    pySandboxScript = nullptr;
     addOnScriptContainer = nullptr;
     persistentDataContainer_old = nullptr;
     interfaceStackContainer = nullptr;
@@ -286,7 +287,7 @@ void CSceneContainer::deinitialize()
     while (_scenes.size() != 0)
         destroyCurrentScene();
 
-    //    delete sandboxScript; // done elsewhere!
+    //    delete sandboxScript and pySandboxScript done elsewhere!
     delete addOnScriptContainer;
     delete pluginContainer;
     delete codeEditorInfos;
@@ -400,6 +401,8 @@ CDetachedScript* CSceneContainer::getDetachedScriptFromHandle(int scriptHandle) 
         retVal = scene->getDetachedScriptFromHandle(scriptHandle);
     if ((retVal == nullptr) && (addOnScriptContainer != nullptr))
         retVal = addOnScriptContainer->getAddOnFromHandle(scriptHandle);
+    if ((retVal == nullptr) && (pySandboxScript != nullptr) && (pySandboxScript->getSceneObjectOrDetachedScriptHandle() == scriptHandle))
+        retVal = pySandboxScript;
     if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getSceneObjectOrDetachedScriptHandle() == scriptHandle))
         retVal = sandboxScript;
     return (retVal);
@@ -412,6 +415,8 @@ CDetachedScript* CSceneContainer::getDetachedScriptFromUid(int uid) const
         retVal = scene->getDetachedScriptFromUid(uid);
     if ((retVal == nullptr) && (addOnScriptContainer != nullptr))
         retVal = addOnScriptContainer->getAddOnFromUid(uid);
+    if ((retVal == nullptr) && (pySandboxScript != nullptr) && (pySandboxScript->getScriptUid() == uid))
+        retVal = pySandboxScript;
     if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getScriptUid() == uid))
         retVal = sandboxScript;
     return (retVal);
@@ -421,6 +426,11 @@ int CSceneContainer::getSysFuncAndHookCnt(int sysCall) const
 {
     int retVal = scene->sceneObjects->getSysFuncAndHookCnt(sysCall);
     retVal += addOnScriptContainer->getSysFuncAndHookCnt(sysCall);
+    if (pySandboxScript != nullptr)
+    {
+        for (size_t i = 0; i < 3; i++)
+            retVal += pySandboxScript->getFuncAndHookCnt(sysCall, i);
+    }
     if (sandboxScript != nullptr)
     {
         for (size_t i = 0; i < 3; i++)
@@ -436,6 +446,8 @@ void CSceneContainer::getActiveScripts(std::vector<CDetachedScript*>& scripts, b
     {
         if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == sim_scriptstate_initialized))
             scripts.push_back(sandboxScript);
+        if ((pySandboxScript != nullptr) && (pySandboxScript->getScriptState() == sim_scriptstate_initialized))
+            scripts.push_back(pySandboxScript);
         addOnScriptContainer->getActiveScripts(scripts);
         if (scene != nullptr)
             scene->getActiveScripts(scripts, reverse, alsoLegacyScripts);
@@ -445,6 +457,8 @@ void CSceneContainer::getActiveScripts(std::vector<CDetachedScript*>& scripts, b
         if (scene != nullptr)
             scene->getActiveScripts(scripts, reverse, alsoLegacyScripts);
         addOnScriptContainer->getActiveScripts(scripts);
+        if ((pySandboxScript != nullptr) && (pySandboxScript->getScriptState() == sim_scriptstate_initialized))
+            scripts.push_back(pySandboxScript);
         if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == sim_scriptstate_initialized))
             scripts.push_back(sandboxScript);
     }
@@ -462,6 +476,14 @@ void CSceneContainer::callScripts(int callType, CInterfaceStack* inStack, CInter
                 sandboxScript->systemCallScript(callType, inStack, outStack);
         }
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
+        {
+            if ((pySandboxScript != nullptr) && pySandboxScript->hasSystemFunctionOrHook(callType))
+            {
+                if (detachedScriptToExclude != pySandboxScript->getObjectHandle())
+                    pySandboxScript->systemCallScript(callType, inStack, outStack);
+            }
+        }
+        if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
             addOnScriptContainer->callScripts(callType, inStack, outStack, detachedScriptToExclude);
         if (scene != nullptr)
         {
@@ -475,6 +497,14 @@ void CSceneContainer::callScripts(int callType, CInterfaceStack* inStack, CInter
             scene->callScripts(callType, inStack, outStack, objectBranch, detachedScriptToExclude);
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
             addOnScriptContainer->callScripts(callType, inStack, outStack, detachedScriptToExclude);
+        if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
+        {
+            if ((pySandboxScript != nullptr) && pySandboxScript->hasSystemFunctionOrHook(callType))
+            {
+                if (detachedScriptToExclude != pySandboxScript->getObjectHandle())
+                    pySandboxScript->systemCallScript(callType, inStack, outStack);
+            }
+        }
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
         {
             if ((sandboxScript != nullptr) && sandboxScript->hasSystemFunctionOrHook(callType))
@@ -518,6 +548,10 @@ bool CSceneContainer::shouldTemporarilySuspendMainScript()
 
     // Add-on scripts:
     if (addOnScriptContainer->shouldTemporarilySuspendMainScript())
+        retVal = true;
+
+    // Py sandbox script:
+    if ((pySandboxScript != nullptr) && pySandboxScript->shouldTemporarilySuspendMainScript())
         retVal = true;
 
     // Sandbox script:
