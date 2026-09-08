@@ -10,7 +10,6 @@
 #include <propertiesAndMethods.h>
 #include <obj.h>
 
-#define PROXY_FUNC_NAME_STR "__proxyFuncName__"
 #define DEFAULT_MAINSCRIPT_CODE "-- The main script is not supposed to be modified, except in special cases.\nrequire('defaultMainScript')"
 #define DEFAULT_NONTHREADEDCHILDSCRIPT "simulationScript"
 #define DEFAULT_THREADEDCHILDSCRIPT "simulationScript-threaded"

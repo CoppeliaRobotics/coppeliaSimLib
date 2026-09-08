@@ -73,7 +73,7 @@ std::vector<std::string> App::_pluginNames;
 std::vector<std::string> App::_enumTypes;
 int64_t App::_currentObject = sim_handle_app;
 int App::_eventProtocolVersion = SIM_EVENT_PROTOCOL_VERSION;
-int App::_appWideYieldingForbidLevel = 0;
+int App::_appWideAutoYieldingForbidLevel = 0;
 std::vector<int> App::_apiVersion = {2}; // default for C-side
 Obj* App::_obj = new Obj(sim_handle_app, "app", "superClass: object; nameSpaces: namedParam, customData, signal");
 
@@ -212,14 +212,14 @@ void App::setAppStage(int s)
     _appStage = s;
 }
 
-void App::changeAppWideYieldingForbidLevel(int dx)
+void App::setAppWideAutoYieldingForbidLevel(int l)
 {
-    _appWideYieldingForbidLevel += dx;
+    _appWideAutoYieldingForbidLevel = l;
 }
 
-bool App::isAppWideYieldingForbidden()
+int App::getAppWideAutoYieldingForbidLevel()
 {
-    return (_appWideYieldingForbidLevel != 0);
+    return _appWideAutoYieldingForbidLevel;
 }
 
 void App::init(const char* appDir, int)

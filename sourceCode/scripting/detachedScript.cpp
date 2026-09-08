@@ -200,17 +200,13 @@ void CDetachedScript::fromFileToBuffer()
 bool CDetachedScript::shouldAutoYield()
 {
     bool retVal = false;
-    if ((_forbidAutoYieldingLevel == 0) && (_forbidManualYieldingLevel == 0) && (!App::isAppWideYieldingForbidden()))
+    if ((_forbidAutoYieldingLevel == 0) && (_forbidManualYieldingLevel == 0) && (App::getAppWideAutoYieldingForbidLevel() == 0))
     {
         retVal = VDateTime::getTimeDiffInMs(_timeForNextAutoYielding) > 0;
         if (retVal)
         {
             luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
-            luaWrap_lua_getglobal(L, PROXY_FUNC_NAME_STR);
-            if (luaWrap_lua_isstring(L, -1))
-                retVal = false; // auto yield forbidden for a short period of time with proxy function names (from the time the proxy func. name is defined until it is picked up by the c++ base lua function handler)
-            else
-                _timeForNextAutoYielding = int(VDateTime::getTimeInMs()) + _delayForAutoYielding;
+            _timeForNextAutoYielding = int(VDateTime::getTimeInMs()) + _delayForAutoYielding;
             luaWrap_lua_pop(L, 1);
         }
     }
@@ -3204,6 +3200,7 @@ void CDetachedScript::_hookFunction_lua(void* LL, void* arr)
         int randComponent = rand() / (RAND_MAX / 10);
         int hookMask = luaWrapGet_LUA_MASKCOUNT();
         luaWrap_lua_sethook(L, _hookFunction_lua, hookMask, 95 + randComponent);
+//        luaWrap_lua_sethook(L, _hookFunction_lua, hookMask, 1); // testing
         // Also remember: the hook gets also called when calling luaWrap_luaL_doString from c++ and similar!!
 
 #ifdef SIM_WITH_GUI

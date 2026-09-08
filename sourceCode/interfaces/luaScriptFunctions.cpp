@@ -32,72 +32,39 @@
 
 #define LUA_START(funcName) \
     int argOffset = 0; \
-    std::string functionName(_LUA_START(L, funcName, argOffset)); \
+    CApiErrors::getAndClearLastError(); \
+    CApiErrors::getAndClearLastWarning(); \
+    std::string functionName(funcName); \
     std::string errorString; \
     std::string warningString; \
     bool cSideErrorOrWarningReporting = true; \
-    App::changeAppWideYieldingForbidLevel(1); \
+    App::setAppWideAutoYieldingForbidLevel(App::getAppWideAutoYieldingForbidLevel() + 1); \
     App::pushApiVersion(1);
 
 #define LUA_START_NO_CSIDE_ERROR(funcName) \
     int argOffset = 0; \
-    std::string functionName(_LUA_START(L, funcName, argOffset)); \
+    CApiErrors::getAndClearLastError(); \
+    CApiErrors::getAndClearLastWarning(); \
+    std::string functionName(funcName); \
     std::string errorString; \
     std::string warningString; \
     bool cSideErrorOrWarningReporting = false; \
-    App::changeAppWideYieldingForbidLevel(1); \
+    App::setAppWideAutoYieldingForbidLevel(App::getAppWideAutoYieldingForbidLevel() + 1); \
     App::pushApiVersion(1);
 
 #define LUA_END(p) \
     do \
     { \
+        App::setAppWideAutoYieldingForbidLevel(App::getAppWideAutoYieldingForbidLevel() - 1); \
         if (warningString.empty()) \
             warningString = CApiErrors::getAndClearLastWarning(); \
         _reportWarningsIfNeeded(L, functionName.c_str(), warningString.c_str()); \
         CApiErrors::getAndClearLastError(); \
-        App::changeAppWideYieldingForbidLevel(-1); \
         App::popApiVersion(); \
         return p; \
     } while (0)
 
 typedef int (*_ccallback_t)(int);
-
-std::string _LUA_START(luaWrap_lua_State* L, const char* funcName, int& argOffset)
-{
-    CApiErrors::getAndClearLastError();
-    CApiErrors::getAndClearLastWarning();
-    luaWrap_lua_getglobal(L, PROXY_FUNC_NAME_STR);
-    std::string functionName(funcName);
-    if (luaWrap_lua_isstring(L, -1))
-    {
-        std::string replacementFuncName = luaWrap_lua_tostring(L, -1);
-        auto p = replacementFuncName.find(",");
-        if (p != std::string::npos)
-        {
-            std::string orig(replacementFuncName.begin(), replacementFuncName.begin() + p);
-            if (orig == functionName)
-                replacementFuncName.assign(replacementFuncName.begin() + p + 1, replacementFuncName.end());
-            else
-                replacementFuncName.clear();
-        }
-        else
-            App::logMsg(sim_verbosity_scripterrors, (std::string("invalid '") + PROXY_FUNC_NAME_STR + "' content: '" + replacementFuncName + "'.").c_str());
-        if (replacementFuncName.size() > 0)
-        {
-            auto p = replacementFuncName.find("@method");
-            if (p != std::string::npos)
-            {
-                replacementFuncName.erase(replacementFuncName.begin() + p, replacementFuncName.end());
-                argOffset = 1;
-            }
-            functionName = replacementFuncName;
-            luaWrap_lua_pushnil(L);
-            luaWrap_lua_setglobal(L, PROXY_FUNC_NAME_STR);
-        }
-    }
-    luaWrap_lua_pop(L, 1);
-    return functionName;
-}
 
 void _reportWarningsIfNeeded(luaWrap_lua_State* L, const char* functionName, const char* warningString)
 {
@@ -157,6 +124,7 @@ void _raiseErrorIfNeeded(luaWrap_lua_State* L, const char* functionName, const c
     msg += errStr;
     luaWrap_lua_pushtext(L, msg.c_str());
 
+    App::setAppWideAutoYieldingForbidLevel(App::getAppWideAutoYieldingForbidLevel() - 1); // important
     luaWrap_lua_error(L); // does a long jump and never returns
 }
 
@@ -175,6 +143,8 @@ const SLuaCommands simLuaCommands[] = {
     {"auxFunc", _auxFunc},
     {"setAutoYield", _setAutoYield},
     {"getAutoYield", _getAutoYield},
+    {"setAppWideAutoYield", _setAppWideAutoYield},
+    {"getAppWideAutoYield", _getAppWideAutoYield},
     {"getYieldAllowed", _getYieldAllowed},
     {"setYieldAllowed", _setYieldAllowed},
     {"registerScriptFuncHook", _registerScriptFuncHook},
@@ -2882,14 +2852,14 @@ int _genericFunctionHandler(luaWrap_lua_State* L, void (*callback)(struct SScrip
 
     // Now we can call the callback:
     CDetachedScript::setInExternalCall(currentScriptID);
-    App::changeAppWideYieldingForbidLevel(1);
+    App::setAppWideAutoYieldingForbidLevel(App::getAppWideAutoYieldingForbidLevel() + 1);
 
     if (callback != nullptr)
         callback(cb);
     else
         func->callBackFunction_new(cb); // call into old plugin
 
-    App::changeAppWideYieldingForbidLevel(-1);
+    App::setAppWideAutoYieldingForbidLevel(App::getAppWideAutoYieldingForbidLevel() - 1);
     CDetachedScript::setInExternalCall(-1);
 
     // Now we have to build the returned data onto the stack:
@@ -7531,6 +7501,22 @@ int _getAutoYield(luaWrap_lua_State* L)
     luaWrap_lua_pushboolean(L, retVal);
     luaWrap_lua_pushinteger(L, level);
     LUA_END(2);
+}
+
+int _setAppWideAutoYield(luaWrap_lua_State* L)
+{
+    if (luaWrap_lua_gettop(L) > 0)
+    {
+        if (luaWrap_lua_isinteger(L, 1))
+            App::setAppWideAutoYieldingForbidLevel(luaToInt(L, 1));
+    }
+    return 0;
+}
+
+int _getAppWideAutoYield(luaWrap_lua_State* L)
+{
+    luaWrap_lua_pushinteger(L, App::getAppWideAutoYieldingForbidLevel());
+    return 1;
 }
 
 int _getYieldAllowed(luaWrap_lua_State* L)

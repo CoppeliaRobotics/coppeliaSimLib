@@ -106,6 +106,8 @@ extern int _auxFunc(luaWrap_lua_State* L);
 
 extern int _setAutoYield(luaWrap_lua_State* L);
 extern int _getAutoYield(luaWrap_lua_State* L);
+extern int _setAppWideAutoYield(luaWrap_lua_State* L);
+extern int _getAppWideAutoYield(luaWrap_lua_State* L);
 extern int _getYieldAllowed(luaWrap_lua_State* L);
 extern int _setYieldAllowed(luaWrap_lua_State* L);
 extern int _registerScriptFuncHook(luaWrap_lua_State* L);
