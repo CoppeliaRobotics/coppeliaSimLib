@@ -17,6 +17,7 @@ CustomObject::CustomObject(int64_t handle, const char* objectTypeStr, const char
 
 CustomObject::~CustomObject()
 {
+    App::announceObjectWillBeErased(_objectHandle);
     if (!isClass())
     {
         if (App::scenes != nullptr)

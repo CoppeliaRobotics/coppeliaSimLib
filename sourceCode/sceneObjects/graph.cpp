@@ -1826,10 +1826,10 @@ void CGraph::removeStaticCurve(int graphType, const char* curveName)
     }
 }
 
-void CGraph::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CGraph::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    CSceneObject::announceObjectWillBeErased(object, copyBuffer);
+    CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
     // OLD:
     int i = 0;
     while (i < int(dataStreams_old.size()))

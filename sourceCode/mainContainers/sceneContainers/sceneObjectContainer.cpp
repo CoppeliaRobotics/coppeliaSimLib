@@ -97,17 +97,17 @@ void CSceneObjectContainer::sensingAboutToStart()
         getObjectFromIndex(i)->measureVelocity(dt); // adapt that func!
 }
 
-void CSceneObjectContainer::announceObjectWillBeErased(CSceneObject* object)
+void CSceneObjectContainer::announceSceneObjectWillBeErased(CSceneObject* object)
 {
     TRACE_INTERNAL;
-    embeddedScriptContainer->announceObjectWillBeErased(object);
+    embeddedScriptContainer->announceSceneObjectWillBeErased(object);
     for (size_t i = 0; i < getObjectCount(); i++)
     {
         CSceneObject* it = getObjectFromIndex(i);
         if (it != object)
-            it->announceObjectWillBeErased(object, false);
+            it->announceSceneObjectWillBeErased(object, false);
     }
-    object->announceObjectWillBeErased(object, false); // also send this to self, afterwards
+    object->announceSceneObjectWillBeErased(object, false); // also send this to self, afterwards
 
 }
 
@@ -385,7 +385,7 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                     if (it != nullptr)
                     {
                         // We announce the object will be erased:
-                        App::scenes->announceObjectWillBeErased(it); // this may trigger other "interesting" things, such as customization script runs, setting new parents/children, etc.
+                        App::scenes->announceSceneObjectWillBeErased(it); // this may trigger other "interesting" things, such as customization script runs, setting new parents/children, etc.
 
                         App::scenes->getEvents()->mark();
                         if ((it->getObjectType() == sim_sceneobject_shape) && (((CShape*)it)->getMesh() != nullptr))

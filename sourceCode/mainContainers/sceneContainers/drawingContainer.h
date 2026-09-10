@@ -17,7 +17,7 @@ class CDrawingContainer
     size_t getObjectCount() const;
     CDrawingObject* getObjectFromIndex(size_t index) const;
     CDrawingObject* getObjectFromHandle(int objectId) const;
-    void announceObjectWillBeErased(const CSceneObject* object);
+    void announceSceneObjectWillBeErased(const CSceneObject* object);
     void announceScriptStateWillBeErased(int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     void removeObject(int objectId);
 

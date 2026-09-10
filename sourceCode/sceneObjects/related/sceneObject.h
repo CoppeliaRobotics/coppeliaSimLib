@@ -67,7 +67,7 @@ class CSceneObject : public Obj
     virtual bool scaleObjectNonIsometrically(double x, double y, double z);
     virtual void serialize(CSer& ar);
 
-    virtual void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
+    virtual void announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     virtual void announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer);
 
     virtual void performObjectLoadingMapping(const std::map<int, int>* map, int opType);

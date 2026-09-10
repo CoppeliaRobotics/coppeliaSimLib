@@ -241,10 +241,10 @@ CSceneObject* CPath_old::copyYourself()
     return (newPath);
 }
 
-void CPath_old::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CPath_old::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    CSceneObject::announceObjectWillBeErased(object, copyBuffer);
+    CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
 }
 
 void CPath_old::announceCollectionWillBeErased(int groupID, bool copyBuffer)

@@ -1706,6 +1706,19 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
                 inStack->pushTextOntoStack("highLimit");
                 inStack->pushFloatOntoStack(highL);
                 inStack->insertDataIntoStackTable();
+
+                inStack->pushTextOntoStack("bounds");
+                std::vector<double> b;
+                if (((!_isCyclic) || (_jointType != sim_joint_revolute)) && (_jointType != sim_joint_spherical))
+                {
+                    double minV, maxV;
+                    getInterval(minV, maxV);
+                    b.push_back(minV);
+                    b.push_back(maxV);
+                }
+                inStack->pushDoubleArrayOntoStack(b.data(), b.size());
+                inStack->insertDataIntoStackTable();
+
                 inStack->pushTextOntoStack("passCnt");
                 inStack->pushInt32OntoStack(loopCnt);
                 inStack->insertDataIntoStackTable();
@@ -2093,7 +2106,7 @@ void CJoint::pushNakedGenesisEvents(CCbor* ev /*= nullptr*/)
         if ((_isCyclic && (_jointType == sim_joint_revolute)) || (_jointType == sim_joint_spherical))
             ev->appendKeyDoubleArray(prop(PropJoint::bounds).name, nullptr, 0);
         else
-            ev->appendKeyDoubleArray(prop(PropJoint::bounds).name, arr, 2);
+            ev->appendKeyDoubleArray(prop(PropJoint::bounds).name, interv, 2);
 
         ev->appendKeyDoubleArray(prop(PropJoint::maxVelAccelJerk).name, _maxVelAccelJerk, 3);
         ev->appendKeyDouble(prop(PropJoint::calcVelocity).name, _velCalc_vel);
@@ -4219,10 +4232,10 @@ void CJoint::_setPosition_sendOldIk(double pos) const
         App::scenes->pluginContainer->oldIkPlugin_setJointPosition(_ikPluginCounterpartHandle, pos);
 }
 
-void CJoint::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CJoint::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    CSceneObject::announceObjectWillBeErased(object, copyBuffer);
+    CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
     if (_dependencyMasterJointHandle == object->getObjectHandle())
         setDependencyMasterJointHandle(-1);
     if (_vortexIntParams[simi_vortex_joint_dependentobjectid] == object->getObjectHandle()) // that's the Vortex dependency joint

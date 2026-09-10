@@ -90,6 +90,7 @@ CMesh::CMesh(const CPose& meshFrame, const std::vector<double>& vertices, const 
 
 CMesh::~CMesh()
 {
+    App::announceObjectWillBeErased(_objectHandle);
 #ifdef SIM_WITH_GUI
     decreaseVertexBufferRefCnt(_vertexBufferId);
     decreaseNormalBufferRefCnt(_normalBufferId);

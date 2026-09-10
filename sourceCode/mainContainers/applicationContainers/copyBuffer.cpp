@@ -1090,7 +1090,7 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject* object)
     while (i < objectBuffer.size())
     {
         CSceneObject* it = objectBuffer[i];
-        it->announceObjectWillBeErased(object, true);
+        it->announceSceneObjectWillBeErased(object, true);
         i++;
     }
 

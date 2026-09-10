@@ -92,6 +92,7 @@ CDetachedScript::CDetachedScript(int scriptType)
 CDetachedScript::~CDetachedScript()
 { // use destory further below to delete the object!
     TRACE_INTERNAL;
+    App::announceObjectWillBeErased(_objectHandle);
     _killInterpreterState(); // should already have been done outside of the destructor!
     if (isNotInCopyBuffer())
         App::scenes->pushRemoveEvent(_objectHandle, _scriptUid);

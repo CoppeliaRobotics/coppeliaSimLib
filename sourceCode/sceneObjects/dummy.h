@@ -74,7 +74,7 @@ class CDummy : public CSceneObject
     bool isPotentiallyCollidable() const override;
     bool isPotentiallyMeasurable() const override;
     bool isPotentiallyDetectable() const override;
-    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
+    void announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer) override;
     void performObjectLoadingMapping(const std::map<int, int>* map, int opType) override;
     void setIsInScene(bool s) override;

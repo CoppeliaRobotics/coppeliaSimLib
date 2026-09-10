@@ -17,7 +17,7 @@ class CDrawingObject : public Obj
     void addItems(const double* itemData, size_t itemCnt);
     void setItems(const double* itemData, size_t itemCnt);
     int getObjectType() const;
-    bool announceObjectWillBeErased(const CSceneObject* object);
+    bool announceSceneObjectWillBeErased(const CSceneObject* object);
     bool announceScriptStateWillBeErased(int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
     int getBoolProperty(const char* pName, bool& pState) const override;

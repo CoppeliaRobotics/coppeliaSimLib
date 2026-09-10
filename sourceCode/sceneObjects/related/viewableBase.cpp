@@ -86,7 +86,7 @@ bool CViewableBase::getuseLocalLights()
 void CViewableBase::serialize(CSer& ar)
 {
 }
-void CViewableBase::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CViewableBase::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 {
 }
 void CViewableBase::announceCollectionWillBeErased(int groupID, bool copyBuffer)

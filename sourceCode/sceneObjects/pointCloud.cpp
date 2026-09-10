@@ -1670,10 +1670,10 @@ void CPointCloud::performObjectLoadingMapping(const std::map<int, int>* map, int
     CSceneObject::performObjectLoadingMapping(map, opType);
 }
 
-void CPointCloud::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CPointCloud::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    CSceneObject::announceObjectWillBeErased(object, copyBuffer);
+    CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
 }
 
 void CPointCloud::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)

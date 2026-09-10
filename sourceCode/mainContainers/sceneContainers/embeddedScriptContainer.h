@@ -15,7 +15,7 @@ class CEmbeddedScriptContainer
     void simulationEnded();
     void simulationAboutToEnd();
     void removeAllScripts();
-    void announceObjectWillBeErased(const CSceneObject* object);
+    void announceSceneObjectWillBeErased(const CSceneObject* object);
     bool removeScript_safe(int scriptHandle);
     bool removeScript(int scriptHandle);
     void extractScript(int scriptHandle);

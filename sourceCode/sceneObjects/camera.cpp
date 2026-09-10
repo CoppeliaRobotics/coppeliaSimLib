@@ -997,10 +997,10 @@ CSceneObject* CCamera::copyYourself()
     return (newCamera);
 }
 
-void CCamera::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CCamera::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    CSceneObject::announceObjectWillBeErased(object, copyBuffer);
+    CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
     if (_trackedObjectHandle == object->getObjectHandle())
         setTrackedObjectHandle(-1);
 }

@@ -133,10 +133,10 @@ CSceneObject* CMill::copyYourself()
     return (newMill);
 }
 
-void CMill::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CMill::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    CSceneObject::announceObjectWillBeErased(object, copyBuffer);
+    CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
     if (_millableObject == object->getObjectHandle())
         _millableObject = -1;
 }

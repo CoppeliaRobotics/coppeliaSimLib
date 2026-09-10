@@ -176,7 +176,7 @@ class CJoint : public CSceneObject
     void announceCollectionWillBeErased(int groupID, bool copyBuffer) override;
     void announceCollisionWillBeErased(int collisionID, bool copyBuffer) override;
     void announceDistanceWillBeErased(int distanceID, bool copyBuffer) override;
-    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
+    void announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer) override;
     void performObjectLoadingMapping(const std::map<int, int>* map, int opType) override;
     void performIkLoadingMapping(const std::map<int, int>* map, int opType) override;

@@ -131,6 +131,7 @@ int CSceneContainer::createNewScene()
         scene->removeScene_oldIk();
 
     // Create new scene and switch to it:
+    App::setCurrentObject(sim_handle_app);
     CScene* w = new CScene();
     _currentSceneIndex = int(_scenes.size());
     _scenes.push_back(w);
@@ -212,6 +213,7 @@ int CSceneContainer::destroyCurrentScene()
     _scenes.erase(_scenes.begin() + _currentSceneIndex);
     _currentSceneIndex = -1;
 
+    App::setCurrentObject(sim_handle_app);
     if (nextSceneIndex != -1)
     {
         // switch to another scene:
@@ -339,6 +341,7 @@ bool CSceneContainer::_switchToScene(int newSceneIndex)
     scene->removeScene_oldIk();
 
     // Switch scenes:
+    App::setCurrentObject(sim_handle_app);
     _currentSceneIndex = newSceneIndex;
     scene = _scenes[_currentSceneIndex];
     App::scene = scene;
@@ -891,9 +894,9 @@ void CSceneContainer::simulationEnded(bool removeNewObjects)
     calcInfo->simulationEnded();
 }
 
-void CSceneContainer::announceObjectWillBeErased(CSceneObject* object)
+void CSceneContainer::announceSceneObjectWillBeErased(CSceneObject* object)
 {
-    scene->announceObjectWillBeErased(object);
+    scene->announceSceneObjectWillBeErased(object);
 }
 
 void CSceneContainer::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)

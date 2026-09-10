@@ -21,6 +21,7 @@ CCollection::CCollection(int creatorHandle)
 
 CCollection::~CCollection()
 {
+    App::announceObjectWillBeErased(_objectHandle);
     while (_collectionElements.size() > 0)
         _removeCollectionElementFromHandle(_collectionElements[0]->getElementHandle());
 }

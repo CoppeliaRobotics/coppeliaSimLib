@@ -150,7 +150,7 @@ void CEmbeddedScriptContainer::killAllSimulationLuaStates()
     }
 }
 
-void CEmbeddedScriptContainer::announceObjectWillBeErased(const CSceneObject* object)
+void CEmbeddedScriptContainer::announceSceneObjectWillBeErased(const CSceneObject* object)
 { // Never called from copy buffer!
     size_t i = 0;
     while (i < allScripts.size())

@@ -330,10 +330,10 @@ CSceneObject* CProxSensor::copyYourself()
     return (newSensor);
 }
 
-void CProxSensor::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CProxSensor::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    CSceneObject::announceObjectWillBeErased(object, copyBuffer);
+    CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
     if (_sensableObject_deprecated == object->getObjectHandle())
         _sensableObject_deprecated = -1;
 }

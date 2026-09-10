@@ -1187,14 +1187,15 @@ void CScene::cleanupHashNames_allObjects(int suffix)
     }
 }
 
-void CScene::announceObjectWillBeErased(CSceneObject* object)
+void CScene::announceSceneObjectWillBeErased(CSceneObject* object)
 {
-    sceneObjects->announceObjectWillBeErased(object);
+    App::announceObjectWillBeErased(object->getObjectHandle());
+    sceneObjects->announceSceneObjectWillBeErased(object);
     textureContainer->announceGeneralObjectWillBeErased(object->getObjectHandle(), -1);
     pageContainer->announceObjectWillBeErased(object->getObjectHandle()); // might trigger a view destruction!
 
     // Old:
-    drawingCont->announceObjectWillBeErased(object);
+    drawingCont->announceSceneObjectWillBeErased(object);
     buttonBlockContainer_old->announceObjectWillBeErased(object->getObjectHandle());
     pathPlanning_old->announceObjectWillBeErased(object->getObjectHandle());
     collisions_old->announceObjectWillBeErased(object->getObjectHandle());

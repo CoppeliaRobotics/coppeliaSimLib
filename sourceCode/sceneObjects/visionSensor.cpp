@@ -2200,12 +2200,12 @@ CSceneObject* CVisionSensor::copyYourself()
     return (newVisionSensor);
 }
 
-void CVisionSensor::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CVisionSensor::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     if (_detectableEntityHandle == object->getObjectHandle())
         _detectableEntityHandle = -1;
-    CSceneObject::announceObjectWillBeErased(object, copyBuffer);
+    CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
 }
 
 void CVisionSensor::announceCollectionWillBeErased(int groupID, bool copyBuffer)
@@ -2447,7 +2447,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         CInterfaceStack* inStack = App::scenes->interfaceStackContainer->createStack();
         inStack->pushTableOntoStack();
 
-        inStack->insertKeyHandleIntoStackTable("visionSensor", getObjectHandle());
+        inStack->insertKeyHandleIntoStackTable("sensor", getObjectHandle());
         inStack->insertKeyInt32IntoStackTable("handle", getObjectHandle()); // deprecated
         int res[2] = {_resolution[0], _resolution[1]};
         inStack->insertKeyInt32ArrayIntoStackTable("resolution", res, 2);
@@ -2457,6 +2457,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         inStack->insertKeyFloatIntoStackTable("viewAngle", getViewAngle());
         inStack->insertKeyFloatIntoStackTable("orthoSize", getOrthoViewSize());
         inStack->insertKeyBoolIntoStackTable("perspectiveOperation", getPerspective());
+        inStack->insertKeyBoolIntoStackTable("perspective", getPerspective());
 
         for (size_t i = 0; i < scripts.size(); i++)
         {

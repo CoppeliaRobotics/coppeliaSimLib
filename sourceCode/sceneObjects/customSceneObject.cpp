@@ -290,10 +290,10 @@ void CCustomSceneObject::performObjectLoadingMapping(const std::map<int, int>* m
     CSceneObject::performObjectLoadingMapping(map, opType);
 }
 
-void CCustomSceneObject::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CCustomSceneObject::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    CSceneObject::announceObjectWillBeErased(object, copyBuffer);
+    CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
 }
 
 void CCustomSceneObject::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)

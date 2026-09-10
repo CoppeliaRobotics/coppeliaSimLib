@@ -212,7 +212,7 @@ CSceneObject* CMirror::copyYourself()
     return (newMirror);
 }
 
-void CMirror::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CMirror::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     if (_clippingObjectOrCollection == object->getObjectHandle())
@@ -221,7 +221,7 @@ void CMirror::announceObjectWillBeErased(const CSceneObject* object, bool copyBu
         if (!_isMirror)
             _active = false;
     }
-    CSceneObject::announceObjectWillBeErased(object, copyBuffer);
+    CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
 }
 
 void CMirror::announceCollectionWillBeErased(int groupID, bool copyBuffer)

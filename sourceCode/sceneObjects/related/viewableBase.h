@@ -19,7 +19,7 @@ class CViewableBase : public CSceneObject
 #endif
     virtual void scaleObject(double scalingFactor) override;
     virtual void serialize(CSer& ar) override;
-    virtual void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
+    virtual void announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
     virtual void announceCollectionWillBeErased(int groupID, bool copyBuffer) override;
     virtual void announceCollisionWillBeErased(int collisionID, bool copyBuffer) override;
     virtual void announceDistanceWillBeErased(int distanceID, bool copyBuffer) override;

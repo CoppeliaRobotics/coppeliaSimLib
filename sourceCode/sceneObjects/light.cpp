@@ -367,10 +367,10 @@ CSceneObject* CLight::copyYourself()
     return (newLight);
 }
 
-void CLight::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CLight::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    CSceneObject::announceObjectWillBeErased(object, copyBuffer);
+    CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
 }
 
 void CLight::announceCollectionWillBeErased(int groupID, bool copyBuffer)

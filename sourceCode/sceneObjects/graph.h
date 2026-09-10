@@ -23,7 +23,7 @@ class CGraph : public CSceneObject
     void scaleObject(double scalingFactor) override;
     void serialize(CSer& ar) override;
 
-    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
+    void announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
     void announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer) override;
     void performObjectLoadingMapping(const std::map<int, int>* map, int opType) override;
     void performScriptLoadingMapping(const std::map<int, int>* map, int opType) override;

@@ -46,7 +46,7 @@ class COcTree : public CSceneObject
     bool isPotentiallyMeasurable() const override;
     bool isPotentiallyDetectable() const override;
     bool isPotentiallyRenderable() const override;
-    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
+    void announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
     void announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer) override;
 
     void performObjectLoadingMapping(const std::map<int, int>* map, int opType) override;

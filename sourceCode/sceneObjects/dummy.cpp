@@ -1028,10 +1028,10 @@ void CDummy::setAssemblyTag(const char* tag)
     }
 }
 
-void CDummy::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CDummy::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    CSceneObject::announceObjectWillBeErased(object, copyBuffer);
+    CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
     if (_linkedDummyHandle == object->getObjectHandle())
         setLinkedDummyHandle(-1, !copyBuffer);
     if (_mujocoIntParams[simi_mujoco_dummy_proxyjointid] == object->getObjectHandle()) // that's the Mujoco proxy joint

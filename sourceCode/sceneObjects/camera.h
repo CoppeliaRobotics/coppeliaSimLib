@@ -30,7 +30,7 @@ class CCamera : public CViewableBase
     void removeSceneDependencies() override;
     void scaleObject(double scalingFactor) override;
     void serialize(CSer& ar) override;
-    void announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
+    void announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
     void announceCollectionWillBeErased(int groupID, bool copyBuffer) override;
     void announceCollisionWillBeErased(int collisionID, bool copyBuffer) override;
     void announceDistanceWillBeErased(int distanceID, bool copyBuffer) override;

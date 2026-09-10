@@ -4127,7 +4127,7 @@ std::string CSceneObject::getDisplayName() const
     return (getObjectAlias_printPath());
 }
 
-void CSceneObject::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CSceneObject::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 {
     // This routine can be called for sceneObjects-objects, but also for objects
     // in the copy-buffer!!

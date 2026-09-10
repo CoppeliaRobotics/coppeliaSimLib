@@ -94,12 +94,12 @@ void CDrawingContainer::eraseAllObjects()
         removeObject(_allObjects[0]->getObjectHandle());
 }
 
-void CDrawingContainer::announceObjectWillBeErased(const CSceneObject* object)
+void CDrawingContainer::announceSceneObjectWillBeErased(const CSceneObject* object)
 { // Never called from copy buffer!
     size_t i = 0;
     while (i < _allObjects.size())
     {
-        if (_allObjects[i]->announceObjectWillBeErased(object))
+        if (_allObjects[i]->announceSceneObjectWillBeErased(object))
             removeObject(_allObjects[i]->getObjectHandle());
         else
             i++;

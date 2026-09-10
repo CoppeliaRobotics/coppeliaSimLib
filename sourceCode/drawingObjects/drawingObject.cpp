@@ -105,6 +105,7 @@ CDrawingObject::CDrawingObject(int theObjectType, double size, double duplicateT
 
 CDrawingObject::~CDrawingObject()
 {
+    App::announceObjectWillBeErased(_objectHandle);
 }
 
 int CDrawingObject::getObjectType() const
@@ -334,7 +335,7 @@ void CDrawingObject::_setItemSizes()
     floatsPerItem = 3 * verticesPerItem + 4 * quaternionsPerItem + 3 * colorsPerItem + otherFloatsPerItem;
 }
 
-bool CDrawingObject::announceObjectWillBeErased(const CSceneObject* object)
+bool CDrawingObject::announceSceneObjectWillBeErased(const CSceneObject* object)
 {
     return (_sceneObjectId == object->getObjectHandle());
 }

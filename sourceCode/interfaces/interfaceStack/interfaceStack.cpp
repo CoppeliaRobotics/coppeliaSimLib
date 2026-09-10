@@ -1,3 +1,4 @@
+#include <app.h>
 #include <simLib/simConst.h>
 #include <interfaceStack.h>
 #include <interfaceStackNull.h>
@@ -27,6 +28,7 @@ CInterfaceStack::CInterfaceStack(int a, int b, const char* c)
 
 CInterfaceStack::~CInterfaceStack()
 {
+    App::announceObjectWillBeErased(_objectHandle);
     clear();
 }
 

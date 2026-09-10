@@ -176,7 +176,8 @@ class App
     static bool appSemaphore(bool acquire, bool block = true);
     static bool systemSemaphore(const char* key, bool acquire);
     static int64_t getCurrentObject();
-    static void setCurrentObject(int64_t c);
+    static void setCurrentObject(int64_t object);
+    static void announceObjectWillBeErased(int64_t object);
 
     static CFolderSystem* folders;
     static CUserSettings* userSettings;

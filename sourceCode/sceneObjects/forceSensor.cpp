@@ -673,10 +673,10 @@ CSceneObject* CForceSensor::copyYourself()
     return (newForceSensor);
 }
 
-void CForceSensor::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CForceSensor::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    CSceneObject::announceObjectWillBeErased(object, copyBuffer);
+    CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
 }
 
 void CForceSensor::announceCollectionWillBeErased(int groupID, bool copyBuffer)

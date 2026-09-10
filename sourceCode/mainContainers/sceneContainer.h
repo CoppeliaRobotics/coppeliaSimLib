@@ -50,7 +50,7 @@ class CSceneContainer
 
     CDetachedScript* getDetachedScriptFromHandle(int scriptHandle) const;
     CDetachedScript* getDetachedScriptFromUid(int uid) const;
-    void announceObjectWillBeErased(CSceneObject* object);
+    void announceSceneObjectWillBeErased(CSceneObject* object);
     void announceScriptWillBeErased(int scriptOrDetachedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
     void announceScriptStateWillBeErased(int detachedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
 

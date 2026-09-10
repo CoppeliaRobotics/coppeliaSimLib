@@ -395,10 +395,10 @@ void CScript::performObjectLoadingMapping(const std::map<int, int>* map, int opT
     CSceneObject::performObjectLoadingMapping(map, opType);
 }
 
-void CScript::announceObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CScript::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
-    CSceneObject::announceObjectWillBeErased(object, copyBuffer);
+    CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
 }
 
 void CScript::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)

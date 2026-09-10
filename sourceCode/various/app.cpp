@@ -4266,12 +4266,18 @@ int64_t App::getCurrentObject()
     return _currentObject;
 }
 
-void App::setCurrentObject(int64_t c)
+void App::announceObjectWillBeErased(int64_t object)
 {
-    bool diff = (_currentObject != c);
+    if (_currentObject == object)
+        setCurrentObject(sim_handle_scene);
+}
+
+void App::setCurrentObject(int64_t object)
+{
+    bool diff = (_currentObject != object);
     if (diff)
     {
-        _currentObject = c;
+        _currentObject = object;
         if ((scenes != nullptr) && scenes->getEventsEnabled())
         {
             const char* cmd = prop(PropApp::current).name;
