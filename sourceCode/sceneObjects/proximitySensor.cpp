@@ -219,6 +219,7 @@ void CProxSensor::_setDetectedObjectAndInfo(int h, const C3Vector* detectedPt /*
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyHandle(prop(PropProximitySensor::detectedObject).name, _detectedObjectHandle);
             ev->appendKeyVector3(prop(PropProximitySensor::detectedPoint).name, _detectedPoint);
+            ev->appendKeyDouble(prop(PropProximitySensor::detectedDistance).name, _detectedPoint.getLength());
             ev->appendKeyVector3(prop(PropProximitySensor::detectedNormal).name, _detectedNormalVector);
             App::scenes->pushEvent();
         }
@@ -291,6 +292,7 @@ void CProxSensor::pushNakedGenesisEvents(CCbor* ev /*= nullptr*/)
         ev->appendKeyText(prop(PropProximitySensor::sensorType).name, getSensorTypeStr().c_str());
         ev->appendKeyHandle(prop(PropProximitySensor::detectedObject).name, _detectedObjectHandle);
         ev->appendKeyVector3(prop(PropProximitySensor::detectedPoint).name, _detectedPoint);
+        ev->appendKeyDouble(prop(PropProximitySensor::detectedDistance).name, _detectedPoint.getLength());
         ev->appendKeyVector3(prop(PropProximitySensor::detectedNormal).name, _detectedNormalVector);
         convexVolume->sendEventData(ev);
         CSceneObject::pushNakedGenesisEvents(ev);
@@ -987,6 +989,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int& detectedObjectH
             inStack->insertKeyHandleIntoStackTable("proximitySensor", _objectHandle);
             inStack->insertKeyHandleIntoStackTable("object", detectedObject);
             inStack->insertKeyVector3IntoStackTable("point", detectedP.data);
+            inStack->insertKeyDoubleIntoStackTable("distance", detectedP.getLength());
             inStack->insertKeyVector3IntoStackTable("normal", detectedN.data);
             inStack->insertKeyInt32IntoStackTable("handle", _objectHandle); // deprecated
             inStack->insertKeyInt32IntoStackTable("detectedObjectHandle", detectedObject); // deprecated
@@ -1404,6 +1407,11 @@ int CProxSensor::getFloatProperty(const char* ppName, double& pState) const
         {
             retVal = sim_propertyret_ok;
             pState = _angleThreshold;
+        }
+        else if (_pName == prop(PropProximitySensor::detectedDistance).name)
+        {
+            pState = _detectedPoint.getLength();
+            retVal = sim_propertyret_ok;
         }
     }
 

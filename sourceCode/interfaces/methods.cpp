@@ -25,6 +25,7 @@
 #include <utils.h>
 #include <tt.h>
 
+#include <bufferConversions.cpp>
 namespace {
     constexpr int arg_null          = sim_stackitem_null;
     constexpr int arg_double        = sim_stackitem_double;
@@ -1239,7 +1240,7 @@ std::string _method_getPosition(int targetObj, CDetachedScript* currentScript, c
         withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
             double p[7];
-            hasRelToFrame = map->fetchDoubleArrayFromKey("relativeToFrame", p, 7, &err);
+            hasRelToFrame = map->fetchDoubleArrayFromKey("relativeToPose", p, 7, &err);
             if (hasRelToFrame)
                 relToFrame.setData(p, true);
             map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &err);
@@ -1288,7 +1289,7 @@ std::string _method_getPosition(int targetObj, CDetachedScript* currentScript, c
                 outStack->pushVector3OntoStack(tr.X);
             }
             else
-                errMsg = SIM_ERROR_INVALID_RELTOFRAME_RELTOOBJECT_RELTOJOINTBASE_COMBINATION;
+                errMsg = SIM_ERROR_INVALID_RELTOPOSE_RELTOOBJECT_RELTOJOINTBASE_COMBINATION;
         }
     }
     return errMsg;
@@ -1308,7 +1309,7 @@ std::string _method_setPosition(int targetObj, CDetachedScript* currentScript, c
         withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
             double p[7];
-            hasRelToFrame = map->fetchDoubleArrayFromKey("relativeToFrame", p, 7, &err);
+            hasRelToFrame = map->fetchDoubleArrayFromKey("relativeToPose", p, 7, &err);
             if (hasRelToFrame)
                 relToFrame.setData(p, true);
             map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &err);
@@ -1381,7 +1382,7 @@ std::string _method_setPosition(int targetObj, CDetachedScript* currentScript, c
                     errMsg = SIM_ERROR_INVALID_DATA;
             }
             else
-                errMsg = SIM_ERROR_INVALID_RELTOFRAME_RELTOOBJECT_RELTOJOINTBASE_COMBINATION;
+                errMsg = SIM_ERROR_INVALID_RELTOPOSE_RELTOOBJECT_RELTOJOINTBASE_COMBINATION;
         }
     }
     return errMsg;
@@ -1400,7 +1401,7 @@ std::string _method_getQuaternion(int targetObj, CDetachedScript* currentScript,
         withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
             double p[7];
-            hasRelToFrame = map->fetchDoubleArrayFromKey("relativeToFrame", p, 7, &err);
+            hasRelToFrame = map->fetchDoubleArrayFromKey("relativeToPose", p, 7, &err);
             if (hasRelToFrame)
                 relToFrame.setData(p, true);
             map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &err);
@@ -1448,7 +1449,7 @@ std::string _method_getQuaternion(int targetObj, CDetachedScript* currentScript,
                 outStack->pushQuaternionOntoStack(tr.Q);
             }
             else
-                errMsg = SIM_ERROR_INVALID_RELTOFRAME_RELTOOBJECT_RELTOJOINTBASE_COMBINATION;
+                errMsg = SIM_ERROR_INVALID_RELTOPOSE_RELTOOBJECT_RELTOJOINTBASE_COMBINATION;
         }
     }
     return errMsg;
@@ -1468,7 +1469,7 @@ std::string _method_setQuaternion(int targetObj, CDetachedScript* currentScript,
         withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
             double p[7];
-            hasRelToFrame = map->fetchDoubleArrayFromKey("relativeToFrame", p, 7, &err);
+            hasRelToFrame = map->fetchDoubleArrayFromKey("relativeToPose", p, 7, &err);
             if (hasRelToFrame)
                 relToFrame.setData(p, true);
             map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &err);
@@ -1541,7 +1542,7 @@ std::string _method_setQuaternion(int targetObj, CDetachedScript* currentScript,
                     errMsg = SIM_ERROR_INVALID_DATA;
             }
             else
-                errMsg = SIM_ERROR_INVALID_RELTOFRAME_RELTOOBJECT_RELTOJOINTBASE_COMBINATION;
+                errMsg = SIM_ERROR_INVALID_RELTOPOSE_RELTOOBJECT_RELTOJOINTBASE_COMBINATION;
         }
     }
     return errMsg;
@@ -1560,7 +1561,7 @@ std::string _method_getPose(int targetObj, CDetachedScript* currentScript, const
         withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
             double p[7];
-            hasRelToFrame = map->fetchDoubleArrayFromKey("relativeToFrame", p, 7, &err);
+            hasRelToFrame = map->fetchDoubleArrayFromKey("relativeToPose", p, 7, &err);
             if (hasRelToFrame)
                 relToFrame.setData(p, true);
             map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &err);
@@ -1608,7 +1609,7 @@ std::string _method_getPose(int targetObj, CDetachedScript* currentScript, const
                 outStack->pushPoseOntoStack(tr);
             }
             else
-                errMsg = SIM_ERROR_INVALID_RELTOFRAME_RELTOOBJECT_RELTOJOINTBASE_COMBINATION;
+                errMsg = SIM_ERROR_INVALID_RELTOPOSE_RELTOOBJECT_RELTOJOINTBASE_COMBINATION;
         }
     }
     return errMsg;
@@ -1628,7 +1629,7 @@ std::string _method_setPose(int targetObj, CDetachedScript* currentScript, const
         withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
             double p[7];
-            hasRelToFrame = map->fetchDoubleArrayFromKey("relativeToFrame", p, 7, &err);
+            hasRelToFrame = map->fetchDoubleArrayFromKey("relativeToPose", p, 7, &err);
             if (hasRelToFrame)
                 relToFrame.setData(p, true);
             map->fetchInt64FromKey("relativeToObject", relativeToObjectHandle, &err);
@@ -1692,7 +1693,7 @@ std::string _method_setPose(int targetObj, CDetachedScript* currentScript, const
                     errMsg = SIM_ERROR_INVALID_DATA;
             }
             else
-                errMsg = SIM_ERROR_INVALID_RELTOFRAME_RELTOOBJECT_RELTOJOINTBASE_COMBINATION;
+                errMsg = SIM_ERROR_INVALID_RELTOPOSE_RELTOOBJECT_RELTOJOINTBASE_COMBINATION;
         }
     }
     return errMsg;
@@ -3761,1267 +3762,44 @@ std::string _method_transformImage(int targetObj, CDetachedScript* currentScript
 std::string _method_transformBuffer(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_string, arg_string, arg_map | arg_optional}))
+
+    if (!checkInputArguments(inStack, &errMsg, {arg_string, arg_string, arg_string, arg_map | arg_optional}))
     {
-        std::string inBuff = fetchBuffer(inStack, 0);
-        std::string inFormat = fetchBuffer(inStack, 1);
-        std::string outFormat = fetchBuffer(inStack, 2);
-        double scale = 1.0;
-        double offset = 0.0;
-        bool hasScale = false;
-        bool hasOffset = false;
-        bool clamp = false;
-        withOptionalMap(inStack, 3, errMsg, [&](CInterfaceStackTable* map, std::string& err)
-        {
-            hasScale = map->fetchDoubleFromKey("scale", scale, &err);
-            hasOffset = map->fetchDoubleFromKey("offset", offset, &err);
-            map->fetchBoolFromKey("clamp", clamp, &err);
-        });
-        if (errMsg.empty())
-        {
-            bool noScalingNorOffset = !(hasScale | hasOffset);
-            size_t dataLength = inBuff.size();
-            bool invalidData = true;
-            if (inFormat == "float")
-            {
-                const float* data = (const float*)inBuff.data();
-                dataLength -= (dataLength % sizeof(float));
-                dataLength /= sizeof(float);
-                if (dataLength != 0)
-                {
-                    invalidData = false;
-                    if (outFormat == "uint8")
-                    {
-                        uint8_t* dat = new uint8_t[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i];
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i] * scale + offset;
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint8_t)(data[i]);
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint8_t)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength);
-                        delete[] dat;
-                    }
-                    if (outFormat == "rgb")
-                    {
-                        uint8_t* dat = new uint8_t[dataLength * 3];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i];
-                                    dat[3 * i + 0] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    dat[3 * i + 1] = dat[3 * i + 0];
-                                    dat[3 * i + 2] = dat[3 * i + 0];
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i] * scale + offset;
-                                    dat[3 * i + 0] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    dat[3 * i + 1] = dat[3 * i + 0];
-                                    dat[3 * i + 2] = dat[3 * i + 0];
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    dat[3 * i + 0] = (uint8_t)data[i];
-                                    dat[3 * i + 1] = dat[3 * i + 0];
-                                    dat[3 * i + 2] = dat[3 * i + 0];
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    dat[3 * i + 0] = (uint8_t)(data[i] * scale + offset);
-                                    dat[3 * i + 1] = dat[3 * i + 0];
-                                    dat[3 * i + 2] = dat[3 * i + 0];
-                                }
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * 3);
-                        delete[] dat;
-                    }
-                    if (outFormat == "int8")
-                    {
-                        char* dat = new char[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i];
-                                    dat[i] = (v < -128.499) ? (-128) : ((v > 127.499) ? (127) : ((char)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i] * scale + offset;
-                                    dat[i] = (v < -128.499) ? (-128) : ((v > 127.499) ? (127) : ((char)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (char)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (char)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength);
-                        delete[] dat;
-                    }
-                    if (outFormat == "uint16")
-                    {
-                        uint16_t* dat = new uint16_t[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i];
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 65535.499) ? (65535) : ((uint16_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i] * scale + offset;
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 65535.499) ? (65535) : ((uint16_t)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint16_t)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint16_t)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(uint16_t));
-                        delete[] dat;
-                    }
-                    if (outFormat == "int16")
-                    {
-                        int16_t* dat = new int16_t[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i];
-                                    dat[i] = (v < -32768.499) ? (-32768) : ((v > 32767.499) ? (32767) : ((int16_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i] * scale + offset;
-                                    dat[i] = (v < -32768.499) ? (-32768) : ((v > 32767.499) ? (32767) : ((int16_t)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (int16_t)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (int16_t)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(uint16_t));
-                        delete[] dat;
-                    }
-                    if (outFormat == "uint32")
-                    {
-                        uint32_t* dat = new uint32_t[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i];
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 4294967295.499) ? (4294967295) : ((uint32_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i] * scale + offset;
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 4294967295.499) ? (4294967295) : ((uint32_t)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint32_t)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint32_t)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(uint32_t));
-                        delete[] dat;
-                    }
-                    if (outFormat == "int32")
-                    {
-                        int32_t* dat = new int32_t[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i];
-                                    dat[i] = (v < -2147483648.499) ? (-2147483647)
-                                                                   : ((v > 2147483647.499) ? (2147483647) : ((int32_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i] * scale + offset;
-                                    dat[i] = (v < -2147483648.499) ? (-2147483647)
-                                                                   : ((v > 2147483647.499) ? (2147483647) : ((int32_t)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (int32_t)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (int32_t)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(int32_t));
-                        delete[] dat;
-                    }
-                    if (outFormat == "uint64")
-                    {
-                        uint64_t* dat = new uint64_t[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i];
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 18446744073709551615.499) ? (18446744073709551615ULL) : ((uint64_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i] * scale + offset;
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 18446744073709551615.499) ? (18446744073709551615ULL) : ((uint64_t)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint64_t)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint64_t)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(uint64_t));
-                        delete[] dat;
-                    }
-                    if (outFormat == "int64")
-                    {
-                        int64_t* dat = new int64_t[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i];
-                                    dat[i] = (v < -9223372036854775808.499) ? (-9223372036854775807 - 1)
-                                                                   : ((v > 9223372036854775807.499) ? (9223372036854775807) : ((int64_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    float v = data[i] * scale + offset;
-                                    dat[i] = (v < -9223372036854775808.499) ? (-9223372036854775807 - 1)
-                                                                   : ((v > 9223372036854775807.499) ? (9223372036854775807) : ((int64_t)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (int64_t)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (int64_t)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(int64_t));
-                        delete[] dat;
-                    }
-                    if (outFormat == "float")
-                    {
-                        float* dat = new float[dataLength];
-                        if (noScalingNorOffset)
-                        {
-                            for (size_t i = 0; i < dataLength; i++)
-                                dat[i] = data[i];
-                        }
-                        else
-                        {
-                            for (size_t i = 0; i < dataLength; i++)
-                                dat[i] = data[i] * scale + offset;
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(float));
-                        delete[] dat;
-                    }
-                    if (outFormat == "double")
-                    {
-                        double* dat = new double[dataLength];
-                        if (noScalingNorOffset)
-                        {
-                            for (size_t i = 0; i < dataLength; i++)
-                                dat[i] = (double)data[i];
-                        }
-                        else
-                        {
-                            for (size_t i = 0; i < dataLength; i++)
-                                dat[i] = (double)(data[i] * scale + offset);
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(double));
-                        delete[] dat;
-                    }
-                }
-            }
-            if (inFormat == "double")
-            {
-                const double* data = (const double*)inBuff.data();
-                dataLength -= (dataLength % sizeof(double));
-                dataLength /= sizeof(double);
-                if (dataLength != 0)
-                {
-                    invalidData = false;
-                    if (outFormat == "uint8")
-                    {
-                        uint8_t* dat = new uint8_t[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i];
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i] * scale + offset;
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint8_t)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint8_t)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength);
-                        delete[] dat;
-                    }
-                    if (outFormat == "rgb")
-                    {
-                        uint8_t* dat = new uint8_t[dataLength * 3];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i];
-                                    dat[3 * i + 0] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    dat[3 * i + 1] = dat[3 * i + 0];
-                                    dat[3 * i + 2] = dat[3 * i + 0];
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i] * scale + offset;
-                                    dat[3 * i + 0] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    dat[3 * i + 1] = dat[3 * i + 0];
-                                    dat[3 * i + 2] = dat[3 * i + 0];
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    dat[3 * i + 0] = (uint8_t)data[i];
-                                    dat[3 * i + 1] = dat[3 * i + 0];
-                                    dat[3 * i + 2] = dat[3 * i + 0];
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    dat[3 * i + 0] = (uint8_t)(data[i] * scale + offset);
-                                    dat[3 * i + 1] = dat[3 * i + 0];
-                                    dat[3 * i + 2] = dat[3 * i + 0];
-                                }
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * 3);
-                        delete[] dat;
-                    }
-                    if (outFormat == "int8")
-                    {
-                        char* dat = new char[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i];
-                                    dat[i] = (v < -128.499) ? (-128) : ((v > 127.499) ? (127) : ((char)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i] * scale + offset;
-                                    dat[i] = (v < -128.499) ? (-128) : ((v > 127.499) ? (127) : ((char)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (char)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (char)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength);
-                        delete[] dat;
-                    }
-                    if (outFormat == "uint16")
-                    {
-                        uint16_t* dat = new uint16_t[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i];
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 65535.499) ? (65535) : ((uint16_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i] * scale + offset;
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 65535.499) ? (65535) : ((uint16_t)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint16_t)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint16_t)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(uint16_t));
-                        delete[] dat;
-                    }
-                    if (outFormat == "int16")
-                    {
-                        int16_t* dat = new int16_t[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i];
-                                    dat[i] = (v < -32768.499) ? (-32768) : ((v > 32767.499) ? (32767) : ((int16_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i] * scale + offset;
-                                    dat[i] = (v < -32768.499) ? (-32768) : ((v > 32767.499) ? (32767) : ((int16_t)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (int16_t)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (int16_t)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(uint16_t));
-                        delete[] dat;
-                    }
-                    if (outFormat == "uint32")
-                    {
-                        uint32_t* dat = new uint32_t[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i];
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 4294967295.499) ? (4294967295) : ((uint32_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i] * scale + offset;
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 4294967295.499) ? (4294967295) : ((uint32_t)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint32_t)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint32_t)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(uint32_t));
-                        delete[] dat;
-                    }
-                    if (outFormat == "int32")
-                    {
-                        int32_t* dat = new int32_t[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i];
-                                    dat[i] = (v < -2147483648.499) ? (-2147483647)
-                                                                   : ((v > 2147483647.499) ? (2147483647) : ((int32_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i] * scale + offset;
-                                    dat[i] = (v < -2147483648.499) ? (-2147483647)
-                                                                   : ((v > 2147483647.499) ? (2147483647) : ((int32_t)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (int32_t)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (int32_t)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(uint32_t));
-                        delete[] dat;
-                    }
-                    if (outFormat == "uint64")
-                    {
-                        uint64_t* dat = new uint64_t[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i];
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 18446744073709551615.499) ? (18446744073709551615ULL) : ((uint64_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i] * scale + offset;
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 18446744073709551615.499) ? (18446744073709551615ULL) : ((uint64_t)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint64_t)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint64_t)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(uint64_t));
-                        delete[] dat;
-                    }
-                    if (outFormat == "int64")
-                    {
-                        int64_t* dat = new int64_t[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i];
-                                    dat[i] = (v < -9223372036854775808.499) ? (-9223372036854775807 - 1)
-                                                                   : ((v > 9223372036854775807.499) ? (9223372036854775807) : ((int64_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i] * scale + offset;
-                                    dat[i] = (v < -9223372036854775808.499) ? (-9223372036854775807 - 1)
-                                                                   : ((v > 9223372036854775807.499) ? (9223372036854775807) : ((int64_t)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (int64_t)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (int64_t)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(int64_t));
-                        delete[] dat;
-                    }
-                    if (outFormat == "float")
-                    {
-                        float* dat = new float[dataLength];
-                        if (clamp)
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i];
-                                    dat[i] = (v < -FLT_MAX) ? (-FLT_MAX) : ((v > FLT_MAX) ? (FLT_MAX) : ((float)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = data[i] * scale + offset;
-                                    dat[i] = (v < -FLT_MAX) ? (-FLT_MAX) : ((v > FLT_MAX) ? (FLT_MAX) : ((float)v));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (noScalingNorOffset)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (float)data[i];
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (float)(data[i] * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(float));
-                        delete[] dat;
-                    }
-                    if (outFormat == "double")
-                    {
-                        double* dat = new double[dataLength];
-                        if (noScalingNorOffset)
-                        {
-                            for (size_t i = 0; i < dataLength; i++)
-                                dat[i] = data[i];
-                        }
-                        else
-                        {
-                            for (size_t i = 0; i < dataLength; i++)
-                                dat[i] = data[i] * scale + offset;
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * sizeof(double));
-                        delete[] dat;
-                    }
-                }
-            }
-            if ((inFormat == "rgb") || (inFormat == "bgr"))
-            {
-                const uint8_t* data = (const uint8_t*)inBuff.data();
-                dataLength -= (dataLength % 3);
-                dataLength /= 3;
-                if (dataLength != 0)
-                {
-                    invalidData = false;
-                    if (((inFormat == "rgb") && (outFormat == "bgr")) ||
-                        ((inFormat == "bgr") && (outFormat == "rgb")))
-                    {
-                        uint8_t* dat = new uint8_t[3 * dataLength];
-                        if (noScalingNorOffset)
-                        {
-                            for (size_t i = 0; i < dataLength; i++)
-                            {
-                                dat[3 * i + 0] = data[3 * i + 2];
-                                dat[3 * i + 1] = data[3 * i + 1];
-                                dat[3 * i + 2] = data[3 * i + 0];
-                            }
-                        }
-                        else
-                        {
-                            if (clamp)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = double(data[3 * i + 2]) * scale + offset;
-                                    dat[3 * i + 0] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    v = double(data[3 * i + 1]) * scale + offset;
-                                    dat[3 * i + 1] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    v = double(data[3 * i + 0]) * scale + offset;
-                                    dat[3 * i + 2] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    dat[3 * i + 0] = (uint8_t)(double(data[3 * i + 2]) * scale + offset);
-                                    dat[3 * i + 1] = (uint8_t)(double(data[3 * i + 1]) * scale + offset);
-                                    dat[3 * i + 2] = (uint8_t)(double(data[3 * i + 0]) * scale + offset);
-                                }
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * 3);
-                        delete[] dat;
-                    }
-                    if (inFormat == outFormat)
-                    {
-                        uint8_t* dat = new uint8_t[3 * dataLength];
-                        if (noScalingNorOffset)
-                        {
-                            for (size_t i = 0; i < dataLength; i++)
-                            {
-                                dat[3 * i + 0] = data[3 * i + 0];
-                                dat[3 * i + 1] = data[3 * i + 1];
-                                dat[3 * i + 2] = data[3 * i + 2];
-                            }
-                        }
-                        else
-                        {
-                            if (clamp)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = double(data[3 * i + 0]) * scale + offset;
-                                    dat[3 * i + 0] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    v = double(data[3 * i + 1]) * scale + offset;
-                                    dat[3 * i + 1] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    v = double(data[3 * i + 2]) * scale + offset;
-                                    dat[3 * i + 2] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    dat[3 * i + 0] = (uint8_t)(double(data[3 * i + 0]) * scale + offset);
-                                    dat[3 * i + 1] = (uint8_t)(double(data[3 * i + 1]) * scale + offset);
-                                    dat[3 * i + 2] = (uint8_t)(double(data[3 * i + 2]) * scale + offset);
-                                }
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * 3);
-                        delete[] dat;
-                    }
-                }
-            }
-            if (inFormat == "rgba")
-            {
-                const uint8_t* data = (const uint8_t*)inBuff.data();
-                dataLength -= (dataLength % 4);
-                dataLength /= 4;
-                if (dataLength != 0)
-                {
-                    invalidData = false;
-                    if (outFormat == "rgb")
-                    {
-                        uint8_t* dat = new uint8_t[3 * dataLength];
-                        if (noScalingNorOffset)
-                        {
-                            for (size_t i = 0; i < dataLength; i++)
-                            {
-                                dat[3 * i + 0] = data[4 * i + 0];
-                                dat[3 * i + 1] = data[4 * i + 1];
-                                dat[3 * i + 2] = data[4 * i + 2];
-                            }
-                        }
-                        else
-                        {
-                            if (clamp)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = double(data[4 * i + 0]) * scale + offset;
-                                    dat[3 * i + 0] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    v = double(data[4 * i + 1]) * scale + offset;
-                                    dat[3 * i + 1] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    v = double(data[4 * i + 2]) * scale + offset;
-                                    dat[3 * i + 2] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    dat[3 * i + 0] = (uint8_t)(double(data[4 * i + 0]) * scale + offset);
-                                    dat[3 * i + 1] = (uint8_t)(double(data[4 * i + 1]) * scale + offset);
-                                    dat[3 * i + 2] = (uint8_t)(double(data[4 * i + 2]) * scale + offset);
-                                }
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * 3);
-                        delete[] dat;
-                    }
-                    if (outFormat == inFormat)
-                    {
-                        uint8_t* dat = new uint8_t[4 * dataLength];
-                        if (noScalingNorOffset)
-                        {
-                            for (size_t i = 0; i < dataLength; i++)
-                            {
-                                dat[4 * i + 0] = data[4 * i + 0];
-                                dat[4 * i + 1] = data[4 * i + 1];
-                                dat[4 * i + 2] = data[4 * i + 2];
-                                dat[4 * i + 3] = data[4 * i + 3];
-                            }
-                        }
-                        else
-                        {
-                            if (clamp)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = double(data[4 * i + 0]) * scale + offset;
-                                    dat[4 * i + 0] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    v = double(data[4 * i + 1]) * scale + offset;
-                                    dat[4 * i + 1] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    v = double(data[4 * i + 2]) * scale + offset;
-                                    dat[4 * i + 2] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    v = double(data[4 * i + 3]) * scale + offset;
-                                    dat[4 * i + 3] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    dat[4 * i + 0] = (uint8_t)(double(data[4 * i + 0]) * scale + offset);
-                                    dat[4 * i + 1] = (uint8_t)(double(data[4 * i + 1]) * scale + offset);
-                                    dat[4 * i + 2] = (uint8_t)(double(data[4 * i + 2]) * scale + offset);
-                                    dat[4 * i + 3] = (uint8_t)(double(data[4 * i + 3]) * scale + offset);
-                                }
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * 4);
-                        delete[] dat;
-                    }
-                }
-            }
-            if (inFormat == "argb")
-            {
-                const uint8_t* data = (const uint8_t*)inBuff.data();
-                dataLength -= (dataLength % 4);
-                dataLength /= 4;
-                if (dataLength != 0)
-                {
-                    invalidData = false;
-                    if (outFormat == "rgb")
-                    {
-                        uint8_t* dat = new uint8_t[3 * dataLength];
-                        if (noScalingNorOffset)
-                        {
-                            for (size_t i = 0; i < dataLength; i++)
-                            {
-                                dat[3 * i + 0] = data[4 * i + 1];
-                                dat[3 * i + 1] = data[4 * i + 2];
-                                dat[3 * i + 2] = data[4 * i + 3];
-                            }
-                        }
-                        else
-                        {
-                            if (clamp)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = double(data[4 * i + 1]) * scale + offset;
-                                    dat[3 * i + 0] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    v = double(data[4 * i + 2]) * scale + offset;
-                                    dat[3 * i + 1] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    v = double(data[4 * i + 3]) * scale + offset;
-                                    dat[3 * i + 2] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    dat[3 * i + 0] = (uint8_t)(double(data[4 * i + 1]) * scale + offset);
-                                    dat[3 * i + 1] = (uint8_t)(double(data[4 * i + 2]) * scale + offset);
-                                    dat[3 * i + 2] = (uint8_t)(double(data[4 * i + 3]) * scale + offset);
-                                }
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * 3);
-                        delete[] dat;
-                    }
-                    if (outFormat == inFormat)
-                    {
-                        uint8_t* dat = new uint8_t[4 * dataLength];
-                        if (noScalingNorOffset)
-                        {
-                            for (size_t i = 0; i < dataLength; i++)
-                            {
-                                dat[4 * i + 0] = data[4 * i + 0];
-                                dat[4 * i + 1] = data[4 * i + 1];
-                                dat[4 * i + 2] = data[4 * i + 2];
-                                dat[4 * i + 3] = data[4 * i + 3];
-                            }
-                        }
-                        else
-                        {
-                            if (clamp)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = double(data[4 * i + 0]) * scale + offset;
-                                    dat[4 * i + 0] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    v = double(data[4 * i + 1]) * scale + offset;
-                                    dat[4 * i + 1] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    v = double(data[4 * i + 2]) * scale + offset;
-                                    dat[4 * i + 2] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    v = double(data[4 * i + 3]) * scale + offset;
-                                    dat[4 * i + 3] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    dat[4 * i + 0] = (uint8_t)(double(data[4 * i + 0]) * scale + offset);
-                                    dat[4 * i + 1] = (uint8_t)(double(data[4 * i + 1]) * scale + offset);
-                                    dat[4 * i + 2] = (uint8_t)(double(data[4 * i + 2]) * scale + offset);
-                                    dat[4 * i + 3] = (uint8_t)(double(data[4 * i + 3]) * scale + offset);
-                                }
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * 4);
-                        delete[] dat;
-                    }
-                }
-            }
-            if (inFormat == "uint8")
-            {
-                const uint8_t* data = (const uint8_t*)inBuff.data();
-                if (dataLength != 0)
-                {
-                    invalidData = false;
-                    if (outFormat == "base64")
-                    {
-                        std::string inDat(data, data + dataLength);
-                        std::string outDat(utils::encode64(inDat));
-                        outStack->pushBufferOntoStack((const char*)outDat.data(), outDat.length());
-                    }
-                    if (outFormat == "uint8")
-                    {
-                        uint8_t* dat = new uint8_t[dataLength];
-                        if (noScalingNorOffset)
-                        {
-                            for (size_t i = 0; i < dataLength; i++)
-                                dat[i] = data[i];
-                        }
-                        else
-                        {
-                            if (clamp)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = double(data[i]) * scale + offset;
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                    dat[i] = (uint8_t)(double(data[i]) * scale + offset);
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength);
-                        delete[] dat;
-                    }
-                    if (outFormat == "rgb")
-                    {
-                        uint8_t* dat = new uint8_t[3 * dataLength];
-                        if (noScalingNorOffset)
-                        {
-                            for (size_t i = 0; i < dataLength; i++)
-                            {
-                                dat[3 * i + 0] = data[i];
-                                dat[3 * i + 1] = data[i];
-                                dat[3 * i + 2] = data[i];
-                            }
-                        }
-                        else
-                        {
-                            if (clamp)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = double(data[i]) * scale + offset;
-                                    dat[3 * i + 0] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                    dat[3 * i + 1] = dat[3 * i + 0];
-                                    dat[3 * i + 2] = dat[3 * i + 0];
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    dat[3 * i + 0] = (uint8_t)(double(data[i]) * scale + offset);
-                                    dat[3 * i + 1] = dat[3 * i + 0];
-                                    dat[3 * i + 2] = dat[3 * i + 0];
-                                }
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength * 3);
-                        delete[] dat;
-                    }
-                }
-            }
-            if ((inFormat == "rgb") || (inFormat == "bgr"))
-            {
-                const uint8_t* data = (const uint8_t*)inBuff.data();
-                dataLength -= (dataLength % 3);
-                dataLength /= 3;
-                if (dataLength != 0)
-                {
-                    invalidData = false;
-                    if (outFormat == "uint8")
-                    {
-                        uint8_t* dat = new uint8_t[dataLength];
-                        if (noScalingNorOffset)
-                        {
-                            for (size_t i = 0; i < dataLength; i++)
-                                dat[i] = (int(data[3 * i + 0]) + int(data[3 * i + 1]) + int(data[3 * i + 2])) / 3;
-                        }
-                        else
-                        {
-                            if (clamp)
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = offset + (double(data[3 * i + 0]) + double(data[3 * i + 1]) +
-                                                      double(data[3 * i + 2])) *
-                                                         scale / 3.0;
-                                    dat[i] = (v < 0.0) ? (0) : ((v > 255.499) ? (255) : ((uint8_t)v));
-                                }
-                            }
-                            else
-                            {
-                                for (size_t i = 0; i < dataLength; i++)
-                                {
-                                    double v = offset + (double(data[3 * i + 0]) + double(data[3 * i + 1]) +
-                                                      double(data[3 * i + 2])) *
-                                                         scale / 3.0;
-                                    dat[i] = (uint8_t)v;
-                                }
-                            }
-                        }
-                        outStack->pushBufferOntoStack((const char*)dat, dataLength);
-                        delete[] dat;
-                    }
-                }
-            }
-            if (inFormat == "base64")
-            {
-                const uint8_t* data = (const uint8_t*)inBuff.data();
-                if (dataLength != 0)
-                {
-                    invalidData = false;
-                    if (outFormat == "uint8")
-                    {
-                        std::string inDat(data, data + dataLength);
-                        std::string outDat(utils::decode64(inDat));
-                        outStack->pushBufferOntoStack(outDat.c_str(), outDat.length());
-                    }
-                }
-            }
-            if (outStack->getStackSize() == 0)
-            {
-                if (invalidData)
-                    errMsg = SIM_ERROR_INVALID_DATA;
-                else
-                    errMsg = "unsupported format.";
-            }
-        }
+        return errMsg;
     }
+
+    const std::string input = fetchBuffer(inStack, 0);
+    const std::string from = fetchBuffer(inStack, 1);
+    const std::string to = fetchBuffer(inStack, 2);
+
+    bufferTransform::Options options;
+
+    withOptionalMap(
+        inStack, 3, errMsg,
+        [&](CInterfaceStackTable* map, std::string& err)
+        {
+            map->fetchDoubleFromKey("scale", options.scale, &err);
+            map->fetchDoubleFromKey("offset", options.offset, &err);
+            map->fetchBoolFromKey("clamp", options.clamp, &err);
+        });
+
+    if (!errMsg.empty())
+        return errMsg;
+
+    try
+    {
+        const std::string output =
+            bufferTransform::transform(input, from, to, options);
+
+        // Assumes pushBufferOntoStack copies the buffer, as the original
+        // implementation also required.
+        outStack->pushBufferOntoStack(output.data(), output.size());
+    }
+    catch (const std::exception& exception)
+    {
+        errMsg = exception.what();
+    }
+
     return errMsg;
 }
 
@@ -5781,96 +4559,63 @@ std::string _method_mergeShapes(int targetObj, CDetachedScript* currentScript, c
     }
     return errMsg;
 }
-/*
-std::string _method_packTable(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{ // use pack instead
-    std::string errMsg;
-    if (checkInputArguments(inStack, &errMsg, {arg_any}))
-    {
-        if (inStack->getStackObjectFromIndex(0)->getObjectType() == sim_stackitem_table)
-        {
-            CInterfaceStackTable* table = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
-            // Following is the version of the pack format. 0 was when all numbers would be packed as double
-            // (Lua5.1) 1-4 are reserved in order to detect other non-CoppeliaSim formats, check sim.lua
-            // for details.
-            // Make sure not to use any byte value that could be a first byte in a cbor string!
-            unsigned char version = 5;
-            std::string auxInfos;
-            std::string s = (char)version + table->getObjectData(auxInfos);
-            // Following are auxiliary string infos (text/binary string/buffer) we append to the end, in order
-            // to keep backward compatible. The aux infos can be any byte value, except for 255. One aux. value
-            // per string object:
-            s += auxInfos + (char)255;
-            outStack->pushBufferOntoStack(s.c_str(), s.size());
-        }
-        else
-            outStack->pushBufferOntoStack("", 0);
-    }
-    return errMsg;
-}
 
-std::string _method_unpackTable(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{ // use unpack instead
-    std::string errMsg;
-    if (checkInputArguments(inStack, &errMsg, {arg_string}))
-    {
-        std::string data = fetchBuffer(inStack, 0);
-        if (data.size() > 0)
-        {
-            if ((data[0] == 0) || (data[0] == 5))
-            {
-                unsigned char version = data[0]; // the version of the pack format
-                unsigned int w = 0;
-                if (CInterfaceStackTable::checkCreateFromData(data.data() + 1, w, data.size() - 1, version))
-                {
-                    std::vector<CInterfaceStackObject*> allCreatedObjects;
-                    CInterfaceStackTable* table = new CInterfaceStackTable();
-                    int mainDataSize = 1 + table->createFromData(data.data() + 1, version, allCreatedObjects);
-                    if (mainDataSize < int(data.size()))
-                    {
-                        size_t strCnt = 0;
-                        for (size_t i = 0; i < allCreatedObjects.size(); i++)
-                        {
-                            if (allCreatedObjects[i]->getObjectType() == sim_stackitem_string)
-                            {
-                                ((CInterfaceStackString*)allCreatedObjects[i])->setAuxData((unsigned char)data[mainDataSize + strCnt]);
-                                strCnt++;
-                            }
-                        }
-                    }
-                    outStack->pushObjectOntoStack(table);
-                }
-                else
-                    errMsg = SIM_ERROR_INVALID_DATA;
-            }
-            else
-                errMsg = SIM_ERROR_INVALID_DATA;
-        }
-        else
-            outStack->pushInt32ArrayOntoStack(nullptr, 0); // empty buffer results in an empty table
-    }
-    return errMsg;
-}
-*/
 std::string _method_pack(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(inStack, &errMsg, {arg_any}))
+    if (checkInputArguments(inStack, &errMsg, {arg_any, arg_map | arg_optional}))
     {
-        CInterfaceStackTable* table = new CInterfaceStackTable();
-        table->appendArrayObject(inStack->getStackObjectFromIndex(0)->copyYourself());
-        // Following is the version of the pack format. 0 was when all numbers would be packed as double
-        // (Lua5.1) 1-4 are reserved in order to detect other non-CoppeliaSim formats, check sim.lua
-        // for details.
-        unsigned char version = 5;
-        std::string auxInfos;
-        std::string s = (char)version + table->getObjectData(auxInfos);
-        delete table;
-        // Following are auxiliary string infos (text/binary string/buffer) we append to the end, in order
-        // to keep backward compatible. The aux infos can be any byte value, except for 255. One aux. value
-        // per string object:
-        s += auxInfos + (char)255;
-        outStack->pushBufferOntoStack(s.c_str(), s.size());
+        std::string comp = "sim-2";
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
+        {
+            map->fetchStringFromKey("compatibility", comp, &err);
+        });
+        if (errMsg.empty())
+        {
+            bool done = true;
+            if (comp == "sim-2")
+            {
+                done = true;
+                CInterfaceStackTable* table = new CInterfaceStackTable();
+                table->appendArrayObject(inStack->getStackObjectFromIndex(0)->copyYourself());
+                // Following is the version of the pack format. 0 was when all numbers would be packed as double
+                // (Lua5.1) 1-4 are reserved in order to detect other non-CoppeliaSim formats, check sim.lua
+                // for details.
+                unsigned char version = 5;
+                std::string auxInfos;
+                std::string s = (char)version + table->getObjectData(auxInfos);
+                delete table;
+                // Following are auxiliary string infos (text/binary string/buffer) we append to the end, in order
+                // to keep backward compatible. The aux infos can be any byte value, except for 255. One aux. value
+                // per string object:
+                s += auxInfos + (char)255;
+                outStack->pushBufferOntoStack(s.c_str(), s.size());
+            }
+            if (comp == "sim-1")
+            {
+                done = true;
+                if (inStack->getStackObjectFromIndex(0)->getObjectType() == sim_stackitem_table)
+                {
+                    CInterfaceStackTable* table = (CInterfaceStackTable*)inStack->getStackObjectFromIndex(0);
+                    // Following is the version of the pack format. 0 was when all numbers would be packed as double
+                    // (Lua5.1) 1-4 are reserved in order to detect other non-CoppeliaSim formats, check sim.lua
+                    // for details.
+                    // Make sure not to use any byte value that could be a first byte in a cbor string!
+                    unsigned char version = 5;
+                    std::string auxInfos;
+                    std::string s = (char)version + table->getObjectData(auxInfos);
+                    // Following are auxiliary string infos (text/binary string/buffer) we append to the end, in order
+                    // to keep backward compatible. The aux infos can be any byte value, except for 255. One aux. value
+                    // per string object:
+                    s += auxInfos + (char)255;
+                    outStack->pushBufferOntoStack(s.c_str(), s.size());
+                }
+                else
+                    outStack->pushBufferOntoStack("", 0);
+            }
+            if (errMsg.empty() && (!done))
+                errMsg = SIM_ERROR_INVALID_COMPATIBILITY_MODE;
+        }
     }
     return errMsg;
 }
@@ -5878,42 +4623,95 @@ std::string _method_pack(int targetObj, CDetachedScript* currentScript, const CI
 std::string _method_unpack(int targetObj, CDetachedScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(inStack, &errMsg, {arg_string}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
-        std::string data = fetchBuffer(inStack, 0);
-        if (data.size() > 0)
+        std::string comp = "sim-2";
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            if ((data[0] == 0) || (data[0] == 5))
+            map->fetchStringFromKey("compatibility", comp, &err);
+        });
+        if (errMsg.empty())
+        {
+            bool done = true;
+            if (comp == "sim-2")
             {
-                unsigned char version = data[0]; // the version of the pack format
-                unsigned int w = 0;
-                if (CInterfaceStackTable::checkCreateFromData(data.data() + 1, w, data.size() - 1, version))
+                done = true;
+                std::string data = fetchBuffer(inStack, 0);
+                if (data.size() > 0)
                 {
-                    std::vector<CInterfaceStackObject*> allCreatedObjects;
-                    CInterfaceStackTable* table = new CInterfaceStackTable();
-                    int mainDataSize = 1 + table->createFromData(data.data() + 1, version, allCreatedObjects);
-                    if (mainDataSize < int(data.size()))
+                    if ((data[0] == 0) || (data[0] == 5))
                     {
-                        size_t strCnt = 0;
-                        for (size_t i = 0; i < allCreatedObjects.size(); i++)
+                        unsigned char version = data[0]; // the version of the pack format
+                        unsigned int w = 0;
+                        if (CInterfaceStackTable::checkCreateFromData(data.data() + 1, w, data.size() - 1, version))
                         {
-                            if (allCreatedObjects[i]->getObjectType() == sim_stackitem_string)
+                            std::vector<CInterfaceStackObject*> allCreatedObjects;
+                            CInterfaceStackTable* table = new CInterfaceStackTable();
+                            int mainDataSize = 1 + table->createFromData(data.data() + 1, version, allCreatedObjects);
+                            if (mainDataSize < int(data.size()))
                             {
-                                ((CInterfaceStackString*)allCreatedObjects[i])->setAuxData((unsigned char)data[mainDataSize + strCnt]);
-                                strCnt++;
+                                size_t strCnt = 0;
+                                for (size_t i = 0; i < allCreatedObjects.size(); i++)
+                                {
+                                    if (allCreatedObjects[i]->getObjectType() == sim_stackitem_string)
+                                    {
+                                        ((CInterfaceStackString*)allCreatedObjects[i])->setAuxData((unsigned char)data[mainDataSize + strCnt]);
+                                        strCnt++;
+                                    }
+                                }
                             }
+                            outStack->pushObjectOntoStack(table->getArrayItemAtIndex(0));
                         }
+                        else
+                            errMsg = SIM_ERROR_INVALID_DATA;
                     }
-                    outStack->pushObjectOntoStack(table->getArrayItemAtIndex(0));
+                    else
+                        errMsg = SIM_ERROR_INVALID_DATA;
                 }
                 else
-                    errMsg = SIM_ERROR_INVALID_DATA;
+                    outStack->pushInt32ArrayOntoStack(nullptr, 0); // empty buffer results in an empty table
             }
-            else
-                errMsg = SIM_ERROR_INVALID_DATA;
+            if (comp == "sim-1")
+            {
+                done = true;
+                std::string data = fetchBuffer(inStack, 0);
+                if (data.size() > 0)
+                {
+                    if ((data[0] == 0) || (data[0] == 5))
+                    {
+                        unsigned char version = data[0]; // the version of the pack format
+                        unsigned int w = 0;
+                        if (CInterfaceStackTable::checkCreateFromData(data.data() + 1, w, data.size() - 1, version))
+                        {
+                            std::vector<CInterfaceStackObject*> allCreatedObjects;
+                            CInterfaceStackTable* table = new CInterfaceStackTable();
+                            int mainDataSize = 1 + table->createFromData(data.data() + 1, version, allCreatedObjects);
+                            if (mainDataSize < int(data.size()))
+                            {
+                                size_t strCnt = 0;
+                                for (size_t i = 0; i < allCreatedObjects.size(); i++)
+                                {
+                                    if (allCreatedObjects[i]->getObjectType() == sim_stackitem_string)
+                                    {
+                                        ((CInterfaceStackString*)allCreatedObjects[i])->setAuxData((unsigned char)data[mainDataSize + strCnt]);
+                                        strCnt++;
+                                    }
+                                }
+                            }
+                            outStack->pushObjectOntoStack(table);
+                        }
+                        else
+                            errMsg = SIM_ERROR_INVALID_DATA;
+                    }
+                    else
+                        errMsg = SIM_ERROR_INVALID_DATA;
+                }
+                else
+                    outStack->pushInt32ArrayOntoStack(nullptr, 0); // empty buffer results in an empty table
+            }
+            if (errMsg.empty() && (!done))
+                errMsg = SIM_ERROR_INVALID_COMPATIBILITY_MODE;
         }
-        else
-            outStack->pushInt32ArrayOntoStack(nullptr, 0); // empty buffer results in an empty table
     }
     return errMsg;
 }

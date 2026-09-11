@@ -785,7 +785,7 @@ int CVisionSensor::getAttributesForRendering() const
 
 void CVisionSensor::setDetectableEntityHandle(int entityHandle)
 {
-    _detectableEntityHandle = entityHandle;
+    _detectableEntityHandle = entityHandle; // not directly supported in sim-2, where one has to use visionSensor:checkSensor(entity)
 }
 
 int CVisionSensor::getDetectableEntityHandle() const

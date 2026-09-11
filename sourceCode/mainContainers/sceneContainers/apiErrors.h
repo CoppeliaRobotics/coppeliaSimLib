@@ -87,6 +87,7 @@
 #define SIM_ERROR_INVALID_DATA_HEADER "invalid data header."
 #define SIM_ERROR_INVALID_DATA_NAME "invalid data name."
 #define SIM_ERROR_INVALID_DATA "invalid data."
+#define SIM_ERROR_INVALID_COMPATIBILITY_MODE "invalid compatibility mode."
 #define SIM_ERROR_INVALID_RELTOPOSE_RELTOOBJECT_RELTOJOINTBASE_COMBINATION "invalid combination of relativeToPose/relativeToObject/relativeToJointBase options."
 #define SIM_ERROR_INVALID_BUFFER_SIZE "invalid buffer size."
 #define SIM_ERROR_INVALID_TYPE "invalid type."
