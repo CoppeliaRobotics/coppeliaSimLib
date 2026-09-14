@@ -467,7 +467,7 @@ void CEmbeddedScriptContainer::getActiveLegacyScripts(std::vector<CDetachedScrip
     }
 }
 
-int CEmbeddedScriptContainer::callLegacyScripts(int scriptType, int callTypeOrResumeLocation, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
+int CEmbeddedScriptContainer::callLegacyScripts(int scriptType, int callTypeOrResumeLocation, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
 { // ignores the main script
     int cnt = 0;
     std::vector<int> scriptHandles;

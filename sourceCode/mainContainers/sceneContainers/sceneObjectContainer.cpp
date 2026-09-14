@@ -3108,7 +3108,7 @@ void CSceneObjectContainer::getActiveScripts(std::vector<CDetachedScript*>& scri
     }
 }
 
-void CSceneObjectContainer::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
+void CSceneObjectContainer::callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
 {
     bool doNotInterrupt = !CDetachedScript::isSystemCallbackInterruptible(callType);
     if (CDetachedScript::isSystemCallbackInReverseOrder(callType))
@@ -3151,7 +3151,7 @@ void CSceneObjectContainer::callScripts(int callType, CInterfaceStack* inStack, 
     }
 }
 
-int CSceneObjectContainer::callScripts_noMainScript(int scriptType, int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
+int CSceneObjectContainer::callScripts_noMainScript(int scriptType, int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
 {
     int retVal = 0;
     bool doNotInterrupt = !CDetachedScript::isSystemCallbackInterruptible(callType);
@@ -3187,7 +3187,7 @@ void CSceneObjectContainer::_getActiveScripts(std::vector<CDetachedScript*>& scr
     }
 }
 
-int CSceneObjectContainer::_callScripts(int scriptType, int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
+int CSceneObjectContainer::_callScripts(int scriptType, int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
 { // with objectBranch!=nullptr, will return the chain starting at objectBranch up to the main script
     TRACE_INTERNAL;
 

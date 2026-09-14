@@ -1240,7 +1240,7 @@ void CScene::getActiveScripts(std::vector<CDetachedScript*>& scripts, bool rever
     sceneObjects->getActiveScripts(scripts, reverse, alsoLegacyScripts);
 }
 
-void CScene::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
+void CScene::callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
 {
     TRACE_INTERNAL;
     sceneObjects->callScripts(callType, inStack, outStack, objectBranch, detachedScriptToExclude);

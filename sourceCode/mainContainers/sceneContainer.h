@@ -55,8 +55,8 @@ class CSceneContainer
     void announceScriptStateWillBeErased(int detachedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
 
     void getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
-    void callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int detachedScriptToExclude = -1);
-    void broadcastMsg(CInterfaceStack* inStack, int emittingDetachedScriptHandle, int options);
+    void callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int detachedScriptToExclude = -1);
+    void broadcastMsg(const CInterfaceStack* inStack, int emittingDetachedScriptHandle, int options);
 
     int getSysFuncAndHookCnt(int sysCall) const;
 

@@ -3430,53 +3430,60 @@ std::string _method_getName(int targetObj, CDetachedScript* currentScript, const
     if (targetTemplate == nullptr)
     {
         CSceneObject* target = getSceneObject(targetObj, &errMsg, -1);
-        if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string | arg_optional}))
+        if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
         {
-            std::string t = fetchText(inStack, 0, "name");
-            std::string nm;
-            if (t == "name")
-                nm = target->getObjectAlias();
-            else if (t == "nameOrder")
+            std::string mode("name");
+            withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
             {
-                nm = target->getObjectAliasAndOrderIfRequired();
-                if (nm[nm.size() - 1] != ']')
-                    nm += "[0]";
-            }
-            else if (t == "shortPath")
-                nm = target->getObjectAlias_shortPath();
-            else if (t == "fullPath")
-                nm = target->getObjectAlias_fullPath();
-            else if (t == "nameHandle")
+                map->fetchStringFromKey("mode", mode, &err);
+            });
+            if (errMsg.empty())
             {
-                nm = target->getObjectAlias() + "__";
-                nm += std::to_string(target->getObjectHandle());
-                nm += "__";
-            }
-            else if (t == "printPath")
-                nm = target->getObjectAlias_printPath();
-            else if (t == "nameIndex")
-            {
-                nm = target->getObjectPathAndIndex(0);
-                nm.erase(0, 1);
-                if (nm[nm.size() - 1] != '}')
-                    nm += "{0}";
-            }
-            else if (t == "pathIndex")
-            {
-                nm = target->getObjectPathAndIndex(999);
-                if (nm[nm.size() - 1] != '}')
-                    nm += "{0}";
-                for (size_t i = nm.size(); i > 1; )
+                std::string nm;
+                if (mode == "name")
+                    nm = target->getObjectAlias();
+                else if (mode == "nameOrder")
                 {
-                    --i;
-                    if (nm[i] == '/' && nm[i - 1] != '}')
-                        nm.insert(i, "{0}");
+                    nm = target->getObjectAliasAndOrderIfRequired();
+                    if (nm[nm.size() - 1] != ']')
+                        nm += "[0]";
                 }
+                else if (mode == "shortPath")
+                    nm = target->getObjectAlias_shortPath();
+                else if (mode == "fullPath")
+                    nm = target->getObjectAlias_fullPath();
+                else if (mode == "nameHandle")
+                {
+                    nm = target->getObjectAlias() + "__";
+                    nm += std::to_string(target->getObjectHandle());
+                    nm += "__";
+                }
+                else if (mode == "printPath")
+                    nm = target->getObjectAlias_printPath();
+                else if (mode == "nameIndex")
+                {
+                    nm = target->getObjectPathAndIndex(0);
+                    nm.erase(0, 1);
+                    if (nm[nm.size() - 1] != '}')
+                        nm += "{0}";
+                }
+                else if (mode == "pathIndex")
+                {
+                    nm = target->getObjectPathAndIndex(999);
+                    if (nm[nm.size() - 1] != '}')
+                        nm += "{0}";
+                    for (size_t i = nm.size(); i > 1; )
+                    {
+                        --i;
+                        if (nm[i] == '/' && nm[i - 1] != '}')
+                            nm.insert(i, "{0}");
+                    }
+                }
+                if (!nm.empty())
+                    outStack->pushTextOntoStack(nm.c_str());
+                else
+                    errMsg = "invalid format.";
             }
-            if (!nm.empty())
-                outStack->pushTextOntoStack(nm.c_str());
-            else
-                errMsg = "invalid format.";
         }
     }
     else
@@ -8599,14 +8606,7 @@ std::string _method_broadcast(int targetObj, CDetachedScript* currentScript, con
     std::string errMsg;
     CDetachedScript* target = getDetachedScript(targetObj, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map}))
-    {
-        CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStackCopy(inStack);
-        if (stack->getStackSize() > 1)
-            stack->popStackValue(stack->getStackSize() - 1);
-        stack->pushInt32OntoStack(targetObj, false);
-        App::scenes->broadcastMsg(stack, targetObj, 0);
-        App::scenes->interfaceStackContainer->destroyStack(stack);
-    }
+        App::scenes->broadcastMsg(inStack, targetObj, 0);
     return errMsg;
 }
 

@@ -305,7 +305,7 @@ void CAddOnScriptContainer::getActiveScripts(std::vector<CDetachedScript*>& scri
     scripts.insert(scripts.end(), scripts_last.begin(), scripts_last.end());
 }
 
-int CAddOnScriptContainer::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, int detachedScriptToExclude /*=-1*/)
+int CAddOnScriptContainer::callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, int detachedScriptToExclude /*=-1*/)
 {
     int retVal = 0;
     std::vector<CDetachedScript*> scripts;

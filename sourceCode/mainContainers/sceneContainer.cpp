@@ -467,7 +467,7 @@ void CSceneContainer::getActiveScripts(std::vector<CDetachedScript*>& scripts, b
     }
 }
 
-void CSceneContainer::callScripts(int callType, CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
+void CSceneContainer::callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
 {
     TRACE_INTERNAL;
     bool doNotInterrupt = !CDetachedScript::isSystemCallbackInterruptible(callType);
@@ -519,10 +519,15 @@ void CSceneContainer::callScripts(int callType, CInterfaceStack* inStack, CInter
     }
 }
 
-void CSceneContainer::broadcastMsg(CInterfaceStack* inStack, int emittingDetachedScriptHandle, int options)
+void CSceneContainer::broadcastMsg(const CInterfaceStack* inStack, int emittingDetachedScriptHandle, int options)
 {
     TRACE_INTERNAL;
-    callScripts(sim_syscb_msg, inStack, nullptr, nullptr, emittingDetachedScriptHandle);
+    CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStackCopy(inStack);
+    if (stack->getStackSize() > 1)
+        stack->popStackValue(stack->getStackSize() - 1);
+    stack->pushInt32OntoStack(emittingDetachedScriptHandle, false);
+    callScripts(sim_syscb_msg, stack, nullptr, nullptr, emittingDetachedScriptHandle);
+    App::scenes->interfaceStackContainer->destroyStack(stack);
 }
 
 bool CSceneContainer::shouldTemporarilySuspendMainScript()
