@@ -548,7 +548,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/sceneObjects/camera.cpp
     sourceCode/sceneObjects/dummy.cpp
     sourceCode/sceneObjects/customSceneObject.cpp
-    sourceCode/sceneObjects/script.cpp
+    sourceCode/sceneObjects/scriptObject.cpp
     sourceCode/sceneObjects/octree.cpp
     sourceCode/sceneObjects/pointCloud.cpp
     sourceCode/sceneObjects/forceSensor.cpp
@@ -609,7 +609,7 @@ target_sources(coppeliaSim PRIVATE
     sourceCode/mainContainers/applicationContainers/customObject.cpp
     sourceCode/mainContainers/applicationContainers/customProperties.cpp
 
-    sourceCode/scripting/detachedScript.cpp
+    sourceCode/scripting/script.cpp
     sourceCode/scripting/outsideCommandQueueForScript.cpp
     sourceCode/scripting/luaWrapper.cpp
 

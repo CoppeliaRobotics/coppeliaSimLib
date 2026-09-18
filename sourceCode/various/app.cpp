@@ -81,7 +81,7 @@ int64_t App::_nextUniqueId = sim_object_variousstart;
 #ifdef USE_INT64_HANDLES
 int64_t App::_nextHandle_object = sim_object_sceneobjectstart;
 int64_t App::_nextHandle_collection = sim_object_collectionstart;
-int64_t App::_nextHandle_script = sim_object_detachedscriptstart;
+int64_t App::_nextHandle_script = sim_object_scriptstart;
 int64_t App::_nextHandle_stack = sim_object_stackstart;
 int64_t App::_nextHandle_texture = sim_object_texturestart;
 int64_t App::_nextHandle_mesh = SIM_IDSTART_MESH;
@@ -313,9 +313,9 @@ void App::init(const char* appDir, int)
     simThread = new CSimThread();
 
     // Some items below require the GUI to be initialized (e.g. the Commander plugin):
-    scenes->sandboxScript = new CDetachedScript(sim_scripttype_sandbox);
+    scenes->sandboxScript = new CScript(sim_scripttype_sandbox);
     scenes->sandboxScript->initScript();
-    scenes->pySandboxScript = new CDetachedScript(sim_scripttype_sandbox);
+    scenes->pySandboxScript = new CScript(sim_scripttype_sandbox);
     scenes->pySandboxScript->initScript();
 
     std::string autoLoadAddOns("true");
@@ -395,10 +395,10 @@ void App::cleanup()
 
     scenes->addOnScriptContainer->removeAllAddOns();
     scenes->pySandboxScript->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
-    CDetachedScript::destroy(scenes->pySandboxScript, true);
+    CScript::destroy(scenes->pySandboxScript, true);
     scenes->pySandboxScript = nullptr;
     scenes->sandboxScript->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
-    CDetachedScript::destroy(scenes->sandboxScript, true);
+    CScript::destroy(scenes->sandboxScript, true);
     scenes->sandboxScript = nullptr;
     scenes->pluginContainer->unloadNewPlugins(); // cleanup via (UI thread) and SIM thread
 
@@ -501,7 +501,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     }
     if (scene->simulation->isSimulationPaused())
     {
-        CDetachedScript* mainScript = scene->sceneObjects->embeddedScriptContainer->getMainScript();
+        CScript* mainScript = scene->sceneObjects->embeddedScriptContainer->getMainScript();
         if (mainScript != nullptr)
         {
             scenes->dispatchEvents();
@@ -537,7 +537,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
         {
             if ((!scenes->shouldTemporarilySuspendMainScript()) || App::scene->simulation->didStopRequestCounterChangeSinceSimulationStart())
             {
-                CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
+                CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
                 if (it != nullptr)
                 {
                     scenes->calcInfo->simulationPassStart();
@@ -562,7 +562,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     // Async reset some scripts:
     for (size_t i = 0; i < _scriptsToReset.size(); i++)
     {
-        CDetachedScript* it = scenes->getDetachedScriptFromHandle(_scriptsToReset[i]);
+        CScript* it = scenes->getScriptFromHandle(_scriptsToReset[i]);
         if (it != nullptr)
             it->initScript();
     }
@@ -853,7 +853,7 @@ void App::logMsg(int verbosityLevel, const char* msg, int int1, int int2 /*=0*/,
         _logMsg(nullptr, verbosityLevel, msg, int1, int2, int3);
 }
 
-void App::logScriptMsg(const CDetachedScript* script, int verbosityLevel, const char* msg)
+void App::logScriptMsg(const CScript* script, int verbosityLevel, const char* msg)
 {
     int realVerbosityLevel = verbosityLevel & 0x0fff;
     if ((_consoleVerbosity >= realVerbosityLevel) || (_statusbarVerbosity >= realVerbosityLevel))
@@ -1668,9 +1668,9 @@ int App::setBoolProperty_t(int64_t target, const char* ppName, bool pState)
             retVal = sim_propertyret_ok;
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -1751,9 +1751,9 @@ int App::getBoolProperty_t(int64_t target, const char* ppName, bool& pState)
             }
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
             std::string _pName(ppName);
@@ -1812,9 +1812,9 @@ int App::setIntProperty_t(int64_t target, const char* ppName, int pState)
             retVal = sim_propertyret_ok;
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
             const char* pName = ppName;
@@ -1927,9 +1927,9 @@ int App::getIntProperty_t(int64_t target, const char* ppName, int& pState)
             retVal = sim_propertyret_ok;
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
             const char* pName = ppName;
@@ -1961,9 +1961,9 @@ int App::setLongProperty_t(int64_t target, const char* ppName, int64_t pState)
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
             const char* pName = ppName;
@@ -2004,9 +2004,9 @@ int App::getLongProperty_t(int64_t target, const char* ppName, int64_t& pState)
             }
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
             const char* pName = ppName;
@@ -2043,9 +2043,9 @@ int App::setHandleProperty_t(int64_t target, const char* ppName, int64_t pState)
             retVal = sim_propertyret_ok;
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -2079,7 +2079,7 @@ int App::getHandleProperty_t(int64_t target, const char* ppName, int64_t& pState
         if (strcmp(pName, prop(PropApp::sandbox).name) == 0)
         {
             if ( (scenes != nullptr) && (scenes->sandboxScript != nullptr) )
-                pState = scenes->sandboxScript->getSceneObjectOrDetachedScriptHandle();
+                pState = scenes->sandboxScript->getSceneObjectOrNakedScriptHandle();
             else
                 pState = -1;
             retVal = sim_propertyret_ok;
@@ -2087,7 +2087,7 @@ int App::getHandleProperty_t(int64_t target, const char* ppName, int64_t& pState
         else if (strcmp(pName, prop(PropApp::pySandbox).name) == 0)
         {
             if ( (scenes != nullptr) && (scenes->pySandboxScript != nullptr) )
-                pState = scenes->pySandboxScript->getSceneObjectOrDetachedScriptHandle();
+                pState = scenes->pySandboxScript->getSceneObjectOrNakedScriptHandle();
             else
                 pState = -1;
             retVal = sim_propertyret_ok;
@@ -2098,9 +2098,9 @@ int App::getHandleProperty_t(int64_t target, const char* ppName, int64_t& pState
             retVal = sim_propertyret_ok;
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
             retVal = script->getHandleProperty(ppName, pState);
         else
@@ -2141,9 +2141,9 @@ int App::setFloatProperty_t(int64_t target, const char* ppName, double pState)
             retVal = sim_propertyret_ok;
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
             retVal = script->setFloatProperty(ppName, pState);
         else
@@ -2198,9 +2198,9 @@ int App::getFloatProperty_t(int64_t target, const char* ppName, double& pState)
             retVal = sim_propertyret_ok;
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
             retVal = script->getFloatProperty(ppName, pState);
         else
@@ -2334,9 +2334,9 @@ int App::setStringProperty_t(int64_t target, const char* ppName, const std::stri
             }
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
             const char* pName = ppName;
@@ -2672,9 +2672,9 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
             }
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
             const char* pName = ppName;
@@ -2706,9 +2706,9 @@ int App::setTableProperty_t(int64_t target, const char* ppName, const std::strin
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
         }
@@ -2739,9 +2739,9 @@ int App::getTableProperty_t(int64_t target, const char* ppName, std::string& pSt
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
         }
@@ -2810,9 +2810,9 @@ int App::setBufferProperty_t(int64_t target, const char* ppName, const std::stri
             }
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -2869,9 +2869,9 @@ int App::getBufferProperty_t(int64_t target, const char* ppName, std::string& pS
             }
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -2903,9 +2903,9 @@ int App::setIntArray2Property_t(int64_t target, const char* ppName, const int* p
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -2937,9 +2937,9 @@ int App::getIntArray2Property_t(int64_t target, const char* ppName, int* pState)
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -2971,9 +2971,9 @@ int App::setVector3Property_t(int64_t target, const char* ppName, const C3Vector
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3005,9 +3005,9 @@ int App::getVector3Property_t(int64_t target, const char* ppName, C3Vector& pSta
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3039,9 +3039,9 @@ int App::setMatrixProperty_t(int64_t target, const char* ppName, const CMatrix& 
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
         }
@@ -3071,9 +3071,9 @@ int App::getMatrixProperty_t(int64_t target, const char* ppName, CMatrix& pState
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
         }
@@ -3103,9 +3103,9 @@ int App::setQuaternionProperty_t(int64_t target, const char* ppName, const CQuat
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3142,9 +3142,9 @@ int App::getQuaternionProperty_t(int64_t target, const char* ppName, CQuaternion
             retVal = sim_propertyret_ok;
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3176,9 +3176,9 @@ int App::setPoseProperty_t(int64_t target, const char* ppName, const CPose& pSta
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3210,9 +3210,9 @@ int App::getPoseProperty_t(int64_t target, const char* ppName, CPose& pState)
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3244,9 +3244,9 @@ int App::setColorProperty_t(int64_t target, const char* ppName, const float* pSt
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3278,9 +3278,9 @@ int App::getColorProperty_t(int64_t target, const char* ppName, float* pState)
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3312,9 +3312,9 @@ int App::setFloatArrayProperty_t(int64_t target, const char* ppName, const std::
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3347,9 +3347,9 @@ int App::getFloatArrayProperty_t(int64_t target, const char* ppName, std::vector
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3381,9 +3381,9 @@ int App::setIntArrayProperty_t(int64_t target, const char* ppName, const std::ve
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3416,9 +3416,9 @@ int App::getIntArrayProperty_t(int64_t target, const char* ppName, std::vector<i
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3450,9 +3450,9 @@ int App::setHandleArrayProperty_t(int64_t target, const char* ppName, const std:
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3507,9 +3507,9 @@ int App::getHandleArrayProperty_t(int64_t target, const char* ppName, std::vecto
             retVal = sim_propertyret_ok;
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3549,9 +3549,9 @@ int App::setStringArrayProperty_t(int64_t target, const char* ppName, const std:
             retVal = sim_propertyret_ok;
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3603,9 +3603,9 @@ int App::getStringArrayProperty_t(int64_t target, const char* ppName, std::vecto
             }
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
             retVal = script->getStringArrayProperty(pName, pState);
         else
@@ -3634,7 +3634,7 @@ int App::setMethodProperty_t(int64_t target, const char* ppName, const void* pSt
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
@@ -3660,7 +3660,7 @@ int App::getMethodProperty_t(int64_t target, const char* ppName, void*& pState)
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
@@ -3687,7 +3687,7 @@ int App::setMethodProperty_t(int64_t target, const char* ppName, const std::stri
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
@@ -3713,7 +3713,7 @@ int App::getMethodProperty_t(int64_t target, const char* ppName, std::string& pS
     if (target == sim_handle_app)
     {
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
     }
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
@@ -3790,9 +3790,9 @@ int App::removeProperty_t(int64_t target, const char* ppName)
             }
         }
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
           //const char* pName = ppName;
@@ -3886,9 +3886,9 @@ int App::getPropertyName_t(int64_t target, int& index, std::string& pName, std::
         retVal = scenes->customObjects->getPropertyName_t(target, index, pName, appartenance, excludeFlags);
     else if ((target >= sim_object_sceneobjectclassstart) && (target < sim_object_sceneobjectclassend) && (scenes != nullptr))
         retVal = scenes->customSceneObjectClasses->getPropertyName_t(target, index, pName, appartenance, excludeFlags);
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
         {
             //            if ((script->getScriptType() != sim_scripttype_sandbox) && (script->getScriptType() != sim_scripttype_addon))
@@ -4011,9 +4011,9 @@ int App::getPropertyInfo_t(int64_t target, const char* ppName, int& info, std::s
         retVal = scenes->customObjects->getPropertyInfo_t(target, pName, info, infoTxt);
     else if ((target >= sim_object_sceneobjectclassstart) && (target < sim_object_sceneobjectclassend) && (scenes != nullptr))
         retVal = scenes->customSceneObjectClasses->getPropertyInfo_t(target, pName, info, infoTxt);
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
     { // sandbox, main, add-ons, or old associated scripts:
-        CDetachedScript* script = scenes->getDetachedScriptFromHandle(int(target));
+        CScript* script = scenes->getScriptFromHandle(int(target));
         if (script != nullptr)
             retVal = script->getPropertyInfo(ppName, info, infoTxt);
         else
@@ -4039,7 +4039,7 @@ int App::setPropertyInfo_t(int64_t target, const char* ppName, int info, const c
         retVal = scenes->customObjects->setPropertyInfo_t(target, ppName, info, infoTxt);
     else if ((target >= sim_object_sceneobjectclassstart) && (target < sim_object_sceneobjectclassend) && (scenes != nullptr))
         retVal = scenes->customSceneObjectClasses->setPropertyInfo_t(target, ppName, info, infoTxt);
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
         retVal = sim_propertyret_unavailable; // sandbox, main, add-ons, or old associated scripts:
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
         retVal = sim_propertyret_unavailable;
@@ -4070,8 +4070,8 @@ std::string App::getTargetTypeStr(int64_t target)
         if (obj != nullptr)
             retVal = obj->getObjectTypeStr();
     }
-    else if ((target >= sim_object_detachedscriptstart) && (target <= sim_object_detachedscriptend))
-        retVal = "detachedScript";
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
+        retVal = "script";
     else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
         retVal = "stack";
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
@@ -4091,14 +4091,14 @@ bool App::_resolveTarget(int64_t& target)
     if (target == sim_handle_sandbox)
     {
         if ((scenes != nullptr) && (scenes->sandboxScript != nullptr))
-            target = scenes->sandboxScript->getSceneObjectOrDetachedScriptHandle();
+            target = scenes->sandboxScript->getSceneObjectOrNakedScriptHandle();
         else
             retVal = false; // target does not exist
     }
     else if (target == sim_handle_mainscript)
     {
         if ((scene != nullptr) && (scene->sceneObjects->embeddedScriptContainer->getMainScript() != nullptr))
-            target = scene->sceneObjects->embeddedScriptContainer->getMainScript()->getSceneObjectOrDetachedScriptHandle();
+            target = scene->sceneObjects->embeddedScriptContainer->getMainScript()->getSceneObjectOrNakedScriptHandle();
         else
             retVal = false; // target does not exist
     }
@@ -4362,11 +4362,11 @@ void App::pushGenesisEvents()
 
         int sbh = -1;
         if (scenes->sandboxScript != nullptr)
-            sbh = scenes->sandboxScript->getSceneObjectOrDetachedScriptHandle();
+            sbh = scenes->sandboxScript->getSceneObjectOrNakedScriptHandle();
         ev->appendKeyHandle(prop(PropApp::sandbox).name, sbh);
         sbh = -1;
         if (scenes->pySandboxScript != nullptr)
-            sbh = scenes->pySandboxScript->getSceneObjectOrDetachedScriptHandle();
+            sbh = scenes->pySandboxScript->getSceneObjectOrNakedScriptHandle();
         ev->appendKeyHandle(prop(PropApp::pySandbox).name, sbh);
         ev->appendKeyHandle(prop(PropApp::current).name, _currentObject);
         if (instancesList != nullptr)

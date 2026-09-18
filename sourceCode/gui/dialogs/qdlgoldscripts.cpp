@@ -59,11 +59,11 @@ void CQDlgOldScripts::refresh()
 
     ui->qqExecutionOrder->clear();
 
-    CDetachedScript* theScript = App::scenes->getDetachedScriptFromHandle(getSelectedObjectID());
+    CScript* theScript = App::scenes->getScriptFromHandle(getSelectedObjectID());
     CSceneObject* associatedObject = nullptr;
     if (theScript != nullptr)
         associatedObject = App::scene->sceneObjects->getObjectFromHandle(
-            App::scene->sceneObjects->embeddedScriptContainer->getObjectHandleFromScriptHandle(theScript->getSceneObjectOrDetachedScriptHandle()));
+            App::scene->sceneObjects->embeddedScriptContainer->getObjectHandleFromScriptHandle(theScript->getSceneObjectOrNakedScriptHandle()));
     ui->qqExecutionOrder->setEnabled((associatedObject != nullptr) && noEditModeAndNoSim);
     ui->qqDisabled->setEnabled((theScript != nullptr) && noEditMode &&
                                ((theScript->getScriptType() == sim_scripttype_simulation) ||
@@ -100,11 +100,11 @@ void CQDlgOldScripts::updateObjectsInList()
 
     if (scriptViewMode == 0)
     { // Main and simulation scripts
-        CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
+        CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
         {
             std::string tmp = it->getDescriptiveName();
-            int id = it->getSceneObjectOrDetachedScriptHandle();
+            int id = it->getSceneObjectOrNakedScriptHandle();
             QListWidgetItem* itm = new QListWidgetItem(tmp.c_str());
             itm->setData(Qt::UserRole, QVariant(id));
             itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -118,7 +118,7 @@ void CQDlgOldScripts::updateObjectsInList()
             if (t == sim_scripttype_simulation)
             {
                 std::string tmp = it->getDescriptiveName();
-                int id = it->getSceneObjectOrDetachedScriptHandle();
+                int id = it->getSceneObjectOrNakedScriptHandle();
                 QListWidgetItem* itm = new QListWidgetItem(tmp.c_str());
                 itm->setData(Qt::UserRole, QVariant(id));
                 itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -132,12 +132,12 @@ void CQDlgOldScripts::updateObjectsInList()
     { // Customization scripts
         for (int i = 0; i < int(App::scene->sceneObjects->embeddedScriptContainer->allScripts.size()); i++)
         {
-            CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->allScripts[i];
+            CScript* it = App::scene->sceneObjects->embeddedScriptContainer->allScripts[i];
             int t = it->getScriptType();
             if (t == sim_scripttype_customization)
             {
                 std::string tmp = it->getDescriptiveName();
-                int id = it->getSceneObjectOrDetachedScriptHandle();
+                int id = it->getSceneObjectOrNakedScriptHandle();
                 QListWidgetItem* itm = new QListWidgetItem(tmp.c_str());
                 itm->setData(Qt::UserRole, QVariant(id));
                 itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
@@ -205,13 +205,13 @@ void CQDlgOldScripts::on_qqScriptList_itemDoubleClicked(QListWidgetItem* item)
     {
         if ((item != nullptr) && App::scene->simulation->isSimulationStopped())
         {
-            CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(item->data(Qt::UserRole).toInt());
+            CScript* it = App::scenes->getScriptFromHandle(item->data(Qt::UserRole).toInt());
             if (it != nullptr)
             {
                 // Process the command via the simulation thread (delayed):
                 SSimulationThreadCommand cmd;
                 cmd.cmdId = OPEN_SCRIPT_EDITOR_CMD;
-                cmd.intParams.push_back(it->getSceneObjectOrDetachedScriptHandle());
+                cmd.intParams.push_back(it->getSceneObjectOrNakedScriptHandle());
                 App::appendSimulationThreadCommand(cmd);
             }
         }

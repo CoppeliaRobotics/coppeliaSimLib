@@ -601,7 +601,7 @@ void CScene::saveScene(CSer& ar, bool regularSave /*= true*/)
     // We serialize the old scripts (not the add-on scripts nor the sandbox script):
     for (size_t i = 0; i < sceneObjects->embeddedScriptContainer->allScripts.size(); i++)
     {
-        CDetachedScript* it = sceneObjects->embeddedScriptContainer->allScripts[i];
+        CScript* it = sceneObjects->embeddedScriptContainer->allScripts[i];
         if (it->isSimulatonCustomizationOrMainScript())
         {
             if (ar.isBinary())
@@ -729,7 +729,7 @@ void CScene::simulationAboutToStart()
 
 void CScene::simulationPaused()
 {
-    CDetachedScript* mainScript = sceneObjects->embeddedScriptContainer->getMainScript();
+    CScript* mainScript = sceneObjects->embeddedScriptContainer->getMainScript();
     if (mainScript != nullptr)
         mainScript->systemCallMainScript(sim_syscb_suspend, nullptr, nullptr);
 
@@ -741,7 +741,7 @@ void CScene::simulationPaused()
 
 void CScene::simulationAboutToResume()
 {
-    CDetachedScript* mainScript = sceneObjects->embeddedScriptContainer->getMainScript();
+    CScript* mainScript = sceneObjects->embeddedScriptContainer->getMainScript();
     if (mainScript != nullptr)
         mainScript->systemCallMainScript(sim_syscb_resume, nullptr, nullptr);
 
@@ -833,8 +833,8 @@ void CScene::simulationEnded(bool removeNewObjects)
     App::scenes->callScripts(sim_syscb_aftersimulation, nullptr, nullptr);
     for (size_t i = 0; i < sceneObjects->getObjectCount(sim_sceneobject_script); i++)
     {
-        CScript* script = sceneObjects->getScriptFromIndex(i);
-        script->reinitAfterSimulationIfNeeded();
+        CScriptObject* scriptObject = sceneObjects->getScriptObjectFromIndex(i);
+        scriptObject->reinitAfterSimulationIfNeeded();
     }
 }
 
@@ -842,7 +842,7 @@ int CScene::addGeneralObjectsToSceneAndPerformMappings(
     std::vector<CSceneObject*>* loadedObjectList, std::vector<CCollection*>* loadedCollectionList,
     std::vector<CCollisionObject_old*>* loadedCollisionList, std::vector<CDistanceObject_old*>* loadedDistanceList,
     std::vector<CIkGroup_old*>* loadedIkGroupList, std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
-    std::vector<CButtonBlock*>* loadedButtonBlockList, std::vector<CDetachedScript*>* loadedLuaScriptList,
+    std::vector<CButtonBlock*>* loadedButtonBlockList, std::vector<CScript*>* loadedLuaScriptList,
     std::vector<CTextureObject*>& loadedTextureObjectList,
     std::vector<CDynMaterialObject*>& loadedDynMaterialObjectList, bool model, int fileSimVersion,
     bool forceModelAsCopy)
@@ -978,9 +978,9 @@ int CScene::addGeneralObjectsToSceneAndPerformMappings(
     std::map<int, int> luaScriptMapping;
     for (size_t i = 0; i < loadedLuaScriptList->size(); i++)
     {
-        int oldHandle = loadedLuaScriptList->at(i)->getSceneObjectOrDetachedScriptHandle();
+        int oldHandle = loadedLuaScriptList->at(i)->getSceneObjectOrNakedScriptHandle();
         sceneObjects->embeddedScriptContainer->insertScript(loadedLuaScriptList->at(i));
-        luaScriptMapping[oldHandle] = loadedLuaScriptList->at(i)->getSceneObjectOrDetachedScriptHandle();
+        luaScriptMapping[oldHandle] = loadedLuaScriptList->at(i)->getSceneObjectOrNakedScriptHandle();
     }
 
     sceneObjects->enableObjectActualization(false);
@@ -1040,7 +1040,7 @@ int CScene::addGeneralObjectsToSceneAndPerformMappings(
     // We do the mapping for the Lua scripts:
     for (size_t i = 0; i < loadedLuaScriptList->size(); i++)
     {
-        CDetachedScript* it = loadedLuaScriptList->at(i);
+        CScript* it = loadedLuaScriptList->at(i);
         it->performSceneObjectLoadingMapping(&objectMapping);
     }
 
@@ -1129,7 +1129,7 @@ int CScene::addGeneralObjectsToSceneAndPerformMappings(
         int handle = _loadOperationIssues[i].objectHandle;
         std::string newTxt("NAME_NOT_FOUND");
         int handle2 = getLoadingMapping(&luaScriptMapping, handle);
-        CDetachedScript* script = sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(handle2);
+        CScript* script = sceneObjects->embeddedScriptContainer->getScriptFromHandle(handle2);
         if (script != nullptr)
             newTxt = script->getShortDescriptiveName();
         std::string msg(_loadOperationIssues[i].message);
@@ -1207,43 +1207,43 @@ void CScene::announceSceneObjectWillBeErased(CSceneObject* object)
     ikGroups_old->announceObjectWillBeErased(object->getObjectHandle());
 }
 
-void CScene::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
+void CScene::announceScriptWillBeErased(int scriptOrnakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 {
-    sceneObjects->announceScriptWillBeErased(scriptOrDetachedScriptHandle, simulationScript, sceneSwitchPersistentScript);
+    sceneObjects->announceScriptWillBeErased(scriptOrnakedScriptHandle, simulationScript, sceneSwitchPersistentScript);
 }
 
-void CScene::announceScriptStateWillBeErased(int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
+void CScene::announceScriptStateWillBeErased(int nakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 {
-    collections->announceScriptStateWillBeErased(detachedScriptHandle, simulationScript, sceneSwitchPersistentScript);
-    drawingCont->announceScriptStateWillBeErased(detachedScriptHandle, simulationScript, sceneSwitchPersistentScript);
+    collections->announceScriptStateWillBeErased(nakedScriptHandle, simulationScript, sceneSwitchPersistentScript);
+    drawingCont->announceScriptStateWillBeErased(nakedScriptHandle, simulationScript, sceneSwitchPersistentScript);
 }
 
-CDetachedScript* CScene::getDetachedScriptFromHandle(int scriptHandle) const
+CScript* CScene::getScriptFromHandle(int scriptHandle) const
 {
-    CDetachedScript* retVal = nullptr;
+    CScript* retVal = nullptr;
     if (sceneObjects != nullptr)
-        retVal = sceneObjects->getDetachedScriptFromHandle(scriptHandle);
+        retVal = sceneObjects->getScriptFromHandle(scriptHandle);
     return (retVal);
 }
 
-CDetachedScript* CScene::getDetachedScriptFromUid(int uid) const
+CScript* CScene::getScriptFromUid(int uid) const
 {
-    CDetachedScript* retVal = nullptr;
+    CScript* retVal = nullptr;
     if (sceneObjects != nullptr)
-        retVal = sceneObjects->getDetachedScriptFromUid(uid);
+        retVal = sceneObjects->getScriptFromUid(uid);
     return (retVal);
 }
 
-void CScene::getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse /*= false*/, bool alsoLegacyScripts /*= false*/) const
+void CScene::getActiveScripts(std::vector<CScript*>& scripts, bool reverse /*= false*/, bool alsoLegacyScripts /*= false*/) const
 {
     TRACE_INTERNAL;
     sceneObjects->getActiveScripts(scripts, reverse, alsoLegacyScripts);
 }
 
-void CScene::callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
+void CScene::callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int nakedScriptToExclude /*=-1*/)
 {
     TRACE_INTERNAL;
-    sceneObjects->callScripts(callType, inStack, outStack, objectBranch, detachedScriptToExclude);
+    sceneObjects->callScripts(callType, inStack, outStack, objectBranch, nakedScriptToExclude);
 }
 
 void CScene::pushGenesisEvents()
@@ -1332,7 +1332,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
     std::vector<CIkGroup_old*> loadedIkGroupList;
     std::vector<CPathPlanningTask*> pathPlanningTaskList;
     std::vector<CButtonBlock*> loadedButtonBlockList;
-    std::vector<CDetachedScript*> loadedLuaScriptList;
+    std::vector<CScript*> loadedLuaScriptList;
 
     bool hasThumbnail = false;
     if (ar.isBinary())
@@ -1476,7 +1476,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
                 if (theName.compare(SER_LUA_SCRIPT) == 0)
                 {
                     ar >> byteQuantity;
-                    CDetachedScript* it = new CDetachedScript(-1);
+                    CScript* it = new CScript(-1);
                     it->serialize(ar);
                     if ((it->getScriptType() == sim_scripttype_jointctrlcallback_old) ||
                         (it->getScriptType() == sim_scripttype_generalcallback_old) ||
@@ -1499,7 +1499,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
                                  "instead. Following the script content:\n" +
                                  ml;
                         App::logMsg(sim_verbosity_errors, ml.c_str());
-                        CDetachedScript::destroy(it, false);
+                        CScript::destroy(it, false);
                     }
                     else
                         loadedLuaScriptList.push_back(it);
@@ -1704,7 +1704,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
         {
             while (true)
             {
-                CDetachedScript* it = new CDetachedScript(-1);
+                CScript* it = new CScript(-1);
                 it->serialize(ar);
                 loadedLuaScriptList.push_back(it);
                 if (!ar.xmlPushSiblingNode(SERX_LUA_SCRIPT, false))
@@ -1769,11 +1769,11 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
         if (txt.size() > 0)
         {
             cf->scriptEquivalent.clear();
-            CDetachedScript* script = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, it->getObjectHandle());
+            CScript* script = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, it->getObjectHandle());
             if (script == nullptr)
             {
                 txt = std::string("function sysCall_init()\nend\n\n") + txt;
-                script = new CDetachedScript(sim_scripttype_customization);
+                script = new CScript(sim_scripttype_customization);
                 script->setLang("lua");
                 sceneObjects->embeddedScriptContainer->insertScript(script);
                 script->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
@@ -1787,7 +1787,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
     // Following for backward compatibility (Lua script parameters are now attached to objects, and not scripts anymore):
     for (size_t i = 0; i < loadedLuaScriptList.size(); i++)
     {
-        CDetachedScript* script = sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(loadedLuaScriptList[i]->getSceneObjectOrDetachedScriptHandle());
+        CScript* script = sceneObjects->embeddedScriptContainer->getScriptFromHandle(loadedLuaScriptList[i]->getSceneObjectOrNakedScriptHandle());
         if (script != nullptr)
         {
             CUserParameters* params = script->getScriptParametersObject_backCompatibility();
@@ -1823,47 +1823,47 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
     { // convert from old to new (except for very old threaded scripts (blue icon)):
         for (size_t i = 0; i < loadedObjectList.size(); i++)
         {
-            CDetachedScript* detachedScript = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, loadedObjectList[i]->getObjectHandle());
-            if (detachedScript != nullptr)
+            CScript* nakedScript = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, loadedObjectList[i]->getObjectHandle());
+            if (nakedScript != nullptr)
             {
-                sceneObjects->embeddedScriptContainer->extractScript(detachedScript->getSceneObjectOrDetachedScriptHandle());
-                CScript* script = new CScript(detachedScript);
-                detachedScript->setParentIsProxy(true);
-                script->setVisibilityLayer(0);
-                sceneObjects->addObjectToScene(script, false, false);
-                sceneObjects->setObjectParent(script, loadedObjectList[i], false);
+                sceneObjects->embeddedScriptContainer->extractScript(nakedScript->getSceneObjectOrNakedScriptHandle());
+                CScriptObject* scriptObject = new CScriptObject(nakedScript);
+                nakedScript->setParentIsProxy(true);
+                scriptObject->setVisibilityLayer(0);
+                sceneObjects->addObjectToScene(scriptObject, false, false);
+                sceneObjects->setObjectParent(scriptObject, loadedObjectList[i], false);
                 if (loadedObjectList[i]->getChildCount() == 1)
                 {
                     loadedObjectList[i]->setModelBase(true);
                     loadedObjectList[i]->setObjectProperty(loadedObjectList[i]->getObjectProperty() | sim_objectproperty_collapsed);
                 }
-                sceneObjects->setObjectSequence(script, 0);
-                sceneObjects->setObjectAlias(script, "autoConvertedScript", false);
+                sceneObjects->setObjectSequence(scriptObject, 0);
+                sceneObjects->setObjectAlias(scriptObject, "autoConvertedScript", false);
                 std::string nn("autoConvertedSimulationScript_");
                 nn += loadedObjectList[i]->getObjectName_old();
-                sceneObjects->setObjectName_old(script, nn.c_str(), false);
-                newObjects.push_back(script);
+                sceneObjects->setObjectName_old(scriptObject, nn.c_str(), false);
+                newObjects.push_back(scriptObject);
             }
-            detachedScript = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, loadedObjectList[i]->getObjectHandle());
-            if (detachedScript != nullptr)
+            nakedScript = sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, loadedObjectList[i]->getObjectHandle());
+            if (nakedScript != nullptr)
             {
-                sceneObjects->embeddedScriptContainer->extractScript(detachedScript->getSceneObjectOrDetachedScriptHandle());
-                CScript* script = new CScript(detachedScript);
-                detachedScript->setParentIsProxy(true);
-                script->setVisibilityLayer(0);
-                sceneObjects->addObjectToScene(script, false, false);
-                sceneObjects->setObjectParent(script, loadedObjectList[i], false);
+                sceneObjects->embeddedScriptContainer->extractScript(nakedScript->getSceneObjectOrNakedScriptHandle());
+                CScriptObject* scriptObject = new CScriptObject(nakedScript);
+                nakedScript->setParentIsProxy(true);
+                scriptObject->setVisibilityLayer(0);
+                sceneObjects->addObjectToScene(scriptObject, false, false);
+                sceneObjects->setObjectParent(scriptObject, loadedObjectList[i], false);
                 if (loadedObjectList[i]->getChildCount() == 1)
                 {
                     loadedObjectList[i]->setModelBase(true);
                     loadedObjectList[i]->setObjectProperty(loadedObjectList[i]->getObjectProperty() | sim_objectproperty_collapsed);
                 }
-                sceneObjects->setObjectSequence(script, 0);
-                sceneObjects->setObjectAlias(script, "autoConvertedScript", false);
+                sceneObjects->setObjectSequence(scriptObject, 0);
+                sceneObjects->setObjectAlias(scriptObject, "autoConvertedScript", false);
                 std::string nn("autoConvertedCustomizationScript_");
                 nn += loadedObjectList[i]->getObjectName_old();
-                sceneObjects->setObjectName_old(script, nn.c_str(), false);
-                newObjects.push_back(script);
+                sceneObjects->setObjectName_old(scriptObject, nn.c_str(), false);
+                newObjects.push_back(scriptObject);
             }
         }
     }
@@ -1882,24 +1882,24 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
                     CSceneObject* c = it->getChildFromIndex(j);
                     if (c->getObjectType() == sim_sceneobject_script)
                     {
-                        CScript* script = (CScript*)c;
+                        CScriptObject* scriptObject = (CScriptObject*)c;
                         int id = itemDone;
-                        if (((itemDone & 1) == 0) && (script->detachedScript->getScriptType() == sim_scripttype_simulation))
+                        if (((itemDone & 1) == 0) && (scriptObject->nakedScript->getScriptType() == sim_scripttype_simulation))
                             itemDone |= 1;
-                        if (((itemDone & 2) == 0) && (script->detachedScript->getScriptType() == sim_scripttype_customization))
+                        if (((itemDone & 2) == 0) && (scriptObject->nakedScript->getScriptType() == sim_scripttype_customization))
                             itemDone |= 2;
                         if (itemDone != id)
                         {
-                            script->detachedScript->setHandle();
-                            sceneObjects->embeddedScriptContainer->insertScript(script->detachedScript);
-                            script->detachedScript->setIsSceneObjectScript(false);
-                            script->detachedScript->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
-                            script->detachedScript = nullptr;
+                            scriptObject->nakedScript->setHandle();
+                            sceneObjects->embeddedScriptContainer->insertScript(scriptObject->nakedScript);
+                            scriptObject->nakedScript->setIsSceneObjectScript(false);
+                            scriptObject->nakedScript->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
+                            scriptObject->nakedScript = nullptr;
                         }
-                        objectsToRemove.push_back(script->getObjectHandle());
+                        objectsToRemove.push_back(scriptObject->getObjectHandle());
                         for (size_t j = 0; j < newObjects.size(); j++)
                         {
-                            if (newObjects[j] == script)
+                            if (newObjects[j] == scriptObject)
                             {
                                 newObjects.erase(newObjects.begin() + j);
                                 break;
@@ -1995,8 +1995,8 @@ bool CScene::_loadSimpleXmlSceneOrModel(CSer& ar)
     {
         CSceneObject* it = simpleXmlObjects[i].object;
         CSceneObject* pit = simpleXmlObjects[i].parentObject;
-        CDetachedScript* childScript = simpleXmlObjects[i].childScript;
-        CDetachedScript* customizationScript = simpleXmlObjects[i].customizationScript;
+        CScript* childScript = simpleXmlObjects[i].childScript;
+        CScript* customizationScript = simpleXmlObjects[i].customizationScript;
         allLoadedObjects.push_back(it);
         if (it->getObjectType() == sim_sceneobject_camera)
         {
@@ -2390,7 +2390,7 @@ int CScene::_getSuffixOffsetForGeneralObjectToAdd(
     bool tempNames, std::vector<CSceneObject*>* loadedObjectList, std::vector<CCollection*>* loadedCollectionList,
     std::vector<CCollisionObject_old*>* loadedCollisionList, std::vector<CDistanceObject_old*>* loadedDistanceList,
     std::vector<CIkGroup_old*>* loadedIkGroupList, std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
-    std::vector<CButtonBlock*>* loadedButtonBlockList, std::vector<CDetachedScript*>* loadedLuaScriptList) const
+    std::vector<CButtonBlock*>* loadedButtonBlockList, std::vector<CScript*>* loadedLuaScriptList) const
 {
     // 1. We find out about the smallest suffix to paste:
     int smallestSuffix = SIM_MAX_INT;

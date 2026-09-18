@@ -1004,7 +1004,7 @@ CColorObject* GuiApp::getVisualParamPointerFromItem(int objType, int objID1, int
     {
         _auxDlgTitle->assign("Script");
         _allowedParts[0] = 1 + 4 + 8 + 16 + 32 + 64;
-        CScript* it = App::scene->sceneObjects->getScriptFromHandle(objID1);
+        CScriptObject* it = App::scene->sceneObjects->getScriptObjectFromHandle(objID1);
         if (it != nullptr)
             return ((CColorObject*)it->getScriptColor());
     }

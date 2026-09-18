@@ -487,12 +487,12 @@ int simAppendScriptArrayEntry_internal(const char* reservedSetToNull, int script
                                        const int* what)
 { // deprecated (23/02/2016)
     C_API_START;
-    CDetachedScript* script = nullptr;
+    CScript* script = nullptr;
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         std::string arrayName;
-        if (scriptHandleOrType >= sim_object_detachedscriptstart)
+        if (scriptHandleOrType >= sim_object_scriptstart)
         { // script is identified by its ID
             std::string arrNameAtScriptName(arrayNameAtScriptName);
             size_t p = arrNameAtScriptName.find('@');
@@ -500,7 +500,7 @@ int simAppendScriptArrayEntry_internal(const char* reservedSetToNull, int script
                 arrayName.assign(arrNameAtScriptName.begin(), arrNameAtScriptName.begin() + p);
             else
                 arrayName = arrNameAtScriptName;
-            script = App::scenes->getDetachedScriptFromHandle(scriptHandleOrType);
+            script = App::scenes->getScriptFromHandle(scriptHandleOrType);
         }
         else
         {
@@ -582,10 +582,10 @@ int simClearScriptVariable_internal(const char* reservedSetToNull, int scriptHan
                                     const char* variableNameAtScriptName)
 { // DEPRECATED (23/02/2016)
     C_API_START;
-    CDetachedScript* script = nullptr;
+    CScript* script = nullptr;
 
     std::string variableName;
-    if (scriptHandleOrType >= sim_object_detachedscriptstart)
+    if (scriptHandleOrType >= sim_object_scriptstart)
     { // script is identified by its ID
         std::string varNameAtScriptName(variableNameAtScriptName);
         size_t p = varNameAtScriptName.find('@');
@@ -593,7 +593,7 @@ int simClearScriptVariable_internal(const char* reservedSetToNull, int scriptHan
             variableName.assign(varNameAtScriptName.begin(), varNameAtScriptName.begin() + p);
         else
             variableName = varNameAtScriptName;
-        script = App::scenes->getDetachedScriptFromHandle(scriptHandleOrType);
+        script = App::scenes->getScriptFromHandle(scriptHandleOrType);
     }
     else
     {
@@ -1673,7 +1673,7 @@ int simCallScriptFunction_internal(int scriptHandleOrType, const char* functionN
                                    const char* reservedSetToNull)
 { // DEPRECATED
     C_API_START;
-    CDetachedScript* script = nullptr;
+    CScript* script = nullptr;
 
     std::string funcName;
     std::string funcNameAtScriptName(functionNameAtScriptName);
@@ -1682,7 +1682,7 @@ int simCallScriptFunction_internal(int scriptHandleOrType, const char* functionN
         funcName.assign(funcNameAtScriptName.begin(), funcNameAtScriptName.begin() + p);
     else
         funcName = funcNameAtScriptName;
-    script = App::scenes->getDetachedScriptFromHandle(scriptHandleOrType);
+    script = App::scenes->getScriptFromHandle(scriptHandleOrType);
 
     if (script != nullptr)
     {
@@ -1726,13 +1726,13 @@ char* simGetScriptSimulationParameter_internal(int scriptHandle, const char* par
         if (scriptHandle <= sim_object_sceneobjectend)
         {
             CSceneObject* obj = nullptr;
-            CScript* scr = App::scene->sceneObjects->getScriptFromHandle(scriptHandle);
-            if (scr != nullptr)
+            CScriptObject* scriptObject = App::scene->sceneObjects->getScriptObjectFromHandle(scriptHandle);
+            if (scriptObject != nullptr)
             {
-                if (scr->detachedScript->getParentIsProxy())
-                    obj = scr->getParent();
+                if (scriptObject->nakedScript->getParentIsProxy())
+                    obj = scriptObject->getParent();
                 else
-                    obj = scr;
+                    obj = scriptObject;
             }
             else
                 obj = App::scene->sceneObjects->getObjectFromHandle(scriptHandle);
@@ -1756,7 +1756,7 @@ char* simGetScriptSimulationParameter_internal(int scriptHandle, const char* par
         }
         else
         {
-            CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(scriptHandle);
+            CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
             CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(scriptHandle);
             if ((it != nullptr) || (obj != nullptr))
             {
@@ -1799,13 +1799,13 @@ int simSetScriptSimulationParameter_internal(int scriptHandle, const char* param
         if (scriptHandle <= sim_object_sceneobjectend)
         {
             CSceneObject* obj = nullptr;
-            CScript* scr = App::scene->sceneObjects->getScriptFromHandle(scriptHandle);
-            if (scr != nullptr)
+            CScriptObject* scriptObject = App::scene->sceneObjects->getScriptObjectFromHandle(scriptHandle);
+            if (scriptObject != nullptr)
             {
-                if (scr->detachedScript->getParentIsProxy())
-                    obj = scr->getParent();
+                if (scriptObject->nakedScript->getParentIsProxy())
+                    obj = scriptObject->getParent();
                 else
-                    obj = scr;
+                    obj = scriptObject;
             }
             else
                 obj = App::scene->sceneObjects->getObjectFromHandle(scriptHandle);
@@ -1826,7 +1826,7 @@ int simSetScriptSimulationParameter_internal(int scriptHandle, const char* param
         }
         else
         {
-            CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(scriptHandle);
+            CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
             CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(scriptHandle);
             if ((it != nullptr) || (obj != nullptr))
             {
@@ -2610,7 +2610,7 @@ int simSendData_internal(int targetID, int dataHeader, const char* dataName, con
     {
         if ((targetID != 0) && (targetID != sim_handle_all))
         {
-            CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(targetID);
+            CScript* it = App::scenes->getScriptFromHandle(targetID);
             if (it == nullptr)
             {
                 CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_TARGET);
@@ -3967,7 +3967,7 @@ char* simGetScriptName_internal(int scriptHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(scriptHandle);
+        CScript* it = App::scenes->getScriptFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -4006,7 +4006,7 @@ int simGetScriptHandle_internal(const char* targetAtScriptName)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CDetachedScript* it = nullptr;
+        CScript* it = nullptr;
         if ((targetName.length() == 0) || (targetName.compare("child") == 0) || (targetName.compare("main") == 0))
         {
             if (scriptName.length() == 0)
@@ -4044,7 +4044,7 @@ int simGetScriptHandle_internal(const char* targetAtScriptName)
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_WAS_DESTROYED);
             return (-1);
         }
-        int retVal = it->getSceneObjectOrDetachedScriptHandle();
+        int retVal = it->getSceneObjectOrNakedScriptHandle();
         return (retVal);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -4057,9 +4057,9 @@ int simSetScriptVariable_internal(int scriptHandleOrType, const char* variableNa
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CDetachedScript* script = nullptr;
+        CScript* script = nullptr;
         std::string variableName;
-        if (scriptHandleOrType >= sim_object_detachedscriptstart)
+        if (scriptHandleOrType >= sim_object_scriptstart)
         { // script is identified by its ID
             std::string varNameAtScriptName(variableNameAtScriptName);
             size_t p = varNameAtScriptName.find('@');
@@ -4067,7 +4067,7 @@ int simSetScriptVariable_internal(int scriptHandleOrType, const char* variableNa
                 variableName.assign(varNameAtScriptName.begin(), varNameAtScriptName.begin() + p);
             else
                 variableName = varNameAtScriptName;
-            script = App::scenes->getDetachedScriptFromHandle(scriptHandleOrType);
+            script = App::scenes->getScriptFromHandle(scriptHandleOrType);
         }
         else
         {
@@ -4154,8 +4154,8 @@ int simGetScript_internal(int index)
     {
         if ((index < 0) || (index >= int(App::scene->sceneObjects->embeddedScriptContainer->allScripts.size())))
             return (-1);
-        CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->allScripts[index];
-        int retVal = it->getSceneObjectOrDetachedScriptHandle();
+        CScript* it = App::scene->sceneObjects->embeddedScriptContainer->allScripts[index];
+        int retVal = it->getSceneObjectOrNakedScriptHandle();
         return (retVal);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -4170,11 +4170,11 @@ int simGetScriptAssociatedWithObject_internal(int objectHandle)
     {
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, objectHandle);
+        CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, objectHandle);
         int retVal = -1;
         if (it == nullptr)
         {
-            if (App::scene->sceneObjects->getScriptFromHandle(objectHandle) != nullptr)
+            if (App::scene->sceneObjects->getScriptObjectFromHandle(objectHandle) != nullptr)
                 retVal = objectHandle;
             else
             {
@@ -4186,8 +4186,8 @@ int simGetScriptAssociatedWithObject_internal(int objectHandle)
                         CSceneObject* c = obj->getChildFromIndex(i);
                         if (c->getObjectType() == sim_sceneobject_script)
                         {
-                            CScript* co = (CScript*)c;
-                            if (co->detachedScript->getScriptType() == sim_scripttype_simulation)
+                            CScriptObject* co = (CScriptObject*)c;
+                            if (co->nakedScript->getScriptType() == sim_scripttype_simulation)
                             {
                                 retVal = c->getObjectHandle();
                                 break;
@@ -4198,7 +4198,7 @@ int simGetScriptAssociatedWithObject_internal(int objectHandle)
             }
         }
         else
-            retVal = it->getSceneObjectOrDetachedScriptHandle();
+            retVal = it->getSceneObjectOrNakedScriptHandle();
         return (retVal);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -4213,11 +4213,11 @@ int simGetCustomizationScriptAssociatedWithObject_internal(int objectHandle)
     {
         if (!doesObjectExist(__func__, objectHandle))
             return (-1);
-        CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, objectHandle);
+        CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, objectHandle);
         int retVal = -1;
         if (it == nullptr)
         {
-            if (App::scene->sceneObjects->getScriptFromHandle(objectHandle) != nullptr)
+            if (App::scene->sceneObjects->getScriptObjectFromHandle(objectHandle) != nullptr)
                 retVal = objectHandle;
             else
             {
@@ -4229,8 +4229,8 @@ int simGetCustomizationScriptAssociatedWithObject_internal(int objectHandle)
                         CSceneObject* c = obj->getChildFromIndex(i);
                         if (c->getObjectType() == sim_sceneobject_script)
                         {
-                            CScript* co = (CScript*)c;
-                            if (co->detachedScript->getScriptType() == sim_scripttype_customization)
+                            CScriptObject* co = (CScriptObject*)c;
+                            if (co->nakedScript->getScriptType() == sim_scripttype_customization)
                             {
                                 retVal = c->getObjectHandle();
                                 break;
@@ -4241,7 +4241,7 @@ int simGetCustomizationScriptAssociatedWithObject_internal(int objectHandle)
             }
         }
         else
-            retVal = it->getSceneObjectOrDetachedScriptHandle();
+            retVal = it->getSceneObjectOrNakedScriptHandle();
         return (retVal);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
@@ -4254,7 +4254,7 @@ int simGetObjectAssociatedWithScript_internal(int scriptHandle)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CDetachedScript* it = App::scene->sceneObjects->getDetachedScriptFromHandle(scriptHandle);
+        CScript* it = App::scene->sceneObjects->getScriptFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -4935,10 +4935,10 @@ int simGetObjectHandleEx_internal(const char* objectAlias, int index, int proxy,
             int objHandle = -1;
             if (_currentScriptHandle <= sim_object_sceneobjectend)
             {
-                CScript* it = App::scene->sceneObjects->getScriptFromHandle(_currentScriptHandle);
+                CScriptObject* it = App::scene->sceneObjects->getScriptObjectFromHandle(_currentScriptHandle);
                 if (it != nullptr)
                 {
-                    if (it->detachedScript->getParentIsProxy())
+                    if (it->nakedScript->getParentIsProxy())
                     {
                         CSceneObject* o = it->getParent();
                         if (o != nullptr)
@@ -5014,7 +5014,7 @@ int simSetScriptAttribute_internal(int scriptHandle, int attributeID, double flo
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(scriptHandle);
+        CScript* it = App::scenes->getScriptFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5068,7 +5068,7 @@ int simGetScriptAttribute_internal(int scriptHandle, int attributeID, double* fl
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(scriptHandle);
+        CScript* it = App::scenes->getScriptFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5123,7 +5123,7 @@ int simGetScriptAttribute_internal(int scriptHandle, int attributeID, double* fl
         }
         if (attributeID == sim_scriptattribute_scripthandle)
         {
-            intOrBoolVal[0] = it->getSceneObjectOrDetachedScriptHandle();
+            intOrBoolVal[0] = it->getSceneObjectOrNakedScriptHandle();
             retVal = 1;
         }
 
@@ -5139,7 +5139,7 @@ int simSetScriptText_internal(int scriptHandle, const char* scriptText)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(scriptHandle);
+        CScript* it = App::scenes->getScriptFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5169,7 +5169,7 @@ const char* simGetScriptText_internal(int scriptHandle)
             CApiErrors::setLastError(__func__, SIM_ERROR_SCENE_LOCKED);
             return (nullptr);
         }
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(scriptHandle);
+        CScript* it = App::scenes->getScriptFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5195,7 +5195,7 @@ int simGetScriptProperty_internal(int scriptHandle, int* scriptProperty, int* as
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(scriptHandle);
+        CScript* it = App::scenes->getScriptFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -5623,7 +5623,7 @@ int simSetDoubleSignalOld_internal(const char* signalName, double signalValue)
         pName += "DLEGACY.";
         pName += signalName;
         simSetFloatProperty_internal(sim_handle_scene, pName.c_str(), signalValue);
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(_currentScriptHandle);
+        CScript* it = App::scenes->getScriptFromHandle(_currentScriptHandle);
         if (it != nullptr)
             it->signalSet(pName.c_str());
         CApiErrors::getAndClearLastError();
@@ -6163,7 +6163,7 @@ int simHandleMainScript_internal()
     if ((!App::scenes->shouldTemporarilySuspendMainScript()) ||
         App::scene->simulation->didStopRequestCounterChangeSinceSimulationStart())
     {
-        CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
+        CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
         if (it != nullptr)
         {
             App::scenes->calcInfo->simulationPassStart();
@@ -6199,7 +6199,7 @@ int simAssociateScriptWithObject_internal(int scriptHandle, int associatedObject
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         int retVal = -1;
-        CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(scriptHandle);
+        CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
         if (it != nullptr)
         {
             if ((it->getScriptType() == sim_scripttype_simulation) ||
@@ -6219,7 +6219,7 @@ int simAssociateScriptWithObject_internal(int scriptHandle, int associatedObject
                     { // object does exist
                         if (it->getObjectHandleThatScriptIsAttachedTo(-1) == -1)
                         { // script not yet associated
-                            CDetachedScript* currentSimilarObj = nullptr;
+                            CScript* currentSimilarObj = nullptr;
                             if (it->getScriptType() == sim_scripttype_simulation)
                                 currentSimilarObj =
                                     App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
@@ -6263,7 +6263,7 @@ int simAddScript_internal(int scriptProperty)
         int scriptType = scriptProperty;
         if (scriptProperty & 0x00f0) // old threaded scripts
             scriptType = scriptProperty - 0x00f0;
-        CDetachedScript* it = new CDetachedScript(scriptType);
+        CScript* it = new CScript(scriptType);
         it->setLang("lua");
         int retVal = App::scene->sceneObjects->embeddedScriptContainer->insertScript(it);
 #ifdef SIM_WITH_GUI
@@ -6294,7 +6294,7 @@ int simRemoveScript_internal(int scriptHandle)
 #endif
             return (1);
         }
-        CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(scriptHandle);
+        CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -6320,7 +6320,7 @@ int simGetScriptInt32Param_internal(int scriptHandle, int parameterID, int* para
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(scriptHandle);
+        CScript* it = App::scenes->getScriptFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -6348,7 +6348,7 @@ int simGetScriptInt32Param_internal(int scriptHandle, int parameterID, int* para
         }
         if (parameterID == sim_scriptintparam_handle)
         {
-            parameter[0] = it->getSceneObjectOrDetachedScriptHandle();
+            parameter[0] = it->getSceneObjectOrNakedScriptHandle();
             retVal = 1;
         }
         if (parameterID == sim_scriptintparam_objecthandle)
@@ -6378,7 +6378,7 @@ int simSetScriptInt32Param_internal(int scriptHandle, int parameterID, int param
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(scriptHandle);
+        CScript* it = App::scenes->getScriptFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -6422,7 +6422,7 @@ char* simGetScriptStringParam_internal(int scriptHandle, int parameterID, int* p
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(scriptHandle);
+        CScript* it = App::scenes->getScriptFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -6464,7 +6464,7 @@ int simSetScriptStringParam_internal(int scriptHandle, int parameterID, const ch
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(scriptHandle);
+        CScript* it = App::scenes->getScriptFromHandle(scriptHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
@@ -8798,7 +8798,7 @@ int simSetInt32Signal_internal(const char* signalName, int signalValue)
         pName += "ILEGACY.";
         pName += signalName;
         simSetIntProperty_internal(sim_handle_scene, pName.c_str(), signalValue);
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(_currentScriptHandle);
+        CScript* it = App::scenes->getScriptFromHandle(_currentScriptHandle);
         if (it != nullptr)
             it->signalSet(pName.c_str());
         CApiErrors::getAndClearLastError();
@@ -8883,7 +8883,7 @@ int simSetFloatSignal_internal(const char* signalName, double signalValue)
         pName += "FLEGACY.";
         pName += signalName;
         simSetFloatProperty_internal(sim_handle_scene, pName.c_str(), signalValue);
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(_currentScriptHandle);
+        CScript* it = App::scenes->getScriptFromHandle(_currentScriptHandle);
         if (it != nullptr)
             it->signalSet(pName.c_str());
         CApiErrors::getAndClearLastError();
@@ -8969,7 +8969,7 @@ int simSetStringSignal_internal(const char* signalName, const char* signalValue,
         pName += "SLEGACY.";
         pName += signalName;
         simSetBufferProperty_internal(sim_handle_scene, pName.c_str(), signalValue, stringLength);
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(_currentScriptHandle);
+        CScript* it = App::scenes->getScriptFromHandle(_currentScriptHandle);
         if (it != nullptr)
             it->signalSet(pName.c_str());
         CApiErrors::getAndClearLastError();
@@ -9190,14 +9190,14 @@ int simGetObjectInt32Param_internal(int objectHandle, int parameterID, int* para
         CProxSensor* proximitySensor = App::scene->sceneObjects->getProximitySensorFromHandle(objectHandle);
         CMill* mill = App::scene->sceneObjects->getMillFromHandle(objectHandle);
         CLight* light = App::scene->sceneObjects->getLightFromHandle(objectHandle);
-        CDetachedScript* detachedScript = nullptr;
+        CScript* nakedScript = nullptr;
         if (objectHandle > sim_object_sceneobjectend)
-            detachedScript = App::scenes->getDetachedScriptFromHandle(objectHandle);
+            nakedScript = App::scenes->getScriptFromHandle(objectHandle);
         else
         {
-            CScript* script = App::scene->sceneObjects->getScriptFromHandle(objectHandle);
-            if ((script != nullptr) && (script->detachedScript != nullptr))
-                detachedScript = script->detachedScript;
+            CScriptObject* scriptObj = App::scene->sceneObjects->getScriptObjectFromHandle(objectHandle);
+            if ((scriptObj != nullptr) && (scriptObj->nakedScript != nullptr))
+                nakedScript = scriptObj->nakedScript;
         }
         if (parameterID < sim_objparam_end)
         { // for all scene objects
@@ -9477,39 +9477,39 @@ int simGetObjectInt32Param_internal(int objectHandle, int parameterID, int* para
                 retVal = 1;
             }
         }
-        if (detachedScript != nullptr)
+        if (nakedScript != nullptr)
         {
             if (parameterID == sim_scriptintparam_execorder)
             {
-                parameter[0] = detachedScript->getScriptExecPriority();
+                parameter[0] = nakedScript->getScriptExecPriority();
                 retVal = 1;
             }
             if (parameterID == sim_scriptintparam_execcount)
             {
-                parameter[0] = detachedScript->getNumberOfPasses();
+                parameter[0] = nakedScript->getNumberOfPasses();
                 retVal = 1;
             }
             if (parameterID == sim_scriptintparam_type)
             {
-                parameter[0] = detachedScript->getScriptType();
+                parameter[0] = nakedScript->getScriptType();
                 retVal = 1;
             }
             if (parameterID == sim_scriptintparam_handle)
             { // for backw. compatibility
-                parameter[0] = detachedScript->getSceneObjectOrDetachedScriptHandle();
+                parameter[0] = nakedScript->getSceneObjectOrNakedScriptHandle();
                 retVal = 1;
             }
             if (parameterID == sim_scriptintparam_objecthandle)
             { // for backw. compatibility
-                parameter[0] = detachedScript->getObjectHandleThatScriptIsAttachedTo(-1);
+                parameter[0] = nakedScript->getObjectHandleThatScriptIsAttachedTo(-1);
                 retVal = 1;
             }
             if (parameterID == sim_scriptintparam_lang)
             { // for backw. compatibility
                 parameter[0] = -1;
-                if (detachedScript->getLang() == "lua")
+                if (nakedScript->getLang() == "lua")
                     parameter[0] = 0;
-                else if (detachedScript->getLang() == "python")
+                else if (nakedScript->getLang() == "python")
                     parameter[0] = 1;
                 retVal = 1;
             }
@@ -9691,14 +9691,14 @@ int simSetObjectInt32Param_internal(int objectHandle, int parameterID, int param
         CCamera* camera = App::scene->sceneObjects->getCameraFromHandle(objectHandle);
         CLight* light = App::scene->sceneObjects->getLightFromHandle(objectHandle);
         CProxSensor* proximitySensor = App::scene->sceneObjects->getProximitySensorFromHandle(objectHandle);
-        CDetachedScript* detachedScript = nullptr;
+        CScript* nakedScript = nullptr;
         if (objectHandle > sim_object_sceneobjectend)
-            detachedScript = App::scenes->getDetachedScriptFromHandle(objectHandle);
+            nakedScript = App::scenes->getScriptFromHandle(objectHandle);
         else
         {
-            CScript* script = App::scene->sceneObjects->getScriptFromHandle(objectHandle);
-            if ((script != nullptr) && (script->detachedScript != nullptr))
-                detachedScript = script->detachedScript;
+            CScriptObject* scriptObj = App::scene->sceneObjects->getScriptObjectFromHandle(objectHandle);
+            if ((scriptObj != nullptr) && (scriptObj->nakedScript != nullptr))
+                nakedScript = scriptObj->nakedScript;
         }
         if (parameterID < sim_objparam_end)
         { // for all scene objects
@@ -9925,26 +9925,26 @@ int simSetObjectInt32Param_internal(int objectHandle, int parameterID, int param
                 retVal = 1;
             }
         }
-        if (detachedScript != nullptr)
+        if (nakedScript != nullptr)
         {
             if (parameterID == sim_scriptintparam_execorder)
             {
-                detachedScript->setScriptExecPriority(parameter);
+                nakedScript->setScriptExecPriority(parameter);
                 retVal = 1;
             }
             if (parameterID == sim_scriptintparam_execcount)
             {
-                detachedScript->setNumberOfPasses(parameter);
+                nakedScript->setNumberOfPasses(parameter);
                 retVal = 1;
             }
             if (parameterID == sim_scriptintparam_enabled)
             {
-                detachedScript->setScriptIsDisabled(parameter == 0);
+                nakedScript->setScriptIsDisabled(parameter == 0);
                 retVal = 1;
             }
             if (parameterID == sim_scriptintparam_autorestartonerror)
             {
-                detachedScript->setAutoRestartOnError(parameter != 0);
+                nakedScript->setAutoRestartOnError(parameter != 0);
                 retVal = 1;
             }
         }
@@ -11205,14 +11205,14 @@ char* simGetObjectStringParam_internal(int objectHandle, int parameterID, int* p
         CSceneObject* object = App::scene->sceneObjects->getObjectFromHandle(objectHandle);
         CDummy* dummy = App::scene->sceneObjects->getDummyFromHandle(objectHandle);
         CShape* shape = App::scene->sceneObjects->getShapeFromHandle(objectHandle);
-        CDetachedScript* detachedScript = nullptr;
+        CScript* nakedScript = nullptr;
         if (objectHandle > sim_object_sceneobjectend)
-            detachedScript = App::scenes->getDetachedScriptFromHandle(objectHandle);
+            nakedScript = App::scenes->getScriptFromHandle(objectHandle);
         else
         {
-            CScript* script = App::scene->sceneObjects->getScriptFromHandle(objectHandle);
-            if ((script != nullptr) && (script->detachedScript != nullptr))
-                detachedScript = script->detachedScript;
+            CScriptObject* scriptObj = App::scene->sceneObjects->getScriptObjectFromHandle(objectHandle);
+            if ((scriptObj != nullptr) && (scriptObj->nakedScript != nullptr))
+                nakedScript = scriptObj->nakedScript;
         }
         std::string s("__#*/-__");
         if (parameterID == sim_objstringparam_dna)
@@ -11225,18 +11225,18 @@ char* simGetObjectStringParam_internal(int objectHandle, int parameterID, int* p
             if (parameterID == sim_dummystringparam_assemblytag)
                 s = dummy->getAssemblyTag();
         }
-        if (detachedScript != nullptr)
+        if (nakedScript != nullptr)
         {
             if (parameterID == sim_scriptstringparam_name)
-                s = detachedScript->getScriptName();
+                s = nakedScript->getScriptName();
             if (parameterID == sim_scriptstringparam_nameext)
-                s = detachedScript->getShortDescriptiveName();
+                s = nakedScript->getShortDescriptiveName();
             if (parameterID == sim_scriptstringparam_lang)
-                s = detachedScript->getLang();
+                s = nakedScript->getLang();
             if (parameterID == sim_scriptstringparam_description)
-                s = detachedScript->getDescriptiveName();
+                s = nakedScript->getDescriptiveName();
             if (parameterID == sim_scriptstringparam_text)
-                s = detachedScript->getScriptText();
+                s = nakedScript->getScriptText();
         }
         if (shape != nullptr)
         {
@@ -11274,14 +11274,14 @@ int simSetObjectStringParam_internal(int objectHandle, int parameterID, const ch
 
         CDummy* dummy = App::scene->sceneObjects->getDummyFromHandle(objectHandle);
         CShape* shape = App::scene->sceneObjects->getShapeFromHandle(objectHandle);
-        CDetachedScript* detachedScript = nullptr;
+        CScript* nakedScript = nullptr;
         if (objectHandle > sim_object_sceneobjectend)
-            detachedScript = App::scenes->getDetachedScriptFromHandle(objectHandle);
+            nakedScript = App::scenes->getScriptFromHandle(objectHandle);
         else
         {
-            CScript* script = App::scene->sceneObjects->getScriptFromHandle(objectHandle);
-            if ((script != nullptr) && (script->detachedScript != nullptr))
-                detachedScript = script->detachedScript;
+            CScriptObject* scriptObj = App::scene->sceneObjects->getScriptObjectFromHandle(objectHandle);
+            if ((scriptObj != nullptr) && (scriptObj->nakedScript != nullptr))
+                nakedScript = scriptObj->nakedScript;
         }
         if (dummy != nullptr)
         {
@@ -11291,16 +11291,16 @@ int simSetObjectStringParam_internal(int objectHandle, int parameterID, const ch
                 retVal = 1;
             }
         }
-        if (detachedScript != nullptr)
+        if (nakedScript != nullptr)
         {
             if (parameterID == sim_scriptstringparam_text)
             {
-                detachedScript->setScriptText(parameter);
+                nakedScript->setScriptText(parameter);
                 retVal = 1;
             }
             if (parameterID == sim_scriptstringparam_lang)
             {
-                detachedScript->setLang(parameter);
+                nakedScript->setLang(parameter);
                 retVal = 1;
             }
         }

@@ -78,14 +78,14 @@ const SProperty& prop(PropApp p)
 // ----------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------
-const std::vector<SProperty> allProps_detachedScript{
+const std::vector<SProperty> allProps_script{
 #define FUNCX(name, str, v1, v2, t1) SProperty{str, v1, v2, t1},
-    DETACHEDSCRIPT_PROPERTIES
+    SCRIPT_PROPERTIES
 #undef FUNCX
 };
-const SProperty& prop(PropDetachedScript p)
+const SProperty& prop(PropScript p)
 {
-    return allProps_detachedScript[static_cast<size_t>(p)];
+    return allProps_script[static_cast<size_t>(p)];
 }
 // ----------------------------------------------------------------------------------------------
 
@@ -306,14 +306,14 @@ const SProperty& prop(PropVisionSensor p)
 // ----------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------
-const std::vector<SProperty> allProps_script{
+const std::vector<SProperty> allProps_scriptObject{
 #define FUNCX(name, str, v1, v2, t1) SProperty{str, v1, v2, t1},
-    SCRIPT_PROPERTIES
+    SCRIPTOBJECT_PROPERTIES
 #undef FUNCX
 };
-const SProperty& prop(PropScript p)
+const SProperty& prop(PropScriptObject p)
 {
-    return allProps_script[static_cast<size_t>(p)];
+    return allProps_scriptObject[static_cast<size_t>(p)];
 }
 // ----------------------------------------------------------------------------------------------
 
@@ -333,7 +333,7 @@ const std::vector<std::pair<std::string, SProperty*>> allProps = []{
     std::vector<std::pair<std::string, SProperty*>> result;
     for (const auto& prop : allProps_obj) result.push_back(std::make_pair("object", const_cast<SProperty*>(&prop)));
     for (const auto& prop : allProps_app) result.push_back(std::make_pair("app", const_cast<SProperty*>(&prop)));
-    for (const auto& prop : allProps_detachedScript) result.push_back(std::make_pair("detachedScript", const_cast<SProperty*>(&prop)));
+    for (const auto& prop : allProps_script) result.push_back(std::make_pair("script", const_cast<SProperty*>(&prop)));
     for (const auto& prop : allProps_stack) result.push_back(std::make_pair("stack", const_cast<SProperty*>(&prop)));
     for (const auto& prop : allProps_collection) result.push_back(std::make_pair("collection", const_cast<SProperty*>(&prop)));
     for (const auto& prop : allProps_drawingObj) result.push_back(std::make_pair("drawingObject", const_cast<SProperty*>(&prop)));
@@ -351,7 +351,7 @@ const std::vector<std::pair<std::string, SProperty*>> allProps = []{
     for (const auto& prop : allProps_pointCloud) result.push_back(std::make_pair("pointCloud", const_cast<SProperty*>(&prop)));
     for (const auto& prop : allProps_proximitySensor) result.push_back(std::make_pair("proximitySensor", const_cast<SProperty*>(&prop)));
     for (const auto& prop : allProps_visionSensor) result.push_back(std::make_pair("visionSensor", const_cast<SProperty*>(&prop)));
-    for (const auto& prop : allProps_script) result.push_back(std::make_pair("script", const_cast<SProperty*>(&prop)));
+    for (const auto& prop : allProps_scriptObject) result.push_back(std::make_pair("scriptObject", const_cast<SProperty*>(&prop)));
     for (const auto& prop : allProps_marker) result.push_back(std::make_pair("marker", const_cast<SProperty*>(&prop)));
 
     // Following special:

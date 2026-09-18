@@ -48,15 +48,15 @@ class CSceneContainer
     bool isSceneSwitchingLocked() const;
     void getAllSceneNames(std::vector<std::string>& l) const;
 
-    CDetachedScript* getDetachedScriptFromHandle(int scriptHandle) const;
-    CDetachedScript* getDetachedScriptFromUid(int uid) const;
+    CScript* getScriptFromHandle(int scriptHandle) const;
+    CScript* getScriptFromUid(int uid) const;
     void announceSceneObjectWillBeErased(CSceneObject* object);
-    void announceScriptWillBeErased(int scriptOrDetachedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
-    void announceScriptStateWillBeErased(int detachedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptWillBeErased(int scriptOrnakedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptStateWillBeErased(int nakedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript);
 
-    void getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
-    void callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int detachedScriptToExclude = -1);
-    void broadcastMsg(const CInterfaceStack* inStack, int emittingDetachedScriptHandle, int options);
+    void getActiveScripts(std::vector<CScript*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
+    void callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int nakedScriptToExclude = -1);
+    void broadcastMsg(const CInterfaceStack* inStack, int emittingnakedScriptHandle, int options);
 
     int getSysFuncAndHookCnt(int sysCall) const;
 
@@ -101,8 +101,8 @@ class CSceneContainer
     CCustomData_old* customAppData_old;
     CPersistentDataContainer* persistentDataContainer_old;
     CAddOnScriptContainer* addOnScriptContainer;
-    CDetachedScript* sandboxScript;
-    CDetachedScript* pySandboxScript;
+    CScript* sandboxScript;
+    CScript* pySandboxScript;
     CModuleMenuItemContainer* moduleMenuItemContainer;
     CScene* scene;
 #ifdef SIM_WITH_GUI

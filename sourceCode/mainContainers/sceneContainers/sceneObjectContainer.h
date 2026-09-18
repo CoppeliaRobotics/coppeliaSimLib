@@ -5,7 +5,7 @@
 #include <proximitySensor.h>
 #include <visionSensor.h>
 #include <camera.h>
-#include <script.h>
+#include <scriptObject.h>
 #include <graph.h>
 #include <path_old.h>
 #include <mirror.h>
@@ -24,8 +24,8 @@ struct SSimpleXmlSceneObject
 {
     CSceneObject* object;
     CSceneObject* parentObject;
-    CDetachedScript* childScript;
-    CDetachedScript* customizationScript;
+    CScript* childScript;
+    CScript* customizationScript;
 };
 
 class CSceneObjectContainer
@@ -46,7 +46,7 @@ class CSceneObjectContainer
     CSceneObject* getObjectFromAltName_old(const char* objectAltName) const;
     int getObjectHandleFromName_old(const char* objectName) const;
     int getObjects_hierarchyOrder(std::vector<CSceneObject*>& allObjects);
-    CDetachedScript* getDetachedScriptFromScriptPseudoHandle(int h) const;
+    CScript* getNakedScriptFromScriptPseudoHandle(int h) const;
 
     size_t getOrphanCount() const;
     size_t getSimpleShapeCount() const;
@@ -55,7 +55,7 @@ class CSceneObjectContainer
     CSceneObject* getOrphanFromIndex(size_t index) const;
     CJoint* getJointFromIndex(size_t index) const;
     CDummy* getDummyFromIndex(size_t index) const;
-    CScript* getScriptFromIndex(size_t index) const;
+    CScriptObject* getScriptObjectFromIndex(size_t index) const;
     CMarker* getMarkerFromIndex(size_t index) const;
     CCustomSceneObject* getCustomSceneObjectFromIndex(size_t index) const;
     CMirror* getMirrorFromIndex(size_t index) const;
@@ -71,11 +71,11 @@ class CSceneObjectContainer
     COcTree* getOctreeFromIndex(size_t index) const;
     CPointCloud* getPointCloudFromIndex(size_t index) const;
 
-    CDetachedScript* getDetachedScriptFromHandle(int handle) const;
-    CDetachedScript* getDetachedScriptFromUid(int uid) const;
+    CScript* getScriptFromHandle(int handle) const;
+    CScript* getScriptFromUid(int uid) const;
 
     CDummy* getDummyFromHandle(int objectHandle) const;
-    CScript* getScriptFromHandle(int objectHandle) const;
+    CScriptObject* getScriptObjectFromHandle(int objectHandle) const;
     CMarker* getMarkerFromHandle(int objectHandle) const;
     CCustomSceneObject* getCustomSceneObjectFromHandle(int objectHandle) const;
     CJoint* getJointFromHandle(int objectHandle) const;
@@ -119,7 +119,7 @@ class CSceneObjectContainer
     CCamera* getLastSelectionCamera() const;
     CLight* getLastSelectionLight() const;
     CDummy* getLastSelectionDummy() const;
-    CScript* getLastSelectionScript() const;
+    CScriptObject* getLastSelectionScriptObject() const;
     CMarker* getLastSelectionMarker() const;
     CCustomSceneObject* getLastSelectionCustomSceneObject() const;
     CProxSensor* getLastSelectionProxSensor() const;
@@ -145,15 +145,15 @@ class CSceneObjectContainer
     void simulationEnded();
 
     void announceSceneObjectWillBeErased(CSceneObject* object);
-    void announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptWillBeErased(int scriptOrnakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
     void handleDataCallbacks();
     bool shouldTemporarilySuspendMainScript();
     size_t getScriptsToExecute(std::vector<int>& scriptHandles, int scriptType, bool legacyEmbeddedScripts, bool reverseOrder) const;
 
-    void getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
-    void callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int detachedScriptToExclude = -1);
-    int callScripts_noMainScript(int scriptType, int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int detachedScriptToExclude = -1);
+    void getActiveScripts(std::vector<CScript*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
+    void callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int nakedScriptToExclude = -1);
+    int callScripts_noMainScript(int scriptType, int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int nakedScriptToExclude = -1);
     void setScriptsTemporarilySuspended(bool suspended);
     int getSysFuncAndHookCnt(int sysCall) const;
     void setSysFuncAndHookCnt(int sysCall, int cnt);
@@ -292,8 +292,8 @@ class CSceneObjectContainer
     void _removeObject(CSceneObject* object);
 
   private:
-    void _getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse = false) const;
-    int _callScripts(int scriptType, int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int detachedScriptToExclude = -1);
+    void _getActiveScripts(std::vector<CScript*>& scripts, bool reverse = false) const;
+    int _callScripts(int scriptType, int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int nakedScriptToExclude = -1);
     CShape* _readSimpleXmlShape(CSer& ar, CPose& desiredLocalFrame);
     CShape* _createSimpleXmlShape(CSer& ar, bool noHeightfield, const char* itemType, bool checkSibling);
     void _writeSimpleXmlShape(CSer& ar, CShape* shape);
@@ -318,7 +318,7 @@ class CSceneObjectContainer
     // only used for iterating in a RANDOM manner over specific objects:
     std::vector<CJoint*> _jointList;
     std::vector<CDummy*> _dummyList;
-    std::vector<CScript*> _scriptList;
+    std::vector<CScriptObject*> _scriptObjectList;
     std::vector<CMarker*> _markerList;
     std::vector<CCustomSceneObject*> _customSceneObjectList;
     std::vector<CGraph*> _graphList;

@@ -1795,7 +1795,7 @@ int CJoint::handleDynJoint(int flags, const int intVals[3], double currentPosVel
 
                 // 2. Call the script(s):
                 // First, the old callback functions:
-                CDetachedScript* script = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+                CScript* script = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                     sim_scripttype_simulation, _objectHandle);
                 if ((script != nullptr) && (!script->getScriptIsDisabled()) &&
                     script->hasSystemFunctionOrHook(sim_syscb_jointcallback))

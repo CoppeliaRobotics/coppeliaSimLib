@@ -18,7 +18,7 @@ class CGraphCurve
     bool getCurveData_xy(CGraphDataStream* streams[3], int* index, int bufferSize, int startPt, int ptCnt, std::string* label, std::vector<double>& xVals, std::vector<double>& yVals, int* curveType, float col[3], double minMax[6]) const;
     bool getCurveData_xyz(CGraphDataStream* streams[3], int* index, int bufferSize, int startPt, int ptCnt, std::string* label, std::vector<double>& xVals, int* curveType, float col[3], double minMax[6], int* curveWidth) const;
     void makeStatic(CGraphDataStream* streams[3], int bufferSize, int startPt, int ptCnt);
-    bool announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer);
+    bool announceScriptWillBeErased(int scriptOrnakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer);
     void performScriptLoadingMapping(const std::map<int, int>* map);
 
     void setId(int id);

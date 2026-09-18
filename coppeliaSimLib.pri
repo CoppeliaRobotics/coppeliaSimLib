@@ -425,7 +425,7 @@ HEADERS += $$PWD/sourceCode/sceneObjects/jointObject.h \
     $$PWD/sourceCode/sceneObjects/camera.h \
     $$PWD/sourceCode/sceneObjects/dummy.h \
     $$PWD/sourceCode/sceneObjects/customSceneObject.h \
-    $$PWD/sourceCode/sceneObjects/script.h \
+    $$PWD/sourceCode/sceneObjects/scriptObject.h \
     $$PWD/sourceCode/sceneObjects/octree.h \
     $$PWD/sourceCode/sceneObjects/pointCloud.h \
     $$PWD/sourceCode/sceneObjects/forceSensor.h \
@@ -486,7 +486,7 @@ HEADERS += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/customObject.h \
     $$PWD/sourceCode/mainContainers/applicationContainers/customProperties.h \
 
-HEADERS += $$PWD/sourceCode/scripting/detachedScript.h \
+HEADERS += $$PWD/sourceCode/scripting/script.h \
     $$PWD/sourceCode/scripting/outsideCommandQueueForScript.h \
     $$PWD/sourceCode/scripting/luaWrapper.h \
 
@@ -825,7 +825,7 @@ SOURCES += $$PWD/sourceCode/sceneObjects/jointObject.cpp \
     $$PWD/sourceCode/sceneObjects/camera.cpp \
     $$PWD/sourceCode/sceneObjects/dummy.cpp \
     $$PWD/sourceCode/sceneObjects/customSceneObject.cpp \
-    $$PWD/sourceCode/sceneObjects/script.cpp \
+    $$PWD/sourceCode/sceneObjects/scriptObject.cpp \
     $$PWD/sourceCode/sceneObjects/octree.cpp \
     $$PWD/sourceCode/sceneObjects/pointCloud.cpp \
     $$PWD/sourceCode/sceneObjects/forceSensor.cpp \
@@ -887,7 +887,7 @@ SOURCES += $$PWD/sourceCode/mainContainers/applicationContainers/copyBuffer.cpp 
     $$PWD/sourceCode/mainContainers/applicationContainers/customObject.cpp \
     $$PWD/sourceCode/mainContainers/applicationContainers/customProperties.cpp \
 
-SOURCES += $$PWD/sourceCode/scripting/detachedScript.cpp \
+SOURCES += $$PWD/sourceCode/scripting/script.cpp \
     $$PWD/sourceCode/scripting/outsideCommandQueueForScript.cpp \
     $$PWD/sourceCode/scripting/luaWrapper.cpp \
 

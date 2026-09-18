@@ -263,10 +263,10 @@ CustomObject* CustomObjectContainer::getClass(int64_t objectHandle) const
     return retVal;
 }
 
-int64_t CustomObjectContainer::makeObject(const CustomObject* classObject, bool isVolatile, int originDetachedScriptHandle)
+int64_t CustomObjectContainer::makeObject(const CustomObject* classObject, bool isVolatile, int originnakedScriptHandle)
 {
     int64_t retVal = getFreshHandle(true);
-    CustomObject* obj = classObject->createObject(retVal, originDetachedScriptHandle);
+    CustomObject* obj = classObject->createObject(retVal, originnakedScriptHandle);
     obj->setVolatile(isVolatile);
     _customObjects.insert({retVal, obj});
     obj->pushNakedGenesisEvents();
@@ -338,13 +338,13 @@ void CustomObjectContainer::_notifyClassListChanged() const
     }
 }
 
-void CustomObjectContainer::announceScriptStateWillBeErased(int detachedScriptHandle)
+void CustomObjectContainer::announceScriptStateWillBeErased(int nakedScriptHandle)
 {
     bool notify = false;
     for (auto it = _customObjects.begin(); it != _customObjects.end(); )
     {
         CustomObject* obj = it->second;
-        if (obj->getDetachedScriptHandle() == detachedScriptHandle)
+        if (obj->getnakedScriptHandle() == nakedScriptHandle)
         {
             notify = true;
             delete obj;
@@ -359,7 +359,7 @@ void CustomObjectContainer::announceScriptStateWillBeErased(int detachedScriptHa
     for (auto it = _customClasses.begin(); it != _customClasses.end(); )
     {
         CustomObject* obj = it->second;
-        if (obj->getDetachedScriptHandle() == detachedScriptHandle)
+        if (obj->getnakedScriptHandle() == nakedScriptHandle)
         {
             notify = true;
             delete obj;

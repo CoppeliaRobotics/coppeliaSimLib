@@ -1845,14 +1845,14 @@ void CGraph::announceSceneObjectWillBeErased(const CSceneObject* object, bool co
     }
 }
 
-void CGraph::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer)
+void CGraph::announceScriptWillBeErased(int scriptOrnakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer)
 {
-    CSceneObject::announceScriptWillBeErased(scriptOrDetachedScriptHandle, simulationScript, sceneSwitchPersistentScript, copyBuffer);
+    CSceneObject::announceScriptWillBeErased(scriptOrnakedScriptHandle, simulationScript, sceneSwitchPersistentScript, copyBuffer);
     // When a script that created a stream/curve gets removed, that stream/curve should also be removed:
     size_t i = 0;
     while (i < _dataStreams.size())
     {
-        if (_dataStreams[i]->announceScriptWillBeErased(scriptOrDetachedScriptHandle, simulationScript, sceneSwitchPersistentScript, copyBuffer))
+        if (_dataStreams[i]->announceScriptWillBeErased(scriptOrnakedScriptHandle, simulationScript, sceneSwitchPersistentScript, copyBuffer))
             removeGraphDataStream(_dataStreams[i]->getId());
         else
             i++;
@@ -1860,7 +1860,7 @@ void CGraph::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool s
     i = 0;
     while (i < _curves.size())
     {
-        if (_curves[i]->announceScriptWillBeErased(scriptOrDetachedScriptHandle, simulationScript, sceneSwitchPersistentScript, copyBuffer))
+        if (_curves[i]->announceScriptWillBeErased(scriptOrnakedScriptHandle, simulationScript, sceneSwitchPersistentScript, copyBuffer))
             removeGraphCurve(_curves[i]->getId());
         else
             i++;

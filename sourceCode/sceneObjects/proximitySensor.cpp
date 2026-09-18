@@ -977,7 +977,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int& detectedObjectH
     _calcTimeInMs = VDateTime::getTimeDiffInMs(stTime);
     if (detectedPointValid && (detectedObject >= 0) && VThread::isSimThread())
     {
-        std::vector<CDetachedScript*> scripts;
+        std::vector<CScript*> scripts;
         getAttachedScripts(scripts, -1, true);
         getAttachedScripts(scripts, -1, false);
 
@@ -998,7 +998,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling, int& detectedObjectH
 
             for (size_t i = 0; i < scripts.size(); i++)
             {
-                CDetachedScript* script = scripts[i];
+                CScript* script = scripts[i];
                 if (script->hasSystemFunctionOrHook(sim_syscb_trigger))
                 {
                     bool hasTriggerWord = false;

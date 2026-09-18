@@ -1,6 +1,6 @@
 #include <moduleMenuItem.h>
 
-CModuleMenuItem::CModuleMenuItem(const char* path, int detachedScriptHandle)
+CModuleMenuItem::CModuleMenuItem(const char* path, int nakedScriptHandle)
 {
     std::string s(path);
     _label = path;
@@ -13,7 +13,7 @@ CModuleMenuItem::CModuleMenuItem(const char* path, int detachedScriptHandle)
     if (_path.size() > 0)
         _label = s;
     _state = 1;
-    _detachedScriptHandle = detachedScriptHandle;
+    _nakedScriptHandle = nakedScriptHandle;
 }
 
 CModuleMenuItem::~CModuleMenuItem()
@@ -30,9 +30,9 @@ int CModuleMenuItem::getHandle() const
     return (_handle);
 }
 
-int CModuleMenuItem::getDetachedScriptHandle() const
+int CModuleMenuItem::getnakedScriptHandle() const
 {
-    return (_detachedScriptHandle);
+    return (_nakedScriptHandle);
 }
 
 void CModuleMenuItem::setState(int s)

@@ -1,7 +1,7 @@
 #include <simInternal.h>
 #include <simStrings.h>
 #include <utils.h>
-#include <script.h>
+#include <scriptObject.h>
 #include <global.h>
 #include <app.h>
 #include <tt.h>
@@ -10,35 +10,39 @@
 #include <guiApp.h>
 #endif
 
-CScript::CScript()
+CScriptObject::CScriptObject()
 {
     _commonInit(sim_scripttype_simulation, "", 0, nullptr);
 }
 
-CScript::CScript(int scriptType, const char* text, int options, const char* lang)
+CScriptObject::CScriptObject(int scriptType, const char* text, int options, const char* lang)
 {
     _commonInit(scriptType, text, options, lang);
 }
 
-CScript::CScript(CDetachedScript* scrObj)
+CScriptObject::CScriptObject(CScript* script)
 {
     _commonInit(sim_scripttype_simulation, "", 0, nullptr);
-    delete detachedScript;
-    detachedScript = scrObj;
-    detachedScript->_sceneObjectScript = true;
+    delete nakedScript;
+    nakedScript = script;
+    nakedScript->_sceneObjectScript = true;
 }
 
-void CScript::_commonInit(int scriptType, const char* text, int options, const char* lang)
+void CScriptObject::_commonInit(int scriptType, const char* text, int options, const char* lang)
 {
-    _objectTypeStr = "script";
+    printf("bli %s\n", magic_enum::enum_name(magic_enum::enum_cast<sceneObjectType>(sim_sceneobject_scriptobject).value()).data());
+
+
+//    printf("bla: %s\n", magic_enum::enum_name(magic_enum::enum_cast<sceneObjectType>(sim_sceneobject_scriptobject)).data().c_str());
+    _objectTypeStr = "scriptObject";
     _originalObjectTypeStr = _objectTypeStr;
-    detachedScript = new CDetachedScript(scriptType);
-    detachedScript->_scriptText = text;
-    detachedScript->_sceneObjectScript = true;
+    nakedScript = new CScript(scriptType);
+    nakedScript->_scriptText = text;
+    nakedScript->_sceneObjectScript = true;
     if ((scriptType != sim_scripttype_simulation) && (scriptType != sim_scripttype_customization))
         options |= 1;
-    detachedScript->setScriptIsDisabled(options & 1);
-    detachedScript->setLang(lang);
+    nakedScript->setScriptIsDisabled(options & 1);
+    nakedScript->setLang(lang);
     _objectType = sim_sceneobject_script;
     _localObjectSpecialProperty = 0;
     _objectProperty |= sim_objectproperty_dontshowasinsidemodel;
@@ -56,11 +60,11 @@ void CScript::_commonInit(int scriptType, const char* text, int options, const c
     computeBoundingBox();
 }
 
-CScript::~CScript()
+CScriptObject::~CScriptObject()
 {
 }
 
-void CScript::setIsInScene(bool s)
+void CScriptObject::setIsInScene(bool s)
 {
     CSceneObject::setIsInScene(s);
     if (s)
@@ -69,39 +73,39 @@ void CScript::setIsInScene(bool s)
         _scriptColor.setEventParams(true, -1);
 }
 
-void CScript::setObjectHandle(int newObjectHandle)
+void CScriptObject::setObjectHandle(int newObjectHandle)
 {
     CSceneObject::setObjectHandle(newObjectHandle);
-    detachedScript->_sceneObjectOrDetachedScriptHandle = newObjectHandle;
-    detachedScript->_sceneObjectHandle = newObjectHandle;
+    nakedScript->_sceneObjectOrnakedScriptHandle = newObjectHandle;
+    nakedScript->_sceneObjectHandle = newObjectHandle;
 }
 
-bool CScript::canDestroyNow()
+bool CScriptObject::canDestroyNow()
 { // overridden from CSceneObject
     bool retVal = CSceneObject::canDestroyNow();
-    if (detachedScript != nullptr)
+    if (nakedScript != nullptr)
     {
 #ifdef SIM_WITH_GUI
         if (GuiApp::mainWindow != nullptr)
-            GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(detachedScript->getScriptUid(), detachedScript->_previousEditionWindowPosAndSize, true);
+            GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(nakedScript->getScriptUid(), nakedScript->_previousEditionWindowPosAndSize, true);
 #endif
-        if (detachedScript->getExecutionDepth() != 0)
+        if (nakedScript->getExecutionDepth() != 0)
             retVal = false;
         if (retVal)
         {
-            if (detachedScript->_scriptState == sim_scriptstate_initialized)
-                detachedScript->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
-            detachedScript->_scriptState = sim_scriptstate_ended; // just in case
-            detachedScript->resetScript();
+            if (nakedScript->_scriptState == sim_scriptstate_initialized)
+                nakedScript->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
+            nakedScript->_scriptState = sim_scriptstate_ended; // just in case
+            nakedScript->resetScript();
             // Announcements need to happen immediately after calling cleanup!
-            App::scenes->announceScriptStateWillBeErased(detachedScript->getObjectHandle(), detachedScript->getScriptUid(), detachedScript->isSimulationOrMainScript(), detachedScript->isSceneSwitchPersistentScript());
-            App::scenes->announceScriptWillBeErased(_objectHandle, detachedScript->getScriptUid(), detachedScript->isSimulationOrMainScript(), detachedScript->isSceneSwitchPersistentScript());
+            App::scenes->announceScriptStateWillBeErased(nakedScript->getObjectHandle(), nakedScript->getScriptUid(), nakedScript->isSimulationOrMainScript(), nakedScript->isSceneSwitchPersistentScript());
+            App::scenes->announceScriptWillBeErased(_objectHandle, nakedScript->getScriptUid(), nakedScript->isSimulationOrMainScript(), nakedScript->isSceneSwitchPersistentScript());
             App::scenes->setModificationFlag(16384);
-            CDetachedScript::destroy(detachedScript, true, true);
-            detachedScript = nullptr;
+            CScript::destroy(nakedScript, true, true);
+            nakedScript = nullptr;
             if (_isInScene && App::scenes->getEventsEnabled())
-            { // indicate that this object does not have any detachedScript attached anymore
-                const char* cmd = prop(PropScript::detachedScript).name;
+            { // indicate that this object does not have any nakedScript attached anymore
+                const char* cmd = prop(PropScriptObject::script).name;
                 CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
                 ev->appendKeyHandle(cmd, -1);
                 App::scenes->pushEvent();
@@ -111,43 +115,43 @@ bool CScript::canDestroyNow()
     return retVal;
 }
 
-std::string CScript::getObjectTypeInfoExtended() const
+std::string CScriptObject::getObjectTypeInfoExtended() const
 {
     return _objectTypeStr;
 }
 
-bool CScript::isPotentiallyCollidable() const
+bool CScriptObject::isPotentiallyCollidable() const
 {
     return (false);
 }
 
-bool CScript::isPotentiallyMeasurable() const
+bool CScriptObject::isPotentiallyMeasurable() const
 {
     return (false);
 }
 
-bool CScript::isPotentiallyDetectable() const
+bool CScriptObject::isPotentiallyDetectable() const
 {
     return (false);
 }
 
-void CScript::computeBoundingBox()
+void CScriptObject::computeBoundingBox()
 {
     _setBB(CPose::identityTransformation, C3Vector(1.05, 1.05, 1.05) * _scriptSize * 0.5);
 }
 
-void CScript::scaleObject(double scalingFactor)
+void CScriptObject::scaleObject(double scalingFactor)
 {
     setScriptSize(_scriptSize * scalingFactor);
     CSceneObject::scaleObject(scalingFactor);
 }
 
-void CScript::removeSceneDependencies()
+void CScriptObject::removeSceneDependencies()
 {
     CSceneObject::removeSceneDependencies();
 }
 
-void CScript::pushNakedGenesisEvents(CCbor* ev /*= nullptr*/)
+void CScriptObject::pushNakedGenesisEvents(CCbor* ev /*= nullptr*/)
 {
     if (_isInScene && App::scenes->getEventsEnabled())
     {
@@ -155,102 +159,102 @@ void CScript::pushNakedGenesisEvents(CCbor* ev /*= nullptr*/)
         if (createdHere)
             ev = App::scenes->createSceneObjectAddEvent(this);
         _scriptColor.addGenesisEventData(ev);
-        ev->appendKeyBool(prop(PropScript::resetAfterSimError).name, _resetAfterSimError);
-        ev->appendKeyDouble(prop(PropScript::size).name, _scriptSize);
-        ev->appendKeyHandle(prop(PropScript::detachedScript).name, -1); // because 'naked'
+        ev->appendKeyBool(prop(PropScriptObject::resetAfterSimError).name, _resetAfterSimError);
+        ev->appendKeyDouble(prop(PropScriptObject::size).name, _scriptSize);
+        ev->appendKeyHandle(prop(PropScriptObject::script).name, -1); // because 'naked'
         std::string st;
-        auto enum_value = magic_enum::enum_cast<scriptType>(detachedScript->getScriptType());
+        auto enum_value = magic_enum::enum_cast<scriptType>(nakedScript->getScriptType());
         if (enum_value.has_value())
             st = magic_enum::enum_name(enum_value.value()).data();
-        ev->appendKeyText(prop(PropScript::type).name, st.c_str());
+        ev->appendKeyText(prop(PropScriptObject::type).name, st.c_str());
         CSceneObject::pushNakedGenesisEvents(ev);
         App::scenes->pushEvent();
 
-        ((CScript*)this)->detachedScript->pushNakedGenesisEvents();
+        ((CScriptObject*)this)->nakedScript->pushNakedGenesisEvents();
 
-        ev = App::scenes->createSceneObjectChangedEvent(_objectHandle, false, prop(PropScript::detachedScript).name, false);
-        ev->appendKeyHandle(prop(PropScript::detachedScript).name, ((CScript*)this)->detachedScript->getObjectHandle());
+        ev = App::scenes->createSceneObjectChangedEvent(_objectHandle, false, prop(PropScriptObject::script).name, false);
+        ev->appendKeyHandle(prop(PropScriptObject::script).name, ((CScriptObject*)this)->nakedScript->getObjectHandle());
         if (createdHere)
             App::scenes->pushEvent();
     }
 }
 
-CSceneObject* CScript::copyYourself()
+CSceneObject* CScriptObject::copyYourself()
 {
-    CScript* newScript = (CScript*)CSceneObject::copyYourself();
+    CScriptObject* newScript = (CScriptObject*)CSceneObject::copyYourself();
 
     _scriptColor.copyYourselfInto(&newScript->_scriptColor);
     newScript->_scriptSize = _scriptSize;
     newScript->_resetAfterSimError = _resetAfterSimError;
 
-    newScript->detachedScript = detachedScript->copyYourself();
-    newScript->detachedScript->_sceneObjectScript = true;
+    newScript->nakedScript = nakedScript->copyYourself();
+    newScript->nakedScript->_sceneObjectScript = true;
 
     return (newScript);
 }
 
-void CScript::announceCollectionWillBeErased(int groupID, bool copyBuffer)
+void CScriptObject::announceCollectionWillBeErased(int groupID, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceCollectionWillBeErased(groupID, copyBuffer);
 }
 
-void CScript::announceCollisionWillBeErased(int collisionID, bool copyBuffer)
+void CScriptObject::announceCollisionWillBeErased(int collisionID, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceCollisionWillBeErased(collisionID, copyBuffer);
 }
 
-void CScript::announceDistanceWillBeErased(int distanceID, bool copyBuffer)
+void CScriptObject::announceDistanceWillBeErased(int distanceID, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceDistanceWillBeErased(distanceID, copyBuffer);
 }
 
-void CScript::performIkLoadingMapping(const std::map<int, int>* map, int opType)
+void CScriptObject::performIkLoadingMapping(const std::map<int, int>* map, int opType)
 {
     CSceneObject::performIkLoadingMapping(map, opType);
 }
 
-void CScript::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
+void CScriptObject::performCollectionLoadingMapping(const std::map<int, int>* map, int opType)
 {
     CSceneObject::performCollectionLoadingMapping(map, opType);
 }
 
-void CScript::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
+void CScriptObject::performCollisionLoadingMapping(const std::map<int, int>* map, int opType)
 {
     CSceneObject::performCollisionLoadingMapping(map, opType);
 }
 
-void CScript::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
+void CScriptObject::performDistanceLoadingMapping(const std::map<int, int>* map, int opType)
 {
     CSceneObject::performDistanceLoadingMapping(map, opType);
 }
 
-void CScript::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
+void CScriptObject::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
     CSceneObject::performTextureObjectLoadingMapping(map, opType);
 }
 
-void CScript::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
+void CScriptObject::performDynMaterialObjectLoadingMapping(const std::map<int, int>* map)
 {
     CSceneObject::performDynMaterialObjectLoadingMapping(map);
 }
 
-void CScript::initializeInitialValues(bool simulationAlreadyRunning)
+void CScriptObject::initializeInitialValues(bool simulationAlreadyRunning)
 { // is called at simulation start, but also after object(s) have been copied into a scene!
     CSceneObject::initializeInitialValues(simulationAlreadyRunning);
-    detachedScript->initializeInitialValues(simulationAlreadyRunning);
+    nakedScript->initializeInitialValues(simulationAlreadyRunning);
 }
 
-void CScript::simulationAboutToStart()
+void CScriptObject::simulationAboutToStart()
 {
     initializeInitialValues(false);
     CSceneObject::simulationAboutToStart();
-    detachedScript->simulationAboutToStart();
+    nakedScript->simulationAboutToStart();
 }
 
-void CScript::simulationEnded()
+void CScriptObject::simulationEnded()
 { // Remember, this is not guaranteed to be run! (the object can be copied during simulation, and pasted after it
     // ended). For thoses situations there is the initializeInitialValues routine!
     if (_initialValuesInitialized)
@@ -259,11 +263,11 @@ void CScript::simulationEnded()
         {
         }
     }
-    detachedScript->simulationEnded();
+    nakedScript->simulationEnded();
     CSceneObject::simulationEnded();
 }
 
-void CScript::serialize(CSer& ar)
+void CScriptObject::serialize(CSer& ar)
 {
     CSceneObject::serialize(ar);
     if (ar.isBinary())
@@ -288,9 +292,9 @@ void CScript::serialize(CSer& ar)
 
             ar.storeDataName("Soo");
             ar.setCountingMode();
-            detachedScript->serialize(ar);
+            nakedScript->serialize(ar);
             if (ar.setWritingMode())
-                detachedScript->serialize(ar);
+                nakedScript->serialize(ar);
 
             ar.storeDataName(SER_END_OF_OBJECT);
         }
@@ -331,7 +335,7 @@ void CScript::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        detachedScript->serialize(ar);
+                        nakedScript->serialize(ar);
                     }
 
                     if (noHit)
@@ -362,7 +366,7 @@ void CScript::serialize(CSer& ar)
             }
             ar.xmlPopNode();
 
-            detachedScript->serialize(ar);
+            nakedScript->serialize(ar);
         }
         else
         {
@@ -383,58 +387,58 @@ void CScript::serialize(CSer& ar)
                 ar.xmlPopNode();
             }
 
-            detachedScript->serialize(ar);
+            nakedScript->serialize(ar);
 
             computeBoundingBox();
         }
     }
 }
 
-void CScript::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
+void CScriptObject::performObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
     CSceneObject::performObjectLoadingMapping(map, opType);
 }
 
-void CScript::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
+void CScriptObject::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
 }
 
-void CScript::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
+void CScriptObject::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
 { // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     CSceneObject::announceIkObjectWillBeErased(ikGroupID, copyBuffer);
 }
 
-double CScript::getScriptSize() const
+double CScriptObject::getScriptSize() const
 {
     return (_scriptSize);
 }
 
-void CScript::reinitAfterSimulationIfNeeded()
+void CScriptObject::reinitAfterSimulationIfNeeded()
 {
-    if (detachedScript != nullptr)
+    if (nakedScript != nullptr)
     {
-        if (detachedScript->getScriptType() == sim_scripttype_customization)
+        if (nakedScript->getScriptType() == sim_scripttype_customization)
         {
-            if ((detachedScript->getScriptState() & sim_scriptstate_error) && _resetAfterSimError)
-                detachedScript->initScript();
+            if ((nakedScript->getScriptState() & sim_scriptstate_error) && _resetAfterSimError)
+                nakedScript->initScript();
         }
     }
 }
 
-bool CScript::getResetAfterSimError() const
+bool CScriptObject::getResetAfterSimError() const
 {
     return _resetAfterSimError;
 }
 
-CColorObject* CScript::getScriptColor()
+CColorObject* CScriptObject::getScriptColor()
 {
     return (&_scriptColor);
 }
 
-void CScript::setScriptSize(double s)
+void CScriptObject::setScriptSize(double s)
 {
     bool diff = (_scriptSize != s);
     if (diff)
@@ -443,7 +447,7 @@ void CScript::setScriptSize(double s)
         computeBoundingBox();
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = prop(PropScript::size).name;
+            const char* cmd = prop(PropScriptObject::size).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyDouble(cmd, _scriptSize);
             App::scenes->pushEvent();
@@ -451,7 +455,7 @@ void CScript::setScriptSize(double s)
     }
 }
 
-void CScript::resetAfterSimError(bool r)
+void CScriptObject::resetAfterSimError(bool r)
 {
     bool diff = (_resetAfterSimError != r);
     if (diff)
@@ -459,7 +463,7 @@ void CScript::resetAfterSimError(bool r)
         _resetAfterSimError = r;
         if (_isInScene && App::scenes->getEventsEnabled())
         {
-            const char* cmd = prop(PropScript::resetAfterSimError).name;
+            const char* cmd = prop(PropScriptObject::resetAfterSimError).name;
             CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, cmd, true);
             ev->appendKeyBool(cmd, _resetAfterSimError);
             App::scenes->pushEvent();
@@ -467,28 +471,28 @@ void CScript::resetAfterSimError(bool r)
     }
 }
 
-int CScript::getDetachedScriptHandle() const
+int CScriptObject::getNakedScriptHandle() const
 {
     int retVal = -1;
-    if (detachedScript != nullptr)
-        retVal = detachedScript->getObjectHandle();
+    if (nakedScript != nullptr)
+        retVal = nakedScript->getObjectHandle();
     return retVal;
 }
 
 #ifdef SIM_WITH_GUI
-void CScript::display(CViewableBase* renderingObject, int displayAttrib)
+void CScriptObject::display(CViewableBase* renderingObject, int displayAttrib)
 {
     displayScript(this, renderingObject, displayAttrib);
 }
 #endif
 
-int CScript::setBoolProperty(const char* ppName, bool pState)
+int CScriptObject::setBoolProperty(const char* ppName, bool pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == prop(PropScript::resetAfterSimError).name)
+        if (_pName == prop(PropScriptObject::resetAfterSimError).name)
         {
             resetAfterSimError(pState);
             retVal = sim_propertyret_ok;
@@ -498,28 +502,28 @@ int CScript::setBoolProperty(const char* ppName, bool pState)
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropScript::DEPRECATED_scriptDisabled).name, ppName) == 0)
+        if (strcmp(prop(PropScriptObject::DEPRECATED_scriptDisabled).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            detachedScript->setScriptIsDisabled(pState);
+            nakedScript->setScriptIsDisabled(pState);
         }
-        else if (strcmp(prop(PropScript::DEPRECATED_restartOnError).name, ppName) == 0)
+        else if (strcmp(prop(PropScriptObject::DEPRECATED_restartOnError).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            detachedScript->setAutoRestartOnError(pState);
+            nakedScript->setAutoRestartOnError(pState);
         }
     }
 
     return retVal;
 }
 
-int CScript::getBoolProperty(const char* ppName, bool& pState) const
+int CScriptObject::getBoolProperty(const char* ppName, bool& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getBoolProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == prop(PropScript::resetAfterSimError).name)
+        if (_pName == prop(PropScriptObject::resetAfterSimError).name)
         {
             pState = _resetAfterSimError;
             retVal = sim_propertyret_ok;
@@ -529,22 +533,22 @@ int CScript::getBoolProperty(const char* ppName, bool& pState) const
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropScript::DEPRECATED_scriptDisabled).name, ppName) == 0)
+        if (strcmp(prop(PropScriptObject::DEPRECATED_scriptDisabled).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            pState = detachedScript->getScriptIsDisabled();
+            pState = nakedScript->getScriptIsDisabled();
         }
-        else if (strcmp(prop(PropScript::DEPRECATED_restartOnError).name, ppName) == 0)
+        else if (strcmp(prop(PropScriptObject::DEPRECATED_restartOnError).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            pState = detachedScript->getAutoRestartOnError();
+            pState = nakedScript->getAutoRestartOnError();
         }
     }
 
     return retVal;
 }
 
-int CScript::setIntProperty(const char* ppName, int pState)
+int CScriptObject::setIntProperty(const char* ppName, int pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setIntProperty(ppName, pState);
@@ -555,17 +559,17 @@ int CScript::setIntProperty(const char* ppName, int pState)
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropScript::DEPRECATED_execPriority).name, ppName) == 0)
+        if (strcmp(prop(PropScriptObject::DEPRECATED_execPriority).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            detachedScript->setScriptExecPriority(pState);
+            nakedScript->setScriptExecPriority(pState);
         }
     }
 
     return retVal;
 }
 
-int CScript::getIntProperty(const char* ppName, int& pState) const
+int CScriptObject::getIntProperty(const char* ppName, int& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getIntProperty(ppName, pState);
@@ -576,32 +580,32 @@ int CScript::getIntProperty(const char* ppName, int& pState) const
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropScript::DEPRECATED_execPriority).name, ppName) == 0)
+        if (strcmp(prop(PropScriptObject::DEPRECATED_execPriority).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            pState = detachedScript->getScriptExecPriority();
+            pState = nakedScript->getScriptExecPriority();
         }
-        else if (strcmp(prop(PropScript::DEPRECATED_scriptType).name, ppName) == 0)
+        else if (strcmp(prop(PropScriptObject::DEPRECATED_scriptType).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            pState = detachedScript->getScriptType();
+            pState = nakedScript->getScriptType();
         }
-        else if (strcmp(prop(PropScript::DEPRECATED_executionDepth).name, ppName) == 0)
+        else if (strcmp(prop(PropScriptObject::DEPRECATED_executionDepth).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            pState = detachedScript->getExecutionDepth();
+            pState = nakedScript->getExecutionDepth();
         }
-        else if (strcmp(prop(PropScript::DEPRECATED_scriptState).name, ppName) == 0)
+        else if (strcmp(prop(PropScriptObject::DEPRECATED_scriptState).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            pState = detachedScript->getScriptState();
+            pState = nakedScript->getScriptState();
         }
     }
 
     return retVal;
 }
 
-int CScript::setLongProperty(const char* ppName, int64_t pState)
+int CScriptObject::setLongProperty(const char* ppName, int64_t pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setLongProperty(ppName, pState);
@@ -612,7 +616,7 @@ int CScript::setLongProperty(const char* ppName, int64_t pState)
     return retVal;
 }
 
-int CScript::getLongProperty(const char* ppName, int64_t& pState) const
+int CScriptObject::getLongProperty(const char* ppName, int64_t& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getLongProperty(ppName, pState);
@@ -623,30 +627,30 @@ int CScript::getLongProperty(const char* ppName, int64_t& pState) const
     return retVal;
 }
 
-int CScript::getHandleProperty(const char* ppName, int64_t& pState) const
+int CScriptObject::getHandleProperty(const char* ppName, int64_t& pState) const
 {
     int retVal = CSceneObject::getHandleProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropScript::detachedScript).name, ppName) == 0)
+        if (strcmp(prop(PropScriptObject::script).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
             pState = -1;
-            if (detachedScript != nullptr)
-                pState = detachedScript->getObjectHandle();
+            if (nakedScript != nullptr)
+                pState = nakedScript->getObjectHandle();
         }
      }
 
     return retVal;
 }
 
-int CScript::setFloatProperty(const char* ppName, double pState)
+int CScriptObject::setFloatProperty(const char* ppName, double pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == prop(PropScript::size).name)
+        if (_pName == prop(PropScriptObject::size).name)
         {
             setScriptSize(pState);
             retVal = sim_propertyret_ok;
@@ -656,7 +660,7 @@ int CScript::setFloatProperty(const char* ppName, double pState)
     return retVal;
 }
 
-int CScript::getFloatProperty(const char* ppName, double& pState) const
+int CScriptObject::getFloatProperty(const char* ppName, double& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getFloatProperty(ppName, pState);
@@ -664,7 +668,7 @@ int CScript::getFloatProperty(const char* ppName, double& pState) const
         retVal = _scriptColor.getFloatProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (_pName == prop(PropScript::size).name)
+        if (_pName == prop(PropScriptObject::size).name)
         {
             pState = _scriptSize;
             retVal = sim_propertyret_ok;
@@ -674,7 +678,7 @@ int CScript::getFloatProperty(const char* ppName, double& pState) const
     return retVal;
 }
 
-int CScript::setStringProperty(const char* ppName, const std::string& pState)
+int CScriptObject::setStringProperty(const char* ppName, const std::string& pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setStringProperty(ppName, pState);
@@ -685,17 +689,17 @@ int CScript::setStringProperty(const char* ppName, const std::string& pState)
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropScript::DEPRECATED_code).name, ppName) == 0)
+        if (strcmp(prop(PropScriptObject::DEPRECATED_code).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            detachedScript->setScriptText(pState.c_str());
+            nakedScript->setScriptText(pState.c_str());
         }
     }
 
     return retVal;
 }
 
-int CScript::getStringProperty(const char* ppName, std::string& pState) const
+int CScriptObject::getStringProperty(const char* ppName, std::string& pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getStringProperty(ppName, pState);
@@ -703,50 +707,50 @@ int CScript::getStringProperty(const char* ppName, std::string& pState) const
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(prop(PropScript::type).name, ppName) == 0)
+        if (strcmp(prop(PropScriptObject::type).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            auto enum_value = magic_enum::enum_cast<scriptType>(detachedScript->getScriptType());
+            auto enum_value = magic_enum::enum_cast<scriptType>(nakedScript->getScriptType());
             if (enum_value.has_value())
                 pState = magic_enum::enum_name(enum_value.value()).data();
             else
                 retVal = sim_propertyret_invalidvalue;
         }
-        else if (strcmp(prop(PropScript::DEPRECATED_code).name, ppName) == 0)
+        else if (strcmp(prop(PropScriptObject::DEPRECATED_code).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
 #ifdef SIM_WITH_GUI
             if (GuiApp::mainWindow != nullptr)
                 GuiApp::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
 #endif
-            pState = detachedScript->getScriptText();
+            pState = nakedScript->getScriptText();
         }
-        else if (strcmp(prop(PropScript::DEPRECATED_language).name, ppName) == 0)
+        else if (strcmp(prop(PropScriptObject::DEPRECATED_language).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            pState = detachedScript->getLang();
+            pState = nakedScript->getLang();
         }
-        else if (strcmp(prop(PropScript::DEPRECATED_scriptName).name, ppName) == 0)
+        else if (strcmp(prop(PropScriptObject::DEPRECATED_scriptName).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            pState = detachedScript->getScriptName();
+            pState = nakedScript->getScriptName();
         }
-        else if (strcmp(prop(PropScript::DEPRECATED_addOnPath).name, ppName) == 0)
+        else if (strcmp(prop(PropScriptObject::DEPRECATED_addOnPath).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            pState = detachedScript->getAddOnPath();
+            pState = nakedScript->getAddOnPath();
         }
-        else if (strcmp(prop(PropScript::DEPRECATED_addOnMenuPath).name, ppName) == 0)
+        else if (strcmp(prop(PropScriptObject::DEPRECATED_addOnMenuPath).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            pState = detachedScript->getAddOnMenuPath();;
+            pState = nakedScript->getAddOnMenuPath();;
         }
     }
 
     return retVal;
 }
 
-int CScript::setColorProperty(const char* ppName, const float* pState)
+int CScriptObject::setColorProperty(const char* ppName, const float* pState)
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::setColorProperty(ppName, pState);
@@ -755,7 +759,7 @@ int CScript::setColorProperty(const char* ppName, const float* pState)
     return retVal;
 }
 
-int CScript::getColorProperty(const char* ppName, float* pState) const
+int CScriptObject::getColorProperty(const char* ppName, float* pState) const
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getColorProperty(ppName, pState);
@@ -764,7 +768,7 @@ int CScript::getColorProperty(const char* ppName, float* pState) const
     return retVal;
 }
 
-int CScript::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+int CScriptObject::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
 {
     int retVal = CSceneObject::getPropertyName(index, pName, appartenance, excludeFlags);
     if (_isInScene && (retVal == sim_propertyret_unknownproperty))
@@ -773,16 +777,16 @@ int CScript::getPropertyName(int& index, std::string& pName, std::string& appart
         retVal = _scriptColor.getPropertyName(index, pName, excludeFlags);
         if (retVal == sim_propertyret_unknownproperty)
         {
-            for (size_t i = 0; i < allProps_script.size(); i++)
+            for (size_t i = 0; i < allProps_scriptObject.size(); i++)
             {
-                if ((pName.size() == 0) || utils::startsWith(allProps_script[i].name, pName.c_str()))
+                if ((pName.size() == 0) || utils::startsWith(allProps_scriptObject[i].name, pName.c_str()))
                 {
-                    if ((allProps_script[i].flags & excludeFlags) == 0)
+                    if ((allProps_scriptObject[i].flags & excludeFlags) == 0)
                     {
                         index--;
                         if (index == -1)
                         {
-                            pName = allProps_script[i].name;
+                            pName = allProps_scriptObject[i].name;
                             retVal = sim_propertyret_ok;
                             break;
                         }
@@ -794,24 +798,24 @@ int CScript::getPropertyName(int& index, std::string& pName, std::string& appart
     return retVal;
 }
 
-int CScript::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
+int CScriptObject::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
 {
     int retVal = CSceneObject::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == sim_propertyret_unknownproperty)
         retVal = _scriptColor.getPropertyInfo(ppName, info, infoTxt);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        for (size_t i = 0; i < allProps_script.size(); i++)
+        for (size_t i = 0; i < allProps_scriptObject.size(); i++)
         {
-            if (strcmp(allProps_script[i].name, ppName) == 0)
+            if (strcmp(allProps_scriptObject[i].name, ppName) == 0)
             {
-                retVal = allProps_script[i].type;
-                info = allProps_script[i].flags;
+                retVal = allProps_scriptObject[i].type;
+                info = allProps_scriptObject[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_script[i].info.json;
+                    infoTxt = allProps_scriptObject[i].info.json;
                 else
                 {
-                    auto w = allProps_script[i].info.map;
+                    auto w = allProps_scriptObject[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )

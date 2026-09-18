@@ -53,8 +53,8 @@ void CSceneObjectContainer::simulationAboutToEnd()
 
     for (size_t i = 0; i < getObjectCount(sim_sceneobject_script); i++)
     {
-        CScript* it = getScriptFromIndex(i);
-        it->detachedScript->simulationAboutToEnd(); // destroys simulation script states
+        CScriptObject* scriptObject = getScriptObjectFromIndex(i);
+        scriptObject->nakedScript->simulationAboutToEnd(); // destroys simulation script states
     }
 }
 
@@ -111,13 +111,13 @@ void CSceneObjectContainer::announceSceneObjectWillBeErased(CSceneObject* object
 
 }
 
-void CSceneObjectContainer::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
+void CSceneObjectContainer::announceScriptWillBeErased(int scriptOrnakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     TRACE_INTERNAL;
     for (size_t i = 0; i < getObjectCount(); i++)
     {
         CSceneObject* it = getObjectFromIndex(i);
-        it->announceScriptWillBeErased(scriptOrDetachedScriptHandle, simulationScript, sceneSwitchPersistentScript, false);
+        it->announceScriptWillBeErased(scriptOrnakedScriptHandle, simulationScript, sceneSwitchPersistentScript, false);
     }
 }
 
@@ -328,7 +328,7 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                 if ( (it != nullptr) && (visited.find(it) == visited.end()) )
                 {
                     visited.insert(it);
-                    if  (it->canDestroyNow()) // destroys detachedScripts, and generates removal events for detachedScripts
+                    if  (it->canDestroyNow()) // destroys nakedScripts, and generates removal events for nakedScripts
                     {
                         toDestroy.push_back(objectHandles->at(i));
                         toDestroyPtr.push_back(it);
@@ -397,8 +397,8 @@ bool CSceneObjectContainer::eraseObjects(const std::vector<int>* objectHandles, 
                         }
 
                         // Following happens in script->canDestroyNow():
-                        //if ((it->getObjectType() == sim_sceneobject_script) && (((CScript*)it)->detachedScript != nullptr))
-                        //    App::scenes->pushRemoveEvent((CScript*)it)->detachedScript->...;
+                        //if ((it->getObjectType() == sim_sceneobject_script) && (((CScriptObject*)it)->nakedScript != nullptr))
+                        //    App::scenes->pushRemoveEvent((CScriptObject*)it)->nakedScript->...;
 
                         App::scenes->pushRemoveEvent(it->getObjectHandle());
                         App::scenes->getEvents()->popAfterMark();
@@ -472,9 +472,9 @@ void CSceneObjectContainer::eraseAllObjects(bool generateBeforeAfterDeleteCallba
     for (size_t i = 0; i < getObjectCount(); i++)
     {
         int objHandle = getObjectFromIndex(i)->getObjectHandle();
-        CScript* script = getScriptFromHandle(objHandle);
-        if (script != nullptr)
-            script->detachedScript->setTemporarilySuspended(true);
+        CScriptObject* scriptObject = getScriptObjectFromHandle(objHandle);
+        if (scriptObject != nullptr)
+            scriptObject->nakedScript->setTemporarilySuspended(true);
         l.push_back(objHandle);
     }
     eraseObjects(&l, generateBeforeAfterDeleteCallback);
@@ -549,8 +549,8 @@ int CSceneObjectContainer::addDefaultScript(int scriptType, bool threaded, bool 
             else
                 scriptTxt = "Default script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
 
-            CScript* it = new CScript(scriptType, scriptTxt.c_str(), 0, lang.c_str());
-            retVal = addObjectToScene(it, false, true);
+            CScriptObject* scriptObject = new CScriptObject(scriptType, scriptTxt.c_str(), 0, lang.c_str());
+            retVal = addObjectToScene(scriptObject, false, true);
         }
 #ifdef SIM_WITH_GUI
         GuiApp::setLightDialogRefreshFlag();
@@ -563,11 +563,11 @@ bool CSceneObjectContainer::addCommandToOutsideCommandQueues(int commandID, int 
 {
     if (embeddedScriptContainer != nullptr)
         embeddedScriptContainer->addCommandToOutsideCommandQueues(commandID, auxVal1, auxVal2, auxVal3, auxVal4, aux2Vals, aux2Count);
-    for (size_t i = 0; i < _scriptList.size(); i++)
+    for (size_t i = 0; i < _scriptObjectList.size(); i++)
     {
-        CScript* it = _scriptList[i];
-        if (it->detachedScript != nullptr)
-            it->detachedScript->addCommandToOutsideCommandQueue(commandID, auxVal1, auxVal2, auxVal3, auxVal4, aux2Vals, aux2Count);
+        CScriptObject* scriptObject = _scriptObjectList[i];
+        if (scriptObject->nakedScript != nullptr)
+            scriptObject->nakedScript->addCommandToOutsideCommandQueue(commandID, auxVal1, auxVal2, auxVal3, auxVal4, aux2Vals, aux2Count);
     }
     return (true);
 }
@@ -973,7 +973,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar, const char* name,
         if (theName.compare(SER_SCRIPT) == 0)
         {
             ar >> byteQuantity;
-            CScript* myNewObject = new CScript();
+            CScriptObject* myNewObject = new CScriptObject();
             myNewObject->serialize(ar);
             noHit = false;
             return (myNewObject);
@@ -1119,7 +1119,7 @@ CSceneObject* CSceneObjectContainer::readSceneObject(CSer& ar, const char* name,
         }
         if (ar.xmlPushChildNode(SERX_SCRIPT, false))
         {
-            CScript* myNewObject = new CScript();
+            CScriptObject* myNewObject = new CScriptObject();
             myNewObject->serialize(ar);
             ar.xmlPopNode();
             return (myNewObject);
@@ -1301,7 +1301,7 @@ bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer& ar, CSc
             }
             if (nm.compare("script") == 0)
             {
-                CScript* myNewObject = new CScript();
+                CScriptObject* myNewObject = new CScriptObject();
                 myNewObject->serialize(ar);
                 obj = myNewObject;
                 addObjectToScene(obj, false, true);
@@ -1365,19 +1365,19 @@ bool CSceneObjectContainer::readAndAddToSceneSimpleXmlSceneObjects(CSer& ar, CSc
                 obj->setLocalTransformation(localFramePreCorrection * obj->getLocalTransformation());
 
                 // Handle attached simulation scripts:
-                CDetachedScript* childScript = nullptr;
+                CScript* childScript = nullptr;
                 if (ar.xmlPushChildNode("childScript", false))
                 {
-                    childScript = new CDetachedScript(sim_scripttype_simulation);
+                    childScript = new CScript(sim_scripttype_simulation);
                     childScript->serialize(ar);
                     ar.xmlPopNode();
                 }
 
                 // Handle attached customization scripts:
-                CDetachedScript* customizationScript = nullptr;
+                CScript* customizationScript = nullptr;
                 if (ar.xmlPushChildNode("customizationScript", false))
                 {
-                    customizationScript = new CDetachedScript(sim_scripttype_customization);
+                    customizationScript = new CScript(sim_scripttype_customization);
                     customizationScript->serialize(ar);
                     ar.xmlPopNode();
                 }
@@ -1445,7 +1445,7 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer& ar, const CScene
     }
     if (object->getObjectType() == sim_sceneobject_script)
     {
-        CScript* obj = (CScript*)object;
+        CScriptObject* obj = (CScriptObject*)object;
         ar.xmlPushNewNode("script");
         obj->serialize(ar);
     }
@@ -1492,7 +1492,7 @@ void CSceneObjectContainer::writeSimpleXmlSceneObjectTree(CSer& ar, const CScene
         obj->serialize(ar);
     }
 
-    CDetachedScript* script = embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, object->getObjectHandle());
+    CScript* script = embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, object->getObjectHandle());
     if (script != nullptr)
     {
         ar.xmlPushNewNode("childScript");
@@ -1971,21 +1971,21 @@ void CSceneObjectContainer::addCompatibilityScripts(std::vector<int>& selection)
         CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(selection[i]);
         objectsInOutputList.insert(it->getObjectHandle());
     }
-    for (size_t i = 0; i < _scriptList.size(); i++)
+    for (size_t i = 0; i < _scriptObjectList.size(); i++)
     {
-        CScript* s = _scriptList[i];
-        if (objectsInOutputList.find(s->getObjectHandle()) == objectsInOutputList.end())
+        CScriptObject* scriptObject = _scriptObjectList[i];
+        if (objectsInOutputList.find(scriptObject->getObjectHandle()) == objectsInOutputList.end())
         { // script not (yet) in selection
-            CSceneObject* parent = s->getParent();
+            CSceneObject* parent = scriptObject->getParent();
             int p = -1;
             if (parent != nullptr)
                 p = parent->getObjectHandle();
             if (objectsInOutputList.find(p) != objectsInOutputList.end())
             { // parent is in selection
-                if (s->detachedScript->getParentIsProxy())
+                if (scriptObject->nakedScript->getParentIsProxy())
                 { // script in compatibility mode. Ok, we add it (mainly for backw. compat. copy operations)
-                    objectsInOutputList.insert(s->getObjectHandle());
-                    selection.push_back(s->getObjectHandle());
+                    objectsInOutputList.insert(scriptObject->getObjectHandle());
+                    selection.push_back(scriptObject->getObjectHandle());
                 }
             }
         }
@@ -2848,7 +2848,7 @@ void CSceneObjectContainer::_addObject(CSceneObject* object)
     if (t == sim_sceneobject_customsceneobject)
         _customSceneObjectList.push_back((CCustomSceneObject*)object);
     if (t == sim_sceneobject_script)
-        _scriptList.push_back((CScript*)object);
+        _scriptObjectList.push_back((CScriptObject*)object);
     if (t == sim_sceneobject_graph)
         _graphList.push_back((CGraph*)object);
     if (t == sim_sceneobject_light)
@@ -2897,9 +2897,9 @@ void CSceneObjectContainer::handleDataCallbacks()
         std::map<std::string, bool> signalItems;
         if (obj->getCustomDataEvents(customDataItems, signalItems))
         {
-            std::vector<CDetachedScript*> scripts;
+            std::vector<CScript*> scripts;
             if (obj->getObjectType() == sim_sceneobject_script)
-                scripts.push_back(((CScript*)obj)->detachedScript);
+                scripts.push_back(((CScriptObject*)obj)->nakedScript);
             else
             {
                 obj->getAttachedScripts(scripts, -1, true);
@@ -2940,7 +2940,7 @@ bool CSceneObjectContainer::shouldTemporarilySuspendMainScript()
     getScriptsToExecute(scriptHandles, -1, false, false);
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {
-        CDetachedScript* it = getDetachedScriptFromHandle(scriptHandles[i]);
+        CScript* it = getScriptFromHandle(scriptHandles[i]);
         if (it != nullptr)
         { // could have been erased in the mean time!
             if (it->shouldTemporarilySuspendMainScript())
@@ -3047,11 +3047,11 @@ size_t CSceneObjectContainer::getScriptsToExecute(std::vector<int>& scriptHandle
 void CSceneObjectContainer::setScriptsTemporarilySuspended(bool suspended)
 {
     embeddedScriptContainer->setScriptsTemporarilySuspended(suspended);
-    for (size_t i = 0; i < _scriptList.size(); i++)
+    for (size_t i = 0; i < _scriptObjectList.size(); i++)
     {
-        CScript* it = _scriptList[i];
-        if (it->detachedScript != nullptr)
-            it->detachedScript->setTemporarilySuspended(suspended);
+        CScriptObject* scriptObject = _scriptObjectList[i];
+        if (scriptObject->nakedScript != nullptr)
+            scriptObject->nakedScript->setTemporarilySuspended(suspended);
     }
 }
 
@@ -3081,11 +3081,11 @@ void CSceneObjectContainer::setSysFuncAndHookCnt(int sysCall, int cnt)
         _sysFuncAndHookCnt_joint = cnt;
 }
 
-void CSceneObjectContainer::getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse /*= false*/, bool alsoLegacyScripts /*= false*/) const
+void CSceneObjectContainer::getActiveScripts(std::vector<CScript*>& scripts, bool reverse /*= false*/, bool alsoLegacyScripts /*= false*/) const
 {
     if (reverse)
     { // reverse order
-        CDetachedScript* script = embeddedScriptContainer->getMainScript();
+        CScript* script = embeddedScriptContainer->getMainScript();
         if ((script != nullptr) && (script->getScriptState() == sim_scriptstate_initialized))
             scripts.push_back(script);
 
@@ -3102,48 +3102,48 @@ void CSceneObjectContainer::getActiveScripts(std::vector<CDetachedScript*>& scri
             embeddedScriptContainer->getActiveLegacyScripts(scripts, reverse);
         _getActiveScripts(scripts, reverse);
 
-        CDetachedScript* script = embeddedScriptContainer->getMainScript();
+        CScript* script = embeddedScriptContainer->getMainScript();
         if ((script != nullptr) && (script->getScriptState() == sim_scriptstate_initialized))
             scripts.push_back(script);
     }
 }
 
-void CSceneObjectContainer::callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
+void CSceneObjectContainer::callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int nakedScriptToExclude /*=-1*/)
 {
-    bool doNotInterrupt = !CDetachedScript::isSystemCallbackInterruptible(callType);
-    if (CDetachedScript::isSystemCallbackInReverseOrder(callType))
+    bool doNotInterrupt = !CScript::isSystemCallbackInterruptible(callType);
+    if (CScript::isSystemCallbackInReverseOrder(callType))
     { // reverse order
 
         // main script
         if (!App::scene->simulation->isSimulationStopped())
         {
-            CDetachedScript* script = embeddedScriptContainer->getMainScript();
+            CScript* script = embeddedScriptContainer->getMainScript();
             if ((script != nullptr) && script->hasSystemFunctionOrHook(callType))
             {
-                if (script->getObjectHandle() != detachedScriptToExclude)
+                if (script->getObjectHandle() != nakedScriptToExclude)
                     script->systemCallMainScript(callType, inStack, outStack);
             }
         }
 
         // child + customization scripts (legacy + new):
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
-            callScripts_noMainScript(-1, callType, inStack, outStack, objectBranch, detachedScriptToExclude);
+            callScripts_noMainScript(-1, callType, inStack, outStack, objectBranch, nakedScriptToExclude);
     }
     else
     { // regular order, from unimportant, to most important
 
         // child + customization scripts (legacy + new):
-        callScripts_noMainScript(-1, callType, inStack, outStack, objectBranch, detachedScriptToExclude);
+        callScripts_noMainScript(-1, callType, inStack, outStack, objectBranch, nakedScriptToExclude);
 
         // main script
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
         {
             if (!App::scene->simulation->isSimulationStopped())
             {
-                CDetachedScript* script = embeddedScriptContainer->getMainScript();
+                CScript* script = embeddedScriptContainer->getMainScript();
                 if ((script != nullptr) && script->hasSystemFunctionOrHook(callType))
                 {
-                    if (script->getSceneObjectOrDetachedScriptHandle() != detachedScriptToExclude)
+                    if (script->getSceneObjectOrNakedScriptHandle() != nakedScriptToExclude)
                         script->systemCallMainScript(callType, inStack, outStack);
                 }
             }
@@ -3151,43 +3151,43 @@ void CSceneObjectContainer::callScripts(int callType, const CInterfaceStack* inS
     }
 }
 
-int CSceneObjectContainer::callScripts_noMainScript(int scriptType, int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
+int CSceneObjectContainer::callScripts_noMainScript(int scriptType, int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int nakedScriptToExclude /*=-1*/)
 {
     int retVal = 0;
-    bool doNotInterrupt = !CDetachedScript::isSystemCallbackInterruptible(callType);
-    if (CDetachedScript::isSystemCallbackInReverseOrder(callType))
+    bool doNotInterrupt = !CScript::isSystemCallbackInterruptible(callType);
+    if (CScript::isSystemCallbackInReverseOrder(callType))
     { // reverse order
 
-        retVal += _callScripts(scriptType, callType, inStack, outStack, objectBranch, detachedScriptToExclude);
+        retVal += _callScripts(scriptType, callType, inStack, outStack, objectBranch, nakedScriptToExclude);
 
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
-            retVal += embeddedScriptContainer->callLegacyScripts(scriptType, callType, inStack, outStack, objectBranch, detachedScriptToExclude);
+            retVal += embeddedScriptContainer->callLegacyScripts(scriptType, callType, inStack, outStack, objectBranch, nakedScriptToExclude);
     }
     else
     { // regular order, from unimportant, to most important
 
-        retVal += embeddedScriptContainer->callLegacyScripts(scriptType, callType, inStack, outStack, objectBranch, detachedScriptToExclude);
+        retVal += embeddedScriptContainer->callLegacyScripts(scriptType, callType, inStack, outStack, objectBranch, nakedScriptToExclude);
 
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
-            retVal += _callScripts(scriptType, callType, inStack, outStack, objectBranch, detachedScriptToExclude);
+            retVal += _callScripts(scriptType, callType, inStack, outStack, objectBranch, nakedScriptToExclude);
     }
     return retVal;
 }
 
-void CSceneObjectContainer::_getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse /*= false*/) const
+void CSceneObjectContainer::_getActiveScripts(std::vector<CScript*>& scripts, bool reverse /*= false*/) const
 {
     TRACE_INTERNAL;
     std::vector<int> scriptHandles;
     getScriptsToExecute(scriptHandles, -1, false, reverse);
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {
-        CScript* script = getScriptFromHandle(scriptHandles[i]);
-        if ((script != nullptr) && (script->detachedScript->getScriptState() == sim_scriptstate_initialized))
-            scripts.push_back(script->detachedScript);
+        CScriptObject* scriptObject = getScriptObjectFromHandle(scriptHandles[i]);
+        if ((scriptObject != nullptr) && (scriptObject->nakedScript->getScriptState() == sim_scriptstate_initialized))
+            scripts.push_back(scriptObject->nakedScript);
     }
 }
 
-int CSceneObjectContainer::_callScripts(int scriptType, int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
+int CSceneObjectContainer::_callScripts(int scriptType, int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int nakedScriptToExclude /*=-1*/)
 { // with objectBranch!=nullptr, will return the chain starting at objectBranch up to the main script
     TRACE_INTERNAL;
 
@@ -3195,18 +3195,18 @@ int CSceneObjectContainer::_callScripts(int scriptType, int callType, const CInt
 
     std::vector<int> scriptHandles;
     if (objectBranch == nullptr)
-        getScriptsToExecute(scriptHandles, scriptType, false, CDetachedScript::isSystemCallbackInReverseOrder(callType));
+        getScriptsToExecute(scriptHandles, scriptType, false, CScript::isSystemCallbackInReverseOrder(callType));
     else
         objectBranch->getScriptsInChain(scriptHandles, scriptType, false);
-    bool canInterrupt = CDetachedScript::isSystemCallbackInterruptible(callType);
+    bool canInterrupt = CScript::isSystemCallbackInterruptible(callType);
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {
-        CScript* script = getScriptFromHandle(scriptHandles[i]);
-        if ((script != nullptr) && (script->detachedScript->getObjectHandle() != detachedScriptToExclude))
+        CScriptObject* scriptObject = getScriptObjectFromHandle(scriptHandles[i]);
+        if ((scriptObject != nullptr) && (scriptObject->nakedScript->getObjectHandle() != nakedScriptToExclude))
         { // the script could have been erased in the mean time
-            if (script->detachedScript->hasSystemFunctionOrHook(callType))
+            if (scriptObject->nakedScript->hasSystemFunctionOrHook(callType))
             { // has the function
-                if (script->detachedScript->systemCallScript(callType, inStack, outStack) == 1)
+                if (scriptObject->nakedScript->systemCallScript(callType, inStack, outStack) == 1)
                 {
                     cnt++;
                     if (canInterrupt && (outStack != nullptr) && (outStack->getStackSize() != 0))
@@ -3220,9 +3220,9 @@ int CSceneObjectContainer::_callScripts(int scriptType, int callType, const CInt
                     compatCall = sim_syscb_dyncallback;
                 if (callType == sim_syscb_contact)
                     compatCall = sim_syscb_contactcallback;
-                if ((compatCall != -1) && script->detachedScript->hasSystemFunctionOrHook(compatCall))
+                if ((compatCall != -1) && scriptObject->nakedScript->hasSystemFunctionOrHook(compatCall))
                 {
-                    if (script->detachedScript->systemCallScript(compatCall, inStack, outStack) == 1)
+                    if (scriptObject->nakedScript->systemCallScript(compatCall, inStack, outStack) == 1)
                     {
                         cnt++;
                         if (canInterrupt && (outStack != nullptr) && (outStack->getStackSize() != 0))
@@ -3275,7 +3275,7 @@ void CSceneObjectContainer::_removeObject(CSceneObject* object)
     if (t == sim_sceneobject_customsceneobject)
         list = (std::vector<CSceneObject*>*)&_customSceneObjectList;
     if (t == sim_sceneobject_script)
-        list = (std::vector<CSceneObject*>*)&_scriptList;
+        list = (std::vector<CSceneObject*>*)&_scriptObjectList;
     if (t == sim_sceneobject_graph)
         list = (std::vector<CSceneObject*>*)&_graphList;
     if (t == sim_sceneobject_light)
@@ -3362,12 +3362,12 @@ void CSceneObjectContainer::remove_oldIk()
     }
 }
 
-CDetachedScript* CSceneObjectContainer::getDetachedScriptFromScriptPseudoHandle(int h) const
+CScript* CSceneObjectContainer::getNakedScriptFromScriptPseudoHandle(int h) const
 {
-    for (size_t i = 0; i < _scriptList.size(); i++)
+    for (size_t i = 0; i < _scriptObjectList.size(); i++)
     {
-        if (_scriptList[i]->getDetachedScriptHandle() == h)
-            return _scriptList[i]->detachedScript;
+        if (_scriptObjectList[i]->getNakedScriptHandle() == h)
+            return _scriptObjectList[i]->nakedScript;
     }
     return nullptr;
 }
@@ -3398,7 +3398,7 @@ size_t CSceneObjectContainer::getObjectCount(int type /* = -1 */) const
         if (type == sim_sceneobject_customsceneobject)
             retVal = _customSceneObjectList.size();
         if (type == sim_sceneobject_script)
-            retVal = _scriptList.size();
+            retVal = _scriptObjectList.size();
         if (type == sim_sceneobject_mirror)
             retVal = _mirrorList.size();
         if (type == sim_sceneobject_graph)
@@ -3520,11 +3520,11 @@ CDummy* CSceneObjectContainer::getDummyFromIndex(size_t index) const
     return (retVal);
 }
 
-CScript* CSceneObjectContainer::getScriptFromIndex(size_t index) const
+CScriptObject* CSceneObjectContainer::getScriptObjectFromIndex(size_t index) const
 {
-    CScript* retVal = nullptr;
-    if (index < _scriptList.size())
-        retVal = _scriptList[index];
+    CScriptObject* retVal = nullptr;
+    if (index < _scriptObjectList.size())
+        retVal = _scriptObjectList[index];
     return (retVal);
 }
 
@@ -3667,49 +3667,49 @@ CCustomSceneObject* CSceneObjectContainer::getCustomSceneObjectFromHandle(int ob
     return retVal;
 }
 
-CDetachedScript* CSceneObjectContainer::getDetachedScriptFromHandle(int handle) const
+CScript* CSceneObjectContainer::getScriptFromHandle(int handle) const
 {
-    CDetachedScript* retVal = nullptr;
+    CScript* retVal = nullptr;
     if (handle <= sim_object_sceneobjectend)
     { // scene object scripts
-        CScript* it = getScriptFromHandle(handle);
-        if (it != nullptr)
-            retVal = it->detachedScript;
+        CScriptObject* scriptObject = getScriptObjectFromHandle(handle);
+        if (scriptObject != nullptr)
+            retVal = scriptObject->nakedScript;
     }
     else
     {
-        retVal = getDetachedScriptFromScriptPseudoHandle(handle); // alt. way to get to a detached script (via a script pseudo handle)
+        retVal = getNakedScriptFromScriptPseudoHandle(handle); // alt. way to get to a detached script (via a script pseudo handle)
         if (retVal == nullptr)
-            retVal = embeddedScriptContainer->getDetachedScriptFromHandle(handle); // main script (and old non-scene object scripts)
+            retVal = embeddedScriptContainer->getScriptFromHandle(handle); // main script (and old non-scene object scripts)
     }
     return (retVal);
 }
 
-CDetachedScript* CSceneObjectContainer::getDetachedScriptFromUid(int uid) const
+CScript* CSceneObjectContainer::getScriptFromUid(int uid) const
 {
-    CDetachedScript* retVal = nullptr;
-    for (size_t i = 0; i < _scriptList.size(); i++)
+    CScript* retVal = nullptr;
+    for (size_t i = 0; i < _scriptObjectList.size(); i++)
     {
-        CScript* it = _scriptList[i];
-        if (it->detachedScript->getScriptUid() == uid)
+        CScriptObject* scriptObject = _scriptObjectList[i];
+        if (scriptObject->nakedScript->getScriptUid() == uid)
         {
-            retVal = it->detachedScript;
+            retVal = scriptObject->nakedScript;
             break;
         }
     }
     if (retVal == nullptr)
     { // main script (and old non-scene object scripts)
-        retVal = embeddedScriptContainer->getDetachedScriptFromUid(uid);
+        retVal = embeddedScriptContainer->getScriptFromUid(uid);
     }
     return (retVal);
 }
 
-CScript* CSceneObjectContainer::getScriptFromHandle(int objectHandle) const
+CScriptObject* CSceneObjectContainer::getScriptObjectFromHandle(int objectHandle) const
 {
-    CScript* retVal = nullptr;
+    CScriptObject* retVal = nullptr;
     CSceneObject* it = getObjectFromHandle(objectHandle);
     if ((it != nullptr) && (it->getObjectType() == sim_sceneobject_script))
-        retVal = (CScript*)it;
+        retVal = (CScriptObject*)it;
     return (retVal);
 }
 
@@ -4026,13 +4026,13 @@ CCustomSceneObject* CSceneObjectContainer::getLastSelectionCustomSceneObject() c
     return nullptr;
 }
 
-CScript* CSceneObjectContainer::getLastSelectionScript() const
+CScriptObject* CSceneObjectContainer::getLastSelectionScriptObject() const
 {
     CSceneObject* it = getLastSelectionObject();
     if (it != nullptr)
     {
         if (it->getObjectType() == sim_sceneobject_script)
-            return ((CScript*)it);
+            return ((CScriptObject*)it);
     }
     return (nullptr);
 }
@@ -4481,19 +4481,19 @@ CSceneObject* CSceneObjectContainer::_getObjectInTree(const CSceneObject* treeBa
 void CSceneObjectContainer::resetScriptFlagCalledInThisSimulationStep()
 {
     embeddedScriptContainer->resetScriptFlagCalledInThisSimulationStep();
-    for (size_t i = 0; i < _scriptList.size(); i++)
-        _scriptList[i]->detachedScript->resetCalledInThisSimulationStep();
+    for (size_t i = 0; i < _scriptObjectList.size(); i++)
+        _scriptObjectList[i]->nakedScript->resetCalledInThisSimulationStep();
 }
 
 int CSceneObjectContainer::getCalledScriptsCountInThisSimulationStep(bool onlySimulationScripts)
 {
     int cnt = embeddedScriptContainer->getCalledScriptsCountInThisSimulationStep(onlySimulationScripts);
 
-    for (size_t i = 0; i < _scriptList.size(); i++)
+    for (size_t i = 0; i < _scriptObjectList.size(); i++)
     {
-        if (_scriptList[i]->detachedScript->getCalledInThisSimulationStep())
+        if (_scriptObjectList[i]->nakedScript->getCalledInThisSimulationStep())
         {
-            if ((!onlySimulationScripts) || (_scriptList[i]->detachedScript->getScriptType() == sim_scripttype_simulation))
+            if ((!onlySimulationScripts) || (_scriptObjectList[i]->nakedScript->getScriptType() == sim_scripttype_simulation))
                 cnt++;
         }
     }

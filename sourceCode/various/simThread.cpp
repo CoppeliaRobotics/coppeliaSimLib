@@ -307,7 +307,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == CALL_MODULE_ENTRY_CMD)
     {
-        CDetachedScript* script = App::scenes->getDetachedScriptFromHandle(cmd.intParams[0]);
+        CScript* script = App::scenes->getScriptFromHandle(cmd.intParams[0]);
         if (script != nullptr)
         {
             CInterfaceStack* inStack = App::scenes->interfaceStackContainer->createStack();
@@ -325,7 +325,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == CALL_USER_CONFIG_CALLBACK_CMD)
     { // cmd.intParams[0] is an object handle
-        CDetachedScript* script = App::scene->sceneObjects->getDetachedScriptFromHandle(cmd.intParams[0]);
+        CScript* script = App::scene->sceneObjects->getScriptFromHandle(cmd.intParams[0]);
         if (script == nullptr)
             script = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, cmd.intParams[0]);
         if ((script != nullptr) && (script->hasSystemFunctionOrHook(sim_syscb_userconfig)))
@@ -354,7 +354,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         if ((GuiApp::getEditModeType() == NO_EDIT_MODE) && (GuiApp::mainWindow != nullptr))
         {
-            CDetachedScript* it = App::scene->getDetachedScriptFromHandle(cmd.intParams[0]);
+            CScript* it = App::scene->getScriptFromHandle(cmd.intParams[0]);
             if (it != nullptr)
             {
                 if (it->getScriptType() == sim_scripttype_customization)
@@ -509,7 +509,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == RESTART_SCRIPT_CMD)
     {
-        CDetachedScript* it = App::scenes->getDetachedScriptFromHandle(cmd.intParams[0]);
+        CScript* it = App::scenes->getScriptFromHandle(cmd.intParams[0]);
         if ((it != nullptr) && it->resetScript())
         {
             std::string msg(it->getDescriptiveName());
@@ -1811,22 +1811,22 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == SET_SIZE_SCRIPTGUITRIGGEREDCMD)
     {
-        CScript* it = App::scene->sceneObjects->getScriptFromHandle(cmd.intParams[0]);
-        if (it != nullptr)
-            it->setScriptSize(cmd.doubleParams[0]);
+        CScriptObject* scriptObject = App::scene->sceneObjects->getScriptObjectFromHandle(cmd.intParams[0]);
+        if (scriptObject != nullptr)
+            scriptObject->setScriptSize(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == APPLY_VISUALPROP_SCRIPTGUITRIGGEREDCMD)
     {
-        CScript* it = App::scene->sceneObjects->getScriptFromHandle(cmd.intParams[0]);
-        if (it != nullptr)
+        CScriptObject* scriptObject = App::scene->sceneObjects->getScriptObjectFromHandle(cmd.intParams[0]);
+        if (scriptObject != nullptr)
         {
             for (size_t i = 1; i < cmd.intParams.size(); i++)
             {
-                CScript* it2 = App::scene->sceneObjects->getScriptFromHandle(cmd.intParams[i]);
-                if (it2 != nullptr)
+                CScriptObject* scriptObject2 = App::scene->sceneObjects->getScriptObjectFromHandle(cmd.intParams[i]);
+                if (scriptObject2 != nullptr)
                 {
-                    it->getScriptColor()->copyYourselfInto(it2->getScriptColor());
-                    it2->setScriptSize(it->getScriptSize());
+                    scriptObject->getScriptColor()->copyYourselfInto(scriptObject2->getScriptColor());
+                    scriptObject2->setScriptSize(scriptObject->getScriptSize());
                 }
             }
         }
@@ -3375,7 +3375,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId == DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD)
     {
         int scriptID = cmd.intParams[0];
-        CDetachedScript* script = App::scene->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(scriptID);
+        CScript* script = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromHandle(scriptID);
         if (script != nullptr)
         {
             if (GuiApp::mainWindow != nullptr)
@@ -3385,7 +3385,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_ENABLED_SCRIPTGUITRIGGEREDCMD)
     {
-        CDetachedScript* it = App::scene->getDetachedScriptFromHandle(cmd.intParams[0]);
+        CScript* it = App::scene->getScriptFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             if (it->getScriptType() == sim_scripttype_customization)
@@ -3395,16 +3395,16 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_RESETAFTERSIMERROR_SCRIPTGUITRIGGEREDCMD)
     {
-        CScript* it = App::scene->sceneObjects->getScriptFromHandle(cmd.intParams[0]);
-        if ((it != nullptr) && (it->detachedScript != nullptr))
+        CScriptObject* scriptObject = App::scene->sceneObjects->getScriptObjectFromHandle(cmd.intParams[0]);
+        if ((scriptObject != nullptr) && (scriptObject->nakedScript != nullptr))
         {
-            if (it->detachedScript->getScriptType() == sim_scripttype_customization)
-                it->resetAfterSimError(!it->getResetAfterSimError());
+            if (scriptObject->nakedScript->getScriptType() == sim_scripttype_customization)
+                scriptObject->resetAfterSimError(!scriptObject->getResetAfterSimError());
         }
     }
     if (cmd.cmdId == PARENTPROXY_OFF_SCRIPTGUITRIGGEREDCMD)
     {
-        CDetachedScript* it = App::scene->getDetachedScriptFromHandle(cmd.intParams[0]);
+        CScript* it = App::scene->getScriptFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
             it->setParentIsProxy(false);
@@ -3448,7 +3448,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId == TOGGLE_EXECUTEONCE_SCRIPTGUITRIGGEREDCMD)
     {
         int scriptID = cmd.intParams[0];
-        CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(scriptID);
+        CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromHandle(scriptID);
     }
     if (cmd.cmdId == SET_EXECORDER_SCRIPTGUITRIGGEREDCMD)
     {
@@ -3457,8 +3457,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             if (it->getObjectType() == sim_sceneobject_script)
             {
-                CScript* scr = (CScript*)it;
-                scr->detachedScript->setScriptExecPriority(cmd.intParams[1]); // new script objects
+                CScriptObject* scriptObject = (CScriptObject*)it;
+                scriptObject->nakedScript->setScriptExecPriority(cmd.intParams[1]); // new script objects
             }
             else
                 it->setScriptExecPriority_raw(cmd.intParams[1]); // old scripts

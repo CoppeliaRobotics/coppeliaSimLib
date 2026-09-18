@@ -35,7 +35,7 @@ void CCopyBuffer::clearBuffer()
         delete objectBuffer[i];
     objectBuffer.clear();
     for (size_t i = 0; i < luaScriptBuffer.size(); i++)
-        CDetachedScript::destroy(luaScriptBuffer[i], false);
+        CScript::destroy(luaScriptBuffer[i], false);
     luaScriptBuffer.clear();
     for (size_t i = 0; i < textureObjectBuffer.size(); i++)
         delete textureObjectBuffer[i];
@@ -71,7 +71,7 @@ void CCopyBuffer::clearMemorizedBuffer()
         delete objectBuffer_memorized[i];
     objectBuffer_memorized.clear();
     for (size_t i = 0; i < luaScriptBuffer_memorized.size(); i++)
-        CDetachedScript::destroy(luaScriptBuffer_memorized[i], false);
+        CScript::destroy(luaScriptBuffer_memorized[i], false);
     luaScriptBuffer_memorized.clear();
     for (size_t i = 0; i < textureObjectBuffer_memorized.size(); i++)
         delete textureObjectBuffer_memorized[i];
@@ -189,7 +189,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
     for (size_t i = 0; i < objectBuffer.size(); i++)
         objectCopy.push_back(objectBuffer[i]->copyYourself());
 
-    std::vector<CDetachedScript*> luaScriptCopy;
+    std::vector<CScript*> luaScriptCopy;
     for (size_t i = 0; i < luaScriptBuffer.size(); i++)
         luaScriptCopy.push_back(luaScriptBuffer[i]->copyYourself());
 
@@ -245,7 +245,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
     {
         CSceneObject* it = objectCopy[i];
         if (it->getObjectType() == sim_sceneobject_script)
-            ((CScript*)it)->detachedScript->setTemporarilySuspended(false);
+            ((CScriptObject*)it)->nakedScript->setTemporarilySuspended(false);
     }
 
     if (selectionMode == 0)
@@ -308,7 +308,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
         sel.swap(selTmp);
         for (size_t i = 0; i < selTmp.size(); i++)
         {
-            if (App::scene->sceneObjects->getScriptFromHandle(selTmp[i]) == nullptr)
+            if (App::scene->sceneObjects->getScriptObjectFromHandle(selTmp[i]) == nullptr)
                 sel.push_back(selTmp[i]);
         }
     }
@@ -578,7 +578,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
         int h = ikGroupBuffer[i]->getObjectHandle();
         ikGroupMapping[h] = h - sh + SIM_IDSTART_IKGROUP_old;
     }
-    sh = sim_object_detachedscriptend;
+    sh = sim_object_scriptend;
     for (size_t i = 0; i < luaScriptBuffer.size(); i++)
     {
         int h = luaScriptBuffer[i]->getScriptHandle();
@@ -589,7 +589,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     for (size_t i = 0; i < luaScriptBuffer.size(); i++)
     {
         int h = luaScriptBuffer[i]->getScriptHandle();
-        luaScriptMapping[h] = h - sh + sim_object_detachedscriptstart;
+        luaScriptMapping[h] = h - sh + sim_object_scriptstart;
     }
     // ----------------------------
 
@@ -644,7 +644,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     }
     for (size_t i = 0; i < luaScriptBuffer.size(); i++)
     {
-        CDetachedScript* it = luaScriptBuffer[i];
+        CScript* it = luaScriptBuffer[i];
         it->performScriptLoadingMapping(&luaScriptMapping, 3);
         it->performSceneObjectLoadingMapping(&objectMapping);
     }
@@ -969,14 +969,14 @@ void CCopyBuffer::_restoreBuffers_temp()
     */
 }
 
-void CCopyBuffer::_eraseScriptInBuffer(int scriptOrDetachedScriptHandle)
+void CCopyBuffer::_eraseScriptInBuffer(int scriptOrnakedScriptHandle)
 {
-    _announceScriptWillBeErased(scriptOrDetachedScriptHandle, false, false);
+    _announceScriptWillBeErased(scriptOrnakedScriptHandle, false, false);
     for (size_t i = 0; i < luaScriptBuffer.size(); i++)
     {
-        if (luaScriptBuffer[i]->getSceneObjectOrDetachedScriptHandle() == scriptOrDetachedScriptHandle)
+        if (luaScriptBuffer[i]->getSceneObjectOrNakedScriptHandle() == scriptOrnakedScriptHandle)
         {
-            CDetachedScript::destroy(luaScriptBuffer[i], false);
+            CScript::destroy(luaScriptBuffer[i], false);
             luaScriptBuffer.erase(luaScriptBuffer.begin() + i);
             break;
         }
@@ -1097,10 +1097,10 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject* object)
     i = 0;
     while (i < luaScriptBuffer.size())
     {
-        CDetachedScript* it = luaScriptBuffer[i];
+        CScript* it = luaScriptBuffer[i];
         if (it->announceSceneObjectWillBeErased(object, true))
         {
-            _eraseScriptInBuffer(it->getSceneObjectOrDetachedScriptHandle());
+            _eraseScriptInBuffer(it->getSceneObjectOrNakedScriptHandle());
             i = 0; // Ordering may have changed!
         }
         else
@@ -1203,10 +1203,10 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject* object)
     */
 }
 
-void CCopyBuffer::_announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
+void CCopyBuffer::_announceScriptWillBeErased(int scriptOrnakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     for (size_t i = 0; i < objectBuffer.size(); i++)
-        objectBuffer[i]->announceScriptWillBeErased(scriptOrDetachedScriptHandle, simulationScript, sceneSwitchPersistentScript, true); // this never triggers scene object destruction!
+        objectBuffer[i]->announceScriptWillBeErased(scriptOrnakedScriptHandle, simulationScript, sceneSwitchPersistentScript, true); // this never triggers scene object destruction!
 }
 
 void CCopyBuffer::_announceCollectionWillBeErased(int collectionID)

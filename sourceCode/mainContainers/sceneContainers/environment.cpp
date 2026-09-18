@@ -152,9 +152,9 @@ void CEnvironment::appendGenesisData(CCbor* ev) const
     ev->appendKeyBool(prop(PropScene::finalSaveRequest).name, _requestFinalSave);
     ev->appendKeyBool(prop(PropScene::saveCalculationStructs).name, _saveExistingCalculationStructures);
     int msh = -1;
-    CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
+    CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
     if (it != nullptr)
-        msh = it->getSceneObjectOrDetachedScriptHandle();
+        msh = it->getSceneObjectOrNakedScriptHandle();
     ev->appendKeyInt64(prop(PropScene::visibilityLayers).name, _activeLayers);
     ev->appendKeyText(prop(PropScene::acknowledgment).name, _acknowledgement.c_str());
     ev->appendKeyBool(prop(PropScene::sceneIsLocked).name, _sceneIsLocked);
@@ -1164,10 +1164,10 @@ int CEnvironment::getHandleProperty(const char* pName, int64_t& pState) const
 
     if (strcmp(pName, prop(PropScene::mainScript).name) == 0)
     {
-        CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
+        CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
         pState = -1;
         if (it != nullptr)
-            pState = it->getSceneObjectOrDetachedScriptHandle();
+            pState = it->getSceneObjectOrNakedScriptHandle();
         retVal = sim_propertyret_ok;
     }
 

@@ -1177,13 +1177,13 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
     int scriptID = getScriptActionObjectID(mouseDownRelativePosition[0], mouseDownRelativePosition[1]);
     if (scriptID != -1)
     {
-        CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getDetachedScriptFromHandle(scriptID);
+        CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromHandle(scriptID);
         if (it != nullptr)
         {
             // Process the command via the simulation thread (delayed):
             SSimulationThreadCommand cmd;
             cmd.cmdId = OPEN_SCRIPT_EDITOR_CMD;
-            cmd.intParams.push_back(it->getSceneObjectOrDetachedScriptHandle());
+            cmd.intParams.push_back(it->getSceneObjectOrNakedScriptHandle());
             App::appendSimulationThreadCommand(cmd);
         }
         return (true);
@@ -1217,7 +1217,7 @@ bool CHierarchy::leftMouseDblClick(int x, int y, int selectionStatus)
                     GuiApp::setFullDialogRefreshFlag();
                     GuiApp::mainWindow->dlgCont->processCommand(OPEN_OBJECT_DLG_OBJECT_SPECIFIC_PART_CMD);
 
-                    CScript* it = App::scene->sceneObjects->getScriptFromHandle(objID);
+                    CScriptObject* it = App::scene->sceneObjects->getScriptObjectFromHandle(objID);
                     if (it != nullptr)
                     { // new scripts
                         // Process the command via the simulation thread (delayed):
@@ -1575,19 +1575,19 @@ void CHierarchy::addMenu(VMenu* menu)
     if ((selCnt == 1) && (App::userSettings->externalScriptEditor.size() > 0))
     {
         int h = App::scene->sceneObjects->getLastSelectionHandle();
-        CScript* script = App::scene->sceneObjects->getScriptFromHandle(h);
-        if (script != nullptr)
+        CScriptObject* scriptObj = App::scene->sceneObjects->getScriptObjectFromHandle(h);
+        if (scriptObj != nullptr)
         { // new scripts
-            bool enabled = (!script->detachedScript->getScriptIsDisabled()) && ((script->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) == 0);
-            enabled = enabled && (script->detachedScript->getScriptState() >= sim_scriptstate_initialized);
+            bool enabled = (!scriptObj->nakedScript->getScriptIsDisabled()) && ((scriptObj->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) == 0);
+            enabled = enabled && (scriptObj->nakedScript->getScriptState() >= sim_scriptstate_initialized);
             menu->appendMenuSeparator();
             menu->appendMenuItem(enabled, false, RESTART_SCRIPT_CMD, "Restart script");
             menu->appendMenuSeparator();
         }
         else
         { // old scripts
-            CDetachedScript* childS = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, h);
-            CDetachedScript* custS = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, h);
+            CScript* childS = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, h);
+            CScript* custS = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, h);
             if ((childS != nullptr) || (custS != nullptr))
             {
                 menu->appendMenuSeparator();
@@ -1719,7 +1719,7 @@ bool CHierarchy::processCommand(int commandID)
         SSimulationThreadCommand cmd;
         cmd.cmdId = RESTART_SCRIPT_CMD;
         int h = App::scene->sceneObjects->getLastSelectionHandle();
-        CDetachedScript* s = nullptr;
+        CScript* s = nullptr;
         if (commandID == RESTART_CHILD_SCRIPT_CMD)
             s = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, h);
         if (commandID == RESTART_CUSTOMIZATION_SCRIPT_CMD)
@@ -1727,7 +1727,7 @@ bool CHierarchy::processCommand(int commandID)
         if (s == nullptr)
             cmd.intParams.push_back(h);
         else
-            cmd.intParams.push_back(s->getSceneObjectOrDetachedScriptHandle());
+            cmd.intParams.push_back(s->getSceneObjectOrNakedScriptHandle());
         App::appendSimulationThreadCommand(cmd);
         return (true);
     }

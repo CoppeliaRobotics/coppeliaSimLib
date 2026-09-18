@@ -852,9 +852,9 @@ CGraphDataStream* CGraphDataStream::copyYourself() const
     return (newObj);
 }
 
-bool CGraphDataStream::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer)
+bool CGraphDataStream::announceScriptWillBeErased(int scriptOrnakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer)
 {
-    return ((scriptOrDetachedScriptHandle == _scriptHandle) && (!sceneSwitchPersistentScript));
+    return ((scriptOrnakedScriptHandle == _scriptHandle) && (!sceneSwitchPersistentScript));
 }
 
 void CGraphDataStream::performScriptLoadingMapping(const std::map<int, int>* map)

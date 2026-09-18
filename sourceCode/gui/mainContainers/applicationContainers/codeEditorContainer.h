@@ -1,6 +1,6 @@
 #pragma once
 
-#include <detachedScript.h>
+#include <script.h>
 #include <vector>
 #include <QString>
 #include <tinyxml2.h>
@@ -35,7 +35,7 @@ class CCodeEditorContainer
 
     // From sim thread:
     int openScriptWithExternalEditor(int scriptHandle);
-    void announceScriptStateWillBeErased(int detachedScriptHandle, int64_t scriptUid);
+    void announceScriptStateWillBeErased(int nakedScriptHandle, int64_t scriptUid);
 
     int open(const char* initText, const char* xml, int callingScriptHandle); // func. sim.textEditorOpen
     int openSimulationScript(int scriptHandle);                               // main and simulation scripts
@@ -45,7 +45,7 @@ class CCodeEditorContainer
     std::string openModalTextEditor(const char* initText, const char* xml, int windowSizeAndPos[4],
                                     bool oldXml) const; // modal C func. sim.openTextEditor
     int openTextEditor_old(const char* initText, const char* xml, const char* callback,
-                           const CDetachedScript* requestOrigin); // deprec. func. sim.openTextEditor
+                           const CScript* requestOrigin); // deprec. func. sim.openTextEditor
     bool close(int handle, int posAndSize[4], std::string* txt, std::string* callback);
     void applyChanges(int handle) const;
     bool closeFromScriptUid(int64_t scriptUid, int posAndSize[4], bool ignoreChange);
@@ -70,12 +70,12 @@ class CCodeEditorContainer
     void sceneClosed(int sceneUniqueId);
     static std::string getColorStr(const int rgbCol[3]);
     static void getKeywords(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* parentNode,
-                            const CDetachedScript* requestOrigin);
+                            const CScript* requestOrigin);
     static void getFuncKeywords(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* parentNode,
-                                const CDetachedScript* requestOrigin);
+                                const CScript* requestOrigin);
     static void getVarKeywords(tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* parentNode,
-                               const CDetachedScript* requestOrigin);
-    static std::string translateXml(const char* oldXml, const char* callback, const CDetachedScript* requestOrigin);
+                               const CScript* requestOrigin);
+    static std::string translateXml(const char* oldXml, const char* callback, const CScript* requestOrigin);
     static const char* toBoolStr(bool v);
 
   protected:

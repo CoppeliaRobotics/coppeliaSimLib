@@ -45,7 +45,7 @@ struct SScriptInfo
 class CShape;
 class CCustomData_old;
 class CViewableBase;
-class CDetachedScript;
+class CScript;
 class CInterfaceStack;
 
 class CSceneObject : public Obj
@@ -68,7 +68,7 @@ class CSceneObject : public Obj
     virtual void serialize(CSer& ar);
 
     virtual void announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
-    virtual void announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer);
+    virtual void announceScriptWillBeErased(int scriptOrnakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer);
 
     virtual void performObjectLoadingMapping(const std::map<int, int>* map, int opType);
     virtual void performScriptLoadingMapping(const std::map<int, int>* map, int opType);
@@ -201,7 +201,7 @@ class CSceneObject : public Obj
 
     int getScriptsInTree(std::vector<SScriptInfo>& scripts, int scriptType, bool legacyEmbeddedScripts, int depth = 0);
     void getScriptsInChain(std::vector<int>& scripts, int scriptType, bool legacyEmbeddedScripts);
-    size_t getAttachedScripts(std::vector<CDetachedScript*>& scripts, int scriptType, bool legacyEmbeddedScripts);
+    size_t getAttachedScripts(std::vector<CScript*>& scripts, int scriptType, bool legacyEmbeddedScripts);
 
     void scalePosition(double scalingFactor);
     void getAllObjectsRecursive(std::vector<CSceneObject*>* objectList, bool baseIncluded = true, bool start = true) const;

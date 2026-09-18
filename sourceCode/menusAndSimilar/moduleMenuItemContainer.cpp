@@ -47,11 +47,11 @@ void CModuleMenuItemContainer::removeMenuItem(int h)
     }
 }
 
-void CModuleMenuItemContainer::announceScriptStateWillBeErased(int detachedScriptHandle)
+void CModuleMenuItemContainer::announceScriptStateWillBeErased(int nakedScriptHandle)
 {
     for (size_t i = 0; i < _allItems.size(); i++)
     {
-        if (_allItems[i]->getDetachedScriptHandle() == detachedScriptHandle)
+        if (_allItems[i]->getnakedScriptHandle() == nakedScriptHandle)
         {
             removeMenuItem(_allItems[i]->getHandle());
             i--;
@@ -59,12 +59,12 @@ void CModuleMenuItemContainer::announceScriptStateWillBeErased(int detachedScrip
     }
 }
 
-int CModuleMenuItemContainer::addMenuItem(const char* item, int detachedScriptHandle)
+int CModuleMenuItemContainer::addMenuItem(const char* item, int nakedScriptHandle)
 {
     int h = UI_MODULE_MENU_CMDS_START;
     while (getItemFromHandle(h) != nullptr)
         h++;
-    CModuleMenuItem* it = new CModuleMenuItem(item, detachedScriptHandle);
+    CModuleMenuItem* it = new CModuleMenuItem(item, nakedScriptHandle);
     it->setHandle(h);
     _allItems.push_back(it);
     return h;
@@ -94,11 +94,11 @@ bool CModuleMenuItemContainer::processCommand(int commandID)
     for (size_t i = 0; i < _allItems.size(); i++)
     {
         CModuleMenuItem* it = _allItems[i];
-        if ((it->getHandle() == commandID) && (it->getDetachedScriptHandle() != -1))
+        if ((it->getHandle() == commandID) && (it->getnakedScriptHandle() != -1))
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId = CALL_MODULE_ENTRY_CMD;
-            cmd.intParams.push_back(it->getDetachedScriptHandle());
+            cmd.intParams.push_back(it->getnakedScriptHandle());
             cmd.intParams.push_back(commandID);
             App::appendSimulationThreadCommand(cmd);
             return (true);

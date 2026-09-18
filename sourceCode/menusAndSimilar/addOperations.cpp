@@ -503,7 +503,7 @@ void CAddOperations::addMenu(VMenu* menu, CSView* subView, bool onlyCamera, int 
             customizationScriptThreaded->appendMenuItem(true, false, ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD, "Python");
             customizationScript->appendMenuAndDetach(customizationScriptThreaded, true, "Threaded");
             script->appendMenuAndDetach(customizationScript, true, "customization script");
-            menu->appendMenuAndDetach(script, true, "Script");
+            menu->appendMenuAndDetach(script, true, "Script object");
         }
     }
 }
@@ -1028,10 +1028,10 @@ bool CAddOperations::processCommand(int commandID, CSView* subView)
             CGraph* newObject = new CGraph();
             App::scene->sceneObjects->addObjectToScene(newObject, false, true);
 
-            CScript* script = new CScript(sim_scripttype_customization, "graph = require('models.graph_customization-2')", 0, "lua");
-            script->setScriptExecPriority_raw(sim_scriptexecorder_last);
-            App::scene->sceneObjects->addObjectToScene(script, false, true);
-            App::scene->sceneObjects->setObjectParent(script, newObject, true);
+            CScriptObject* scriptObject = new CScriptObject(sim_scripttype_customization, "graph = require('models.graph_customization-2')", 0, "lua");
+            scriptObject->setScriptExecPriority_raw(sim_scriptexecorder_last);
+            App::scene->sceneObjects->addObjectToScene(scriptObject, false, true);
+            App::scene->sceneObjects->setObjectParent(scriptObject, newObject, true);
             newObject->setObjectProperty(newObject->getObjectProperty() | sim_objectproperty_collapsed);
             newObject->setModelBase(true);
 

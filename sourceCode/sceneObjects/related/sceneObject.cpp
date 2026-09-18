@@ -1627,7 +1627,7 @@ CSceneObject* CSceneObject::copyYourself()
     if (getObjectType() == sim_sceneobject_dummy)
         theNewObject = new CDummy();
     if (getObjectType() == sim_sceneobject_script)
-        theNewObject = new CScript();
+        theNewObject = new CScriptObject();
     if (getObjectType() == sim_sceneobject_marker)
         theNewObject = new CMarker();
     if (getObjectType() == sim_sceneobject_customsceneobject)
@@ -2262,18 +2262,18 @@ int CSceneObject::getScriptsInTree(std::vector<SScriptInfo>& scripts, int script
     {
         if (scriptType == sim_scripttype_customization)
         {
-            CDetachedScript* it = nullptr;
+            CScript* it = nullptr;
             if (legacyEmbeddedScripts)
                 it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, _objectHandle);
             else
             {
-                if ((_objectType == sim_sceneobject_script) && (((CScript*)this)->detachedScript != nullptr) && (((CScript*)this)->detachedScript->getScriptType() == sim_scripttype_customization))
-                    it = ((CScript*)this)->detachedScript;
+                if ((_objectType == sim_sceneobject_script) && (((CScriptObject*)this)->nakedScript != nullptr) && (((CScriptObject*)this)->nakedScript->getScriptType() == sim_scripttype_customization))
+                    it = ((CScriptObject*)this)->nakedScript;
             }
             if ((it != nullptr) && (!it->getScriptIsDisabled()))
             {
                 SScriptInfo s;
-                s.scriptHandle = it->getSceneObjectOrDetachedScriptHandle();
+                s.scriptHandle = it->getSceneObjectOrNakedScriptHandle();
                 s.depth = depth;
                 scripts.push_back(s);
                 maxDepth = depth;
@@ -2282,18 +2282,18 @@ int CSceneObject::getScriptsInTree(std::vector<SScriptInfo>& scripts, int script
 
         if (((scriptType & 0x0f) == sim_scripttype_simulation) && (!App::scene->simulation->isSimulationStopped()))
         {
-            CDetachedScript* it = nullptr;
+            CScript* it = nullptr;
             if (legacyEmbeddedScripts)
                 it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, _objectHandle);
             else
             {
-                if ((_objectType == sim_sceneobject_script) && (((CScript*)this)->detachedScript != nullptr) && (((CScript*)this)->detachedScript->getScriptType() == sim_scripttype_simulation))
-                    it = ((CScript*)this)->detachedScript;
+                if ((_objectType == sim_sceneobject_script) && (((CScriptObject*)this)->nakedScript != nullptr) && (((CScriptObject*)this)->nakedScript->getScriptType() == sim_scripttype_simulation))
+                    it = ((CScriptObject*)this)->nakedScript;
             }
             if ((it != nullptr) && (!it->getScriptIsDisabled()))
             {
                 SScriptInfo s;
-                s.scriptHandle = it->getSceneObjectOrDetachedScriptHandle();
+                s.scriptHandle = it->getSceneObjectOrNakedScriptHandle();
                 s.depth = depth;
                 scripts.push_back(s);
                 maxDepth = depth;
@@ -2323,7 +2323,7 @@ int CSceneObject::getScriptsInTree(std::vector<SScriptInfo>& scripts, int script
     return maxDepth;
 }
 
-size_t CSceneObject::getAttachedScripts(std::vector<CDetachedScript*>& scripts, int scriptType, bool legacyEmbeddedScripts)
+size_t CSceneObject::getAttachedScripts(std::vector<CScript*>& scripts, int scriptType, bool legacyEmbeddedScripts)
 { // will append to "scripts"!
     if (scriptType == -1)
     {
@@ -2336,7 +2336,7 @@ size_t CSceneObject::getAttachedScripts(std::vector<CDetachedScript*>& scripts, 
         {
             if (legacyEmbeddedScripts)
             {
-                CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
+                CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
                 if ( (it != nullptr) && (!it->getScriptIsDisabled()) )
                 {
                     if (scriptType == sim_scripttype_customization)
@@ -2347,23 +2347,23 @@ size_t CSceneObject::getAttachedScripts(std::vector<CDetachedScript*>& scripts, 
             }
             else
             { // all scripts attached to this object:
-                std::vector<CDetachedScript*> childrenNormalPriority;
-                std::vector<CDetachedScript*> childrenLastPriority;
+                std::vector<CScript*> childrenNormalPriority;
+                std::vector<CScript*> childrenLastPriority;
                 for (size_t i = 0; i < getChildCount(); i++)
                 {
                     CSceneObject* c = getChildFromIndex(i);
                     if (c->getObjectType() == sim_sceneobject_script)
                     {
-                        CScript* it = (CScript*)c;
-                        if ((it->detachedScript != nullptr) && (it->detachedScript->getScriptType() == scriptType) && (!it->detachedScript->getScriptIsDisabled()))
+                        CScriptObject* scriptObject = (CScriptObject*)c;
+                        if ((scriptObject->nakedScript != nullptr) && (scriptObject->nakedScript->getScriptType() == scriptType) && (!scriptObject->nakedScript->getScriptIsDisabled()))
                         {
-                            int p = it->getScriptExecPriority();
+                            int p = scriptObject->getScriptExecPriority();
                             if (p == sim_scriptexecorder_first)
-                                scripts.push_back(it->detachedScript);
+                                scripts.push_back(scriptObject->nakedScript);
                             if (p == sim_scriptexecorder_normal)
-                                childrenNormalPriority.push_back(it->detachedScript);
+                                childrenNormalPriority.push_back(scriptObject->nakedScript);
                             if (p == sim_scriptexecorder_last)
-                                childrenLastPriority.push_back(it->detachedScript);
+                                childrenLastPriority.push_back(scriptObject->nakedScript);
                         }
                     }
                 }
@@ -2390,13 +2390,13 @@ void CSceneObject::getScriptsInChain(std::vector<int>& scripts, int scriptType, 
         {
             if (legacyEmbeddedScripts)
             {
-                CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
+                CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(scriptType, _objectHandle);
                 if ( (it != nullptr) && (!it->getScriptIsDisabled()) )
                 {
                     if (scriptType == sim_scripttype_customization)
-                        scripts.push_back(it->getSceneObjectOrDetachedScriptHandle());
+                        scripts.push_back(it->getSceneObjectOrNakedScriptHandle());
                     if ((scriptType == sim_scripttype_simulation) && (!App::scene->simulation->isSimulationStopped()))
-                        scripts.push_back(it->getSceneObjectOrDetachedScriptHandle());
+                        scripts.push_back(it->getSceneObjectOrNakedScriptHandle());
                 }
             }
             else
@@ -2408,16 +2408,16 @@ void CSceneObject::getScriptsInChain(std::vector<int>& scripts, int scriptType, 
                     CSceneObject* c = getChildFromIndex(i);
                     if (c->getObjectType() == sim_sceneobject_script)
                     {
-                        CScript* it = (CScript*)c;
-                        if ((it->detachedScript != nullptr) && (it->detachedScript->getScriptType() == scriptType) && (!it->detachedScript->getScriptIsDisabled()))
+                        CScriptObject* scriptObject = (CScriptObject*)c;
+                        if ((scriptObject->nakedScript != nullptr) && (scriptObject->nakedScript->getScriptType() == scriptType) && (!scriptObject->nakedScript->getScriptIsDisabled()))
                         {
-                            int p = it->getScriptExecPriority();
+                            int p = scriptObject->getScriptExecPriority();
                             if (p == sim_scriptexecorder_first)
-                                scripts.push_back(it->getObjectHandle());
+                                scripts.push_back(scriptObject->getObjectHandle());
                             if (p == sim_scriptexecorder_normal)
-                                childrenNormalPriority.push_back(it->getObjectHandle());
+                                childrenNormalPriority.push_back(scriptObject->getObjectHandle());
                             if (p == sim_scriptexecorder_last)
-                                childrenLastPriority.push_back(it->getObjectHandle());
+                                childrenLastPriority.push_back(scriptObject->getObjectHandle());
                         }
                     }
                 }
@@ -2433,9 +2433,9 @@ void CSceneObject::getScriptsInChain(std::vector<int>& scripts, int scriptType, 
                 {
                     if (_objectType == sim_sceneobject_script)
                     {
-                        CScript* it = (CScript*)this;
-                        if ((it->detachedScript != nullptr) && (it->detachedScript->getScriptType() == scriptType) && (!it->detachedScript->getScriptIsDisabled()))
-                            scripts.push_back(it->detachedScript->getSceneObjectOrDetachedScriptHandle());
+                        CScriptObject* scriptObject = (CScriptObject*)this;
+                        if ((scriptObject->nakedScript != nullptr) && (scriptObject->nakedScript->getScriptType() == scriptType) && (!scriptObject->nakedScript->getScriptIsDisabled()))
+                            scripts.push_back(scriptObject->nakedScript->getSceneObjectOrNakedScriptHandle());
                     }
                 }
             }
@@ -4199,7 +4199,7 @@ void CSceneObject::announceSceneObjectWillBeErased(const CSceneObject* object, b
     }
 }
 
-void CSceneObject::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer)
+void CSceneObject::announceScriptWillBeErased(int scriptOrnakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer)
 {
 }
 
@@ -5425,7 +5425,7 @@ bool CSceneObject::canDestroyNow()
 
     if ((App::scene != nullptr) && (App::scene->sceneObjects != nullptr))
     { // For old scripts
-        CDetachedScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, _objectHandle);
+        CScript* it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, _objectHandle);
         if ((it != nullptr) && (it->getExecutionDepth() != 0))
             retVal = false;
         it = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_customization, _objectHandle);

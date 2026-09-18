@@ -66,7 +66,7 @@ class CScene : public Obj
                                                     std::vector<CIkGroup_old*>* loadedIkGroupList,
                                                     std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
                                                     std::vector<CButtonBlock*>* loadedButtonBlockList,
-                                                    std::vector<CDetachedScript*>* loadedLuaScriptList,
+                                                    std::vector<CScript*>* loadedLuaScriptList,
                                                     std::vector<CTextureObject*>& loadedTextureObjectList,
                                                     std::vector<CDynMaterialObject*>& loadedDynMaterialObjectList,
                                                     bool model, int fileSimVersion, bool forceModelAsCopy);
@@ -74,13 +74,13 @@ class CScene : public Obj
     void cleanupHashNames_allObjects(int suffix);
 
     void announceSceneObjectWillBeErased(CSceneObject* object);
-    void announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
-    void announceScriptStateWillBeErased(int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptWillBeErased(int scriptOrnakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptStateWillBeErased(int nakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 
-    CDetachedScript* getDetachedScriptFromHandle(int scriptHandle) const;
-    CDetachedScript* getDetachedScriptFromUid(int uid) const;
-    void getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
-    void callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int detachedScriptToExclude = -1);
+    CScript* getScriptFromHandle(int scriptHandle) const;
+    CScript* getScriptFromUid(int uid) const;
+    void getActiveScripts(std::vector<CScript*>& scripts, bool reverse = false, bool alsoLegacyScripts = false) const;
+    void callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch = nullptr, int nakedScriptToExclude = -1);
 
     void pushGenesisEvents();
 
@@ -189,7 +189,7 @@ class CScene : public Obj
                                               std::vector<CIkGroup_old*>* loadedIkGroupList,
                                               std::vector<CPathPlanningTask*>* loadedPathPlanningTaskList,
                                               std::vector<CButtonBlock*>* loadedButtonBlockList,
-                                              std::vector<CDetachedScript*>* loadedLuaScriptList) const;
+                                              std::vector<CScript*>* loadedLuaScriptList) const;
     bool _canSuffix1BeSetToSuffix2(int suffix1, int suffix2) const;
     void _setSuffix1ToSuffix2(int suffix1, int suffix2);
 

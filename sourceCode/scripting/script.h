@@ -16,7 +16,7 @@
 #define DEFAULT_NONTHREADEDCUSTOMIZATIONSCRIPT "customizationScript"
 #define DEFAULT_THREADEDCUSTOMIZATIONSCRIPT "customizationScript-threaded"
 #define SIM_SCRIPT_HANDLE "sim_script_handle"                   // keep this global
-#define SIM_DETACHEDSCRIPT_HANDLE "sim_detachedscript_handle"   // keep this global
+#define SIM_NAKEDSCRIPT_HANDLE "sim_nakedscript_handle"   // keep this global
 #define SIM_PLUGIN_NAMESPACES "sim_plugin_namespaces"           // keep this global
 
 // Old:
@@ -26,15 +26,15 @@
 
 class CSceneObject;
 
-class CDetachedScript : public Obj
+class CScript : public Obj
 {
-    friend class CScript;
+    friend class CScriptObject;
 
   public:
-    CDetachedScript(int scriptType);
-    virtual ~CDetachedScript();
+    CScript(int scriptType);
+    virtual ~CScript();
 
-    static void destroy(CDetachedScript* obj, bool registeredObject, bool announceScriptDestruction = true);
+    static void destroy(CScript* obj, bool registeredObject, bool announceScriptDestruction = true);
 
     void pushNakedGenesisEvents(CCbor* ev = nullptr) override;
     int setHandle();
@@ -43,7 +43,7 @@ class CDetachedScript : public Obj
     void simulationAboutToEnd();
     void simulationEnded();
 
-    int getSceneObjectOrDetachedScriptHandle() const;
+    int getSceneObjectOrNakedScriptHandle() const;
     int64_t getScriptUid() const;
     size_t getSimpleHash() const;
 
@@ -52,7 +52,7 @@ class CDetachedScript : public Obj
     void setDisplayAddOnName(const char* name);
     std::string getScriptName() const;
 
-    CDetachedScript* copyYourself();
+    CScript* copyYourself();
 
     void serialize(CSer& ar);
     void performScriptLoadingMapping(const std::map<int, int>* map, int opType);
@@ -183,9 +183,9 @@ class CDetachedScript : public Obj
     void removeFunctionHook(const char* sysFunc, const char* userFunc, bool before);
     bool replaceScriptText(const char* oldTxt, const char* newTxt);
 
-    static void getMatchingFunctions(const char* txt, std::set<std::string>& v, const CDetachedScript* requestOrigin);
-    static void getMatchingConstants(const char* txt, std::set<std::string>& v, const CDetachedScript* requestOrigin);
-    static std::string getFunctionCalltip(const char* txt, const CDetachedScript* requestOrigin);
+    static void getMatchingFunctions(const char* txt, std::set<std::string>& v, const CScript* requestOrigin);
+    static void getMatchingConstants(const char* txt, std::set<std::string>& v, const CScript* requestOrigin);
+    static std::string getFunctionCalltip(const char* txt, const CScript* requestOrigin);
     static bool canCallSystemCallback(int scriptType, bool threadedOld, int callType);
     static bool isSystemCallbackInReverseOrder(int callType);
     static bool isSystemCallbackInterruptible(int callType);
@@ -205,8 +205,8 @@ class CDetachedScript : public Obj
     void registerNewFunctions_lua();
     static void buildFromInterpreterStack_lua(void* LL, CInterfaceStack* stack, int fromPos, int cnt);
     static size_t buildOntoInterpreterStack_lua(void* LL, const CInterfaceStack* stack, bool takeOnlyTop, bool interlaceWithTypeInfo = false);
-    static int getScriptObjectOrDetachedScriptHandleFromInterpreterState_lua(void* LL);
-    static int getDetachedScriptHandleFromInterpreterState_lua(void* LL);
+    static int getScriptObjectOrNakedScriptHandleFromInterpreterState_lua(void* LL);
+    static int getNakedScriptHandleFromInterpreterState_lua(void* LL);
     static std::string getSearchPath_lua();
     static std::string getSearchCPath_lua();
     // -----------------------------
@@ -253,7 +253,7 @@ class CDetachedScript : public Obj
     void _handleInfoCallback();
     void _setScriptHandleToInterpreterState_lua(void* LL);
 
-    int _sceneObjectOrDetachedScriptHandle;        // is unique since 25.11.2022. Unique across scenes for old script, but not for new script objects (with new script objects, scriptHandle is same as scene object)
+    int _sceneObjectOrnakedScriptHandle;        // is unique since 25.11.2022. Unique across scenes for old script, but not for new script objects (with new script objects, scriptHandle is same as scene object)
                               // See Obj::_objectHandle too (which is the detached script handle)
     int _sceneObjectHandle;   // is same as _scriptHandle with the new scene object scripts. With old associated scripts, is handle of scene object this script is associated with. -1 with add-ons and sandbox
     int64_t _scriptUid; // unique across all scenes
@@ -308,7 +308,7 @@ class CDetachedScript : public Obj
 
     std::mt19937 _randGen;
 
-    bool _detachedScriptInitialValuesInitialized;
+    bool _scriptInitialValuesInitialized;
     int _previousEditionWindowPosAndSize[4];
 
     std::string _filenameForExternalScriptEditor;
@@ -337,31 +337,31 @@ class CDetachedScript : public Obj
 
     // Old:
     // *****************************************
-    void _performNewApiAdjustments_old(CDetachedScript* detachedScript, bool forwardAdjustment);
+    void _performNewApiAdjustments_old(CScript* nakedScript, bool forwardAdjustment);
     std::string _replaceOldApi(const char* txt, bool forwardAdjustment);
     int _getScriptNameIndexNumber_old() const;
-    bool _convertThreadedScriptToCoroutine_old(CDetachedScript* detachedScript, bool execJustOnce);
-    void _adjustScriptText1_old(CDetachedScript* detachedScript, bool doIt, bool doIt2);
-    void _adjustScriptText2_old(CDetachedScript* detachedScript, bool doIt);
-    void _adjustScriptText3_old(CDetachedScript* detachedScript, bool doIt);
-    void _adjustScriptText4_old(CDetachedScript* detachedScript, bool doIt);
-    void _adjustScriptText5_old(CDetachedScript* detachedScript, bool doIt);
-    void _adjustScriptText6_old(CDetachedScript* detachedScript, bool doIt);
-    void _adjustScriptText7_old(CDetachedScript* detachedScript, bool doIt);
-    void _adjustScriptText10_old(CDetachedScript* detachedScript, bool doIt);
-    void _adjustScriptText11_old(CDetachedScript* detachedScript, bool doIt);
-    void _adjustScriptText12_old(CDetachedScript* detachedScript, bool doIt);
-    void _adjustScriptText13_old(CDetachedScript* detachedScript, bool doIt);
-    void _adjustScriptText14_old(CDetachedScript* detachedScript, bool doIt);
-    void _adjustScriptText15_old(CDetachedScript* detachedScript, bool doIt);
-    void _adjustScriptText16_old(CDetachedScript* detachedScript, bool doIt);
-    void _adjustScriptText17_old(CDetachedScript* detachedScript, bool doIt);
-    void _detectDeprecated_old(CDetachedScript* detachedScript);
-    void _insertScriptText_old(CDetachedScript* detachedScript, bool toFront, const char* txt);
-    bool _replaceScriptText_old(CDetachedScript* detachedScript, const char* oldTxt, const char* newTxt);
-    bool _replaceScriptText_old(CDetachedScript* detachedScript, const char* oldTxt1, const char* oldTxt2, const char* oldTxt3, const char* newTxt);
-    bool _replaceScriptTextKeepMiddleUnchanged_old(CDetachedScript* detachedScript, const char* oldTxtStart, const char* oldTxtEnd, const char* newTxtStart, const char* newTxtEnd);
-    bool _containsScriptText_old(CDetachedScript* detachedScript, const char* txt);
+    bool _convertThreadedScriptToCoroutine_old(CScript* nakedScript, bool execJustOnce);
+    void _adjustScriptText1_old(CScript* nakedScript, bool doIt, bool doIt2);
+    void _adjustScriptText2_old(CScript* nakedScript, bool doIt);
+    void _adjustScriptText3_old(CScript* nakedScript, bool doIt);
+    void _adjustScriptText4_old(CScript* nakedScript, bool doIt);
+    void _adjustScriptText5_old(CScript* nakedScript, bool doIt);
+    void _adjustScriptText6_old(CScript* nakedScript, bool doIt);
+    void _adjustScriptText7_old(CScript* nakedScript, bool doIt);
+    void _adjustScriptText10_old(CScript* nakedScript, bool doIt);
+    void _adjustScriptText11_old(CScript* nakedScript, bool doIt);
+    void _adjustScriptText12_old(CScript* nakedScript, bool doIt);
+    void _adjustScriptText13_old(CScript* nakedScript, bool doIt);
+    void _adjustScriptText14_old(CScript* nakedScript, bool doIt);
+    void _adjustScriptText15_old(CScript* nakedScript, bool doIt);
+    void _adjustScriptText16_old(CScript* nakedScript, bool doIt);
+    void _adjustScriptText17_old(CScript* nakedScript, bool doIt);
+    void _detectDeprecated_old(CScript* nakedScript);
+    void _insertScriptText_old(CScript* nakedScript, bool toFront, const char* txt);
+    bool _replaceScriptText_old(CScript* nakedScript, const char* oldTxt, const char* newTxt);
+    bool _replaceScriptText_old(CScript* nakedScript, const char* oldTxt1, const char* oldTxt2, const char* oldTxt3, const char* newTxt);
+    bool _replaceScriptTextKeepMiddleUnchanged_old(CScript* nakedScript, const char* oldTxtStart, const char* oldTxtEnd, const char* newTxtStart, const char* newTxtEnd);
+    bool _containsScriptText_old(CScript* nakedScript, const char* txt);
     void _splitApiText_old(const char* txt, size_t pos, std::string& beforePart, std::string& apiWord, std::string& afterPart);
     bool _custScriptDisabledDSim_compatibilityMode_DEPRECATED;
     bool _customizationScriptCleanupBeforeSave_DEPRECATED;

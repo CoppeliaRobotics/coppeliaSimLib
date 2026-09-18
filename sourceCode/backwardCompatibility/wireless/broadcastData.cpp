@@ -83,8 +83,8 @@ char* CBroadcastData::receiveData(int receiverID, double simulationTime, int dat
     { // message not for everyone
         if (_receiverID == sim_handle_tree)
         { // we have to check if receiverID has a parent _emitterID:
-            CDetachedScript* rec = App::scenes->getDetachedScriptFromHandle(receiverID);
-            CDetachedScript* em = App::scenes->getDetachedScriptFromHandle(_emitterID);
+            CScript* rec = App::scenes->getScriptFromHandle(receiverID);
+            CScript* em = App::scenes->getScriptFromHandle(_emitterID);
             if ((rec == nullptr) || (em == nullptr))
                 return (nullptr);
             if (em->getScriptType() != sim_scripttype_main)
@@ -111,8 +111,8 @@ char* CBroadcastData::receiveData(int receiverID, double simulationTime, int dat
         }
         if (_receiverID == sim_handle_chain)
         { // we have to check if _emitterID has a parent receiverID:
-            CDetachedScript* rec = App::scenes->getDetachedScriptFromHandle(receiverID);
-            CDetachedScript* em = App::scenes->getDetachedScriptFromHandle(_emitterID);
+            CScript* rec = App::scenes->getScriptFromHandle(receiverID);
+            CScript* em = App::scenes->getScriptFromHandle(_emitterID);
             if ((rec == nullptr) || (em == nullptr))
                 return (nullptr);
             if (rec->getScriptType() != sim_scripttype_main)

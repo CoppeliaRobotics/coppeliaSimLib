@@ -8,10 +8,10 @@
 class CustomObject: public Obj
 {
   public:
-    CustomObject(int64_t handle,const char* objectTypeStr, const char* objectMetaInfo, int originDetachedScriptHandle, int target); // class definition
+    CustomObject(int64_t handle,const char* objectTypeStr, const char* objectMetaInfo, int originnakedScriptHandle, int target); // class definition
     virtual ~CustomObject();
 
-    CustomObject* createObject(int64_t handle, int originDetachedScriptHandle) const;
+    CustomObject* createObject(int64_t handle, int originnakedScriptHandle) const;
 
     void pushNakedGenesisEvents(CCbor* ev = nullptr) override;
     void serialize(CSer& ar);
@@ -64,7 +64,7 @@ class CustomObject: public Obj
     CCustomProperties& getCustomProperties() { return _customProperties; }
     const CCustomProperties& getCustomProperties() const { return _customProperties; }
 
-    int getDetachedScriptHandle() const;
+    int getnakedScriptHandle() const;
     bool getVolatile() const;
     void setVolatile(bool v);
     bool getResetChanged();
@@ -77,7 +77,7 @@ class CustomObject: public Obj
     void _callPropertySetterGetter(const char* pName, const char* suffix, T& pState, PushF pushFunc, GetF getFunc) const;
     void _triggerEvent(const char* pName, CCbor* evv = nullptr);
 
-    int _detachedScriptHandle;
+    int _nakedScriptHandle;
     int _target;
     bool _volatile;
     bool _changed;

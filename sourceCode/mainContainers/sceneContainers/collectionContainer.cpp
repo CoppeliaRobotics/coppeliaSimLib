@@ -51,13 +51,13 @@ void CCollectionContainer::announceObjectWillBeErased(int64_t objectHandle)
     }
 }
 
-void CCollectionContainer::announceScriptStateWillBeErased(int64_t detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
+void CCollectionContainer::announceScriptStateWillBeErased(int64_t nakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     size_t i = 0;
     while (i < getObjectCount())
     {
         CCollection* coll = getObjectFromIndex(i);
-        if (coll->announceScriptStateWillBeErased(int(detachedScriptHandle), simulationScript, sceneSwitchPersistentScript))
+        if (coll->announceScriptStateWillBeErased(int(nakedScriptHandle), simulationScript, sceneSwitchPersistentScript))
             removeCollection(coll->getObjectHandle()); // This will call announceCollectionWillBeErased!!
         else
             i++;

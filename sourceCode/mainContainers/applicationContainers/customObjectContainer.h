@@ -26,7 +26,7 @@ class CustomObjectContainer
     int64_t getFreshHandle(bool forObject) const;
     CustomObject* getItem(int64_t objectHandle) const;
     bool removeItem(int64_t objectHandle);
-    void announceScriptStateWillBeErased(int detachedScriptHandle);
+    void announceScriptStateWillBeErased(int nakedScriptHandle);
     void clear();
 
     int64_t makeClass(const char* typeString, const std::vector<std::string>& superClass, const std::vector<std::string>& nameSpaces);
@@ -35,7 +35,7 @@ class CustomObjectContainer
     CustomObject* getClass(int64_t objectHandle) const;
     CustomObject* getClass(const char* typeString) const;
 
-    int64_t makeObject(const CustomObject* classObject, bool isVolatile, int originDetachedScriptHandle);
+    int64_t makeObject(const CustomObject* classObject, bool isVolatile, int originnakedScriptHandle);
     CustomObject* getObject(int64_t objectHandle) const;
     bool removeObject(int64_t objectHandle);
     void getAllObjectHandles(std::vector<int64_t>& objects) const;

@@ -116,7 +116,7 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion, in
         std::string msgB("plugin ");
         msgB += std::string(namespaceAndVersion) + ": ";
         std::string msg(msgB + "loading...");
-        CDetachedScript* scr = App::scenes->getDetachedScriptFromUid(loadOrigin);
+        CScript* scr = App::scenes->getScriptFromUid(loadOrigin);
         if (scr != nullptr)
             App::logScriptMsg(scr, sim_verbosity_loadinfos | sim_verbosity_onlyterminal, msg.c_str());
         else
@@ -172,9 +172,9 @@ CPlugin* CPluginContainer::loadAndInitPlugin(const char* namespaceAndVersion, in
     return (plug);
 }
 
-void CPluginContainer::announceScriptStateWillBeErased(int detachedScriptHandle, int64_t scriptUid)
+void CPluginContainer::announceScriptStateWillBeErased(int nakedScriptHandle, int64_t scriptUid)
 {
-    int pluginData[4] = {detachedScriptHandle, int(scriptUid & 0xffffffff), int((scriptUid >> 32) & 0xffffffff), 0};
+    int pluginData[4] = {nakedScriptHandle, int(scriptUid & 0xffffffff), int((scriptUid >> 32) & 0xffffffff), 0};
     sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptstateabouttobedestroyed, pluginData);
 
     for (size_t i = 0; i < _allPlugins.size(); i++)
@@ -284,7 +284,7 @@ bool CPluginContainer::deinitAndUnloadPlugin(int handle, int64_t unloadOrigin, b
             std::string msgB("plugin ");
             msgB += it->getName() + ": ";
             std::string msg(msgB + "cleanup...");
-            CDetachedScript* scr = App::scenes->getDetachedScriptFromUid(unloadOrigin);
+            CScript* scr = App::scenes->getScriptFromUid(unloadOrigin);
             if (scr != nullptr)
                 App::logScriptMsg(scr, sim_verbosity_loadinfos | sim_verbosity_onlyterminal, msg.c_str());
             else

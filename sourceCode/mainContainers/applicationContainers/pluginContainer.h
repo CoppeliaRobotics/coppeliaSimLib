@@ -6,7 +6,7 @@
 #include <vMutex.h>
 #include <set>
 #include <string>
-#include <detachedScript.h>
+#include <script.h>
 
 class CPluginContainer
 {
@@ -20,7 +20,7 @@ class CPluginContainer
     void unloadNewPlugins();
     void unloadLegacyPlugins();
 
-    void announceScriptStateWillBeErased(int detachedScriptHandle, int64_t scriptUid);
+    void announceScriptStateWillBeErased(int nakedScriptHandle, int64_t scriptUid);
 
     void uiCallAllPlugins(int msg, int* auxData = nullptr, void* auxPointer = nullptr);
     void sendEventCallbackMessageToAllPlugins(int msg, int* auxData = nullptr, void* auxPointer = nullptr, bool onlyToNewPlugins = false);

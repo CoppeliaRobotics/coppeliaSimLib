@@ -397,25 +397,25 @@ void CSceneContainer::getAllSceneNames(std::vector<std::string>& l) const
         l.push_back(VVarious::splitPath_fileBase(_scenes[i]->environment->getScenePathAndName().c_str()));
 }
 
-CDetachedScript* CSceneContainer::getDetachedScriptFromHandle(int scriptHandle) const
+CScript* CSceneContainer::getScriptFromHandle(int scriptHandle) const
 {
-    CDetachedScript* retVal = nullptr;
+    CScript* retVal = nullptr;
     if (scene != nullptr)
-        retVal = scene->getDetachedScriptFromHandle(scriptHandle);
+        retVal = scene->getScriptFromHandle(scriptHandle);
     if ((retVal == nullptr) && (addOnScriptContainer != nullptr))
         retVal = addOnScriptContainer->getAddOnFromHandle(scriptHandle);
-    if ((retVal == nullptr) && (pySandboxScript != nullptr) && (pySandboxScript->getSceneObjectOrDetachedScriptHandle() == scriptHandle))
+    if ((retVal == nullptr) && (pySandboxScript != nullptr) && (pySandboxScript->getSceneObjectOrNakedScriptHandle() == scriptHandle))
         retVal = pySandboxScript;
-    if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getSceneObjectOrDetachedScriptHandle() == scriptHandle))
+    if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getSceneObjectOrNakedScriptHandle() == scriptHandle))
         retVal = sandboxScript;
     return (retVal);
 }
 
-CDetachedScript* CSceneContainer::getDetachedScriptFromUid(int uid) const
+CScript* CSceneContainer::getScriptFromUid(int uid) const
 {
-    CDetachedScript* retVal = nullptr;
+    CScript* retVal = nullptr;
     if (scene != nullptr)
-        retVal = scene->getDetachedScriptFromUid(uid);
+        retVal = scene->getScriptFromUid(uid);
     if ((retVal == nullptr) && (addOnScriptContainer != nullptr))
         retVal = addOnScriptContainer->getAddOnFromUid(uid);
     if ((retVal == nullptr) && (pySandboxScript != nullptr) && (pySandboxScript->getScriptUid() == uid))
@@ -442,7 +442,7 @@ int CSceneContainer::getSysFuncAndHookCnt(int sysCall) const
     return (retVal);
 }
 
-void CSceneContainer::getActiveScripts(std::vector<CDetachedScript*>& scripts, bool reverse /*= false*/, bool alsoLegacyScripts /*= false*/) const
+void CSceneContainer::getActiveScripts(std::vector<CScript*>& scripts, bool reverse /*= false*/, bool alsoLegacyScripts /*= false*/) const
 {
     TRACE_INTERNAL;
     if (reverse)
@@ -467,44 +467,44 @@ void CSceneContainer::getActiveScripts(std::vector<CDetachedScript*>& scripts, b
     }
 }
 
-void CSceneContainer::callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int detachedScriptToExclude /*=-1*/)
+void CSceneContainer::callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, CSceneObject* objectBranch /*=nullptr*/, int nakedScriptToExclude /*=-1*/)
 {
     TRACE_INTERNAL;
-    bool doNotInterrupt = !CDetachedScript::isSystemCallbackInterruptible(callType);
-    if (CDetachedScript::isSystemCallbackInReverseOrder(callType))
+    bool doNotInterrupt = !CScript::isSystemCallbackInterruptible(callType);
+    if (CScript::isSystemCallbackInReverseOrder(callType))
     { // reverse order
         if ((sandboxScript != nullptr) && sandboxScript->hasSystemFunctionOrHook(callType))
         {
-            if (detachedScriptToExclude != sandboxScript->getObjectHandle())
+            if (nakedScriptToExclude != sandboxScript->getObjectHandle())
                 sandboxScript->systemCallScript(callType, inStack, outStack);
         }
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
         {
             if ((pySandboxScript != nullptr) && pySandboxScript->hasSystemFunctionOrHook(callType))
             {
-                if (detachedScriptToExclude != pySandboxScript->getObjectHandle())
+                if (nakedScriptToExclude != pySandboxScript->getObjectHandle())
                     pySandboxScript->systemCallScript(callType, inStack, outStack);
             }
         }
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
-            addOnScriptContainer->callScripts(callType, inStack, outStack, detachedScriptToExclude);
+            addOnScriptContainer->callScripts(callType, inStack, outStack, nakedScriptToExclude);
         if (scene != nullptr)
         {
             if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
-                scene->callScripts(callType, inStack, outStack, objectBranch, detachedScriptToExclude);
+                scene->callScripts(callType, inStack, outStack, objectBranch, nakedScriptToExclude);
         }
     }
     else
     { // regular order, from unimportant, to most important
         if (scene != nullptr)
-            scene->callScripts(callType, inStack, outStack, objectBranch, detachedScriptToExclude);
+            scene->callScripts(callType, inStack, outStack, objectBranch, nakedScriptToExclude);
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
-            addOnScriptContainer->callScripts(callType, inStack, outStack, detachedScriptToExclude);
+            addOnScriptContainer->callScripts(callType, inStack, outStack, nakedScriptToExclude);
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
         {
             if ((pySandboxScript != nullptr) && pySandboxScript->hasSystemFunctionOrHook(callType))
             {
-                if (detachedScriptToExclude != pySandboxScript->getObjectHandle())
+                if (nakedScriptToExclude != pySandboxScript->getObjectHandle())
                     pySandboxScript->systemCallScript(callType, inStack, outStack);
             }
         }
@@ -512,21 +512,21 @@ void CSceneContainer::callScripts(int callType, const CInterfaceStack* inStack, 
         {
             if ((sandboxScript != nullptr) && sandboxScript->hasSystemFunctionOrHook(callType))
             {
-                if (detachedScriptToExclude != sandboxScript->getObjectHandle())
+                if (nakedScriptToExclude != sandboxScript->getObjectHandle())
                     sandboxScript->systemCallScript(callType, inStack, outStack);
             }
         }
     }
 }
 
-void CSceneContainer::broadcastMsg(const CInterfaceStack* inStack, int emittingDetachedScriptHandle, int options)
+void CSceneContainer::broadcastMsg(const CInterfaceStack* inStack, int emittingnakedScriptHandle, int options)
 {
     TRACE_INTERNAL;
     CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStackCopy(inStack);
     if (stack->getStackSize() > 1)
         stack->popStackValue(stack->getStackSize() - 1);
-    stack->pushInt32OntoStack(emittingDetachedScriptHandle, false);
-    callScripts(sim_syscb_msg, stack, nullptr, nullptr, emittingDetachedScriptHandle);
+    stack->pushInt32OntoStack(emittingnakedScriptHandle, false);
+    callScripts(sim_syscb_msg, stack, nullptr, nullptr, emittingnakedScriptHandle);
     App::scenes->interfaceStackContainer->destroyStack(stack);
 }
 
@@ -749,11 +749,11 @@ void CSceneContainer::dispatchEvents()
             {
                 CInterfaceStack* fullEventsStack = nullptr;
 
-                std::vector<CDetachedScript*> scripts;
+                std::vector<CScript*> scripts;
                 getActiveScripts(scripts, false, true);
                 for (size_t sc = 0; sc < scripts.size(); sc++)
                 {
-                    CDetachedScript* script = scripts[sc];
+                    CScript* script = scripts[sc];
                     if (script->hasSystemFunctionOrHook(sim_syscb_event))
                     {
                         std::vector<unsigned char> ew;
@@ -904,23 +904,23 @@ void CSceneContainer::announceSceneObjectWillBeErased(CSceneObject* object)
     scene->announceSceneObjectWillBeErased(object);
 }
 
-void CSceneContainer::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
+void CSceneContainer::announceScriptWillBeErased(int scriptOrnakedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     // Inform plugins about this event:
-    int pluginData[4] = {scriptOrDetachedScriptHandle, int(scriptUid & 0xffffffff), int((scriptUid >> 32) & 0xffffffff), 0};
+    int pluginData[4] = {scriptOrnakedScriptHandle, int(scriptUid & 0xffffffff), int((scriptUid >> 32) & 0xffffffff), 0};
     pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scriptabouttobedestroyed, pluginData);
 
-    scene->announceScriptWillBeErased(scriptOrDetachedScriptHandle, simulationScript, sceneSwitchPersistentScript);
+    scene->announceScriptWillBeErased(scriptOrnakedScriptHandle, simulationScript, sceneSwitchPersistentScript);
 }
 
-void CSceneContainer::announceScriptStateWillBeErased(int detachedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
+void CSceneContainer::announceScriptStateWillBeErased(int nakedScriptHandle, int64_t scriptUid, bool simulationScript, bool sceneSwitchPersistentScript)
 {
-    pluginContainer->announceScriptStateWillBeErased(detachedScriptHandle, scriptUid);
-    moduleMenuItemContainer->announceScriptStateWillBeErased(detachedScriptHandle);
-    scene->announceScriptStateWillBeErased(detachedScriptHandle, simulationScript, sceneSwitchPersistentScript);
+    pluginContainer->announceScriptStateWillBeErased(nakedScriptHandle, scriptUid);
+    moduleMenuItemContainer->announceScriptStateWillBeErased(nakedScriptHandle);
+    scene->announceScriptStateWillBeErased(nakedScriptHandle, simulationScript, sceneSwitchPersistentScript);
 #ifdef SIM_WITH_GUI
     if (GuiApp::mainWindow != nullptr)
-        GuiApp::mainWindow->announceScriptStateWillBeErased(detachedScriptHandle, scriptUid);
+        GuiApp::mainWindow->announceScriptStateWillBeErased(nakedScriptHandle, scriptUid);
 #endif
-    customObjects->announceScriptStateWillBeErased(detachedScriptHandle);
+    customObjects->announceScriptStateWillBeErased(nakedScriptHandle);
 }

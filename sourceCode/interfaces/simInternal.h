@@ -40,7 +40,7 @@ decltype(auto) callCapi(Func&& f) {
 #define CALL_C_API_CLEAR_ERRORS(func, ...) CApiUtils::callCapiAndClearErrors([&]() { return func##_internal(__VA_ARGS__); })
 #define CALL_C_API(func, ...) CApiUtils::callCapi([&]() { return func##_internal(__VA_ARGS__); })
 
-void setCurrentScriptInfo_cSide(int detachedScriptHandle, int scriptHandle, int scriptNameIndex);
+void setCurrentScriptInfo_cSide(int nakedScriptHandle, int scriptHandle, int scriptNameIndex);
 int getCurrentScriptNameIndex_cSide();
 std::string getIndexAdjustedObjectName(const char* nm);
 void setLastInfo(const char* infoStr);
@@ -90,7 +90,7 @@ char* simGetPropertyName_internal(int64_t target, int index, SPropertyOptions* o
 int simGetPropertyInfo_internal(int64_t target, const char* pName, SPropertyInfo* infos, SPropertyOptions* options);
 int simSetPropertyInfo_internal(int64_t target, const char* pName, const SPropertyInfo* infos);
 
-int simCallMethod_internal(int64_t target, const char* name, int inputStack, int outputStack, int detachedScript);
+int simCallMethod_internal(int64_t target, const char* name, int inputStack, int outputStack, int nakedScript);
 void simRegCallback_internal(int index, void* callback);
 void simRunGui_internal(int options);
 int simInitialize_internal(const char* appDir, int options);

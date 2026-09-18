@@ -2,15 +2,15 @@
 
 #include <ser.h>
 #include <sceneObject.h>
-#include <detachedScript.h>
+#include <script.h>
 
-class CScript : public CSceneObject
+class CScriptObject : public CSceneObject
 {
   public:
-    CScript();
-    CScript(CDetachedScript* scrObj);
-    CScript(int scriptType, const char* text, int options, const char* lang);
-    virtual ~CScript();
+    CScriptObject();
+    CScriptObject(CScript* script);
+    CScriptObject(int scriptType, const char* text, int options, const char* lang);
+    virtual ~CScriptObject();
 
     // Following functions are inherited from CSceneObject
     void pushNakedGenesisEvents(CCbor* ev = nullptr) override;
@@ -65,9 +65,9 @@ class CScript : public CSceneObject
     void setScriptSize(double s);
     void resetAfterSimError(bool r);
     bool getResetAfterSimError() const;
-    int getDetachedScriptHandle() const;
+    int getNakedScriptHandle() const;
 
-    CDetachedScript* detachedScript;
+    CScript* nakedScript;
 
   protected:
     void _commonInit(int scriptType, const char* text, int options, const char* lang);

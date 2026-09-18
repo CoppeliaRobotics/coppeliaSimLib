@@ -2438,7 +2438,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         }
     }
 
-    std::vector<CDetachedScript*> scripts;
+    std::vector<CScript*> scripts;
     getAttachedScripts(scripts, -1, true);
     getAttachedScripts(scripts, -1, false);
 
@@ -2461,7 +2461,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
 
         for (size_t i = 0; i < scripts.size(); i++)
         {
-            CDetachedScript* script = scripts[i];
+            CScript* script = scripts[i];
             if (script->hasSystemFunctionOrHook(sim_syscb_vision))
             {
                 CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();
@@ -2535,7 +2535,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
 
             for (size_t i = 0; i < scripts.size(); i++)
             {
-                CDetachedScript* script = scripts[i];
+                CScript* script = scripts[i];
                 if (script->hasSystemFunctionOrHook(sim_syscb_trigger))
                 {
                     CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();

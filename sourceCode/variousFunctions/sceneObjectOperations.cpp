@@ -368,13 +368,13 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int id = App::scene->sceneObjects->getLastSelectionHandle();
-            CDetachedScript* script = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+            CScript* script = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                 sim_scripttype_simulation, id);
             if (script != nullptr)
             {
                 if (GuiApp::mainWindow != nullptr)
                     GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(script->getScriptUid(), nullptr, true);
-                App::scene->sceneObjects->embeddedScriptContainer->removeScript(script->getSceneObjectOrDetachedScriptHandle());
+                App::scene->sceneObjects->embeddedScriptContainer->removeScript(script->getSceneObjectOrNakedScriptHandle());
                 App::undoRedo_sceneChanged("");
                 GuiApp::setFullDialogRefreshFlag();
             }
@@ -393,13 +393,13 @@ bool CSceneObjectOperations::processCommand(int commandID)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int id = App::scene->sceneObjects->getLastSelectionHandle();
-            CDetachedScript* script = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+            CScript* script = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
                 sim_scripttype_customization, id);
             if (script != nullptr)
             {
                 if (GuiApp::mainWindow != nullptr)
                     GuiApp::mainWindow->codeEditorContainer->closeFromScriptUid(script->getScriptUid(), nullptr, true);
-                App::scene->sceneObjects->embeddedScriptContainer->removeScript(script->getSceneObjectOrDetachedScriptHandle());
+                App::scene->sceneObjects->embeddedScriptContainer->removeScript(script->getSceneObjectOrNakedScriptHandle());
                 App::undoRedo_sceneChanged("");
                 GuiApp::setFullDialogRefreshFlag();
             }

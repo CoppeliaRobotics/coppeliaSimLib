@@ -1,6 +1,6 @@
 #pragma once
 
-#include <detachedScript.h>
+#include <script.h>
 #ifdef SIM_WITH_GUI
 #include <vMenubar.h>
 #endif
@@ -30,9 +30,9 @@ class CAddOnScriptContainer
     int createAddOn(const char* lang, const char* code);
     bool removeAddOn(int id);
 
-    CDetachedScript* getAddOnFromHandle(int scriptHandle) const;
-    CDetachedScript* getAddOnFromUid(int uid) const;
-    CDetachedScript* getAddOnFromName(const char* name) const;
+    CScript* getAddOnFromHandle(int scriptHandle) const;
+    CScript* getAddOnFromUid(int uid) const;
+    CScript* getAddOnFromName(const char* name) const;
     std::vector<int> getAddOnHandles() const;
 
     int getSysFuncAndHookCnt(int sysCall) const;
@@ -41,21 +41,21 @@ class CAddOnScriptContainer
     void pushNakedGenesisEvents(CCbor* ev = nullptr);
 
     bool shouldTemporarilySuspendMainScript();
-    void getActiveScripts(std::vector<CDetachedScript*>& scripts) const;
-    int callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, int detachedScriptToExclude = -1);
+    void getActiveScripts(std::vector<CScript*>& scripts) const;
+    int callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, int nakedScriptToExclude = -1);
 
 #ifdef SIM_WITH_GUI
     bool processCommand(int commandID);
 #endif
   private:
-    int _insertAddOn(CDetachedScript* script);
+    int _insertAddOn(CScript* script);
     void _insertAddOns(const char* addOnExt);
 
     int _sysFuncAndHookCnt_event;
     int _sysFuncAndHookCnt_dyn;
     int _sysFuncAndHookCnt_contact;
     int _sysFuncAndHookCnt_joint;
-    std::vector<CDetachedScript*> _addOns;
+    std::vector<CScript*> _addOns;
 
     // OLD:
     int _prepareAddOnFunctionNames_old();

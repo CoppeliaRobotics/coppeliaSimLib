@@ -428,7 +428,7 @@ void CForceSensor::_handleSensorTriggering()
             _currentThresholdViolationCount = 0;
         if (_currentThresholdViolationCount >= _consecutiveViolationsToTrigger)
         { // we need to break something!
-            std::vector<CDetachedScript*> scripts;
+            std::vector<CScript*> scripts;
             getAttachedScripts(scripts, -1, true);
             getAttachedScripts(scripts, -1, false);
             if (scripts.size() > 0)
@@ -447,7 +447,7 @@ void CForceSensor::_handleSensorTriggering()
                 inStack->insertKeyDoubleArrayIntoStackTable("filteredTorque", _filteredDynamicTorques.data, 3); // deprecated
                 for (size_t i = 0; i < scripts.size(); i++)
                 {
-                    CDetachedScript* script = scripts[i];
+                    CScript* script = scripts[i];
                     if (script->hasSystemFunctionOrHook(sim_syscb_trigger))
                         script->systemCallScript(sim_syscb_trigger, inStack, nullptr);
                 }

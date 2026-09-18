@@ -86,7 +86,7 @@ class App
     static void logMsg(int verbosityLevel, const char* msg, const char* subStr1, const char* subStr2 = nullptr,
                        const char* subStr3 = nullptr);
     static void logMsg(int verbosityLevel, const char* msg, int int1, int int2 = 0, int int3 = 0);
-    static void logScriptMsg(const CDetachedScript* script, int verbosityLevel, const char* msg);
+    static void logScriptMsg(const CScript* script, int verbosityLevel, const char* msg);
     static void setStringVerbosity(int what, const char* str);
     static int getConsoleVerbosity(const char* pluginName = nullptr);
     static void setConsoleVerbosity(int v, const char* pluginName = nullptr);

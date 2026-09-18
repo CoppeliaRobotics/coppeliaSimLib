@@ -2,12 +2,12 @@
 #include <utils.h>
 #include <app.h>
 
-CustomObject::CustomObject(int64_t handle, const char* objectTypeStr, const char* objectMetaInfo, int originDetachedScriptHandle, int target)
+CustomObject::CustomObject(int64_t handle, const char* objectTypeStr, const char* objectMetaInfo, int originnakedScriptHandle, int target)
 {
     _objectHandle = handle;
     _objectTypeStr = objectTypeStr;
     setMetaInfo(objectMetaInfo);
-    _detachedScriptHandle = originDetachedScriptHandle;
+    _nakedScriptHandle = originnakedScriptHandle;
     _target = target;
     _volatile = true;
     _changed = false;
@@ -25,16 +25,16 @@ CustomObject::~CustomObject()
     }
 }
 
-CustomObject* CustomObject::createObject(int64_t handle, int originDetachedScriptHandle) const
+CustomObject* CustomObject::createObject(int64_t handle, int originnakedScriptHandle) const
 {
-    CustomObject* retVal = new CustomObject(handle, _objectTypeStr.c_str(), getMetaInfo().c_str(), originDetachedScriptHandle, _target);
+    CustomObject* retVal = new CustomObject(handle, _objectTypeStr.c_str(), getMetaInfo().c_str(), originnakedScriptHandle, _target);
     retVal->_customProperties.copyFromExceptMethods(&_customProperties);
     return retVal;
 }
 
-int CustomObject::getDetachedScriptHandle() const
+int CustomObject::getnakedScriptHandle() const
 {
-    return _detachedScriptHandle;
+    return _nakedScriptHandle;
 }
 
 bool CustomObject::getVolatile() const

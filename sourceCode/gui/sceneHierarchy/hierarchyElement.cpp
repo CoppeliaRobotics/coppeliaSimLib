@@ -369,7 +369,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
     {
         bool hasScript = false;
         // Old simulation scripts:
-        CDetachedScript* script = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, it->getObjectHandle());
+        CScript* script = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(sim_scripttype_simulation, it->getObjectHandle());
         if (script != nullptr)
         {
             hasScript = true;
@@ -391,13 +391,13 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
             {
                 hier->scriptIconPosition.push_back(tPosX + localOffset);
                 hier->scriptIconPosition.push_back(tPosY);
-                hier->scriptIconPosition.push_back(script->getSceneObjectOrDetachedScriptHandle());
+                hier->scriptIconPosition.push_back(script->getSceneObjectOrNakedScriptHandle());
             }
             localOffset += HIERARCHY_ICON_WIDTH * GuiApp::sc;
         }
 
         // Old Customization scripts:
-        CDetachedScript* customizationScript = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
+        CScript* customizationScript = App::scene->sceneObjects->embeddedScriptContainer->getScriptFromObjectAttachedTo(
             sim_scripttype_customization, it->getObjectHandle());
         if (customizationScript != nullptr)
         {
@@ -420,21 +420,21 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
             {
                 hier->scriptIconPosition.push_back(tPosX + localOffset);
                 hier->scriptIconPosition.push_back(tPosY);
-                hier->scriptIconPosition.push_back(customizationScript->getSceneObjectOrDetachedScriptHandle());
+                hier->scriptIconPosition.push_back(customizationScript->getSceneObjectOrNakedScriptHandle());
             }
             localOffset += HIERARCHY_ICON_WIDTH * GuiApp::sc;
         }
 
         //if (hasScript)
         { // User params:
-            CDetachedScript* newScript = nullptr;
+            CScript* newScript = nullptr;
             if (it->getObjectType() == sim_sceneobject_script)
             {
-                CScript* so = (CScript*)it;
-                if (so->detachedScript->getScriptType() == sim_scripttype_customization)
+                CScriptObject* scriptObj = (CScriptObject*)it;
+                if (scriptObj->nakedScript->getScriptType() == sim_scripttype_customization)
                 {
-                    if ((!so->detachedScript->getScriptIsDisabled()) && (!so->detachedScript->getScriptHasError()) && so->detachedScript->hasSystemFunctionOrHook(sim_syscb_userconfig))
-                        newScript = so->detachedScript;
+                    if ((!scriptObj->nakedScript->getScriptIsDisabled()) && (!scriptObj->nakedScript->getScriptHasError()) && scriptObj->nakedScript->hasSystemFunctionOrHook(sim_syscb_userconfig))
+                        newScript = scriptObj->nakedScript;
                 }
             }
             else
@@ -444,12 +444,12 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
                     CSceneObject* ch = it->getChildFromIndex(i);
                     if (ch->getObjectType() == sim_sceneobject_script)
                     {
-                        CScript* so = (CScript*)ch;
-                        if (so->detachedScript->getScriptType() == sim_scripttype_customization)
+                        CScriptObject* scriptObj = (CScriptObject*)ch;
+                        if (scriptObj->nakedScript->getScriptType() == sim_scripttype_customization)
                         {
-                            if ((!so->detachedScript->getScriptIsDisabled()) && (!so->detachedScript->getScriptHasError()) && so->detachedScript->hasSystemFunctionOrHook(sim_syscb_userconfig))
+                            if ((!scriptObj->nakedScript->getScriptIsDisabled()) && (!scriptObj->nakedScript->getScriptHasError()) && scriptObj->nakedScript->hasSystemFunctionOrHook(sim_syscb_userconfig))
                             {
-                                newScript = so->detachedScript;
+                                newScript = scriptObj->nakedScript;
                                 break;
                             }
                         }
@@ -468,7 +468,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
                 {
                     hier->scriptParametersIconPosition.push_back(tPosX + localOffset);
                     hier->scriptParametersIconPosition.push_back(tPosY);
-                    hier->scriptParametersIconPosition.push_back(newScript->getSceneObjectOrDetachedScriptHandle()); // which is same as object handle with new scripts
+                    hier->scriptParametersIconPosition.push_back(newScript->getSceneObjectOrNakedScriptHandle()); // which is same as object handle with new scripts
                 }
                 localOffset += (HIERARCHY_ICON_WIDTH + HIERARCHY_INTER_ICON_SPACING) * GuiApp::sc;
             }
@@ -503,7 +503,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
     }
     else
     { // This is for the main script (pseudo object "world"):
-        CDetachedScript* script = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
+        CScript* script = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
         if (script != nullptr)
         {
             if (!dontDisplay)
@@ -516,7 +516,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
             {
                 hier->scriptIconPosition.push_back(tPosX + localOffset);
                 hier->scriptIconPosition.push_back(tPosY);
-                hier->scriptIconPosition.push_back(script->getSceneObjectOrDetachedScriptHandle());
+                hier->scriptIconPosition.push_back(script->getSceneObjectOrNakedScriptHandle());
             }
             localOffset += HIERARCHY_ICON_WIDTH * GuiApp::sc;
             /*
@@ -790,7 +790,7 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy* hier, int tPosX, int tP
                     objectOrWorldIconID = CUSTOMSCENEOBJECT_TREE_PICTURE;
                 if (type == sim_sceneobject_script)
                 {
-                    CDetachedScript* script = ((CScript*)it)->detachedScript;
+                    CScript* script = ((CScriptObject*)it)->nakedScript;
                     if (script->getScriptType() == sim_scripttype_simulation)
                     {
                         if (script->getScriptDisabledAndNoErrorRaised() || ((it->getCumulativeModelProperty() & sim_modelproperty_scripts_inactive) != 0))

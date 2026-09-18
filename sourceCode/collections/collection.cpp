@@ -121,9 +121,9 @@ void CCollection::removeCollectionElementFromHandle(int collectionElementHandle)
     actualizeCollection();
 }
 
-bool CCollection::announceScriptStateWillBeErased(int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
+bool CCollection::announceScriptStateWillBeErased(int nakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 { // Return value true means that this collection needs to be erased
-    return ((!sceneSwitchPersistentScript) && (_creatorHandle == detachedScriptHandle));
+    return ((!sceneSwitchPersistentScript) && (_creatorHandle == nakedScriptHandle));
 }
 
 bool CCollection::announceObjectWillBeErased(int64_t objectHandle, bool copyBuffer)

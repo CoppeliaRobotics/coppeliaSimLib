@@ -663,9 +663,9 @@ CGraphCurve* CGraphCurve::copyYourself() const
     return (newObj);
 }
 
-bool CGraphCurve::announceScriptWillBeErased(int scriptOrDetachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer)
+bool CGraphCurve::announceScriptWillBeErased(int scriptOrnakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer)
 {
-    return ((scriptOrDetachedScriptHandle == _scriptHandle) && (!sceneSwitchPersistentScript));
+    return ((scriptOrnakedScriptHandle == _scriptHandle) && (!sceneSwitchPersistentScript));
 }
 
 void CGraphCurve::performScriptLoadingMapping(const std::map<int, int>* map)

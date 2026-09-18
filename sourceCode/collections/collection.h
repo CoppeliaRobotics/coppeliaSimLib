@@ -23,7 +23,7 @@ class CCollection : public Obj
     void performCollectionLoadingMapping(const std::map<int, int>* map, int opType);
     void performObjectLoadingMapping(const std::map<int, int>* map, int opType);
     bool announceObjectWillBeErased(int64_t objectHandle, bool copyBuffer);
-    bool announceScriptStateWillBeErased(int detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    bool announceScriptStateWillBeErased(int nakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     CCollection* copyYourself() const;
     void emptyCollection();
     int getCreatorHandle() const;

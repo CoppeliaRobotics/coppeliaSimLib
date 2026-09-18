@@ -74,11 +74,11 @@ void CAddOnScriptContainer::simulationAboutToEnd()
         _addOns[i]->simulationAboutToEnd();
 }
 
-CDetachedScript* CAddOnScriptContainer::getAddOnFromHandle(int scriptHandle) const
+CScript* CAddOnScriptContainer::getAddOnFromHandle(int scriptHandle) const
 {
     for (size_t i = 0; i < _addOns.size(); i++)
     {
-        if (_addOns[i]->getSceneObjectOrDetachedScriptHandle() == scriptHandle)
+        if (_addOns[i]->getSceneObjectOrNakedScriptHandle() == scriptHandle)
             return _addOns[i];
     }
     return nullptr;
@@ -88,11 +88,11 @@ std::vector<int> CAddOnScriptContainer::getAddOnHandles() const
 {
     std::vector<int> retVal;
     for (size_t i = 0; i < _addOns.size(); i++)
-        retVal.push_back(_addOns[i]->getSceneObjectOrDetachedScriptHandle());
+        retVal.push_back(_addOns[i]->getSceneObjectOrNakedScriptHandle());
     return retVal;
 }
 
-CDetachedScript* CAddOnScriptContainer::getAddOnFromUid(int uid) const
+CScript* CAddOnScriptContainer::getAddOnFromUid(int uid) const
 {
     for (size_t i = 0; i < _addOns.size(); i++)
     {
@@ -102,7 +102,7 @@ CDetachedScript* CAddOnScriptContainer::getAddOnFromUid(int uid) const
     return (nullptr);
 }
 
-CDetachedScript* CAddOnScriptContainer::getAddOnFromName(const char* name) const
+CScript* CAddOnScriptContainer::getAddOnFromName(const char* name) const
 {
     for (size_t i = 0; i < _addOns.size(); i++)
     {
@@ -114,7 +114,7 @@ CDetachedScript* CAddOnScriptContainer::getAddOnFromName(const char* name) const
 
 int CAddOnScriptContainer::createAddOn(const char* lang, const char* code)
 {
-    CDetachedScript* defScript = new CDetachedScript(sim_scripttype_addon);
+    CScript* defScript = new CScript(sim_scripttype_addon);
     defScript->setLang(lang);
     defScript->setScriptText(code, false);
     //defScript->setAddOnPath();
@@ -124,10 +124,10 @@ int CAddOnScriptContainer::createAddOn(const char* lang, const char* code)
     return handle;
 }
 
-int CAddOnScriptContainer::_insertAddOn(CDetachedScript* script)
+int CAddOnScriptContainer::_insertAddOn(CScript* script)
 {
     _addOns.push_back(script);
-    return script->getSceneObjectOrDetachedScriptHandle();
+    return script->getSceneObjectOrNakedScriptHandle();
 }
 
 void CAddOnScriptContainer::_insertAddOns(const char* addOnExt)
@@ -156,7 +156,7 @@ void CAddOnScriptContainer::_insertAddOns(const char* addOnExt)
         {
             std::string fp(App::folders->getAddOnPath() + "/");
             fp += foundItem->name;
-            CDetachedScript* defScript = new CDetachedScript(sim_scripttype_addon);
+            CScript* defScript = new CScript(sim_scripttype_addon);
             defScript->setLang(lang.c_str());
             if (defScript->setScriptTextFromFile(fp.c_str()))
             {
@@ -217,7 +217,7 @@ void CAddOnScriptContainer::loadAdditionalAddOns()
                 for (int i = 0; i < int(archiveLength); i++)
                     archive >> script[i];
                 script[archiveLength] = 0;
-                CDetachedScript* defScript = new CDetachedScript(sim_scripttype_addon);
+                CScript* defScript = new CScript(sim_scripttype_addon);
                 defScript->setLang(lang.c_str());
                 defScript->setAddOnPath(fp.c_str());
                 _insertAddOn(defScript);
@@ -284,13 +284,13 @@ bool CAddOnScriptContainer::shouldTemporarilySuspendMainScript()
     return (retVal);
 }
 
-void CAddOnScriptContainer::getActiveScripts(std::vector<CDetachedScript*>& scripts) const
+void CAddOnScriptContainer::getActiveScripts(std::vector<CScript*>& scripts) const
 {
-    std::vector<CDetachedScript*> scripts_normal;
-    std::vector<CDetachedScript*> scripts_last;
+    std::vector<CScript*> scripts_normal;
+    std::vector<CScript*> scripts_last;
     for (size_t i = 0; i < _addOns.size(); i++)
     {
-        CDetachedScript* it = _addOns[i];
+        CScript* it = _addOns[i];
         if (it->getScriptState() == sim_scriptstate_initialized)
         {
             if (it->getScriptExecPriority() == sim_scriptexecorder_first)
@@ -305,15 +305,15 @@ void CAddOnScriptContainer::getActiveScripts(std::vector<CDetachedScript*>& scri
     scripts.insert(scripts.end(), scripts_last.begin(), scripts_last.end());
 }
 
-int CAddOnScriptContainer::callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, int detachedScriptToExclude /*=-1*/)
+int CAddOnScriptContainer::callScripts(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack, int nakedScriptToExclude /*=-1*/)
 {
     int retVal = 0;
-    std::vector<CDetachedScript*> scripts;
-    std::vector<CDetachedScript*> scripts_normal;
-    std::vector<CDetachedScript*> scripts_last;
+    std::vector<CScript*> scripts;
+    std::vector<CScript*> scripts_normal;
+    std::vector<CScript*> scripts_last;
     for (size_t i = 0; i < _addOns.size(); i++)
     {
-        CDetachedScript* it = _addOns[i];
+        CScript* it = _addOns[i];
         if (it->getScriptExecPriority() == sim_scriptexecorder_first)
             scripts.push_back(it);
         if (it->getScriptExecPriority() == sim_scriptexecorder_normal)
@@ -323,11 +323,11 @@ int CAddOnScriptContainer::callScripts(int callType, const CInterfaceStack* inSt
     }
     scripts.insert(scripts.end(), scripts_normal.begin(), scripts_normal.end());
     scripts.insert(scripts.end(), scripts_last.begin(), scripts_last.end());
-    bool interruptible = CDetachedScript::isSystemCallbackInterruptible(callType);
+    bool interruptible = CScript::isSystemCallbackInterruptible(callType);
     for (size_t i = 0; i < scripts.size(); i++)
     {
-        CDetachedScript* it = scripts[i];
-        if (it->getObjectHandle() != detachedScriptToExclude)
+        CScript* it = scripts[i];
+        if (it->getObjectHandle() != nakedScriptToExclude)
         {
             if (it->hasSystemFunctionOrHook(callType))
             {
@@ -347,12 +347,12 @@ bool CAddOnScriptContainer::removeAddOn(int scriptID)
     bool res = false;
     for (size_t i = 0; i < _addOns.size(); i++)
     {
-        if (_addOns[i]->getSceneObjectOrDetachedScriptHandle() == scriptID)
+        if (_addOns[i]->getSceneObjectOrNakedScriptHandle() == scriptID)
         {
-            CDetachedScript* it = _addOns[i];
+            CScript* it = _addOns[i];
             it->resetScript(); // should not be done in the destructor!
             _addOns.erase(_addOns.begin() + i);
-            CDetachedScript::destroy(it, true);
+            CScript::destroy(it, true);
             res = true;
             break;
         }
@@ -367,10 +367,10 @@ void CAddOnScriptContainer::removeAllAddOns()
 {
     while (_addOns.size() > 0)
     {
-        CDetachedScript* it = _addOns[0];
+        CScript* it = _addOns[0];
         it->resetScript(); // should not be done in the destructor!
         _addOns.erase(_addOns.begin());
-        CDetachedScript::destroy(it, true);
+        CScript::destroy(it, true);
     }
 }
 
@@ -378,7 +378,7 @@ void CAddOnScriptContainer::pushNakedGenesisEvents(CCbor* ev /*= nullptr*/)
 {
     for (size_t i = 0; i < _addOns.size(); i++)
     {
-        CDetachedScript* it = _addOns[i];
+        CScript* it = _addOns[i];
         it->pushNakedGenesisEvents();
     }
 }
@@ -390,7 +390,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CDetachedScript* it = nullptr;
+            CScript* it = nullptr;
             for (size_t i = 0; i < _addOns.size(); i++)
             {
                 if (_addOns[i]->getAddOnUiMenuHandle() == commandID)
@@ -459,7 +459,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                             for (int i = 0; i < int(archiveLength); i++)
                                 archive >> script[i];
                             script[archiveLength] = 0;
-                            CDetachedScript* defScript = new CDetachedScript(sim_scripttype_addonfunction);
+                            CScript* defScript = new CScript(sim_scripttype_addonfunction);
                             defScript->setLang("lua");
                             int scriptID = _insertAddOn(defScript);
                             defScript->setScriptText(script);

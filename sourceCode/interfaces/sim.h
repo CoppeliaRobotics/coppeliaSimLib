@@ -276,7 +276,7 @@ SIM_DLLEXPORT char* simGetPropertyName(int64_t target, int index, SPropertyOptio
 SIM_DLLEXPORT int simGetPropertyInfo(int64_t target, const char*, SPropertyInfo* infos, SPropertyOptions* options);
 SIM_DLLEXPORT int simSetPropertyInfo(int64_t target, const char*, const SPropertyInfo* infos);
 
-SIM_DLLEXPORT int simCallMethod(int64_t target, const char* name, int inputStack, int outputStack, int detachedScript);
+SIM_DLLEXPORT int simCallMethod(int64_t target, const char* name, int inputStack, int outputStack, int nakedScript);
 SIM_DLLEXPORT int simTest(int mode, void* ptr1, void* ptr2, void* ptr3);
 SIM_DLLEXPORT void* simGetMainWindow(int type);
 SIM_DLLEXPORT char* simGetLastError();

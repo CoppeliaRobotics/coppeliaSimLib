@@ -15,7 +15,7 @@ class CCollectionContainer
     void newScene();
     void actualizeAllCollections();
     void announceObjectWillBeErased(int64_t objectHandle);
-    void announceScriptStateWillBeErased(int64_t detachedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
+    void announceScriptStateWillBeErased(int64_t nakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     void setUpDefaultValues();
     void removeAllCollections();
 

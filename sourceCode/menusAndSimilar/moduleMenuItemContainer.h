@@ -7,11 +7,11 @@ class CModuleMenuItemContainer
   public:
     CModuleMenuItemContainer();
     virtual ~CModuleMenuItemContainer();
-    int addMenuItem(const char* item, int detachedScriptHandle);
+    int addMenuItem(const char* item, int nakedScriptHandle);
     void removeMenuItem(int h);
     CModuleMenuItem* getItemFromHandle(int h) const;
     size_t getItemCount() const;
-    void announceScriptStateWillBeErased(int detachedScriptHandle);
+    void announceScriptStateWillBeErased(int nakedScriptHandle);
 
   private:
     void _orderItems();
