@@ -2550,7 +2550,7 @@ bool CScript::resetScript()
 }
 
 void CScript::initScript()
-{ // add-on scripts won't reload, just reinitialize
+{
     resetScript();
     {
         if (this == App::scenes->sandboxScript)
@@ -2588,7 +2588,11 @@ void CScript::initScript()
         else
         {
             if ( ((_scriptType != sim_scripttype_simulation) && (_scriptType != sim_scripttype_main)) || (!App::scene->simulation->isSimulationStopped()) )
+            {
+                if (_scriptType == sim_scripttype_addon)
+                    _autoStartAddOn = 1;
                 systemCallScript(sim_syscb_init, nullptr, nullptr);
+            }
         }
     }
 }
