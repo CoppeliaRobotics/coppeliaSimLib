@@ -67,6 +67,7 @@ std::vector<void*> App::callbacks;
 InstancesList* App::instancesList = nullptr;
 qint64 App::pid = -1;
 std::vector<int> App::_scriptsToReset;
+std::vector<int> App::_scriptsToInit;
 VMutex App::_appSemaphore;
 std::map<std::string, SSysSemaphore> App::_systemSemaphores;
 std::vector<std::string> App::_pluginNames;
@@ -559,12 +560,21 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     scene->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_simulation);
     scene->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customization);
 
+    // Async init some scripts:
+    for (size_t i = 0; i < _scriptsToInit.size(); i++)
+    {
+        CScript* it = scenes->getScriptFromHandle(_scriptsToInit[i]);
+        if (it != nullptr)
+            it->initScript();
+    }
+    _scriptsToInit.clear();
+
     // Async reset some scripts:
     for (size_t i = 0; i < _scriptsToReset.size(); i++)
     {
         CScript* it = scenes->getScriptFromHandle(_scriptsToReset[i]);
         if (it != nullptr)
-            it->initScript();
+            it->resetScript();
     }
     _scriptsToReset.clear();
 
@@ -4188,6 +4198,11 @@ bool App::canSave()
 void App::asyncResetScript(int scriptHandle)
 {
     _scriptsToReset.push_back(scriptHandle);
+}
+
+void App::asyncInitScript(int scriptHandle)
+{
+    _scriptsToInit.push_back(scriptHandle);
 }
 
 bool App::appSemaphore(bool acquire, bool block /*= true*/)

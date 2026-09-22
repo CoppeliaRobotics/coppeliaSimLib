@@ -173,6 +173,7 @@ class App
     static int getEventProtocolVersion();
     static void setEventProtocolVersion(int v);
     static void asyncResetScript(int scriptHandle);
+    static void asyncInitScript(int scriptHandle);
     static bool appSemaphore(bool acquire, bool block = true);
     static bool systemSemaphore(const char* key, bool acquire);
     static int64_t getCurrentObject();
@@ -233,6 +234,7 @@ class App
     static std::string _applicationDir;
     static CPersistentDataContainer* _appStorage;
     static std::vector<int> _scriptsToReset;
+    static std::vector<int> _scriptsToInit;
     static std::map<std::string, SSysSemaphore> _systemSemaphores;
     static VMutex _appSemaphore;
     static std::vector<std::string> _pluginNames;

@@ -94,7 +94,10 @@ std::string callMethod(int targetObj, const char* method, CScript* currentScript
 //        funcTable["getApiInfo"] = _method_getApiInfo;
 //        funcTable["getApiFunc"] = _method_getApiFunc;
         funcTable["getStackTraceback"] = _method_getStackTraceback;
+        funcTable["reset"] = _method_reset;
         funcTable["init"] = _method_init;
+        funcTable["suspend"] = _method_suspend;
+        funcTable["resume"] = _method_resume;
         funcTable["scale"] = _method_scale;
         funcTable["scaleTree"] = _method_scaleTree;
         funcTable["simulation.start"] = _method_startSimulation;
@@ -188,7 +191,6 @@ std::string callMethod(int targetObj, const char* method, CScript* currentScript
         funcTable["isValid"] = _method_isValid;
         funcTable["addCurve"] = _method_addCurve;
         funcTable["addSignal"] = _method_addSignal;
-        funcTable["reset"] = _method_reset;
         funcTable["setSignalPoint"] = _method_setSignalPoint;
         funcTable["snapshotTrace"] = _method_snapshotTrace;
         funcTable["removeTrace"] = _method_removeTrace;
@@ -3373,6 +3375,29 @@ std::string _method_getStackTraceback(int targetObj, CScript* currentScript, con
     return errMsg;
 }
 
+std::string _method_reset(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CScript* scriptTarget = getNakedScript(targetObj, nullptr, -1);
+    CGraph* graphTarget = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, nullptr, -1);
+    if (checkInputArguments(inStack, &errMsg, {}))
+    {
+        if (scriptTarget != nullptr)
+        {
+            if (currentScript == scriptTarget)
+                App::asyncResetScript(targetObj); // delayed
+            else
+                scriptTarget->resetScript();
+        }
+        if (graphTarget != nullptr)
+        {
+            graphTarget->resetGraph();
+        }
+    }
+
+    return errMsg;
+}
+
 std::string _method_init(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
@@ -3380,9 +3405,43 @@ std::string _method_init(int targetObj, CScript* currentScript, const CInterface
     if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {}))
     {
         if (currentScript == target)
-            App::asyncResetScript(targetObj); // delayed
+            App::asyncInitScript(targetObj); // delayed
         else
             target->initScript();
+    }
+    return errMsg;
+}
+
+std::string _method_suspend(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CScript* target = getNakedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {}))
+    {
+        if (target->getScriptType() == sim_scripttype_addon)
+        {
+            if (target->getScriptState() == sim_scriptstate_initialized)
+                target->setScriptState(target->getScriptState() | sim_scriptstate_suspended);
+        }
+        else
+            errMsg = SIM_ERROR_INVALID_SCRIPT_TYPE_FOR_OPERATION;
+    }
+    return errMsg;
+}
+
+std::string _method_resume(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CScript* target = getNakedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {}))
+    {
+        if (target->getScriptType() == sim_scripttype_addon)
+        {
+            if ((target->getScriptState() & sim_scriptstate_suspended) != 0)
+                target->setScriptState(target->getScriptState() - sim_scriptstate_suspended);
+        }
+        else
+            errMsg = SIM_ERROR_INVALID_SCRIPT_TYPE_FOR_OPERATION;
     }
     return errMsg;
 }
@@ -7255,17 +7314,6 @@ std::string _method_addSignal(int targetObj, CScript* currentScript, const CInte
                 outStack->pushInt32OntoStack(retVal);
             }
         }
-    }
-    return errMsg;
-}
-
-std::string _method_reset(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    std::string errMsg;
-    CGraph* target = (CGraph*)getSpecificSceneObjectType(targetObj, sim_sceneobject_graph, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {}))
-    {
-        target->resetGraph();
     }
     return errMsg;
 }

@@ -2546,6 +2546,8 @@ bool CScript::resetScript()
     bool retVal = _killInterpreterState();
     fromFileToBuffer();
     setScriptState(sim_scriptstate_unloaded);
+    if (_scriptType == sim_scripttype_addon)
+        _autoStartAddOn = 0;
     return retVal;
 }
 
