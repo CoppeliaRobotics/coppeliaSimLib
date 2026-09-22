@@ -163,8 +163,8 @@ CShape* CAddOperations::addPrimitiveShape(int type, const C3Vector& psizes, int 
         shape = new CShape(CPose::identityTransformation, vertices, indices, nullptr, nullptr, 0);
         if (type == sim_primitiveshape_cone)
         {
-            shape->setObjectAlias_direct("Cone");
-            shape->setObjectName_direct_old("Cone");
+            shape->setObjectAlias_direct(IDSOGL_CONE);
+            shape->setObjectName_direct_old(IDSOGL_CONE);
         }
         else
         {

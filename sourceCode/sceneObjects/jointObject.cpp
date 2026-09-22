@@ -115,8 +115,6 @@ CJoint::CJoint(int jointType)
     _jointType = jointType;
     if (jointType == sim_joint_revolute)
     {
-        _objectName_old = IDSOGL_REVOLUTE_JOINT;
-        _objectAlias = IDSOGL_REVOLUTE_JOINT;
         _jointMode = sim_jointmode_dynamic;
         _isCyclic = true;
         _posRange = piValT2;
@@ -130,8 +128,6 @@ CJoint::CJoint(int jointType)
     }
     if (jointType == sim_joint_prismatic)
     {
-        _objectName_old = IDSOGL_PRISMATIC_JOINT;
-        _objectAlias = IDSOGL_PRISMATIC_JOINT;
         _jointMode = sim_jointmode_dynamic;
         _isCyclic = false;
         _posRange = 1.0;
@@ -145,8 +141,6 @@ CJoint::CJoint(int jointType)
     }
     if (jointType == sim_joint_spherical)
     {
-        _objectName_old = IDSOGL_SPHERICAL_JOINT;
-        _objectAlias = IDSOGL_SPHERICAL_JOINT;
         _jointMode = sim_jointmode_dynamic;
         _isCyclic = true;
         _posRange = piValue;

@@ -30,10 +30,6 @@ CScriptObject::CScriptObject(CScript* script)
 
 void CScriptObject::_commonInit(int scriptType, const char* text, int options, const char* lang)
 {
-    printf("bli %s\n", magic_enum::enum_name(magic_enum::enum_cast<sceneObjectType>(sim_sceneobject_scriptobject).value()).data());
-
-
-//    printf("bla: %s\n", magic_enum::enum_name(magic_enum::enum_cast<sceneObjectType>(sim_sceneobject_scriptobject)).data().c_str());
     _objectTypeStr = "scriptObject";
     _originalObjectTypeStr = _objectTypeStr;
     nakedScript = new CScript(scriptType);
@@ -50,8 +46,11 @@ void CScriptObject::_commonInit(int scriptType, const char* text, int options, c
     _resetAfterSimError = false;
 
     _visibilityLayer = SCRIPT_LAYER;
-    _objectAlias = _objectTypeStr;
-    _objectName_old = _objectTypeStr;
+    if (scriptType == sim_scripttype_simulation)
+        _objectAlias = "simulationScript";
+    if (scriptType == sim_scripttype_customization)
+        _objectAlias = "customizationScript";
+    _objectName_old = _objectAlias;
     _objectAltName_old = tt::getObjectAltNameFromObjectName(_objectName_old.c_str());
 
     _scriptColor.setDefaultValues();
