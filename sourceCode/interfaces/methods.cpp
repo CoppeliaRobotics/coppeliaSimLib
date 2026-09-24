@@ -59,8 +59,8 @@ std::string callMethod(int targetObj, const char* method, CScript* currentScript
         funcTable["setPose"] = _method_setPose;
         funcTable["setParent"] = _method_setParent;
         funcTable["handleMessagePump"] = _method_handleMessagePump;
-        funcTable["handleSandboxScript"] = _method_handleSandboxScript;
-        funcTable["handleAddOnScripts"] = _method_handleAddOnScripts;
+        funcTable["handleSandboxes"] = _method_handleSandboxes;
+        funcTable["handleAddOns"] = _method_handleAddOns;
         funcTable["handleCustomizationScripts"] = _method_handleCustomizationScripts;
         funcTable["handleSimulationScripts"] = _method_handleSimulationScripts;
         funcTable["loadModel"] = _method_loadModel;
@@ -1780,7 +1780,7 @@ std::string _method_handleMessagePump(int targetObj, CScript* currentScript, con
     return errMsg;
 }
 
-std::string _method_handleSandboxScript(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_handleSandboxes(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if ((currentScript != nullptr) && checkInputArguments(inStack, &errMsg, {arg_integer}))
@@ -1806,7 +1806,7 @@ std::string _method_handleSandboxScript(int targetObj, CScript* currentScript, c
     return errMsg;
 }
 
-std::string _method_handleAddOnScripts(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_handleAddOns(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     if ((currentScript != nullptr) && checkInputArguments(inStack, &errMsg, {arg_integer}))
