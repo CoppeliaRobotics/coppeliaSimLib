@@ -96,6 +96,7 @@ class CScript : public Obj
     void setIsSceneObjectScript(bool s);
     bool resetScript();
     void initScript();
+    void setForceAutoStart();
     bool hasInterpreterState() const;
     bool getIsUpToDate();
     bool isSimulationOrMainScript() const;

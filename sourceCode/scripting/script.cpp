@@ -2551,6 +2551,11 @@ bool CScript::resetScript()
     return retVal;
 }
 
+void CScript::setForceAutoStart()
+{
+    _autoStartAddOn = 1;
+}
+
 void CScript::initScript()
 {
     resetScript();

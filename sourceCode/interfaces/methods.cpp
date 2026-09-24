@@ -126,11 +126,11 @@ std::string callMethod(int targetObj, const char* method, CScript* currentScript
         funcTable["getObject"] = _method_getObject;
         funcTable["announceChange"] = _method_announceChange;
         funcTable["getObjectFromUid"] = _method_getObjectFromUid;
-        funcTable["getInertia"] = _method_getInertia;
-        funcTable["setInertia"] = _method_setInertia;
-        funcTable["computeInertia"] = _method_computeInertia;
-        funcTable["addForce"] = _method_addForce;
-        funcTable["addTorque"] = _method_addTorque;
+        funcTable["dynamics.getInertia"] = _method_dynamics_getInertia;
+        funcTable["dynamics.setInertia"] = _method_dynamics_setInertia;
+        funcTable["dynamics.computeInertia"] = _method_dynamics_computeInertia;
+        funcTable["dynamics.addForce"] = _method_dynamics_addForce;
+        funcTable["dynamics.addTorque"] = _method_dynamics_addTorque;
         funcTable["ungroup"] = _method_ungroup;
         funcTable["divide"] = _method_divide;
         funcTable["pack"] = _method_pack;
@@ -216,7 +216,7 @@ std::string callMethod(int targetObj, const char* method, CScript* currentScript
         funcTable["setTargetVelocity"] = _method_setTargetVelocity;
         funcTable["stepKinematicJoints"] = _method_stepKinematicJoints;
         funcTable["pushEvent"] = _method_pushEvent;
-        funcTable["getContacts"] = _method_getContacts;
+        funcTable["dynamics.getContacts"] = _method_dynamics_getContacts;
         funcTable["getGenesisEvents"] = _method_getGenesisEvents;
         funcTable["setEventFilters"] = _method_setEventFilters;
         funcTable["getPluginInfo"] = _method_getPluginInfo;
@@ -4477,7 +4477,7 @@ std::string _method_getObjectFromUid(int targetObj, CScript* currentScript, cons
     return errMsg;
 }
 
-std::string _method_getInertia(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_dynamics_getInertia(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
@@ -4491,7 +4491,7 @@ std::string _method_getInertia(int targetObj, CScript* currentScript, const CInt
     return errMsg;
 }
 
-std::string _method_setInertia(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_dynamics_setInertia(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
@@ -4514,7 +4514,7 @@ std::string _method_setInertia(int targetObj, CScript* currentScript, const CInt
     return errMsg;
 }
 
-std::string _method_computeInertia(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_dynamics_computeInertia(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
@@ -4526,7 +4526,7 @@ std::string _method_computeInertia(int targetObj, CScript* currentScript, const 
     return errMsg;
 }
 
-std::string _method_addForce(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_dynamics_addForce(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
@@ -4558,7 +4558,7 @@ std::string _method_addForce(int targetObj, CScript* currentScript, const CInter
     return errMsg;
 }
 
-std::string _method_addTorque(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_dynamics_addTorque(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* shape = (CShape*)getSpecificSceneObjectType(targetObj, sim_sceneobject_shape, &errMsg, -1);
@@ -8316,7 +8316,7 @@ std::string _method_pushEvent(int targetObj, CScript* currentScript, const CInte
     return errMsg;
 }
 
-std::string _method_getContacts(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+std::string _method_dynamics_getContacts(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
     CShape* target = nullptr;

@@ -201,11 +201,14 @@ void CAddOnScriptContainer::loadAdditionalAddOns()
             lang = "python";
         if (!VVarious::isAbsolutePath(fp.c_str()))
         {
-            fp = App::folders->getAddOnPath() + "/";
+            fp = App::folders->getExecutablePath() + "/";
             fp += additionalScripts[addScr];
+            if (!VFile::doesFileExist(fp.c_str()))
+            { // backw. compatibility
+                fp = App::folders->getAddOnPath() + "/";
+                fp += additionalScripts[addScr];
+            }
         }
-        std::string fileName_noExtension(VVarious::splitPath_fileBase(fp.c_str()));
-        std::string fileName_withExtension(VVarious::splitPath_fileBaseAndExtension(fp.c_str()));
         if (VFile::doesFileExist(fp.c_str()))
         {
             try
@@ -224,21 +227,21 @@ void CAddOnScriptContainer::loadAdditionalAddOns()
                 std::string sc(script);
                 defScript->setScriptText(sc.c_str());
 
-                defScript->setDisplayAddOnName(fileName_noExtension.c_str());
-
+                defScript->setDisplayAddOnName(VVarious::splitPath_fileBase(fp.c_str()).c_str());
+                defScript->setForceAutoStart();
                 delete[] script;
                 archive.close();
                 file.close();
 
-                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "add-on '%s' was loaded.", fileName_withExtension.c_str());
+                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "add-on '%s' was loaded.", VVarious::splitPath_fileBaseAndExtension(fp.c_str()).c_str());
             }
             catch (VFILE_EXCEPTION_TYPE)
             {
-                App::logMsg(sim_verbosity_errors, "failed loading add-on '%s'.", fileName_withExtension.c_str());
+                App::logMsg(sim_verbosity_errors, "failed loading add-on '%s'.", fp.c_str());
             }
         }
         else
-            App::logMsg(sim_verbosity_errors, "failed loading add-on '%s'.", fileName_withExtension.c_str());
+            App::logMsg(sim_verbosity_errors, "failed loading add-on '%s'.", fp.c_str());
     }
 }
 
