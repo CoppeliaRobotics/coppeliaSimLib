@@ -74,14 +74,17 @@ void _reportWarningsIfNeeded(luaWrap_lua_State* L, const char* functionName, con
         if (it != nullptr)
         {
             int verb = sim_verbosity_scriptwarnings;
-            int lineNumber = -1;
-            lineNumber = luaWrap_getCurrentCodeLine(L);
+//            int lineNumber = -1;
+//            lineNumber = luaWrap_getCurrentCodeLine(L);
             std::string msg;
-            msg += std::to_string(lineNumber);
-            msg += ": in '";
+//            msg += std::to_string(lineNumber);
+//            msg += ": in '";
+            msg += "in '";
             msg += functionName;
-            msg += "' ";
+            msg += "': ";
             msg += warningString;
+            msg +="\n";
+            msg += it->getTraceback();
             size_t p = msg.find("__once__");
             if (p != std::string::npos)
             {
@@ -105,20 +108,8 @@ void _raiseErrorIfNeeded(luaWrap_lua_State* L, const char* functionName, const c
     CScript* it = App::scenes->getScriptFromHandle(CScript::getScriptObjectOrNakedScriptHandleFromInterpreterState_lua(L));
     if (it == nullptr)
         return;
-    std::string suffix = " (c: simCallMethod)";
     std::string msg;
-    if (errStr.length() >= suffix.length() && errStr.compare(errStr.length() - suffix.length(), suffix.length(), suffix) == 0)
-    { // special handling of methods
-        errStr.erase(errStr.length() - suffix.length());
-        msg += "error in method '";
-    }
-    else
-    {
-        int lineNumber = -1;
-        lineNumber = luaWrap_getCurrentCodeLine(L);
-        msg += std::to_string(lineNumber);
-        msg += ": error in '";
-    }
+    msg += "in '";
     msg += functionName;
     msg += "': ";
     msg += errStr;
@@ -6423,11 +6414,11 @@ int _callMethod(luaWrap_lua_State* L)
         int64_t target = fetchHandleArg(L, 1);
         std::string methodName = fetchTextArg(L, 2);
         methodName = "@" + methodName;
-        int currentScriptId = CScript::getScriptObjectOrNakedScriptHandleFromInterpreterState_lua(L);
+        int currentScriptHandle = CScript::getNakedScriptHandleFromInterpreterState_lua(L);
         CInterfaceStack* inStack = App::scenes->interfaceStackContainer->createStack();
         CScript::buildFromInterpreterStack_lua(L, inStack, 3, 0); // skip the two first args
         CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();
-        int res = CALL_C_API(simCallMethod, target, methodName.c_str(), inStack->getObjectHandle(), outStack->getObjectHandle(), currentScriptId);
+        int res = CALL_C_API(simCallMethod, target, methodName.c_str(), inStack->getObjectHandle(), outStack->getObjectHandle(), currentScriptHandle);
         if (res == 1)
         {
             int s = int(CScript::buildOntoInterpreterStack_lua(L, outStack, false, false));

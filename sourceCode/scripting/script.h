@@ -126,6 +126,7 @@ class CScript : public Obj
     double getRandomDouble();
     void setRandomSeed(unsigned int s);
 
+    std::string getTraceback();
     std::string getAndClearLastStackTraceback();
 
     int getScriptState() const;

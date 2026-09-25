@@ -997,11 +997,20 @@ void CScript::setTemporarilySuspended(bool s)
     _tempSuspended = s;
 }
 
+std::string CScript::getTraceback()
+{
+    lua_State* L = (lua_State*)_interpreterState;
+    luaL_traceback(L, L, nullptr, 0);   // pushes a string
+    std::string retVal = lua_tostring(L, -1);
+    lua_pop(L, 1);
+    return retVal;
+}
+
 std::string CScript::getAndClearLastStackTraceback()
 {
     std::string retVal = _lastStackTraceback;
     _lastStackTraceback.clear();
-    return (retVal);
+    return retVal;
 }
 
 double CScript::getRandomDouble()
