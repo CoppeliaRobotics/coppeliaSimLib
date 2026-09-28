@@ -7,6 +7,9 @@
 class utils
 { // FULLY STATIC!!
   public:
+    static bool isValidUtf8(const char *data, int length);
+    static std::string toWellFormedUtf8(const char *data, int length);
+
     static void lightBinaryEncode(char* data, int length);
     static void lightBinaryDecode(char* data, int length);
     static uint16_t getCRC(char* data, int length);

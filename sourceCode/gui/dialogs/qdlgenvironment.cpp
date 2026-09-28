@@ -106,6 +106,8 @@ void CQDlgEnvironment::on_qqAcknowledgments_textChanged()
 {
     std::string txt = ui->qqAcknowledgments->toPlainText().toStdString();
     tt::removeSpacesAndEmptyLinesAtBeginningAndEnd(txt);
+    if (!utils::isValidUtf8(txt.c_str(), txt.size()))
+        txt = utils::toWellFormedUtf8(txt.c_str(), txt.size());
     // No refresh here!! (otherwise we can't edit the item properly)
     App::appendSimulationThreadCommand(SET_ACKNOWLEDGMENT_ENVIRONMENTGUITRIGGEREDCMD, -1, -1, 0.0, 0.0, txt.c_str());
 }

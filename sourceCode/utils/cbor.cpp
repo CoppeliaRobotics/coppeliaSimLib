@@ -1,6 +1,7 @@
 #include <cbor.h>
 #include <app.h>
 #include <string.h>
+#include <utils.h>
 
 #define USE_TAGGED_ARRAYS (true)
 #define NO_DATAFIELD_HANDLE(code) \
@@ -587,12 +588,20 @@ void CCbor::appendBuff(const unsigned char* v, size_t l)
 
 void CCbor::appendText(const char* v, int l /*=-1*/)
 {
-    _handleDataField(v);
     if (l < 0)
         l = int(strlen(v));
-    _appendItemTypeAndLength(64 + 32, size_t(l));
-    for (size_t i = 0; i < size_t(l); i++)
-        _buff.push_back(v[i]);
+    if (utils::isValidUtf8(v, l))
+    {
+        _handleDataField(v);
+        _appendItemTypeAndLength(64 + 32, size_t(l));
+        for (size_t i = 0; i < size_t(l); i++)
+            _buff.push_back(v[i]);
+    }
+    else
+    {
+        std::string str = utils::toWellFormedUtf8(v, l);
+        appendText(str.data(), str.size());
+    }
 }
 
 void CCbor::appendTextArray(const std::vector<std::string>& txtArr)

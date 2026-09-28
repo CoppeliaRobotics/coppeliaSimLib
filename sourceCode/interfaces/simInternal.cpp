@@ -1474,55 +1474,66 @@ int simSetStringProperty_internal(int64_t target, const char* ppName, const char
         int retVal = sim_propertyret_invalidname;
         if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
         {
-            std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_string)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_string)))
-                retVal = simSetBufferProperty_internal(target, pName.c_str(), pState, int(strlen(pState)));
-            else
+            if (utils::isValidUtf8(pState, int(strlen(pState))))
             {
-                pName = checkForDeprecation(__func__, pName.c_str(), target);
-                retVal = App::setStringProperty_t(target, pName.c_str(), std::string(pState));
-                if (retVal != sim_propertyret_ok)
+                std::string pName(ppName);
+                if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_string)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_string)))
+                    retVal = simSetBufferProperty_internal(target, pName.c_str(), pState, int(strlen(pState)));
+                else
                 {
-                    std::string pName2 = checkAltName(pName.c_str(), target);
-                    if (!pName2.empty())
-                        retVal = App::setStringProperty_t(target, pName2.c_str(), std::string(pState));
-                }
-                if (retVal != sim_propertyret_ok)
-                {
-                    if (retVal == sim_propertyret_unknowntarget)
-                        CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
-                    else
+                    pName = checkForDeprecation(__func__, pName.c_str(), target);
+                    retVal = App::setStringProperty_t(target, pName.c_str(), std::string(pState));
+                    if (retVal != sim_propertyret_ok)
                     {
-                        std::string err("'");
-                        err += pName + "' ";
-                        int info;
-                        std::string infoTxt;
-                        int p = App::getPropertyInfo_t(target, pName.c_str(), info, infoTxt);
-                        if (p < sim_propertytype_start)
-                        {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                            retVal = sim_propertyret_unknownproperty;
-                        }
-                        else if ((p & 0xff) == sim_propertytype_string)
-                        {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN).c_str());
-                            retVal = sim_propertyret_notwritable;
-                        }
+                        std::string pName2 = checkAltName(pName.c_str(), target);
+                        if (!pName2.empty())
+                            retVal = App::setStringProperty_t(target, pName2.c_str(), std::string(pState));
+                    }
+                    if (retVal != sim_propertyret_ok)
+                    {
+                        if (retVal == sim_propertyret_unknowntarget)
+                            CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
                         else
                         {
-                            if ((p & 0xff) == sim_propertytype_buffer)
+                            std::string err("'");
+                            err += pName + "' ";
+                            int info;
+                            std::string infoTxt;
+                            int p = App::getPropertyInfo_t(target, pName.c_str(), info, infoTxt);
+                            if (p < sim_propertytype_start)
                             {
-                                std::string w(pState);
-                                retVal = App::setBufferProperty_t(target, pName.c_str(), w);
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                retVal = sim_propertyret_unknownproperty;
                             }
-                            if (retVal != sim_propertyret_ok)
+                            else if ((p & 0xff) == sim_propertytype_string)
                             {
-                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                                retVal = sim_propertyret_typemismatch;
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN).c_str());
+                                retVal = sim_propertyret_notwritable;
+                            }
+                            else
+                            {
+                                if ((p & 0xff) == sim_propertytype_buffer)
+                                {
+                                    std::string w(pState);
+                                    retVal = App::setBufferProperty_t(target, pName.c_str(), w);
+                                }
+                                if (retVal != sim_propertyret_ok)
+                                {
+                                    CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                                    retVal = sim_propertyret_typemismatch;
+                                }
                             }
                         }
                     }
                 }
+            }
+            else
+            {
+                std::string err("'");
+                err += ppName;
+                err += "' ";
+                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_IS_CORRUPT).c_str());
+                retVal = sim_propertyret_invalidvalue;
             }
         }
         return retVal;

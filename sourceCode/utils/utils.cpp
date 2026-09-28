@@ -11,6 +11,95 @@
 #include <sstream>
 #include <QByteArray>
 
+static int utf8LeadByteLength(std::uint8_t b, std::uint8_t &firstLo, std::uint8_t &firstHi)
+{
+    firstLo = 0x80;
+    firstHi = 0xBF;
+
+    if (b < 0x80)               return 1;
+    if (b >= 0xC2 && b <= 0xDF) return 2;              // 0xC0/0xC1 -> overlong
+    if (b >= 0xE1 && b <= 0xEC) return 3;
+    if (b == 0xE0) { firstLo = 0xA0; return 3; }       // reject overlong
+    if (b == 0xED) { firstHi = 0x9F; return 3; }       // reject surrogates
+    if (b >= 0xEE && b <= 0xEF) return 3;
+    if (b == 0xF0) { firstLo = 0x90; return 4; }       // reject overlong
+    if (b >= 0xF1 && b <= 0xF3) return 4;
+    if (b == 0xF4) { firstHi = 0x8F; return 4; }       // cap at U+10FFFF
+    return 0;                                          // 0x80-0xBF, 0xC0, 0xC1, 0xF5-0xFF
+}
+
+bool utils::isValidUtf8(const char *data, int length)
+{
+    if (data == nullptr || length <= 0)
+        return true;                                   // empty input is trivially valid
+
+    const auto *p   = reinterpret_cast<const std::uint8_t *>(data);
+    const auto *end = p + length;
+
+    while (p != end) {
+        if (*p < 0x80) { ++p; continue; }              // ASCII fast path
+
+        std::uint8_t lo, hi;
+        const int n = utf8LeadByteLength(*p, lo, hi);
+        if (n == 0)                 return false;      // bad lead byte
+        if (end - p < n)            return false;      // truncated
+        if (p[1] < lo || p[1] > hi) return false;      // bad first continuation byte
+        for (int i = 2; i < n; ++i)
+            if ((p[i] & 0xC0) != 0x80) return false;   // bad trailing byte
+        p += n;
+    }
+    return true;
+}
+
+std::string utils::toWellFormedUtf8(const char *data, int length)
+{
+    static const char kReplacement[] = "\xEF\xBF\xBD";   // U+FFFD
+    constexpr std::size_t kReplacementLen = 3;
+
+    if (data == nullptr || length <= 0)
+        return std::string();                          // nothing to repair
+
+    const auto *p   = reinterpret_cast<const std::uint8_t *>(data);
+    const auto *end = p + length;
+
+    std::string out;
+    out.reserve(static_cast<std::size_t>(length) + static_cast<std::size_t>(length) / 8 + 8);
+
+    while (p != end) {
+        if (*p < 0x80) { out.push_back(static_cast<char>(*p++)); continue; }
+
+        std::uint8_t lo, hi;
+        const int n = utf8LeadByteLength(*p, lo, hi);
+        if (n == 0) {                                  // stray continuation / 0xC0 / 0xF5+
+            out.append(kReplacement, kReplacementLen);
+            ++p;
+            continue;
+        }
+
+               // Consume the maximal subpart: the lead byte plus as many
+               // correctly-ranged continuation bytes as actually follow.
+        const std::ptrdiff_t avail = end - p;
+        int have = 1;
+        while (have < n) {
+            if (have >= avail) break;
+            const std::uint8_t c = p[have];
+            const std::uint8_t l = (have == 1) ? lo : std::uint8_t(0x80);
+            const std::uint8_t h = (have == 1) ? hi : std::uint8_t(0xBF);
+            if (c < l || c > h) break;
+            ++have;
+        }
+
+        if (have == n) {                               // well-formed: copy verbatim
+            out.append(reinterpret_cast<const char *>(p), static_cast<std::size_t>(n));
+            p += n;
+        } else {                                       // one U+FFFD per bad subpart
+            out.append(kReplacement, kReplacementLen);
+            p += have;
+        }
+    }
+    return out;
+}
+
 void utils::lightBinaryEncode(char* data, int length)
 { // Very simple!
     for (int i = 0; i < length; i++)

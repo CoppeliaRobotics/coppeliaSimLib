@@ -3,6 +3,7 @@
 #include <simInternal.h>
 #include <qdlgmodelthumbnailvisu.h>
 #include <qdlgmodelthumbnail.h>
+#include <utils.h>
 #include <app.h>
 #include <guiApp.h>
 #include <tt.h>
@@ -146,6 +147,8 @@ void CQDlgModelProperties::on_qqClose_clicked(QAbstractButton* button)
 {
     std::string acknowledgment(ui->qqAcknowledgments->toPlainText().toStdString());
     tt::removeSpacesAndEmptyLinesAtBeginningAndEnd(acknowledgment);
+    if (!utils::isValidUtf8(acknowledgment.c_str(), acknowledgment.size()))
+        acknowledgment = utils::toWellFormedUtf8(acknowledgment.c_str(), acknowledgment.size());
     SSimulationThreadCommand cmd;
     cmd.cmdId = SET_OVERRIDEPROPANDACKNOWLEDGMENT_MODELGUITRIGGEREDCMD;
     cmd.intParams.push_back(modelBaseObject->getObjectHandle());
