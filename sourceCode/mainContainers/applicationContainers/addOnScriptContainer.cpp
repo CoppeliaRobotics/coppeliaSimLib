@@ -344,25 +344,48 @@ int CAddOnScriptContainer::callScripts(int callType, const CInterfaceStack* inSt
     return (retVal);
 }
 
-bool CAddOnScriptContainer::removeAddOn(int scriptID)
+bool CAddOnScriptContainer::removeAddOn(int objectHandle)
 {
     TRACE_INTERNAL;
     bool res = false;
-    for (size_t i = 0; i < _addOns.size(); i++)
-    {
-        if (_addOns[i]->getSceneObjectOrNakedScriptHandle() == scriptID)
+    if (objectHandle == -1)
+    { // remove those flagged for removal
+        std::vector<int> handles;
+        for (size_t i = 0; i < _addOns.size(); i++)
+            handles.push_back(_addOns[i]->getObjectHandle());
+        for (size_t i = 0; i < handles.size(); i++)
         {
-            CScript* it = _addOns[i];
-            it->resetScript(); // should not be done in the destructor!
-            _addOns.erase(_addOns.begin() + i);
-            CScript::destroy(it, true);
-            res = true;
-            break;
+            CScript* it = getAddOnFromHandle(handles[i]);
+            if ((it != nullptr) && it->getFlaggedForDestruction())
+            {
+                removeAddOn(handles[i]);
+                res = true;
+            }
         }
     }
-#ifdef SIM_WITH_GUI
-    GuiApp::setFullDialogRefreshFlag();
-#endif
+    else
+    {
+        for (size_t i = 0; i < _addOns.size(); i++)
+        {
+            CScript* it = _addOns[i];
+            if (it->getObjectHandle() == objectHandle)
+            {
+                if (it->getExecutionDepth() == 0)
+                {
+                    it->resetScript(); // should not be done in the destructor!
+                    _addOns.erase(_addOns.begin() + i);
+                    CScript::destroy(it, true);
+                    #ifdef SIM_WITH_GUI
+                        GuiApp::setFullDialogRefreshFlag();
+                    #endif
+                }
+                else
+                    it->flagForDestruction();
+                res = true;
+                break;
+            }
+        }
+    }
     return res;
 }
 

@@ -28,7 +28,7 @@ class CAddOnScriptContainer
     void loadAdditionalAddOns(); // -a, -b options
     void removeAllAddOns();
     int createAddOn(const char* lang, const char* code);
-    bool removeAddOn(int id);
+    bool removeAddOn(int objectHandle);
 
     CScript* getAddOnFromHandle(int scriptHandle) const;
     CScript* getAddOnFromUid(int uid) const;

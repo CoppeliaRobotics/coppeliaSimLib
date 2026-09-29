@@ -1997,6 +1997,8 @@ bool CScript::_loadCode()
 
 int CScript::_callSystemScriptFunction(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 { // retval: -1: runtimeError, 0: function not there or not called, 1: ok
+    if (_flaggedForDestruction && (callType != sim_syscb_cleanup))
+        return 0;
     if (callType == sim_syscb_info)
     {
         if (_scriptState != sim_scriptstate_uninitialized)

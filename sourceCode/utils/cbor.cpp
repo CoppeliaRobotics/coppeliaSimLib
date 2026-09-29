@@ -2,6 +2,7 @@
 #include <app.h>
 #include <string.h>
 #include <utils.h>
+#include <simFlavor.h>
 
 #define USE_TAGGED_ARRAYS (true)
 #define NO_DATAFIELD_HANDLE(code) \
@@ -820,31 +821,23 @@ void CCbor::pushEvent()
     {
         if (!inf->unknownObjects.empty())
         {
-            std::string txt;
-            txt += "Event '";
-            txt += inf->event + "' with handle ";
-            txt += std::to_string(inf->target) + " references following unknown object(s): ";
-            int cnt = 0;
-            for (int x : inf->unknownObjects)
+            if (CSimFlavor::getBoolVal(18))
             {
-                if (cnt != 0)
-                    txt += ", ";
-                txt += std::to_string(x);
-                cnt++;
+                std::string txt;
+                txt += "Event '";
+                txt += inf->event + "' with handle ";
+                txt += std::to_string(inf->target) + " references following unknown object(s): ";
+                int cnt = 0;
+                for (int x : inf->unknownObjects)
+                {
+                    if (cnt != 0)
+                        txt += ", ";
+                    txt += std::to_string(x);
+                    cnt++;
+                }
+                App::logMsg(sim_verbosity_errors, txt.c_str());
+                App::logScriptMsg(nullptr, sim_verbosity_scripterrors, txt.c_str());
             }
-            /*
-            txt += "\n Known objects: ";
-            cnt = 0;
-            for (int x : _createdObjects_events)
-            {
-                if (cnt != 0)
-                    txt += ", ";
-                txt += std::to_string(x);
-                cnt++;
-            }
-            */
-            App::logMsg(sim_verbosity_errors, txt.c_str());
-            App::logScriptMsg(nullptr, sim_verbosity_scripterrors, txt.c_str());
         }
     }
     /*

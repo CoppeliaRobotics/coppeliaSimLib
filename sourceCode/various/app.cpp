@@ -559,6 +559,7 @@ void App::loop(void (*callback)(), bool stepIfRunning)
     scene->sceneObjects->eraseObjects(nullptr, true); // remove objects that have a delayed destruction
     scene->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_simulation);
     scene->sceneObjects->embeddedScriptContainer->removeDestroyedScripts(sim_scripttype_customization);
+    scenes->addOnScriptContainer->removeAddOn(-1); // remove add-ons flagged for destruction
 
     // Async init some scripts:
     for (size_t i = 0; i < _scriptsToInit.size(); i++)
