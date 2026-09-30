@@ -3078,15 +3078,13 @@ void CCamera::handleMouseUpHit(int hitId)
     }
     else
     {
-        if ((hitId < sim_object_sceneobjectend) ||
-            (hitId >=
-             NON_OBJECT_PICKING_ID_PATH_PTS_START)) // We need the NON_OBJECT_PICKING_ID_PATH_PTS_START start here to
+        if ((hitId < sim_object_sceneobjectend) || (hitId >= NON_OBJECT_PICKING_ID_PATH_PTS_START)) // We need the NON_OBJECT_PICKING_ID_PATH_PTS_START start here to
                                                     // select individual path points when not in path edit mode!!!!!!!
         {
             if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
             {
                 App::scene->sceneObjects->deselectObjects();
-                App::scene->sceneObjects->addObjectToSelection(hitId);
+                App::scene->sceneObjects->addObjectToSelection(hitId, true);
             }
             else
             {
@@ -3104,8 +3102,7 @@ int CCamera::handleHits(int hits, unsigned int selectBuff[])
     TRACE_INTERNAL;
     if (GuiApp::mainWindow == nullptr)
         return (-2);
-    if (GuiApp::mainWindow->getMouseButtonState() &
-        4) // added on 2011/01/12 because this routine is now also called when not in click-select mode, etc. We need to
+    if (GuiApp::mainWindow->getMouseButtonState() & 4) // added on 2011/01/12 because this routine is now also called when not in click-select mode, etc. We need to
            // make sure we don't have a "virtual" left mouse button clicked triggered by the right mouse button
         return (-2);
     if (GuiApp::mainWindow->getKeyDownState() & 2)
@@ -3115,19 +3112,16 @@ int CCamera::handleHits(int hits, unsigned int selectBuff[])
         {
             for (int i = 0; i < int(hitList.size()); i++)
             {
-                if ((hitList[i] < sim_object_sceneobjectend) ||
-                    (hitList[i] >=
-                     NON_OBJECT_PICKING_ID_PATH_PTS_START)) // We need the NON_OBJECT_PICKING_ID_PATH_PTS_START start
+                if ((hitList[i] < sim_object_sceneobjectend) || (hitList[i] >= NON_OBJECT_PICKING_ID_PATH_PTS_START)) // We need the NON_OBJECT_PICKING_ID_PATH_PTS_START start
                                                             // here to select individual path points when not in path
                                                             // edit mode!!!!!!!
                 {
                     if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
-                        App::scene->sceneObjects->addObjectToSelection(hitList[i]);
+                        App::scene->sceneObjects->addObjectToSelection(hitList[i], true);
                     else
                         GuiApp::mainWindow->editModeContainer->addItemToEditModeBuffer(hitList[i], true);
                 }
-                if ((hitList[i] >= NON_OBJECT_PICKING_ID_BANNER_START) &&
-                    (hitList[i] < NON_OBJECT_PICKING_ID_BANNER_END))
+                if ((hitList[i] >= NON_OBJECT_PICKING_ID_BANNER_START) && (hitList[i] < NON_OBJECT_PICKING_ID_BANNER_END))
                     _handleBannerClick(hitList[i] - NON_OBJECT_PICKING_ID_BANNER_START);
             }
         }
@@ -3138,9 +3132,7 @@ int CCamera::handleHits(int hits, unsigned int selectBuff[])
         if (GuiApp::mainWindow->getKeyDownState() & 1)
         {
             int dummy;
-            bool ignoreDepth =
-                ((GuiApp::getEditModeType() & VERTEX_EDIT_MODE) || (GuiApp::getEditModeType() & EDGE_EDIT_MODE)) &&
-                GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getShowHiddenVerticeAndEdges();
+            bool ignoreDepth = ((GuiApp::getEditModeType() & VERTEX_EDIT_MODE) || (GuiApp::getEditModeType() & EDGE_EDIT_MODE)) && GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getShowHiddenVerticeAndEdges();
             int hitId = getSingleHit(hits, selectBuff, ignoreDepth, dummy);
             if (hitId == -1)
             {
@@ -3151,13 +3143,12 @@ int CCamera::handleHits(int hits, unsigned int selectBuff[])
             }
             else
             {
-                if ((hitId < sim_object_sceneobjectend) ||
-                    (hitId >= NON_OBJECT_PICKING_ID_PATH_PTS_START)) // We need the NON_OBJECT_PICKING_ID_PATH_PTS_START
+                if ((hitId < sim_object_sceneobjectend) || (hitId >= NON_OBJECT_PICKING_ID_PATH_PTS_START)) // We need the NON_OBJECT_PICKING_ID_PATH_PTS_START
                                                                      // start here to select individual path points when
                                                                      // not in path edit mode!!!!!!!
                 {
                     if ((GuiApp::getEditModeType() & SHAPE_OR_PATH_EDIT_MODE_OLD) == 0)
-                        App::scene->sceneObjects->xorAddObjectToSelection(hitId);
+                        App::scene->sceneObjects->xorAddObjectToSelection(hitId, true);
                     else
                         GuiApp::mainWindow->editModeContainer->xorAddItemToEditModeBuffer(hitId, false);
                 }
@@ -3170,16 +3161,14 @@ int CCamera::handleHits(int hits, unsigned int selectBuff[])
         { // no ctrl or shift key down here. We simply return the hit for processing at a later stage
             int hitThatIgnoresTheSelectableFlag;
             bool ignoreDepth =
-                ((GuiApp::getEditModeType() & VERTEX_EDIT_MODE) || (GuiApp::getEditModeType() & EDGE_EDIT_MODE)) &&
-                GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getShowHiddenVerticeAndEdges();
+                ((GuiApp::getEditModeType() & VERTEX_EDIT_MODE) || (GuiApp::getEditModeType() & EDGE_EDIT_MODE)) && GuiApp::mainWindow->editModeContainer->getShapeEditMode()->getShowHiddenVerticeAndEdges();
             int hitId = getSingleHit(hits, selectBuff, ignoreDepth, hitThatIgnoresTheSelectableFlag);
 
             // OLD:
             int data[4] = {hitThatIgnoresTheSelectableFlag, 0, 0, 0};
             App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins_old(
                 sim_message_eventcallback_pickselectdown, data);
-            App::scene->outsideCommandQueue_old->addCommand(sim_message_pick_select_down,
-                                                                   hitThatIgnoresTheSelectableFlag, 0, 0, 0, nullptr, 0);
+            App::scene->outsideCommandQueue_old->addCommand(sim_message_pick_select_down, hitThatIgnoresTheSelectableFlag, 0, 0, 0, nullptr, 0);
 
             return (hitId);
         }
