@@ -2643,7 +2643,7 @@ bool CScript::_killInterpreterState()
         setFuncAndHookCnt(sim_syscb_joint, i, 0);
     }
 
-    _flaggedForDestruction = false;
+    //_flaggedForDestruction = false;
     _functionHooks_before.clear();
     _functionHooks_after.clear();
 
