@@ -12,6 +12,9 @@ CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
     bool rgba;
     unsigned char* dat;
 
+    dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/app.tga", xres, yres, rgba, nullptr);
+    addObject(APP_TREE_PICTURE, xres, yres, rgba, false, true, dat);
+    delete[] dat;
     dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/world.tga", xres, yres, rgba, nullptr);
     addObject(WORLD_TREE_PICTURE, xres, yres, rgba, false, true, dat);
     delete[] dat;

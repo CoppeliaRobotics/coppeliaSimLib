@@ -135,8 +135,13 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
     }
     else
     {
-        theText += _sceneName;
-        theText += tt::decorateString(" (scene ", utils::getIntString(false, -objectID), ")");
+        if (objectID == -99999)
+            theText += "app";
+        else
+        {
+            theText += _sceneName;
+            theText += tt::decorateString(" (scene ", utils::getIntString(false, -objectID), ")");
+        }
     }
 
     bool inSelection = false;
@@ -178,15 +183,17 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
                     bgCol = ogl::HIERARCHY_WORLD_CLICK_COLOR;
                 else
                 {
-                    if (isLocalWorld())
+//                    if (isLocalWorld())
                     {
                         if (App::userSettings->darkMode)
                             bgCol = ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_DARK;
                         else
                             bgCol = ogl::HIERARCHY_AND_BROWSER_NO_SELECTION_COLOR_BRIGHT;
                     }
-                    else
+/*                    else
+
                         bgCol = ogl::HIERARCHY_UNACTIVE_WORLD_COLOR;
+                    */
                 }
             }
             else
@@ -283,7 +290,7 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
     }
 
     if (objectID < 0)
-    { // For the world!
+    { // For the world and app!
         off = off + _drawIcon_sceneObject(hier, textPos[0] + off - 15 * GuiApp::sc,
                                           textPos[1] + HIERARCHY_TEXT_CENTER_OFFSET * GuiApp::sc, it, objectID,
                                           !dontDisplay, transparencyFactor, forDragAndDrop);
@@ -326,10 +333,10 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
                               (tc[2] + 7.0 * bgCol[2]) * 0.125);
         else
         {
-            if ((it == nullptr) && (!isLocalWorld()))
-                ogl::setTextColor((tc[0] + 3.0 * bgCol[0]) * 0.25, (tc[1] + 3.0 * bgCol[1]) * 0.25,
-                                  (tc[2] + 3.0 * bgCol[2]) * 0.25);
-            else
+//            if ((it == nullptr) && (!isLocalWorld()))
+//                ogl::setTextColor((tc[0] + 3.0 * bgCol[0]) * 0.25, (tc[1] + 3.0 * bgCol[1]) * 0.25,
+//                                  (tc[2] + 3.0 * bgCol[2]) * 0.25);
+//            else
                 ogl::setTextColor(tc);
         }
 
@@ -503,39 +510,29 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
     }
     else
     { // This is for the main script (pseudo object "world"):
-        CScript* script = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
-        if (script != nullptr)
+        if (objectID == -99999)
         {
-            if (!dontDisplay)
+
+        }
+        else
+        {
+            CScript* script = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
+            if (script != nullptr)
             {
-                App::scenes->globalGuiTextureCont->startTextureDisplay(MAIN_SCRIPT_PICTURE);
-                _drawTexturedIcon(tPosX + localOffset, tPosY, HIERARCHY_ICON_WIDTH * GuiApp::sc,
-                                  HIERARCHY_ICON_HEIGHT * GuiApp::sc, transparencyFactor);
+                if (!dontDisplay)
+                {
+                    App::scenes->globalGuiTextureCont->startTextureDisplay(MAIN_SCRIPT_PICTURE);
+                    _drawTexturedIcon(tPosX + localOffset, tPosY, HIERARCHY_ICON_WIDTH * GuiApp::sc,
+                                      HIERARCHY_ICON_HEIGHT * GuiApp::sc, transparencyFactor);
+                }
+                if (!forDragAndDrop)
+                {
+                    hier->scriptIconPosition.push_back(tPosX + localOffset);
+                    hier->scriptIconPosition.push_back(tPosY);
+                    hier->scriptIconPosition.push_back(script->getSceneObjectOrNakedScriptHandle());
+                }
+                localOffset += HIERARCHY_ICON_WIDTH * GuiApp::sc;
             }
-            if (!forDragAndDrop)
-            {
-                hier->scriptIconPosition.push_back(tPosX + localOffset);
-                hier->scriptIconPosition.push_back(tPosY);
-                hier->scriptIconPosition.push_back(script->getSceneObjectOrNakedScriptHandle());
-            }
-            localOffset += HIERARCHY_ICON_WIDTH * GuiApp::sc;
-            /*
-            if (!dontDisplay)
-            {
-                if (script->getScriptParametersObject()->userParamEntries.size()!=0)
-                    App::wc->globalGuiTextureCont->startTextureDisplay(USER_PARAMETERS_PICTURE);
-                else
-                    App::wc->globalGuiTextureCont->startTextureDisplay(SCRIPT_PARAMETERS_PICTURE);
-                _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*GuiApp::sc,HIERARCHY_ICON_HEIGHT*GuiApp::sc,transparencyFactor);
-            }
-            if (!forDragAndDrop)
-            {
-                hier->scriptParametersIconPosition.push_back(tPosX+localOffset);
-                hier->scriptParametersIconPosition.push_back(tPosY);
-                hier->scriptParametersIconPosition.push_back(script->getScriptHandle());
-            }
-            localOffset+=(HIERARCHY_ICON_WIDTH+HIERARCHY_INTER_ICON_SPACING)*GuiApp::sc;
-            */
         }
     }
     lineLastPos += localOffset;
@@ -707,9 +704,14 @@ int CHierarchyElement::_drawIcon_sceneObject(CHierarchy* hier, int tPosX, int tP
             {
                 if (type == -1)
                 {
-                    objectOrWorldIconID = WORLD_TREE_PICTURE;
-                    if (!isLocalWorld())
-                        transparencyFactor = 0.6;
+                    if (pictureID != -99999)
+                    {
+                        objectOrWorldIconID = WORLD_TREE_PICTURE;
+                        if (!isLocalWorld())
+                            transparencyFactor = 0.6;
+                    }
+                    else
+                        objectOrWorldIconID = APP_TREE_PICTURE;
                 }
                 if (type == sim_sceneobject_shape)
                 {

@@ -102,7 +102,9 @@ void CHierarchy::rebuildHierarchy()
 
     if (GuiApp::getEditModeType() == NO_EDIT_MODE)
     {
-        CHierarchyElement* newEl = new CHierarchyElement(-App::scenes->getCurrentSceneIndex() - 1);
+        CHierarchyElement* newEl = new CHierarchyElement(-99999);
+        rootElements.push_back(newEl);
+        newEl = new CHierarchyElement(-App::scenes->getCurrentSceneIndex() - 1);
         newEl->addYourChildren();
         std::string sceneName = App::scene->environment->getSceneName();
         newEl->setSceneName(sceneName.c_str());
@@ -848,7 +850,10 @@ bool CHierarchy::leftMouseDown(int x, int y, int selectionStatus)
                     App::scene->sceneObjects->deselectObjects();
                 else
                 {
-                    App::setCurrentObject(sim_handle_scene);
+                    if (objID == -99999)
+                        App::setCurrentObject(sim_handle_app);
+                    else
+                        App::setCurrentObject(sim_handle_scene);
                     _worldSelectID_down = objID;
                     _worldSelectID_moving = objID;
                 }
