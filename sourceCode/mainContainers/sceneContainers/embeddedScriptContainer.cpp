@@ -12,7 +12,6 @@
 
 CEmbeddedScriptContainer::CEmbeddedScriptContainer()
 {
-    _sysFuncAndHookCnt_event = 0;
     _sysFuncAndHookCnt_dyn = 0;
     _sysFuncAndHookCnt_contact = 0;
     _sysFuncAndHookCnt_joint = 0;
@@ -27,8 +26,6 @@ CEmbeddedScriptContainer::~CEmbeddedScriptContainer()
 
 int CEmbeddedScriptContainer::getSysFuncAndHookCnt(int sysCall) const
 {
-    if (sysCall == sim_syscb_event)
-        return (_sysFuncAndHookCnt_event);
     if (sysCall == sim_syscb_dyn)
         return (_sysFuncAndHookCnt_dyn);
     if (sysCall == sim_syscb_contact)
@@ -40,8 +37,6 @@ int CEmbeddedScriptContainer::getSysFuncAndHookCnt(int sysCall) const
 
 void CEmbeddedScriptContainer::setSysFuncAndHookCnt(int sysCall, int cnt)
 {
-    if (sysCall == sim_syscb_event)
-        _sysFuncAndHookCnt_event = cnt;
     if (sysCall == sim_syscb_dyn)
         _sysFuncAndHookCnt_dyn = cnt;
     if (sysCall == sim_syscb_contact)

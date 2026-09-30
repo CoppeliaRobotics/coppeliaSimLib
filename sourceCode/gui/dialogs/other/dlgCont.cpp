@@ -629,7 +629,20 @@ bool CDlgCont::processCommand(int commandID)
         }
         if (commandID == TOGGLE_AVI_RECORDER_DLG_CMD)
         {
-            toggle(AVI_RECORDER_DLG);
+            if (((SIM_PROGRAM_REVISION_NB % 2) > 0) || (!GuiApp::isOnline()))
+            {
+                std::string tmp(App::folders->getResourcesPath() + "/manual/en/aviRecorder.htm");
+                App::logMsg(sim_verbosity_msgs, "Opening the locally stored user manual...");
+                VVarious::openOfflineUrl(tmp.c_str());
+            }
+            else
+            {
+                App::logMsg(sim_verbosity_msgs,
+                            "Opening the online user manual at https://manual.coppeliarobotics.com/en/aviRecorder.htm... if "
+                            "this fails, check the locally stored user manual.");
+                VVarious::openOnlineUrl("https://manual.coppeliarobotics.com/en/aviRecorder.htm");
+            }
+//            toggle(AVI_RECORDER_DLG);
             return (true);
         }
         if (commandID == TOGGLE_HIERARCHY_DLG_CMD)

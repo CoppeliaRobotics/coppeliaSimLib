@@ -55,7 +55,6 @@ class CEmbeddedScriptContainer
     CBroadcastDataContainer broadcastDataContainer;
 
   protected:
-    int _sysFuncAndHookCnt_event;
     int _sysFuncAndHookCnt_dyn;
     int _sysFuncAndHookCnt_contact;
     int _sysFuncAndHookCnt_joint;

@@ -51,7 +51,6 @@ class CAddOnScriptContainer
     int _insertAddOn(CScript* script);
     void _insertAddOns(const char* addOnExt);
 
-    int _sysFuncAndHookCnt_event;
     int _sysFuncAndHookCnt_dyn;
     int _sysFuncAndHookCnt_contact;
     int _sysFuncAndHookCnt_joint;

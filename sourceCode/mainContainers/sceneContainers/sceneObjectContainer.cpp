@@ -22,7 +22,6 @@ CSceneObjectContainer::CSceneObjectContainer()
     _objectCreationCounter = 0;
     _objectDestructionCounter = 0;
     _hierarchyChangeCounter = 0;
-    _sysFuncAndHookCnt_event = 0;
     _sysFuncAndHookCnt_dyn = 0;
     _sysFuncAndHookCnt_contact = 0;
     _sysFuncAndHookCnt_joint = 0;
@@ -3058,8 +3057,6 @@ void CSceneObjectContainer::setScriptsTemporarilySuspended(bool suspended)
 int CSceneObjectContainer::getSysFuncAndHookCnt(int sysCall) const
 {
     int retVal = embeddedScriptContainer->getSysFuncAndHookCnt(sysCall);
-    if (sysCall == sim_syscb_event)
-        retVal += _sysFuncAndHookCnt_event;
     if (sysCall == sim_syscb_dyn)
         retVal += _sysFuncAndHookCnt_dyn;
     if (sysCall == sim_syscb_contact)
@@ -3071,8 +3068,6 @@ int CSceneObjectContainer::getSysFuncAndHookCnt(int sysCall) const
 
 void CSceneObjectContainer::setSysFuncAndHookCnt(int sysCall, int cnt)
 {
-    if (sysCall == sim_syscb_event)
-        _sysFuncAndHookCnt_event = cnt;
     if (sysCall == sim_syscb_dyn)
         _sysFuncAndHookCnt_dyn = cnt;
     if (sysCall == sim_syscb_contact)
@@ -3157,7 +3152,6 @@ int CSceneObjectContainer::callScripts_noMainScript(int scriptType, int callType
     bool doNotInterrupt = !CScript::isSystemCallbackInterruptible(callType);
     if (CScript::isSystemCallbackInReverseOrder(callType))
     { // reverse order
-
         retVal += _callScripts(scriptType, callType, inStack, outStack, objectBranch, nakedScriptToExclude);
 
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
@@ -3165,7 +3159,6 @@ int CSceneObjectContainer::callScripts_noMainScript(int scriptType, int callType
     }
     else
     { // regular order, from unimportant, to most important
-
         retVal += embeddedScriptContainer->callLegacyScripts(scriptType, callType, inStack, outStack, objectBranch, nakedScriptToExclude);
 
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))

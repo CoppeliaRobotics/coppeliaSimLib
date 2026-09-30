@@ -52,7 +52,6 @@ CScript::CScript(int scriptType)
     _addOnExecPriority = sim_scriptexecorder_normal;
     for (size_t i = 0; i < 3; i++)
     {
-        _sysFuncAndHookCnt_event[i] = 0;
         _sysFuncAndHookCnt_dyn[i] = 0;
         _sysFuncAndHookCnt_contact[i] = 0;
         _sysFuncAndHookCnt_joint[i] = 0;
@@ -81,7 +80,6 @@ CScript::CScript(int scriptType)
     _previousEditionWindowPosAndSize[3] = 800;
     _outsideCommandQueue = new COutsideCommandQueueForScript();
     _scriptType = scriptType;
-    _containedSystemCallbacks.resize(sim_syscb_endoflist, false);
     _timeOfScriptExecutionStart = -1;
     _interpreterState = nullptr;
 
@@ -979,17 +977,30 @@ std::vector<std::string> CScript::getAllSystemCallbackStrings(int scriptType, in
     return (retVal);
 }
 
-bool CScript::hasSystemFunction(int callType, bool returnTrueIfNotInitialized /*=true*/) const
-{ // when the script is not initialized, we need to return true
-    if (returnTrueIfNotInitialized && (_scriptState != sim_scriptstate_initialized))
-        return true;
-    return _containedSystemCallbacks[callType];
+bool CScript::hasSystemFunction(int callType) const
+{
+    return hasSystemFunction(getSystemCallbackString(callType, 0).c_str());
+}
+
+bool CScript::hasSystemFunction(const char* callType) const
+{
+    bool retVal = true;
+    if (_interpreterState != nullptr)
+    {
+        lua_State* L = (lua_State*)_interpreterState;
+        lua_pushglobaltable(L);
+        lua_pushstring(L, callType);
+        lua_rawget(L, -2);
+        retVal = lua_isfunction(L, -1);
+        lua_pop(L, 2);
+    }
+    return retVal;
 }
 
 bool CScript::hasSystemFunctionOrHook(int callType) const
 {
-    std::string tmp(getSystemCallbackString(callType, 0));
-    return (hasSystemFunction(callType) || hasFunctionHook(tmp.c_str()));
+    std::string str(getSystemCallbackString(callType, 0));
+    return (hasSystemFunction(str.c_str()) || hasFunctionHook(str.c_str()));
 }
 
 void CScript::setTemporarilySuspended(bool s)
@@ -1775,8 +1786,7 @@ void CScript::_handleInfoCallback()
     }
 }
 
-int CScript::___loadCode(const char* code, const char* functionsToFind, std::vector<bool>& functionsFound,
-                               std::string* errorMsg)
+int CScript::___loadCode(const char* code, const char* functionsToFind, std::string* errorMsg)
 { // retVal: -1=compil error, 0=runtime error, 1=no error
     int retVal = -1;
 
@@ -1903,17 +1913,6 @@ int CScript::___loadCode(const char* code, const char* functionsToFind, std::vec
             }
 
             _execSimpleString_safe_lua(L, "sim_call_type=nil");
-            size_t off = 0;
-            size_t l = strlen(functionsToFind + off);
-            size_t cnt = 0;
-            while (l != 0)
-            {
-                luaWrap_lua_getglobal(L, functionsToFind + off);
-                functionsFound[cnt++] = (luaWrap_lua_isfunction(L, -1) || hasFunctionHook(functionsToFind + off));
-                luaWrap_lua_pop(L, 1);
-                off += l + 1;
-                l = strlen(functionsToFind + off);
-            }
         }
         setExecutionDepth(_executionDepth - 1);
         if (_executionDepth == 0)
@@ -1948,7 +1947,7 @@ bool CScript::_loadCode()
                 functions += getSystemCallbackString(int(i), 0) + '\0';
             functions += '\0';
             std::string errMsg;
-            int r = ___loadCode(_scriptTextExec.c_str(), functions.c_str(), _containedSystemCallbacks, &errMsg);
+            int r = ___loadCode(_scriptTextExec.c_str(), functions.c_str(), &errMsg);
             if (r >= 0)
             {
                 if (r == 0)
@@ -1963,16 +1962,14 @@ bool CScript::_loadCode()
 #endif
                     setScriptState(sim_scriptstate_uninitialized);
                     // Following because below funcs are speed-sensitive:
-                    if (hasSystemFunction(sim_syscb_event, false))
-                        setFuncAndHookCnt(sim_syscb_event, 0, 1);
-                    if ((hasSystemFunction(sim_syscb_dyn, false)) ||
-                        (hasSystemFunction(sim_syscb_dyncallback, false)))
+                    if ((hasSystemFunction(sim_syscb_dyn)) ||
+                        (hasSystemFunction(sim_syscb_dyncallback)))
                         setFuncAndHookCnt(sim_syscb_dyn, 0, 1);
-                    if ((hasSystemFunction(sim_syscb_contact, false)) ||
-                        (hasSystemFunction(sim_syscb_contactcallback, false)))
+                    if ((hasSystemFunction(sim_syscb_contact)) ||
+                        (hasSystemFunction(sim_syscb_contactcallback)))
                         setFuncAndHookCnt(sim_syscb_contact, 0, 1);
-                    if ((hasSystemFunction(sim_syscb_joint, false)) ||
-                        (hasSystemFunction(sim_syscb_jointcallback, false)))
+                    if ((hasSystemFunction(sim_syscb_joint)) ||
+                        (hasSystemFunction(sim_syscb_jointcallback)))
                         setFuncAndHookCnt(sim_syscb_joint, 0, 1);
                 }
                 setNumberOfPasses(_numberOfPasses + 1);
@@ -2066,13 +2063,6 @@ int CScript::_callSystemScriptFunction(int callType, const CInterfaceStack* inSt
             App::scenes->pluginContainer->sendEventCallbackMessageToAllPlugins(
                 sim_message_eventcallback_simulationcleanup, data);
     }
-
-    // Following to make sure we get updates on the presence of sim_syscb_userconfig:
-    luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
-    std::string tmp(getSystemCallbackString(sim_syscb_userconfig, 0));
-    luaWrap_lua_getglobal(L, tmp.c_str());
-    _containedSystemCallbacks[sim_syscb_userconfig] = luaWrap_lua_isfunction(L, -1);
-    luaWrap_lua_pop(L, 1);
 
     std::string errMsg;
     if (_executionDepth == 0)
@@ -2648,14 +2638,11 @@ bool CScript::_killInterpreterState()
 
     for (size_t i = 0; i < 3; i++)
     {
-        setFuncAndHookCnt(sim_syscb_event, i, 0);
         setFuncAndHookCnt(sim_syscb_dyn, i, 0);
         setFuncAndHookCnt(sim_syscb_contact, i, 0);
         setFuncAndHookCnt(sim_syscb_joint, i, 0);
     }
 
-    _containedSystemCallbacks.clear();
-    _containedSystemCallbacks.resize(sim_syscb_endoflist, false);
     _flaggedForDestruction = false;
     _functionHooks_before.clear();
     _functionHooks_after.clear();
@@ -3354,8 +3341,6 @@ bool CScript::hasFunctionHook(const char* sysFunc) const
 
 int CScript::getFuncAndHookCnt(int sysCall, size_t what) const
 { // Only for time critical functions/hooks (event, dyn, contact, joint). what: 0=func, 1=hook before, 2=hook after
-    if (sysCall == sim_syscb_event)
-        return (_sysFuncAndHookCnt_event[what]);
     if (sysCall == sim_syscb_dyn)
         return (_sysFuncAndHookCnt_dyn[what]);
     if (sysCall == sim_syscb_contact)
@@ -3367,21 +3352,6 @@ int CScript::getFuncAndHookCnt(int sysCall, size_t what) const
 
 void CScript::setFuncAndHookCnt(int sysCall, size_t what, int cnt)
 { // Only for time critical functions/hooks (event, dyn, contact, joint). what: 0=func, 1=hook before, 2=hook after
-    if ((sysCall == sim_syscb_event) || (sysCall == -1))
-    {
-        int dx = cnt - _sysFuncAndHookCnt_event[what];
-        _sysFuncAndHookCnt_event[what] = cnt;
-        if (_scriptType == sim_scripttype_addon)
-            App::scenes->addOnScriptContainer->setSysFuncAndHookCnt(
-                sim_syscb_event, App::scenes->addOnScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
-        else if (_scriptType != sim_scripttype_sandbox)
-        {
-            if (_sceneObjectOrnakedScriptHandle < sim_object_scriptstart)
-                App::scene->sceneObjects->setSysFuncAndHookCnt(sim_syscb_event, App::scene->sceneObjects->getSysFuncAndHookCnt(sim_syscb_event) + dx);
-            else
-                App::scene->sceneObjects->embeddedScriptContainer->setSysFuncAndHookCnt(sim_syscb_event, App::scene->sceneObjects->embeddedScriptContainer->getSysFuncAndHookCnt(sim_syscb_event) + dx);
-        }
-    }
     if ((sysCall == sim_syscb_dyn) || (sysCall == -1))
     {
         int dx = cnt - _sysFuncAndHookCnt_dyn[what];

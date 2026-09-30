@@ -141,7 +141,8 @@ class CScript : public Obj
     void setEventFilters(const std::map<int64_t, std::set<std::string>>& targetFilters, const std::map<std::string, std::set<std::string>>& typeFilters);
     bool prepareFilteredEventsBuffer(const std::vector<unsigned char>& input, const std::vector<SEventInf>& inf, std::vector<unsigned char>& output) const;
 
-    bool hasSystemFunction(int callType, bool returnTrueIfNotInitialized = true) const;
+    bool hasSystemFunction(int callType) const;
+    bool hasSystemFunction(const char* callType) const;
     bool hasSystemFunctionOrHook(int callType) const;
     void setTemporarilySuspended(bool s);
 
@@ -247,7 +248,7 @@ class CScript : public Obj
     bool _killInterpreterState();
     void _announceErrorWasRaisedAndPossiblyPauseSimulation(const char* errMsg, bool runtimeError);
     bool _loadCode();
-    int ___loadCode(const char* code, const char* functionsToFind, std::vector<bool>& functionsFound, std::string* errorMsg);
+    int ___loadCode(const char* code, const char* functionsToFind, std::string* errorMsg);
     int _callSystemScriptFunction(int callType, const CInterfaceStack* inStack, CInterfaceStack* outStack);
     int _callScriptFunction(int sysCallType, const char* functionName, const CInterfaceStack* inStack, CInterfaceStack* outStack, std::string* errorMsg);
     int _callScriptFunc(const char* functionName, const CInterfaceStack* inStack, CInterfaceStack* outStack, std::string* errorMsg);
@@ -297,8 +298,6 @@ class CScript : public Obj
     int _timeOfScriptExecutionStart;
     std::string _lastStackTraceback;
 
-    std::vector<bool> _containedSystemCallbacks;
-    int _sysFuncAndHookCnt_event[3]; // function, hook before, hook after
     int _sysFuncAndHookCnt_dyn[3];
     int _sysFuncAndHookCnt_contact[3];
     int _sysFuncAndHookCnt_joint[3];
