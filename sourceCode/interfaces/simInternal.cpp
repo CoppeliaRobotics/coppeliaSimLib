@@ -732,6 +732,8 @@ std::string checkForDeprecation(const char* funcName, const char* pName, int tar
                 found = true;
             else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend) && (type == "collection"))
                 found = true;
+            else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend) && (type == "texture"))
+                found = true;
             else if ((target >= sim_object_customstart) && (target <= sim_object_customend) && (type == "customObject"))
                 found = true;
             else if ((target >= sim_object_variousstart) && (type == "mesh"))
@@ -5808,11 +5810,11 @@ int simHandleDynamics_internal(double deltaTime)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        App::scene->dynamicsContainer->handleDynamics(deltaTime);
+        App::scene->dynamics->handleDynamics(deltaTime);
         CApiErrors::getAndClearLastError();
-        if ((!App::scene->dynamicsContainer->isWorldThere()) && App::scene->dynamicsContainer->getDynamicsEnabled())
+        if ((!App::scene->dynamics->isWorldThere()) && App::scene->dynamics->getDynamicsEnabled())
         {
-            App::scene->dynamicsContainer->markForWarningDisplay_physicsEngineNotSupported();
+            App::scene->dynamics->markForWarningDisplay_physicsEngineNotSupported();
             return (0);
         }
         return (App::scenes->pluginContainer->dyn_getDynamicStepDivider());
@@ -6627,7 +6629,7 @@ int simSetPage_internal(int index)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
 #ifdef SIM_WITH_GUI
-        App::scene->pageContainer->setActivePage(index);
+        App::scene->pages->setActivePage(index);
 #endif
         return (1);
     }
@@ -6642,7 +6644,7 @@ int simGetPage_internal()
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
 #ifdef SIM_WITH_GUI
-        int retVal = App::scene->pageContainer->getActivePageIndex();
+        int retVal = App::scene->pages->getActivePageIndex();
         return (retVal);
 #else
         return (0);
@@ -6813,7 +6815,7 @@ int simAddDrawingObject_internal(int objectType, double size, double duplicateTo
             if ((objectType & sim_drawing_auxchannelcolor1) != 0)
                 it->color.setColor(setToNULL3 + 3, sim_colorcomponent_auxiliary);
         }
-        int retVal = App::scene->drawingCont->addObject(it);
+        int retVal = App::scene->drawingCont_old->addObject(it);
         return (retVal);
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -6835,12 +6837,12 @@ int simRemoveDrawingObject_internal(int objectHandle)
         }
 
         if (handle == sim_handle_all)
-            App::scene->drawingCont->eraseAllObjects();
+            App::scene->drawingCont_old->eraseAllObjects();
         else
         {
-            CDrawingObject* it = App::scene->drawingCont->getObjectFromHandle(handle);
+            CDrawingObject* it = App::scene->drawingCont_old->getObjectFromHandle(handle);
             if (it != nullptr)
-                App::scene->drawingCont->removeObject(handle);
+                App::scene->drawingCont_old->removeObject(handle);
             else
             {
                 if (handleFlags != sim_handleflag_silenterror)
@@ -6860,7 +6862,7 @@ int simAddDrawingObjectItem_internal(int objectHandle, const double* itemData)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CDrawingObject* it = App::scene->drawingCont->getObjectFromHandle(objectHandle);
+        CDrawingObject* it = App::scene->drawingCont_old->getObjectFromHandle(objectHandle);
         if (it == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_OBJECT_INEXISTANT);
@@ -7722,7 +7724,7 @@ int simGetContactInfo_internal(int dynamicPass, int objectHandle, int index, int
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = 0;
-        if (App::scene->dynamicsContainer->getContactForce(dynamicPass, objectHandle, index, objectHandles,
+        if (App::scene->dynamics->getContactForce(dynamicPass, objectHandle, index, objectHandles,
                                                                   contactInfo) != 0)
             retVal = 1;
         return (retVal);
@@ -8031,9 +8033,9 @@ int simCreateShape_internal(int options, double shadingAngle, const double* vert
             textureObj->setImage(options & 16, options & 32, (options & 64) == 0, texture);
             textureObj->setObjectName("importedTexture");
             textureObj->addDependentObject(h, shape->getSingleMesh()->getObjectHandle());
-            int h = App::scene->textureContainer->addObject(
+            int h = App::scene->textures->addObject(
                 textureObj, false); // might erase the textureObj and return a similar object already present!!
-            shape->getSingleMesh()->getTextureProperty()->setTextureObjectID(h);
+            shape->getSingleMesh()->getTextureProperty()->setTextureObjectHandle(h);
         }
         return (h);
     }
@@ -8364,7 +8366,7 @@ int simFloatingViewAdd_internal(double posX, double posY, double sizeX, double s
     {
 #ifdef SIM_WITH_GUI
         CSPage* page =
-            App::scene->pageContainer->getPage(App::scene->pageContainer->getActivePageIndex());
+            App::scene->pages->getPage(App::scene->pages->getActivePageIndex());
         if (page == nullptr)
         {
             CApiErrors::setLastError(__func__, SIM_ERROR_PAGE_INEXISTANT);
@@ -8413,7 +8415,7 @@ int simFloatingViewRemove_internal(int floatingViewHandle)
     {
         for (int i = 0; i < 8; i++)
         {
-            CSPage* page = App::scene->pageContainer->getPage(i);
+            CSPage* page = App::scene->pages->getPage(i);
             if (page != nullptr)
             {
                 int viewIndex = page->getViewIndexFromViewUniqueID(floatingViewHandle);
@@ -8456,7 +8458,7 @@ int simCameraFitToView_internal(int viewHandleOrIndex, int objectCount, const in
             {
                 for (int i = 0; i < 8; i++)
                 {
-                    CSPage* page = App::scene->pageContainer->getPage(i);
+                    CSPage* page = App::scene->pages->getPage(i);
                     int index = page->getViewIndexFromViewUniqueID(viewHandleOrIndex);
                     if (index != -1)
                     {
@@ -8469,7 +8471,7 @@ int simCameraFitToView_internal(int viewHandleOrIndex, int objectCount, const in
             {
 #ifdef SIM_WITH_GUI
                 CSPage* page =
-                    App::scene->pageContainer->getPage(App::scene->pageContainer->getActivePageIndex());
+                    App::scene->pages->getPage(App::scene->pages->getActivePageIndex());
 #else
                 CSPage* page = App::scene->pageContainer->getPage(0);
 #endif
@@ -8542,7 +8544,7 @@ int simAdjustView_internal(int viewHandleOrIndex, int associatedViewableObjectHa
         {
             for (int i = 0; i < 8; i++)
             {
-                CSPage* page = App::scene->pageContainer->getPage(i);
+                CSPage* page = App::scene->pages->getPage(i);
                 int index = page->getViewIndexFromViewUniqueID(viewHandleOrIndex);
                 if (index != -1)
                 {
@@ -8555,7 +8557,7 @@ int simAdjustView_internal(int viewHandleOrIndex, int associatedViewableObjectHa
         {
 #ifdef SIM_WITH_GUI
             CSPage* page =
-                App::scene->pageContainer->getPage(App::scene->pageContainer->getActivePageIndex());
+                App::scene->pages->getPage(App::scene->pages->getActivePageIndex());
 #else
             CSPage* page = App::scene->pageContainer->getPage(0);
 #endif
@@ -8825,10 +8827,10 @@ int simIsHandle_internal(int generalObjectHandle, int generalObjectType)
             (App::scenes->getScriptFromHandle(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_objecttype_texture)) &&
-            (App::scene->textureContainer->getObject(generalObjectHandle) != nullptr))
+            (App::scene->textures->getObject(generalObjectHandle) != nullptr))
             return (1);
         if (((generalObjectType == -1) || (generalObjectType == sim_objecttype_drawingobject)) &&
-            (App::scene->drawingCont->getObjectFromHandle(generalObjectHandle) != nullptr))
+            (App::scene->drawingCont_old->getObjectFromHandle(generalObjectHandle) != nullptr))
             return (1);
 
         // Old:
@@ -10076,10 +10078,10 @@ int simGetTextureId_internal(const char* textureName, int* resolution)
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         int retVal = -1; // means error
-        CTextureObject* to = App::scene->textureContainer->getObject(textureName);
+        CTextureObject* to = App::scene->textures->getObject(textureName);
         if (to != nullptr)
         {
-            retVal = to->getObjectID();
+            retVal = int(to->getObjectHandle());
             if (resolution != nullptr)
                 to->getTextureSize(resolution[0], resolution[1]);
         }
@@ -10097,7 +10099,7 @@ unsigned char* simReadTexture_internal(int textureId, int options, int posX, int
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CTextureObject* to = App::scene->textureContainer->getObject(textureId);
+        CTextureObject* to = App::scene->textures->getObject(textureId);
         if (to != nullptr)
         {
             int resX, resY;
@@ -10135,7 +10137,7 @@ int simWriteTexture_internal(int textureId, int options, const char* data, int p
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        CTextureObject* to = App::scene->textureContainer->getObject(textureId);
+        CTextureObject* to = App::scene->textures->getObject(textureId);
         if (to != nullptr)
         {
             int resX, resY;
@@ -10215,7 +10217,7 @@ int simCreateTexture_internal(const char* fileName, int options, const double* p
                     textureObj->setObjectName(App::folders->getNameFromFull(fileName).c_str());
                     delete[] data;
                     textureObj->addDependentObject(shape->getObjectHandle(), shape->getSingleMesh()->getObjectHandle());
-                    int texID = App::scene->textureContainer->addObject(
+                    int texID = App::scene->textures->addObject(
                         textureObj, false); // might erase the textureObj and return a similar object already present!!
                     CTextureProperty* tp = new CTextureProperty(texID);
                     shape->getSingleMesh()->setTextureProperty(tp);
@@ -10269,7 +10271,7 @@ int simCreateTexture_internal(const char* fileName, int options, const double* p
                 textureObj->setRandomContent();
                 textureObj->setObjectName(App::folders->getNameFromFull(fileName).c_str());
                 textureObj->addDependentObject(shape->getObjectHandle(), shape->getSingleMesh()->getObjectHandle());
-                int texID = App::scene->textureContainer->addObject(
+                int texID = App::scene->textures->addObject(
                     textureObj, false); // might erase the textureObj and return a similar object already present!!
                 CTextureProperty* tp = new CTextureProperty(texID);
                 shape->getSingleMesh()->setTextureProperty(tp);
@@ -10481,8 +10483,8 @@ int simGetShapeTextureId_internal(int shapeHandle)
                 CTextureProperty* tp = shape->getSingleMesh()->getTextureProperty();
                 if (tp != nullptr)
                 {
-                    CTextureObject* to = App::scene->textureContainer->getObject(tp->getTextureObjectID());
-                    return (to->getObjectID());
+                    CTextureObject* to = App::scene->textures->getObject(tp->getTextureObjectHandle());
+                    return int(to->getObjectHandle());
                 }
                 return (-1);
             }
@@ -10505,7 +10507,7 @@ int simSetShapeTexture_internal(int shapeHandle, int textureId, int mappingMode,
             CShape* shape = App::scene->sceneObjects->getShapeFromHandle(shapeHandle);
             CTextureObject* to = nullptr;
             if (textureId != -1)
-                to = App::scene->textureContainer->getObject(textureId);
+                to = App::scene->textures->getObject(textureId);
             std::vector<CMesh*> meshItems;
             shape->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, meshItems);
             for (size_t i = 0; i < meshItems.size(); i++)
@@ -12935,7 +12937,7 @@ int simGetShapeViz_internal(int shapeHandle, int index, struct SShapeVizInfo* in
                     info->textureOptions |= 4;
                 if (geom->getWireframe())
                     info->textureOptions |= 8;
-                info->textureId = tp->getTextureObjectID();
+                info->textureId = tp->getTextureObjectHandle();
             }
             else
             {
@@ -13051,7 +13053,7 @@ int simGetShapeVizf_internal(int shapeHandle, int index, struct SShapeVizInfof* 
                     info->textureOptions |= 4;
                 if (geom->getWireframe())
                     info->textureOptions |= 8;
-                info->textureId = tp->getTextureObjectID();
+                info->textureId = tp->getTextureObjectHandle();
             }
             else
             {
@@ -13437,7 +13439,7 @@ int simApplyTexture_internal(int shapeHandle, const double* textureCoordinates, 
                 CTextureProperty* tp = shape->getSingleMesh()->getTextureProperty();
                 if (tp != nullptr)
                 {
-                    App::scene->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
+                    App::scene->textures->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
                     delete tp;
                     shape->getSingleMesh()->setTextureProperty(nullptr);
                 }
@@ -13448,7 +13450,7 @@ int simApplyTexture_internal(int shapeHandle, const double* textureCoordinates, 
                     textureObj->setImage(options & 16, options & 32, (options & 64) == 0, texture);
                     textureObj->setObjectName("importedTexture");
                     textureObj->addDependentObject(shape->getObjectHandle(), shape->getSingleMesh()->getObjectHandle());
-                    retVal = App::scene->textureContainer->addObject(
+                    retVal = App::scene->textures->addObject(
                         textureObj, false); // might erase the textureObj and return a similar object already present!!
                     tp = new CTextureProperty(retVal);
                     shape->getSingleMesh()->setTextureProperty(tp);
@@ -13545,7 +13547,7 @@ double _simGetLocalInertiaInfo_internal(const void* object, double* pos, double*
     double mass = shape->getMesh()->getMass();
     C3Vector diagI;
     CPose localTr(shape->getMesh()->getDiagonalInertiaInfo(diagI));
-    if (App::scene->dynamicsContainer->getComputeInertias())
+    if (App::scene->dynamics->getComputeInertias())
     {
         if (shape->getMesh()->isPure())
             mass = App::scenes->pluginContainer->dyn_computeInertia(shape->getObjectHandle(), localTr, diagI);
@@ -13616,17 +13618,17 @@ void _simMakeDynamicAnnouncement_internal(int announceType)
 {
     C_API_START;
     if (announceType == sim_announce_pureconenotsupported)
-        App::scene->dynamicsContainer->markForWarningDisplay_pureConeNotSupported();
+        App::scene->dynamics->markForWarningDisplay_pureConeNotSupported();
     if (announceType == sim_announce_purespheroidnotsupported)
-        App::scene->dynamicsContainer->markForWarningDisplay_pureSpheroidNotSupported();
+        App::scene->dynamics->markForWarningDisplay_pureSpheroidNotSupported();
     if (announceType == sim_announce_containsnonpurenonconvexshapes)
-        App::scene->dynamicsContainer->markForWarningDisplay_containsNonPureNonConvexShapes();
+        App::scene->dynamics->markForWarningDisplay_containsNonPureNonConvexShapes();
     if (announceType == sim_announce_containsstaticshapesondynamicconstruction)
-        App::scene->dynamicsContainer->markForWarningDisplay_containsStaticShapesOnDynamicConstruction();
+        App::scene->dynamics->markForWarningDisplay_containsStaticShapesOnDynamicConstruction();
     if (announceType == sim_announce_purehollowshapenotsupported)
-        App::scene->dynamicsContainer->markForWarningDisplay_pureHollowShapeNotSupported();
+        App::scene->dynamics->markForWarningDisplay_pureHollowShapeNotSupported();
     if (announceType == sim_announce_vortexpluginisdemo)
-        App::scene->dynamicsContainer->markForWarningDisplay_vortexPluginIsDemo();
+        App::scene->dynamics->markForWarningDisplay_vortexPluginIsDemo();
 }
 
 void _simGetVerticesLocalFrame_internal(const void* shape, const void* geometric, double* pos, double* quat)
@@ -14131,7 +14133,7 @@ void _simSetDynamicMotorPositionControlTargetPosition_internal(const void* joint
 void _simGetGravity_internal(double* gravity)
 {
     C_API_START;
-    App::scene->dynamicsContainer->getGravity().getData(gravity);
+    App::scene->dynamics->getGravity().getData(gravity);
 }
 
 int _simGetTimeDiffInMs_internal(int previousTime)

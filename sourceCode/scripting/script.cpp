@@ -2755,6 +2755,8 @@ bool CScript::prepareFilteredEventsBuffer(const std::vector<unsigned char>& inpu
             }
             else if ((t >= sim_object_collectionstart) && (t <= sim_object_collectionend))
                 typeInfo1 = "collection";
+            else if ((t >= sim_object_texturestart) && (t <= sim_object_textureend))
+                typeInfo1 = "texture";
             else if ((t >= sim_object_customstart) && (t <= sim_object_customend))
                 typeInfo1 = "customObject";
             else if ((t >= sim_object_stackstart) && (t <= sim_object_stackend))

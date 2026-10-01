@@ -778,11 +778,11 @@ void CDynamicsContainer::setDynamicsEnabled(bool e)
             App::scenes->pushEvent();
         }
         if (!e)
-            App::scene->dynamicsContainer->removeWorld();
+            App::scene->dynamics->removeWorld();
         else
         {
             if (App::scene->simulation->isSimulationRunning())
-                App::scene->dynamicsContainer->addWorldIfNotThere();
+                App::scene->dynamics->addWorldIfNotThere();
         }
     }
 }

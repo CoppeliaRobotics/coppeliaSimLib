@@ -373,7 +373,7 @@ bool CForceSensor::getDynamicForces(C3Vector& f, bool dynamicStepValue) const
 {
     if (dynamicStepValue)
     {
-        if (App::scene->dynamicsContainer->getCurrentlyInDynamicsCalculations())
+        if (App::scene->dynamics->getCurrentlyInDynamicsCalculations())
         {
             if (!_lastForceAndTorqueValid_dynStep)
                 return (false);
@@ -395,7 +395,7 @@ bool CForceSensor::getDynamicTorques(C3Vector& t, bool dynamicStepValue) const
 {
     if (dynamicStepValue)
     {
-        if (App::scene->dynamicsContainer->getCurrentlyInDynamicsCalculations())
+        if (App::scene->dynamics->getCurrentlyInDynamicsCalculations())
         {
             if (!_lastForceAndTorqueValid_dynStep)
                 return (false);

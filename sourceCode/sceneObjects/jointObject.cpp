@@ -1454,7 +1454,7 @@ bool CJoint::getDynamicForceOrTorque(double& forceOrTorque, bool dynamicStepValu
 {
     if (dynamicStepValue)
     {
-        if (App::scene->dynamicsContainer->getCurrentlyInDynamicsCalculations())
+        if (App::scene->dynamics->getCurrentlyInDynamicsCalculations())
         {
             if (!_lastForceOrTorqueValid_dynStep)
                 return (false);
@@ -4553,7 +4553,7 @@ CPose CJoint::getFullLocalTransformation() const
 void CJoint::getPid(double& p_param, double& i_param, double& d_param, int engine /*=-1 --> current engine*/) const
 {
     if (engine == -1)
-        engine = App::scene->dynamicsContainer->getDynamicEngineType(nullptr);
+        engine = App::scene->dynamics->getDynamicEngineType(nullptr);
     if (engine == sim_physics_bullet)
     {
         p_param = _bulletFloatParams[simi_bullet_joint_pospid1];

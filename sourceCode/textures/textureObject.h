@@ -1,17 +1,15 @@
-
 #pragma once
 
+#include <obj.h>
 #include <ser.h>
 
-class CTextureObject
+class CTextureObject : public Obj
 {
   public:
-    CTextureObject(); // for serialization
     CTextureObject(int sizeX, int sizeY);
     virtual ~CTextureObject();
 
-    void setObjectID(int newID);
-    int getObjectID() const;
+    void setObjectHandle(int64_t h);
     bool isSame(const CTextureObject* obj) const;
     void setObjectName(const char* newName);
     std::string getObjectName() const;
@@ -42,10 +40,14 @@ class CTextureObject
     bool getChangedFlag() const;
     void setChangedFlag(bool c);
 
+    int getBufferProperty(const char* pName, std::string& pState) const;
+    int getIntArray2Property(const char* pName, int* pState) const;
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
+
   protected:
     std::vector<unsigned char> _textureBuffer;
     unsigned int _oglTextureName;
-    int _objectID;
     std::string _objectName;
     int _textureSize[2];
     bool _providedImageWasRGBA; // just needed to reduce serialization size!

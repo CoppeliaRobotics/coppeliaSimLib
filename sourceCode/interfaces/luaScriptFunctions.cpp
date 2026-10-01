@@ -9968,7 +9968,7 @@ int _simRemoveDrawingObject(luaWrap_lua_State* L)
         int objectHandle = luaToInt(L, 1);
         if (objectHandle == sim_handle_all)
         { // following condition added here on 2011/01/06 so as not to remove objects created from a c/c++ call or from add-on:
-            App::scene->drawingCont->eraseAllObjects();
+            App::scene->drawingCont_old->eraseAllObjects();
         }
         else
             CALL_C_API(simRemoveDrawingObject, objectHandle);
@@ -10022,7 +10022,7 @@ int _simAddDrawingObjectItem(luaWrap_lua_State* L)
         int h = luaToInt(L, 1);
         int handleFlags = h & sim_handleflag_flagmask;
         h = h & sim_handleflag_handlemask;
-        CDrawingObject* it = App::scene->drawingCont->getObjectFromHandle(h);
+        CDrawingObject* it = App::scene->drawingCont_old->getObjectFromHandle(h);
         size_t d = 3;
         if (it != nullptr)
         {
@@ -12451,7 +12451,7 @@ int _simReadTexture(luaWrap_lua_State* L)
                         if (res == 2)
                             sizeY = luaToInt(L, 6);
 
-                        CTextureObject* to = App::scene->textureContainer->getObject(textureId);
+                        CTextureObject* to = App::scene->textures->getObject(textureId);
                         if (to != nullptr)
                         {
                             int tSizeX, tSizeY;
@@ -12539,7 +12539,7 @@ int _simWriteTexture(luaWrap_lua_State* L)
                             {
                                 if (res == 2)
                                     interpol = luaToDouble(L, 8);
-                                CTextureObject* to = App::scene->textureContainer->getObject(textureId);
+                                CTextureObject* to = App::scene->textures->getObject(textureId);
                                 if (to != nullptr)
                                 {
                                     int tSizeX, tSizeY;

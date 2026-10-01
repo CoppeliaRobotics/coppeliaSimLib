@@ -597,7 +597,7 @@ bool CAddOperations::processCommand(int commandID, CSView* subView)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::logMsg(sim_verbosity_msgs, IDSNS_ADDING_A_FLOATING_VIEW);
-            App::scene->pageContainer->getPage(App::scene->pageContainer->getActivePageIndex())
+            App::scene->pages->getPage(App::scene->pages->getActivePageIndex())
                 ->addFloatingView();
             App::undoRedo_sceneChanged("");
             App::logMsg(sim_verbosity_msgs, "done.");

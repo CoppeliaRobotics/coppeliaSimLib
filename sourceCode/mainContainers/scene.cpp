@@ -45,19 +45,19 @@ CScene::CScene()
     sceneObjects = nullptr;
     customObjects = nullptr;
     commTubeContainer_old = nullptr;
-    dynamicsContainer = nullptr;
+    dynamics = nullptr;
     undoBufferContainer = nullptr;
     outsideCommandQueue_old = nullptr;
     buttonBlockContainer_old = nullptr;
     environment = nullptr;
-    pageContainer = nullptr;
+    pages = nullptr;
     mainSettings_old = nullptr;
     pathPlanning_old = nullptr;
-    textureContainer = nullptr;
+    textures = nullptr;
     simulation = nullptr;
     customSceneData_old = nullptr;
     cacheData = nullptr;
-    drawingCont = nullptr;
+    drawingCont_old = nullptr;
     pointCloudCont_old = nullptr;
     ghostObjectCont_old = nullptr;
     bannerCont_old = nullptr;
@@ -81,7 +81,7 @@ void CScene::initializeScene()
     outsideCommandQueue_old = new COutsideCommandQueue();
     buttonBlockContainer_old = new CButtonBlockContainer(true);
     simulation = new CSimulation();
-    textureContainer = new CTextureContainer();
+    textures = new CTextureContainer();
     ikGroups_old = new CIkGroupContainer();
     collections = new CCollectionContainer();
     distances_old = new CDistanceObjectContainer_old();
@@ -90,15 +90,15 @@ void CScene::initializeScene()
     customObjects = new CustomObjectContainer(sim_handle_scene);
     pathPlanning_old = new CRegisteredPathPlanningTasks();
     environment = new CEnvironment();
-    pageContainer = new CPageContainer();
+    pages = new CPageContainer();
     mainSettings_old = new CMainSettings();
     customSceneData_old = new CCustomData_old();
     cacheData = new CCacheCont();
-    drawingCont = new CDrawingContainer();
+    drawingCont_old = new CDrawingContainer();
     pointCloudCont_old = new CPointCloudContainer_old();
     ghostObjectCont_old = new CGhostObjectContainer();
     bannerCont_old = new CBannerContainer();
-    dynamicsContainer = new CDynamicsContainer();
+    dynamics = new CDynamicsContainer();
     commTubeContainer_old = new CCommTubeContainer();
     customObjects->init();
 }
@@ -128,10 +128,10 @@ void CScene::clearScene(bool notCalledFromUndoFunction)
     if (buttonBlockContainer_old != nullptr)
         buttonBlockContainer_old->removeAllBlocks(false);
     environment->setUpDefaultValues();
-    pageContainer->emptySceneProcedure();
+    pages->emptySceneProcedure();
 
     simulation->setUpDefaultValues();
-    pageContainer->emptySceneProcedure();
+    pages->emptySceneProcedure();
 
     customSceneData.setData(nullptr, nullptr, 0, true);
     customSceneData_volatile.setData(nullptr, nullptr, 0, true);
@@ -146,12 +146,12 @@ void CScene::deleteScene()
 {
     delete undoBufferContainer;
     undoBufferContainer = nullptr;
-    delete dynamicsContainer;
-    dynamicsContainer = nullptr;
+    delete dynamics;
+    dynamics = nullptr;
     delete mainSettings_old;
     mainSettings_old = nullptr;
-    delete pageContainer;
-    pageContainer = nullptr;
+    delete pages;
+    pages = nullptr;
     delete environment;
     environment = nullptr;
     delete pathPlanning_old;
@@ -168,8 +168,8 @@ void CScene::deleteScene()
     collections = nullptr;
     delete ikGroups_old;
     ikGroups_old = nullptr;
-    delete textureContainer;
-    textureContainer = nullptr;
+    delete textures;
+    textures = nullptr;
     delete simulation;
     simulation = nullptr;
     delete buttonBlockContainer_old;
@@ -180,8 +180,8 @@ void CScene::deleteScene()
     customSceneData_old = nullptr;
     delete cacheData;
     cacheData = nullptr;
-    delete drawingCont;
-    drawingCont = nullptr;
+    delete drawingCont_old;
+    drawingCont_old = nullptr;
     delete pointCloudCont_old;
     pointCloudCont_old = nullptr;
     delete ghostObjectCont_old;
@@ -278,15 +278,15 @@ void CScene::saveScene(CSer& ar, bool regularSave /*= true*/)
 
     // Textures:
     int textCnt = 0;
-    while (textureContainer->getObjectAtIndex(textCnt) != nullptr)
+    while (textures->getObjectAtIndex(textCnt) != nullptr)
     {
-        CTextureObject* it = textureContainer->getObjectAtIndex(textCnt);
+        CTextureObject* it = textures->getObjectAtIndex(textCnt);
         if (ar.isBinary())
-            textureContainer->storeTextureObject(ar, it);
+            textures->storeTextureObject(ar, it);
         else
         {
             ar.xmlPushNewNode(SERX_TEXTURE);
-            textureContainer->storeTextureObject(ar, it);
+            textures->storeTextureObject(ar, it);
             ar.xmlPopNode();
         }
         textCnt++;
@@ -469,14 +469,14 @@ void CScene::saveScene(CSer& ar, bool regularSave /*= true*/)
     {
         ar.storeDataName(SER_DYNAMICS);
         ar.setCountingMode();
-        dynamicsContainer->serialize(ar);
+        dynamics->serialize(ar);
         if (ar.setWritingMode())
-            dynamicsContainer->serialize(ar);
+            dynamics->serialize(ar);
     }
     else
     {
         ar.xmlPushNewNode(SERX_DYNAMICS);
-        dynamicsContainer->serialize(ar);
+        dynamics->serialize(ar);
         ar.xmlPopNode();
     }
 
@@ -547,14 +547,14 @@ void CScene::saveScene(CSer& ar, bool regularSave /*= true*/)
     {
         ar.storeDataName(SER_VIEWS);
         ar.setCountingMode();
-        pageContainer->serialize(ar);
+        pages->serialize(ar);
         if (ar.setWritingMode())
-            pageContainer->serialize(ar);
+            pages->serialize(ar);
     }
     else
     {
         ar.xmlPushNewNode(SERX_VIEWS);
-        pageContainer->serialize(ar);
+        pages->serialize(ar);
         ar.xmlPopNode();
     }
 
@@ -697,8 +697,8 @@ void CScene::simulationAboutToStart()
 
     buttonBlockContainer_old->simulationAboutToStart(); // old
     sceneObjects->simulationAboutToStart();
-    dynamicsContainer->simulationAboutToStart();
-    pageContainer->simulationAboutToStart();
+    dynamics->simulationAboutToStart();
+    pages->simulationAboutToStart();
     collisions_old->simulationAboutToStart(); // old
     distances_old->simulationAboutToStart();  // old
     collections->simulationAboutToStart();
@@ -802,13 +802,13 @@ void CScene::simulationEnded(bool removeNewObjects)
     }
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
 
-    drawingCont->simulationEnded();
+    drawingCont_old->simulationEnded();
     pointCloudCont_old->simulationEnded();
     bannerCont_old->simulationEnded();
     buttonBlockContainer_old->simulationEnded();
-    dynamicsContainer->simulationEnded();
+    dynamics->simulationEnded();
     sceneObjects->simulationEnded();
-    pageContainer->simulationEnded();
+    pages->simulationEnded();
     collisions_old->simulationEnded();
     distances_old->simulationEnded();
     collections->simulationEnded();
@@ -865,13 +865,13 @@ int CScene::addGeneralObjectsToSceneAndPerformMappings(
     std::map<int, int> textureMapping;
     for (size_t i = 0; i < loadedTextureObjectList.size(); i++)
     {
-        int oldHandle = loadedTextureObjectList[i]->getObjectID();
-        CTextureObject* handler = textureContainer->getObject(textureContainer->addObjectWithSuffixOffset(
+        int oldHandle = int(loadedTextureObjectList[i]->getObjectHandle());
+        CTextureObject* handler = textures->getObject(textures->addObjectWithSuffixOffset(
             loadedTextureObjectList[i], objectIsACopy,
             suffixOffset)); // if a same object is found, the object is destroyed in addObject!
         if (handler != loadedTextureObjectList[i])
             loadedTextureObjectList[i] = handler; // this happens when a similar object is already present
-        textureMapping[oldHandle] = handler->getObjectID();
+        textureMapping[oldHandle] = int(handler->getObjectHandle());
     }
 
     // We add all sceneObjects:
@@ -1050,7 +1050,7 @@ int CScene::addGeneralObjectsToSceneAndPerformMappings(
 
     // We set ALL texture object dependencies (not just for loaded objects):
     // We cannot use textureCont->updateAllDependencies, since the shape list is not yet actualized!
-    textureContainer->clearAllDependencies();
+    textures->clearAllDependencies();
     buttonBlockContainer_old->setTextureDependencies();
     sceneObjects->setTextureDependencies();
 
@@ -1058,7 +1058,7 @@ int CScene::addGeneralObjectsToSceneAndPerformMappings(
     sceneObjects->actualizeObjectInformation();
 
     if (!model)
-        pageContainer->performObjectLoadingMapping(&objectMapping);
+        pages->performObjectLoadingMapping(&objectMapping);
 
     // sceneObjects->actualizeObjectInformation();
 
@@ -1096,7 +1096,7 @@ int CScene::addGeneralObjectsToSceneAndPerformMappings(
 
         // Here we call the initializeInitialValues for all pages & views
         for (size_t i = 0; i < loadedObjectList->size(); i++)
-            pageContainer->initializeInitialValues(simulationAlreadyRunning, loadedObjectList->at(i)->getObjectHandle());
+            pages->initializeInitialValues(simulationAlreadyRunning, loadedObjectList->at(i)->getObjectHandle());
     }
     //**************************************************************************************
 
@@ -1191,11 +1191,11 @@ void CScene::announceSceneObjectWillBeErased(CSceneObject* object)
 {
     App::announceObjectWillBeErased(object->getObjectHandle());
     sceneObjects->announceSceneObjectWillBeErased(object);
-    textureContainer->announceGeneralObjectWillBeErased(object->getObjectHandle(), -1);
-    pageContainer->announceObjectWillBeErased(object->getObjectHandle()); // might trigger a view destruction!
+    textures->announceGeneralObjectWillBeErased(object->getObjectHandle(), -1);
+    pages->announceObjectWillBeErased(object->getObjectHandle()); // might trigger a view destruction!
 
     // Old:
-    drawingCont->announceSceneObjectWillBeErased(object);
+    drawingCont_old->announceSceneObjectWillBeErased(object);
     buttonBlockContainer_old->announceObjectWillBeErased(object->getObjectHandle());
     pathPlanning_old->announceObjectWillBeErased(object->getObjectHandle());
     collisions_old->announceObjectWillBeErased(object->getObjectHandle());
@@ -1215,7 +1215,7 @@ void CScene::announceScriptWillBeErased(int scriptOrnakedScriptHandle, bool simu
 void CScene::announceScriptStateWillBeErased(int nakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript)
 {
     collections->announceScriptStateWillBeErased(nakedScriptHandle, simulationScript, sceneSwitchPersistentScript);
-    drawingCont->announceScriptStateWillBeErased(nakedScriptHandle, simulationScript, sceneSwitchPersistentScript);
+    drawingCont_old->announceScriptStateWillBeErased(nakedScriptHandle, simulationScript, sceneSwitchPersistentScript);
 }
 
 CScript* CScene::getScriptFromHandle(int scriptHandle) const
@@ -1258,7 +1258,7 @@ void CScene::pushGenesisEvents()
         environment->appendGenesisData(ev);
         customSceneData.appendEventData(nullptr, ev);
         customSceneData_volatile.appendEventData(nullptr, ev);
-        dynamicsContainer->appendGenesisData(ev);
+        dynamics->appendGenesisData(ev);
 
         std::vector<int64_t> customObjectList;
         customObjects->getAllObjectHandles(customObjectList);
@@ -1271,7 +1271,7 @@ void CScene::pushGenesisEvents()
         customObjects->pushGenesisEvents();
         collections->pushGenesisEvents();
 
-        drawingCont->pushGenesisEvents();
+        drawingCont_old->pushGenesisEvents();
         pointCloudCont_old->pushGenesisEvents();
     }
 }
@@ -1305,14 +1305,14 @@ void CScene::announceDistanceWillBeErased(int distanceHandle)
 
 void CScene::announce2DElementWillBeErased(int elementID)
 {
-    if (textureContainer != nullptr)
-        textureContainer->announceGeneralObjectWillBeErased(elementID, -1);
+    if (textures != nullptr)
+        textures->announceGeneralObjectWillBeErased(elementID, -1);
 }
 
 void CScene::announce2DElementButtonWillBeErased(int elementID, int buttonID)
 {
-    if (textureContainer != nullptr)
-        textureContainer->announceGeneralObjectWillBeErased(elementID, buttonID);
+    if (textures != nullptr)
+        textures->announceGeneralObjectWillBeErased(elementID, buttonID);
 }
 // -----------
 
@@ -1389,7 +1389,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
                     noHit = false;
                 }
 
-                CTextureObject* theTextureData = textureContainer->loadTextureObject(ar, theName, noHit);
+                CTextureObject* theTextureData = textures->loadTextureObject(ar, theName, noHit);
                 if (theTextureData != nullptr)
                 {
                     loadedTextureList.push_back(theTextureData);
@@ -1424,7 +1424,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
                 if (theName.compare(SER_DYNAMICS) == 0)
                 {
                     ar >> byteQuantity;
-                    dynamicsContainer->serialize(ar);
+                    dynamics->serialize(ar);
                     noHit = false;
                 }
                 if (theName.compare(SER_SIMULATION) == 0)
@@ -1440,14 +1440,14 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
                         double bulletStepSize =
                             simulation->getTimeStep() /
                             double(mainSettings_old->dynamicsBULLETStepSizeDivider_forBackwardCompatibility_03_01_2012);
-                        dynamicsContainer->setDesiredStepSize(bulletStepSize);
+                        dynamics->setDesiredStepSize(bulletStepSize);
                     }
                     //************************************************
                 }
                 if (theName.compare(SER_VIEWS) == 0)
                 {
                     ar >> byteQuantity;
-                    pageContainer->serialize(ar);
+                    pages->serialize(ar);
                     noHit = false;
                 }
                 if (theName.compare(SER_COLLECTION) == 0)
@@ -1597,7 +1597,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
         {
             while (true)
             {
-                CTextureObject* theTextureData = textureContainer->loadTextureObject(ar, dummy1, dummy2);
+                CTextureObject* theTextureData = textures->loadTextureObject(ar, dummy1, dummy2);
                 if (theTextureData != nullptr)
                     loadedTextureList.push_back(theTextureData);
                 if (!ar.xmlPushSiblingNode(SERX_TEXTURE, false))
@@ -1622,7 +1622,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
         }
         if (ar.xmlPushChildNode(SERX_DYNAMICS, isScene))
         {
-            dynamicsContainer->serialize(ar);
+            dynamics->serialize(ar);
             ar.xmlPopNode();
         }
         if (ar.xmlPushChildNode(SERX_SIMULATION, isScene))
@@ -1649,7 +1649,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
         }
         if (ar.xmlPushChildNode(SERX_VIEWS, isScene))
         {
-            pageContainer->serialize(ar);
+            pages->serialize(ar);
             ar.xmlPopNode();
         }
         if (ar.xmlPushChildNode(SERX_COLLISION, false))
@@ -1939,7 +1939,7 @@ bool CScene::_loadSimpleXmlSceneOrModel(CSer& ar)
 
     if (isScene && ar.xmlPushChildNode(SERX_DYNAMICS, false))
     {
-        dynamicsContainer->serialize(ar);
+        dynamics->serialize(ar);
         ar.xmlPopNode();
     }
 
@@ -2019,9 +2019,9 @@ bool CScene::_loadSimpleXmlSceneOrModel(CSer& ar)
     }
     if ((mainCam != nullptr) && isScene)
     {
-        pageContainer->setUpDefaultPages(true);
+        pages->setUpDefaultPages(true);
 #ifdef SIM_WITH_GUI
-        CSPage* page = pageContainer->getPage(pageContainer->getActivePageIndex());
+        CSPage* page = pages->getPage(pages->getActivePageIndex());
         CSView* view = page->getView(0);
         if (view != nullptr)
             view->setLinkedObjectID(mainCam->getObjectHandle(), false);
@@ -2316,7 +2316,7 @@ bool CScene::_saveSimpleXmlScene(CSer& ar)
 
     ar.xmlAddNode_comment(" 'dynamics' tag: has no effect when loading a model ", false);
     ar.xmlPushNewNode(SERX_DYNAMICS);
-    dynamicsContainer->serialize(ar);
+    dynamics->serialize(ar);
     ar.xmlPopNode();
 
     ar.xmlAddNode_comment(" 'simulation' tag: has no effect when loading a model ", false);
@@ -2714,8 +2714,8 @@ int CScene::setBoolProperty_t(int64_t target, const char* ppName, bool pState)
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->setBoolProperty(pName, pState);
+        if (dynamics != nullptr)
+            retVal = dynamics->setBoolProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
             retVal = simulation->setBoolProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (environment != nullptr))
@@ -2754,8 +2754,8 @@ int CScene::getBoolProperty_t(int64_t target, const char* ppName, bool& pState) 
         retVal = Obj::getBoolProperty(ppName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
-            if (dynamicsContainer != nullptr)
-                retVal = dynamicsContainer->getBoolProperty(pName, pState);
+            if (dynamics != nullptr)
+                retVal = dynamics->getBoolProperty(pName, pState);
             if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
                 retVal = simulation->getBoolProperty(pName, pState);
             if ((retVal == sim_propertyret_unknownproperty) && (environment != nullptr))
@@ -2776,9 +2776,13 @@ int CScene::getBoolProperty_t(int64_t target, const char* ppName, bool& pState) 
     {
         retVal = collections->getBoolProperty_t(target, ppName, pState);
     }
+    else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend))
+    {
+        retVal = textures->getBoolProperty_t(target, ppName, pState);
+    }
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
-        retVal = drawingCont->getBoolProperty_t(target, ppName, pState);
+        retVal = drawingCont_old->getBoolProperty_t(target, ppName, pState);
     }
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
         retVal = customObjects->getBoolProperty_t(target, ppName, pState);
@@ -2794,8 +2798,8 @@ int CScene::setIntProperty_t(int64_t target, const char* ppName, int pState)
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->setIntProperty(pName, pState);
+        if (dynamics != nullptr)
+            retVal = dynamics->setIntProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
             retVal = simulation->setIntProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (environment != nullptr))
@@ -2831,8 +2835,8 @@ int CScene::getIntProperty_t(int64_t target, const char* ppName, int& pState) co
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->getIntProperty(pName, pState);
+        if (dynamics != nullptr)
+            retVal = dynamics->getIntProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
             retVal = simulation->getIntProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (environment != nullptr))
@@ -2923,9 +2927,13 @@ int CScene::getLongProperty_t(int64_t target, const char* ppName, int64_t& pStat
     {
         retVal = collections->getLongProperty_t(target, ppName, pState);
     }
+    else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend))
+    {
+        retVal = textures->getLongProperty_t(target, ppName, pState);
+    }
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
-        retVal = drawingCont->getLongProperty_t(target, ppName, pState);
+        retVal = drawingCont_old->getLongProperty_t(target, ppName, pState);
     }
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
         retVal = customObjects->getLongProperty_t(target, ppName, pState);
@@ -2978,7 +2986,7 @@ int CScene::getHandleProperty_t(int64_t target, const char* ppName, int64_t& pSt
     }
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
-        retVal = drawingCont->getHandleProperty_t(target, ppName, pState);
+        retVal = drawingCont_old->getHandleProperty_t(target, ppName, pState);
     }
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
         retVal = customObjects->getHandleProperty_t(target, ppName, pState);
@@ -2994,8 +3002,8 @@ int CScene::setFloatProperty_t(int64_t target, const char* ppName, double pState
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->setFloatProperty(pName, pState);
+        if (dynamics != nullptr)
+            retVal = dynamics->setFloatProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
             retVal = simulation->setFloatProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
@@ -3029,8 +3037,8 @@ int CScene::getFloatProperty_t(int64_t target, const char* ppName, double& pStat
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->getFloatProperty(pName, pState);
+        if (dynamics != nullptr)
+            retVal = dynamics->getFloatProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
             retVal = simulation->getFloatProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
@@ -3064,8 +3072,8 @@ int CScene::setStringProperty_t(int64_t target, const char* ppName, const std::s
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->setStringProperty(pName, pState);
+        if (dynamics != nullptr)
+            retVal = dynamics->setStringProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (environment != nullptr))
             retVal = environment->setStringProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
@@ -3099,8 +3107,8 @@ int CScene::getStringProperty_t(int64_t target, const char* ppName, std::string&
     if (target == sim_handle_scene)
     {
         retVal = Obj::getStringProperty(ppName, pState);
-        if ((retVal == sim_propertyret_unknownproperty) && (dynamicsContainer != nullptr))
-            retVal = dynamicsContainer->getStringProperty(ppName, pState);
+        if ((retVal == sim_propertyret_unknownproperty) && (dynamics != nullptr))
+            retVal = dynamics->getStringProperty(ppName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (environment != nullptr))
             retVal = environment->getStringProperty(ppName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (simulation != nullptr))
@@ -3109,8 +3117,8 @@ int CScene::getStringProperty_t(int64_t target, const char* ppName, std::string&
             retVal = sceneObjects->getStringProperty_t(-1, ppName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (collections != nullptr))
             retVal = collections->getStringProperty_t(-1, ppName, pState);
-        if ((retVal == sim_propertyret_unknownproperty) && (drawingCont != nullptr))
-            retVal = drawingCont->getStringProperty_t(-1, ppName, pState);
+        if ((retVal == sim_propertyret_unknownproperty) && (drawingCont_old != nullptr))
+            retVal = drawingCont_old->getStringProperty_t(-1, ppName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
         }
@@ -3125,10 +3133,12 @@ int CScene::getStringProperty_t(int64_t target, const char* ppName, std::string&
         const char* pName = ppName;
         retVal = collections->getStringProperty_t(target, pName, pState);
     }
+    else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend))
+        retVal = textures->getStringProperty_t(target, ppName, pState);
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
         const char* pName = ppName;
-        retVal = drawingCont->getStringProperty_t(target, pName, pState);
+        retVal = drawingCont_old->getStringProperty_t(target, pName, pState);
     }
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
         retVal = customObjects->getStringProperty_t(target, ppName, pState);
@@ -3217,6 +3227,9 @@ int CScene::setBufferProperty_t(int64_t target, const char* ppName, const std::s
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
+    else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend))
+    {
+    }
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
@@ -3260,6 +3273,10 @@ int CScene::getBufferProperty_t(int64_t target, const char* ppName, std::string&
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
+    else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend))
+    {
+        retVal = textures->getBufferProperty_t(target, ppName, pState);
+    }
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
@@ -3277,8 +3294,8 @@ int CScene::setIntArray2Property_t(int64_t target, const char* ppName, const int
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->setIntArray2Property(pName, pState);
+        if (dynamics != nullptr)
+            retVal = dynamics->setIntArray2Property(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setIntArray2Property_t(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
@@ -3291,6 +3308,9 @@ int CScene::setIntArray2Property_t(int64_t target, const char* ppName, const int
         retVal = sceneObjects->setIntArray2Property_t(target, pName, pState);
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
+    {
+    }
+    else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend))
     {
     }
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
@@ -3310,8 +3330,8 @@ int CScene::getIntArray2Property_t(int64_t target, const char* ppName, int* pSta
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->getIntArray2Property(pName, pState);
+        if (dynamics != nullptr)
+            retVal = dynamics->getIntArray2Property(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getIntArray2Property_t(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
@@ -3325,6 +3345,10 @@ int CScene::getIntArray2Property_t(int64_t target, const char* ppName, int* pSta
     }
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
+    }
+    else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend))
+    {
+        retVal = textures->getIntArray2Property_t(target, ppName, pState);
     }
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
@@ -3343,8 +3367,8 @@ int CScene::setVector3Property_t(int64_t target, const char* ppName, const C3Vec
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->setVector3Property(pName, &pState);
+        if (dynamics != nullptr)
+            retVal = dynamics->setVector3Property(pName, &pState);
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setVector3Property_t(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
@@ -3373,8 +3397,8 @@ int CScene::getVector3Property_t(int64_t target, const char* ppName, C3Vector& p
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->getVector3Property(pName, pState);
+        if (dynamics != nullptr)
+            retVal = dynamics->getVector3Property(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getVector3Property_t(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
@@ -3640,8 +3664,8 @@ int CScene::setFloatArrayProperty_t(int64_t target, const char* ppName, const st
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->setFloatArrayProperty(pName, pState);
+        if (dynamics != nullptr)
+            retVal = dynamics->setFloatArrayProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setFloatArrayProperty_t(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
@@ -3674,8 +3698,8 @@ int CScene::getFloatArrayProperty_t(int64_t target, const char* ppName, std::vec
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->getFloatArrayProperty(pName, pState);
+        if (dynamics != nullptr)
+            retVal = dynamics->getFloatArrayProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getFloatArrayProperty_t(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
@@ -3707,8 +3731,8 @@ int CScene::setIntArrayProperty_t(int64_t target, const char* ppName, const std:
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->setIntArrayProperty(pName, pState);
+        if (dynamics != nullptr)
+            retVal = dynamics->setIntArrayProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->setIntArrayProperty_t(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
@@ -3741,8 +3765,8 @@ int CScene::getIntArrayProperty_t(int64_t target, const char* ppName, std::vecto
     if (target == sim_handle_scene)
     {
         const char* pName = ppName;
-        if (dynamicsContainer != nullptr)
-            retVal = dynamicsContainer->getIntArrayProperty(pName, pState);
+        if (dynamics != nullptr)
+            retVal = dynamics->getIntArrayProperty(pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
             retVal = sceneObjects->getIntArrayProperty_t(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
@@ -3788,6 +3812,9 @@ int CScene::setHandleArrayProperty_t(int64_t target, const char* ppName, const s
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
     {
     }
+    else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend))
+    {
+    }
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
@@ -3810,8 +3837,10 @@ int CScene::getHandleArrayProperty_t(int64_t target, const char* ppName, std::ve
             retVal = sceneObjects->getHandleArrayProperty_t(-1, pName, pState);
         if ((retVal == sim_propertyret_unknownproperty) && (collections != nullptr))
             retVal = collections->getHandleArrayProperty_t(-1, pName, pState);
-        if ((retVal == sim_propertyret_unknownproperty) && (drawingCont != nullptr))
-            retVal = drawingCont->getHandleArrayProperty_t(-1, pName, pState);
+        if ((retVal == sim_propertyret_unknownproperty) && (textures != nullptr))
+            retVal = textures->getHandleArrayProperty_t(-1, pName, pState);
+        if ((retVal == sim_propertyret_unknownproperty) && (drawingCont_old != nullptr))
+            retVal = drawingCont_old->getHandleArrayProperty_t(-1, pName, pState);
         if (retVal == sim_propertyret_unknownproperty)
         {
             if (strcmp(ppName, prop(PropScene::customObjects).name) == 0)
@@ -3831,10 +3860,13 @@ int CScene::getHandleArrayProperty_t(int64_t target, const char* ppName, std::ve
         const char* pName = ppName;
         retVal = collections->getHandleArrayProperty_t(target, pName, pState);
     }
+    else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend))
+    {
+    }
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
         const char* pName = ppName;
-        retVal = drawingCont->getHandleArrayProperty_t(target, pName, pState);
+        retVal = drawingCont_old->getHandleArrayProperty_t(target, pName, pState);
     }
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
         retVal = customObjects->getHandleArrayProperty_t(target, ppName, pState);
@@ -3896,9 +3928,13 @@ int CScene::getStringArrayProperty_t(int64_t target, const char* ppName, std::ve
     {
         retVal = collections->getStringArrayProperty_t(target, ppName, pState);
     }
+    else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend))
+    {
+        retVal = textures->getStringArrayProperty_t(target, ppName, pState);
+    }
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
-        retVal = drawingCont->getStringArrayProperty_t(target, ppName, pState);
+        retVal = drawingCont_old->getStringArrayProperty_t(target, ppName, pState);
     }
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
         retVal = customObjects->getStringArrayProperty_t(target, ppName, pState);
@@ -4068,8 +4104,8 @@ int CScene::getPropertyName_t(int64_t target, int& index, std::string& pName, st
         if (retVal == sim_propertyret_unknownproperty)
         {
             appartenance = _objectTypeStr;
-            if ((retVal == sim_propertyret_unknownproperty) && (App::scene->dynamicsContainer != nullptr))
-                retVal = App::scene->dynamicsContainer->getPropertyName(index, pName, excludeFlags);
+            if ((retVal == sim_propertyret_unknownproperty) && (App::scene->dynamics != nullptr))
+                retVal = App::scene->dynamics->getPropertyName(index, pName, excludeFlags);
             if ((retVal == sim_propertyret_unknownproperty) && (App::scene->simulation != nullptr))
                 retVal = App::scene->simulation->getPropertyName(index, pName, excludeFlags);
             if ((retVal == sim_propertyret_unknownproperty) && (App::scene->environment != nullptr))
@@ -4092,7 +4128,7 @@ int CScene::getPropertyName_t(int64_t target, int& index, std::string& pName, st
             if (retVal == sim_propertyret_unknownproperty)
                 retVal = collections->getPropertyName_t(-1, index, pName, appartenance, excludeFlags);
             if (retVal == sim_propertyret_unknownproperty)
-                retVal = drawingCont->getPropertyName_t(-1, index, pName, appartenance, excludeFlags);
+                retVal = drawingCont_old->getPropertyName_t(-1, index, pName, appartenance, excludeFlags);
         }
     }
     else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
@@ -4105,7 +4141,7 @@ int CScene::getPropertyName_t(int64_t target, int& index, std::string& pName, st
     }
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
-        retVal = drawingCont->getPropertyName_t(target, index, pName, appartenance, excludeFlags);
+        retVal = drawingCont_old->getPropertyName_t(target, index, pName, appartenance, excludeFlags);
     }
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
         retVal = customObjects->getPropertyName_t(target, index, pName, appartenance, excludeFlags);
@@ -4122,8 +4158,8 @@ int CScene::getPropertyInfo_t(int64_t target, const char* ppName, int& info, std
     {
         const char* pName = ppName;
         retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
-        if ((retVal == sim_propertyret_unknownproperty) && (App::scene->dynamicsContainer != nullptr))
-            retVal = App::scene->dynamicsContainer->getPropertyInfo(pName, info, infoTxt);
+        if ((retVal == sim_propertyret_unknownproperty) && (App::scene->dynamics != nullptr))
+            retVal = App::scene->dynamics->getPropertyInfo(pName, info, infoTxt);
         if ((retVal == sim_propertyret_unknownproperty) && (App::scene->simulation != nullptr))
             retVal = App::scene->simulation->getPropertyInfo(pName, info, infoTxt);
         if ((retVal == sim_propertyret_unknownproperty) && (App::scene->environment != nullptr))
@@ -4177,14 +4213,14 @@ int CScene::getPropertyInfo_t(int64_t target, const char* ppName, int& info, std
         if (retVal == sim_propertyret_unknownproperty)
             retVal = collections->getPropertyInfo_t(-1, pName, info, infoTxt);
         if (retVal == sim_propertyret_unknownproperty)
-            retVal = drawingCont->getPropertyInfo_t(-1, pName, info, infoTxt);
+            retVal = drawingCont_old->getPropertyInfo_t(-1, pName, info, infoTxt);
     }
     else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->getPropertyInfo_t(target, ppName, info, infoTxt);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
         retVal = collections->getPropertyInfo_t(target, ppName, info, infoTxt);
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
-        retVal = drawingCont->getPropertyInfo_t(target, ppName, info, infoTxt);
+        retVal = drawingCont_old->getPropertyInfo_t(target, ppName, info, infoTxt);
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
         retVal = customObjects->getPropertyInfo_t(target, ppName, info, infoTxt);
     else
@@ -4218,19 +4254,19 @@ void CScene::renderYourGeneralObject3DStuff_beforeRegularObjects(CViewableBase* 
                                                                  bool perspective)
 {
     distances_old->renderYour3DStuff(renderingObject, displayAttrib);
-    drawingCont->renderYour3DStuff_nonTransparent(renderingObject, displayAttrib);
+    drawingCont_old->renderYour3DStuff_nonTransparent(renderingObject, displayAttrib);
     pointCloudCont_old->renderYour3DStuff_nonTransparent(renderingObject, displayAttrib);
     ghostObjectCont_old->renderYour3DStuff_nonTransparent(renderingObject, displayAttrib);
     bannerCont_old->renderYour3DStuff_nonTransparent(renderingObject, displayAttrib, windowSize, verticalViewSizeOrAngle,
                                                      perspective);
-    dynamicsContainer->renderYour3DStuff(renderingObject, displayAttrib);
+    dynamics->renderYour3DStuff(renderingObject, displayAttrib);
 }
 
 void CScene::renderYourGeneralObject3DStuff_afterRegularObjects(CViewableBase* renderingObject, int displayAttrib,
                                                                 int windowSize[2], double verticalViewSizeOrAngle,
                                                                 bool perspective)
 {
-    drawingCont->renderYour3DStuff_transparent(renderingObject, displayAttrib);
+    drawingCont_old->renderYour3DStuff_transparent(renderingObject, displayAttrib);
     pointCloudCont_old->renderYour3DStuff_transparent(renderingObject, displayAttrib);
     ghostObjectCont_old->renderYour3DStuff_transparent(renderingObject, displayAttrib);
     bannerCont_old->renderYour3DStuff_transparent(renderingObject, displayAttrib, windowSize, verticalViewSizeOrAngle,
@@ -4246,12 +4282,12 @@ void CScene::renderYourGeneralObject3DStuff_onTopOfRegularObjects(CViewableBase*
         CMarker* it = sceneObjects->getMarkerFromIndex(i);
         it->displayOverlay(renderingObject, displayAttrib);
     }
-    drawingCont->renderYour3DStuff_overlay(renderingObject, displayAttrib);
+    drawingCont_old->renderYour3DStuff_overlay(renderingObject, displayAttrib);
     pointCloudCont_old->renderYour3DStuff_overlay(renderingObject, displayAttrib);
     ghostObjectCont_old->renderYour3DStuff_overlay(renderingObject, displayAttrib);
     bannerCont_old->renderYour3DStuff_overlay(renderingObject, displayAttrib, windowSize, verticalViewSizeOrAngle,
                                               perspective);
     collisions_old->renderYour3DStuff(renderingObject, displayAttrib);
-    dynamicsContainer->renderYour3DStuff_overlay(renderingObject, displayAttrib);
+    dynamics->renderYour3DStuff_overlay(renderingObject, displayAttrib);
 }
 #endif

@@ -601,7 +601,7 @@ void CSceneObjectContainer::actualizeObjectInformation()
         for (size_t i = 0; i < getObjectCount(sim_sceneobject_shape); i++)
             getShapeFromIndex(i)->clearLastParentForLocalGlobalRespondable();
 
-        App::scene->textureContainer->updateAllDependencies();
+        App::scene->textures->updateAllDependencies();
 #ifdef SIM_WITH_GUI
         GuiApp::setRebuildHierarchyFlag();
 #endif

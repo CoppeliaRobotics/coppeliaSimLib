@@ -78,7 +78,7 @@ bool CEditModeContainer::enterEditMode(int objID, int modeType)
     {
         _shapeEditMode =
             new CShapeEditMode(App::scene->sceneObjects->getShapeFromHandle(objID), modeType,
-                               App::scene->sceneObjects, App::scene->textureContainer, GuiApp::uiThread);
+                               App::scene->sceneObjects, App::scene->textures, GuiApp::uiThread);
 
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
@@ -469,8 +469,8 @@ bool CEditModeContainer::processCommand(int commandID, CSceneObject* viewableObj
                         App::logMsg(sim_verbosity_msgs, IDSNS_STARTING_COMPOUND_SHAPE_EDIT_MODE);
 
                         // Frame the shape
-                        CSPage* thePage = App::scene->pageContainer->getPage(
-                            App::scene->pageContainer->getActivePageIndex());
+                        CSPage* thePage = App::scene->pages->getPage(
+                            App::scene->pages->getActivePageIndex());
                         if (thePage != nullptr)
                         {
                             CSView* theView = thePage->getView(0);
@@ -508,8 +508,8 @@ bool CEditModeContainer::processCommand(int commandID, CSceneObject* viewableObj
                             App::logMsg(sim_verbosity_msgs, IDSNS_STARTING_TRIANGLE_EDIT_MODE);
 
                             // Frame the shape
-                            CSPage* thePage = App::scene->pageContainer->getPage(
-                                App::scene->pageContainer->getActivePageIndex());
+                            CSPage* thePage = App::scene->pages->getPage(
+                                App::scene->pages->getActivePageIndex());
                             if (thePage != nullptr)
                             {
                                 CSView* theView = thePage->getView(0);
@@ -560,8 +560,8 @@ bool CEditModeContainer::processCommand(int commandID, CSceneObject* viewableObj
                 {
                     App::logMsg(sim_verbosity_msgs, IDSNS_STARTING_PATH_EDIT_MODE_OLD);
                     // Frame the path
-                    CSPage* thePage = App::scene->pageContainer->getPage(
-                        App::scene->pageContainer->getActivePageIndex());
+                    CSPage* thePage = App::scene->pages->getPage(
+                        App::scene->pages->getActivePageIndex());
                     if (thePage != nullptr)
                     {
                         CSView* theView = thePage->getView(0);

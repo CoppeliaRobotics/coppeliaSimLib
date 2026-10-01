@@ -15,31 +15,31 @@ CTextureContainer::~CTextureContainer()
     eraseAllObjects();
 }
 
-CTextureObject* CTextureContainer::getObject(int objectID)
+CTextureObject* CTextureContainer::getObject(int objectID) const
 {
     for (size_t i = 0; i < _allTextureObjects.size(); i++)
     {
-        if (_allTextureObjects[i]->getObjectID() == objectID)
+        if (int(_allTextureObjects[i]->getObjectHandle()) == objectID)
             return (_allTextureObjects[i]);
     }
-    return (nullptr);
+    return nullptr;
 }
 
-CTextureObject* CTextureContainer::getObject(const char* objectName)
+CTextureObject* CTextureContainer::getObject(const char* objectName) const
 {
     for (int i = 0; i < int(_allTextureObjects.size()); i++)
     {
         if (_allTextureObjects[i]->getObjectName() == objectName)
             return (_allTextureObjects[i]);
     }
-    return (nullptr);
+    return nullptr;
 }
 
-CTextureObject* CTextureContainer::getObjectAtIndex(int index)
+CTextureObject* CTextureContainer::getObjectAtIndex(int index) const
 {
     if ((index < 0) || (index >= int(_allTextureObjects.size())))
-        return (nullptr);
-    return (_allTextureObjects[index]);
+        return nullptr;
+    return _allTextureObjects[index];
 }
 
 void CTextureContainer::getMinAndMaxNameSuffixes(int& minSuffix, int& maxSuffix) const
@@ -115,13 +115,13 @@ int CTextureContainer::addObjectWithSuffixOffset(CTextureObject* anObject, bool 
         anObject->transferDependenciesToThere(theOldData);
 
         delete anObject;
-        return (theOldData->getObjectID());
+        return int(theOldData->getObjectHandle());
     }
 
     int newID = sim_object_texturestart;
     while (getObject(newID) != nullptr)
         newID++;
-    anObject->setObjectID(newID);
+    anObject->setObjectHandle(newID);
     std::string newName(anObject->getObjectName());
     while (getObject(newName.c_str()) != nullptr)
     {
@@ -147,7 +147,7 @@ void CTextureContainer::removeObject(int objectID)
 {
     for (size_t i = 0; i < _allTextureObjects.size(); i++)
     {
-        if (_allTextureObjects[i]->getObjectID() == objectID)
+        if (int(_allTextureObjects[i]->getObjectHandle()) == objectID)
         {
             delete _allTextureObjects[i];
             _allTextureObjects.erase(_allTextureObjects.begin() + i);
@@ -184,7 +184,7 @@ void CTextureContainer::announceGeneralObjectWillBeErased(int generalObjectID, i
     {
         if (_allTextureObjects[i]->announceGeneralObjectWillBeErased(generalObjectID, subID))
         {
-            removeObject(_allTextureObjects[i]->getObjectID());
+            removeObject(int(_allTextureObjects[i]->getObjectHandle()));
             i = 0; // ordering may have changed!
         }
         else
@@ -197,7 +197,7 @@ int CTextureContainer::getSameObjectID(CTextureObject* anObject)
     for (int i = 0; i < int(_allTextureObjects.size()); i++)
     {
         if (_allTextureObjects[i]->isSame(anObject))
-            return (_allTextureObjects[i]->getObjectID());
+            return int(_allTextureObjects[i]->getObjectHandle());
     }
     return (-1);
 }
@@ -232,16 +232,118 @@ CTextureObject* CTextureContainer::loadTextureObject(CSer& ar, std::string theNa
         {
             noHit = false;
             ar >> byteNumber;
-            CTextureObject* myNewObject = new CTextureObject();
+            CTextureObject* myNewObject = new CTextureObject(16, 16);
             myNewObject->serialize(ar);
             return (myNewObject);
         }
     }
     else
     {
-        CTextureObject* myNewObject = new CTextureObject();
+        CTextureObject* myNewObject = new CTextureObject(16, 16);
         myNewObject->serialize(ar);
         return (myNewObject);
     }
     return (nullptr);
 }
+
+int CTextureContainer::getBoolProperty_t(int64_t target, const char* pName, bool& pState) const
+{
+    int retVal = sim_propertyret_unknowntarget;
+    CTextureObject* it = getObject(int(target));
+    if (it != nullptr)
+        retVal = it->getBoolProperty(pName, pState);
+    return retVal;
+}
+
+int CTextureContainer::getLongProperty_t(int64_t target, const char* pName, int64_t& pState) const
+{
+    int retVal = sim_propertyret_unknowntarget;
+    CTextureObject* it = getObject(int(target));
+    if (it != nullptr)
+        retVal = it->getLongProperty(pName, pState);
+    return retVal;
+}
+
+int CTextureContainer::getStringProperty_t(int64_t target, const char* pName, std::string& pState) const
+{
+    int retVal = sim_propertyret_unknowntarget;
+    CTextureObject* it = getObject(int(target));
+    if (it != nullptr)
+        retVal = it->getStringProperty(pName, pState);
+    return retVal;
+}
+
+int CTextureContainer::getStringArrayProperty_t(int64_t target, const char* pName, std::vector<std::string>& pState) const
+{
+    int retVal = sim_propertyret_unknowntarget;
+    CTextureObject* it = getObject(int(target));
+    if (it != nullptr)
+        retVal = it->getStringArrayProperty(pName, pState);
+    return retVal;
+}
+
+int CTextureContainer::getBufferProperty_t(int64_t target, const char* ppName, std::string& pState) const
+{
+    int retVal = sim_propertyret_unknowntarget;
+
+    CTextureObject* it = getObject(int(target));
+    if (it != nullptr)
+        retVal = it->getBufferProperty(ppName, pState);
+    return retVal;
+}
+
+int CTextureContainer::getIntArray2Property_t(int64_t target, const char* ppName, int* pState) const
+{
+    int retVal = sim_propertyret_unknowntarget;
+
+    CTextureObject* it = getObject(int(target));
+    if (it != nullptr)
+        retVal = it->getIntArray2Property(ppName, pState);
+    return retVal;
+}
+
+int CTextureContainer::getHandleArrayProperty_t(int64_t target, const char* pName, std::vector<int64_t>& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+    pState.clear();
+    if (target == -1)
+    {
+        if (strcmp(pName, prop(PropScene::textures).name) == 0)
+        {
+            for (size_t i = 0; i < _allTextureObjects.size(); i++)
+                pState.push_back(_allTextureObjects[i]->getObjectHandle());
+            retVal = sim_propertyret_ok;
+        }
+    }
+    return retVal;
+}
+
+int CTextureContainer::getPropertyName_t(int64_t target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (target != -1)
+    {
+        CTextureObject* it = getObject(int(target));
+        if (it != nullptr)
+        {
+            appartenance = "texture";
+            return it->getPropertyName(index, pName, appartenance, excludeFlags);
+        }
+        retVal = -2; // object does not exist
+    }
+    return retVal;
+}
+
+int CTextureContainer::getPropertyInfo_t(int64_t target, const char* pName, int& info, std::string& infoTxt) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (target != -1)
+    {
+        CTextureObject* it = getObject(int(target));
+        if (it != nullptr)
+            return it->getPropertyInfo(pName, info, infoTxt);
+        retVal = -2; // object does not exist
+    }
+    return retVal;
+}
+

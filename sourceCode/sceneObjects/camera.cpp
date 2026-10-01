@@ -1482,7 +1482,7 @@ void CCamera::serialize(CSer& ar)
         {
             if (!exhaustiveXml)
             {
-                int h = App::scene->pageContainer->getMainCameraHandle();
+                int h = App::scene->pages->getMainCameraHandle();
                 ar.xmlAddNode_bool("mainCamera", h == _objectHandle);
             }
             int trck = -1;

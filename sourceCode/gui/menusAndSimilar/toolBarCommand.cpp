@@ -17,8 +17,8 @@ bool CToolBarCommand::processCommand(int commandID)
         {
             if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
-                int pageIndex = App::scene->pageContainer->getActivePageIndex();
-                CSPage* page = App::scene->pageContainer->getPage(pageIndex);
+                int pageIndex = App::scene->pages->getActivePageIndex();
+                CSPage* page = App::scene->pages->getPage(pageIndex);
                 if (page != nullptr)
                 {
                     int ind = page->getLastMouseDownViewIndex();
@@ -252,9 +252,9 @@ bool CToolBarCommand::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            if (App::scene->pageContainer->getActivePageIndex() != (commandID - VIEW_1_CMD))
+            if (App::scene->pages->getActivePageIndex() != (commandID - VIEW_1_CMD))
             {
-                App::scene->pageContainer->setActivePage(commandID - VIEW_1_CMD);
+                App::scene->pages->setActivePage(commandID - VIEW_1_CMD);
                 App::undoRedo_sceneChanged("");
                 std::string str(IDSNS_SWAPPED_TO_PAGE);
                 str += " ";

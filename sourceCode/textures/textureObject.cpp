@@ -3,28 +3,20 @@
 #include <app.h>
 #include <boost/format.hpp>
 #include <base64.h>
+#include <utils.h>
 #ifdef SIM_WITH_GUI
 #include <guiApp.h>
 #endif
 
 unsigned int CTextureObject::_textureContentUniqueId = 0;
 
-CTextureObject::CTextureObject()
-{ // for serialization
-    _objectID = sim_object_texturestart;
-    _objectName = "Texture";
-    _textureSize[0] = 16;
-    _textureSize[1] = 16;
-    _oglTextureName = (unsigned int)-1;
-    _textureBuffer.resize(4 * _textureSize[0] * _textureSize[1], 0);
-    _providedImageWasRGBA = false;
-    _changedFlag = true;
-    _currentTextureContentUniqueId = _textureContentUniqueId++;
-}
-
 CTextureObject::CTextureObject(int sizeX, int sizeY)
 {
-    _objectID = sim_object_texturestart;
+    _objectHandle = sim_object_texturestart;
+    _objectTypeStr = "texture";
+    _originalObjectTypeStr = _objectTypeStr;
+    setMetaInfo("superClass: object");
+
     _objectName = "Texture";
     _textureSize[0] = sizeX;
     _textureSize[1] = sizeY;
@@ -49,20 +41,15 @@ CTextureObject::~CTextureObject()
 #endif
 }
 
-void CTextureObject::setObjectID(int newID)
+void CTextureObject::setObjectHandle(int64_t h)
 {
-    _objectID = newID;
-}
-
-int CTextureObject::getObjectID() const
-{
-    return (_objectID);
+    _objectHandle = h;
 }
 
 void CTextureObject::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
     if (opType == 3)
-        _objectID = CScene::getLoadingMapping(map, _objectID); // model save
+        _objectHandle = CScene::getLoadingMapping(map, int(_objectHandle)); // model save
 }
 
 void CTextureObject::setObjectName(const char* newName)
@@ -263,12 +250,9 @@ void CTextureObject::setChangedFlag(bool c)
 
 CTextureObject* CTextureObject::copyYourself() const
 {
-    CTextureObject* newObj = new CTextureObject();
-    newObj->_objectID = _objectID;
+    CTextureObject* newObj = new CTextureObject(_textureSize[0], _textureSize[1]);
+    newObj->_objectHandle = _objectHandle;
     newObj->_objectName = _objectName;
-
-    newObj->_textureSize[0] = _textureSize[0];
-    newObj->_textureSize[1] = _textureSize[1];
 
     newObj->_textureBuffer.assign(_textureBuffer.begin(), _textureBuffer.end());
     newObj->_providedImageWasRGBA = _providedImageWasRGBA;
@@ -429,7 +413,7 @@ void CTextureObject::serialize(CSer& ar)
         if (ar.isStoring())
         { // Storing
             ar.storeDataName("Ipa");
-            ar << _objectID << _textureSize[0] << _textureSize[1];
+            ar << int(_objectHandle) << _textureSize[0] << _textureSize[1];
             ar.flush();
 
             ar.storeDataName("Gon");
@@ -479,7 +463,9 @@ void CTextureObject::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        ar >> _objectID >> _textureSize[0] >> _textureSize[1];
+                        int hh;
+                        ar >> hh >> _textureSize[0] >> _textureSize[1];
+                        _objectHandle = hh;
                     }
                     if (theName.compare("Gon") == 0)
                     {
@@ -541,7 +527,7 @@ void CTextureObject::serialize(CSer& ar)
         if (ar.isStoring())
         {
             ar.xmlAddNode_string("name", _objectName.c_str());
-            ar.xmlAddNode_int("id", _objectID);
+            ar.xmlAddNode_int("id", int(_objectHandle));
             ar.xmlAddNode_ints("resolution", _textureSize, 2);
             ar.xmlAddNode_bool("rgba", _providedImageWasRGBA);
             if (ar.xmlSaveDataInline(_textureSize[0] * _textureSize[1] * 4))
@@ -556,7 +542,9 @@ void CTextureObject::serialize(CSer& ar)
         else
         {
             ar.xmlGetNode_string("name", _objectName);
-            ar.xmlGetNode_int("id", _objectID);
+            int hh;
+            ar.xmlGetNode_int("id", hh);
+            _objectHandle = hh;
             ar.xmlGetNode_ints("resolution", _textureSize, 2);
             ar.xmlGetNode_bool("rgba", _providedImageWasRGBA);
             std::string str;
@@ -576,3 +564,92 @@ void CTextureObject::serialize(CSer& ar)
         }
     }
 }
+
+int CTextureObject::getBufferProperty(const char* ppName, std::string& pState) const
+{
+    int retVal = Obj::getBufferProperty(ppName, pState);
+
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        pState.clear();
+        if (strcmp(ppName, prop(PropTexture::image).name) == 0)
+        {
+            pState.assign(_textureBuffer.begin(), _textureBuffer.end());
+            retVal = sim_propertyret_ok;
+        }
+    }
+    return retVal;
+}
+
+int CTextureObject::getIntArray2Property(const char* ppName, int* pState) const
+{
+    int retVal = Obj::getIntArray2Property(ppName, pState);
+
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        if (strcmp(ppName, prop(PropTexture::resolution).name) == 0)
+        {
+            pState[0] = _textureSize[0];
+            pState[1] = _textureSize[1];
+            retVal = sim_propertyret_ok;
+        }
+    }
+    return retVal;
+}
+
+int CTextureObject::getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const
+{
+    int retVal = Obj::getPropertyName(index, pName, appartenance, excludeFlags);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        appartenance = _objectTypeStr;
+        for (size_t i = 0; i < allProps_texture.size(); i++)
+        {
+            if ((pName.size() == 0) || utils::startsWith(allProps_texture[i].name, pName.c_str()))
+            {
+                if ((allProps_texture[i].flags & excludeFlags) == 0)
+                {
+                    index--;
+                    if (index == -1)
+                    {
+                        pName = allProps_texture[i].name;
+                        retVal = sim_propertyret_ok;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CTextureObject::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) const
+{
+    int retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        for (size_t i = 0; i < allProps_texture.size(); i++)
+        {
+            if (strcmp(allProps_texture[i].name, ppName) == 0)
+            {
+                retVal = allProps_texture[i].type;
+                info = allProps_texture[i].flags;
+                if (infoTxt == "j")
+                    infoTxt = allProps_texture[i].info.json;
+                else
+                {
+                    auto w = allProps_texture[i].info.map;
+                    std::string descr = w["description"].toString().toStdString();
+                    std::string label = w["label"].toString().toStdString();
+                    if ( (infoTxt == "s") || (descr == "") )
+                        infoTxt = label;
+                    else
+                        infoTxt = descr;
+                }
+                break;
+            }
+        }
+    }
+    return retVal;
+}
+

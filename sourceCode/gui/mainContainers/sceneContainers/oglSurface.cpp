@@ -101,7 +101,7 @@ bool COglSurface::getMouseRelPosObjectAndViewSize(int x, int y, int relPos[2], i
     }
     if (App::getHierarchyEnabled())
         offx += _hierarchyWidth;
-    if (App::scene->pageContainer->getMouseRelPosObjectAndViewSize(x - offx, y - offy, relPos, objType, objID,
+    if (App::scene->pages->getMouseRelPosObjectAndViewSize(x - offx, y - offy, relPos, objType, objID,
                                                                           vSize, viewIsPerspective))
         return (true); // We are in the views windows and have an object
     return (false);
@@ -118,7 +118,7 @@ bool COglSurface::leftMouseButtonDown(int x, int y, int selectionStatus)
     pageSelector->clearCaughtElements(0xffff - sim_left_button);
     viewSelector->clearCaughtElements(0xffff - sim_left_button);
     hierarchy->clearCaughtElements(0xffff - sim_left_button);
-    App::scene->pageContainer->clearCaughtElements(0xffff - sim_left_button);
+    App::scene->pages->clearCaughtElements(0xffff - sim_left_button);
     _caughtElements &= 0xffff - sim_left_button;
     if (pageSelectionActive)
     {
@@ -157,10 +157,10 @@ bool COglSurface::leftMouseButtonDown(int x, int y, int selectionStatus)
     }
     if (App::getHierarchyEnabled())
         offx += _hierarchyWidth;
-    if (App::scene->pageContainer->leftMouseButtonDown(mouseRelativePosition[0] - offx,
+    if (App::scene->pages->leftMouseButtonDown(mouseRelativePosition[0] - offx,
                                                               mouseRelativePosition[1] - offy, selectionStatus))
     { // Mouse went down on the views window:
-        setFocusObject(App::scene->pageContainer->getFocusObject());
+        setFocusObject(App::scene->pages->getFocusObject());
         return (true); // We want the mouse captured!
     }
     return (false); // Nothing caught that action
@@ -213,8 +213,8 @@ void COglSurface::leftMouseButtonUp(int x, int y)
     }
     if (App::getHierarchyEnabled())
         offx += _hierarchyWidth;
-    if (App::scene->pageContainer->getCaughtElements() & sim_left_button)
-        App::scene->pageContainer->leftMouseButtonUp(mouseRelativePosition[0] - offx,
+    if (App::scene->pages->getCaughtElements() & sim_left_button)
+        App::scene->pages->leftMouseButtonUp(mouseRelativePosition[0] - offx,
                                                             mouseRelativePosition[1] - offy);
 }
 void COglSurface::mouseWheel(int deltaZ, int x, int y)
@@ -233,7 +233,7 @@ void COglSurface::mouseWheel(int deltaZ, int x, int y)
 #ifdef MAC_SIM
     deltaZ = -deltaZ; // on Mac the mouse wheel appears inverted for that
 #endif
-    App::scene->pageContainer->mouseWheel(deltaZ, x - offx, y - offy);
+    App::scene->pages->mouseWheel(deltaZ, x - offx, y - offy);
 }
 
 void COglSurface::mouseMove(int x, int y, bool passiveAndFocused)
@@ -300,12 +300,12 @@ void COglSurface::mouseMove(int x, int y, bool passiveAndFocused)
         offx += _hierarchyWidth;
     if (!passiveAndFocused)
     {
-        if (App::scene->pageContainer->getCaughtElements() & bts)
-            App::scene->pageContainer->mouseMove(mouseRelativePosition[0] - offx,
+        if (App::scene->pages->getCaughtElements() & bts)
+            App::scene->pages->mouseMove(mouseRelativePosition[0] - offx,
                                                         mouseRelativePosition[1] - offy, passiveAndFocused);
     }
     else
-        App::scene->pageContainer->mouseMove(mouseRelativePosition[0] - offx, mouseRelativePosition[1] - offy,
+        App::scene->pages->mouseMove(mouseRelativePosition[0] - offx, mouseRelativePosition[1] - offy,
                                                     passiveAndFocused);
 
     mousePreviousRelativePosition[0] = mouseRelativePosition[0];
@@ -333,7 +333,7 @@ int COglSurface::modelDragMoveEvent(int xPos, int yPos, C3Vector* desiredModelPo
     }
     mousePreviousRelativePosition[0] = mouseRelativePosition[0];
     mousePreviousRelativePosition[1] = mouseRelativePosition[1];
-    return (App::scene->pageContainer->modelDragMoveEvent(mouseRelativePosition[0] - offx, mouseRelativePosition[1] - offy, desiredModelPosition));
+    return (App::scene->pages->modelDragMoveEvent(mouseRelativePosition[0] - offx, mouseRelativePosition[1] - offy, desiredModelPosition));
 }
 
 int COglSurface::getCursor(int x, int y)
@@ -348,7 +348,7 @@ int COglSurface::getCursor(int x, int y)
         return (viewSelector->getCursor(x, y));
     if (App::getHierarchyEnabled() && _hierarchyResizingMousePosition(x, y))
         return (sim_cursor_horizontal_directions);
-    return (App::scene->pageContainer->getCursor(x - offx, y - offy));
+    return (App::scene->pages->getCursor(x - offx, y - offy));
 }
 
 bool COglSurface::rightMouseButtonDown(int x, int y)
@@ -362,7 +362,7 @@ bool COglSurface::rightMouseButtonDown(int x, int y)
     pageSelector->clearCaughtElements(0xffff - sim_right_button);
     viewSelector->clearCaughtElements(0xffff - sim_right_button);
     hierarchy->clearCaughtElements(0xffff - sim_right_button);
-    App::scene->pageContainer->clearCaughtElements(0xffff - sim_right_button);
+    App::scene->pages->clearCaughtElements(0xffff - sim_right_button);
     if (pageSelectionActive)
     { // Mouse went down on page selector
         setFocusObject(FOCUS_ON_PAGE_SELECTION_WINDOW);
@@ -380,10 +380,10 @@ bool COglSurface::rightMouseButtonDown(int x, int y)
     }
     if (App::getHierarchyEnabled())
         offx += _hierarchyWidth;
-    if (App::scene->pageContainer->rightMouseButtonDown(mouseRelativePosition[0] - offx,
+    if (App::scene->pages->rightMouseButtonDown(mouseRelativePosition[0] - offx,
                                                                mouseRelativePosition[1] - offy))
     { // Mouse went down on views window
-        setFocusObject(App::scene->pageContainer->getFocusObject());
+        setFocusObject(App::scene->pages->getFocusObject());
         return (true); // We want the mouse captured!
     }
     return (false); // Nothing caught that action
@@ -408,14 +408,14 @@ void COglSurface::rightMouseButtonUp(int x, int y, int absX, int absY, QWidget* 
             hierarchy->rightMouseUp(mouseRelativePosition[0] - offx, mouseRelativePosition[1], absX, absY, mainWindow);
         if (App::getHierarchyEnabled())
             offx += _hierarchyWidth;
-        if (App::scene->pageContainer->getCaughtElements() & sim_right_button)
-            App::scene->pageContainer->rightMouseButtonUp(
+        if (App::scene->pages->getCaughtElements() & sim_right_button)
+            App::scene->pages->rightMouseButtonUp(
                 mouseRelativePosition[0] - offx, mouseRelativePosition[1] - offy, absX, absY, mainWindow);
     }
     pageSelector->clearCaughtElements(0xffff - sim_right_button);
     viewSelector->clearCaughtElements(0xffff - sim_right_button);
     hierarchy->clearCaughtElements(0xffff - sim_right_button);
-    App::scene->pageContainer->clearCaughtElements(0xffff - sim_right_button);
+    App::scene->pages->clearCaughtElements(0xffff - sim_right_button);
 }
 
 bool COglSurface::middleMouseButtonDown(int x, int y)
@@ -429,15 +429,15 @@ bool COglSurface::middleMouseButtonDown(int x, int y)
     pageSelector->clearCaughtElements(0xffff - sim_middle_button);
     viewSelector->clearCaughtElements(0xffff - sim_middle_button);
     hierarchy->clearCaughtElements(0xffff - sim_middle_button);
-    App::scene->pageContainer->clearCaughtElements(0xffff - sim_middle_button);
+    App::scene->pages->clearCaughtElements(0xffff - sim_middle_button);
     if (App::getHierarchyEnabled())
         offx += _hierarchyWidth;
     if ((!pageSelectionActive) && (!viewSelectionActive))
     {
-        if (App::scene->pageContainer->middleMouseButtonDown(mouseRelativePosition[0] - offx,
+        if (App::scene->pages->middleMouseButtonDown(mouseRelativePosition[0] - offx,
                                                                     mouseRelativePosition[1] - offy))
         { // Mouse went down on views window
-            setFocusObject(App::scene->pageContainer->getFocusObject());
+            setFocusObject(App::scene->pages->getFocusObject());
             return (true); // We want the mouse captured!
         }
     }
@@ -456,14 +456,14 @@ void COglSurface::middleMouseButtonUp(int x, int y)
         offx += _hierarchyWidth;
     if ((!pageSelectionActive) && (!viewSelectionActive))
     {
-        if (App::scene->pageContainer->getCaughtElements() & sim_middle_button)
-            App::scene->pageContainer->middleMouseButtonUp(mouseRelativePosition[0] - offx,
+        if (App::scene->pages->getCaughtElements() & sim_middle_button)
+            App::scene->pages->middleMouseButtonUp(mouseRelativePosition[0] - offx,
                                                                   mouseRelativePosition[1] - offy);
     }
     pageSelector->clearCaughtElements(0xffff - sim_middle_button);
     viewSelector->clearCaughtElements(0xffff - sim_middle_button);
     hierarchy->clearCaughtElements(0xffff - sim_middle_button);
-    App::scene->pageContainer->clearCaughtElements(0xffff - sim_middle_button);
+    App::scene->pages->clearCaughtElements(0xffff - sim_middle_button);
 }
 
 bool COglSurface::leftMouseButtonDoubleClick(int x, int y, int selectionStatus)
@@ -482,10 +482,10 @@ bool COglSurface::leftMouseButtonDoubleClick(int x, int y, int selectionStatus)
     }
     if (App::getHierarchyEnabled())
         offx += _hierarchyWidth;
-    if (App::scene->pageContainer->leftMouseButtonDoubleClick(mouseRelativePosition[0] - offx,
+    if (App::scene->pages->leftMouseButtonDoubleClick(mouseRelativePosition[0] - offx,
                                                                      mouseRelativePosition[1] - offy, selectionStatus))
     {
-        setFocusObject(App::scene->pageContainer->getFocusObject());
+        setFocusObject(App::scene->pages->getFocusObject());
         return (true); // We inform that this action was processed
     }
     return (false); // Nothing caught that action
@@ -590,7 +590,7 @@ unsigned char* COglSurface::render(int currentCursor, int mouseButtonState, int 
 
             glEnable(GL_DEPTH_TEST);
         }
-        App::scene->pageContainer->renderCurrentPage(frameResol != nullptr);
+        App::scene->pages->renderCurrentPage(frameResol != nullptr);
         // We now have to draw separations between the different parts:
         if (App::getHierarchyEnabled())
         {
@@ -814,7 +814,7 @@ int COglSurface::getCaughtElements()
         retVal |= viewSelector->getCaughtElements();
     if (App::getHierarchyEnabled())
         retVal |= hierarchy->getCaughtElements();
-    retVal |= App::scene->pageContainer->getCaughtElements();
+    retVal |= App::scene->pages->getCaughtElements();
     retVal |= _caughtElements;
     return (retVal);
 }
@@ -824,7 +824,7 @@ void COglSurface::clearCaughtElements(int keepMask)
     pageSelector->clearCaughtElements(keepMask);
     viewSelector->clearCaughtElements(keepMask);
     hierarchy->clearCaughtElements(keepMask);
-    App::scene->pageContainer->clearCaughtElements(keepMask);
+    App::scene->pages->clearCaughtElements(keepMask);
     _caughtElements &= keepMask;
 }
 
@@ -836,39 +836,39 @@ void COglSurface::setFocusObject(int obj)
         setPageSelectionActive(false);
         setViewSelectionActive(false);
         hierarchy->looseFocus();
-        App::scene->pageContainer->setFocusObject(obj);
+        App::scene->pages->setFocusObject(obj);
     }
     if (obj == FOCUS_ON_BROWSER)
     {
         setPageSelectionActive(false);
         setViewSelectionActive(false);
         hierarchy->looseFocus();
-        App::scene->pageContainer->looseFocus();
+        App::scene->pages->looseFocus();
     }
     if (obj == FOCUS_ON_HIERARCHY)
     {
         setPageSelectionActive(false);
         setViewSelectionActive(false);
-        App::scene->pageContainer->looseFocus();
+        App::scene->pages->looseFocus();
     }
     if (obj == FOCUS_ON_PAGE_SELECTION_WINDOW)
     {
         setViewSelectionActive(false);
         hierarchy->looseFocus();
-        App::scene->pageContainer->looseFocus();
+        App::scene->pages->looseFocus();
     }
     if (obj == FOCUS_ON_VIEW_SELECTION_WINDOW)
     {
         setPageSelectionActive(false);
         hierarchy->looseFocus();
-        App::scene->pageContainer->looseFocus();
+        App::scene->pages->looseFocus();
     }
     if (obj == FOCUS_ON_SOFT_DIALOG)
     {
         setPageSelectionActive(false);
         setViewSelectionActive(false);
         hierarchy->looseFocus();
-        App::scene->pageContainer->setFocusObject(obj);
+        App::scene->pages->setFocusObject(obj);
     }
 }
 int COglSurface::getFocusObject()
@@ -945,7 +945,7 @@ void COglSurface::setViewSurfaceSizeAndPosition()
     int b = 0;
     if (App::getHierarchyEnabled())
         h = _hierarchyWidth;
-    App::scene->pageContainer->setPageSizeAndPosition(surfaceSize[0] - h - b, surfaceSize[1],
+    App::scene->pages->setPageSizeAndPosition(surfaceSize[0] - h - b, surfaceSize[1],
                                                              surfacePosition[0] + h + b, surfacePosition[1]);
 }
 
@@ -961,7 +961,7 @@ void COglSurface::actualizeAllSurfacesSizeAndPosition()
 void COglSurface::keyPress(int key, QWidget* mainWindow)
 {
     if (key == ESC_KEY)
-        App::scene->pageContainer->clearAllLastMouseDownViewIndex();
+        App::scene->pages->clearAllLastMouseDownViewIndex();
 
     if (focusObject == FOCUS_ON_HIERARCHY)
     {
@@ -970,7 +970,7 @@ void COglSurface::keyPress(int key, QWidget* mainWindow)
     }
     if ((focusObject == FOCUS_ON_PAGE) || (focusObject == FOCUS_ON_SOFT_DIALOG))
     {
-        App::scene->pageContainer->keyPress(key, mainWindow);
+        App::scene->pages->keyPress(key, mainWindow);
         return;
     }
 
@@ -988,7 +988,7 @@ void COglSurface::keyPress(int key, QWidget* mainWindow)
 
 void COglSurface::startViewSelection(int objectType, int subViewIndex)
 {
-    viewSelector->setViewSelectionInfo(objectType, App::scene->pageContainer->getActivePageIndex(),
+    viewSelector->setViewSelectionInfo(objectType, App::scene->pages->getActivePageIndex(),
                                        subViewIndex);
     setViewSelectionActive(true);
 }

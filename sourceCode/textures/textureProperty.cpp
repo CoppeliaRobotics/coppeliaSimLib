@@ -12,10 +12,10 @@ CTextureProperty::CTextureProperty()
     _commonInit();
 }
 
-CTextureProperty::CTextureProperty(int textureOrVisionSensorObjectID)
+CTextureProperty::CTextureProperty(int textureHandle)
 {
     _commonInit();
-    _textureOrVisionSensorObjectID = textureOrVisionSensorObjectID;
+    _textureObjectHandle = textureHandle;
 }
 
 CTextureProperty::~CTextureProperty()
@@ -63,7 +63,7 @@ void CTextureProperty::_commonInit()
     _applyMode = 0; // modulate
     _repeatU = false;
     _repeatV = false;
-    _textureOrVisionSensorObjectID = -1;
+    _textureObjectHandle = -1;
     _objectStateId = -1; // uninitialized
     _textureCoordinateMode = sim_texturemap_plane;
 
@@ -100,7 +100,7 @@ bool CTextureProperty::getRepeatV()
 
 void CTextureProperty::addTextureDependencies(int64_t objID, int64_t objSubID)
 {
-    CTextureObject* it = App::scene->textureContainer->getObject(_textureOrVisionSensorObjectID);
+    CTextureObject* it = App::scene->textures->getObject(int(_textureObjectHandle));
     if (it != nullptr)
         it->addDependentObject(objID, objSubID);
 }
@@ -148,8 +148,7 @@ std::vector<float>* CTextureProperty::getFixedTextureCoordinates()
     return (nullptr);
 }
 
-std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId, const std::vector<float>& vertices,
-                                                            const std::vector<int>& triangles)
+std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId, const std::vector<float>& vertices, const std::vector<int>& triangles)
 { // can return nullptr if texture needs to be destroyed!
     if (_fixedTextureCoordinates.size() != 0)
     { // We have fixed coordinates!
@@ -176,17 +175,10 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId, c
     _calculatedTextureCoordinates.clear();
     CPose tr(_textureRelativeConfig.getInverse());
     CTextureObject* it = nullptr;
-    if (_textureOrVisionSensorObjectID > sim_object_sceneobjectend)
-        it = App::scene->textureContainer->getObject(_textureOrVisionSensorObjectID);
+    if (_textureObjectHandle > sim_object_sceneobjectend)
+        it = App::scene->textures->getObject(_textureObjectHandle);
     else
-    {
-#ifdef SIM_WITH_GUI
-        CVisionSensor* rend =
-            App::scene->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
-        if (rend != nullptr)
-            it = rend->getTextureObject();
-#endif
-    }
+        _textureObjectHandle = -1;
     double xs = 1.0;
     double ys = 1.0;
     if (it != nullptr)
@@ -422,7 +414,7 @@ CTextureProperty* CTextureProperty::copyYourself()
     newObj->_applyMode = _applyMode;
     newObj->_repeatU = _repeatU;
     newObj->_repeatV = _repeatV;
-    newObj->_textureOrVisionSensorObjectID = _textureOrVisionSensorObjectID;
+    newObj->_textureObjectHandle = _textureObjectHandle;
     newObj->_textureCoordinateMode = _textureCoordinateMode;
     newObj->_textureRelativeConfig = _textureRelativeConfig;
     newObj->_textureScalingX = _textureScalingX;
@@ -432,50 +424,46 @@ CTextureProperty* CTextureProperty::copyYourself()
     return (newObj);
 }
 
-int CTextureProperty::getTextureObjectID() const
+int CTextureProperty::getTextureObjectHandle() const
 {
-    return (_textureOrVisionSensorObjectID);
+    return _textureObjectHandle;
 }
 
-void CTextureProperty::setTextureObjectID(int id)
+void CTextureProperty::setTextureObjectHandle(int id)
 {
-    _textureOrVisionSensorObjectID = id;
+    _textureObjectHandle = id;
 }
 
 CTextureObject* CTextureProperty::getTextureObject()
 {
-    if (_textureOrVisionSensorObjectID > sim_object_sceneobjectend)
-        return (App::scene->textureContainer->getObject(_textureOrVisionSensorObjectID));
-#ifdef SIM_WITH_GUI
-    if ((_textureOrVisionSensorObjectID >= sim_object_sceneobjectstart) &&
-        (_textureOrVisionSensorObjectID <= sim_object_sceneobjectend))
-    {
-        CVisionSensor* rs = App::scene->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
-        if (rs != nullptr)
-            return (rs->getTextureObject());
-    }
-#endif
-    return (nullptr);
+    CTextureObject* retVal = nullptr;
+    if (_textureObjectHandle > sim_object_sceneobjectend)
+        retVal = App::scene->textures->getObject(_textureObjectHandle);
+    else
+        _textureObjectHandle = -1;
+    return retVal;
 }
 
 bool CTextureProperty::announceObjectWillBeErased(const CSceneObject* object)
 {
-    if ((_textureOrVisionSensorObjectID >= sim_object_sceneobjectstart) &&
-        (_textureOrVisionSensorObjectID <= sim_object_sceneobjectend))
-        return (_textureOrVisionSensorObjectID == object->getObjectHandle());
-    return (false);
+    if ((_textureObjectHandle >= sim_object_sceneobjectstart) &&
+        (_textureObjectHandle <= sim_object_sceneobjectend))
+        return (_textureObjectHandle == object->getObjectHandle());
+    return false;
 }
 
 void CTextureProperty::performObjectLoadingMapping(const std::map<int, int>* map)
 {
-    if (_textureOrVisionSensorObjectID <= sim_object_sceneobjectend)
-        _textureOrVisionSensorObjectID = CScene::getLoadingMapping(map, _textureOrVisionSensorObjectID); // texture is a vision sensor texture object
+    if (_textureObjectHandle <= sim_object_sceneobjectend)
+        _textureObjectHandle = -1;
 }
 
 void CTextureProperty::performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType)
 {
-    if (_textureOrVisionSensorObjectID > sim_object_sceneobjectend)
-        _textureOrVisionSensorObjectID = CScene::getLoadingMapping(map, _textureOrVisionSensorObjectID); // texture is a regular texture object
+    if (_textureObjectHandle > sim_object_sceneobjectend)
+        _textureObjectHandle = CScene::getLoadingMapping(map, _textureObjectHandle);
+    else
+        _textureObjectHandle = -1;
 }
 
 CPose CTextureProperty::getTextureRelativeConfig()
@@ -552,7 +540,7 @@ void CTextureProperty::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("_ob");
-            ar << _textureOrVisionSensorObjectID << _textureCoordinateMode;
+            ar << _textureObjectHandle << _textureCoordinateMode;
             ar << _textureScalingX << _textureScalingY;
             ar.flush();
 
@@ -613,7 +601,7 @@ void CTextureProperty::serialize(CSer& ar)
                     { // for backward comp. (flt->dbl)
                         noHit = false;
                         ar >> byteQuantity;
-                        ar >> _textureOrVisionSensorObjectID >> _textureCoordinateMode;
+                        ar >> _textureObjectHandle >> _textureCoordinateMode;
                         float bla, bli;
                         ar >> bla >> bli;
                         _textureScalingX = (double)bla;
@@ -624,7 +612,7 @@ void CTextureProperty::serialize(CSer& ar)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        ar >> _textureOrVisionSensorObjectID >> _textureCoordinateMode;
+                        ar >> _textureObjectHandle >> _textureCoordinateMode;
                         ar >> _textureScalingX >> _textureScalingY;
                     }
 
@@ -681,7 +669,7 @@ void CTextureProperty::serialize(CSer& ar)
     {
         if (ar.isStoring())
         {
-            ar.xmlAddNode_int("id", _textureOrVisionSensorObjectID);
+            ar.xmlAddNode_int("id", _textureObjectHandle);
             ar.xmlAddNode_enum("applyMode", _applyMode, {{0, "modulate"}, {1, "decal"}, {2, "add"}});
 
             ar.xmlPushNewNode("switches");
@@ -705,7 +693,7 @@ void CTextureProperty::serialize(CSer& ar)
         }
         else
         {
-            ar.xmlGetNode_int("id", _textureOrVisionSensorObjectID);
+            ar.xmlGetNode_int("id", _textureObjectHandle);
             ar.xmlGetNode_enum("applyMode", _applyMode, true, {{"modulate", 0}, {"decal", 1}, {"add", 2}});
 
             if (ar.xmlPushChildNode("switches"))

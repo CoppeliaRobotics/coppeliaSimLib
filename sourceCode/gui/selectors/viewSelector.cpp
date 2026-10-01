@@ -383,7 +383,7 @@ bool CViewSelector::processCommand(int commandID, int subViewIndex)
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             CSPage* view =
-                App::scene->pageContainer->getPage(App::scene->pageContainer->getActivePageIndex());
+                App::scene->pages->getPage(App::scene->pages->getActivePageIndex());
             if (view == nullptr)
                 return (true);
             CSView* subView = view->getView(size_t(subViewIndex));

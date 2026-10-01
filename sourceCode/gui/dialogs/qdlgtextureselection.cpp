@@ -32,9 +32,9 @@ void CQDlgTextureSelection::refresh()
 {
     ui->qqTextureList->clear();
     int itemCount = 0;
-    while (App::scene->textureContainer->getObjectAtIndex(itemCount) != nullptr)
+    while (App::scene->textures->getObjectAtIndex(itemCount) != nullptr)
     {
-        CTextureObject* it = App::scene->textureContainer->getObjectAtIndex(itemCount);
+        CTextureObject* it = App::scene->textures->getObjectAtIndex(itemCount);
         std::string txt(it->getObjectName());
         int sx, sy;
         it->getTextureSize(sx, sy);
@@ -42,22 +42,7 @@ void CQDlgTextureSelection::refresh()
         txt += boost::lexical_cast<std::string>(sx) + "x" + boost::lexical_cast<std::string>(sy) + "] ";
         txt += tt::decorateString(" (", IDSN_STATIC_TEXTURE, ")");
         QListWidgetItem* itm = new QListWidgetItem(txt.c_str());
-        itm->setData(Qt::UserRole, QVariant(it->getObjectID()));
-        itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-        ui->qqTextureList->addItem(itm);
-        itemCount++;
-    }
-    for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_visionsensor); i++)
-    {
-        CVisionSensor* rs = App::scene->sceneObjects->getVisionSensorFromIndex(i);
-        std::string txt(rs->getObjectAlias_printPath());
-        int s[2];
-        rs->getResolution(s);
-        txt += " [";
-        txt += boost::lexical_cast<std::string>(s[0]) + "x" + boost::lexical_cast<std::string>(s[1]) + "] ";
-        txt += tt::decorateString(" (", IDSN_DYNAMIC_TEXTURE, ")");
-        QListWidgetItem* itm = new QListWidgetItem(txt.c_str());
-        itm->setData(Qt::UserRole, QVariant(rs->getObjectHandle()));
+        itm->setData(Qt::UserRole, QVariant(int(it->getObjectHandle())));
         itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         ui->qqTextureList->addItem(itm);
         itemCount++;

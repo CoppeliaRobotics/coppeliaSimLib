@@ -409,8 +409,13 @@ std::map<int, std::string> buildEnumToStringMap()
     FUNCX(DEPRECATED_texture, "rawTexture", sim_propertytype_buffer, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude | sim_propertyinfo_notwritable, PropertyInfo({{"replacedBy", "texture.image"}, {"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
     FUNCX(DEPRECATED_textureID, "textureID", sim_propertytype_int, sim_propertyinfo_deprecated | sim_propertyinfo_modelhashexclude | sim_propertyinfo_notwritable, PropertyInfo({{"replacedBy", "texture.id"}, {"startSupport", 1}, {"startDeprecated", 2}, {"endSupport", 2}})) \
 
+#define TEXTURE_PROPERTIES \
+    FUNCX(resolution, "resolution", sim_propertytype_intarray2, sim_propertyinfo_notwritable,  PropertyInfo({{"label", "Texture resolution"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(image, "image", sim_propertytype_buffer, sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Texture image"}, {"description", ""}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+
 #define SCENE_PROPERTIES  \
     FUNCX(collections, "collections", sim_propertytype_handlearray, sim_propertyinfo_notwritable,  PropertyInfo({{"seeAlsoProperties", "collection.objects"}, {"label", "Collections"}, {"description", ""}, {"handleType", "collection"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
+    FUNCX(textures, "textures", sim_propertytype_handlearray, sim_propertyinfo_notwritable,  PropertyInfo({{"label", "Textures"}, {"description", ""}, {"handleType", "texture"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(drawingObjects, "drawingObjects", sim_propertytype_handlearray, sim_propertyinfo_notwritable,  PropertyInfo({{"label", "Drawing objects"}, {"description", ""}, {"handleType", "drawingObject"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(mainScript, "mainScript", sim_propertytype_handle, sim_propertyinfo_constant | sim_propertyinfo_notwritable | sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Main script"}, {"description", ""}, {"handleType", "script"}, {"supersedes", "sim.getScript"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
     FUNCX(finalSaveRequest, "finalSaveRequest", sim_propertytype_bool, sim_propertyinfo_modelhashexclude,  PropertyInfo({{"label", "Final save"}, {"description", "Lock scene and models after next scene save operation"}, {"startSupport", 2}, {"startDeprecated", 0}, {"endSupport", 0}})) \
@@ -1720,6 +1725,16 @@ enum class PropMesh {
 };
 extern const std::vector<SProperty> allProps_mesh;
 const SProperty& prop(PropMesh p);
+// ----------------------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------------------
+enum class PropTexture {
+    #define FUNCX(name, str, v1, v2, t1) name,
+    TEXTURE_PROPERTIES
+    #undef FUNCX
+};
+extern const std::vector<SProperty> allProps_texture;
+const SProperty& prop(PropTexture p);
 // ----------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------

@@ -447,8 +447,8 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>& sel, bool fromLockedSce
     }
     if ((options & 8) == 0)
     {
-        for (size_t i = 0; i < App::scene->textureContainer->_allTextureObjects.size(); i++)
-            textureObjectBuffer.push_back(App::scene->textureContainer->_allTextureObjects[i]->copyYourself());
+        for (size_t i = 0; i < App::scene->textures->_allTextureObjects.size(); i++)
+            textureObjectBuffer.push_back(App::scene->textures->_allTextureObjects[i]->copyYourself());
     }
 
     // Old:
@@ -741,11 +741,11 @@ void CCopyBuffer::serializeCurrentSelection(CSer& ar, std::vector<int>& sel, CPo
     for (size_t i = 0; i < textureObjectBuffer.size(); i++)
     {
         if (ar.isBinary())
-            App::scene->textureContainer->storeTextureObject(ar, textureObjectBuffer[i]);
+            App::scene->textures->storeTextureObject(ar, textureObjectBuffer[i]);
         else
         {
             ar.xmlPushNewNode(SERX_TEXTURE);
-            App::scene->textureContainer->storeTextureObject(ar, textureObjectBuffer[i]);
+            App::scene->textures->storeTextureObject(ar, textureObjectBuffer[i]);
             ar.xmlPopNode();
         }
     }
@@ -987,7 +987,7 @@ void CCopyBuffer::_eraseTextureObjectInBuffer(int objectID)
 {
     for (size_t i = 0; i < textureObjectBuffer.size(); i++)
     {
-        if (textureObjectBuffer[i]->getObjectID() == objectID)
+        if (int(textureObjectBuffer[i]->getObjectHandle()) == objectID)
         {
             delete textureObjectBuffer[i];
             textureObjectBuffer.erase(textureObjectBuffer.begin() + i);
@@ -1113,7 +1113,7 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject* object)
         CTextureObject* it = textureObjectBuffer[i];
         if (it->announceGeneralObjectWillBeErased(object->getObjectHandle(), -1))
         {
-            _eraseTextureObjectInBuffer(it->getObjectID());
+            _eraseTextureObjectInBuffer(int(it->getObjectHandle()));
             i = 0; // Ordering may have changed!
         }
         else

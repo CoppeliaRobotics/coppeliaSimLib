@@ -1760,12 +1760,12 @@ void CSView::cameraAndObjectMotion()
     if (mouseJustWentDownFlag)
     {
         eventID++;
-        mouseDownInitialPage = App::scene->pageContainer->getActivePageIndex();
+        mouseDownInitialPage = App::scene->pages->getActivePageIndex();
         mouseDownInitialInstance = App::scenes->getCurrentSceneIndex();
     }
     else
     {
-        if (mouseDownInitialPage != App::scene->pageContainer->getActivePageIndex())
+        if (mouseDownInitialPage != App::scene->pages->getActivePageIndex())
             eventID++;
         if (mouseDownInitialInstance != App::scenes->getCurrentSceneIndex())
             eventID++;

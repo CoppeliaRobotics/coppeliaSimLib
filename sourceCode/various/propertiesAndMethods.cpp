@@ -162,6 +162,18 @@ const SProperty& prop(PropMesh p)
 // ----------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------
+const std::vector<SProperty> allProps_texture{
+#define FUNCX(name, str, v1, v2, t1) SProperty{str, v1, v2, t1},
+    TEXTURE_PROPERTIES
+#undef FUNCX
+};
+const SProperty& prop(PropTexture p)
+{
+    return allProps_texture[static_cast<size_t>(p)];
+}
+// ----------------------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------------------
 const std::vector<SProperty> allProps_sceneObject{
 #define FUNCX(name, str, v1, v2, t1) SProperty{str, v1, v2, t1},
     SCENEOBJECT_PROPERTIES
@@ -339,6 +351,7 @@ const std::vector<std::pair<std::string, SProperty*>> allProps = []{
     for (const auto& prop : allProps_drawingObj) result.push_back(std::make_pair("drawingObject", const_cast<SProperty*>(&prop)));
     for (const auto& prop : allProps_scene) result.push_back(std::make_pair("scene", const_cast<SProperty*>(&prop)));
     for (const auto& prop : allProps_mesh) result.push_back(std::make_pair("mesh", const_cast<SProperty*>(&prop)));
+    for (const auto& prop : allProps_texture) result.push_back(std::make_pair("texture", const_cast<SProperty*>(&prop)));
     for (const auto& prop : allProps_sceneObject) result.push_back(std::make_pair("sceneObject", const_cast<SProperty*>(&prop)));
     for (const auto& prop : allProps_shape) result.push_back(std::make_pair("shape", const_cast<SProperty*>(&prop)));
     for (const auto& prop : allProps_camera) result.push_back(std::make_pair("camera", const_cast<SProperty*>(&prop)));

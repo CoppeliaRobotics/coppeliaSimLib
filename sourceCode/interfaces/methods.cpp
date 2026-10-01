@@ -1148,7 +1148,7 @@ CCollection* getCollection(int identifier, std::string* errMsg /*= nullptr*/, si
 
 CDrawingObject* getDrawingObject(int identifier, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
 {
-    CDrawingObject* retVal = App::scene->drawingCont->getObjectFromHandle(identifier);
+    CDrawingObject* retVal = App::scene->drawingCont_old->getObjectFromHandle(identifier);
     if ( (retVal == nullptr) && (errMsg != nullptr) )
     {
         if (argPos == -1)
@@ -2474,7 +2474,7 @@ std::string _method_removeObjects(int targetObj, CScript* currentScript, const C
                 else if (coll != nullptr)
                     App::scene->collections->removeCollection(objectHandle);
                 else if (draw != nullptr)
-                    App::scene->drawingCont->removeObject(objectHandle);
+                    App::scene->drawingCont_old->removeObject(objectHandle);
                 else if (script != nullptr)
                 {
                     if ((!App::scenes->addOnScriptContainer->removeAddOn(objectHandle)) && (!noError))
@@ -2964,7 +2964,7 @@ std::string _method_getObjects(int targetObj, CScript* currentScript, const CInt
             {
                 std::vector<int> objects;
                 if (types.size() == 0)
-                    types = {"sceneObject", "drawingObject", "collection", "script", "mesh"};
+                    types = {"sceneObject", "drawingObject", "collection", "script", "mesh", "texture"};
                 for (size_t j = 0; j < types.size(); j++)
                 {
                     std::string t = types[j];
@@ -3055,8 +3055,8 @@ std::string _method_getObjects(int targetObj, CScript* currentScript, const CInt
                     }
                     else if (t == "drawingObject")
                     {
-                        for (size_t i = 0; i < App::scene->drawingCont->getObjectCount(); i++)
-                            objects.push_back(App::scene->drawingCont->getObjectFromIndex(i)->getObjectHandle());
+                        for (size_t i = 0; i < App::scene->drawingCont_old->getObjectCount(); i++)
+                            objects.push_back(App::scene->drawingCont_old->getObjectFromIndex(i)->getObjectHandle());
                     }
                     else if (t == "collection")
                     {
@@ -3079,6 +3079,16 @@ std::string _method_getObjects(int targetObj, CScript* currentScript, const CInt
                         App::scene->sceneObjects->getAllMeshes(meshes);
                         for (size_t i = 0; i < meshes.size(); i++)
                             objects.push_back(int(meshes[i]->getObjectHandle()));
+                    }
+                    else if (t == "texture")
+                    {
+                        int i = 0;
+                        CTextureObject* texture = App::scene->textures->getObjectAtIndex(i++);
+                        while (texture != nullptr)
+                        {
+                            objects.push_back(int(texture->getObjectHandle()));
+                            texture = App::scene->textures->getObjectAtIndex(i++);
+                        }
                     }
                     else
                     {
@@ -8346,7 +8356,7 @@ std::string _method_dynamics_getContacts(int targetObj, CScript* currentScript, 
                 };
                 std::map<int, SCont> colls;
                 int index = sim_handleflag_extended;
-                while (App::scene->dynamicsContainer->getContactForce(dynPass, obj, index, objectHandles, contactInfo))
+                while (App::scene->dynamics->getContactForce(dynPass, obj, index, objectHandles, contactInfo))
                 {
                     auto it = colls.find(objectHandles[0]);
                     if (it == colls.end())
@@ -8655,15 +8665,15 @@ std::string _method_dynamicsStep(int targetObj, CScript* currentScript, const CI
     {
         if ((currentScript != nullptr) && (currentScript->getScriptType() == sim_scripttype_main))
         {
-            if (App::scene->dynamicsContainer->getDynamicsEnabled())
+            if (App::scene->dynamics->getDynamicsEnabled())
             {
                 double stepSize = fetchDouble(inStack, 0, 0.0);
                 if (stepSize == 0.0)
                     stepSize = App::scene->simulation->getTimeStep();
-                App::scene->dynamicsContainer->handleDynamics(stepSize);
+                App::scene->dynamics->handleDynamics(stepSize);
                 CApiErrors::getAndClearLastError();
-                if (!App::scene->dynamicsContainer->isWorldThere())
-                    App::scene->dynamicsContainer->markForWarningDisplay_physicsEngineNotSupported();
+                if (!App::scene->dynamics->isWorldThere())
+                    App::scene->dynamics->markForWarningDisplay_physicsEngineNotSupported();
             }
         }
         else
@@ -8764,7 +8774,7 @@ std::string _method_textureSet(int targetObj, CScript* currentScript, const CInt
                         CTextureObject* textureObj = new CTextureObject(resolution[0], resolution[1]);
                         textureObj->setImage(n == 4, flipH, !flipV, (unsigned char*)img.data());
                         textureObj->addDependentObject(shapeHandle, target->getObjectHandle());
-                        int texID = App::scene->textureContainer->addObject(textureObj, false); // might erase the textureObj and return a similar object already present!!
+                        int texID = App::scene->textures->addObject(textureObj, false); // might erase the textureObj and return a similar object already present!!
                         CTextureProperty* tp = new CTextureProperty(texID);
                         target->setTextureProperty(tp);
                         tp->setInterpolateColors(interpolate);

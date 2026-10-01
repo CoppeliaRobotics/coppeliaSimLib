@@ -687,27 +687,16 @@ void _commonFinish(CSceneObject* object, CViewableBase* viewable)
 
 bool _start3DTextureDisplay(CTextureProperty* tp)
 {
-    int _textureOrVisionSensorObjectID = tp->getTextureObjectID();
-    if (_textureOrVisionSensorObjectID == -1)
-        return (false);
-    CTextureObject* it = nullptr;
-    if (_textureOrVisionSensorObjectID > sim_object_sceneobjectend)
-        it = App::scene->textureContainer->getObject(_textureOrVisionSensorObjectID);
-    CVisionSensor* rs = nullptr;
-    if ((_textureOrVisionSensorObjectID >= sim_object_sceneobjectstart) &&
-        (_textureOrVisionSensorObjectID <= sim_object_sceneobjectend))
+    bool retVal = false;
+    int _textureHandle = tp->getTextureObjectHandle();
+    if (_textureHandle > sim_object_sceneobjectend)
     {
-        rs = App::scene->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
-        if (rs != nullptr)
-            it = rs->getTextureObject();
-    }
-    if (it != nullptr)
-    {
+        CTextureObject* it = App::scene->textures->getObject(_textureHandle);
         tp->setStartedTextureObject(it);
         _startTextureDisplay(it, tp->getInterpolateColors(), tp->getApplyMode(), tp->getRepeatU(), tp->getRepeatV());
-        return (true);
+        retVal = true;
     }
-    return (false);
+    return retVal;
 }
 
 void _end3DTextureDisplay(CTextureProperty* tp)
@@ -719,32 +708,19 @@ void _end3DTextureDisplay(CTextureProperty* tp)
 
 bool _start2DTextureDisplay(CTextureProperty* tp)
 {
-    int _textureOrVisionSensorObjectID = tp->getTextureObjectID();
-    if (_textureOrVisionSensorObjectID == -1)
-        return (false);
-    CTextureObject* it = nullptr;
-    if (_textureOrVisionSensorObjectID > sim_object_sceneobjectend)
-        it = App::scene->textureContainer->getObject(_textureOrVisionSensorObjectID);
-    CVisionSensor* rs = nullptr;
-    if ((_textureOrVisionSensorObjectID >= sim_object_sceneobjectstart) &&
-        (_textureOrVisionSensorObjectID <= sim_object_sceneobjectend))
+    bool retVal = false;
+    int _textureHandle = tp->getTextureObjectHandle();
+    if (_textureHandle > sim_object_sceneobjectend)
     {
-        rs = App::scene->sceneObjects->getVisionSensorFromHandle(_textureOrVisionSensorObjectID);
-        if (rs != nullptr)
-            it = rs->getTextureObject();
-    }
-    if (it != nullptr)
-    {
+        CTextureObject* it = App::scene->textures->getObject(_textureHandle);
         tp->setStartedTextureObject(it);
         // Following 3 to have "transparency"
         glColor3f(1.0, 1.0, 1.0);
         glEnable(GL_ALPHA_TEST);
         glAlphaFunc(GL_GREATER, 0.0);
-
         _startTextureDisplay(it, tp->getInterpolateColors(), tp->getApplyMode(), tp->getRepeatU(), tp->getRepeatV());
-        return (true);
     }
-    return (false);
+    return retVal;
 }
 
 void _end2DTextureDisplay(CTextureProperty* tp)

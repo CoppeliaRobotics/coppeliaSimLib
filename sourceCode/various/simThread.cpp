@@ -247,7 +247,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         App::scenes->addOnScriptContainer->processCommand(cmd.cmdId);
 
     if ((cmd.cmdId > PAGE_CONT_FUNCTIONS_START_PCCMD) && (cmd.cmdId < PAGE_CONT_FUNCTIONS_END_PCCMD))
-        App::scene->pageContainer->processCommand(cmd.cmdId, cmd.intParams[0]);
+        App::scene->pages->processCommand(cmd.cmdId, cmd.intParams[0]);
 
     if ((cmd.cmdId > FILE_OPERATION_START_FOCMD) && (cmd.cmdId < FILE_OPERATION_END_FOCMD))
         CFileOperations::processCommand(cmd);
@@ -297,7 +297,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == SWAP_VIEWS_CMD)
     {
-        CSPage* p = App::scene->pageContainer->getPage(cmd.intParams[0]);
+        CSPage* p = App::scene->pages->getPage(cmd.intParams[0]);
         if (p != nullptr)
         {
             p->swapViews(size_t(cmd.intParams[1]), size_t(cmd.intParams[2]), cmd.boolParams[0]);
@@ -387,7 +387,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if (cmd.cmdId == CLOSE_FLOATING_VIEW_CMD)
     {
         CSPage* page =
-            App::scene->pageContainer->getPage(App::scene->pageContainer->getActivePageIndex());
+            App::scene->pages->getPage(App::scene->pages->getActivePageIndex());
         if (page != nullptr)
         {
             CSView* theFloatingView = page->getView(size_t(cmd.intParams[0]));
@@ -404,7 +404,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId == REMOVE_CURRENT_PAGE_CMD)
     {
-        App::scene->pageContainer->removePage(App::scene->pageContainer->getActivePageIndex());
+        App::scene->pages->removePage(App::scene->pages->getActivePageIndex());
         App::logMsg(sim_verbosity_msgs, IDSNS_REMOVED_VIEW);
         App::undoRedo_sceneChanged("");
     }
@@ -454,7 +454,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (subview != nullptr)
             { // make sure that object is still valid:
                 CSPage* page =
-                    App::scene->pageContainer->getPage(App::scene->pageContainer->getActivePageIndex());
+                    App::scene->pages->getPage(App::scene->pages->getActivePageIndex());
                 if (!page->isViewValid(subview))
                     subview = nullptr;
             }
@@ -521,7 +521,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     if ((cmd.cmdId > VIEW_FUNCTIONS_START_VFCMD) && (cmd.cmdId < VIEW_FUNCTIONS_END_VFCMD))
     {
         CSPage* page =
-            App::scene->pageContainer->getPage(App::scene->pageContainer->getActivePageIndex());
+            App::scene->pages->getPage(App::scene->pages->getActivePageIndex());
         if (page != nullptr)
         {
             CSView* view = page->getView(size_t(cmd.intParams[0]));
@@ -590,7 +590,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     {
         if ((!App::scene->simulation->isSimulationStopped()) && GuiApp::canShowDialogs())
         {
-            App::scene->dynamicsContainer->displayWarningsIfNeeded();
+            App::scene->dynamics->displayWarningsIfNeeded();
             App::appendSimulationThreadCommand(cmd, 0.5);
         }
     }
@@ -1413,27 +1413,27 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == TOGGLE_DYNAMICS_DYNAMICSGUITRIGGEREDCMD)
     {
-        App::scene->dynamicsContainer->setDynamicsEnabled(
-            !App::scene->dynamicsContainer->getDynamicsEnabled());
-        App::scene->dynamicsContainer->removeWorld();
+        App::scene->dynamics->setDynamicsEnabled(
+            !App::scene->dynamics->getDynamicsEnabled());
+        App::scene->dynamics->removeWorld();
     }
     if (cmd.cmdId == SET_ENGINE_DYNAMICSGUITRIGGEREDCMD)
     {
         if (App::scene->simulation->isSimulationStopped())
-            App::scene->dynamicsContainer->setDynamicEngineType(cmd.intParams[0], cmd.intParams[1]);
+            App::scene->dynamics->setDynamicEngineType(cmd.intParams[0], cmd.intParams[1]);
     }
     if (cmd.cmdId == TOGGLE_DISPLAYCONTACTS_DYNAMICSGUITRIGGEREDCMD)
     {
-        App::scene->dynamicsContainer->setDisplayContactPoints(
-            !App::scene->dynamicsContainer->getDisplayContactPoints());
+        App::scene->dynamics->setDisplayContactPoints(
+            !App::scene->dynamics->getDisplayContactPoints());
     }
     if (cmd.cmdId == SET_GRAVITY_DYNAMICSGUITRIGGEREDCMD)
     {
-        App::scene->dynamicsContainer->setGravity(cmd.posParams[0]);
+        App::scene->dynamics->setGravity(cmd.posParams[0]);
     }
     if (cmd.cmdId == SET_TIMESTEP_DYNAMICSGUITRIGGEREDCMD)
     {
-        App::scene->dynamicsContainer->setDesiredStepSize(cmd.doubleParams[0]);
+        App::scene->dynamics->setDesiredStepSize(cmd.doubleParams[0]);
     }
     if (cmd.cmdId == TOGGLE_EXPLICITHANDLING_PROXSENSORGUITRIGGEREDCMD)
     {
@@ -2480,7 +2480,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     CTextureProperty* tp = components[j]->getTextureProperty();
                     if (tp != nullptr)
                     {
-                        App::scene->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
+                        App::scene->textures->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
                         delete tp;
                         components[j]->setTextureProperty(nullptr);
                     }
@@ -2513,7 +2513,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     CTextureProperty* tp = components[j]->getTextureProperty();
                     if (tp != nullptr)
                     {
-                        App::scene->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
+                        App::scene->textures->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
                         delete tp;
                         components[j]->setTextureProperty(nullptr);
                     }
@@ -2539,7 +2539,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 }
             }
 
-            int textureID = App::scene->textureContainer->addObject(
+            int textureID = App::scene->textures->addObject(
                 textureObj, false); // might erase the textureObj and return a similar object already present!!
 
             for (size_t i = 0; i < shapeList.size(); i++)
@@ -2705,7 +2705,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     textureObj->addDependentObject(cmd.intParams[1], butt->getUniqueID()); // Unique ID starts exceptionnally at 1
                 }
             }
-            int textureID = App::scene->textureContainer->addObject(
+            int textureID = App::scene->textures->addObject(
                 textureObj, false); // might erase the textureObj and return a similar object already present!!
             CTextureProperty* tp = new CTextureProperty(textureID);
             if (geom != nullptr)
@@ -2738,7 +2738,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 if (tp != nullptr)
                 { // remove the texture
-                    App::scene->textureContainer->announceGeneralObjectWillBeErased(cmd.intParams[1], geom->getObjectHandle());
+                    App::scene->textures->announceGeneralObjectWillBeErased(cmd.intParams[1], geom->getObjectHandle());
                     delete tp;
                     geom->setTextureProperty(nullptr);
                 }
@@ -2748,11 +2748,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     {
                         if (tObject > sim_object_sceneobjectend)
                         {
-                            CTextureObject* to = App::scene->textureContainer->getObject(tObject);
+                            CTextureObject* to = App::scene->textures->getObject(tObject);
                             to->addDependentObject(cmd.intParams[1], geom->getObjectHandle());
                             tp = new CTextureProperty(tObject);
                             geom->setTextureProperty(tp);
-                            tp->setTextureObjectID(tObject);
+                            tp->setTextureObjectHandle(tObject);
                         }
                     }
                 }
@@ -2762,7 +2762,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 CButtonBlock* block = App::scene->buttonBlockContainer_old->getBlockWithID(cmd.intParams[1]);
                 if (tp != nullptr)
                 { // remove the texture
-                    App::scene->textureContainer->announceGeneralObjectWillBeErased(cmd.intParams[1], 0);
+                    App::scene->textures->announceGeneralObjectWillBeErased(cmd.intParams[1], 0);
                     delete tp;
                     block->setTextureProperty(nullptr);
                 }
@@ -2772,7 +2772,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     {
                         if (tObject > sim_object_sceneobjectend)
                         {
-                            CTextureObject* to = App::scene->textureContainer->getObject(tObject);
+                            CTextureObject* to = App::scene->textures->getObject(tObject);
                             to->addDependentObject(cmd.intParams[1], 0);
                         }
                         tp = new CTextureProperty(tObject);
@@ -2787,7 +2787,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 CSoftButton* button = block->getButtonWithID(cmd.intParams[2]);
                 if (tp != nullptr)
                 { // remove the texture
-                    App::scene->textureContainer->announceGeneralObjectWillBeErased(cmd.intParams[1], cmd.intParams[2]);
+                    App::scene->textures->announceGeneralObjectWillBeErased(cmd.intParams[1], cmd.intParams[2]);
                     delete tp;
                     button->setTextureProperty(nullptr);
                 }
@@ -2797,7 +2797,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     {
                         if (tObject > sim_object_sceneobjectend)
                         {
-                            CTextureObject* to = App::scene->textureContainer->getObject(tObject);
+                            CTextureObject* to = App::scene->textures->getObject(tObject);
                             to->addDependentObject(cmd.intParams[1], cmd.intParams[2]);
                         }
                         tp = new CTextureProperty(tObject);
@@ -4432,11 +4432,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         App::scene->sceneObjects->addObjectToScene(newShape, false, true);
         if (toid != -1)
         {
-            CTextureObject* to = App::scene->textureContainer->getObject(toid);
+            CTextureObject* to = App::scene->textures->getObject(toid);
             if ((to != nullptr) && (newShape->getSingleMesh()->getTextureProperty() != nullptr))
             {
                 to->addDependentObject(newShape->getObjectHandle(), newShape->getSingleMesh()->getObjectHandle());
-                newShape->getSingleMesh()->getTextureProperty()->setTextureObjectID(toid);
+                newShape->getSingleMesh()->getTextureProperty()->setTextureObjectHandle(toid);
             }
         }
         App::logMsg(sim_verbosity_msgs, "done.");
@@ -4536,7 +4536,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
     }
     if (cmd.cmdId == SET_ACTIVEPAGE_GUITRIGGEREDCMD)
     {
-        App::scene->pageContainer->setActivePage(cmd.intParams[0]);
+        App::scene->pages->setActivePage(cmd.intParams[0]);
     }
     if (cmd.cmdId == SET_MOUSEMODE_GUITRIGGEREDCMD)
     {
@@ -4547,7 +4547,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         CSceneObject* it = App::scene->sceneObjects->getObjectFromHandle(cmd.intParams[0]);
         if (it != nullptr)
         {
-            CSPage* view = App::scene->pageContainer->getPage(cmd.intParams[1]);
+            CSPage* view = App::scene->pages->getPage(cmd.intParams[1]);
             if (view != nullptr)
             {
                 CSView* subView = view->getView(size_t(cmd.intParams[2]));

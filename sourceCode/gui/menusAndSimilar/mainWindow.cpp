@@ -1473,8 +1473,8 @@ void CMainWindow::editModeEnded()
 void CMainWindow::_actualizetoolbarButtonState()
 { // This is only for the default toolbars
     bool allowFitToView = false;
-    int pageIndex = App::scene->pageContainer->getActivePageIndex();
-    CSPage* page = App::scene->pageContainer->getPage(pageIndex);
+    int pageIndex = App::scene->pages->getActivePageIndex();
+    CSPage* page = App::scene->pages->getPage(pageIndex);
     if (page != nullptr)
     {
         int ind = page->getLastMouseDownViewIndex();
@@ -1554,9 +1554,9 @@ void CMainWindow::_actualizetoolbarButtonState()
         _toolbarActionClickSelection->setChecked((getMouseMode() & 0x0300) == sim_navigation_clickselection);
         _toolbarActionUndo->setEnabled(App::scene->undoBufferContainer->canUndo() && noSelector);
         _toolbarActionRedo->setEnabled(App::scene->undoBufferContainer->canRedo() && noSelector);
-        _engineSelectCombo->setEnabled((editModeContainer->getEditModeType() == NO_EDIT_MODE) && App::scene->simulation->isSimulationStopped() && App::scene->dynamicsContainer->getDynamicsEnabled() && noSelector);
+        _engineSelectCombo->setEnabled((editModeContainer->getEditModeType() == NO_EDIT_MODE) && App::scene->simulation->isSimulationStopped() && App::scene->dynamics->getDynamicsEnabled() && noSelector);
         int ver;
-        int eng = App::scene->dynamicsContainer->getDynamicEngineType(&ver);
+        int eng = App::scene->dynamics->getDynamicEngineType(&ver);
         if ((eng == sim_physics_bullet) && (ver == 0))
             _engineSelectCombo->setCurrentIndex(0);
         if ((eng == sim_physics_bullet) && (ver == 283))

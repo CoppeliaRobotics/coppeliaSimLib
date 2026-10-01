@@ -172,7 +172,7 @@ void CPtCloud_old::draw(int displayAttrib)
 {
     if (((displayAttrib & sim_displayattribute_forvisionsensor) == 0) || ((_options & 2) == 0))
     {
-        int currentPage = App::scene->pageContainer->getActivePageIndex();
+        int currentPage = App::scene->pages->getActivePageIndex();
         int p = 1 << currentPage;
         if ((_pageMask == 0) || ((_pageMask & p) != 0))
         {

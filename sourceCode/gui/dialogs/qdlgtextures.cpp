@@ -167,9 +167,9 @@ void CQDlgTextures::refresh()
         ui->qqRemoveSelect->setText(IDS_REMOVE_TEXTURE);
         ui->qqRemoveSelect->setEnabled(true);
         std::string textureName = IDS_TEXTURE_NAME_NONE;
-        if (tp->getTextureObjectID() > sim_object_sceneobjectend)
+        if (tp->getTextureObjectHandle() > sim_object_sceneobjectend)
         { // we have a static texture
-            CTextureObject* to = App::scene->textureContainer->getObject(tp->getTextureObjectID());
+            CTextureObject* to = App::scene->textures->getObject(tp->getTextureObjectHandle());
             if (to != nullptr)
             {
                 textureName = to->getObjectName();
@@ -182,7 +182,7 @@ void CQDlgTextures::refresh()
         }
         else
         { // we have a dynamic texture
-            CVisionSensor* rs = App::scene->sceneObjects->getVisionSensorFromHandle(tp->getTextureObjectID());
+            CVisionSensor* rs = App::scene->sceneObjects->getVisionSensorFromHandle(tp->getTextureObjectHandle());
             if (rs != nullptr)
             {
                 textureName = rs->getObjectAlias_printPath();
@@ -204,7 +204,7 @@ void CQDlgTextures::refresh()
     else
     {
         // Check if there are already existing textures:
-        ui->qqRemoveSelect->setEnabled((App::scene->textureContainer->getObjectAtIndex(0) != nullptr) ||
+        ui->qqRemoveSelect->setEnabled((App::scene->textures->getObjectAtIndex(0) != nullptr) ||
                                        (App::scene->sceneObjects->getObjectCount(sim_sceneobject_visionsensor) != 0));
         ui->qqTextureCoordinates->setText(IDS_TEXTURE_NAME_NONE); // Actually just "none"
 
@@ -486,8 +486,7 @@ void CQDlgTextures::on_qqRemoveSelect_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CTextureProperty* tp =
-            GuiApp::getTexturePropertyPointerFromItem(_objType, _objID1, _objID2, nullptr, nullptr, nullptr, nullptr);
+        CTextureProperty* tp = GuiApp::getTexturePropertyPointerFromItem(_objType, _objID1, _objID2, nullptr, nullptr, nullptr, nullptr);
         int tObject = -1; // means remove
         if (tp == nullptr)
         { // add an existing texture

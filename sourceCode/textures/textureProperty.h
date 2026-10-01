@@ -10,7 +10,7 @@ class CTextureProperty
 {
   public:
     CTextureProperty();
-    CTextureProperty(int textureOrVisionSensorObjectID);
+    CTextureProperty(int textureHandle);
     virtual ~CTextureProperty();
 
     CTextureProperty* copyYourself();
@@ -26,8 +26,8 @@ class CTextureProperty
     int getApplyMode();
     void transformTexturePose(const CPose& mCorrection);
 
-    int getTextureObjectID() const;
-    void setTextureObjectID(int id);
+    int getTextureObjectHandle() const;
+    void setTextureObjectHandle(int id);
     CTextureObject* getTextureObject();
     std::vector<float>* getTextureCoordinates(int objectStateId, const std::vector<float>& vertices, const std::vector<int>& triangles);
     std::vector<float>* getFixedTextureCoordinates();
@@ -58,7 +58,7 @@ class CTextureProperty
     int _applyMode;
     bool _repeatU;
     bool _repeatV;
-    int _textureOrVisionSensorObjectID;
+    int _textureObjectHandle;
     int _textureCoordinateMode;
     CPose _textureRelativeConfig;
     double _textureScalingX;

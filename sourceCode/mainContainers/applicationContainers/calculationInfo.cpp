@@ -99,15 +99,15 @@ void CCalculationInfo::formatInfo()
     _visionSensTxt[1] += boost::lexical_cast<std::string>(_rendSensCalcDuration) + " ms)";
 
     // Dynamics calculation:
-    if (!App::scene->dynamicsContainer->getDynamicsEnabled())
+    if (!App::scene->dynamics->getDynamicsEnabled())
         _dynamicsTxt[0] = "&&fg930Dynamics handling disabled";
     else
     {
-        if (App::scene->dynamicsContainer->isWorldThere())
+        if (App::scene->dynamics->isWorldThere())
         {
             _dynamicsTxt[0] = "Dynamics handling enabled (";
             int ver;
-            int eng = App::scene->dynamicsContainer->getDynamicEngineType(&ver);
+            int eng = App::scene->dynamics->getDynamicEngineType(&ver);
             if (eng == sim_physics_ode)
                 _dynamicsTxt[0] += IDS_ODE;
             if ((eng == sim_physics_bullet) && (ver == 0))

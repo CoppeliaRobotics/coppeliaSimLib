@@ -147,20 +147,20 @@ class CScene : public Obj
     static void resetOldSerializationHandles();
 
     CUndoBufferCont* undoBufferContainer;
-    CDynamicsContainer* dynamicsContainer;
+    CDynamicsContainer* dynamics;
     CEnvironment* environment;
-    CPageContainer* pageContainer;
-    CTextureContainer* textureContainer;
+    CPageContainer* pages;
+    CTextureContainer* textures;
     CSimulation* simulation;
     CCustomData customSceneData;
     CCustomData customSceneData_volatile; // same as above, but not serialized! (scene-level signals)
     CCacheCont* cacheData;
-    CDrawingContainer* drawingCont;
     CCollectionContainer* collections;
     CSceneObjectContainer* sceneObjects;
     CustomObjectContainer* customObjects;
 
     // Old:
+    CDrawingContainer* drawingCont_old;
     CMainSettings* mainSettings_old;
     CCustomData_old* customSceneData_old;
     CDistanceObjectContainer_old* distances_old;

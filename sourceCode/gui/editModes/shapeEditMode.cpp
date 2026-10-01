@@ -35,7 +35,7 @@ CShapeEditMode::CShapeEditMode(CShape* shape, int editModeType, CSceneObjectCont
     }
     if (_editionTextureProperty != nullptr)
     {
-        CTextureObject* to = _textureCont->getObject(_editionTextureProperty->getTextureObjectID());
+        CTextureObject* to = _textureCont->getObject(_editionTextureProperty->getTextureObjectHandle());
         if (to != nullptr)
         {
             to->getTextureBuffer(_editionTexture);
@@ -94,7 +94,7 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
 
     if (_editionTextureProperty != nullptr)
     { // reset to original texture
-        CTextureObject* to = _textureCont->getObject(_editionTextureProperty->getTextureObjectID());
+        CTextureObject* to = _textureCont->getObject(_editionTextureProperty->getTextureObjectHandle());
         if (to != nullptr)
             to->setTextureBuffer(_editionTexture);
     }
@@ -1733,7 +1733,7 @@ void CShapeEditMode::makeShape()
         cmd.cmdId = SHAPEEDIT_MAKESHAPE_GUITRIGGEREDCMD;
         int toid = -1;
         if (_editionTextureProperty != nullptr)
-            toid = _editionTextureProperty->getTextureObjectID();
+            toid = _editionTextureProperty->getTextureObjectHandle();
         cmd.intParams.push_back(toid);
         cmd.intVectorParams.push_back(nIndices);
         cmd.doubleVectorParams.push_back(nVertices);

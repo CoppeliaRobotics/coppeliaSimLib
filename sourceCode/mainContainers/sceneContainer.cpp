@@ -335,7 +335,7 @@ bool CSceneContainer::_switchToScene(int newSceneIndex)
     cmdIn.intParams.push_back(newSceneIndex);
     GuiApp::uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
 
-    scene->pageContainer->clearAllLastMouseDownViewIndex();
+    scene->pages->clearAllLastMouseDownViewIndex();
 #endif
 
     scene->removeScene_oldIk();
@@ -724,7 +724,7 @@ void CSceneContainer::dispatchEvents()
     if (VThread::isSimThread())
     {
         // Push the last changes that are not immediate:
-        scene->drawingCont->pushAppendNewPointEvents();
+        scene->drawingCont_old->pushAppendNewPointEvents();
         _eventMutex.lock("CSceneContainer::dispatchEvents");
         if (_events->getEventCnt() > 0)
         {

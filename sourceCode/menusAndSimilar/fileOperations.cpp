@@ -1510,7 +1510,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 App::logMsg(sim_verbosity_msgs, IDSNS_EXPORTING_DYNAMIC_CONTENT);
                 if (App::scenes->pluginContainer->dyn_isDynamicContentAvailable() != 0)
                 {
-                    int eng = App::scene->dynamicsContainer->getDynamicEngineType(nullptr);
+                    int eng = App::scene->dynamics->getDynamicEngineType(nullptr);
                     if (eng == sim_physics_ode)
                     {
                         std::string tst(App::folders->getOtherFilesPath());

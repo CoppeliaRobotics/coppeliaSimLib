@@ -573,7 +573,7 @@ void CMesh::pushGenesisOrChangeEvent(int shapeHandle, int shapeUid, const CPose&
                 ev->appendKeyBool(prop(PropMesh::textureRepeatU).name, _textureProperty->getRepeatU());
                 ev->appendKeyBool(prop(PropMesh::textureRepeatV).name, _textureProperty->getRepeatV());
                 ev->appendKeyBool(prop(PropMesh::textureInterpolate).name, _textureProperty->getInterpolateColors());
-                ev->appendKeyInt64(prop(PropMesh::textureID).name, _textureProperty->getTextureObjectID());
+                ev->appendKeyInt64(prop(PropMesh::textureID).name, _textureProperty->getTextureObjectHandle());
             }
         }
 
@@ -937,7 +937,7 @@ void CMesh::setHeightfieldData(const std::vector<double>& heights, int xCount, i
 
 double* CMesh::getHeightfieldData(int& xCount, int& yCount, double& minHeight, double& maxHeight)
 {
-    setHeightfieldDiamonds(App::scene->dynamicsContainer->getDynamicEngineType(nullptr) == sim_physics_mujoco);
+    setHeightfieldDiamonds(App::scene->dynamics->getDynamicEngineType(nullptr) == sim_physics_mujoco);
     if ((_purePrimitive != sim_primitiveshape_heightfield) || (_heightfieldHeights.size() == 0))
         return (nullptr);
     xCount = _heightfieldXCount;
@@ -1130,7 +1130,7 @@ void CMesh::takeVisualAttributesFrom(CMesh* origin)
     {
         _textureProperty->setInterpolateColors(origin->_textureProperty->getInterpolateColors());
         _textureProperty->setApplyMode(origin->_textureProperty->getApplyMode());
-        _textureProperty->setTextureObjectID(origin->_textureProperty->getTextureObjectID());
+        _textureProperty->setTextureObjectHandle(origin->_textureProperty->getTextureObjectHandle());
     }
     if (_shadingAngle != origin->_shadingAngle)
     {
@@ -3021,7 +3021,7 @@ int CMesh::getIntProperty_mesh(const char* ppName, int& pState, const CPose& sha
     {
         retVal = sim_propertyret_ok;
         if (_textureProperty != nullptr)
-            pState = _textureProperty->getTextureObjectID();
+            pState = _textureProperty->getTextureObjectHandle();
         else
             pState = -1;
     }

@@ -296,8 +296,7 @@ int CCollection::getLongProperty(const char* ppName, int64_t& pState) const
 
 int CCollection::getHandleProperty(const char* ppName, int64_t& pState) const
 {
-    std::string _pName(ppName);
-    int retVal = sim_propertyret_unknownproperty;
+    int retVal = Obj::getHandleProperty(ppName, pState);
 
     return retVal;
 }
@@ -316,18 +315,20 @@ int CCollection::getStringProperty(const char* ppName, std::string& pState) cons
 
 int CCollection::getHandleArrayProperty(const char* ppName, std::vector<int64_t>& pState) const
 {
-    std::string _pName(ppName);
-    const char* pName = _pName.c_str();
-    int retVal = sim_propertyret_unknownproperty;
-    pState.clear();
-
-    if (strcmp(pName, prop(PropCollection::objects).name) == 0)
+    int retVal = Obj::getHandleArrayProperty(ppName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
     {
-        for (size_t i = 0; i < _collectionObjects.size(); i++)
-            pState.push_back(_collectionObjects[i]);
-        retVal = sim_propertyret_ok;
-    }
+        std::string _pName(ppName);
+        const char* pName = _pName.c_str();
+        pState.clear();
 
+        if (strcmp(pName, prop(PropCollection::objects).name) == 0)
+        {
+            for (size_t i = 0; i < _collectionObjects.size(); i++)
+                pState.push_back(_collectionObjects[i]);
+            retVal = sim_propertyret_ok;
+        }
+    }
     return retVal;
 }
 

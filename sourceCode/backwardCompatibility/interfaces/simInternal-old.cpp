@@ -392,8 +392,8 @@ int simPerformPathSearchStep_internal(int temporaryPathSearchObject, bool abortS
                 originalIt->connectExternalSearchTrees(tree1Handle, tree2Handle);
             else
             {
-                App::scene->drawingCont->removeObject(tree1Handle);
-                App::scene->drawingCont->removeObject(tree2Handle);
+                App::scene->drawingCont_old->removeObject(tree1Handle);
+                App::scene->drawingCont_old->removeObject(tree2Handle);
             }
         }
         return (retVal);
@@ -678,8 +678,8 @@ void _simGetVortexParameters_internal(const void* object, int version, double* f
     int fcnt = 0;
     if (object == nullptr)
     {
-        App::scene->dynamicsContainer->getVortexFloatParams(fparams);
-        App::scene->dynamicsContainer->getVortexIntParams(iparams);
+        App::scene->dynamics->getVortexFloatParams(fparams);
+        App::scene->dynamics->getVortexIntParams(iparams);
         if (version == 0)
         {
             fcnt = 10;
@@ -775,8 +775,8 @@ void _simGetNewtonParameters_internal(const void* object, int* version, double* 
     int fcnt = 0;
     if (object == nullptr)
     {
-        App::scene->dynamicsContainer->getNewtonFloatParams(fparams);
-        App::scene->dynamicsContainer->getNewtonIntParams(iparams);
+        App::scene->dynamics->getNewtonFloatParams(fparams);
+        App::scene->dynamics->getNewtonIntParams(iparams);
         if (version[0] >= 0)
         { // when the dynamics plugin is the same version as CoppeliaSim, or newer!
             fcnt = 2;
@@ -915,7 +915,7 @@ void _simGetDamping_internal(const void* geomInfo, double* linDamping, double* a
     CShape* shape = __getShapeFromGeomInfo(geomInfo);
     CDynMaterialObject* mat = shape->getDynMaterial();
 
-    int eng = App::scene->dynamicsContainer->getDynamicEngineType(nullptr);
+    int eng = App::scene->dynamics->getDynamicEngineType(nullptr);
     if (eng == sim_physics_bullet)
     {
         linDamping[0] = mat->getEngineFloatParam_old(sim_bullet_body_lineardamping, nullptr);
@@ -934,7 +934,7 @@ double _simGetFriction_internal(const void* geomInfo)
     CShape* shape = __getShapeFromGeomInfo(geomInfo);
     CDynMaterialObject* mat = shape->getDynMaterial();
 
-    int eng = App::scene->dynamicsContainer->getDynamicEngineType(nullptr);
+    int eng = App::scene->dynamics->getDynamicEngineType(nullptr);
     if (eng == sim_physics_bullet)
         return (mat->getEngineFloatParam_old(sim_bullet_body_oldfriction, nullptr));
     if (eng == sim_physics_ode)
@@ -1501,11 +1501,11 @@ int simSetUIButtonTexture_internal(int elementHandle, int buttonHandle, const in
         CTextureProperty* tp = but->getTextureProperty();
         if (tp != nullptr)
         { // We already have a texture. Is it the same size/type? or do we wanna remove the texture anyway?
-            int tob = tp->getTextureObjectID();
+            int tob = tp->getTextureObjectHandle();
             bool remove = true;
             if ((tob > sim_object_sceneobjectend) && (size != nullptr))
             { // we have the correct type (i.e. non-vision sensor)
-                CTextureObject* to = App::scene->textureContainer->getObject(tob);
+                CTextureObject* to = App::scene->textures->getObject(tob);
                 if (to != nullptr)
                 {
                     int sizeX, sizeY;
@@ -1519,7 +1519,7 @@ int simSetUIButtonTexture_internal(int elementHandle, int buttonHandle, const in
             }
             if (remove)
             {
-                App::scene->textureContainer->announceGeneralObjectWillBeErased(elementHandle,
+                App::scene->textures->announceGeneralObjectWillBeErased(elementHandle,
                                                                                        but->getUniqueID());
                 delete tp;
                 tp = nullptr;
@@ -1533,7 +1533,7 @@ int simSetUIButtonTexture_internal(int elementHandle, int buttonHandle, const in
             textureObj->setObjectName("textureSetThroughAPI");
             textureObj->addDependentObject(it->getBlockID(),
                                            but->getUniqueID()); // Unique ID starts exceptionnally at 1
-            int textureID = App::scene->textureContainer->addObject(
+            int textureID = App::scene->textures->addObject(
                 textureObj, false); // might erase the textureObj and return a similar object already present!!
             tp = new CTextureProperty(textureID);
             but->setTextureProperty(tp);
@@ -6881,9 +6881,9 @@ int simSetBoolParam_internal(int parameter, bool boolState)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::scene->dynamicsContainer == nullptr)
+            if (App::scene->dynamics == nullptr)
                 return (-1);
-            App::scene->dynamicsContainer->setDynamicsEnabled(boolState != 0);
+            App::scene->dynamics->setDynamicsEnabled(boolState != 0);
             return (1);
         }
 
@@ -7415,10 +7415,10 @@ int simGetBoolParam_internal(int parameter)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::scene->dynamicsContainer == nullptr)
+            if (App::scene->dynamics == nullptr)
                 return (-1);
             int retVal = 0;
-            if (App::scene->dynamicsContainer->getDynamicsEnabled())
+            if (App::scene->dynamics->getDynamicsEnabled())
                 retVal = 1;
             return (retVal);
         }
@@ -7538,9 +7538,9 @@ int simSetArrayParam_internal(int parameter, const double* arrayOfValues)
             }
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::scene->dynamicsContainer == nullptr)
+            if (App::scene->dynamics == nullptr)
                 return (-1);
-            App::scene->dynamicsContainer->setGravity(C3Vector(arrayOfValues));
+            App::scene->dynamics->setGravity(C3Vector(arrayOfValues));
             return (1);
         }
 
@@ -7642,9 +7642,9 @@ int simGetArrayParam_internal(int parameter, double* arrayOfValues)
         {
             if (!canBoolIntOrFloatParameterBeSetOrGet(__func__, 2 + 4 + 8 + 16 + 32))
                 return (-1);
-            if (App::scene->dynamicsContainer == nullptr)
+            if (App::scene->dynamics == nullptr)
                 return (-1);
-            C3Vector g(App::scene->dynamicsContainer->getGravity());
+            C3Vector g(App::scene->dynamics->getGravity());
             g.getData(arrayOfValues);
             return (1);
         }
@@ -7803,10 +7803,10 @@ int simSetInt32Param_internal(int parameter, int intState)
         }
         if (parameter == sim_intparam_current_page)
         {
-            if (App::scene->pageContainer == nullptr)
+            if (App::scene->pages == nullptr)
                 return (-1);
 #ifdef SIM_WITH_GUI
-            App::scene->pageContainer->setActivePage(intState);
+            App::scene->pages->setActivePage(intState);
 #endif
             return (1);
         }
@@ -7857,7 +7857,7 @@ int simSetInt32Param_internal(int parameter, int intState)
                 return (-1);
             if (App::scene->simulation->isSimulationStopped())
                 return (-1);
-            if (App::scene->dynamicsContainer->setIterationCount(intState))
+            if (App::scene->dynamics->setIterationCount(intState))
                 return (1);
             return (-1);
         }
@@ -7876,7 +7876,7 @@ int simSetInt32Param_internal(int parameter, int intState)
                 return (-1);
             if (App::scene->simulation->isSimulationStopped())
             {
-                App::scene->dynamicsContainer->setDynamicEngineType(intState, 0);
+                App::scene->dynamics->setDynamicEngineType(intState, 0);
                 return (1);
             }
             return (0);
@@ -7888,9 +7888,9 @@ int simSetInt32Param_internal(int parameter, int intState)
         }
         if (parameter == sim_intparam_dynamic_warning_disabled_mask)
         {
-            if (App::scene->dynamicsContainer == nullptr)
+            if (App::scene->dynamics == nullptr)
                 return (-1);
-            App::scene->dynamicsContainer->setTempDisabledWarnings(intState);
+            App::scene->dynamics->setTempDisabledWarnings(intState);
             return (1);
         }
         if (parameter == sim_intparam_simulation_warning_disabled_mask)
@@ -8114,10 +8114,10 @@ int simGetInt32Param_internal(int parameter, int* intState)
         }
         if (parameter == sim_intparam_current_page)
         {
-            if (App::scene->pageContainer == nullptr)
+            if (App::scene->pages == nullptr)
                 return (-1);
 #ifdef SIM_WITH_GUI
-            intState[0] = App::scene->pageContainer->getActivePageIndex();
+            intState[0] = App::scene->pages->getActivePageIndex();
 #else
             intState[0] = 0;
 #endif
@@ -8213,9 +8213,9 @@ int simGetInt32Param_internal(int parameter, int* intState)
         }
         if (parameter == sim_intparam_dynamic_warning_disabled_mask)
         {
-            if (App::scene->dynamicsContainer == nullptr)
+            if (App::scene->dynamics == nullptr)
                 return (-1);
-            intState[0] = App::scene->dynamicsContainer->getTempDisabledWarnings();
+            intState[0] = App::scene->dynamics->getTempDisabledWarnings();
             return (1);
         }
         if (parameter == sim_intparam_simulation_warning_disabled_mask)
@@ -8277,9 +8277,9 @@ int simGetInt32Param_internal(int parameter, int* intState)
         }
         if (parameter == sim_intparam_dynamic_iteration_count)
         {
-            if (App::scene->dynamicsContainer == nullptr)
+            if (App::scene->dynamics == nullptr)
                 return (-1);
-            intState[0] = App::scene->dynamicsContainer->getIterationCount();
+            intState[0] = App::scene->dynamics->getIterationCount();
             return (1);
         }
         if (parameter == sim_intparam_scene_index)
@@ -8303,9 +8303,9 @@ int simGetInt32Param_internal(int parameter, int* intState)
         }
         if (parameter == sim_intparam_dynamic_engine)
         {
-            if (App::scene->dynamicsContainer == nullptr)
+            if (App::scene->dynamics == nullptr)
                 return (-1);
-            intState[0] = App::scene->dynamicsContainer->getDynamicEngineType(nullptr);
+            intState[0] = App::scene->dynamics->getDynamicEngineType(nullptr);
             return (1);
         }
         if (parameter == sim_intparam_server_port_start)
@@ -8360,11 +8360,11 @@ int simSetFloatParam_internal(int parameter, double floatState)
         }
         if (parameter == sim_floatparam_physicstimestep)
         {
-            if (App::scene->dynamicsContainer == nullptr)
+            if (App::scene->dynamics == nullptr)
                 return (-1);
             if (App::scene->simulation->isSimulationStopped())
             {
-                App::scene->dynamicsContainer->setDesiredStepSize(floatState);
+                App::scene->dynamics->setDesiredStepSize(floatState);
                 return (1);
             }
             return (0);
@@ -8412,7 +8412,7 @@ int simSetFloatParam_internal(int parameter, double floatState)
                 return (-1);
             if (App::scene->simulation->isSimulationStopped())
             {
-                if (App::scene->dynamicsContainer->setDesiredStepSize(floatState))
+                if (App::scene->dynamics->setDesiredStepSize(floatState))
                     return (1);
             }
             return (0);
@@ -8459,9 +8459,9 @@ int simGetFloatParam_internal(int parameter, double* floatState)
         }
         if ((parameter == sim_floatparam_physicstimestep) || (parameter == sim_floatparam_dynamic_step_size))
         {
-            if (App::scene->dynamicsContainer == nullptr)
+            if (App::scene->dynamics == nullptr)
                 return (-1);
-            floatState[0] = App::scene->dynamicsContainer->getEffectiveStepSize();
+            floatState[0] = App::scene->dynamics->getEffectiveStepSize();
             return (1);
         }
         if (parameter == sim_floatparam_stereo_distance)
@@ -11611,7 +11611,7 @@ double simGetEngineFloatParam_internal(int paramId, int objectHandle, const void
         if (success)
         {
             if (it == nullptr)
-                retVal = App::scene->dynamicsContainer->getEngineFloatParam_old(paramId, &success);
+                retVal = App::scene->dynamics->getEngineFloatParam_old(paramId, &success);
             else
             {
                 if (it->getObjectType() == sim_sceneobject_joint)
@@ -11670,7 +11670,7 @@ int simGetEngineInt32Param_internal(int paramId, int objectHandle, const void* o
         if (success)
         {
             if (it == nullptr)
-                retVal = App::scene->dynamicsContainer->getEngineIntParam_old(paramId, &success);
+                retVal = App::scene->dynamics->getEngineIntParam_old(paramId, &success);
             else
             {
                 if (it->getObjectType() == sim_sceneobject_joint)
@@ -11729,7 +11729,7 @@ bool simGetEngineBoolParam_internal(int paramId, int objectHandle, const void* o
         if (success)
         {
             if (it == nullptr)
-                retVal = App::scene->dynamicsContainer->getEngineBoolParam_old(paramId, &success);
+                retVal = App::scene->dynamics->getEngineBoolParam_old(paramId, &success);
             else
             {
                 if (it->getObjectType() == sim_sceneobject_joint)
@@ -11787,7 +11787,7 @@ int simSetEngineFloatParam_internal(int paramId, int objectHandle, const void* o
         if (success)
         {
             if (it == nullptr)
-                success = App::scene->dynamicsContainer->setEngineFloatParam_old(paramId, val);
+                success = App::scene->dynamics->setEngineFloatParam_old(paramId, val);
             else
             {
                 if (it->getObjectType() == sim_sceneobject_joint)
@@ -11845,7 +11845,7 @@ int simSetEngineInt32Param_internal(int paramId, int objectHandle, const void* o
         if (success)
         {
             if (it == nullptr)
-                success = App::scene->dynamicsContainer->setEngineIntParam_old(paramId, val);
+                success = App::scene->dynamics->setEngineIntParam_old(paramId, val);
             else
             {
                 if (it->getObjectType() == sim_sceneobject_joint)
@@ -11903,7 +11903,7 @@ int simSetEngineBoolParam_internal(int paramId, int objectHandle, const void* ob
         if (success)
         {
             if (it == nullptr)
-                success = App::scene->dynamicsContainer->setEngineBoolParam_old(paramId, val);
+                success = App::scene->dynamics->setEngineBoolParam_old(paramId, val);
             else
             {
                 if (it->getObjectType() == sim_sceneobject_joint)

@@ -116,7 +116,7 @@ int CPageContainer::getMainCameraHandle() const
 {
     int retVal = -1;
 #ifdef SIM_WITH_GUI
-    CSPage* page = App::scene->pageContainer->getPage(App::scene->pageContainer->getActivePageIndex());
+    CSPage* page = App::scene->pages->getPage(App::scene->pages->getActivePageIndex());
     if (page != nullptr)
     {
         for (size_t i = 0; i < 10; i++)

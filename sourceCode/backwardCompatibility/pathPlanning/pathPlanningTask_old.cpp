@@ -29,8 +29,8 @@ CPathPlanningTask::CPathPlanningTask(int theID, int thePathPlanningType)
 
 CPathPlanningTask::~CPathPlanningTask()
 {
-    App::scene->drawingCont->removeObject(_searchTree1Handle);
-    App::scene->drawingCont->removeObject(_searchTree2Handle);
+    App::scene->drawingCont_old->removeObject(_searchTree1Handle);
+    App::scene->drawingCont_old->removeObject(_searchTree2Handle);
     CPathPlanningInterface::destroyPathPlanningObject(_steppedSearchTemp_theTask);
 }
 
@@ -129,8 +129,8 @@ void CPathPlanningTask::setShowSearchTrees(bool s)
     _showSearchTrees = s;
     if (!_showSearchTrees)
     {
-        App::scene->drawingCont->removeObject(_searchTree1Handle);
-        App::scene->drawingCont->removeObject(_searchTree2Handle);
+        App::scene->drawingCont_old->removeObject(_searchTree1Handle);
+        App::scene->drawingCont_old->removeObject(_searchTree2Handle);
         _searchTree1Handle = -1;
         _searchTree2Handle = -1;
     }
@@ -151,8 +151,8 @@ void CPathPlanningTask::getAndDisconnectSearchTrees(int& tree1Handle, int& tree2
 
 void CPathPlanningTask::connectExternalSearchTrees(int tree1Handle, int tree2Handle)
 {
-    App::scene->drawingCont->removeObject(_searchTree1Handle);
-    App::scene->drawingCont->removeObject(_searchTree2Handle);
+    App::scene->drawingCont_old->removeObject(_searchTree1Handle);
+    App::scene->drawingCont_old->removeObject(_searchTree2Handle);
     _searchTree1Handle = tree1Handle;
     _searchTree2Handle = tree2Handle;
 }
@@ -996,8 +996,8 @@ int CPathPlanningTask::performSteppedSearch()
     { // This is the last time in this routine. Display the trees and clean-up!
         if ((retVal > 0) && _showSearchTrees)
         {
-            App::scene->drawingCont->removeObject(_searchTree1Handle);
-            App::scene->drawingCont->removeObject(_searchTree2Handle);
+            App::scene->drawingCont_old->removeObject(_searchTree1Handle);
+            App::scene->drawingCont_old->removeObject(_searchTree2Handle);
             int fromStartC;
             double* fromStart = CPathPlanningInterface::getSearchTree(_steppedSearchTemp_theTask, &fromStartC, true);
             int fromGoalC;
@@ -1008,7 +1008,7 @@ int CPathPlanningTask::performSteppedSearch()
                 it->color.setColor(1.0, 0.0, 0.0, sim_materialcomponent_diffuse);
                 for (int i = 0; i < fromStartC; i++)
                     it->addItem(fromStart + 6 * i);
-                _searchTree1Handle = App::scene->drawingCont->addObject(it);
+                _searchTree1Handle = App::scene->drawingCont_old->addObject(it);
             }
             if (fromGoal != nullptr)
             {
@@ -1016,7 +1016,7 @@ int CPathPlanningTask::performSteppedSearch()
                 it->color.setColor(0.0, 0.0, 1.0, sim_materialcomponent_diffuse);
                 for (int i = 0; i < fromGoalC; i++)
                     it->addItem(fromGoal + 6 * i);
-                _searchTree2Handle = App::scene->drawingCont->addObject(it);
+                _searchTree2Handle = App::scene->drawingCont_old->addObject(it);
             }
             CPathPlanningInterface::releaseBuffer(fromGoal);
             CPathPlanningInterface::releaseBuffer(fromStart);

@@ -224,7 +224,6 @@ class CVisionSensor : public CViewableBase
   public:
     void display(CViewableBase* renderingObject, int displayAttrib) override;
     void lookAt(CSView* viewObject, int viewPos[2] = nullptr, int viewSize[2] = nullptr);
-    CTextureObject* getTextureObject();
 
     void createGlContextAndFboAndTextureObjectIfNeeded(bool useStencilBuffer);
     void createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(bool useStencilBuffer);

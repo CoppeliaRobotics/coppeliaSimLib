@@ -1566,12 +1566,12 @@ void CVisionSensor::_drawObjects(int entityID, bool detectAll,
     {
         // first non-transparent attached drawing objects:
         for (int i = 0; i < int(toRender.size()); i++)
-            App::scene->drawingCont->drawObjectsParentedWith(false, false, toRender[i]->getObjectHandle(),
+            App::scene->drawingCont_old->drawObjectsParentedWith(false, false, toRender[i]->getObjectHandle(),
                                                                     rendAttrib,
                                                                     getFullCumulativeTransformation().getMatrix());
 
         // Now the same as above but for non-attached drawing objects:
-        App::scene->drawingCont->drawObjectsParentedWith(false, false, -1, rendAttrib,
+        App::scene->drawingCont_old->drawObjectsParentedWith(false, false, -1, rendAttrib,
                                                                 getFullCumulativeTransformation().getMatrix());
 
         // Point clouds:
@@ -1581,7 +1581,7 @@ void CVisionSensor::_drawObjects(int entityID, bool detectAll,
         App::scene->ghostObjectCont_old->renderYour3DStuff_nonTransparent(this, rendAttrib);
 
         // particles:
-        App::scene->dynamicsContainer->renderYour3DStuff(this, rendAttrib);
+        App::scene->dynamics->renderYour3DStuff(this, rendAttrib);
     }
     if (getInternalRendering())
         _disableAuxClippingPlanes();
@@ -1626,11 +1626,11 @@ void CVisionSensor::_drawObjects(int entityID, bool detectAll,
     {
         // Transparent attached drawing objects:
         for (int i = 0; i < int(toRender.size()); i++)
-            App::scene->drawingCont->drawObjectsParentedWith(
+            App::scene->drawingCont_old->drawObjectsParentedWith(
                 false, true, toRender[i]->getObjectHandle(), rendAttrib, getFullCumulativeTransformation().getMatrix());
 
         // Now the same as above but for non-attached drawing objects:
-        App::scene->drawingCont->drawObjectsParentedWith(false, true, -1, rendAttrib,
+        App::scene->drawingCont_old->drawObjectsParentedWith(false, true, -1, rendAttrib,
                                                                 getFullCumulativeTransformation().getMatrix());
 
         // Ghost objects:
@@ -1646,11 +1646,11 @@ void CVisionSensor::_drawObjects(int entityID, bool detectAll,
 
         // overlay attached drawing objects:
         for (int i = 0; i < int(toRender.size()); i++)
-            App::scene->drawingCont->drawObjectsParentedWith(
+            App::scene->drawingCont_old->drawObjectsParentedWith(
                 true, true, toRender[i]->getObjectHandle(), rendAttrib, getFullCumulativeTransformation().getMatrix());
 
         // Now the same as above but for non-attached drawing objects:
-        App::scene->drawingCont->drawObjectsParentedWith(true, true, -1, rendAttrib,
+        App::scene->drawingCont_old->drawObjectsParentedWith(true, true, -1, rendAttrib,
                                                                 getFullCumulativeTransformation().getMatrix());
 
         // Ghosts:
@@ -3373,13 +3373,6 @@ void CVisionSensor::lookAt(CSView* viewObject, int viewPos[2], int viewSize[2])
 
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_SCISSOR_TEST);
-}
-
-CTextureObject* CVisionSensor::getTextureObject()
-{
-    if (_contextFboAndTexture != nullptr)
-        return (_contextFboAndTexture->textureObject);
-    return (nullptr);
 }
 #endif
 

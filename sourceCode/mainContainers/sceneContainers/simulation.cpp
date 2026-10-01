@@ -132,7 +132,7 @@ void CSimulation::simulationAboutToStart()
         GuiApp::mainWindow->dlgCont->processCommand(CLOSE_HIERARCHY_DLG_CMD);
     }
 #endif
-    if ((!App::scene->dynamicsContainer->getSettingsAreDefault()) || (!getSettingsAreDefault()))
+    if ((!App::scene->dynamics->getSettingsAreDefault()) || (!getSettingsAreDefault()))
         App::logMsg(sim_verbosity_scriptwarnings,
                     "Detected non-default settings (time steps and/or dyn. engine global settings).");
 }
@@ -658,7 +658,7 @@ double CSimulation::getSimulationTime_real() const
 
 double CSimulation::_getNewTimeStep(int newSpeedModifierCount) const
 {
-    double ddt = App::scene->dynamicsContainer->getEffectiveStepSize();
+    double ddt = App::scene->dynamics->getEffectiveStepSize();
     double dt = _simulationTimeStep;
     if (!isSimulationStopped())
         dt = _initialSimulationTimeStep;
@@ -1249,7 +1249,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::scene->dynamicsContainer->setDynamicEngineType(sim_physics_bullet, 0);
+            App::scene->dynamics->setDynamicEngineType(sim_physics_bullet, 0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1263,7 +1263,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::scene->dynamicsContainer->setDynamicEngineType(sim_physics_bullet, 283);
+            App::scene->dynamics->setDynamicEngineType(sim_physics_bullet, 283);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1277,7 +1277,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::scene->dynamicsContainer->setDynamicEngineType(sim_physics_ode, 0);
+            App::scene->dynamics->setDynamicEngineType(sim_physics_ode, 0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1291,7 +1291,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::scene->dynamicsContainer->setDynamicEngineType(sim_physics_vortex, 0);
+            App::scene->dynamics->setDynamicEngineType(sim_physics_vortex, 0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1305,7 +1305,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::scene->dynamicsContainer->setDynamicEngineType(sim_physics_newton, 0);
+            App::scene->dynamics->setDynamicEngineType(sim_physics_newton, 0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1319,7 +1319,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::scene->dynamicsContainer->setDynamicEngineType(sim_physics_mujoco, 0);
+            App::scene->dynamics->setDynamicEngineType(sim_physics_mujoco, 0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1333,7 +1333,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::scene->dynamicsContainer->setDynamicEngineType(sim_physics_drake, 0);
+            App::scene->dynamics->setDynamicEngineType(sim_physics_drake, 0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -1389,7 +1389,7 @@ void CSimulation::addMenu(VMenu* menu)
                          SIMULATION_COMMANDS_STOP_SIMULATION_REQUEST_SCCMD, IDS_STOP_SIMULATION_MENU_ITEM);
     menu->appendMenuSeparator();
     int version;
-    int engine = App::scene->dynamicsContainer->getDynamicEngineType(&version);
+    int engine = App::scene->dynamics->getDynamicEngineType(&version);
     menu->appendMenuItem(noEditMode && simStopped, (engine == sim_physics_bullet) && (version == 0),
                          SIMULATION_COMMANDS_TOGGLE_TO_BULLET_2_78_ENGINE_SCCMD,
                          IDS_SWITCH_TO_BULLET_2_78_ENGINE_MENU_ITEM, true);
