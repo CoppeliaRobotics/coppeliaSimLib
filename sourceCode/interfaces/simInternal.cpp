@@ -8473,7 +8473,7 @@ int simCameraFitToView_internal(int viewHandleOrIndex, int objectCount, const in
                 CSPage* page =
                     App::scene->pages->getPage(App::scene->pages->getActivePageIndex());
 #else
-                CSPage* page = App::scene->pageContainer->getPage(0);
+                CSPage* page = App::scene->pages->getPage(0);
 #endif
                 if (page == nullptr)
                 {
@@ -8559,7 +8559,7 @@ int simAdjustView_internal(int viewHandleOrIndex, int associatedViewableObjectHa
             CSPage* page =
                 App::scene->pages->getPage(App::scene->pages->getActivePageIndex());
 #else
-            CSPage* page = App::scene->pageContainer->getPage(0);
+            CSPage* page = App::scene->pages->getPage(0);
 #endif
             if (page == nullptr)
             {
