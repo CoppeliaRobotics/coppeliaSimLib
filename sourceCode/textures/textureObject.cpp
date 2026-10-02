@@ -13,7 +13,7 @@ unsigned int CTextureObject::_textureContentUniqueId = 0;
 CTextureObject::CTextureObject(int sizeX, int sizeY)
 {
     _objectHandle = sim_object_texturestart;
-    _objectTypeStr = "texture";
+    _objectTypeStr = "textureData";
     _originalObjectTypeStr = _objectTypeStr;
     setMetaInfo("superClass: object");
 
@@ -619,7 +619,7 @@ int CTextureObject::getBufferProperty(const char* ppName, std::string& pState) c
     if (retVal == sim_propertyret_unknownproperty)
     {
         pState.clear();
-        if (strcmp(ppName, prop(PropTexture::image).name) == 0)
+        if (strcmp(ppName, prop(PropTextureData::image).name) == 0)
         {
             pState.assign(_textureBuffer.begin(), _textureBuffer.end());
             retVal = sim_propertyret_ok;
@@ -634,7 +634,7 @@ int CTextureObject::getIntArray2Property(const char* ppName, int* pState) const
 
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(ppName, prop(PropTexture::resolution).name) == 0)
+        if (strcmp(ppName, prop(PropTextureData::resolution).name) == 0)
         {
             pState[0] = _textureSize[0];
             pState[1] = _textureSize[1];
@@ -650,16 +650,16 @@ int CTextureObject::getPropertyName(int& index, std::string& pName, std::string&
     if (retVal == sim_propertyret_unknownproperty)
     {
         appartenance = _objectTypeStr;
-        for (size_t i = 0; i < allProps_texture.size(); i++)
+        for (size_t i = 0; i < allProps_textureData.size(); i++)
         {
-            if ((pName.size() == 0) || utils::startsWith(allProps_texture[i].name, pName.c_str()))
+            if ((pName.size() == 0) || utils::startsWith(allProps_textureData[i].name, pName.c_str()))
             {
-                if ((allProps_texture[i].flags & excludeFlags) == 0)
+                if ((allProps_textureData[i].flags & excludeFlags) == 0)
                 {
                     index--;
                     if (index == -1)
                     {
-                        pName = allProps_texture[i].name;
+                        pName = allProps_textureData[i].name;
                         retVal = sim_propertyret_ok;
                         break;
                     }
@@ -675,17 +675,17 @@ int CTextureObject::getPropertyInfo(const char* ppName, int& info, std::string& 
     int retVal = Obj::getPropertyInfo(ppName, info, infoTxt);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        for (size_t i = 0; i < allProps_texture.size(); i++)
+        for (size_t i = 0; i < allProps_textureData.size(); i++)
         {
-            if (strcmp(allProps_texture[i].name, ppName) == 0)
+            if (strcmp(allProps_textureData[i].name, ppName) == 0)
             {
-                retVal = allProps_texture[i].type;
-                info = allProps_texture[i].flags;
+                retVal = allProps_textureData[i].type;
+                info = allProps_textureData[i].flags;
                 if (infoTxt == "j")
-                    infoTxt = allProps_texture[i].info.json;
+                    infoTxt = allProps_textureData[i].info.json;
                 else
                 {
-                    auto w = allProps_texture[i].info.map;
+                    auto w = allProps_textureData[i].info.map;
                     std::string descr = w["description"].toString().toStdString();
                     std::string label = w["label"].toString().toStdString();
                     if ( (infoTxt == "s") || (descr == "") )
@@ -706,8 +706,8 @@ void CTextureObject::pushCreationEvent()
     {
         CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
         Obj::pushNakedGenesisEvents(ev);
-        ev->appendKeyBuff(prop(PropTexture::image).name, _textureBuffer.data(), _textureBuffer.size());
-        ev->appendKeyInt32Array(prop(PropTexture::resolution).name, _textureSize, 2);
+        ev->appendKeyBuff(prop(PropTextureData::image).name, _textureBuffer.data(), _textureBuffer.size());
+        ev->appendKeyInt32Array(prop(PropTextureData::resolution).name, _textureSize, 2);
         ev->appendKeyInt64(prop(PropObject::handle).name, _objectHandle);
         App::scenes->pushEvent();
     }

@@ -1184,7 +1184,7 @@ CScript* getNakedScript(int identifier, std::string* errMsg /*= nullptr*/, size_
     return retVal;
 }
 
-CTextureObject* getTexture(int identifier, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
+CTextureObject* getTextureData(int identifier, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
 {
     CTextureObject* retVal = App::scene->textures->getObject(identifier);
     if ( (retVal == nullptr) && (errMsg != nullptr) )
@@ -2421,7 +2421,7 @@ std::string _method_remove(int targetObj, CScript* currentScript, const CInterfa
                 CSceneObject* sceneObj = getSceneObject(targetObj);
                 CCollection* coll = getCollection(targetObj);
                 CScript* script = getNakedScript(targetObj);
-                CTextureObject* texture = getTexture(targetObj);
+                CTextureObject* textureData = getTextureData(targetObj);
                 if (sceneObj != nullptr)
                 {
                     std::vector<int> sel;
@@ -2430,7 +2430,7 @@ std::string _method_remove(int targetObj, CScript* currentScript, const CInterfa
                 }
                 else if (coll != nullptr)
                     App::scene->collections->removeCollection(targetObj);
-                else if (texture != nullptr)
+                else if (textureData != nullptr)
                     App::scene->textures->removeObject(targetObj);
                 else if (script != nullptr)
                 {
@@ -2490,13 +2490,13 @@ std::string _method_removeObjects(int targetObj, CScript* currentScript, const C
                 CCollection* coll = getCollection(objectHandle);
                 CDrawingObject* draw = getDrawingObject(objectHandle);
                 CScript* script = getNakedScript(objectHandle);
-                CTextureObject* texture = getTexture(targetObj);
+                CTextureObject* textureData = getTextureData(targetObj);
                 if (sceneObj != nullptr)
                     sceneObjectHandles.push_back(objectHandle);
                 else if (coll != nullptr)
                     App::scene->collections->removeCollection(objectHandle);
                 else if (coll != nullptr)
-                    App::scene->textures->removeObject(texture->getObjectHandle());
+                    App::scene->textures->removeObject(textureData->getObjectHandle());
                 else if (draw != nullptr)
                     App::scene->drawingCont_old->removeObject(objectHandle);
                 else if (script != nullptr)
@@ -2988,7 +2988,7 @@ std::string _method_getObjects(int targetObj, CScript* currentScript, const CInt
             {
                 std::vector<int> objects;
                 if (types.size() == 0)
-                    types = {"sceneObject", "drawingObject", "collection", "script", "mesh", "texture"};
+                    types = {"sceneObject", "drawingObject", "collection", "script", "mesh", "textureData"};
                 for (size_t j = 0; j < types.size(); j++)
                 {
                     std::string t = types[j];
@@ -3104,7 +3104,7 @@ std::string _method_getObjects(int targetObj, CScript* currentScript, const CInt
                         for (size_t i = 0; i < meshes.size(); i++)
                             objects.push_back(int(meshes[i]->getObjectHandle()));
                     }
-                    else if (t == "texture")
+                    else if (t == "textureData")
                     {
                         int i = 0;
                         CTextureObject* texture = App::scene->textures->getObjectAtIndex(i++);
@@ -8841,7 +8841,7 @@ std::string _method_textureSet(int targetObj, CScript* currentScript, const CInt
 std::string _method_textureSetData(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CTextureObject* target = getTexture(targetObj, &errMsg, -1);
+    CTextureObject* target = getTextureData(targetObj, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string data = fetchBuffer(inStack, 0);
@@ -8906,7 +8906,7 @@ std::string _method_textureSetData(int targetObj, CScript* currentScript, const 
 std::string _method_textureGetData(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CTextureObject* target = getTexture(targetObj, &errMsg, -1);
+    CTextureObject* target = getTextureData(targetObj, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
     {
         int position[2] = {0, 0};

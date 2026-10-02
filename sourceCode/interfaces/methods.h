@@ -50,7 +50,7 @@ CCollection* getCollection(int identifier, std::string* errMsg = nullptr, size_t
 CDrawingObject* getDrawingObject(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
 CScript* getNakedScript(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
 CMesh* getMesh(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
-CTextureObject* getTexture(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
+CTextureObject* getTextureData(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
 bool doesEntityExist(int identifier, std::string* errMsg = nullptr, size_t argPos = -1);
 std::string getInvalidArgString(size_t argPos);
 

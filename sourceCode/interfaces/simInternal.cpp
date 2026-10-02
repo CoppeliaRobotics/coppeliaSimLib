@@ -732,7 +732,7 @@ std::string checkForDeprecation(const char* funcName, const char* pName, int tar
                 found = true;
             else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend) && (type == "collection"))
                 found = true;
-            else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend) && (type == "texture"))
+            else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend) && (type == "textureData"))
                 found = true;
             else if ((target >= sim_object_customstart) && (target <= sim_object_customend) && (type == "customObject"))
                 found = true;

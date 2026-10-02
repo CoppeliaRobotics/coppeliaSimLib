@@ -4088,7 +4088,7 @@ std::string App::getTargetTypeStr(int64_t target)
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
         retVal = "collection";
     else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend))
-        retVal = "texture";
+        retVal = "textureData";
     else if ((target >= sim_object_customstart) && (target <= sim_object_customend))
         retVal = "customObject";
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))

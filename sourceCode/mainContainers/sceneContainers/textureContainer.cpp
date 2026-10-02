@@ -349,7 +349,7 @@ int CTextureContainer::getPropertyName_t(int64_t target, int& index, std::string
         CTextureObject* it = getObject(int(target));
         if (it != nullptr)
         {
-            appartenance = "texture";
+            appartenance = "textureData";
             return it->getPropertyName(index, pName, appartenance, excludeFlags);
         }
         retVal = -2; // object does not exist
