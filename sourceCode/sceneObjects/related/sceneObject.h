@@ -69,6 +69,7 @@ class CSceneObject : public Obj
 
     virtual void announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer);
     virtual void announceScriptWillBeErased(int scriptOrnakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript, bool copyBuffer);
+    virtual void announceTextureWillBeErased(int64_t textureHandle, bool copyBuffer);
 
     virtual void performObjectLoadingMapping(const std::map<int, int>* map, int opType);
     virtual void performScriptLoadingMapping(const std::map<int, int>* map, int opType);

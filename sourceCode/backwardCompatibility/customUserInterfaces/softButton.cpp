@@ -20,7 +20,6 @@ CSoftButton::CSoftButton(std::string theLabel, int w, int h, int theLength, int 
     textColor[2] = 0.0f;
     label = theLabel;
     downLabel = theLabel;
-    _textureProperty = nullptr;
     arrayColors = nullptr;
     _buttonAttributes = sim_buttonproperty_button | sim_buttonproperty_enabled |
                         sim_buttonproperty_horizontallycentered | sim_buttonproperty_verticallycentered;
@@ -95,45 +94,23 @@ void CSoftButton::simulationEnded()
 
 CSoftButton::~CSoftButton()
 {
-    delete _textureProperty;
     delete[] arrayColors;
 }
 
 void CSoftButton::announceSceneObjectWillBeErased(int objID)
 {
-    if (_textureProperty != nullptr)
-    {
-        CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(objID);
-        if ((obj != nullptr) && _textureProperty->announceObjectWillBeErased(obj))
-        {
-            delete _textureProperty;
-            _textureProperty = nullptr;
-        }
-    }
 }
 
 void CSoftButton::performSceneObjectLoadingMapping(const std::map<int, int>* map)
 {
-    if (App::scene->sceneObjects != nullptr)
-    {
-        if (_textureProperty != nullptr)
-            _textureProperty->performObjectLoadingMapping(map);
-    }
 }
 
 void CSoftButton::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
-    if (App::scene->sceneObjects != nullptr)
-    {
-        if (_textureProperty != nullptr)
-            _textureProperty->performTextureObjectLoadingMapping(map, 0);
-    }
 }
 
 void CSoftButton::setTextureDependencies(int buttonBlockID)
 {
-    if (_textureProperty != nullptr)
-        _textureProperty->addTextureDependencies(buttonBlockID, _buttonUniqueID);
 }
 
 int CSoftButton::getUniqueID()
@@ -215,16 +192,6 @@ int CSoftButton::getButtonType()
     return (_buttonAttributes & 0x0007);
 }
 
-void CSoftButton::setTextureProperty(CTextureProperty* tp)
-{
-    _textureProperty = tp;
-}
-
-CTextureProperty* CSoftButton::getTextureProperty()
-{
-    return (_textureProperty);
-}
-
 CSoftButton* CSoftButton::copyYourself()
 { // Everything is copied.
     CSoftButton* newButton = new CSoftButton(label, xPos, yPos, length, height);
@@ -244,22 +211,8 @@ CSoftButton* CSoftButton::copyYourself()
     }
     newButton->downLabel = downLabel;
     newButton->sliderPos = sliderPos;
-    if (_textureProperty != nullptr)
-        newButton->_textureProperty = _textureProperty->copyYourself();
 
     return (newButton);
-}
-
-void CSoftButton::removeVisionSensorTexture()
-{
-    if (_textureProperty != nullptr)
-    {
-        if (_textureProperty->getTextureObjectHandle() <= sim_object_sceneobjectend)
-        {
-            delete _textureProperty;
-            _textureProperty = nullptr;
-        }
-    }
 }
 
 void CSoftButton::serialize(CSer& ar)
@@ -277,15 +230,6 @@ void CSoftButton::serialize(CSer& ar)
         ar << downBackgroundColor[0] << downBackgroundColor[1] << downBackgroundColor[2];
         ar << textColor[0] << textColor[1] << textColor[2];
         ar.flush();
-
-        if (_textureProperty != nullptr)
-        {
-            ar.storeDataName("Toj");
-            ar.setCountingMode();
-            _textureProperty->serialize(ar);
-            if (ar.setWritingMode())
-                _textureProperty->serialize(ar);
-        }
 
         ar.storeDataName(SER_END_OF_OBJECT);
     }
@@ -324,13 +268,6 @@ void CSoftButton::serialize(CSer& ar)
                     ar >> backgroundColor[0] >> backgroundColor[1] >> backgroundColor[2];
                     ar >> downBackgroundColor[0] >> downBackgroundColor[1] >> downBackgroundColor[2];
                     ar >> textColor[0] >> textColor[1] >> textColor[2];
-                }
-                if (theName.compare("Toj") == 0)
-                {
-                    noHit = false;
-                    ar >> byteQuantity;
-                    _textureProperty = new CTextureProperty();
-                    _textureProperty->serialize(ar);
                 }
                 if (noHit)
                     ar.loadUnknownData();

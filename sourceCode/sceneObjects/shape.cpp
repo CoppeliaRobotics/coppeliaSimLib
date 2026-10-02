@@ -653,11 +653,17 @@ bool CShape::scaleObjectNonIsometrically(double x, double y, double z)
 }
 
 void CShape::announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer)
-{ // copyBuffer is false by default (if true, we are 'talking' to objects
-    // in the copyBuffer)
+{ // copyBuffer is false by default (if true, we are 'talking' to objects in the copyBuffer)
     CSceneObject::announceSceneObjectWillBeErased(object, copyBuffer);
     if (getMesh() != nullptr)
         getMesh()->announceSceneObjectWillBeErased(object); // for textures based on vision sensors
+}
+
+void CShape::announceTextureWillBeErased(int64_t textureHandle, bool copyBuffer)
+{ // copyBuffer is false by default (if true, we are 'talking' to objects in the copyBuffer)
+    CSceneObject::announceTextureWillBeErased(textureHandle, copyBuffer);
+    if (getMesh() != nullptr)
+        getMesh()->announceTextureWillBeErased(textureHandle); // for textures based on vision sensors
 }
 
 void CShape::announceCollectionWillBeErased(int groupID, bool copyBuffer)

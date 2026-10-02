@@ -144,6 +144,7 @@ class CSceneObjectContainer
     void simulationAboutToEnd();
     void simulationEnded();
 
+    void announceTextureWillBeErased(CTextureObject* object);
     void announceSceneObjectWillBeErased(CSceneObject* object);
     void announceScriptWillBeErased(int scriptOrnakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
 

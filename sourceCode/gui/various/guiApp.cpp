@@ -1131,32 +1131,6 @@ CTextureProperty* GuiApp::getTexturePropertyPointerFromItem(int objType, int obj
             }
         }
     }
-    if (objType == TEXTURE_ID_OPENGL_GUI_BACKGROUND)
-    {
-        _auxDlgTitle->assign("OpenGl custom UI background");
-        _is3D[0] = false;
-        CButtonBlock* it = App::scene->buttonBlockContainer_old->getBlockWithID(objID1);
-        if (it != nullptr)
-        {
-            _isValid[0] = true;
-            return (it->getTextureProperty());
-        }
-    }
-    if (objType == TEXTURE_ID_OPENGL_GUI_BUTTON)
-    {
-        _auxDlgTitle->assign("OpenGl custom UI button");
-        _is3D[0] = false;
-        CButtonBlock* it = App::scene->buttonBlockContainer_old->getBlockWithID(objID1);
-        if (it != nullptr)
-        {
-            CSoftButton* butt = it->getButtonWithID(objID2);
-            if (butt != nullptr)
-            {
-                _isValid[0] = true;
-                return (butt->getTextureProperty());
-            }
-        }
-    }
     return (nullptr);
 }
 

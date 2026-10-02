@@ -16,6 +16,7 @@ class CTextureProperty
     CTextureProperty* copyYourself();
     void serialize(CSer& ar);
     bool announceObjectWillBeErased(const CSceneObject* object);
+    bool announceTextureWillBeErased(int64_t textureHandle);
     void performObjectLoadingMapping(const std::map<int, int>* map);
     void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType);
     void addTextureDependencies(int64_t objID, int64_t objSubID);

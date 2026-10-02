@@ -19,11 +19,12 @@ class CTextureContainer
     int getSameObjectID(CTextureObject* anObject);
     void removeObject(int objectID);
     void eraseAllObjects();
+    void pushGenesisEvents(const std::vector<CTextureObject*>* ObjectsToConsider = nullptr) const;
 
     void storeTextureObject(CSer& ar, CTextureObject* it);
     CTextureObject* loadTextureObject(CSer& ar, std::string theName, bool& noHit);
 
-    void announceGeneralObjectWillBeErased(int generalObjectID, int subID);
+    void announceSceneObjectWillBeErased(int objectHandle, int meshHandle);
     void clearAllDependencies();
     void updateAllDependencies();
 

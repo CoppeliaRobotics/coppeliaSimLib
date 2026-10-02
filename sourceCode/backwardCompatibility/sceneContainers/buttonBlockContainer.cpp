@@ -29,12 +29,6 @@ CButtonBlockContainer::~CButtonBlockContainer()
         delete copyOfBlock_forEditMode;
 }
 
-void CButtonBlockContainer::setTextureDependencies()
-{
-    for (int i = 0; i < int(allBlocks.size()); i++)
-        allBlocks[i]->setTextureDependencies();
-}
-
 void CButtonBlockContainer::emptySceneProcedure(bool mainContainer)
 {
     TRACE_INTERNAL;

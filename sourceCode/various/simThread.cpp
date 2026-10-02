@@ -2480,7 +2480,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     CTextureProperty* tp = components[j]->getTextureProperty();
                     if (tp != nullptr)
                     {
-                        App::scene->textures->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
+                        App::scene->textures->announceSceneObjectWillBeErased(shape->getObjectHandle(), -1);
                         delete tp;
                         components[j]->setTextureProperty(nullptr);
                     }
@@ -2513,7 +2513,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     CTextureProperty* tp = components[j]->getTextureProperty();
                     if (tp != nullptr)
                     {
-                        App::scene->textures->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
+                        App::scene->textures->announceSceneObjectWillBeErased(shape->getObjectHandle(), -1);
                         delete tp;
                         components[j]->setTextureProperty(nullptr);
                     }
@@ -2694,34 +2694,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             textureObj->setObjectName(cmd.stringParams[0].c_str());
             if (geom != nullptr)
                 textureObj->addDependentObject(cmd.intParams[1], geom->getObjectHandle());
-            else
-            {
-                if (cmd.intParams[0] == TEXTURE_ID_OPENGL_GUI_BACKGROUND)
-                    textureObj->addDependentObject(cmd.intParams[1], 0); // 0 is for background texture on 2DElement
-                if (cmd.intParams[0] == TEXTURE_ID_OPENGL_GUI_BUTTON)
-                {
-                    CButtonBlock* block = App::scene->buttonBlockContainer_old->getBlockWithID(cmd.intParams[1]);
-                    CSoftButton* butt = block->getButtonWithID(cmd.intParams[2]);
-                    textureObj->addDependentObject(cmd.intParams[1], butt->getUniqueID()); // Unique ID starts exceptionnally at 1
-                }
-            }
-            int textureID = App::scene->textures->addObject(
-                textureObj, false); // might erase the textureObj and return a similar object already present!!
+            int textureID = App::scene->textures->addObject(textureObj, false); // might erase the textureObj and return a similar object already present!!
             CTextureProperty* tp = new CTextureProperty(textureID);
             if (geom != nullptr)
                 geom->setTextureProperty(tp);
-            else
-            {
-                tp->setApplyMode(1); // 13/1/2012
-                CButtonBlock* block = App::scene->buttonBlockContainer_old->getBlockWithID(cmd.intParams[1]);
-                if (cmd.intParams[0] == TEXTURE_ID_OPENGL_GUI_BACKGROUND)
-                    block->setTextureProperty(tp);
-                if (cmd.intParams[0] == TEXTURE_ID_OPENGL_GUI_BUTTON)
-                {
-                    CSoftButton* butt = block->getButtonWithID(cmd.intParams[2]);
-                    butt->setTextureProperty(tp);
-                }
-            }
         }
     }
     if (cmd.cmdId == SELECT_REMOVE_TEXTUREGUITRIGGEREDCMD)
@@ -2730,80 +2706,20 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         bool valid = false;
         bool is3D = false;
         int tObject = cmd.intParams[3];
-        CTextureProperty* tp = GuiApp::getTexturePropertyPointerFromItem(
-            cmd.intParams[0], cmd.intParams[1], cmd.intParams[2], nullptr, &is3D, &valid, &geom);
+        CTextureProperty* tp = GuiApp::getTexturePropertyPointerFromItem(cmd.intParams[0], cmd.intParams[1], cmd.intParams[2], nullptr, &is3D, &valid, &geom);
         if (valid)
         {
             if (geom != nullptr)
             {
                 if (tp != nullptr)
                 { // remove the texture
-                    App::scene->textures->announceGeneralObjectWillBeErased(cmd.intParams[1], geom->getObjectHandle());
-                    delete tp;
-                    geom->setTextureProperty(nullptr);
+                    geom->setTextureObject(-1);
                 }
                 else
                 { // add an existing texture
-                    if (tObject != -1)
-                    {
-                        if (tObject > sim_object_sceneobjectend)
-                        {
-                            CTextureObject* to = App::scene->textures->getObject(tObject);
-                            to->addDependentObject(cmd.intParams[1], geom->getObjectHandle());
-                            tp = new CTextureProperty(tObject);
-                            geom->setTextureProperty(tp);
-                            tp->setTextureObjectHandle(tObject);
-                        }
-                    }
-                }
-            }
-            if (cmd.intParams[0] == TEXTURE_ID_OPENGL_GUI_BACKGROUND)
-            {
-                CButtonBlock* block = App::scene->buttonBlockContainer_old->getBlockWithID(cmd.intParams[1]);
-                if (tp != nullptr)
-                { // remove the texture
-                    App::scene->textures->announceGeneralObjectWillBeErased(cmd.intParams[1], 0);
-                    delete tp;
-                    block->setTextureProperty(nullptr);
-                }
-                else
-                { // add an existing texture
-                    if (tObject != -1)
-                    {
-                        if (tObject > sim_object_sceneobjectend)
-                        {
-                            CTextureObject* to = App::scene->textures->getObject(tObject);
-                            to->addDependentObject(cmd.intParams[1], 0);
-                        }
-                        tp = new CTextureProperty(tObject);
-                        tp->setApplyMode(1); // 13/1/2012
-                        block->setTextureProperty(tp);
-                    }
-                }
-            }
-            if (cmd.intParams[0] == TEXTURE_ID_OPENGL_GUI_BUTTON)
-            { // texture is linked to a 2DElement button
-                CButtonBlock* block = App::scene->buttonBlockContainer_old->getBlockWithID(cmd.intParams[1]);
-                CSoftButton* button = block->getButtonWithID(cmd.intParams[2]);
-                if (tp != nullptr)
-                { // remove the texture
-                    App::scene->textures->announceGeneralObjectWillBeErased(cmd.intParams[1], cmd.intParams[2]);
-                    delete tp;
-                    button->setTextureProperty(nullptr);
-                }
-                else
-                { // add an existing texture
-                    if (tObject != -1)
-                    {
-                        if (tObject > sim_object_sceneobjectend)
-                        {
-                            CTextureObject* to = App::scene->textures->getObject(tObject);
-                            to->addDependentObject(cmd.intParams[1], cmd.intParams[2]);
-                        }
-                        tp = new CTextureProperty(tObject);
-                        tp->setApplyMode(1); // 13/1/2012
-                        button->setTextureProperty(tp);
-                    }
+                    CTextureObject* to = App::scene->textures->getObject(tObject);
+                    if (to != nullptr)
+                        geom->setTextureObject(tObject);
                 }
             }
         }

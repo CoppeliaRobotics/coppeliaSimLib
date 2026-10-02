@@ -170,6 +170,18 @@ void CMesh::announceSceneObjectWillBeErased(const CSceneObject* object)
     }
 }
 
+void CMesh::announceTextureWillBeErased(int64_t textureHandle)
+{ // function has virtual/non-virtual counterpart!
+    if (_textureProperty != nullptr)
+    {
+        if (int64_t(_textureProperty->getTextureObjectHandle()) == textureHandle)
+        {
+            delete _textureProperty;
+            _textureProperty = nullptr;
+        }
+    }
+}
+
 void CMesh::setTextureDependencies(int shapeID)
 { // function has virtual/non-virtual counterpart!
     if (_textureProperty != nullptr)
@@ -553,28 +565,31 @@ void CMesh::pushGenesisOrChangeEvent(int shapeHandle, int shapeUid, const CPose&
 
 
         if (eventType < 3)
-        {
-            CTextureObject* to = nullptr;
-            const std::vector<float>* tc = nullptr;
+        { // now texture related
+            const std::vector<float> _tc;
+            const std::vector<float>* tc = &_tc;
+            int applyM = 0;
+            bool repeatU = false;
+            bool repeatV = false;
+            bool interpol = false;
+            int toHandle = -1;
             if (_textureProperty != nullptr)
             {
-                to = _textureProperty->getTextureObject();
-                tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
+                auto t = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
+                if (t != nullptr)
+                    tc = t;
+                applyM =  _textureProperty->getApplyMode();
+                repeatU = _textureProperty->getRepeatU();
+                repeatV = _textureProperty->getRepeatV();
+                interpol = _textureProperty->getInterpolateColors();
+                toHandle = _textureProperty->getTextureObjectHandle();
             }
-
-            if ((to != nullptr) && (tc != nullptr))
-            {
-                int tRes[2];
-                to->getTextureSize(tRes[0], tRes[1]);
-                ev->appendKeyUint8Array(prop(PropMesh::texture).name, to->getTextureBufferPointer(), tRes[1] * tRes[0] * 4);
-                ev->appendKeyInt32Array(prop(PropMesh::textureResolution).name, tRes, 2);
-                ev->appendKeyFloatArray(prop(PropMesh::textureCoordinates).name, tc->data(), tc->size());
-                ev->appendKeyInt64(prop(PropMesh::textureApplyMode).name, _textureProperty->getApplyMode());
-                ev->appendKeyBool(prop(PropMesh::textureRepeatU).name, _textureProperty->getRepeatU());
-                ev->appendKeyBool(prop(PropMesh::textureRepeatV).name, _textureProperty->getRepeatV());
-                ev->appendKeyBool(prop(PropMesh::textureInterpolate).name, _textureProperty->getInterpolateColors());
-                ev->appendKeyInt64(prop(PropMesh::textureID).name, _textureProperty->getTextureObjectHandle());
-            }
+            ev->appendKeyFloatArray(prop(PropMesh::textureCoordinates).name, tc->data(), tc->size());
+            ev->appendKeyInt64(prop(PropMesh::textureApplyMode).name, applyM);
+            ev->appendKeyBool(prop(PropMesh::textureRepeatU).name, repeatU);
+            ev->appendKeyBool(prop(PropMesh::textureRepeatV).name, repeatV);
+            ev->appendKeyBool(prop(PropMesh::textureInterpolate).name, interpol);
+            ev->appendKeyHandle(prop(PropMesh::texture).name, toHandle);
         }
 
         color.addGenesisEventData(ev);
@@ -1021,6 +1036,35 @@ CTextureProperty* CMesh::getTextureProperty()
 void CMesh::setTextureProperty(CTextureProperty* tp)
 { // careful, this doesn't check if a _textureProperty already exists! Has to be done and destroyed outside!
     _textureProperty = tp;
+}
+
+void CMesh::setTextureObject(int h)
+{
+    int current = -1;
+    if (_textureProperty != nullptr)
+        current = _textureProperty->getTextureObjectHandle();
+    bool diff = (current != h);
+    if (diff)
+    {
+        if (h >= 0)
+        {
+            if (_textureProperty == nullptr)
+                _textureProperty = new CTextureProperty(int(h));
+            _textureProperty->setTextureObjectHandle(int(h));
+        }
+        else
+        {
+            delete _textureProperty;
+            _textureProperty = nullptr;
+        }
+        if ((_isInSceneShapeHandle != -1) && App::scenes->getEventsEnabled())
+        {
+            const char* cmd = prop(PropMesh::texture).name;
+            CCbor* ev = App::scenes->createObjectChangedEvent(_objectHandle, cmd, true);
+            ev->appendKeyBool(cmd, _visibleEdges);
+            App::scenes->pushEvent();
+        }
+    }
 }
 
 void CMesh::setInsideAndOutsideFacesSameColor_DEPRECATED(bool s)
@@ -2685,8 +2729,7 @@ void CMesh::display_extRenderer(const CPose& cumulIFrameTr, CShape* geomData, in
         data[29] = &povMaterial;
 
         CTextureProperty* tp = _textureProperty;
-        if ((!App::scene->environment->getShapeTexturesEnabled()) ||
-            CEnvironment::getShapeTexturesTemporarilyDisabled())
+        if ((!App::scene->environment->getShapeTexturesEnabled()) || CEnvironment::getShapeTexturesTemporarilyDisabled())
             tp = nullptr;
         bool textured = false;
         std::vector<float>* textureCoords = nullptr;
@@ -3017,15 +3060,7 @@ int CMesh::getIntProperty_mesh(const char* ppName, int& pState, const CPose& sha
     const char* pName = ppName;
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, prop(PropMesh::textureID).name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        if (_textureProperty != nullptr)
-            pState = _textureProperty->getTextureObjectHandle();
-        else
-            pState = -1;
-    }
-    else if (strcmp(pName, prop(PropMesh::textureApplyMode).name) == 0)
+    if (strcmp(pName, prop(PropMesh::textureApplyMode).name) == 0)
     {
         retVal = sim_propertyret_ok;
         if (_textureProperty != nullptr)
@@ -3054,6 +3089,19 @@ int CMesh::getLongProperty_mesh(const char* ppName, int64_t& pState, const CPose
     return retVal;
 }
 
+int CMesh::setHandleProperty_mesh(const char* pName, int64_t pState, const CPose& shapeRelTr)
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (strcmp(pName, prop(PropMesh::texture).name) == 0)
+    {
+        setTextureObject(pState);
+        retVal = sim_propertyret_ok;
+    }
+
+    return retVal;
+}
+
 int CMesh::getHandleProperty_mesh(const char* ppName, int64_t& pState, const CPose& shapeRelTr) const
 {
     const char* pName = ppName;
@@ -3063,6 +3111,14 @@ int CMesh::getHandleProperty_mesh(const char* ppName, int64_t& pState, const CPo
     {
         retVal = sim_propertyret_ok;
         pState = _isInSceneShapeHandle;
+    }
+    else if (strcmp(pName, prop(PropMesh::texture).name) == 0)
+    {
+        retVal = sim_propertyret_ok;
+        if (_textureProperty != nullptr)
+            pState = _textureProperty->getTextureObjectHandle();
+        else
+            pState = -1;
     }
 
     return retVal;
@@ -3169,7 +3225,7 @@ int CMesh::getBufferProperty_mesh(const char* ppName, std::string& pState, const
     const char* pName = ppName;
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, prop(PropMesh::texture).name) == 0)
+    if (strcmp(pName, prop(PropMesh::DEPRECATED_texture).name) == 0)
     {
         retVal = sim_propertyret_ok;
         if (_textureProperty != nullptr)
@@ -3198,7 +3254,7 @@ int CMesh::getIntArray2Property_mesh(const char* ppName, int* pState, const CPos
     const char* pName = ppName;
     int retVal = sim_propertyret_unknownproperty;
 
-    if (strcmp(pName, prop(PropMesh::textureResolution).name) == 0)
+    if (strcmp(pName, prop(PropMesh::DEPRECATED_textureResolution).name) == 0)
     {
         retVal = sim_propertyret_ok;
         if (_textureProperty != nullptr)
@@ -3454,7 +3510,7 @@ int CMesh::getPropertyInfo(const char* ppName, int& info, std::string& infoTxt) 
                 if (tc->size() > LARGE_PROPERTY_SIZE)
                     info = info | sim_propertyinfo_largedata;
             }
-            else if ((_pName == prop(PropMesh::texture).name) && (_textureProperty != nullptr))
+            else if ((_pName == prop(PropMesh::DEPRECATED_texture).name) && (_textureProperty != nullptr))
             {
                 int ts[2];
                 _textureProperty->getTextureObject()->getTextureSize(ts[0], ts[1]);

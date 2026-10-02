@@ -4203,6 +4203,10 @@ void CSceneObject::announceScriptWillBeErased(int scriptOrnakedScriptHandle, boo
 {
 }
 
+void CSceneObject::announceTextureWillBeErased(int64_t textureHandle, bool copyBuffer)
+{
+}
+
 void CSceneObject::announceIkObjectWillBeErased(int ikGroupID, bool copyBuffer)
 {
     // This routine can be called for sceneObjects-objects, but also for objects

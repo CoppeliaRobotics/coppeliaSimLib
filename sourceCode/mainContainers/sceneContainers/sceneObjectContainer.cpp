@@ -96,6 +96,16 @@ void CSceneObjectContainer::sensingAboutToStart()
         getObjectFromIndex(i)->measureVelocity(dt); // adapt that func!
 }
 
+void CSceneObjectContainer::announceTextureWillBeErased(CTextureObject* object)
+{
+    TRACE_INTERNAL;
+    for (size_t i = 0; i < getObjectCount(); i++)
+    {
+        CSceneObject* it = getObjectFromIndex(i);
+        it->announceTextureWillBeErased(object->getObjectHandle(), false);
+    }
+}
+
 void CSceneObjectContainer::announceSceneObjectWillBeErased(CSceneObject* object)
 {
     TRACE_INTERNAL;
@@ -4662,7 +4672,7 @@ int CSceneObjectContainer::setHandleProperty_t(int64_t target, const char* pName
             CPose shapeRelTr;
             CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
             if (mesh != nullptr)
-                return sim_propertyret_unknownproperty;
+                return mesh->setHandleProperty_mesh(pName, pState, shapeRelTr);
         }
         retVal = sim_propertyret_unknowntarget;
     }

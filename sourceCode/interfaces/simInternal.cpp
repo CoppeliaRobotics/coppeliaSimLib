@@ -10117,7 +10117,7 @@ unsigned char* simReadTexture_internal(int textureId, int options, int posX, int
                     posY = 0;
                     sizeY = resY;
                 }
-                unsigned char* retVal = to->readPortionOfTexture(posX, posY, sizeX, sizeY);
+                unsigned char* retVal = to->readPortionOfTexture("rgb", posX, posY, sizeX, sizeY);
                 return (retVal);
             }
             else
@@ -10155,8 +10155,7 @@ int simWriteTexture_internal(int textureId, int options, const char* data, int p
                     sizeY = resY;
                 }
                 int retVal = -1;
-                if (to->writePortionOfTexture((unsigned char*)data, posX, posY, sizeX, sizeY, (options & 4) != 0,
-                                              interpol))
+                if (to->writePortionOfTexture((unsigned char*)data, "rgb", posX, posY, sizeX, sizeY, (options & 4) != 0, interpol))
                     retVal = 1;
                 return (retVal);
             }
@@ -10516,7 +10515,7 @@ int simSetShapeTexture_internal(int shapeHandle, int textureId, int mappingMode,
                 CTextureProperty* tp = mesh->getTextureProperty();
                 if (tp != nullptr)
                 { // first remove any existing texture:
-                    //         App::scene->textureContainer->announceGeneralObjectWillBeErased(shape->getObjectHandle(),-1);
+                    //         App::scene->textureContainer->announceSceneObjectWillBeErased(shape->getObjectHandle(),-1);
                     delete tp;
                     mesh->setTextureProperty(nullptr);
                 }
@@ -13439,7 +13438,7 @@ int simApplyTexture_internal(int shapeHandle, const double* textureCoordinates, 
                 CTextureProperty* tp = shape->getSingleMesh()->getTextureProperty();
                 if (tp != nullptr)
                 {
-                    App::scene->textures->announceGeneralObjectWillBeErased(shape->getObjectHandle(), -1);
+                    App::scene->textures->announceSceneObjectWillBeErased(shape->getObjectHandle(), -1);
                     delete tp;
                     shape->getSingleMesh()->setTextureProperty(nullptr);
                 }

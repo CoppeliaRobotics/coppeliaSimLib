@@ -147,6 +147,12 @@ void CMeshWrapper::announceSceneObjectWillBeErased(const CSceneObject* object)
         childList[i]->announceSceneObjectWillBeErased(object);
 }
 
+void CMeshWrapper::announceTextureWillBeErased(int64_t textureHandle)
+{ // function has virtual/non-virtual counterpart!
+    for (size_t i = 0; i < childList.size(); i++)
+        childList[i]->announceTextureWillBeErased(textureHandle);
+}
+
 void CMeshWrapper::setTextureDependencies(int shapeID)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)

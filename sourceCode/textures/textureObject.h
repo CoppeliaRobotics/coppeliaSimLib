@@ -23,15 +23,15 @@ class CTextureObject : public Obj
     const unsigned char* getTextureBufferPointer() const;
     void lightenUp();
     void setRandomContent();
+    void pushCreationEvent();
 
-    bool announceGeneralObjectWillBeErased(int64_t objectID, int64_t subObjectID);
+    bool announceSceneObjectWillBeErased(int64_t objectHandle, int64_t meshHandle);
     void addDependentObject(int64_t objectID, int64_t subObjectID);
     void clearAllDependencies();
     void transferDependenciesToThere(CTextureObject* receivingObject);
 
-    unsigned char* readPortionOfTexture(int posX, int posY, int sizeX, int sizeY) const;
-    bool writePortionOfTexture(const unsigned char* rgbData, int posX, int posY, int sizeX, int sizeY, bool circular,
-                               double interpol);
+    unsigned char* readPortionOfTexture(const char* type, int posX, int posY, int sizeX, int sizeY) const;
+    bool writePortionOfTexture(const unsigned char* data, const char* type, int posX, int posY, int sizeX, int sizeY, bool circular, double interpol);
 
     unsigned int getCurrentTextureContentUniqueId() const;
 
@@ -54,7 +54,7 @@ class CTextureObject : public Obj
     bool _changedFlag;
     unsigned int _currentTextureContentUniqueId;
 
-    std::vector<int64_t> _dependentObjects;
-    std::vector<int64_t> _dependentSubObjects;
+    std::vector<int64_t> _dependentShapes;
+    std::vector<int64_t> _dependentMeshes;
     static unsigned int _textureContentUniqueId;
 };

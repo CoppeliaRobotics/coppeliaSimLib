@@ -866,9 +866,7 @@ int CScene::addGeneralObjectsToSceneAndPerformMappings(
     for (size_t i = 0; i < loadedTextureObjectList.size(); i++)
     {
         int oldHandle = int(loadedTextureObjectList[i]->getObjectHandle());
-        CTextureObject* handler = textures->getObject(textures->addObjectWithSuffixOffset(
-            loadedTextureObjectList[i], objectIsACopy,
-            suffixOffset)); // if a same object is found, the object is destroyed in addObject!
+        CTextureObject* handler = textures->getObject(textures->addObjectWithSuffixOffset(loadedTextureObjectList[i], objectIsACopy, suffixOffset)); // if a same object is found, the object is destroyed in addObject!
         if (handler != loadedTextureObjectList[i])
             loadedTextureObjectList[i] = handler; // this happens when a similar object is already present
         textureMapping[oldHandle] = int(handler->getObjectHandle());
@@ -1051,7 +1049,6 @@ int CScene::addGeneralObjectsToSceneAndPerformMappings(
     // We set ALL texture object dependencies (not just for loaded objects):
     // We cannot use textureCont->updateAllDependencies, since the shape list is not yet actualized!
     textures->clearAllDependencies();
-    buttonBlockContainer_old->setTextureDependencies();
     sceneObjects->setTextureDependencies();
 
     sceneObjects->enableObjectActualization(true);
@@ -1187,11 +1184,16 @@ void CScene::cleanupHashNames_allObjects(int suffix)
     }
 }
 
+void CScene::announceTextureWillBeErased(CTextureObject* object)
+{
+    sceneObjects->announceTextureWillBeErased(object);
+}
+
 void CScene::announceSceneObjectWillBeErased(CSceneObject* object)
 {
     App::announceObjectWillBeErased(object->getObjectHandle());
     sceneObjects->announceSceneObjectWillBeErased(object);
-    textures->announceGeneralObjectWillBeErased(object->getObjectHandle(), -1);
+    textures->announceSceneObjectWillBeErased(object->getObjectHandle(), -1);
     pages->announceObjectWillBeErased(object->getObjectHandle()); // might trigger a view destruction!
 
     // Old:
@@ -1251,6 +1253,7 @@ void CScene::pushGenesisEvents()
     if (App::scenes->getEventsEnabled())
     {
         sceneObjects->embeddedScriptContainer->pushMainScriptGenesisEvent(); // first
+        textures->pushGenesisEvents();
 
         CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, false);
         Obj::pushNakedGenesisEvents(ev);
@@ -1305,14 +1308,10 @@ void CScene::announceDistanceWillBeErased(int distanceHandle)
 
 void CScene::announce2DElementWillBeErased(int elementID)
 {
-    if (textures != nullptr)
-        textures->announceGeneralObjectWillBeErased(elementID, -1);
 }
 
 void CScene::announce2DElementButtonWillBeErased(int elementID, int buttonID)
 {
-    if (textures != nullptr)
-        textures->announceGeneralObjectWillBeErased(elementID, buttonID);
 }
 // -----------
 
@@ -1916,7 +1915,10 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
     sceneObjects->setScriptsTemporarilySuspended(false);
     App::scenes->enableEvents();
     if (!isScene)
+    {
+        textures->pushGenesisEvents(&loadedTextureList);
         sceneObjects->pushGenesisEvents_someObjects(newObjects); // scene load gets the genesis event anyways
+    }
     return true;
 }
 
@@ -4139,6 +4141,10 @@ int CScene::getPropertyName_t(int64_t target, int& index, std::string& pName, st
     {
         retVal = collections->getPropertyName_t(target, index, pName, appartenance, excludeFlags);
     }
+    else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend))
+    {
+        retVal = textures->getPropertyName_t(target, index, pName, appartenance, excludeFlags);
+    }
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
         retVal = drawingCont_old->getPropertyName_t(target, index, pName, appartenance, excludeFlags);
@@ -4219,6 +4225,8 @@ int CScene::getPropertyInfo_t(int64_t target, const char* ppName, int& info, std
         retVal = sceneObjects->getPropertyInfo_t(target, ppName, info, infoTxt);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
         retVal = collections->getPropertyInfo_t(target, ppName, info, infoTxt);
+    else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend))
+        retVal = textures->getPropertyInfo_t(target, ppName, info, infoTxt);
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
         retVal = drawingCont_old->getPropertyInfo_t(target, ppName, info, infoTxt);
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
@@ -4237,6 +4245,8 @@ int CScene::setPropertyInfo_t(int64_t target, const char* pName, int info, const
     else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
         retVal = sceneObjects->setPropertyInfo_t(target, pName, info, infoTxt);
     else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
+        retVal = sim_propertyret_unavailable;
+    else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend))
         retVal = sim_propertyret_unavailable;
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
         retVal = sim_propertyret_unavailable;

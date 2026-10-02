@@ -280,6 +280,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene, int selectionMode)
     App::scenes->interfaceStackContainer->destroyStack(stack);
 
     App::scenes->enableEvents();
+    App::scene->textures->pushGenesisEvents(&textureObjectCopy);
     App::scene->sceneObjects->pushGenesisEvents_someObjects(objectCopy);
 
     return (1);
@@ -1111,7 +1112,7 @@ void CCopyBuffer::_announceObjectWillBeErased(const CSceneObject* object)
     while (i < textureObjectBuffer.size())
     {
         CTextureObject* it = textureObjectBuffer[i];
-        if (it->announceGeneralObjectWillBeErased(object->getObjectHandle(), -1))
+        if (it->announceSceneObjectWillBeErased(object->getObjectHandle(), -1))
         {
             _eraseTextureObjectInBuffer(int(it->getObjectHandle()));
             i = 0; // Ordering may have changed!
@@ -1291,21 +1292,3 @@ void CCopyBuffer::_announceDistanceWillBeErased(int distanceID)
                                                       true); // this never triggers scene object destruction!
 }
 
-// Not supported anymore for copy/paste operations:
-/*
-void CCopyBuffer::_announce2DElementWillBeErased(int elementID)
-{ // Old
-    size_t i = 0;
-    while (i < textureObjectBuffer.size())
-    {
-        CTextureObject* it = textureObjectBuffer[i];
-        if (it->announceGeneralObjectWillBeErased(elementID, -1))
-        {
-            _eraseTextureObjectInBuffer(it->getObjectID());
-            i = 0; // Ordering may have changed!
-        }
-        else
-            i++;
-    }
-}
-*/

@@ -1512,8 +1512,6 @@ enum
 { // texture type ids, not serialized
     TEXTURE_ID_SIMPLE_SHAPE = 0,
     TEXTURE_ID_COMPOUND_SHAPE,
-    TEXTURE_ID_OPENGL_GUI_BACKGROUND,
-    TEXTURE_ID_OPENGL_GUI_BUTTON,
 };
 
 enum

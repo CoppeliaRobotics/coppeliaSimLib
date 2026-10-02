@@ -431,6 +431,7 @@ int CTextureProperty::getTextureObjectHandle() const
 
 void CTextureProperty::setTextureObjectHandle(int id)
 {
+//    reflect change in textureContainer
     _textureObjectHandle = id;
 }
 
@@ -450,6 +451,17 @@ bool CTextureProperty::announceObjectWillBeErased(const CSceneObject* object)
         (_textureObjectHandle <= sim_object_sceneobjectend))
         return (_textureObjectHandle == object->getObjectHandle());
     return false;
+}
+
+bool CTextureProperty::announceTextureWillBeErased(int64_t textureHandle)
+{
+    bool retVal = false;
+    if (_textureObjectHandle == textureHandle)
+    {
+        _textureObjectHandle = -1;
+        retVal = true;
+    }
+    return retVal;
 }
 
 void CTextureProperty::performObjectLoadingMapping(const std::map<int, int>* map)

@@ -123,42 +123,39 @@ void CTextureObject::setImage(bool rgba, bool horizFlip, bool vertFlip, const un
     _currentTextureContentUniqueId = _textureContentUniqueId++;
 }
 
-bool CTextureObject::announceGeneralObjectWillBeErased(int64_t objectID, int64_t subObjectID)
+bool CTextureObject::announceSceneObjectWillBeErased(int64_t objectHandle, int64_t meshHandle)
 { // return value true means this object needs destruction!
-    for (int i = 0; i < int(_dependentObjects.size()); i++)
+    for (int i = 0; i < int(_dependentShapes.size()); i++)
     {
-        if (_dependentObjects[i] == objectID)
+        if ((_dependentShapes[i] == objectHandle) || (_dependentMeshes[i] == meshHandle))
         {
-            if ((subObjectID == -1) || (subObjectID == _dependentSubObjects[i]))
-            {
-                _dependentObjects.erase(_dependentObjects.begin() + i);
-                _dependentSubObjects.erase(_dependentSubObjects.begin() + i);
-                i--; // we have to reprocess this position!
-            }
+            _dependentShapes.erase(_dependentShapes.begin() + i);
+            _dependentMeshes.erase(_dependentMeshes.begin() + i);
+            i--; // we have to reprocess this position!
         }
     }
-    return (_dependentObjects.size() == 0);
+    return (_dependentShapes.size() == 0);
 }
 
 void CTextureObject::transferDependenciesToThere(CTextureObject* receivingObject)
 {
-    for (size_t i = 0; i < _dependentObjects.size(); i++)
-        receivingObject->_dependentObjects.push_back(_dependentObjects[i]);
-    for (size_t i = 0; i < _dependentSubObjects.size(); i++)
-        receivingObject->_dependentSubObjects.push_back(_dependentSubObjects[i]);
+    for (size_t i = 0; i < _dependentShapes.size(); i++)
+        receivingObject->_dependentShapes.push_back(_dependentShapes[i]);
+    for (size_t i = 0; i < _dependentMeshes.size(); i++)
+        receivingObject->_dependentMeshes.push_back(_dependentMeshes[i]);
     clearAllDependencies();
 }
 
 void CTextureObject::addDependentObject(int64_t objectID, int64_t subObjectID)
 {
-    _dependentObjects.push_back(objectID);
-    _dependentSubObjects.push_back(subObjectID);
+    _dependentShapes.push_back(objectID);
+    _dependentMeshes.push_back(subObjectID);
 }
 
 void CTextureObject::clearAllDependencies()
 {
-    _dependentObjects.clear();
-    _dependentSubObjects.clear();
+    _dependentShapes.clear();
+    _dependentMeshes.clear();
 }
 
 bool CTextureObject::isSame(const CTextureObject* obj) const
@@ -259,150 +256,200 @@ CTextureObject* CTextureObject::copyYourself() const
     newObj->_changedFlag = true;
     newObj->_currentTextureContentUniqueId = _textureContentUniqueId++;
 
-    newObj->_dependentObjects.assign(_dependentObjects.begin(), _dependentObjects.end());
-    newObj->_dependentSubObjects.assign(_dependentSubObjects.begin(), _dependentSubObjects.end());
+    newObj->_dependentShapes.assign(_dependentShapes.begin(), _dependentShapes.end());
+    newObj->_dependentMeshes.assign(_dependentMeshes.begin(), _dependentMeshes.end());
 
     return (newObj);
 }
 
-unsigned char* CTextureObject::readPortionOfTexture(int posX, int posY, int sizeX, int sizeY) const
+unsigned char* CTextureObject::readPortionOfTexture(const char* type, int posX, int posY, int sizeX, int sizeY) const
 {
-    if ((posX < 0) || (posY < 0) || (sizeX < 1) || (sizeY < 1) || (posX + sizeX > _textureSize[0]) ||
-        (posY + sizeY > _textureSize[1]))
-        return (nullptr);
-    unsigned char* buff;
-    buff = new unsigned char[sizeX * sizeY * 3];
-    int p = 0;
-    int resX = _textureSize[0];
-    for (int j = posY; j < posY + sizeY; j++)
+    if ((type == nullptr) || (sizeX < 1) || (sizeY < 1))
+        return nullptr;
+
+           // Destination format
+    int channels; // bytes per pixel in returned buffer
+    if (std::strcmp(type, "rgba") == 0)
+        channels = 4;
+    else if (std::strcmp(type, "rgb") == 0)
+        channels = 3;
+    else if (std::strcmp(type, "grey") == 0)
+        channels = 1;
+    else
+        return nullptr;
+
+    const int resX = _textureSize[0];
+    const int resY = _textureSize[1];
+
+           // Zero-initialized: pixels outside the texture are black (alpha 0 for RGBA)
+    unsigned char* buff = new unsigned char[size_t(sizeX) * sizeY * channels]();
+
+           // Intersection of the requested region with the texture, in texture coordinates
+    const int x0 = std::max(posX, 0);
+    const int y0 = std::max(posY, 0);
+    const int x1 = std::min(posX + sizeX, resX);
+    const int y1 = std::min(posY + sizeY, resY);
+    if ((x0 >= x1) || (y0 >= y1))
+        return buff; // no overlap: fully black
+
+    const int copyWidth = x1 - x0;
+    const unsigned char* texData = _textureBuffer.data();
+
+    for (int j = y0; j < y1; j++)
     {
-        for (int i = posX; i < posX + sizeX; i++)
+        const unsigned char* src = texData + 4 * (size_t(j) * resX + x0);
+        unsigned char* dst = buff + channels * (size_t(j - posY) * sizeX + (x0 - posX));
+
+        switch (channels)
         {
-            buff[3 * p + 0] = _textureBuffer[4 * (j * resX + i) + 0];
-            buff[3 * p + 1] = _textureBuffer[4 * (j * resX + i) + 1];
-            buff[3 * p + 2] = _textureBuffer[4 * (j * resX + i) + 2];
-            p++;
+        case 4: // same layout: copy whole row segment
+            std::memcpy(dst, src, size_t(copyWidth) * 4);
+            break;
+        case 3:
+            for (int i = 0; i < copyWidth; i++)
+            {
+                dst[3 * i + 0] = src[4 * i + 0];
+                dst[3 * i + 1] = src[4 * i + 1];
+                dst[3 * i + 2] = src[4 * i + 2];
+            }
+            break;
+        default: // grey: rounded average of R, G and B
+            for (int i = 0; i < copyWidth; i++)
+            {
+                const int sum = src[4 * i + 0] + src[4 * i + 1] + src[4 * i + 2];
+                dst[i] = (unsigned char)((sum + 1) / 3);
+            }
+            break;
         }
     }
-    return (buff);
+    return buff;
 }
 
-bool CTextureObject::writePortionOfTexture(const unsigned char* rgbData, int posX, int posY, int sizeX, int sizeY, bool circular, double interpol)
+bool CTextureObject::writePortionOfTexture(const unsigned char* data, const char* type, int posX, int posY, int sizeX, int sizeY, bool circular, double interpol)
 {
-    int p = 0;
-    int resX = _textureSize[0];
-    int resY = _textureSize[1];
-    if (interpol == 0.0)
+    // Source format
+    int srcChannels; // bytes per pixel in source data
+    int dstChannels; // texture channels written (texture always has 4)
+    bool grey = false;
+    if (type == nullptr)
+        return false;
+    if (std::strcmp(type, "rgba") == 0)
     {
-        if (circular)
-        { // circular
-            int hx = posX + sizeX / 2;
-            int hy = posY + sizeY / 2;
-            for (int j = posY; j < posY + sizeY; j++)
-            {
-                if ((j >= 0) && (j < resY))
-                {
-                    double dy = double(hy - j) / double(sizeY / 2);
-                    double dy2 = dy * dy;
-                    for (int i = posX; i < posX + sizeX; i++)
-                    {
-                        if ((i >= 0) && (i < resX))
-                        {
-                            double dx = double(hx - i) / double(sizeX / 2);
-                            double dx2 = dx * dx;
-                            if (dx2 + dy2 <= 1.0)
-                            {
-                                _textureBuffer[4 * (j * resX + i) + 0] = rgbData[3 * p + 0];
-                                _textureBuffer[4 * (j * resX + i) + 1] = rgbData[3 * p + 1];
-                                _textureBuffer[4 * (j * resX + i) + 2] = rgbData[3 * p + 2];
-                            }
-                        }
-                        p++;
-                    }
-                }
-                else
-                    p += sizeX;
-            }
-        }
-        else
-        {
-            for (int j = posY; j < posY + sizeY; j++)
-            {
-                if ((j >= 0) && (j < resY))
-                {
-                    for (int i = posX; i < posX + sizeX; i++)
-                    {
-                        if ((i >= 0) && (i < resX))
-                        {
-                            _textureBuffer[4 * (j * resX + i) + 0] = rgbData[3 * p + 0];
-                            _textureBuffer[4 * (j * resX + i) + 1] = rgbData[3 * p + 1];
-                            _textureBuffer[4 * (j * resX + i) + 2] = rgbData[3 * p + 2];
-                        }
-                        p++;
-                    }
-                }
-                else
-                    p += sizeX;
-            }
-        }
+        srcChannels = 4;
+        dstChannels = 4;
+    }
+    else if (std::strcmp(type, "rgb") == 0)
+    {
+        srcChannels = 3;
+        dstChannels = 3;
+    }
+    else if (std::strcmp(type, "grey") == 0)
+    {
+        srcChannels = 1;
+        dstChannels = 3; // grey value replicated to R, G and B
+        grey = true;
     }
     else
+        return false;
+
+    const int resX = _textureSize[0];
+    const int resY = _textureSize[1];
+
+           // Intersection of the source region with the texture, in texture coordinates
+    const int x0 = std::max(posX, 0);
+    const int y0 = std::max(posY, 0);
+    const int x1 = std::min(posX + sizeX, resX);
+    const int y1 = std::min(posY + sizeY, resY);
+
+           // Circle parameters (integer halves, as in the original)
+    const int halfX = sizeX / 2;
+    const int halfY = sizeY / 2;
+    // A circle with a zero half-size never wrote anything in the original (division by 0 -> inf/NaN)
+    const bool degenerateCircle = circular && ((halfX == 0) || (halfY == 0));
+
+    if ((x0 < x1) && (y0 < y1) && !degenerateCircle)
     {
-        double interpolI = 1.0 - interpol;
-        if (circular)
-        { // circular
-            int hx = posX + sizeX / 2;
-            int hy = posY + sizeY / 2;
-            for (int j = posY; j < posY + sizeY; j++)
-            {
-                if ((j >= 0) && (j < resY))
-                {
-                    double dy = double(hy - j) / double(sizeY / 2);
-                    double dy2 = dy * dy;
-                    for (int i = posX; i < posX + sizeX; i++)
-                    {
-                        if ((i >= 0) && (i < resX))
-                        {
-                            double dx = double(hx - i) / double(sizeX / 2);
-                            double dx2 = dx * dx;
-                            if (dx2 + dy2 <= 1.0)
-                            {
-                                _textureBuffer[4 * (j * resX + i) + 0] = rgbData[3 * p + 0] * interpolI + _textureBuffer[4 * (j * resX + i) + 0] * interpol;
-                                _textureBuffer[4 * (j * resX + i) + 1] = rgbData[3 * p + 1] * interpolI + _textureBuffer[4 * (j * resX + i) + 1] * interpol;
-                                _textureBuffer[4 * (j * resX + i) + 2] = rgbData[3 * p + 2] * interpolI + _textureBuffer[4 * (j * resX + i) + 2] * interpol;
-                            }
-                        }
-                        p++;
-                    }
-                }
-                else
-                    p += sizeX;
-            }
-        }
-        else
+        const int copyWidth = x1 - x0;
+        const int hx = posX + halfX;
+        const int hy = posY + halfY;
+        const bool blend = (interpol != 0.0);
+        const double interpolI = 1.0 - interpol;
+        const bool fastCopy = !circular && !blend && (srcChannels == 4);
+        unsigned char* texData = _textureBuffer.data();
+
+        for (int j = y0; j < y1; j++)
         {
-            for (int j = posY; j < posY + sizeY; j++)
+            const unsigned char* srcRow = data + srcChannels * (size_t(j - posY) * sizeX + (x0 - posX));
+            unsigned char* dstRow = texData + 4 * (size_t(j) * resX + x0);
+
+                   // Fast path: plain rectangular RGBA copy of the whole row segment
+            if (fastCopy)
             {
-                if ((j >= 0) && (j < resY))
+                std::memcpy(dstRow, srcRow, size_t(copyWidth) * 4);
+                continue;
+            }
+
+            double dy2 = 0.0;
+            if (circular)
+            {
+                const double dy = double(hy - j) / double(halfY);
+                dy2 = dy * dy;
+            }
+
+            for (int i = 0; i < copyWidth; i++)
+            {
+                if (circular)
                 {
-                    for (int i = posX; i < posX + sizeX; i++)
-                    {
-                        if ((i >= 0) && (i < resX))
-                        {
-                            _textureBuffer[4 * (j * resX + i) + 0] = rgbData[3 * p + 0] * interpolI + _textureBuffer[4 * (j * resX + i) + 0] * interpol;
-                            _textureBuffer[4 * (j * resX + i) + 1] = rgbData[3 * p + 1] * interpolI + _textureBuffer[4 * (j * resX + i) + 1] * interpol;
-                            _textureBuffer[4 * (j * resX + i) + 2] = rgbData[3 * p + 2] * interpolI + _textureBuffer[4 * (j * resX + i) + 2] * interpol;
-                        }
-                        p++;
-                    }
+                    const double dx = double(hx - (x0 + i)) / double(halfX);
+                    if (dx * dx + dy2 > 1.0)
+                        continue; // outside the circle
                 }
-                else
-                    p += sizeX;
+
+                const unsigned char* src = srcRow + srcChannels * i;
+                unsigned char* dst = dstRow + 4 * i;
+
+                for (int c = 0; c < dstChannels; c++)
+                {
+                    const unsigned char v = grey ? src[0] : src[c];
+                    if (blend)
+                        dst[c] = (unsigned char)(v * interpolI + dst[c] * interpol);
+                    else
+                        dst[c] = v;
+                }
             }
         }
     }
+
     _changedFlag = true;
     _currentTextureContentUniqueId = _textureContentUniqueId++;
+
+    if (posX < 0)
+    {
+        sizeX += posX;
+        posX = 0;
+    }
+    if (posX + sizeX > _textureSize[0])
+        sizeX = _textureSize[0] - posX;
+    if (posY < 0)
+    {
+        sizeY += posY;
+        posY = 0;
+    }
+    if (posY + sizeY > _textureSize[1])
+        sizeY = _textureSize[1] - posY;
+    if ((sizeX > 0) && (sizeY > 0))
+    {
+        unsigned char* dataToSend = readPortionOfTexture("rgba", posX, posY, sizeX, sizeY);
+        CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _objectHandle, nullptr, false);
+        ev->appendKeyBuff("portion", dataToSend, sizeX * sizeY * 4);
+        int ss[2] = {sizeX, sizeY};
+        ev->appendKeyInt32Array("size", ss, 2);
+        ss[0] = posX;
+        ss[1] = posY;
+        ev->appendKeyInt32Array("pos", ss, 2);
+        App::scenes->pushEvent();
+        delete[] dataToSend;
+    }
     return true;
 }
 
@@ -653,3 +700,15 @@ int CTextureObject::getPropertyInfo(const char* ppName, int& info, std::string& 
     return retVal;
 }
 
+void CTextureObject::pushCreationEvent()
+{
+    if (App::scenes->getEventsEnabled())
+    {
+        CCbor* ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _objectHandle, nullptr, false);
+        Obj::pushNakedGenesisEvents(ev);
+        ev->appendKeyBuff(prop(PropTexture::image).name, _textureBuffer.data(), _textureBuffer.size());
+        ev->appendKeyInt32Array(prop(PropTexture::resolution).name, _textureSize, 2);
+        ev->appendKeyInt64(prop(PropObject::handle).name, _objectHandle);
+        App::scenes->pushEvent();
+    }
+}

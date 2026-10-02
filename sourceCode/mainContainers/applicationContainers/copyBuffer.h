@@ -83,9 +83,6 @@ class CCopyBuffer
     std::vector<CCollisionObject_old*> collisionBuffer_tempSer;
     std::vector<CDistanceObject_old*> distanceBuffer_tempSer;
     std::vector<CIkGroup_old*> ikGroupBuffer_tempSer;
-    // Not supported anymore for copy/paste operations:
-    //std::vector<CPathPlanningTask*> pathPlanningTaskBuffer_tempSer;
-    //std::vector<CButtonBlock*> buttonBlockBuffer_tempSer;
 
     bool _bufferIsFromLockedScene_memorized;
     std::vector<CSceneObject*> objectBuffer_memorized;
@@ -97,7 +94,4 @@ class CCopyBuffer
     std::vector<CCollisionObject_old*> collisionBuffer_memorized;
     std::vector<CDistanceObject_old*> distanceBuffer_memorized;
     std::vector<CIkGroup_old*> ikGroupBuffer_memorized;
-    // Not supported anymore for copy/paste operations:
-    //std::vector<CPathPlanningTask*> pathPlanningTaskBuffer_memorized;
-    //std::vector<CButtonBlock*> buttonBlockBuffer_memorized;
 };

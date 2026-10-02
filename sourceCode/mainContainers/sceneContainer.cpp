@@ -745,43 +745,40 @@ void CSceneContainer::dispatchEvents()
             auxData[0] = evCnt;
             auxData[1] = int(ev.size());
             pluginContainer->sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_events, auxData, ev.data());
-            if (getSysFuncAndHookCnt(sim_syscb_event) > 0)
-            {
-                CInterfaceStack* fullEventsStack = nullptr;
+            CInterfaceStack* fullEventsStack = nullptr;
 
-                std::vector<CScript*> scripts;
-                getActiveScripts(scripts, false, true);
-                for (size_t sc = 0; sc < scripts.size(); sc++)
+            std::vector<CScript*> scripts;
+            getActiveScripts(scripts, false, true);
+            for (size_t sc = 0; sc < scripts.size(); sc++)
+            {
+                CScript* script = scripts[sc];
+                if (script->hasSystemFunctionOrHook(sim_syscb_event))
                 {
-                    CScript* script = scripts[sc];
-                    if (script->hasSystemFunctionOrHook(sim_syscb_event))
-                    {
-                        std::vector<unsigned char> ew;
-                        if (script->prepareFilteredEventsBuffer(ev, _eventInfos, ew))
-                        { // events are filtered
-                            if (ew.size() > 2)
-                            { // make sure the event array is not empty
-                                CInterfaceStack* stack = interfaceStackContainer->createStack();
-                                stack->pushBufferOntoStack((char*)ew.data(), ew.size());
-                                script->systemCallScript(sim_syscb_event, stack, nullptr);
-                                interfaceStackContainer->destroyStack(stack);
-                            }
-                        }
-                        else
-                        { // events are not filtered
-                            if (fullEventsStack == nullptr)
-                            {
-                                fullEventsStack = interfaceStackContainer->createStack();
-                                fullEventsStack->pushBufferOntoStack((char*)ev.data(), ev.size());
-                            }
-                            script->systemCallScript(sim_syscb_event, fullEventsStack, nullptr);
+                    std::vector<unsigned char> ew;
+                    if (script->prepareFilteredEventsBuffer(ev, _eventInfos, ew))
+                    { // events are filtered
+                        if (ew.size() > 2)
+                        { // make sure the event array is not empty
+                            CInterfaceStack* stack = interfaceStackContainer->createStack();
+                            stack->pushBufferOntoStack((char*)ew.data(), ew.size());
+                            script->systemCallScript(sim_syscb_event, stack, nullptr);
+                            interfaceStackContainer->destroyStack(stack);
                         }
                     }
+                    else
+                    { // events are not filtered
+                        if (fullEventsStack == nullptr)
+                        {
+                            fullEventsStack = interfaceStackContainer->createStack();
+                            fullEventsStack->pushBufferOntoStack((char*)ev.data(), ev.size());
+                        }
+                        script->systemCallScript(sim_syscb_event, fullEventsStack, nullptr);
+                    }
                 }
-
-                if (fullEventsStack != nullptr)
-                    interfaceStackContainer->destroyStack(fullEventsStack);
             }
+
+            if (fullEventsStack != nullptr)
+                interfaceStackContainer->destroyStack(fullEventsStack);
         }
         else
             _eventMutex.unlock();

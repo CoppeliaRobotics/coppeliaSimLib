@@ -59,7 +59,6 @@ void CButtonBlock::commonInit()
     desiredBlockPosition.y = 0;
     viewToAppearOn = -1;
     _copyPositionOffset = 0;
-    _textureProperty = nullptr;
     blockName = IDSOGL_UI;
 }
 
@@ -67,19 +66,8 @@ CButtonBlock::~CButtonBlock()
 {
     for (int i = 0; i < int(allButtons.size()); i++)
         delete allButtons[i];
-    delete _textureProperty;
     allButtons.clear();
     positionFastIndex.clear();
-}
-
-CTextureProperty* CButtonBlock::getTextureProperty()
-{
-    return (_textureProperty);
-}
-
-void CButtonBlock::setTextureProperty(CTextureProperty* tp)
-{
-    _textureProperty = tp;
 }
 
 void CButtonBlock::setGenericDialog(bool genericDialog)
@@ -179,8 +167,6 @@ CButtonBlock* CButtonBlock::copyYourself()
     getRollupMax(dummy);
     newBlock->setRollupMax(dummy);
     newBlock->setObjectIDAttachedTo(getObjectIDAttachedTo());
-    if (_textureProperty != nullptr)
-        newBlock->_textureProperty = _textureProperty->copyYourself();
 
     return (newBlock);
 }
@@ -550,20 +536,6 @@ int CButtonBlock::getViewToAppearOn()
     return (viewToAppearOn);
 }
 
-void CButtonBlock::removeAllVisionSensorTextures()
-{
-    if (_textureProperty != nullptr)
-    {
-        if (_textureProperty->getTextureObjectHandle() <= sim_object_sceneobjectend)
-        {
-            delete _textureProperty;
-            _textureProperty = nullptr;
-        }
-    }
-    for (int i = 0; i < int(allButtons.size()); i++)
-        allButtons[i]->removeVisionSensorTexture();
-}
-
 void CButtonBlock::removeAllObjectAttachements()
 {
     objectIDAttachedTo = -1;
@@ -574,8 +546,6 @@ void CButtonBlock::performSceneObjectLoadingMapping(const std::map<int, int>* ma
     if (App::scene->sceneObjects != nullptr)
     {
         objectIDAttachedTo = CScene::getLoadingMapping(map, objectIDAttachedTo);
-        if (_textureProperty != nullptr)
-            _textureProperty->performObjectLoadingMapping(map);
     }
     for (int i = 0; i < int(allButtons.size()); i++)
         allButtons[i]->performSceneObjectLoadingMapping(map);
@@ -583,11 +553,6 @@ void CButtonBlock::performSceneObjectLoadingMapping(const std::map<int, int>* ma
 
 void CButtonBlock::performTextureObjectLoadingMapping(const std::map<int, int>* map)
 {
-    if (App::scene->sceneObjects != nullptr)
-    {
-        if (_textureProperty != nullptr)
-            _textureProperty->performTextureObjectLoadingMapping(map, 0);
-    }
     for (int i = 0; i < int(allButtons.size()); i++)
         allButtons[i]->performTextureObjectLoadingMapping(map);
 }
@@ -596,26 +561,9 @@ bool CButtonBlock::announceSceneObjectWillBeErased(int objectID, bool copyBuffer
 {
     if (objectIDAttachedTo == objectID)
         return (true);
-    if (_textureProperty != nullptr)
-    {
-        CSceneObject* obj = App::scene->sceneObjects->getObjectFromHandle(objectID);
-        if ((obj != nullptr) && _textureProperty->announceObjectWillBeErased(obj))
-        {
-            delete _textureProperty;
-            _textureProperty = nullptr;
-        }
-    }
     for (int i = 0; i < int(allButtons.size()); i++)
         allButtons[i]->announceSceneObjectWillBeErased(objectID);
     return (false);
-}
-
-void CButtonBlock::setTextureDependencies()
-{
-    if (_textureProperty != nullptr)
-        _textureProperty->addTextureDependencies(blockID, 0);
-    for (int i = 0; i < int(allButtons.size()); i++)
-        allButtons[i]->setTextureDependencies(blockID);
 }
 
 void CButtonBlock::setBlockName(std::string name)
@@ -647,18 +595,6 @@ VPoint CButtonBlock::_getBlockSizeAndOtherButtonSizeAndPos(VPoint& blockSize, VP
         pos.x = App::scene->buttonBlockContainer_old->winSize[0] - 1 - blockPos.x - blockSize.x +
                 buttonPos.x * (buttonSize.x + 2) + otherButtonSize.x / 2;
     return (pos);
-}
-
-void CButtonBlock::getAllAttachedTextureProperties(std::vector<CTextureProperty*>& textPropVect)
-{
-    if (_textureProperty != nullptr)
-        textPropVect.push_back(_textureProperty);
-    for (int i = 0; i < int(allButtons.size()); i++)
-    {
-        CTextureProperty* tp = allButtons[i]->getTextureProperty();
-        if (tp != nullptr)
-            textPropVect.push_back(tp);
-    }
 }
 
 void CButtonBlock::serialize(CSer& ar)
@@ -708,15 +644,6 @@ void CButtonBlock::serialize(CSer& ar)
             allButtons[i]->serialize(ar);
             if (ar.setWritingMode())
                 allButtons[i]->serialize(ar);
-        }
-
-        if (_textureProperty != nullptr)
-        {
-            ar.storeDataName("Toj");
-            ar.setCountingMode();
-            _textureProperty->serialize(ar);
-            if (ar.setWritingMode())
-                _textureProperty->serialize(ar);
         }
 
         ar.storeDataName(SER_END_OF_OBJECT);
@@ -805,13 +732,6 @@ void CButtonBlock::serialize(CSer& ar)
                     int buttonHandle = newButton->buttonID;
                     insertButtonWithoutChecking(newButton);
                     newButton->buttonID = buttonHandle;
-                }
-                if (theName.compare("Toj") == 0)
-                {
-                    noHit = false;
-                    ar >> byteQuantity;
-                    _textureProperty = new CTextureProperty();
-                    _textureProperty->serialize(ar);
                 }
                 if (noHit)
                     ar.loadUnknownData();
@@ -1055,7 +975,7 @@ void CButtonBlock::displayBlock(int winSize[2], bool justCameToFront)
                     ogl::drawButton(pos, otherButtonSize, txtCol, it->backgroundColor, it->downBackgroundColor, txt,
                                     atr, editing, App::scene->buttonBlockContainer_old->editBoxEditionPosition,
                                     sliderVal, it->getVertical(), (int)VDateTime::getTimeInMs(), secondTextColor,
-                                    _textureProperty, &blockPosAbs, &blockSize, it->getTextureProperty());
+                                    nullptr, &blockPosAbs, &blockSize, nullptr);
                 else
                     ogl::drawButton(pos, otherButtonSize, txtCol, it->backgroundColor, it->downBackgroundColor, txt,
                                     atr, editing, App::scene->buttonBlockContainer_old->editBoxEditionPosition,

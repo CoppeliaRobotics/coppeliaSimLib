@@ -59,15 +59,11 @@ class CSoftButton
     void setAttributes(int attr);
     int getAttributes();
     int getUniqueID();
-    void setTextureProperty(CTextureProperty* tp);
-    void removeVisionSensorTexture();
-    CTextureProperty* getTextureProperty();
     float* arrayColors; // not serialized, but copied!
 
     CSoftButton* copyYourself();
 
   private:
-    CTextureProperty* _textureProperty;
     int _buttonAttributes;
     int length;
     int height;

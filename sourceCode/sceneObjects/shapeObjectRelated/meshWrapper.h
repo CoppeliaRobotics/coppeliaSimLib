@@ -26,6 +26,7 @@ class CMeshWrapper : public Obj
     virtual void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType);
     void performDynMaterialObjectLoadingMapping(const std::map<int, int>* map);
     virtual void announceSceneObjectWillBeErased(const CSceneObject* object);
+    virtual void announceTextureWillBeErased(int64_t textureHandle);
     virtual void setTextureDependencies(int shapeID);
     virtual bool getContainsTransparentComponents() const;
     virtual void displayGhost(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib, bool originalColors,

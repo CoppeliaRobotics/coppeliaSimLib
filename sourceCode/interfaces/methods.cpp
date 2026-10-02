@@ -224,9 +224,9 @@ std::string callMethod(int targetObj, const char* method, CScript* currentScript
         funcTable["setModuleEntry"] = _method_setModuleEntry;
         funcTable["dynamics.step"] = _method_dynamicsStep;
         funcTable["broadcast"] = _method_broadcast;
-        funcTable["texture.set"] = _method_textureSet;
-        funcTable["texture.setData"] = _method_textureSetData;
-        funcTable["texture.getData"] = _method_textureGetData;
+        funcTable["setTexture"] = _method_textureSet;
+        funcTable["setData"] = _method_textureSetData;
+        funcTable["getData"] = _method_textureGetData;
         funcTable["getEnumInfo"] = _method_getEnumInfo;
         funcTable["copyObjects"] = _method_copyObjects;
         funcTable["cutObjects"] = _method_cutObjects;
@@ -1169,6 +1169,24 @@ CScript* getNakedScript(int identifier, std::string* errMsg /*= nullptr*/, size_
     CScript* retVal = nullptr;
     if (identifier > sim_object_sceneobjectend)
         retVal = App::scenes->getScriptFromHandle(identifier);
+    if ( (retVal == nullptr) && (errMsg != nullptr) )
+    {
+        if (argPos == -1)
+            errMsg[0] = "target object does not exist."; // can happen when calling from C
+        else
+        {
+            std::string msg("bad argument #");
+            msg += std::to_string(argPos + 1);
+            msg += " (object does not exist).";
+            errMsg->assign(msg.c_str());
+        }
+    }
+    return retVal;
+}
+
+CTextureObject* getTexture(int identifier, std::string* errMsg /*= nullptr*/, size_t argPos /*= -1*/)
+{
+    CTextureObject* retVal = App::scene->textures->getObject(identifier);
     if ( (retVal == nullptr) && (errMsg != nullptr) )
     {
         if (argPos == -1)
@@ -2403,6 +2421,7 @@ std::string _method_remove(int targetObj, CScript* currentScript, const CInterfa
                 CSceneObject* sceneObj = getSceneObject(targetObj);
                 CCollection* coll = getCollection(targetObj);
                 CScript* script = getNakedScript(targetObj);
+                CTextureObject* texture = getTexture(targetObj);
                 if (sceneObj != nullptr)
                 {
                     std::vector<int> sel;
@@ -2411,6 +2430,8 @@ std::string _method_remove(int targetObj, CScript* currentScript, const CInterfa
                 }
                 else if (coll != nullptr)
                     App::scene->collections->removeCollection(targetObj);
+                else if (texture != nullptr)
+                    App::scene->textures->removeObject(targetObj);
                 else if (script != nullptr)
                 {
                     if (!App::scenes->addOnScriptContainer->removeAddOn(targetObj))
@@ -2469,10 +2490,13 @@ std::string _method_removeObjects(int targetObj, CScript* currentScript, const C
                 CCollection* coll = getCollection(objectHandle);
                 CDrawingObject* draw = getDrawingObject(objectHandle);
                 CScript* script = getNakedScript(objectHandle);
+                CTextureObject* texture = getTexture(targetObj);
                 if (sceneObj != nullptr)
                     sceneObjectHandles.push_back(objectHandle);
                 else if (coll != nullptr)
                     App::scene->collections->removeCollection(objectHandle);
+                else if (coll != nullptr)
+                    App::scene->textures->removeObject(texture->getObjectHandle());
                 else if (draw != nullptr)
                     App::scene->drawingCont_old->removeObject(objectHandle);
                 else if (script != nullptr)
@@ -8817,7 +8841,7 @@ std::string _method_textureSet(int targetObj, CScript* currentScript, const CInt
 std::string _method_textureSetData(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CMesh* target = getMesh(targetObj, &errMsg, -1);
+    CTextureObject* target = getTexture(targetObj, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string data = fetchBuffer(inStack, 0);
@@ -8825,8 +8849,10 @@ std::string _method_textureSetData(int targetObj, CScript* currentScript, const 
         int size[2] = {0, 0};
         double interpolation = 0.0;
         bool rectangular = true;
+        std::string type = "rgb";
         withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
+            map->fetchStringFromKey("type", type, &err);
             map->fetchInt32ArrayFromKey("position", position, 2, &err);
             map->fetchInt32ArrayFromKey("size", size, 2, &err);
             map->fetchDoubleFromKey("interpolation", interpolation, &err);
@@ -8834,61 +8860,44 @@ std::string _method_textureSetData(int targetObj, CScript* currentScript, const 
         });
         if (errMsg.empty())
         {
-            CTextureProperty* tp = target->getTextureProperty();
-            if (tp != nullptr)
+            if ((type == "rgb") || (type == "rgba") || (type == "grey"))
             {
-                CTextureObject* to = tp->getTextureObject();
-                if (to != nullptr)
+                int s = 3;
+                if (type == "grey")
+                    s = 1;
+                else if (type == "rgba")
+                    s = 4;
+                int resX, resY;
+                target->getTextureSize(resX, resY);
+                if ((size[0] >= 0) && (size[1] >= 0) && (data.size() >= s))
                 {
-                    int resX, resY;
-                    to->getTextureSize(resX, resY);
-                    if ((size[0] >= 0) && (size[1] >= 0) && (data.size() >= 3) && (position[0] >= 0) && (position[1] >= 0) && (position[0] + size[0] <= resX) && (position[1] + size[1] <= resY))
+                    if (size[0] == 0)
                     {
-                        if (size[0] == 0)
+                        position[0] = 0;
+                        size[0] = resX;
+                    }
+                    if (size[1] == 0)
+                    {
+                        position[1] = 0;
+                        size[1] = resY;
+                    }
+                    if (int(data.size()) < size[0] * size[1] * s)
+                    {
+                        std::string d(data);
+                        data.resize(size[0] * size[1] * s);
+                        for (size_t i = 0; i < size[0] * size[1]; i++)
                         {
-                            position[0] = 0;
-                            size[0] = resX;
-                        }
-                        if (size[1] == 0)
-                        {
-                            position[1] = 0;
-                            size[1] = resY;
-                        }
-                        if (int(data.size()) < size[0] * size[1] * 3)
-                        {
-                            std::string d(data);
-                            data.resize(size[0] * size[1] * 3);
-                            for (size_t i = 0; i < size[0] * size[1]; i++)
-                            {
-                                data[3 * i + 0] = d[0];
-                                data[3 * i + 1] = d[1];
-                                data[3 * i + 2] = d[2];
-                            }
-                        }
-                        to->writePortionOfTexture((unsigned char*)data.data(), position[0], position[1], size[0], size[1], !rectangular, interpolation);
-
-                        // send texture update event:
-                        int64_t shapeHandle;
-                        CPose dummyPose;
-                        target->getHandleProperty_mesh(prop(PropMesh::shape).name, shapeHandle, dummyPose);
-                        std::vector<CMesh*> all;
-                        std::vector<CPose> allTr;
-                        CShape* shape = App::scene->sceneObjects->getShapeFromHandle(shapeHandle);
-                        shape->getMesh()->getAllMeshComponentsCumulative(CPose::identityTransformation, all, &allTr);
-                        for (size_t i = 0; i < all.size(); i++)
-                        {
-                            if (all[i] == target)
-                                target->pushGenesisOrChangeEvent(shapeHandle, shape->getObjectUid(), allTr[i], 2);
+                            for (int j = 0; j < s; j++)
+                                data[s * i + j] = d[j];
                         }
                     }
-                    else
-                        errMsg = SIM_ERROR_INVALID_ARGUMENTS;
+                    target->writePortionOfTexture((unsigned char*)data.data(), type.c_str(), position[0], position[1], size[0], size[1], !rectangular, interpolation);
                 }
                 else
-                    errMsg = SIM_ERROR_TEXTURE_INEXISTANT;
+                    errMsg = SIM_ERROR_INVALID_ARGUMENTS;
             }
             else
-                errMsg = SIM_ERROR_TEXTURE_INEXISTANT;
+                errMsg = "invalid type.";
         }
     }
     return errMsg;
@@ -8897,49 +8906,49 @@ std::string _method_textureSetData(int targetObj, CScript* currentScript, const 
 std::string _method_textureGetData(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    CMesh* target = getMesh(targetObj, &errMsg, -1);
+    CTextureObject* target = getTexture(targetObj, &errMsg, -1);
     if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_map | arg_optional}))
     {
         int position[2] = {0, 0};
         int size[2] = {0, 0};
+        std::string type = "rgb";
         withOptionalMap(inStack, 0, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
+            map->fetchStringFromKey("type", type, &err);
             map->fetchInt32ArrayFromKey("position", position, 2, &err);
             map->fetchInt32ArrayFromKey("size", size, 2, &err);
         });
         if (errMsg.empty())
         {
-            CTextureProperty* tp = target->getTextureProperty();
-            if (tp != nullptr)
+            if ((type == "rgb") || (type == "rgba") || (type == "grey"))
             {
-                CTextureObject* to = tp->getTextureObject();
-                if (to != nullptr)
+                int s = 3;
+                if (type == "grey")
+                    s = 1;
+                else if (type == "rgba")
+                    s = 4;
+                int resX, resY;
+                target->getTextureSize(resX, resY);
+                if ((size[0] >= 0) && (size[1] >= 0))
                 {
-                    int resX, resY;
-                    to->getTextureSize(resX, resY);
-                    if ((size[0] >= 0) && (size[1] >= 0) && (position[0] >= 0) && (position[1] >= 0) && (position[0] + size[0] <= resX) && (position[1] + size[1] <= resY))
+                    if (size[0] == 0)
                     {
-                        if (size[0] == 0)
-                        {
-                            position[0] = 0;
-                            size[0] = resX;
-                        }
-                        if (size[1] == 0)
-                        {
-                            position[1] = 0;
-                            size[1] = resY;
-                        }
-                        uint8_t* retVal = to->readPortionOfTexture(position[0], position[1], size[0], size[1]);
-                        outStack->pushBufferOntoStack((const char*)retVal, size[0] * size[1] * 3);
+                        position[0] = 0;
+                        size[0] = resX;
                     }
-                    else
-                        errMsg = SIM_ERROR_INVALID_ARGUMENTS;
+                    if (size[1] == 0)
+                    {
+                        position[1] = 0;
+                        size[1] = resY;
+                    }
+                    uint8_t* retVal = target->readPortionOfTexture(type.c_str(), position[0], position[1], size[0], size[1]);
+                    outStack->pushBufferOntoStack((const char*)retVal, size[0] * size[1] * s);
                 }
                 else
-                    errMsg = SIM_ERROR_TEXTURE_INEXISTANT;
+                    errMsg = SIM_ERROR_INVALID_ARGUMENTS;
             }
             else
-                errMsg = SIM_ERROR_TEXTURE_INEXISTANT;
+                errMsg = "invalid type.";
         }
     }
     return errMsg;

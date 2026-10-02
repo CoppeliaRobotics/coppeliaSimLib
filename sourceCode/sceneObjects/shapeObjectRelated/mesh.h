@@ -15,6 +15,7 @@ class CMesh : public CMeshWrapper
     void performSceneObjectLoadingMapping(const std::map<int, int>* map) override;
     void performTextureObjectLoadingMapping(const std::map<int, int>* map, int opType) override;
     void announceSceneObjectWillBeErased(const CSceneObject* object) override;
+    void announceTextureWillBeErased(int64_t textureHandle) override;
     void setTextureDependencies(int shapeID) override;
     bool getContainsTransparentComponents() const override;
     CMesh* copyYourself() override;
@@ -59,6 +60,7 @@ class CMesh : public CMeshWrapper
 
     CTextureProperty* getTextureProperty();
     void setTextureProperty(CTextureProperty* tp);
+    void setTextureObject(int h);
 
     void setTextureRepeatU(bool r);
     bool getTextureRepeatU() const;
@@ -110,6 +112,7 @@ class CMesh : public CMeshWrapper
     int setIntProperty_mesh(const char* pName, int pState, const CPose& shapeRelTr);
     int getIntProperty_mesh(const char* pName, int& pState, const CPose& shapeRelTr) const;
     int getLongProperty_mesh(const char* pName, int64_t& pState, const CPose& shapeRelTr) const;
+    int setHandleProperty_mesh(const char* pName, int64_t pState, const CPose& shapeRelTr);
     int getHandleProperty_mesh(const char* pName, int64_t& pState, const CPose& shapeRelTr) const;
     int setFloatProperty_mesh(const char* pName, double pState, const CPose& shapeRelTr);
     int getFloatProperty_mesh(const char* pName, double& pState, const CPose& shapeRelTr) const;

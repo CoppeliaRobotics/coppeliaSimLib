@@ -35,6 +35,7 @@ class CShape : public CSceneObject
     bool scaleObjectNonIsometrically(double x, double y, double z) override;
     void serialize(CSer& ar) override;
     void announceSceneObjectWillBeErased(const CSceneObject* object, bool copyBuffer) override;
+    void announceTextureWillBeErased(int64_t textureHandle, bool copyBuffer) override;
     void announceCollectionWillBeErased(int groupID, bool copyBuffer) override;
     void announceCollisionWillBeErased(int collisionID, bool copyBuffer) override;
     void announceDistanceWillBeErased(int distanceID, bool copyBuffer) override;

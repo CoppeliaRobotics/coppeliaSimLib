@@ -1489,58 +1489,7 @@ int simDeleteUIButtonArray_internal(int elementHandle, int buttonHandle)
 }
 
 int simSetUIButtonTexture_internal(int elementHandle, int buttonHandle, const int* size, const char* textureData)
-{
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        if (!doesUIButtonExist(__func__, elementHandle, buttonHandle))
-            return (-1);
-        CButtonBlock* it = App::scene->buttonBlockContainer_old->getBlockWithID(elementHandle);
-        CSoftButton* but = it->getButtonWithID(buttonHandle);
-        CTextureProperty* tp = but->getTextureProperty();
-        if (tp != nullptr)
-        { // We already have a texture. Is it the same size/type? or do we wanna remove the texture anyway?
-            int tob = tp->getTextureObjectHandle();
-            bool remove = true;
-            if ((tob > sim_object_sceneobjectend) && (size != nullptr))
-            { // we have the correct type (i.e. non-vision sensor)
-                CTextureObject* to = App::scene->textures->getObject(tob);
-                if (to != nullptr)
-                {
-                    int sizeX, sizeY;
-                    to->getTextureSize(sizeX, sizeY);
-                    if ((size[0] == sizeX) && (size[1] == sizeY))
-                    { // we just need to actualize the texture content:
-                        to->setImage(false, false, true, (unsigned char*)textureData);
-                        remove = false;
-                    }
-                }
-            }
-            if (remove)
-            {
-                App::scene->textures->announceGeneralObjectWillBeErased(elementHandle,
-                                                                                       but->getUniqueID());
-                delete tp;
-                tp = nullptr;
-                but->setTextureProperty(nullptr);
-            }
-        }
-        if ((tp == nullptr) && (size != nullptr))
-        { // add an existing texture
-            CTextureObject* textureObj = new CTextureObject(size[0], size[1]);
-            textureObj->setImage(false, false, true, (unsigned char*)textureData); // keep false,true
-            textureObj->setObjectName("textureSetThroughAPI");
-            textureObj->addDependentObject(it->getBlockID(),
-                                           but->getUniqueID()); // Unique ID starts exceptionnally at 1
-            int textureID = App::scene->textures->addObject(
-                textureObj, false); // might erase the textureObj and return a similar object already present!!
-            tp = new CTextureProperty(textureID);
-            but->setTextureProperty(tp);
-        }
-        return (1);
-    }
-    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+{ // not supported anymore (02.10.2026)
     return (-1);
 }
 

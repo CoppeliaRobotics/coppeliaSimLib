@@ -37,8 +37,7 @@ void CQDlgTextures::refresh()
     QLineEdit* lineEditToSelect = getSelectedLineEdit();
     bool applyTexture3D;
     CMesh* geom = nullptr;
-    CTextureProperty* tp =
-        GuiApp::getTexturePropertyPointerFromItem(_objType, _objID1, _objID2, nullptr, &applyTexture3D, nullptr, &geom);
+    CTextureProperty* tp = GuiApp::getTexturePropertyPointerFromItem(_objType, _objID1, _objID2, nullptr, &applyTexture3D, nullptr, &geom);
     bool simStopped = App::scene->simulation->isSimulationStopped();
     bool usingFixedTextureCoordinates = false;
     bool forbidU = false;
@@ -249,32 +248,6 @@ bool CQDlgTextures::isLinkedDataValid()
             return (false);
         if (GuiApp::mainWindow->editModeContainer->getMultishapeEditMode()->getMultishapeGeometricComponentIndex() !=
             _objID2)
-            return (false);
-    }
-    if (_objType == TEXTURE_ID_OPENGL_GUI_BACKGROUND)
-    {
-        if (App::scene->buttonBlockContainer_old->getBlockInEdition() != _objID1)
-            return (false);
-        if (App::scene->buttonBlockContainer_old->selectedButtons.size() > 0)
-            return (false);
-    }
-    if (_objType == TEXTURE_ID_OPENGL_GUI_BUTTON)
-    {
-        if (App::scene->buttonBlockContainer_old->getBlockInEdition() != _objID1)
-            return (false);
-        CButtonBlock* itBlock = App::scene->buttonBlockContainer_old->getBlockWithID(_objID1);
-        if (itBlock == nullptr)
-            return (false);
-        if (App::scene->buttonBlockContainer_old->selectedButtons.size() <= 0)
-            return (false);
-        int butt = App::scene->buttonBlockContainer_old
-                       ->selectedButtons[App::scene->buttonBlockContainer_old->selectedButtons.size() - 1];
-        VPoint size;
-        itBlock->getBlockSize(size);
-        CSoftButton* itButton = itBlock->getButtonAtPos(butt % size.x, butt / size.x);
-        if (itButton == nullptr)
-            return (false);
-        if (itButton->buttonID != _objID2)
             return (false);
     }
 

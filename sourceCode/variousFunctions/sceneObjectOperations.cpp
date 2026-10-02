@@ -990,7 +990,7 @@ CShape* CSceneObjectOperations::_mergeShapes(const std::vector<CShape*>& allShap
         CShape* it = allShapes[i];
         if (it->getMesh()->getTextureCount() != 0)
         {
-            App::scene->textures->announceGeneralObjectWillBeErased(it->getObjectHandle(), -1);
+            App::scene->textures->announceSceneObjectWillBeErased(it->getObjectHandle(), -1);
             it->getMesh()->removeAllTextures();
         }
     }

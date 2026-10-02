@@ -130,7 +130,19 @@ int CTextureContainer::addObjectWithSuffixOffset(CTextureObject* anObject, bool 
     }
     anObject->setObjectName(newName.c_str());
     _allTextureObjects.push_back(anObject);
-    return (newID);
+
+    anObject->pushCreationEvent();
+    if (App::scenes->getEventsEnabled())
+    {
+        std::vector<int64_t> handles;
+        for (size_t i = 0; i < _allTextureObjects.size(); i++)
+            handles.push_back(_allTextureObjects[i]->getObjectHandle());
+        const char* cmd = prop(PropScene::textures).name;
+        CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
+        ev->appendKeyHandleArray(cmd, handles.data(), handles.size());
+        App::scenes->pushEvent();
+    }
+    return newID;
 }
 
 CTextureObject* CTextureContainer::_getEquivalentTextureObject(CTextureObject* theData)
@@ -149,8 +161,20 @@ void CTextureContainer::removeObject(int objectID)
     {
         if (int(_allTextureObjects[i]->getObjectHandle()) == objectID)
         {
+            App::scene->announceTextureWillBeErased(_allTextureObjects[i]);
             delete _allTextureObjects[i];
             _allTextureObjects.erase(_allTextureObjects.begin() + i);
+            std::vector<int> remainingT;
+            for (size_t j = 0; j < _allTextureObjects.size(); j++)
+                remainingT.push_back(_allTextureObjects[j]->getObjectHandle());
+            if (App::scenes->getEventsEnabled())
+            {
+                const char* cmd = prop(PropScene::textures).name;
+                CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
+                ev->appendKeyHandleArray(cmd, remainingT.data(), remainingT.size());
+                App::scenes->pushEvent();
+                App::scenes->pushRemoveEvent(objectID);
+            }
 #ifdef SIM_WITH_GUI
             GuiApp::setFullDialogRefreshFlag();
 #endif
@@ -168,7 +192,6 @@ void CTextureContainer::clearAllDependencies()
 void CTextureContainer::updateAllDependencies()
 { // should not be called from "ct::objCont->addObjectsToSceneAndPerformMapping" routine!!
     clearAllDependencies();
-    App::scene->buttonBlockContainer_old->setTextureDependencies();
     for (size_t i = 0; i < App::scene->sceneObjects->getObjectCount(sim_sceneobject_shape); i++)
     {
         CShape* sh = App::scene->sceneObjects->getShapeFromIndex(i);
@@ -177,12 +200,12 @@ void CTextureContainer::updateAllDependencies()
     }
 }
 
-void CTextureContainer::announceGeneralObjectWillBeErased(int generalObjectID, int subID)
+void CTextureContainer::announceSceneObjectWillBeErased(int objectHandle, int meshHandle)
 {
     size_t i = 0;
     while (i < _allTextureObjects.size())
     {
-        if (_allTextureObjects[i]->announceGeneralObjectWillBeErased(generalObjectID, subID))
+        if (_allTextureObjects[i]->announceSceneObjectWillBeErased(objectHandle, meshHandle))
         {
             removeObject(int(_allTextureObjects[i]->getObjectHandle()));
             i = 0; // ordering may have changed!
@@ -345,5 +368,48 @@ int CTextureContainer::getPropertyInfo_t(int64_t target, const char* pName, int&
         retVal = -2; // object does not exist
     }
     return retVal;
+}
+
+void CTextureContainer::pushGenesisEvents(const std::vector<CTextureObject*>* ObjectsToConsider /*= nullptr*/) const
+{
+    if (App::scenes->getEventsEnabled())
+    {
+        std::vector<CTextureObject*> toConsider;
+        std::vector<int> addedTexture;
+        std::set<CTextureObject*> alreadyThere;
+        if (ObjectsToConsider != nullptr)
+        {
+            std::set<CTextureObject*> newT;
+            for (size_t i = 0; i < ObjectsToConsider->size(); i++)
+                newT.insert(ObjectsToConsider->at(i));
+            for (size_t i = 0; i < _allTextureObjects.size(); i++)
+            {
+                CTextureObject* o = _allTextureObjects[i];
+                if (newT.find(o) == newT.end())
+                {
+                    alreadyThere.insert(o);
+                    addedTexture.push_back(o->getObjectHandle());
+                }
+                else
+                    toConsider.push_back(o);
+            }
+        }
+        else
+            toConsider = _allTextureObjects;
+        for (size_t i = 0; i < toConsider.size(); i++)
+        {
+            CTextureObject* tobj = toConsider[i];
+            if (alreadyThere.find(tobj) == alreadyThere.end())
+            {
+                alreadyThere.insert(tobj);
+                tobj->pushCreationEvent();
+                addedTexture.push_back(tobj->getObjectHandle());
+                const char* cmd = prop(PropScene::textures).name;
+                CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, cmd, true);
+                ev->appendKeyHandleArray(cmd, addedTexture.data(), addedTexture.size());
+                App::scenes->pushEvent();
+            }
+        }
+    }
 }
 

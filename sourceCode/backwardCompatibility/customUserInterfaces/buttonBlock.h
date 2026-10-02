@@ -14,7 +14,6 @@ class CButtonBlock
     CSoftButton* getButtonWithUniqueID(int id);
     CSoftButton* getButtonAtPos(int x, int y);
     CSoftButton* getButtonAtPosDontUseFastIndex(int x, int y);
-    void getAllAttachedTextureProperties(std::vector<CTextureProperty*>& textPropVect);
     bool removeButtonFromPos(int x, int y, bool updateFastIndex = true);
     bool insertButton(CSoftButton* theNewButton);
     bool insertButtonWithoutChecking(CSoftButton* theNewButton);
@@ -51,8 +50,6 @@ class CButtonBlock
     void performSceneObjectLoadingMapping(const std::map<int, int>* map);
     void performTextureObjectLoadingMapping(const std::map<int, int>* map);
     bool announceSceneObjectWillBeErased(int objectID, bool copyBuffer);
-    void setTextureDependencies();
-    void removeAllVisionSensorTextures();
     void removeAllObjectAttachements();
 
     void setBlockName(std::string name);
@@ -64,8 +61,6 @@ class CButtonBlock
 
     void setAttributes(int attr);
     int getAttributes();
-    CTextureProperty* getTextureProperty();
-    void setTextureProperty(CTextureProperty* tp);
 
     // Variables which need to be serialized & copied
     int blockID;
@@ -87,7 +82,6 @@ class CButtonBlock
     VPoint rollupMax;
     std::string blockName;
     int objectIDAttachedTo;
-    CTextureProperty* _textureProperty;
     int _buttonWidth;
     int _buttonHeight;
 

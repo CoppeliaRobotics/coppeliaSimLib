@@ -21,7 +21,6 @@ class CButtonBlockContainer
     CButtonBlock* getButtonBlockWithID(int id);
     void removeAllBlocks(bool alsoSystemBlocks);
     void announceObjectWillBeErased(int objID);
-    void setTextureDependencies();
 
     void insertBlock(CButtonBlock* theNewBlock, bool objectIsACopy);
     void insertBlockWithSuffixOffset(CButtonBlock* theNewBlock, bool objectIsACopy, int suffixOffset);

@@ -73,6 +73,7 @@ class CScene : public Obj
 
     void cleanupHashNames_allObjects(int suffix);
 
+    void announceTextureWillBeErased(CTextureObject* object);
     void announceSceneObjectWillBeErased(CSceneObject* object);
     void announceScriptWillBeErased(int scriptOrnakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
     void announceScriptStateWillBeErased(int nakedScriptHandle, bool simulationScript, bool sceneSwitchPersistentScript);
