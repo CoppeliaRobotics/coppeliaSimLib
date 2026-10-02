@@ -3451,7 +3451,7 @@ int CMesh::getPropertyName(int& index, std::string& pName, std::string& apparten
         {
             for (size_t i = 0; i < allProps_mesh.size(); i++)
             {
-                if ((_textureProperty != nullptr) || (i > 7))
+                //if ((_textureProperty != nullptr) || (i > 7))
                 {
                     if ((pName.size() == 0) || utils::startsWith(allProps_mesh[i].name, pName.c_str()))
                     {
