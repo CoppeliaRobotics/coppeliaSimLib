@@ -737,6 +737,7 @@ add_custom_target(
         ${CMAKE_CURRENT_BINARY_DIR}/generated/propertiesAndMethods.h
 )
 add_dependencies(coppeliaSim generate_propertiesAndMethods_h)
+target_include_directories(coppeliaSim BEFORE PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/generated/")
 
 
 target_link_libraries(coppeliaSim magic_enum::magic_enum)
