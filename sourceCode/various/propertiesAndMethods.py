@@ -1,4 +1,18 @@
-def flags(p):
+def propertyName(p):
+    return p.name.replace(':', '.')
+
+def propertyType(p):
+    import re
+    match = re.match(r'^(.*)\[(\d*)\]$', p.type)
+    if match:
+        base, arr_sz_str = match.group(1), match.group(2)
+        arr_sz = int(arr_sz_str) if arr_sz_str else None
+        t = (base, True, arr_sz)
+    else:
+        t = (p.type, False, None)
+    return f'sim_propertytype_{t[0]}{"array" if t[1] else ""}{t[2] if t[2] is not None else ""}'
+
+def propertyFlags(p):
     f = []
     if not p.flags.readable: f.append('notreadable')
     if not p.flags.writable: f.append('notwritable')
@@ -28,14 +42,3 @@ def propertyInfo(p):
     outputInfo('handleType', 'handle_type')
     outputInfo('enum', 'enum')
     return 'PropertyInfo({{' + '}, {'.join(f'"{k}", "{v.replace("\n", "\\n").strip()}"' for k, v in info.items()) + '}})'
-
-def propertyType(p):
-    import re
-    match = re.match(r'^(.*)\[(\d*)\]$', p.type)
-    if match:
-        base, arr_sz_str = match.group(1), match.group(2)
-        arr_sz = int(arr_sz_str) if arr_sz_str else None
-        t = (base, True, arr_sz)
-    else:
-        t = (p.type, False, None)
-    return f'sim_propertytype_{t[0]}{"array" if t[1] else ""}{t[2] if t[2] is not None else ""}'
