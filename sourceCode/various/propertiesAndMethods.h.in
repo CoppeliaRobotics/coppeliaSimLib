@@ -184,13 +184,13 @@ const SProperty& prop(PropApp p);
 // ----------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------
-enum class PropDetachedScript {
+enum class PropScript {
     #define FUNCX(name, str, v1, v2, t1) name,
-    DETACHEDSCRIPT_PROPERTIES
+    SCRIPT_PROPERTIES
     #undef FUNCX
 };
-extern const std::vector<SProperty> allProps_detachedScript;
-const SProperty& prop(PropDetachedScript p);
+extern const std::vector<SProperty> allProps_script;
+const SProperty& prop(PropScript p);
 // ----------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------
@@ -251,6 +251,16 @@ enum class PropMesh {
 };
 extern const std::vector<SProperty> allProps_mesh;
 const SProperty& prop(PropMesh p);
+// ----------------------------------------------------------------------------------------------
+
+// ----------------------------------------------------------------------------------------------
+enum class PropTextureData {
+    #define FUNCX(name, str, v1, v2, t1) name,
+    TEXTUREDATA_PROPERTIES
+    #undef FUNCX
+};
+extern const std::vector<SProperty> allProps_textureData;
+const SProperty& prop(PropTextureData p);
 // ----------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------
@@ -374,13 +384,13 @@ const SProperty& prop(PropVisionSensor p);
 // ----------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------
-enum class PropScript {
+enum class PropScriptObject {
     #define FUNCX(name, str, v1, v2, t1) name,
-    SCRIPT_PROPERTIES
+    SCRIPTOBJECT_PROPERTIES
     #undef FUNCX
 };
-extern const std::vector<SProperty> allProps_script;
-const SProperty& prop(PropScript p);
+extern const std::vector<SProperty> allProps_scriptObject;
+const SProperty& prop(PropScriptObject p);
 // ----------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------
