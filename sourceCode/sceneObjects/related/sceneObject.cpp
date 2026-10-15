@@ -6475,28 +6475,6 @@ int CSceneObject::getBufferProperty(const char* ppName, std::string& pState) con
     return retVal;
 }
 
-int CSceneObject::setIntArray2Property(const char* ppName, const int* pState)
-{
-    int retVal = Obj::setIntArray2Property(ppName, pState);
-    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
-        retVal = _sceneObjectCustomizationPart->setIntArray2Property(ppName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-    }
-    return retVal;
-}
-
-int CSceneObject::getIntArray2Property(const char* ppName, int* pState) const
-{
-    int retVal = Obj::getIntArray2Property(ppName, pState);
-    if ((retVal == sim_propertyret_unknownproperty) && (_sceneObjectCustomizationPart != nullptr))
-        retVal = _sceneObjectCustomizationPart->getIntArray2Property(ppName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-    }
-    return retVal;
-}
-
 int CSceneObject::setVector3Property(const char* ppName, const C3Vector& pState)
 {
     int retVal = Obj::setVector3Property(ppName, pState);

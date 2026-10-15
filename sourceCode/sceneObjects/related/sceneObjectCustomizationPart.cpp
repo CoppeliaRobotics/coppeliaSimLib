@@ -103,12 +103,6 @@ void CSceneObjectCustomizationPart::_triggerEvent(const char* pName, CCbor* evv 
                     if (getBufferProperty(pName, v) == sim_propertyret_ok)
                         ev->appendKeyBuff(pName, (unsigned char*)v.data(), v.size());
                 }
-                else if (t == sim_propertytype_intarray2)
-                {
-                    int v[2];
-                    if (getIntArray2Property(pName, v) == sim_propertyret_ok)
-                        ev->appendKeyInt32Array(pName, v, 2);
-                }
                 else if (t == sim_propertytype_vector3)
                 {
                     C3Vector v;
@@ -493,35 +487,6 @@ int CSceneObjectCustomizationPart::getBufferProperty(const char* pName, std::str
     int retVal = _customProperties.getBufferProperty(pName, pState);
     if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
         _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::string& v) { s->pushBufferOntoStack(v.data(), v.size()); }, [](CInterfaceStack* s, std::string& v) { return s->getStackStringValue(v); });
-    return retVal;
-}
-
-int CSceneObjectCustomizationPart::setIntArray2Property(const char* pName, const int* pState)
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_intarray2))
-    { // property already exists (with correct type), or we want to set it to a class
-        int pp[2] = {pState[0], pState[1]};
-        if ((!_ignoreSetterGetter) && (!isClass()))
-            _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const int (&v)[2]) { s->pushInt32ArrayOntoStack(v, 2); }, [](CInterfaceStack* s, int (&v)[2]) { return s->getStackInt32Array(v, 2); });
-        bool changed = false;
-        retVal = _customProperties.setIntArray2Property(pName, pp, changed);
-        if (changed)
-            _triggerEvent(pName);
-    }
-    return retVal;
-}
-
-int CSceneObjectCustomizationPart::getIntArray2Property(const char* pName, int* pState) const
-{
-    int retVal = _customProperties.getIntArray2Property(pName, pState);
-    if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
-    {
-        int pp[2] = {pState[0], pState[1]};
-        _callPropertySetterGetter(pName, GET_SUFFIX, pp, [](CInterfaceStack* s, const int (&v)[2]) { s->pushInt32ArrayOntoStack(v, 2); }, [](CInterfaceStack* s, int (&v)[2]) { return s->getStackInt32Array(v, 2); });
-        pState[0] = pp[0];
-        pState[1] = pp[1];
-    }
     return retVal;
 }
 

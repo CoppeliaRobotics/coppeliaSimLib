@@ -4886,52 +4886,6 @@ int CSceneObjectContainer::getBufferProperty_t(int64_t target, const char* pName
     return retVal;
 }
 
-int CSceneObjectContainer::setIntArray2Property_t(int64_t target, const char* pName, const int* pState)
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (target == -1)
-    {
-    }
-    else
-    {
-        CSceneObject* it = getObjectFromHandle(int(target));
-        if (it != nullptr)
-            return it->setIntArray2Property(pName, pState);
-        else
-        {
-            CPose shapeRelTr;
-            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
-            if (mesh != nullptr)
-                return mesh->setIntArray2Property_mesh(pName, pState, shapeRelTr);
-        }
-        retVal = sim_propertyret_unknowntarget;
-    }
-    return retVal;
-}
-
-int CSceneObjectContainer::getIntArray2Property_t(int64_t target, const char* pName, int* pState) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-    if (target == -1)
-    {
-    }
-    else
-    {
-        CSceneObject* it = getObjectFromHandle(int(target));
-        if (it != nullptr)
-            return it->getIntArray2Property(pName, pState);
-        else
-        {
-            CPose shapeRelTr;
-            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
-            if (mesh != nullptr)
-                return mesh->getIntArray2Property_mesh(pName, pState, shapeRelTr);
-        }
-        retVal = sim_propertyret_unknowntarget;
-    }
-    return retVal;
-}
-
 int CSceneObjectContainer::setVector3Property_t(int64_t target, const char* pName, const C3Vector& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
@@ -5695,9 +5649,12 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                         break;
                     }
                     case sim_propertytype_intarray2: {
-                        int state[2];
-                        result = obj->getIntArray2Property(name.c_str(), state);
-                        dnaString.append(reinterpret_cast<const char*>(state), sizeof(state));
+                        std::vector<int> vvv;
+                        result = obj->getIntArrayProperty(name.c_str(), vvv);
+                        if (vvv.size() != 2)
+                            result = -1;
+                        else
+                            dnaString.append(reinterpret_cast<const char*>(vvv.data()), 2);
                         break;
                     }
                     case sim_propertytype_vector3: {
@@ -5778,8 +5735,8 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                         err += std::to_string(t);
                         App::logMsg(sim_verbosity_errors, err.c_str());
 #ifdef WIN_SIM
-                        App::beep(5000, 1000);
-                        VThread::sleep(500);
+                        App::beep(5000, 100);
+                        VThread::sleep(100);
 #endif
                     }
                 }

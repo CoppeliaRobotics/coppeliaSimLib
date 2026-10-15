@@ -3242,33 +3242,6 @@ int CMesh::getBufferProperty_mesh(const char* ppName, std::string& pState, const
     return retVal;
 }
 
-int CMesh::setIntArray2Property_mesh(const char* ppName, const int* pState, const CPose& shapeRelTr)
-{
-    int retVal = sim_propertyret_unknownproperty;
-
-    return retVal;
-}
-
-int CMesh::getIntArray2Property_mesh(const char* ppName, int* pState, const CPose& shapeRelTr) const
-{
-    const char* pName = ppName;
-    int retVal = sim_propertyret_unknownproperty;
-
-    if (strcmp(pName, prop(PropMesh::DEPRECATED_textureResolution).name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        if (_textureProperty != nullptr)
-            _textureProperty->getTextureObject()->getTextureSize(pState[0], pState[1]);
-        else
-        {
-            pState[0] = 0;
-            pState[1] = 0;
-        }
-    }
-
-    return retVal;
-}
-
 int CMesh::setVector3Property_mesh(const char* ppName, const C3Vector& pState, const CPose& shapeRelTr)
 {
     int retVal = sim_propertyret_unknownproperty;
@@ -3416,6 +3389,22 @@ int CMesh::getIntArrayProperty_mesh(const char* ppName, std::vector<int>& pState
     {
         retVal = sim_propertyret_ok;
         pState.assign(_indices.begin(), _indices.end());
+    }
+    if (strcmp(pName, prop(PropMesh::DEPRECATED_textureResolution).name) == 0)
+    {
+        retVal = sim_propertyret_ok;
+        if (_textureProperty != nullptr)
+        {
+            int s1, s2;
+            _textureProperty->getTextureObject()->getTextureSize(s1, s2);
+            pState.push_back(s1);
+            pState.push_back(s2);
+        }
+        else
+        {
+            pState.push_back(0);
+            pState.push_back(0);
+        }
     }
 
     return retVal;

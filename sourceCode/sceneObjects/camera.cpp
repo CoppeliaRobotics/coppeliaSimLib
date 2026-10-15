@@ -3402,28 +3402,6 @@ int CCamera::getStringProperty(const char* ppName, std::string& pState) const
     return retVal;
 }
 
-int CCamera::setIntArray2Property(const char* ppName, const int* pState)
-{
-    std::string _pName(ppName);
-    int retVal = CViewableBase::setIntArray2Property(ppName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-    }
-
-    return retVal;
-}
-
-int CCamera::getIntArray2Property(const char* ppName, int* pState) const
-{
-    std::string _pName(ppName);
-    int retVal = CViewableBase::getIntArray2Property(ppName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-    }
-
-    return retVal;
-}
-
 int CCamera::setColorProperty(const char* ppName, const float* pState)
 {
     std::string _pName(ppName);

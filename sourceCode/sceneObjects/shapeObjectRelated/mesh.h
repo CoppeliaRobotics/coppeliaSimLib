@@ -120,8 +120,6 @@ class CMesh : public CMeshWrapper
     int getStringProperty_mesh(const char* pName, std::string& pState, const CPose& shapeRelTr) const;
     int setBufferProperty_mesh(const char* pName, const std::string& pState, const CPose& shapeRelTr);
     int getBufferProperty_mesh(const char* pName, std::string& pState, const CPose& shapeRelTr) const;
-    int setIntArray2Property_mesh(const char* pName, const int* pState, const CPose& shapeRelTr);
-    int getIntArray2Property_mesh(const char* pName, int* pState, const CPose& shapeRelTr) const;
     int setVector3Property_mesh(const char* pName, const C3Vector& pState, const CPose& shapeRelTr);
     int getVector3Property_mesh(const char* pName, C3Vector& pState, const CPose& shapeRelTr) const;
     int getMatrixProperty_mesh(const char* pName, CMatrix& pState, const CPose& shapeRelTr) const;

@@ -1870,133 +1870,27 @@ int simGetBufferProperty_internal(int64_t target, const char* ppName, char** buf
 
 int simSetIntArray2Property_internal(int64_t target, const char* ppName, const int* pState)
 {
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        int retVal = sim_propertyret_invalidname;
-        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
-        {
-            std::string pName(ppName);
-            if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_intarray2)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_intarray2)))
-                retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)pState, 2 * sizeof(int));
-            else
-            {
-                pName = checkForDeprecation(__func__, pName.c_str(), target);
-                retVal = App::setIntArray2Property_t(target, pName.c_str(), pState);
-                if (retVal != sim_propertyret_ok)
-                {
-                    std::string pName2 = checkAltName(pName.c_str(), target);
-                    if (!pName2.empty())
-                        retVal = App::setIntArray2Property_t(target, pName2.c_str(), pState);
-                }
-                if (retVal != sim_propertyret_ok)
-                {
-                    if (retVal == sim_propertyret_unknowntarget)
-                        CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
-                    else
-                    {
-                        std::string err("'");
-                        err += pName + "' ";
-                        int info;
-                        std::string infoTxt;
-                        int p = App::getPropertyInfo_t(target, pName.c_str(), info, infoTxt);
-                        if (p < sim_propertytype_start)
-                        {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                            retVal = sim_propertyret_unknownproperty;
-                        }
-                        else if (p == sim_propertytype_intarray2)
-                        {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN).c_str());
-                            retVal = sim_propertyret_notwritable;
-                        }
-                        else
-                        {
-                            CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                            retVal = sim_propertyret_typemismatch;
-                        }
-                    }
-                }
-            }
-        }
-        return retVal;
-    }
-    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
-    return -1;
+    int retVal = simSetIntArrayProperty_internal(target, ppName, pState, 2);
+    return retVal;
 }
 
 int simGetIntArray2Property_internal(int64_t target, const char* ppName, int* pState)
 {
-    C_API_START;
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    int* v;
+    int s;
+    int retVal = simGetIntArrayProperty_internal(target, ppName, &v, &s);
+    if (retVal == sim_propertyret_ok)
     {
-        int retVal = sim_propertyret_unavailable;
-        std::string pName(ppName);
-        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_intarray2)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_intarray2)))
+        if (s == 2)
         {
-            int l;
-            char* data;
-            retVal = simGetBufferProperty_internal(target, pName.c_str(), &data, &l);
-            if (retVal > 0)
-            {
-                if (l == 2 * sizeof(int))
-                {
-                    for (size_t i = 0; i < 2; i++)
-                        pState[i] = ((int*)data)[i];
-                }
-                else
-                {
-                    CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_IS_CORRUPT);
-                    retVal = sim_propertyret_corrupt;
-                }
-                delete[] data;
-            }
+            pState[0] = v[0];
+            pState[1] = v[1];
+            delete[] v;
         }
         else
-        {
-            pName = checkForDeprecation(__func__, pName.c_str(), target);
-            retVal = App::getIntArray2Property_t(target, pName.c_str(), pState);
-            if (retVal != sim_propertyret_ok)
-            {
-                std::string pName2 = checkAltName(pName.c_str(), target);
-                if (!pName2.empty())
-                    retVal = App::getIntArray2Property_t(target, pName2.c_str(), pState);
-            }
-            if (retVal != sim_propertyret_ok)
-            {
-                if (retVal == sim_propertyret_unknowntarget)
-                    CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
-                else
-                {
-                    std::string err("'");
-                    err += pName + "' ";
-                    int info;
-                    std::string infoTxt;
-                    int p = App::getPropertyInfo_t(target, pName.c_str(), info, infoTxt);
-                    if (p < sim_propertytype_start)
-                    {
-                        CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
-                        retVal = sim_propertyret_unknownproperty;
-                    }
-                    else if (p == sim_propertytype_intarray2)
-                    {
-                        CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_CANNOT_BE_READ).c_str());
-                        retVal = sim_propertyret_notreadable;
-                    }
-                    else
-                    {
-                        CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
-                        retVal = sim_propertyret_typemismatch;
-                    }
-                }
-            }
-        }
-        return retVal;
+            retVal = sim_propertyret_typemismatch;
     }
-    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
-    return -1;
+    return retVal;
 }
 
 int simSetVector3Property_internal(int64_t target, const char* ppName, const double* pState)
@@ -2973,15 +2867,17 @@ int simGetFloatArrayProperty_internal(int64_t target, const char* ppName, double
                     }
                     else if ((p & 0xff) == sim_propertytype_intarray2)
                     {
-                        int w[2];
-                        retVal = App::getIntArray2Property_t(target, pName.c_str(), w);
-                        if (retVal == sim_propertyret_ok)
+                        std::vector<int> w;
+                        retVal = App::getIntArrayProperty_t(target, pName.c_str(), w);
+                        if ((retVal == sim_propertyret_ok) && (w.size() == 2))
                         {
-                            v[0] = new double[2];
-                            for (size_t i = 0; i < 2; i++)
+                            v[0] = new double[w.size()];
+                            for (size_t i = 0; i < w.size(); i++)
                                 v[0][i] = (double)w[i];
-                            vL[0] = 2;
+                            vL[0] = (int)w.size();
                         }
+                        else
+                            retVal = sim_propertyret_invalidvalue;
                     }
                     else if ((p & 0xff) == sim_propertytype_vector3)
                     {
@@ -3102,6 +2998,10 @@ int simSetIntArrayProperty_internal(int64_t target, const char* ppName, const in
                             }
                             else
                             {
+                                if (((p & 0xff) == sim_propertytype_intarray2) && (pState.size() == 2) )
+                                    retVal = App::setIntArrayProperty_t(target, pName.c_str(), pState);
+                                else
+                                    retVal = sim_propertyret_invalidvalue;
                                 if ((p & 0xff) == sim_propertytype_floatarray)
                                 {
                                     std::vector<double> w;
@@ -3189,15 +3089,16 @@ int simGetIntArrayProperty_internal(int64_t target, const char* ppName, int** v,
                 {
                     if ((p & 0xff) == sim_propertytype_intarray2)
                     {
-                        int w[2];
-                        retVal = App::getIntArray2Property_t(target, pName.c_str(), w);
-                        if (retVal == sim_propertyret_ok)
+                        retVal = App::getIntArrayProperty_t(target, pName.c_str(), vv);
+                        if ((retVal == sim_propertyret_ok) && (vv.size() == 2))
                         {
                             v[0] = new int[2];
                             for (size_t i = 0; i < 2; i++)
-                                v[0][i] = w[i];
+                                v[0][i] = vv[i];
                             vL[0] = 2;
                         }
+                        else
+                            retVal = sim_propertyret_invalidvalue;
                     }
                     if (retVal != sim_propertyret_ok)
                     {

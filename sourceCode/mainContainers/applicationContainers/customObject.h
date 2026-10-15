@@ -32,8 +32,6 @@ class CustomObject: public Obj
     int getTableProperty(const char* pName, std::string& pState) const override;
     int setBufferProperty(const char* pName, const std::string& pState) override;
     int getBufferProperty(const char* pName, std::string& pState) const override;
-    int setIntArray2Property(const char* pName, const int* pState) override;
-    int getIntArray2Property(const char* pName, int* pState) const override;
     int setVector3Property(const char* pName, const C3Vector& pState) override;
     int getVector3Property(const char* pName, C3Vector& pState) const override;
     int setMatrixProperty(const char* pName, const CMatrix& pState) override;

@@ -107,8 +107,6 @@ class Obj
     virtual int getTableProperty(const char* pName, std::string& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setBufferProperty(const char* pName, const std::string& pState) { return sim_propertyret_unknownproperty; }
     virtual int getBufferProperty(const char* pName, std::string& pState) const { return sim_propertyret_unknownproperty; }
-    virtual int setIntArray2Property(const char* pName, const int* pState) { return sim_propertyret_unknownproperty; }
-    virtual int getIntArray2Property(const char* pName, int* pState) const { return sim_propertyret_unknownproperty; }
     virtual int setVector3Property(const char* pName, const C3Vector& pState) { return sim_propertyret_unknownproperty; }
     virtual int getVector3Property(const char* pName, C3Vector& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setMatrixProperty(const char* pName, const CMatrix& pState) { return sim_propertyret_unknownproperty; }

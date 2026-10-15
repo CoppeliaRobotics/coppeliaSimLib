@@ -33,8 +33,6 @@ class CSceneObjectCustomizationPart
     int getTableProperty(const char* pName, std::string& pState) const;
     int setBufferProperty(const char* pName, const std::string& pState);
     int getBufferProperty(const char* pName, std::string& pState) const;
-    int setIntArray2Property(const char* pName, const int* pState);
-    int getIntArray2Property(const char* pName, int* pState) const;
     int setVector3Property(const char* pName, const C3Vector& pState);
     int getVector3Property(const char* pName, C3Vector& pState) const;
     int setMatrixProperty(const char* pName, const CMatrix& pState);

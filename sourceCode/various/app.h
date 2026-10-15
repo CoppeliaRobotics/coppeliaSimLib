@@ -128,8 +128,6 @@ class App
     static int getTableProperty_t(int64_t target, const char* pName, std::string& pState);
     static int setBufferProperty_t(int64_t target, const char* pName, const std::string& pState);
     static int getBufferProperty_t(int64_t target, const char* pName, std::string& pState);
-    static int setIntArray2Property_t(int64_t target, const char* pName, const int* pState);
-    static int getIntArray2Property_t(int64_t target, const char* pName, int* pState);
     static int setVector3Property_t(int64_t target, const char* pName, const C3Vector& pState);
     static int getVector3Property_t(int64_t target, const char* pName, C3Vector& pState);
     static int setMatrixProperty_t(int64_t target, const char* pName, const CMatrix& pState);

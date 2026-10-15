@@ -2391,7 +2391,6 @@ void CDynamicsContainer::appendGenesisData(CCbor* ev)
     setBoolProperty(nullptr, false, ev);
     setIntProperty(nullptr, 0, ev);
     setFloatProperty(nullptr, 0.0, ev);
-    setIntArray2Property(nullptr, nullptr, ev);
     setVector3Property(nullptr, nullptr, ev);
     std::vector<double> dummy;
     setFloatArrayProperty(nullptr, dummy, ev);
@@ -3242,42 +3241,6 @@ int CDynamicsContainer::getStringProperty(const char* pName, std::string& pState
         else
             retVal = sim_propertyret_invalidvalue;
     }
-
-    return retVal;
-}
-
-int CDynamicsContainer::setIntArray2Property(const char* pName, const int* pState, CCbor* eev /* = nullptr*/)
-{
-    int retVal = sim_propertyret_unknownproperty;
-    CCbor* ev = nullptr;
-    if (eev != nullptr)
-        ev = eev;
-
-    if ((eev == nullptr) && (pName != nullptr))
-    { // regular properties (i.e. non-engine properties)
-    }
-
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        // Following only for engine properties:
-        // -------------------------------------
-        // -------------------------------------
-    }
-
-    if (retVal == 1)
-        checkIfEngineSettingsAreDefault();
-
-    return retVal;
-}
-
-int CDynamicsContainer::getIntArray2Property(const char* pName, int* pState, bool getDefaultValue /*= false*/) const
-{
-    int retVal = sim_propertyret_unknownproperty;
-    // First non-engine properties:
-
-    // Engine-only properties:
-    // ------------------------
-    // ------------------------
 
     return retVal;
 }

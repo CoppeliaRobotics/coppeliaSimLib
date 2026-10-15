@@ -62,8 +62,6 @@ class CVisionSensor : public CViewableBase
     int getFloatProperty(const char* pName, double& pState) const override;
     int setStringProperty(const char* pName, const std::string& pState) override;
     int getStringProperty(const char* pName, std::string& pState) const override;
-    int setIntArray2Property(const char* pName, const int* pState) override;
-    int getIntArray2Property(const char* pName, int* pState) const override;
     int setBufferProperty(const char* pName, const std::string& pState) override;
     int getBufferProperty(const char* pName, std::string& pState) const override;
     int setColorProperty(const char* pName, const float* pState) override;

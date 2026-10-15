@@ -33,7 +33,7 @@ class CTextureContainer
     int getStringProperty_t(int64_t target, const char* pName, std::string& pState) const;
     int getStringArrayProperty_t(int64_t target, const char* pName, std::vector<std::string>& pState) const;
     int getBufferProperty_t(int64_t target, const char* pName, std::string& pState) const;
-    int getIntArray2Property_t(int64_t target, const char* pName, int* pState) const;
+    int getIntArrayProperty_t(int64_t target, const char* pName, std::vector<int>& pState) const;
     int getHandleArrayProperty_t(int64_t target, const char* pName, std::vector<int64_t>& pState) const;
     int getPropertyName_t(int64_t target, int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
     int getPropertyInfo_t(int64_t target, const char* pName, int& info, std::string& infoTxt) const;

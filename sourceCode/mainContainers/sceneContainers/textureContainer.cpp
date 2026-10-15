@@ -315,13 +315,13 @@ int CTextureContainer::getBufferProperty_t(int64_t target, const char* ppName, s
     return retVal;
 }
 
-int CTextureContainer::getIntArray2Property_t(int64_t target, const char* ppName, int* pState) const
+int CTextureContainer::getIntArrayProperty_t(int64_t target, const char* ppName, std::vector<int>& pState) const
 {
     int retVal = sim_propertyret_unknowntarget;
 
     CTextureObject* it = getObject(int(target));
     if (it != nullptr)
-        retVal = it->getIntArray2Property(ppName, pState);
+        retVal = it->getIntArrayProperty(ppName, pState);
     return retVal;
 }
 

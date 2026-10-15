@@ -57,8 +57,6 @@ class CustomObjectContainer
     int getTableProperty_t(int64_t target, const char* pName, std::string& pState) const;
     int setBufferProperty_t(int64_t target, const char* pName, const std::string& pState);
     int getBufferProperty_t(int64_t target, const char* pName, std::string& pState) const;
-    int setIntArray2Property_t(int64_t target, const char* pName, const int* pState);
-    int getIntArray2Property_t(int64_t target, const char* pName, int* pState) const;
     int setVector3Property_t(int64_t target, const char* pName, const C3Vector& pState);
     int getVector3Property_t(int64_t target, const char* pName, C3Vector& pState) const;
     int setMatrixProperty_t(int64_t target, const char* pName, const CMatrix& pState);

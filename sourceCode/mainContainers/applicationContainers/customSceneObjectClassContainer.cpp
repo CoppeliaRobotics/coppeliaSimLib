@@ -272,24 +272,6 @@ int CustomSceneObjectClassContainer::getBufferProperty_t(int64_t target, const c
     return retVal;
 }
 
-int CustomSceneObjectClassContainer::setIntArray2Property_t(int64_t target, const char* ppName, const int* pState)
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CSceneObject* obj = getClass(target);
-    if (obj != nullptr)
-        retVal = obj->setIntArray2Property(ppName, pState);
-    return retVal;
-}
-
-int CustomSceneObjectClassContainer::getIntArray2Property_t(int64_t target, const char* ppName, int* pState) const
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CSceneObject* obj = getClass(target);
-    if (obj != nullptr)
-        retVal = obj->getIntArray2Property(ppName, pState);
-    return retVal;
-}
-
 int CustomSceneObjectClassContainer::setVector3Property_t(int64_t target, const char* ppName, const C3Vector& pState)
 {
     int retVal = sim_propertyret_unknowntarget;

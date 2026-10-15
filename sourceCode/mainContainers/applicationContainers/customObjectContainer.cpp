@@ -532,24 +532,6 @@ int CustomObjectContainer::getBufferProperty_t(int64_t target, const char* ppNam
     return retVal;
 }
 
-int CustomObjectContainer::setIntArray2Property_t(int64_t target, const char* ppName, const int* pState)
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CustomObject* obj = getItem(target);
-    if (obj != nullptr)
-        retVal = obj->setIntArray2Property(ppName, pState);
-    return retVal;
-}
-
-int CustomObjectContainer::getIntArray2Property_t(int64_t target, const char* ppName, int* pState) const
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CustomObject* obj = getItem(target);
-    if (obj != nullptr)
-        retVal = obj->getIntArray2Property(ppName, pState);
-    return retVal;
-}
-
 int CustomObjectContainer::setVector3Property_t(int64_t target, const char* ppName, const C3Vector& pState)
 {
     int retVal = sim_propertyret_unknowntarget;

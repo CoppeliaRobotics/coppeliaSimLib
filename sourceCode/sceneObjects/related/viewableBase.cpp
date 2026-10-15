@@ -683,37 +683,6 @@ int CViewableBase::getFloatProperty(const char* pName, double& pState) const
     return retVal;
 }
 
-int CViewableBase::setIntArray2Property(const char* pName, const int* pState)
-{
-    int retVal = CSceneObject::setIntArray2Property(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (strcmp(prop(PropCamera::resolution).name, pName) == 0)
-        {
-            retVal = sim_propertyret_ok;
-            setResolution(pState);
-        }
-    }
-
-    return retVal;
-}
-
-int CViewableBase::getIntArray2Property(const char* pName, int* pState) const
-{
-    int retVal = CSceneObject::getIntArray2Property(pName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        if (strcmp(prop(PropCamera::resolution).name, pName) == 0)
-        {
-            retVal = sim_propertyret_ok;
-            pState[0] = _resolution[0];
-            pState[1] = _resolution[1];
-        }
-    }
-
-    return retVal;
-}
-
 int CViewableBase::setVector3Property(const char* pName, const C3Vector& pState)
 {
     int retVal = CSceneObject::setVector3Property(pName, pState);
@@ -786,6 +755,16 @@ int CViewableBase::setIntArrayProperty(const char* pName, const std::vector<int>
     int retVal = CSceneObject::setIntArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
+        if (strcmp(prop(PropCamera::resolution).name, pName) == 0)
+        {
+            if (pState.size() == 2)
+            {
+                retVal = sim_propertyret_ok;
+                setResolution(pState.data());
+            }
+            else
+                retVal = sim_propertyret_invalidvalue;
+        }
     }
 
     return retVal;
@@ -797,6 +776,12 @@ int CViewableBase::getIntArrayProperty(const char* pName, std::vector<int>& pSta
     int retVal = CSceneObject::getIntArrayProperty(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
+        if (strcmp(prop(PropCamera::resolution).name, pName) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState.push_back(_resolution[0]);
+            pState.push_back(_resolution[1]);
+        }
     }
 
     return retVal;

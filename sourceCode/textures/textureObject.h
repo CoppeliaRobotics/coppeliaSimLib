@@ -41,7 +41,7 @@ class CTextureObject : public Obj
     void setChangedFlag(bool c);
 
     int getBufferProperty(const char* pName, std::string& pState) const;
-    int getIntArray2Property(const char* pName, int* pState) const;
+    int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
 

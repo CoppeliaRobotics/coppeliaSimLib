@@ -2109,7 +2109,6 @@ void CJoint::pushNakedGenesisEvents(CCbor* ev /*= nullptr*/)
         setBoolProperty(nullptr, false, ev);
         setIntProperty(nullptr, 0, ev);
         setFloatProperty(nullptr, 0.0, ev);
-        setIntArray2Property(nullptr, nullptr, ev);
         C3Vector dummy;
         setVector3Property(nullptr, dummy, ev);
         std::vector<double> dummy2;
@@ -5541,92 +5540,6 @@ int CJoint::getFloatProperty(const char* ppName, double& pState) const
             retVal = sim_propertyret_ok;
             pState = _mujocoFloatParams[simi_mujoco_joint_springref];
         }
-        // ------------------------
-    }
-
-    return retVal;
-}
-
-int CJoint::setIntArray2Property(const char* ppName, const int* pState)
-{
-    return setIntArray2Property(ppName, pState, nullptr);
-}
-
-int CJoint::setIntArray2Property(const char* ppName, const int* pState, CCbor* eev)
-{
-    int retVal = sim_propertyret_unknownproperty;
-    CCbor* ev = nullptr;
-    if (eev != nullptr)
-        ev = eev;
-
-    if ((eev == nullptr) && (ppName != nullptr))
-    { // regular properties (i.e. non-engine properties)
-        retVal = CSceneObject::setIntArray2Property(ppName, pState);
-        if (retVal == sim_propertyret_unknownproperty)
-        {
-        }
-    }
-
-    if (retVal == sim_propertyret_unknownproperty)
-    {
-        // Following only for engine properties:
-        // -------------------------------------
-        auto handleProp = [&](const std::string& propertyName, std::vector<int>& arr, int simiIndex1) {
-            if ((ppName == nullptr) || (propertyName == ppName))
-            {
-                retVal = sim_propertyret_ok;
-                bool pa = false;
-                if (pState != nullptr)
-                {
-                    for (size_t i = 0; i < 2; i++)
-                        pa = pa || (arr[simiIndex1 + i] != pState[i]);
-                }
-                if ((ppName == nullptr) || pa)
-                {
-                    if (ppName != nullptr)
-                    {
-                        for (size_t i = 0; i < 2; i++)
-                            arr[simiIndex1 + i] = pState[i];
-                    }
-                    if (_isInScene && App::scenes->getEventsEnabled())
-                    {
-                        if (ev == nullptr)
-                            ev = App::scenes->createSceneObjectChangedEvent(this, false, propertyName.c_str(), true);
-                        ev->appendKeyInt32Array(propertyName.c_str(), arr.data() + simiIndex1, 2);
-                        if (ppName != nullptr)
-                            _sendEngineString(ev);
-                    }
-                }
-            }
-        };
-
-        // handleProp(prop(PropJoint::bulletPosPid).name, _bulletIntParams, simi_bullet_joint_pospid1);
-
-        if ((ev != nullptr) && (eev == nullptr))
-            App::scenes->pushEvent();
-        // -------------------------------------
-    }
-
-    return retVal;
-}
-
-int CJoint::getIntArray2Property(const char* ppName, int* pState) const
-{
-    std::string _pName(ppName);
-    int retVal = CSceneObject::getIntArray2Property(ppName, pState);
-    if (retVal == sim_propertyret_unknownproperty)
-    { // First non-engine properties:
-
-        // Engine-only properties:
-        // ------------------------
-        auto handleProp = [&](const std::vector<int>& arr, int simiIndex1) {
-            retVal = sim_propertyret_ok;
-            for (size_t i = 0; i < 2; i++)
-                pState[i] = arr[simiIndex1 + i];
-        };
-
-        //if (_pName == prop(PropJoint::bulletPosPid).name)
-        //    handleProp(_bulletIntParams, simi_bullet_joint_pospid1);
         // ------------------------
     }
 

@@ -197,24 +197,6 @@ int CInterfaceStackContainer::getBufferProperty_t(int64_t target, const char* pp
     return retVal;
 }
 
-int CInterfaceStackContainer::setIntArray2Property_t(int64_t target, const char* ppName, const int* pState)
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CInterfaceStack* stack = getStack(target);
-    if (stack != nullptr)
-        retVal = stack->setIntArray2Property(ppName, pState);
-    return retVal;
-}
-
-int CInterfaceStackContainer::getIntArray2Property_t(int64_t target, const char* ppName, int* pState) const
-{
-    int retVal = sim_propertyret_unknowntarget;
-    CInterfaceStack* stack = getStack(target);
-    if (stack != nullptr)
-        retVal = stack->getIntArray2Property(ppName, pState);
-    return retVal;
-}
-
 int CInterfaceStackContainer::setVector3Property_t(int64_t target, const char* ppName, const C3Vector& pState)
 {
     int retVal = sim_propertyret_unknowntarget;

@@ -628,16 +628,16 @@ int CTextureObject::getBufferProperty(const char* ppName, std::string& pState) c
     return retVal;
 }
 
-int CTextureObject::getIntArray2Property(const char* ppName, int* pState) const
+int CTextureObject::getIntArrayProperty(const char* ppName, std::vector<int>& pState) const
 {
-    int retVal = Obj::getIntArray2Property(ppName, pState);
-
+    int retVal = Obj::getIntArrayProperty(ppName, pState);
+    pState.clear();
     if (retVal == sim_propertyret_unknownproperty)
     {
         if (strcmp(ppName, prop(PropTextureData::resolution).name) == 0)
         {
-            pState[0] = _textureSize[0];
-            pState[1] = _textureSize[1];
+            pState.push_back(_textureSize[0]);
+            pState.push_back(_textureSize[1]);
             retVal = sim_propertyret_ok;
         }
     }

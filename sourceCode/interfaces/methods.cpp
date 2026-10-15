@@ -153,7 +153,6 @@ std::string callMethod(int targetObj, const char* method, CScript* currentScript
         funcTable["getStringArrayProperty"] = _method_getStringArrayProperty;
         funcTable["getHandleArrayProperty"] = _method_getHandleArrayProperty;
         funcTable["getHandleProperty"] = _method_getHandleProperty;
-        funcTable["getIntArray2Property"] = _method_getIntArray2Property;
         funcTable["getIntArrayProperty"] = _method_getIntArrayProperty;
         funcTable["getIntProperty"] = _method_getIntProperty;
         funcTable["getLongProperty"] = _method_getLongProperty;
@@ -169,7 +168,6 @@ std::string callMethod(int targetObj, const char* method, CScript* currentScript
         funcTable["setStringArrayProperty"] = _method_setStringArrayProperty;
         funcTable["setHandleArrayProperty"] = _method_setHandleArrayProperty;
         funcTable["setHandleProperty"] = _method_setHandleProperty;
-        funcTable["setIntArray2Property"] = _method_setIntArray2Property;
         funcTable["setIntArrayProperty"] = _method_setIntArrayProperty;
         funcTable["setIntProperty"] = _method_setIntProperty;
         funcTable["setLongProperty"] = _method_setLongProperty;
@@ -5954,36 +5952,6 @@ std::string _method_getHandleProperty(int targetObj, CScript* currentScript, con
     return errMsg;
 }
 
-std::string _method_getIntArray2Property(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    std::string errMsg;
-    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_optional | arg_map}))
-    {
-        std::string pName = fetchText(inStack, 0);
-        bool noError = false;
-        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
-        {
-            map->fetchBoolFromKey("noError", noError, &err);
-        });
-        if (errMsg.size() == 0)
-        {
-            int pValue[2];
-            if (CALL_C_API(simGetIntArray2Property, targetObj, pName.c_str(), pValue) > 0)
-                outStack->pushInt32ArrayOntoStack(pValue, 2);
-            else
-            {
-                errMsg = CApiErrors::getAndClearLastError();
-                if (noError)
-                {
-                    outStack->pushNullOntoStack();
-                    errMsg.clear();
-                }
-            }
-        }
-    }
-    return errMsg;
-}
-
 std::string _method_getIntArrayProperty(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
@@ -6495,44 +6463,6 @@ std::string _method_setHandleProperty(int targetObj, CScript* currentScript, con
         if (errMsg.size() == 0)
         {
             if (CALL_C_API(simSetHandleProperty, targetObj, pName.c_str(), pValue) > 0)
-            {
-                if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
-                {
-                    std::string nn(pName);
-                    if (targetObj == sim_handle_app)
-                        nn = "app." + nn;
-                    else if (targetObj != sim_handle_scene)
-                        nn = "obj." + nn;
-                    currentScript->signalSet(nn.c_str(), targetObj);
-                }
-            }
-            else
-            {
-                errMsg = CApiErrors::getAndClearLastError();
-                if (noError)
-                    errMsg.clear();
-            }
-        }
-    }
-    return errMsg;
-}
-
-std::string _method_setIntArray2Property(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    std::string errMsg;
-    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_table, -1, arg_integer, arg_optional | arg_map}))
-    {
-        std::string pName = fetchText(inStack, 0);
-        std::vector<int> pValue;
-        fetchIntArray(inStack, 1, pValue);
-        bool noError = false;
-        withOptionalMap(inStack, 2, errMsg, [&](CInterfaceStackTable* map, std::string& err)
-        {
-            map->fetchBoolFromKey("noError", noError, &err);
-        });
-        if (errMsg.size() == 0)
-        {
-            if (CALL_C_API(simSetIntArray2Property, targetObj, pName.c_str(), pValue.data()) > 0)
             {
                 if ((currentScript != nullptr) && utils::startsWith(pName.c_str(), SIGNALPREFIXDOT))
                 {

@@ -46,8 +46,6 @@ class CConvexVolume
     int getIntProperty(const char* pName, int& pState) const;
     int setFloatProperty(const char* pName, double pState);
     int getFloatProperty(const char* pName, double& pState) const;
-    int setIntArray2Property(const char* pName, const int* pState);
-    int getIntArray2Property(const char* pName, int* pState) const;
     int setColorProperty(const char* pName, const float* pState);
     int getColorProperty(const char* pName, float* pState) const;
     int setFloatArrayProperty(const char* pName, const std::vector<double>& pState);
