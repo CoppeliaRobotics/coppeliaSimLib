@@ -1,11 +1,10 @@
+import re
+
 def propertyName(p):
     return p.name.replace(':', '.')
 
 def propertyType(p):
-    if getattr(p, 'array', False): # MethodInfo doesn't have 'array' attirbute
-        return f'sim_propertytype_{p.type[:-2]}array{p.array_size or ""}'
-    else:
-        return f'sim_propertytype_{p.type}'
+    return f"sim_propertytype_{re.sub(r'\[\]$', 'array', p.type)}"
 
 def propertyFlags(p):
     f = []
