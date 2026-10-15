@@ -2,15 +2,10 @@ def propertyName(p):
     return p.name.replace(':', '.')
 
 def propertyType(p):
-    import re
-    match = re.match(r'^(.*)\[(\d*)\]$', p.type)
-    if match:
-        base, arr_sz_str = match.group(1), match.group(2)
-        arr_sz = int(arr_sz_str) if arr_sz_str else None
-        t = (base, True, arr_sz)
+    if getattr(p, 'array', False): # MethodInfo doesn't have 'array' attirbute
+        return f'sim_propertytype_{p.type[:-2]}array{p.array_size or ""}'
     else:
-        t = (p.type, False, None)
-    return f'sim_propertytype_{t[0]}{"array" if t[1] else ""}{t[2] if t[2] is not None else ""}'
+        return f'sim_propertytype_{p.type}'
 
 def propertyFlags(p):
     f = []
