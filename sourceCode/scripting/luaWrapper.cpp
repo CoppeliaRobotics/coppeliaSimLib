@@ -818,6 +818,21 @@ const char* luaWrap_lua_tobuffer(luaWrap_lua_State* L, int idx, size_t* len)
 
     if (luaWrap_lua_isbuffer(L, idx))
     {
+        // since 16/10/2016, Buffer provides a :str() method;
+        // previously, __tostring metamethod was used
+
+        lua_getfield((lua_State*)L, idx, "str");            // push obj.str
+        if (lua_isfunction((lua_State*)L, -1))
+        {
+            lua_pushvalue((lua_State*)L, idx);              // push self (obj)
+            lua_call((lua_State*)L, 1, 1);                  // call obj:str()
+            retVal = lua_tolstring((lua_State*)L, -1, len); // result is now at top
+            lua_pop((lua_State*)L, 1);
+            return retVal;
+        }
+
+        // if no :str() method, fallback to old __tostring:
+
         retVal = luaL_tolstring((lua_State*)L, idx, len); // buffer has a __tostring metamethod
         lua_pop((lua_State*)L, 1);                        // the metamethod adds a value to the stack
     }
