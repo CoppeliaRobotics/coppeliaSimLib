@@ -23,7 +23,7 @@ CColorObject::CColorObject()
     _flashFrequency = 2.0;
     _flashRatio = 0.5;
     _flashPhase = 0.0;
-    _eventFlags = 1 + 4 + 8; // default: ambient/diffuse, specular and emission
+    _eventFlags = 1 + 4 + 8; // default: ambient/diffuse, specular and emission (transparency: 16)
     _eventObjectHandle = -1;
     _belongsToSceneObject = false;
     setDefaultValues();
@@ -948,9 +948,9 @@ int CColorObject::getPropertyName(int& index, std::string& pName, int excludeFla
     int retVal = sim_propertyret_unknownproperty;
     for (size_t i = 0; i < allProps_col.size(); i++)
     {
-        if ((i == 4) || ((i == 0) && (_eventFlags & (1 | 2))) || ((i == 1) && (_eventFlags & 4)) || ((i == 2) && (_eventFlags & 8)) || ((i == 3) && (_eventFlags & 16)))
-        { // i == 4 for the COLORPREFIXTAG
-            std::string nm = allProps_col[i].name;
+        std::string nm = allProps_col[i].name;
+        if ((nm == "__--__") || ((nm == "diffuse") && (_eventFlags & (1 | 2))) || ((nm == "specular") && (_eventFlags & 4)) || ((nm == "emission") && (_eventFlags & 8)) || ((nm == "transparency") && (_eventFlags & 16)))
+        { // nm == "__--__" for the COLORPREFIXTAG/GROUP
             if (nm == COLORPREFIXTAG)
             {
                 nm = _eventPrefix;
@@ -982,9 +982,9 @@ int CColorObject::getPropertyInfo(const char* ppName, int& info, std::string& in
     std::string pName(ppName);
     for (size_t i = 0; i < allProps_col.size(); i++)
     {
-        if ((i == 4) || ((i == 0) && (_eventFlags & (1 | 2))) || ((i == 1) && (_eventFlags & 4)) || ((i == 2) && (_eventFlags & 8)) || ((i == 3) && (_eventFlags & 16)))
-        { // i == 4 for the COLORPREFIXTAG
-            std::string nm = allProps_col[i].name;
+        std::string nm = allProps_col[i].name;
+        if ((nm == "__--__") || ((nm == "diffuse") && (_eventFlags & (1 | 2))) || ((nm == "specular") && (_eventFlags & 4)) || ((nm == "emission") && (_eventFlags & 8)) || ((nm == "transparency") && (_eventFlags & 16)))
+        { // nm == "__--__" for the COLORPREFIXTAG/GROUP
             if (nm == COLORPREFIXTAG)
             {
                 nm = _eventPrefix;

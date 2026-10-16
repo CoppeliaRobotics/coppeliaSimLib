@@ -682,7 +682,7 @@ std::string checkAltName(const char* pName, int target)
         {
             objTypeStr += "."; // e.g. "joint."
             size_t p2 = n.rfind(objTypeStr);
-            if (p2 + objTypeStr.size() - 1 == p1)
+            if (p2 != std::string::npos && p2 + objTypeStr.size() == p1 + 1)
             {
                 n.erase(p2, objTypeStr.size());
                 retVal = n;
