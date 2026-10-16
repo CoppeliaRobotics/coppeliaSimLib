@@ -713,6 +713,7 @@ if(WITH_GUI)
 endif()
 
 
+set_source_files_properties(sourceCode/various/propertiesAndMethods.cpp PROPERTIES SKIP_AUTOMOC ON)
 add_custom_command(
     OUTPUT
         ${CMAKE_CURRENT_BINARY_DIR}/generated/propertiesAndMethods.h
