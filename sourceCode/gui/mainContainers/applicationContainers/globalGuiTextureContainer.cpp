@@ -147,7 +147,7 @@ CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
     dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/marker.tga", xres, yres, rgba, nullptr);
     addObject(MARKER_TREE_PICTURE, xres, yres, rgba, false, true, dat);
     delete[] dat;
-    dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/customsceneobject.tga", xres, yres, rgba, nullptr);
+    dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/customSceneObject.tga", xres, yres, rgba, nullptr);
     addObject(CUSTOMSCENEOBJECT_TREE_PICTURE, xres, yres, rgba, false, true, dat);
     delete[] dat;
     dat = CImageLoaderSaver::loadQTgaImageData(":/targaFiles/mill.tga", xres, yres, rgba, nullptr);
