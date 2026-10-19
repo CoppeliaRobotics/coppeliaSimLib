@@ -65,7 +65,7 @@ SignalHandler* App::_sigHandler = nullptr;
 CGm* App::gm = nullptr;
 std::vector<void*> App::callbacks;
 InstancesList* App::instancesList = nullptr;
-qint64 App::pid = -1;
+int64_t App::pid = -1;
 std::vector<int> App::_scriptsToReset;
 std::vector<int> App::_scriptsToInit;
 VMutex App::_appSemaphore;

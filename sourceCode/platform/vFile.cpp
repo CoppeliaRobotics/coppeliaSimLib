@@ -121,7 +121,7 @@ bool VFile::createFolder(const char* pathAndName)
     return (qdir.mkdir(QString::fromLocal8Bit(pathAndName)));
 }
 
-quint64 VFile::getLength()
+uint64_t VFile::getLength()
 {
     return (_theFile->size());
 }

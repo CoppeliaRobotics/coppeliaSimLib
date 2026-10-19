@@ -186,7 +186,7 @@ class App
     static CGm* gm;
     static std::vector<void*> callbacks;
     static InstancesList* instancesList;
-    static qint64 pid;
+    static int64_t pid;
 
 #ifndef SIM_WITH_GUI
     static CSimQApp* qtApp;

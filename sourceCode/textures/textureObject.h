@@ -40,10 +40,10 @@ class CTextureObject : public Obj
     bool getChangedFlag() const;
     void setChangedFlag(bool c);
 
-    int getBufferProperty(const char* pName, std::string& pState) const;
-    int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
-    int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const;
-    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const;
+    int getBufferProperty(const char* pName, std::string& pState) const override;
+    int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
+    int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
+    int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
 
   protected:
     std::vector<unsigned char> _textureBuffer;

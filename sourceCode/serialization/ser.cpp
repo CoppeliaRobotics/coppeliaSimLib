@@ -990,7 +990,7 @@ CSer& CSer::operator<<(const unsigned int& v)
     return (*this);
 }
 
-CSer& CSer::operator<<(const quint64& v)
+CSer& CSer::operator<<(const uint64_t& v)
 {
     unsigned char* tmp = (unsigned char*)(&v);
     for (int i = 0; i < int(sizeof(v)); i++)
@@ -1081,7 +1081,7 @@ CSer& CSer::operator>>(unsigned int& v)
     return (*this);
 }
 
-CSer& CSer::operator>>(quint64& v)
+CSer& CSer::operator>>(uint64_t& v)
 {
     unsigned char* tmp = (unsigned char*)(&v);
     for (int i = 0; i < int(sizeof(v)); i++)

@@ -7877,14 +7877,14 @@ int simGetUInt64Param_internal(int parameter, uint64_t* intState)
         {
             if (App::scene->simulation == nullptr)
                 return (-1);
-            intState[0] = quint64(App::scene->simulation->getTimeStep() * 1000000000.0);
+            intState[0] = uint64_t(App::scene->simulation->getTimeStep() * 1000000000.0);
             return (1);
         }
         if (parameter == sim_uint64param_simulation_time_ns)
         {
             if (App::scene->simulation == nullptr)
                 return (-1);
-            intState[0] = quint64(App::scene->simulation->getSimulationTime() * 1000000000.0);
+            intState[0] = uint64_t(App::scene->simulation->getSimulationTime() * 1000000000.0);
             return (1);
         }
         CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_PARAMETER);

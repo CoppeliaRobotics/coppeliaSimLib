@@ -818,7 +818,7 @@ const char* luaWrap_lua_tobuffer(luaWrap_lua_State* L, int idx, size_t* len)
 
     if (luaWrap_lua_isbuffer(L, idx))
     {
-        // since 16/10/2016, Buffer provides a :str() method;
+        // since 16/10/2026, Buffer provides a :str() method;
         // previously, __tostring metamethod was used
 
         lua_getfield((lua_State*)L, idx, "str");            // push obj.str

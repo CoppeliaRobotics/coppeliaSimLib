@@ -104,7 +104,7 @@ class CEnvironment
     bool getSceneIsClosingFlag() const;
     void setSceneIsClosingFlag(bool closing);
 
-    quint64 autoSaveLastSaveTimeInSecondsSince1970;
+    uint64_t autoSaveLastSaveTimeInSecondsSince1970;
     float fogBackgroundColor[3];
     float backGroundColor[3];
     float backGroundColorDown[3];

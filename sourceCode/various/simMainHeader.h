@@ -3,7 +3,8 @@
 
 #ifdef __cplusplus
 
-#include "simConfig.h"
+#include <simConfig.h>
+#include <cstdint>
 
 #define STRINGIFY(x) #x
 #define TOSTR(x) STRINGIFY(x)
@@ -126,7 +127,7 @@ typedef void* (*VTHREAD_START_ADDRESS)(void*);
                                 // except for a single close button!!!
 #endif
 
-#define VRGB(r, g, b) (quint32(quint8(r) | (quint8(g) << 8) | (quint8(b) << 16)))
+#define VRGB(r, g, b) (uint32_t(uint8_t(r) | (uint8_t(g) << 8) | (uint8_t(b) << 16)))
 #define VRGBW(a)                                                                                                    \
     (static_cast<unsigned int>(                                                                                     \
         (static_cast<unsigned char>(a[0]) | (static_cast<uint16_t>(static_cast<unsigned char>(a[1])) << 8)) | \

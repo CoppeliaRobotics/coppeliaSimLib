@@ -205,7 +205,7 @@ void InstancesList::writeInstancesList(const QMap<int, int>& instancesList)
     }
 
     // Copy the buffer data to shared memory
-    memcpy(sharedMemory.data(), buffer.data().constData(), qMin(qint64(sharedMemory.size()), buffer.size()));
+    memcpy(sharedMemory.data(), buffer.data().constData(), qMin(int64_t(sharedMemory.size()), buffer.size()));
 
     //qDebug() << "InstancesList::writeInstancesList: Wrote" << buffer.size() << "bytes";
 

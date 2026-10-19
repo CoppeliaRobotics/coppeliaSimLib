@@ -69,19 +69,19 @@ class VArchive
 
     inline VArchive& operator<<(const unsigned char& v)
     {
-        (*_theArchive) << quint8(v);
+        (*_theArchive) << uint8_t(v);
         return (*this);
     }
 
     inline VArchive& operator<<(const char& v)
     {
-        (*_theArchive) << qint8(v);
+        (*_theArchive) << int8_t(v);
         return (*this);
     }
 
     inline VArchive& operator<<(const signed char& v)
     {
-        (*_theArchive) << qint8(v);
+        (*_theArchive) << int8_t(v);
         return (*this);
     }
 
@@ -147,7 +147,7 @@ class VArchive
 
     inline VArchive& operator>>(char& v)
     {
-        (*_theArchive) >> ((qint8*)(&v))[0];
+        (*_theArchive) >> ((int8_t*)(&v))[0];
         return (*this);
     }
 

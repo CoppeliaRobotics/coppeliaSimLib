@@ -20,7 +20,7 @@ class VFile
     static void eraseFile(const char* filenameAndPath);
     static int eraseFilesWithPrefix(const char* pathWithoutTerminalSlash, const char* prefix);
 
-    quint64 getLength();
+    uint64_t getLength();
     void close();
     WFile* getFile();
     bool flush();

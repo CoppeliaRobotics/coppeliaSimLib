@@ -14,7 +14,7 @@ struct SSimulationThreadCommand
     double execTime;
     std::vector<bool> boolParams;
     std::vector<int> intParams;
-    std::vector<quint64> uint64Params;
+    std::vector<uint64_t> uint64Params;
     std::vector<unsigned char> uint8Params;
     std::vector<double> doubleParams;
     std::vector<void*> objectParams;

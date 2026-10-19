@@ -815,7 +815,7 @@ void CSimulation::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("St2"); // for backward compatibility (05/09/2022), keep before St3
-            ar << quint64(_simulationTimeStep * 1000000.0);
+            ar << uint64_t(_simulationTimeStep * 1000000.0);
             ar.flush();
 
             ar.storeDataName("_t3");
@@ -857,7 +857,7 @@ void CSimulation::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Pa2"); // for backward compatibility (05/09/2022), keep before Pa3
-            ar << quint64(_simulationTimeToPause * 1000000.0);
+            ar << uint64_t(_simulationTimeToPause * 1000000.0);
             ar.flush();
 
             ar.storeDataName("_a3");
@@ -890,7 +890,7 @@ void CSimulation::serialize(CSer& ar)
                     { // for backward compatibility (05/09/2022)
                         noHit = false;
                         ar >> byteQuantity;
-                        quint64 stp;
+                        uint64_t stp;
                         ar >> stp;
                         _simulationTimeStep = double(stp) / 1000000.0;
                     }
@@ -984,7 +984,7 @@ void CSimulation::serialize(CSer& ar)
                     { // for backward compatibility (05/09/2022)
                         noHit = false;
                         ar >> byteQuantity;
-                        quint64 p;
+                        uint64_t p;
                         ar >> p;
                         _simulationTimeToPause = double(p) / 1000000.0;
                     }
@@ -1033,7 +1033,7 @@ void CSimulation::serialize(CSer& ar)
                 ar.xmlAddNode_comment(" 'simulationTimeStep_ns' tag: used for backward compatibility", exhaustiveXml);
                 ar.xmlAddNode_uint64(
                     "simulationTimeStep_ns",
-                    quint64(_simulationTimeStep * 1000000.0)); // for backward compatibility (05.09.2022)
+                    uint64_t(_simulationTimeStep * 1000000.0)); // for backward compatibility (05.09.2022)
             }
 
             ar.xmlAddNode_int("simulationPassesPerRendering", _simulationPassesPerRendering);
@@ -1050,7 +1050,7 @@ void CSimulation::serialize(CSer& ar)
                                       exhaustiveXml);
                 ar.xmlAddNode_uint64(
                     "simulationTimeToPause_ns",
-                    quint64(_simulationTimeToPause * 1000000.0)); // for backward compatibility (05.09.2022)
+                    uint64_t(_simulationTimeToPause * 1000000.0)); // for backward compatibility (05.09.2022)
             }
 
             ar.xmlPushNewNode("switches");
@@ -1069,7 +1069,7 @@ void CSimulation::serialize(CSer& ar)
             bool usingOldDefaultParams = true;
             if (exhaustiveXml)
             { // for backward compatibility (05.09.2022)
-                quint64 step;
+                uint64_t step;
                 ar.xmlGetNode_uint64("simulationTimeStep_ns", step);
                 _simulationTimeStep = double(step) / 1000000.0;
             }
@@ -1095,7 +1095,7 @@ void CSimulation::serialize(CSer& ar)
 
             if (exhaustiveXml)
             { // for backward compatibility (05.09.2022)
-                quint64 p;
+                uint64_t p;
                 ar.xmlGetNode_uint64("simulationTimeToPause_ns", p);
                 _simulationTimeToPause = double(p) / 1000000.0;
             }
