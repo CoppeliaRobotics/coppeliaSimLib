@@ -2,6 +2,65 @@
 #include <simLib/simConst.h>
 #include <app.h>
 
+// Builds the cache-global name for a module: "__" followed by moduleName
+// with '-' replaced by '_'. Writes a NUL-terminated string into buf
+// (at most bufSize bytes, truncating if necessary) and returns buf.
+static const char* luaWrap_moduleCacheName(const char* moduleName, char* buf, size_t bufSize)
+{
+    size_t n = 0;
+    if (n + 1 < bufSize) buf[n++] = '_';
+    if (n + 1 < bufSize) buf[n++] = '_';
+    for (const char* p = moduleName; (*p != '\0') && (n + 1 < bufSize); ++p)
+        buf[n++] = (*p == '-') ? '_' : *p;
+    if (bufSize > 0) buf[n] = '\0';
+    return buf;
+}
+
+// Ensures `moduleName` is loaded and cached in its derived cache global.
+// On success returns true with the module table on top.
+// On failure returns false with an error object on top.
+static bool luaWrap_getModule(lua_State* S, const char* moduleName)
+{
+    char cacheName[64]; // enough for any realistic module name
+    luaWrap_moduleCacheName(moduleName, cacheName, sizeof(cacheName));
+
+    lua_getglobal(S, cacheName);
+    if (!lua_isnil(S, -1))
+        return true;                 // module table on top
+
+    lua_pop(S, 1);                   // pop nil
+    lua_getglobal(S, "require");
+    lua_pushstring(S, moduleName);   // runtime name, so lua_pushstring (not literal)
+    if (lua_pcall(S, 1, 1, 0) != LUA_OK)
+        return false;                // error object on top
+
+    lua_pushvalue(S, -1);            // dup module
+    lua_setglobal(S, cacheName);     // cache it
+    return true;                     // module table on top
+}
+
+// Pushes <module>.<field> and drops the module table, so the field value
+// is on top. On failure returns false with an error object on top.
+static bool luaWrap_pushModuleField(lua_State* S, const char* moduleName, const char* field)
+{
+    if (!luaWrap_getModule(S, moduleName))
+        return false;                // error on top
+    lua_getfield(S, -1, field);      // <module>.<field>
+    lua_remove(S, -2);               // drop module table
+    return true;
+}
+
+// Convenience wrappers so call sites stay short.
+static bool luaWrap_pushSim2Field(lua_State* S, const char* field)
+{
+    return luaWrap_pushModuleField(S, "sim-2", field);      // caches __sim_2
+}
+
+static bool luaWrap_pushSimEigenField(lua_State* S, const char* field)
+{
+    return luaWrap_pushModuleField(S, "simEigen", field);   // caches __simEigen
+}
+
 int luaWrapGet_LUA_MULTRET()
 {
     return (LUA_MULTRET);
@@ -861,6 +920,22 @@ const char* luaWrap_lua_tobuffer(luaWrap_lua_State* L, int idx, size_t* len)
 
 void luaWrap_lua_pushbuffer(luaWrap_lua_State* L, const char* str, size_t l)
 {
+    if (!App::userSettings->useBuffers)
+    {
+        luaWrap_lua_pushbinarystring(L, str, l); // old, no difference between strings and buffers
+        return;
+    }
+    lua_State* S = (lua_State*)L;
+    if (!luaWrap_pushSim2Field(S, "Buffer"))
+        return;                      // error on stack
+    lua_pushlstring(S, str, l);
+    if (lua_pcall(S, 1, 1, 0) != LUA_OK)
+        return;                      // error on stack
+}
+
+/*
+void luaWrap_lua_pushbuffer(luaWrap_lua_State* L, const char* str, size_t l)
+{
     if (App::userSettings->useBuffers)
     {
         lua_getglobal((lua_State*)L, "tobuffer");
@@ -870,7 +945,31 @@ void luaWrap_lua_pushbuffer(luaWrap_lua_State* L, const char* str, size_t l)
     else
         luaWrap_lua_pushbinarystring(L, str, l); // old, no difference between strings and buffers
 }
-
+*/
+bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, int64_t h)
+{
+    bool retVal = false;
+    if ((h == sim_handle_scene) || (h == sim_handle_app) || (h >= 0))
+    {
+        lua_State* S = (lua_State*)L;
+        if (luaWrap_pushSim2Field(S, "Object"))
+        {
+            lua_pushinteger(S, h);
+            if (lua_pcall(S, 1, 1, 0) == LUA_OK)
+                retVal = true;
+            else
+                lua_pop(S, 1);
+        }
+        else
+        {
+            lua_pop(S, 1);           // pop error object
+        }
+    }
+    if (!retVal)
+        lua_pushnil((lua_State*)L);
+    return retVal;
+}
+/*
 bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, int64_t h)
 {
     bool retVal = false;
@@ -893,7 +992,22 @@ bool luaWrap_lua_pushhandle(luaWrap_lua_State* L, int64_t h)
         lua_pushnil((lua_State*)L);
     return retVal;
 }
-
+*/
+void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const int64_t* handles, int cnt)
+{
+    lua_State* S = (lua_State*)L;
+    if (!luaWrap_pushSim2Field(S, "ObjectArray"))
+        return;                      // error on stack
+    lua_createtable(S, cnt, 0);
+    for (int i = 0; i < cnt; i++)
+    {
+        lua_pushinteger(S, handles[i]);
+        lua_rawseti(S, -2, i + 1);
+    }
+    if (lua_pcall(S, 1, 1, 0) != LUA_OK)
+        return;                      // error on stack
+}
+/*
 void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const int64_t* handles, int cnt)
 {
     lua_getglobal((lua_State*)L, "_ObjectArray__");
@@ -911,7 +1025,25 @@ void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const int64_t* handles, i
     }
     lua_pcall((lua_State*)L, 1, 1, 0);
 }
+*/
 
+void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t rows, size_t cols)
+{
+    lua_State* S = (lua_State*)L;
+    if (!luaWrap_pushSimEigenField(S, "Matrix"))
+        return;                      // error on stack
+    lua_pushinteger(S, (lua_Integer)rows);
+    lua_pushinteger(S, (lua_Integer)cols);
+    lua_createtable(S, int(rows * cols), 0);
+    for (size_t i = 0; i < rows * cols; i++)
+    {
+        lua_pushnumber(S, matrix[i]);
+        lua_rawseti(S, -2, i + 1);
+    }
+    if (lua_pcall(S, 3, 1, 0) != LUA_OK)  // Matrix(rows, cols, table)
+        return;                      // error on stack
+}
+/*
 void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t rows, size_t cols)
 {
     lua_getglobal((lua_State*)L, "_Matrix__");
@@ -931,12 +1063,27 @@ void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t r
     }
     lua_pcall((lua_State*)L, 3, 1, 0);
 }
-
+*/
 void luaWrap_lua_pushvector3(luaWrap_lua_State* L, const double* dat)
 {
     luaWrap_lua_pushmatrix(L, dat, 3, 1);
 }
 
+void luaWrap_lua_pushquaternion(luaWrap_lua_State* L, const double* dat)
+{
+    lua_State* S = (lua_State*)L;
+    if (!luaWrap_pushSimEigenField(S, "Quaternion"))
+        return;                      // error on stack
+    lua_createtable(S, 4, 0);
+    for (size_t i = 0; i < 4; i++)
+    {
+        lua_pushnumber(S, dat[i]);
+        lua_rawseti(S, -2, i + 1);
+    }
+    if (lua_pcall(S, 1, 1, 0) != LUA_OK)
+        return;                      // error on stack
+}
+/*
 void luaWrap_lua_pushquaternion(luaWrap_lua_State* L, const double* dat)
 {
     lua_getglobal((lua_State*)L, "_Quaternion__");
@@ -954,7 +1101,23 @@ void luaWrap_lua_pushquaternion(luaWrap_lua_State* L, const double* dat)
     }
     lua_pcall((lua_State*)L, 1, 1, 0);
 }
+*/
 
+void luaWrap_lua_pushpose(luaWrap_lua_State* L, const double* dat)
+{
+    lua_State* S = (lua_State*)L;
+    if (!luaWrap_pushSimEigenField(S, "Pose"))
+        return;                      // error on stack
+    lua_createtable(S, 7, 0);
+    for (size_t i = 0; i < 7; i++)
+    {
+        lua_pushnumber(S, dat[i]);
+        lua_rawseti(S, -2, i + 1);
+    }
+    if (lua_pcall(S, 1, 1, 0) != LUA_OK)
+        return;                      // error on stack
+}
+/*
 void luaWrap_lua_pushpose(luaWrap_lua_State* L, const double* dat)
 {
     lua_getglobal((lua_State*)L, "_Pose__");
@@ -972,7 +1135,22 @@ void luaWrap_lua_pushpose(luaWrap_lua_State* L, const double* dat)
     }
     lua_pcall((lua_State*)L, 1, 1, 0);
 }
-
+*/
+void luaWrap_lua_pushcolor(luaWrap_lua_State* L, const float c[4])
+{
+    lua_State* S = (lua_State*)L;
+    if (!luaWrap_pushSim2Field(S, "Color"))
+        return;                      // error on stack
+    lua_createtable(S, 4, 0);
+    for (size_t i = 0; i < 4; i++)
+    {
+        lua_pushnumber(S, c[i]);
+        lua_rawseti(S, -2, i + 1);
+    }
+    if (lua_pcall(S, 1, 1, 0) != LUA_OK)
+        return;                      // error on stack
+}
+/*
 void luaWrap_lua_pushcolor(luaWrap_lua_State* L, const float c[4])
 {
     lua_getglobal((lua_State*)L, "_Color__");
@@ -990,7 +1168,7 @@ void luaWrap_lua_pushcolor(luaWrap_lua_State* L, const float c[4])
     }
     lua_pcall((lua_State*)L, 1, 1, 0);
 }
-
+*/
 void luaWrap_lua_pushbinarystring(luaWrap_lua_State* L, const char* str, size_t l)
 {
     lua_pushlstring((lua_State*)L, str, l);
