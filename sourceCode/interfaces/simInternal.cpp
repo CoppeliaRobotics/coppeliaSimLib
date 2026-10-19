@@ -2545,7 +2545,7 @@ int simGetColor3Property_internal(int64_t target, const char* ppName, float* pSt
         else
         {
             float ppState[4];
-            int retVal = simGetColor4Property_internal(target, ppName, ppState);
+            retVal = simGetColor4Property_internal(target, ppName, ppState);
             if (retVal == sim_propertyret_ok)
             {
                 pState[0] = ppState[0];
