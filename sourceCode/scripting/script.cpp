@@ -1796,7 +1796,7 @@ int CScript::___loadCode(const char* code, const char* functionsToFind, std::str
         int lineCnt = 0;
         std::string l;
         std::string tmpCode(code);
-        std::string t("wrapper='pythonWrapperV2'\n"); // default wrapper
+        std::string t("wrapper='pythonWrapper-3'\n"); // default wrapper
         bool stayIn = true;
         while (stayIn && utils::extractLine(tmpCode, l))
         {
@@ -1876,8 +1876,6 @@ int CScript::___loadCode(const char* code, const char* functionsToFind, std::str
             utils::extractLine(_code, l);
         for (int i = 0; i < lineCnt; i++)
             _code = "#\n" + _code;
-        // printf("luaExec:\n%s\n",t.c_str());
-        // printf("code:\n%s\n",_code.c_str());
         _code = t + "\nrequire(wrapper) pythonUserCode=[=[" + _code +
                 "]=] if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) end";
     }
@@ -4014,16 +4012,27 @@ void CScript::serialize(CSer& ar)
 
             if (getLang() == "python")
             {
-                if (ar.getSerializationVersionThatWroteThisFile() < 25)
-                { // make sure to use the old Python wrapper, with old Python scripts, for backward compatibility:
-                    std::smatch match;
-                    std::regex regEx(" *# *python.*");
-                    std::string newTxt(
-                        "#python\n#luaExec wrapper='deprecated.pythonWrapper' -- using the old wrapper for backw. compat.");
-                    newTxt += "\n# To switch to the new wrapper, simply remove above line, and add sim=require('sim')";
-                    newTxt += "\n# as the first instruction in sysCall_init() or sysCall_thread()";
-                    if (std::regex_search(_scriptText, match, regEx))
-                        _scriptText = std::string(match.prefix()) + newTxt + std::string(match.suffix());
+                if (ar.getSerializationVersionThatWroteThisFile() < 26)
+                {
+                    bool dont = false;
+                    if (ar.getSerializationVersionThatWroteThisFile() < 25)
+                    { // make sure to use the old Python wrapper, with old Python scripts, for backward compatibility:
+                        std::smatch match;
+                        std::regex regEx(" *# *python.*");
+                        std::string newTxt(
+                            "#python\n#luaExec wrapper='deprecated.pythonWrapper' -- using the old wrapper for backw. compat.");
+                        newTxt += "\n# To switch to the new wrapper, simply remove above line, and add sim=require('sim')";
+                        newTxt += "\n# as the first instruction in sysCall_init() or sysCall_thread()";
+                        if (std::regex_search(_scriptText, match, regEx))
+                        {
+                            dont = true;
+                            _scriptText = std::string(match.prefix()) + newTxt + std::string(match.suffix());
+                        }
+                    }
+                    if (!dont)
+                    { // we need to add the explicit wrapper to use (V2) with CoppeliaSim V4.10 and earlier, since V4.11 introduces wrapper V3
+                        _scriptText = "#luaExec wrapper = 'pythonWrapper-2' -- auto-added by CoppeliaSim V4.11 and later\n\n" + _scriptText;
+                    }
                 }
             }
 
@@ -6149,6 +6158,16 @@ void CScript::_detectDeprecated_old(CScript* nakedScript)
         App::logMsg(sim_verbosity_errors, "Replaced old Matrices with simEigen Matrices...");
     }
 //*/
+
+    /*
+    regEx = R"((^|[^.])\b(Color)\b)";
+    while (std::regex_search(_scriptText, match, regEx))
+    {
+        std::string nt(match.str(1) + std::string("sim.") + match.str(2));
+        _scriptText = std::string(match.prefix()) + nt + std::string(match.suffix());
+    }
+    */
+
     regEx = "sim.setInt32Signal\\('([^,]+),";
     while (std::regex_search(_scriptText, match, regEx))
     {

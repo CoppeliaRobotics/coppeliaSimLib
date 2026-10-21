@@ -1254,6 +1254,7 @@ void CScene::pushGenesisEvents()
     {
         sceneObjects->embeddedScriptContainer->pushMainScriptGenesisEvent(); // first
         textures->pushGenesisEvents();
+        drawingCont_old->pushGenesisEvents();
 
         CCbor* ev = App::scenes->createObjectChangedEvent(sim_handle_scene, nullptr, false);
         Obj::pushNakedGenesisEvents(ev);
@@ -1274,7 +1275,6 @@ void CScene::pushGenesisEvents()
         customObjects->pushGenesisEvents();
         collections->pushGenesisEvents();
 
-        drawingCont_old->pushGenesisEvents();
         pointCloudCont_old->pushGenesisEvents();
     }
 }

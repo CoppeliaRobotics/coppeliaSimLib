@@ -39,26 +39,13 @@ static bool luaWrap_getModule(lua_State* S, const char* moduleName)
     return true;                     // module table on top
 }
 
-// Pushes <module>.<field> and drops the module table, so the field value
-// is on top. On failure returns false with an error object on top.
-static bool luaWrap_pushModuleField(lua_State* S, const char* moduleName, const char* field)
+static bool luaWrap_pushSim2Field(lua_State* S, const char* field)
 {
-    if (!luaWrap_getModule(S, moduleName))
+    if (!luaWrap_getModule(S, "sim-2"))
         return false;                // error on top
     lua_getfield(S, -1, field);      // <module>.<field>
     lua_remove(S, -2);               // drop module table
     return true;
-}
-
-// Convenience wrappers so call sites stay short.
-static bool luaWrap_pushSim2Field(lua_State* S, const char* field)
-{
-    return luaWrap_pushModuleField(S, "sim-2", field);      // caches __sim_2
-}
-
-static bool luaWrap_pushSimEigenField(lua_State* S, const char* field)
-{
-    return luaWrap_pushModuleField(S, "simEigen", field);   // caches __simEigen
 }
 
 int luaWrapGet_LUA_MULTRET()
@@ -1030,7 +1017,7 @@ void luaWrap_lua_pushhandlearray(luaWrap_lua_State* L, const int64_t* handles, i
 void luaWrap_lua_pushmatrix(luaWrap_lua_State* L, const double* matrix, size_t rows, size_t cols)
 {
     lua_State* S = (lua_State*)L;
-    if (!luaWrap_pushSimEigenField(S, "Matrix"))
+    if (!luaWrap_pushSim2Field(S, "Matrix"))
         return;                      // error on stack
     lua_pushinteger(S, (lua_Integer)rows);
     lua_pushinteger(S, (lua_Integer)cols);
@@ -1072,7 +1059,7 @@ void luaWrap_lua_pushvector3(luaWrap_lua_State* L, const double* dat)
 void luaWrap_lua_pushquaternion(luaWrap_lua_State* L, const double* dat)
 {
     lua_State* S = (lua_State*)L;
-    if (!luaWrap_pushSimEigenField(S, "Quaternion"))
+    if (!luaWrap_pushSim2Field(S, "Quaternion"))
         return;                      // error on stack
     lua_createtable(S, 4, 0);
     for (size_t i = 0; i < 4; i++)
@@ -1106,7 +1093,7 @@ void luaWrap_lua_pushquaternion(luaWrap_lua_State* L, const double* dat)
 void luaWrap_lua_pushpose(luaWrap_lua_State* L, const double* dat)
 {
     lua_State* S = (lua_State*)L;
-    if (!luaWrap_pushSimEigenField(S, "Pose"))
+    if (!luaWrap_pushSim2Field(S, "Pose"))
         return;                      // error on stack
     lua_createtable(S, 7, 0);
     for (size_t i = 0; i < 7; i++)
