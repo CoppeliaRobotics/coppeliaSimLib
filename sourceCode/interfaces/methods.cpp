@@ -90,6 +90,7 @@ std::string callMethod(int targetObj, const char* method, CScript* currentScript
         funcTable["clearItems"] = _method_clearItems;
         funcTable["removeItems"] = _method_removeItems;
         funcTable["callFunction"] = _method_callFunction;
+        funcTable["callMethod"] = _method_callMethod;
         funcTable["executeString"] = _method_executeString;
 //        funcTable["getApiInfo"] = _method_getApiInfo;
 //        funcTable["getApiFunc"] = _method_getApiFunc;
@@ -3278,6 +3279,29 @@ std::string _method_callFunction(int targetObj, CScript* currentScript, const CI
                 else
                     errMsg = SIM_ERROR_FAILED_CALLING_METHOD;
             }
+        }
+        else
+            errMsg = SIM_ERROR_SCRIPT_NOT_INITIALIZED;
+    }
+    return errMsg;
+}
+
+std::string _method_callMethod(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    CScript* target = getNakedScript(targetObj, &errMsg, -1);
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_handle, arg_string}))
+    {
+        int objectHandle = fetchInt(inStack, 0);
+        std::string methodName = fetchText(inStack, 1);
+        if (target->hasInterpreterState())
+        {
+            CInterfaceStack* inStack2 = App::scenes->interfaceStackContainer->createStackCopy(inStack);
+            delete inStack2->detachStackObjectFromIndex(0);
+            delete inStack2->detachStackObjectFromIndex(0);
+            int res = simCallMethod_internal(objectHandle, methodName.c_str(),inStack2->getObjectHandle(), outStack->getObjectHandle(), target->getObjectHandle());
+            if (res != 1)
+                errMsg = SIM_ERROR_FAILED_CALLING_METHOD;
         }
         else
             errMsg = SIM_ERROR_SCRIPT_NOT_INITIALIZED;

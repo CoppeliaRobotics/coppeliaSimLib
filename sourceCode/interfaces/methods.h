@@ -91,6 +91,7 @@ extern std::string _method_addPackedItems(int targetObj, CScript* currentScript,
 extern std::string _method_clearItems(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_removeItems(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_callFunction(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_callMethod(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_executeString(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 //extern std::string _method_getApiInfo(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 //extern std::string _method_getApiFunc(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
