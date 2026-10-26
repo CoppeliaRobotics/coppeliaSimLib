@@ -135,6 +135,7 @@ extern std::string _method_dynamics_addForce(int targetObj, CScript* currentScri
 extern std::string _method_dynamics_addTorque(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_ungroup(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_divide(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_test(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_pack(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_unpack(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_packArray(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

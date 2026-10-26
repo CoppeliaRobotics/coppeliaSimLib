@@ -134,6 +134,7 @@ std::string callMethod(int targetObj, const char* method, CScript* currentScript
         funcTable["dynamics.addTorque"] = _method_dynamics_addTorque;
         funcTable["ungroup"] = _method_ungroup;
         funcTable["divide"] = _method_divide;
+        funcTable["test"] = _method_test;
         funcTable["pack"] = _method_pack;
         funcTable["unpack"] = _method_unpack;
         funcTable["packArray"] = _method_packArray;
@@ -3300,6 +3301,7 @@ std::string _method_callMethod(int targetObj, CScript* currentScript, const CInt
             delete inStack2->detachStackObjectFromIndex(0);
             delete inStack2->detachStackObjectFromIndex(0);
             int res = simCallMethod_internal(objectHandle, methodName.c_str(),inStack2->getObjectHandle(), outStack->getObjectHandle(), target->getObjectHandle());
+            App::scenes->interfaceStackContainer->destroyStack(inStack2);
             if (res != 1)
                 errMsg = SIM_ERROR_FAILED_CALLING_METHOD;
         }
@@ -4723,6 +4725,32 @@ std::string _method_mergeShapes(int targetObj, CScript* currentScript, const CIn
         }
         else
             errMsg = "invalid objects, or not enough shapes.";
+    }
+    return errMsg;
+}
+
+std::string _method_test(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
+{
+    std::string errMsg;
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_any | arg_optional, arg_any | arg_optional, arg_any | arg_optional, arg_any | arg_optional}))
+    {
+        std::string func = fetchText(inStack, 0);
+        if (func == "simCallScriptFunctionEx")
+        {
+            int scriptHandle = fetchHandle(inStack, 1);
+            std::string funcName = fetchText(inStack, 2);
+            outStack->copyFrom(inStack);
+            delete outStack->detachStackObjectFromIndex(0);
+            delete outStack->detachStackObjectFromIndex(0);
+            delete outStack->detachStackObjectFromIndex(0);
+            int ret = simCallScriptFunctionEx_internal(scriptHandle, funcName.c_str(), outStack->getObjectHandle());
+            if (ret < 0)
+            {
+                char* dat = simGetLastError_internal();
+                errMsg = dat;
+                simReleaseBuffer_internal(dat);
+            }
+        }
     }
     return errMsg;
 }

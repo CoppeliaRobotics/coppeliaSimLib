@@ -7,6 +7,7 @@
 #include <app.h>
 #include <simFlavor.h>
 #include <engineProperties.h>
+#include <methods.h>
 #ifdef SIM_WITH_GUI
 #include <jointRendering.h>
 #endif
@@ -5052,12 +5053,20 @@ int CJoint::setFloatProperty(const char* ppName, double pState, CCbor* eev)
             }
             else if (_pName == prop(PropJoint::targetPos).name)
             {
-                setTargetPosition(pState);
+                CInterfaceStack* s = App::scenes->interfaceStackContainer->createStack();
+                s->pushFloatOntoStack(pState);
+                _method_setTargetPosition(_objectHandle, nullptr, s, nullptr);
+                App::scenes->interfaceStackContainer->destroyStack(s);
+                // setTargetPosition(pState);
                 retVal = sim_propertyret_ok;
             }
             else if (_pName == prop(PropJoint::targetVel).name)
             {
-                setTargetVelocity(pState);
+                CInterfaceStack* s = App::scenes->interfaceStackContainer->createStack();
+                s->pushFloatOntoStack(pState);
+                _method_setTargetVelocity(_objectHandle, nullptr, s, nullptr);
+                App::scenes->interfaceStackContainer->destroyStack(s);
+                //setTargetVelocity(pState);
                 retVal = sim_propertyret_ok;
             }
             else if (_pName == prop(PropJoint::targetForce).name)
