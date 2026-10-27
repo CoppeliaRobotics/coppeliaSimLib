@@ -1079,7 +1079,15 @@ std::string CScript::getScriptName() const
     if (_scriptType == sim_scripttype_main)
         return ("mainScript");
     if (_scriptType == sim_scripttype_sandbox)
-        return ("sandboxScript");
+    {
+        std::string retVal;
+        if (this == App::scenes->sandboxScript)
+            retVal += "lua";
+        else
+            retVal += "python";
+        retVal += "Sandbox";
+        return retVal;
+    }
     if (_scriptType == sim_scripttype_addon)
         return (_addOnMenuName);
     if ((_scriptType == sim_scripttype_simulation) || (_scriptType == sim_scripttype_customization) || (_scriptType == sim_scripttype_passive))
@@ -1089,7 +1097,6 @@ std::string CScript::getScriptName() const
             return (obj->getObjectAlias());
         return ("error");
     }
-
     return ("deprecatedScript");
 }
 
