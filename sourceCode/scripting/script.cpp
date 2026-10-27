@@ -1458,7 +1458,7 @@ std::string CScript::getDescriptiveName() const
     }
     if (_scriptType == sim_scripttype_addon)
     {
-        retVal += "Add-on script \"";
+        retVal += "Add-on \"";
         retVal += _addOnMenuPath;
         retVal += "\"";
     }
@@ -1470,7 +1470,7 @@ std::string CScript::getDescriptiveName() const
     }
     if (_scriptType == sim_scripttype_sandbox)
     {
-        retVal += "Sandbox script ";
+        retVal += "Sandbox ";
         if (this == App::scenes->sandboxScript)
             retVal += "(lua)";
         else
@@ -1504,7 +1504,7 @@ std::string CScript::getShortDescriptiveName() const
     if (_scriptType == sim_scripttype_addon)
     {
         retVal += _addOnMenuPath;
-        retVal += "@addOnScript";
+        retVal += "@addOn";
     }
     if (_scriptType == sim_scripttype_addonfunction)
     {
@@ -1517,7 +1517,7 @@ std::string CScript::getShortDescriptiveName() const
             retVal += "lua";
         else
             retVal += "python";
-        retVal += "SandboxScript";
+        retVal += "Sandbox";
     }
     return (retVal);
 }
