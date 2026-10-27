@@ -1469,7 +1469,13 @@ std::string CScript::getDescriptiveName() const
         retVal += "\"";
     }
     if (_scriptType == sim_scripttype_sandbox)
-        retVal += "Sandbox script";
+    {
+        retVal += "Sandbox script ";
+        if (this == App::scenes->sandboxScript)
+            retVal += "(lua)";
+        else
+            retVal += "(python)";
+    }
     return (retVal);
 }
 
@@ -1506,7 +1512,13 @@ std::string CScript::getShortDescriptiveName() const
         retVal += "@addOnFunction";
     }
     if (_scriptType == sim_scripttype_sandbox)
-        retVal += "sandboxScript";
+    {
+        if (this == App::scenes->sandboxScript)
+            retVal += "lua";
+        else
+            retVal += "python";
+        retVal += "SandboxScript";
+    }
     return (retVal);
 }
 
