@@ -2536,14 +2536,14 @@ int App::getStringProperty_t(int64_t target, const char* ppName, std::string& pS
                 }
                 retVal = sim_propertyret_ok;
             }
-            else if (strcmp(pName, prop(PropApp::sandboxLang).name) == 0)
-            {
-                if (userSettings != nullptr)
-                    pState = userSettings->preferredSandboxLang;
-                else
-                    pState = "";
-                retVal = sim_propertyret_ok;
-            }
+//            else if (strcmp(pName, prop(PropApp::sandboxLang).name) == 0)
+//            {
+//                if (userSettings != nullptr)
+//                    pState = userSettings->preferredSandboxLang;
+//                else
+//                    pState = "";
+//                retVal = sim_propertyret_ok;
+//            }
             else if (strcmp(pName, prop(PropApp::DEPRECATED_appArg1).name) == 0)
             {
                 pState = getApplicationArgument(0);
@@ -4364,7 +4364,7 @@ void App::pushGenesisEvents()
         if (userSettings != nullptr)
         {
             ev->appendKeyText(prop(PropApp::defaultPython).name, userSettings->defaultPython.c_str());
-            ev->appendKeyText(prop(PropApp::sandboxLang).name, userSettings->preferredSandboxLang.c_str());
+//            ev->appendKeyText(prop(PropApp::sandboxLang).name, userSettings->preferredSandboxLang.c_str());
         }
         if (userSettings != nullptr)
         {
