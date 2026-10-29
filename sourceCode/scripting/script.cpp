@@ -2167,13 +2167,16 @@ int CScript::_callScriptFunction(int sysCallType, const char* functionName, cons
 { // retVal: -1=error during execution, 0=func does not exist, 1=execution ok
     // This will also execute function hooks
     int retVal = 1;
+
+    // Before hooks:
     std::string err;
-    for (size_t i = 0; i < _functionHooks_before.size() / 2; i++)
+    std::vector<std::string> staticFuncHooks_before = _functionHooks_before;
+    for (size_t i = 0; i < staticFuncHooks_before.size() / 2; i++)
     {
-        if (_functionHooks_before[2 * i + 0].compare(functionName) == 0)
+        if (staticFuncHooks_before[2 * i + 0].compare(functionName) == 0)
         {
             err.clear();
-            std::string func(_functionHooks_before[2 * i + 1]);
+            std::string func(staticFuncHooks_before[2 * i + 1]);
             size_t p = func.find(':');
             if (p == std::string::npos)
                 _callScriptFunc(func.c_str(), inStack, nullptr, &err);
@@ -2209,6 +2212,7 @@ int CScript::_callScriptFunction(int sysCallType, const char* functionName, cons
         }
     }
     err.clear();
+
     int r = _callScriptFunc(functionName, inStack, outStack, &err);
     if (r <= retVal)
     {
@@ -2222,12 +2226,15 @@ int CScript::_callScriptFunction(int sysCallType, const char* functionName, cons
             }
         }
     }
-    for (size_t i = 0; i < _functionHooks_after.size() / 2; i++)
+
+    // After hooks:
+    std::vector<std::string> staticFuncHooks_after = _functionHooks_after;
+    for (size_t i = 0; i < staticFuncHooks_after.size() / 2; i++)
     {
-        if (_functionHooks_after[2 * i + 0].compare(functionName) == 0)
+        if (staticFuncHooks_after[2 * i + 0].compare(functionName) == 0)
         {
             err.clear();
-            std::string func(_functionHooks_after[2 * i + 1]);
+            std::string func(staticFuncHooks_after[2 * i + 1]);
             size_t p = func.find(':');
             if (p == std::string::npos)
                 _callScriptFunc(func.c_str(), inStack, nullptr, &err);
@@ -2262,6 +2269,7 @@ int CScript::_callScriptFunction(int sysCallType, const char* functionName, cons
             }
         }
     }
+    err.clear();
 
     if ((retVal == 1) && ((sysCallType == sim_syscb_init) || (sysCallType == sim_syscb_cleanup) ||
                           (sysCallType == sim_syscb_aos_suspend) || (sysCallType == sim_syscb_aos_resume) ||
@@ -3481,16 +3489,8 @@ int CScript::registerFunctionHook(const char* sysFunc, const char* userFunc, boo
             return (0); // successful unregister all hooks for that system function
         }
         // We need to register that function:
-        if (before)
-        {
-            l->insert(l->begin(), userFunc);
-            l->insert(l->begin(), sysFunc);
-        }
-        else
-        {
-            l->push_back(sysFunc);
-            l->push_back(userFunc);
-        }
+        l->push_back(sysFunc);
+        l->push_back(userFunc);
         if (sysFuncNb >= 0)
         {
             if (before)
