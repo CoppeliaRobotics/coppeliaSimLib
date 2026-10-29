@@ -65,7 +65,7 @@ SignalHandler* App::_sigHandler = nullptr;
 CGm* App::gm = nullptr;
 std::vector<void*> App::callbacks;
 InstancesList* App::instancesList = nullptr;
-int64_t App::pid = -1;
+int64_t App::_pid = -1;
 std::vector<int> App::_scriptsToReset;
 std::vector<int> App::_scriptsToInit;
 VMutex App::_appSemaphore;
@@ -247,7 +247,7 @@ void App::init(const char* appDir, int)
         QFileInfo pathInfo(QCoreApplication::applicationFilePath());
         _applicationDir = pathInfo.path().toStdString();
     }
-    pid = QCoreApplication::applicationPid();
+    _pid = QCoreApplication::applicationPid();
     QDir ad(_applicationDir.c_str());
     _applicationDir = ad.absolutePath().toStdString();
 
@@ -2010,7 +2010,7 @@ int App::getLongProperty_t(int64_t target, const char* ppName, int64_t& pState)
         {
             if (strcmp(pName, prop(PropApp::pid).name) == 0)
             {
-                pState = pid;
+                pState = _pid;
                 retVal = sim_propertyret_ok;
             }
         }
@@ -4050,6 +4050,30 @@ bool App::_resolveTarget(int64_t& target)
     return retVal;
 }
 
+int64_t App::getPid()
+{
+    return _pid;
+}
+
+bool App::isProcessAlive(int64_t pid)
+{
+    if (pid <= 0)
+        return false;
+
+#ifdef Q_OS_WIN
+    HANDLE hProcess = ::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, static_cast<DWORD>(pid));
+    if (hProcess == nullptr)
+        return (::GetLastError() == ERROR_ACCESS_DENIED); // exists, just protected
+    DWORD exitCode = 0;
+    const bool alive = (::GetExitCodeProcess(hProcess, &exitCode) != FALSE) && (exitCode == STILL_ACTIVE);
+    ::CloseHandle(hProcess);
+    return alive;
+#else
+    // kill(pid, 0) only probes for existence/permission.
+    return (::kill(static_cast<pid_t>(pid), 0) == 0) || (errno == EPERM);
+#endif
+}
+
 void App::setHierarchyEnabled(bool v)
 {
     bool diff = (_hierarchyEnabled != v);
@@ -4391,7 +4415,7 @@ void App::pushGenesisEvents()
         ev->appendKeyBool(prop(PropApp::hierarchyEnabled).name, getHierarchyEnabled());
         ev->appendKeyBool(prop(PropApp::displayEnabled).name, getOpenGlDisplayEnabled());
         ev->appendKeyInt64(prop(PropApp::headlessMode).name, getHeadlessMode());
-        ev->appendKeyInt64(prop(PropApp::pid).name, pid);
+        ev->appendKeyInt64(prop(PropApp::pid).name, _pid);
 
         if (userSettings != nullptr)
             ev->appendKeyInt64(prop(PropApp::idleFps).name, userSettings->getIdleFps());

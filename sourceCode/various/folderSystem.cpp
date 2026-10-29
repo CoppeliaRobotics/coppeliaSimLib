@@ -46,6 +46,7 @@ CFolderSystem::CFolderSystem()
     if (App::userSettings->defaultDirectoryForMiscFiles.length() != 0)
         setOtherFilesPath(App::userSettings->defaultDirectoryForMiscFiles.c_str());
 
+    /*
     _tempDir = new QTemporaryDir();
     _tempDir->setAutoRemove(true);
     if (_tempDir->isValid())
@@ -56,6 +57,32 @@ CFolderSystem::CFolderSystem()
         if (!VFile::doesFolderExist(_tempDataPath.c_str()))
             VFile::createFolder(_tempDataPath.c_str());
     }
+    */
+    const std::string baseName = "CoppeliaSim";
+    const qint64 pid = App::getPid();
+    const QDir tempRoot(QDir::tempPath());
+
+    // Drop leftovers from instances that are no longer running.
+    _removeStaleTempDirs(tempRoot, baseName);
+
+    // Create our own temp dir, tagged with our pid:
+    //   <temp>/CoppeliaSim-<pid>-<unique>
+    const QString tmpl = tempRoot.filePath(QString("%1-%2-XXXXXX").arg(baseName.c_str()).arg(pid));
+
+    _tempDir = new QTemporaryDir(tmpl);
+    _tempDir->setAutoRemove(true);
+
+    if (_tempDir->isValid())
+        _tempDataPath = _tempDir->path().toStdString();
+
+    if (_tempDataPath.size() == 0)
+    {
+        _tempDataPath = _executablePath + "/tmp";
+        if (!VFile::doesFolderExist(_tempDataPath.c_str()))
+            VFile::createFolder(_tempDataPath.c_str());
+    }
+
+
 
     _mujocoPath = _tempDataPath + "/mujoco";
     if (!VFile::doesFolderExist(_mujocoPath.c_str()))
@@ -135,6 +162,25 @@ CFolderSystem::~CFolderSystem()
 #endif
     }
     App::systemSemaphore(FOLDERSYS_SEMAPHORE_TAG, false);
+}
+
+void CFolderSystem::_removeStaleTempDirs(const QDir &root, const std::string &baseName)
+{
+    const QRegularExpression re(QString("^%1-(\\d+)-").arg(QRegularExpression::escape(baseName.c_str())));
+
+    const QStringList entries = root.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
+
+    for (const QString &entry : entries)
+    {
+        const QRegularExpressionMatch m = re.match(entry);
+        if (!m.hasMatch())
+            continue;
+
+        const qint64 otherPid = m.captured(1).toLongLong();
+        if (App::isProcessAlive(otherPid))
+            continue;   // still in use, leave it alone
+        QDir(root.filePath(entry)).removeRecursively();
+    }
 }
 
 std::string CFolderSystem::getPathFromFull(const char* full)

@@ -161,6 +161,8 @@ class App
     static void undoRedo_sceneChanged(const char* txt);
     static void undoRedo_sceneChangedGradual(const char* txt);
 
+    static int64_t getPid();
+    static bool isProcessAlive(int64_t pid);
     static void setHierarchyEnabled(bool v);
     static bool getHierarchyEnabled();
     static void setOpenGlDisplayEnabled(bool e);
@@ -186,7 +188,7 @@ class App
     static CGm* gm;
     static std::vector<void*> callbacks;
     static InstancesList* instancesList;
-    static int64_t pid;
+    static int64_t _pid;
 
 #ifndef SIM_WITH_GUI
     static CSimQApp* qtApp;

@@ -42,6 +42,8 @@ class CFolderSystem
     std::string getMujocoPath() const;
 
   private:
+    void _removeStaleTempDirs(const QDir &root, const std::string &baseName);
+
     QTemporaryDir* _tempDir;
     std::string _executablePath;
     std::string _systemPath;
