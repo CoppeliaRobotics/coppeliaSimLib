@@ -268,7 +268,7 @@ void CSimulation::stopSimulation()
 
 void CSimulation::pauseSimulation()
 {
-    _requestToPause = ((_simulationState != sim_simulation_stopped) && (_simulationState != sim_simulation_paused) && (!_requestToStop));
+    _requestToPause = ((_simulationState != sim_simulation_stopped) && (_simulationState != sim_simulation_paused) && (_simulationState != sim_simulation_lastbeforestop) && (!_requestToStop));
 }
 
 bool CSimulation::isSimulationRunning() const
@@ -1203,8 +1203,7 @@ bool CSimulation::processCommand(int commandID)
         {
             if (!VThread::isUiThread())
             { // we are NOT in the UI thread. We execute the command now:
-                App::scenes->simulatorMessageQueue->addCommand(sim_message_simulation_start_resume_request, 0,
-                                                                       0, 0, 0, nullptr, 0);
+                App::scenes->simulatorMessageQueue->addCommand(sim_message_simulation_start_resume_request, 0, 0, 0, 0, nullptr, 0);
             }
             else
             { // We are in the UI thread. Execute the command via the main thread:
@@ -1219,8 +1218,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::scenes->simulatorMessageQueue->addCommand(sim_message_simulation_pause_request, 0, 0, 0, 0,
-                                                                   nullptr, 0);
+            App::scenes->simulatorMessageQueue->addCommand(sim_message_simulation_pause_request, 0, 0, 0, 0, nullptr, 0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
