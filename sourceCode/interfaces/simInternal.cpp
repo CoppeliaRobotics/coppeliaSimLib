@@ -3778,44 +3778,48 @@ int simCallMethod_internal(int64_t target, const char* nname, int inputStack, in
             if (currentScript != nullptr)
             {
                 retVal = -1; // error
-
-                CInterfaceStack* outStackT = App::scenes->interfaceStackContainer->createStack();
-                if (outStack != nullptr)
-                    outStack->clear();
-                if (VThread::isSimThread())
+                if ((currentScript->getScriptState() & 0x0f) == sim_scriptstate_initialized)
                 {
-                    name = "@" + name; // to indicate that we come from c
-                    CInterfaceStack* inStackT = App::scenes->interfaceStackContainer->createStack();
-                    if (inStack != nullptr)
-                        inStackT->copyFrom(inStack);
-                    inStackT->insertItem(0, new CInterfaceStackString(name.c_str()));
-                    inStackT->insertItem(0, new CInterfaceStackHandle(target));
-                    std::string errorMsg;
-                    retVal = currentScript->callCustomScriptFunction("@__2.sim.callMethod", inStackT, outStackT, &errorMsg); // @ here to indicate we do not want to call sysCall_ext, and __2 is the only global variable in sim-2!
-                    App::scenes->interfaceStackContainer->destroyStack(inStackT);
-                }
-                if (retVal <= 0)
-                {
-                    CApiErrors::setLastError(__func__, SIM_ERROR_FAILED_CALLING_METHOD);
-                    retVal = -1;
-                }
-                else
-                {
-                    CInterfaceStackString* res = (CInterfaceStackString*)outStackT->detachStackObjectFromIndex(0); // first ret val is always an error string
-                    size_t l;
-                    std::string err(res->getValue(&l));
-                    if (err.size() > 0)
-                    { // runtime error
+                    CInterfaceStack* outStackT = App::scenes->interfaceStackContainer->createStack();
+                    if (outStack != nullptr)
+                        outStack->clear();
+                    if (VThread::isSimThread())
+                    {
+                        name = "@" + name; // to indicate that we come from c
+                        CInterfaceStack* inStackT = App::scenes->interfaceStackContainer->createStack();
+                        if (inStack != nullptr)
+                            inStackT->copyFrom(inStack);
+                        inStackT->insertItem(0, new CInterfaceStackString(name.c_str()));
+                        inStackT->insertItem(0, new CInterfaceStackHandle(target));
+                        std::string errorMsg;
+                        retVal = currentScript->callCustomScriptFunction("@__2.sim.callMethod", inStackT, outStackT, &errorMsg); // @ here to indicate we do not want to call sysCall_ext, and __2 is the only global variable in sim-2!
+                        App::scenes->interfaceStackContainer->destroyStack(inStackT);
+                    }
+                    if (retVal <= 0)
+                    {
+                        CApiErrors::setLastError(__func__, SIM_ERROR_FAILED_CALLING_METHOD);
                         retVal = -1;
-                        CApiErrors::setLastError(__func__, err.c_str());
                     }
                     else
-                    { // success
-                        retVal = 1;
-                        if (outStack != nullptr)
-                            outStack->copyFrom(outStackT);
+                    {
+                        CInterfaceStackString* res = (CInterfaceStackString*)outStackT->detachStackObjectFromIndex(0); // first ret val is always an error string
+                        size_t l;
+                        std::string err(res->getValue(&l));
+                        if (err.size() > 0)
+                        { // runtime error
+                            retVal = -1;
+                            CApiErrors::setLastError(__func__, err.c_str());
+                        }
+                        else
+                        { // success
+                            retVal = 1;
+                            if (outStack != nullptr)
+                                outStack->copyFrom(outStackT);
+                        }
                     }
                 }
+                else
+                    CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_NOT_INITIALIZED);
             }
         }
         // -----------------------------------------------------------------------
@@ -10831,89 +10835,99 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
     if (script != nullptr)
     {
         int retVal = -1; // error
-        CInterfaceStack* stack = App::scenes->interfaceStackContainer->getStack(stackId);
-        if (stack != nullptr)
+        if ((script->getScriptState() & 0x0f) == sim_scriptstate_initialized)
         {
-            if (VThread::isSimThread())
+            CInterfaceStack* stack = App::scenes->interfaceStackContainer->getStack(stackId);
+            if (stack != nullptr)
             {
-                if (script->getLang() == "lua")
+                if (VThread::isSimThread())
                 {
-                    if (lang == sim_lang_python)
-                        funcName +=
-                            "@python"; // explicit python when Lua script --> generates an error further down
-                }
-                if (script->getLang() == "python")
-                {
-                    if (lang == sim_lang_lua)
-                        funcName += "@lua"; // explicit lua when Python script
-                }
-
-                CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();
-                p = funcName.find(':');
-                if (p == std::string::npos)
-                    retVal = script->callCustomScriptFunction(funcName.c_str(), stack, outStack);
-                else
-                {
-                    int h;
-                    if (tt::stringToInt(funcName.substr(0, p).c_str(), h))
+                    if (script->getLang() == "lua")
                     {
-                        funcName.erase(0, p + 1);
-                        retVal = simCallMethod_internal(h, funcName.c_str(), stack->getObjectHandle(), outStack->getObjectHandle(), script->getObjectHandle());
+                        if (lang == sim_lang_python)
+                            funcName +=
+                                "@python"; // explicit python when Lua script --> generates an error further down
                     }
+                    if (script->getLang() == "python")
+                    {
+                        if (lang == sim_lang_lua)
+                            funcName += "@lua"; // explicit lua when Python script
+                    }
+
+                    CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();
+                    p = funcName.find(':');
+                    if (p == std::string::npos)
+                        retVal = script->callCustomScriptFunction(funcName.c_str(), stack, outStack);
                     else
-                        retVal = 0;
-                }
-
-                if (outStack->getStackSize() > 0)
-                { // when the script is a Python script, we must check for other errors, since the call is handled
-                    // via sysCall_ext:
-                    CInterfaceStackObject* obj = outStack->getStackObjectFromIndex(0);
-                    if (obj->getObjectType() == sim_stackitem_string)
                     {
-                        CInterfaceStackString* str = (CInterfaceStackString*)obj;
-                        std::string tmp(str->getValue(nullptr));
-                        if (tmp == "_*funcNotFound*_")
+                        int h;
+                        if (tt::stringToInt(funcName.substr(0, p).c_str(), h))
                         {
-                            retVal = 0;
-                            outStack->clear();
+                            funcName.erase(0, p + 1);
+                            retVal = simCallMethod_internal(h, funcName.c_str(), stack->getObjectHandle(), outStack->getObjectHandle(), script->getObjectHandle());
                         }
-                        if (tmp == "_*runtimeError*_")
+                        else
+                            retVal = 0;
+                    }
+
+                    if (outStack->getStackSize() > 0)
+                    { // when the script is a Python script, we must check for other errors, since the call is handled
+                        // via sysCall_ext:
+                        CInterfaceStackObject* obj = outStack->getStackObjectFromIndex(0);
+                        if (obj->getObjectType() == sim_stackitem_string)
                         {
-                            retVal = -1;
-                            outStack->clear();
+                            CInterfaceStackString* str = (CInterfaceStackString*)obj;
+                            std::string tmp(str->getValue(nullptr));
+                            if (tmp == "_*funcNotFound*_")
+                            {
+                                retVal = 0;
+                                outStack->clear();
+                            }
+                            if (tmp == "_*runtimeError*_")
+                            {
+                                retVal = -1;
+                                outStack->clear();
+                            }
                         }
                     }
+                    stack->clear();
+                    stack->copyFrom(outStack);
+                    App::scenes->interfaceStackContainer->destroyStack(outStack);
                 }
-                stack->clear();
-                stack->copyFrom(outStack);
-                App::scenes->interfaceStackContainer->destroyStack(outStack);
+                if (retVal == -1)
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION);
+                    tmp += SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
+                    if ((handleFlags & sim_handleflag_silenterror) == 0)
+                        App::logMsg(sim_verbosity_errors, tmp.c_str()); // log error here (special, for easier debugging)
+                }
+                if (retVal == 0)
+                {
+                    CApiErrors::setLastError(__func__, SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION);
+                    tmp += SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
+                    if ((handleFlags & sim_handleflag_silenterror) == 0)
+                        App::logMsg(sim_verbosity_errors, tmp.c_str()); // log error here (special, for easier debugging)
+                    retVal = -1;                                        // to stay backward compatible
+                }
+                if (retVal == 1)
+                    retVal = 0; // to stay backward compatible
             }
-            if (retVal == -1)
+            else
             {
-                CApiErrors::setLastError(__func__, SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION);
-                tmp += SIM_ERROR_ERROR_IN_SCRIPT_FUNCTION;
+                CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
+                tmp += SIM_ERROR_INVALID_HANDLE;
                 if ((handleFlags & sim_handleflag_silenterror) == 0)
                     App::logMsg(sim_verbosity_errors, tmp.c_str()); // log error here (special, for easier debugging)
             }
-            if (retVal == 0)
-            {
-                CApiErrors::setLastError(__func__, SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION);
-                tmp += SIM_ERROR_FAILED_CALLING_SCRIPT_FUNCTION;
-                if ((handleFlags & sim_handleflag_silenterror) == 0)
-                    App::logMsg(sim_verbosity_errors, tmp.c_str()); // log error here (special, for easier debugging)
-                retVal = -1;                                        // to stay backward compatible
-            }
-            if (retVal == 1)
-                retVal = 0; // to stay backward compatible
         }
         else
         {
-            CApiErrors::setLastError(__func__, SIM_ERROR_INVALID_HANDLE);
-            tmp += SIM_ERROR_INVALID_HANDLE;
+            CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_NOT_INITIALIZED);
+            tmp += SIM_ERROR_SCRIPT_INEXISTANT;
             if ((handleFlags & sim_handleflag_silenterror) == 0)
                 App::logMsg(sim_verbosity_errors, tmp.c_str()); // log error here (special, for easier debugging)
         }
-        return (retVal);
+        return retVal;
     }
     CApiErrors::setLastError(__func__, SIM_ERROR_SCRIPT_INEXISTANT);
     tmp += SIM_ERROR_SCRIPT_INEXISTANT;

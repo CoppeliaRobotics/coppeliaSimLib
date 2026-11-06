@@ -3235,7 +3235,7 @@ std::string _method_callFunction(int targetObj, CScript* currentScript, const CI
     if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string}))
     {
         std::string funcName = fetchText(inStack, 0);
-        if (target->hasInterpreterState())
+        if ((target->getScriptState() & 0x0f) == sim_scriptstate_initialized)
         {
             CInterfaceStack* inStack2 = App::scenes->interfaceStackContainer->createStackCopy(inStack);
             delete inStack2->detachStackObjectFromIndex(0);
@@ -3295,7 +3295,7 @@ std::string _method_callMethod(int targetObj, CScript* currentScript, const CInt
     {
         int objectHandle = fetchInt(inStack, 0);
         std::string methodName = fetchText(inStack, 1);
-        if (target->hasInterpreterState())
+        if ((target->getScriptState() & 0x0f) == sim_scriptstate_initialized)
         {
             CInterfaceStack* inStack2 = App::scenes->interfaceStackContainer->createStackCopy(inStack);
             delete inStack2->detachStackObjectFromIndex(0);
@@ -3318,7 +3318,7 @@ std::string _method_executeString(int targetObj, CScript* currentScript, const C
     if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string}))
     {
         std::string stringToExecute = fetchText(inStack, 0);
-        if (target->hasInterpreterState())
+        if ((target->getScriptState() & 0x0f) == sim_scriptstate_initialized)
         {
             int lang = sim_lang_undefined;
             if (boost::algorithm::ends_with(stringToExecute.c_str(), "@lua"))
