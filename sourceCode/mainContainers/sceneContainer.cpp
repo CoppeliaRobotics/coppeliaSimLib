@@ -447,9 +447,9 @@ void CSceneContainer::getActiveScripts(std::vector<CScript*>& scripts, bool reve
     TRACE_INTERNAL;
     if (reverse)
     {
-        if ((sandboxScriptLua != nullptr) && (sandboxScriptLua->getScriptState() == sim_scriptstate_initialized))
+        if ((sandboxScriptLua != nullptr) && sandboxScriptLua->canScriptFunctionsBeCalled())
             scripts.push_back(sandboxScriptLua);
-        if ((sandboxScriptPython != nullptr) && (sandboxScriptPython->getScriptState() == sim_scriptstate_initialized))
+        if ((sandboxScriptPython != nullptr) && sandboxScriptPython->canScriptFunctionsBeCalled())
             scripts.push_back(sandboxScriptPython);
         addOnScriptContainer->getActiveScripts(scripts);
         if (scene != nullptr)
@@ -460,9 +460,9 @@ void CSceneContainer::getActiveScripts(std::vector<CScript*>& scripts, bool reve
         if (scene != nullptr)
             scene->getActiveScripts(scripts, reverse, alsoLegacyScripts);
         addOnScriptContainer->getActiveScripts(scripts);
-        if ((sandboxScriptPython != nullptr) && (sandboxScriptPython->getScriptState() == sim_scriptstate_initialized))
+        if ((sandboxScriptPython != nullptr) && sandboxScriptPython->canScriptFunctionsBeCalled())
             scripts.push_back(sandboxScriptPython);
-        if ((sandboxScriptLua != nullptr) && (sandboxScriptLua->getScriptState() == sim_scriptstate_initialized))
+        if ((sandboxScriptLua != nullptr) && sandboxScriptLua->canScriptFunctionsBeCalled())
             scripts.push_back(sandboxScriptLua);
     }
 }

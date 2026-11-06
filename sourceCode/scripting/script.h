@@ -132,6 +132,7 @@ class CScript : public Obj
     int getScriptStateEnum() const;
     int getScriptState() const;
     void setScriptState(int state);
+    bool canScriptFunctionsBeCalled() const;
 
     void setScriptExecPriority(int priority);
     int getScriptExecPriority() const;

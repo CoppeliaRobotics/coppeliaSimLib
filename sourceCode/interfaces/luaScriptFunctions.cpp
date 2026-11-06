@@ -11923,7 +11923,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
 
         if (script != nullptr)
         {
-            if ((script->getScriptState() & 0x0f) == sim_scriptstate_initialized)
+            if (script->canScriptFunctionsBeCalled())
             {
                 CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
                 CScript::buildFromInterpreterStack_lua(L, stack, 3, 0); // skip the two first args

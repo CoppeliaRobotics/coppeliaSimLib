@@ -3778,7 +3778,7 @@ int simCallMethod_internal(int64_t target, const char* nname, int inputStack, in
             if (currentScript != nullptr)
             {
                 retVal = -1; // error
-                if ((currentScript->getScriptState() & 0x0f) == sim_scriptstate_initialized)
+                if (currentScript->canScriptFunctionsBeCalled())
                 {
                     CInterfaceStack* outStackT = App::scenes->interfaceStackContainer->createStack();
                     if (outStack != nullptr)
@@ -10835,7 +10835,7 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
     if (script != nullptr)
     {
         int retVal = -1; // error
-        if ((script->getScriptState() & 0x0f) == sim_scriptstate_initialized)
+        if (script->canScriptFunctionsBeCalled())
         {
             CInterfaceStack* stack = App::scenes->interfaceStackContainer->getStack(stackId);
             if (stack != nullptr)
@@ -13034,7 +13034,7 @@ int simExecuteScriptString_internal(int scriptHandle, const char* stringToExecut
                 {
                     if (script->getLang() == "python")
                     {
-                        if (script->getScriptState() == sim_scriptstate_initialized)
+                        if (script->canScriptFunctionsBeCalled())
                         {
                             CInterfaceStack* tmpStack = App::scenes->interfaceStackContainer->createStack();
                             CInterfaceStack* outStack = App::scenes->interfaceStackContainer->createStack();

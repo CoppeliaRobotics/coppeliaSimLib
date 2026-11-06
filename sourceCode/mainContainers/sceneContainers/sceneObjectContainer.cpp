@@ -3091,7 +3091,7 @@ void CSceneObjectContainer::getActiveScripts(std::vector<CScript*>& scripts, boo
     if (reverse)
     { // reverse order
         CScript* script = embeddedScriptContainer->getMainScript();
-        if ((script != nullptr) && (script->getScriptState() == sim_scriptstate_initialized))
+        if ((script != nullptr) && script->canScriptFunctionsBeCalled())
             scripts.push_back(script);
 
         // child + customization scripts (legacy + new):
@@ -3108,7 +3108,7 @@ void CSceneObjectContainer::getActiveScripts(std::vector<CScript*>& scripts, boo
         _getActiveScripts(scripts, reverse);
 
         CScript* script = embeddedScriptContainer->getMainScript();
-        if ((script != nullptr) && (script->getScriptState() == sim_scriptstate_initialized))
+        if ((script != nullptr) && script->canScriptFunctionsBeCalled())
             scripts.push_back(script);
     }
 }
@@ -3185,7 +3185,7 @@ void CSceneObjectContainer::_getActiveScripts(std::vector<CScript*>& scripts, bo
     for (size_t i = 0; i < scriptHandles.size(); i++)
     {
         CScriptObject* scriptObject = getScriptObjectFromHandle(scriptHandles[i]);
-        if ((scriptObject != nullptr) && (scriptObject->nakedScript->getScriptState() == sim_scriptstate_initialized))
+        if ((scriptObject != nullptr) && scriptObject->nakedScript->canScriptFunctionsBeCalled())
             scripts.push_back(scriptObject->nakedScript);
     }
 }

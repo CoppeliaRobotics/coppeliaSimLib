@@ -289,7 +289,7 @@ void CAddOnScriptContainer::getActiveScripts(std::vector<CScript*>& scripts) con
     for (size_t i = 0; i < _addOns.size(); i++)
     {
         CScript* it = _addOns[i];
-        if (it->getScriptState() == sim_scriptstate_initialized)
+        if (it->canScriptFunctionsBeCalled())
         {
             if (it->getScriptExecPriority() == sim_scriptexecorder_first)
                 scripts.push_back(it);

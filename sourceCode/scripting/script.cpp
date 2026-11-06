@@ -1122,12 +1122,26 @@ std::string CScript::getAddOnMenuPath() const
 
 int CScript::getScriptStateEnum() const
 {
-    return _scriptState & 0x07;
+    int retVal = _scriptState & 0x07;
+    if (retVal == sim_scriptstate_uninitialized)
+        retVal = sim_scriptstate_initialized;
+    return retVal;
 }
 
 int CScript::getScriptState() const
 {
     return _scriptState;
+}
+
+bool CScript::canScriptFunctionsBeCalled() const
+{
+    bool retVal = false;
+    if ((_scriptState & sim_scriptstate_errorflag) == 0)
+    {
+        int s = _scriptState & 0x07;
+        retVal = ((s == sim_scriptstate_uninitialized) || (s == sim_scriptstate_initialized));
+    }
+    return retVal;
 }
 
 void CScript::pushNakedGenesisEvents(CCbor* ev /*= nullptr*/)
@@ -1707,8 +1721,7 @@ int CScript::systemCallScript(int callType, const CInterfaceStack* inStack, CInt
             else
                 retVal = -2;
         }
-        if ((_scriptState == sim_scriptstate_uninitialized) && (callType != sim_syscb_info) &&
-            (callType <= sim_syscb_sensing))
+        if ((_scriptState == sim_scriptstate_uninitialized) && (callType != sim_syscb_info) && (callType <= sim_syscb_sensing))
         { // Second execute the init section if not yet done
             if (callType == sim_syscb_init)
                 retVal = _callSystemScriptFunction(sim_syscb_init, inStack, outStack);
@@ -2407,7 +2420,7 @@ int CScript::_callScriptFunc(const char* functionName, const CInterfaceStack* in
 int CScript::callCustomScriptFunction(const char* functionName, CInterfaceStack* inStack /*= nullptr*/, CInterfaceStack* outStack /*= nullptr*/, std::string* errorMsg /*= nullptr*/)
 { // retval: -1: runtimeError, 0: function not there or not executed, 1: ok
     int retVal = 0;
-    if (_scriptState == sim_scriptstate_initialized)
+    if (canScriptFunctionsBeCalled())
     {
         changeManualYieldingForbidLevel(1, false); // never yield from such a call
         if (outStack != nullptr)
@@ -2479,7 +2492,7 @@ int CScript::executeScriptString(const char* scriptString, CInterfaceStack* outS
     // didn't cause an error
     int retVal = -2;
     changeManualYieldingForbidLevel(1, false);
-    if (_scriptState == sim_scriptstate_initialized)
+    if (canScriptFunctionsBeCalled())
     {
         if (_executionDepth == 0)
             _timeOfScriptExecutionStart = int(VDateTime::getTimeInMs());
