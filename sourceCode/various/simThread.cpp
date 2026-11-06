@@ -1815,6 +1815,12 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (scriptObject != nullptr)
             scriptObject->setScriptSize(cmd.doubleParams[0]);
     }
+    if (cmd.cmdId == SET_WRAPPER_SCRIPTGUITRIGGEREDCMD)
+    {
+        CScriptObject* scriptObject = App::scene->sceneObjects->getScriptObjectFromHandle(cmd.intParams[0]);
+        if (scriptObject != nullptr)
+            scriptObject->nakedScript->setDefaultPythonWrapper(cmd.stringParams[0].c_str());
+    }
     if (cmd.cmdId == APPLY_VISUALPROP_SCRIPTGUITRIGGEREDCMD)
     {
         CScriptObject* scriptObject = App::scene->sceneObjects->getScriptObjectFromHandle(cmd.intParams[0]);

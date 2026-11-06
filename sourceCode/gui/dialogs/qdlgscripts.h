@@ -37,6 +37,8 @@ class CQDlgScripts : public CDlgEx
 
     void on_qqResetAfterSimError_clicked();
 
+    void on_qqWrapper_editingFinished();
+
   private:
     Ui::CQDlgScripts* ui;
 };

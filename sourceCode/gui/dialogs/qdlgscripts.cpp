@@ -49,13 +49,18 @@ void CQDlgScripts::refresh()
     if (sel)
     {
         std::string lang(it->nakedScript->getLang());
+        ui->qqLang->setText(lang.c_str());
+        ui->qqWrapper->setEnabled(noEditModeNoSim && (lang == "python"));
+        if (lang == "python")
+            ui->qqWrapper->setText(it->nakedScript->getDefaultPythonWrapper().c_str());
+        else
+            ui->qqWrapper->setText("");
         if (((lang != "lua") && (lang != "python")) || (it->nakedScript->getScriptType() == sim_scripttype_passive))
         {
             ui->qqEnabled->setEnabled(false);
             ui->qqExecutionOrder->setEnabled(false);
         }
         lang = "Language: " + lang;
-        ui->qqLang->setText(lang.c_str());
         ui->qqSize->setText(utils::getSizeString(false, it->getScriptSize()).c_str());
 
         ui->qqExecutionOrder->addItem(IDSN_FIRST, QVariant(sim_scriptexecorder_first));
@@ -69,6 +74,8 @@ void CQDlgScripts::refresh()
     }
     else
     {
+        ui->qqWrapper->setEnabled(false);
+        ui->qqWrapper->setText("");
         ui->qqLang->setText("Language: -");
         ui->qqSize->setText("");
 
@@ -89,8 +96,7 @@ void CQDlgScripts::on_qqSize_editingFinished()
     {
         bool ok;
         double newVal = GuiApp::getEvalDouble(ui->qqSize->text().toStdString().c_str(), &ok);
-        App::appendSimulationThreadCommand(SET_SIZE_SCRIPTGUITRIGGEREDCMD,
-                                           App::scene->sceneObjects->getLastSelectionHandle(), -1, newVal);
+        App::appendSimulationThreadCommand(SET_SIZE_SCRIPTGUITRIGGEREDCMD, App::scene->sceneObjects->getLastSelectionHandle(), -1, newVal);
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
@@ -184,5 +190,19 @@ void CQDlgScripts::on_qqResetAfterSimError_clicked()
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
         }
+    }
+}
+
+void CQDlgScripts::on_qqWrapper_editingFinished()
+{
+    if (!ui->qqWrapper->isModified())
+        return;
+    IF_UI_EVENT_CAN_READ_DATA
+    {
+        bool ok;
+        std::string newVal = ui->qqWrapper->text().toStdString();
+        App::appendSimulationThreadCommand(SET_WRAPPER_SCRIPTGUITRIGGEREDCMD, App::scene->sceneObjects->getLastSelectionHandle(), -1, 0.0, 0.0, newVal.c_str());
+        App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
+        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
 }

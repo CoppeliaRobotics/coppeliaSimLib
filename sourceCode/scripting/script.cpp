@@ -50,6 +50,7 @@ CScript::CScript(int scriptType)
     _numberOfPasses = 0;
     _addOnUiMenuHandle = -1;
     _addOnExecPriority = sim_scriptexecorder_normal;
+    _defaultPythonWrapper = "pythonWrapper-3";
     for (size_t i = 0; i < 3; i++)
     {
         _sysFuncAndHookCnt_dyn[i] = 0;
@@ -1157,6 +1158,7 @@ void CScript::pushNakedGenesisEvents(CCbor* ev /*= nullptr*/)
         ev->appendKeyBool(prop(PropScript::restartOnError).name, _autoRestartOnError);
         ev->appendKeyInt64(prop(PropScript::execPriority).name, getScriptExecPriority());
         ev->appendKeyText(prop(PropScript::language).name, _lang.c_str());
+        ev->appendKeyText(prop(PropScript::pythonWrapper).name, _defaultPythonWrapper.c_str());
         ev->appendKeyText(prop(PropScript::code).name, _scriptText.c_str());
         ev->appendKeyText(prop(PropScript::scriptName).name, getScriptName().c_str());
         ev->appendKeyText(prop(PropScript::addOnPath).name, _addOnPath.c_str());
@@ -1182,6 +1184,28 @@ void CScript::setScriptState(int state)
             App::scenes->pushEvent();
         }
     }
+}
+
+void CScript::setDefaultPythonWrapper(const char* wrapper)
+{
+    bool diff = (_defaultPythonWrapper != wrapper);
+        _defaultPythonWrapper = wrapper;
+    if (diff)
+    {
+        if (isNotInCopyBuffer() && App::scenes->getEventsEnabled())
+        {
+            const char* cmd = prop(PropScript::pythonWrapper).name;
+            CCbor* ev;
+            ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
+            ev->appendKeyText(cmd, _defaultPythonWrapper.c_str());
+            App::scenes->pushEvent();
+        }
+    }
+}
+
+std::string CScript::getDefaultPythonWrapper() const
+{
+    return _defaultPythonWrapper;
 }
 
 void CScript::setScriptExecPriority(int priority)
@@ -1833,7 +1857,9 @@ int CScript::___loadCode(const char* code, const char* functionsToFind, std::str
         int lineCnt = 0;
         std::string l;
         std::string tmpCode(code);
-        std::string t("wrapper='pythonWrapper-3'\n"); // default wrapper
+        std::string t("wrapper='");
+        t += _defaultPythonWrapper;
+        t += "'\n";
         bool stayIn = true;
         while (stayIn && utils::extractLine(tmpCode, l))
         {
@@ -1982,6 +2008,7 @@ bool CScript::_loadCode()
                 functions += getSystemCallbackString(int(i), 0) + '\0';
             functions += '\0';
             std::string errMsg;
+            setScriptState(sim_scriptstate_uninitialized);
             int r = ___loadCode(_scriptTextExec.c_str(), functions.c_str(), &errMsg);
             if (r >= 0)
             {
@@ -1995,7 +2022,7 @@ bool CScript::_loadCode()
 #ifdef SIM_WITH_GUI
                     GuiApp::setRefreshHierarchyViewFlag();
 #endif
-                    setScriptState(sim_scriptstate_uninitialized);
+ //                   setScriptState(sim_scriptstate_uninitialized);
                     // Following because below funcs are speed-sensitive:
                     if ((hasSystemFunction(sim_syscb_dyn)) ||
                         (hasSystemFunction(sim_syscb_dyncallback)))
@@ -2733,6 +2760,7 @@ CScript* CScript::copyYourself()
     it->_parentIsProxy = _parentIsProxy;
     it->setScriptText(getScriptText());
     it->_lang = _lang;
+    it->_defaultPythonWrapper = _defaultPythonWrapper;
     it->_scriptInitialValuesInitialized = _scriptInitialValuesInitialized;
     it->_addOnExecPriority = _addOnExecPriority;
 
@@ -3883,6 +3911,10 @@ void CScript::serialize(CSer& ar)
             ar << _lang;
             ar.flush();
 
+            ar.storeDataName("Dpw");
+            ar << _defaultPythonWrapper;
+            ar.flush();
+
             ar.storeDataName(SER_END_OF_OBJECT);
         }
         else
@@ -4016,6 +4048,13 @@ void CScript::serialize(CSer& ar)
                         ar >> _lang;
                     }
 
+                    if (theName.compare("Dpw") == 0)
+                    {
+                        noHit = false;
+                        ar >> byteQuantity;
+                        ar >> _defaultPythonWrapper;
+                    }
+
                     if (noHit)
                         ar.loadUnknownData();
                 }
@@ -4114,6 +4153,7 @@ void CScript::serialize(CSer& ar)
             ar.xmlAddNode_cdata("scriptText", tmp.c_str());
 
             ar.xmlAddNode_string("lang", _lang.c_str());
+            ar.xmlAddNode_string("pythonWrapper", _defaultPythonWrapper.c_str());
 
             if (exhaustiveXml)
             {
@@ -4166,6 +4206,7 @@ void CScript::serialize(CSer& ar)
                 _lang = "lua";
 
             ar.xmlGetNode_string("lang", _lang);
+            ar.xmlGetNode_string("pythonWrapper", _defaultPythonWrapper);
 
             if (exhaustiveXml)
             {
@@ -4742,6 +4783,11 @@ int CScript::setStringProperty(const char* pName, const std::string& pState)
         retVal = sim_propertyret_ok;
         _addOnMenuPath = pState;
     }
+    else if (strcmp(prop(PropScript::pythonWrapper).name, pName) == 0)
+    {
+        retVal = sim_propertyret_ok;
+        setDefaultPythonWrapper(pState.c_str());
+    }
     else if (strcmp(prop(PropScript::execPriority).name, pName) == 0)
     { // Enum
         retVal = sim_propertyret_ok;
@@ -4778,6 +4824,11 @@ int CScript::getStringProperty(const char* pName, std::string& pState) const
         {
             retVal = sim_propertyret_ok;
             pState = _lang;
+        }
+        else if (strcmp(prop(PropScript::pythonWrapper).name, pName) == 0)
+        {
+            retVal = sim_propertyret_ok;
+            pState = _defaultPythonWrapper;
         }
         else if (strcmp(prop(PropScript::scriptName).name, pName) == 0)
         {

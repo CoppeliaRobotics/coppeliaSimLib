@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>430</width>
-    <height>164</height>
+    <height>197</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>80</y>
+     <y>100</y>
      <width>411</width>
      <height>51</height>
     </rect>
@@ -78,7 +78,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>140</y>
+     <y>160</y>
      <width>161</width>
      <height>18</height>
     </rect>
@@ -588,7 +588,7 @@
    <property name="geometry">
     <rect>
      <x>240</x>
-     <y>50</y>
+     <y>90</y>
      <width>181</width>
      <height>18</height>
     </rect>
@@ -604,7 +604,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>50</y>
+     <y>70</y>
      <width>221</width>
      <height>18</height>
     </rect>
@@ -616,12 +616,36 @@
     <string>Reset after simulation error</string>
    </property>
   </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>50</y>
+     <width>211</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Default wrapper</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="qqWrapper">
+   <property name="geometry">
+    <rect>
+     <x>240</x>
+     <y>50</y>
+     <width>171</width>
+     <height>18</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>qqEnabled</tabstop>
   <tabstop>qqExecutionOrder</tabstop>
-  <tabstop>qqParentProxy</tabstop>
+  <tabstop>qqWrapper</tabstop>
   <tabstop>qqResetAfterSimError</tabstop>
+  <tabstop>qqParentProxy</tabstop>
   <tabstop>qqSize</tabstop>
   <tabstop>qqColor</tabstop>
   <tabstop>qqApplyMainProperties</tabstop>
