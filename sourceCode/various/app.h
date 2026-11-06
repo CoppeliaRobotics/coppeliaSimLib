@@ -88,8 +88,10 @@ class App
     static void logMsg(int verbosityLevel, const char* msg, int int1, int int2 = 0, int int3 = 0);
     static void logScriptMsg(const CScript* script, int verbosityLevel, const char* msg);
     static void setStringVerbosity(int what, const char* str);
+    static int getConsoleVerbosityEnum(const char* pluginName = nullptr);
     static int getConsoleVerbosity(const char* pluginName = nullptr);
     static void setConsoleVerbosity(int v, const char* pluginName = nullptr);
+    static int getStatusbarVerbosityEnum(const char* pluginName = nullptr);
     static int getStatusbarVerbosity(const char* pluginName = nullptr);
     static void setStatusbarVerbosity(int v, const char* pluginName = nullptr);
     static bool getConsoleOrStatusbarVerbosityTriggered(int verbosityLevel);
@@ -98,6 +100,7 @@ class App
     static void setConsoleMsgToFile(bool f);
     static std::string getConsoleMsgFile();
     static void setConsoleMsgFile(const char* f);
+    static int getDlgVerbosityEnum();
     static int getDlgVerbosity();
     static void setDlgVerbosity(int v);
     static void setStartupScriptString(const char* str);

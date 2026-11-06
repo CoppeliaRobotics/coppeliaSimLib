@@ -1812,10 +1812,10 @@ std::string _method_handleSandboxes(int targetObj, CScript* currentScript, const
 #endif
             if (editMode == NO_EDIT_MODE)
             {
-                if (App::scenes->pySandboxScript != nullptr)
-                    App::scenes->pySandboxScript->systemCallScript(callType, nullptr, nullptr);
-                if (App::scenes->sandboxScript != nullptr)
-                    App::scenes->sandboxScript->systemCallScript(callType, nullptr, nullptr);
+                if (App::scenes->sandboxScriptPython != nullptr)
+                    App::scenes->sandboxScriptPython->systemCallScript(callType, nullptr, nullptr);
+                if (App::scenes->sandboxScriptLua != nullptr)
+                    App::scenes->sandboxScriptLua->systemCallScript(callType, nullptr, nullptr);
             }
         }
         else
@@ -3089,10 +3089,10 @@ std::string _method_getObjects(int targetObj, CScript* currentScript, const CInt
                     }
                     else if (t == "script")
                     {
-                        if (App::scenes->sandboxScript != nullptr)
-                            objects.push_back(App::scenes->sandboxScript->getSceneObjectOrNakedScriptHandle());
-                        if (App::scenes->pySandboxScript != nullptr)
-                            objects.push_back(App::scenes->pySandboxScript->getSceneObjectOrNakedScriptHandle());
+                        if (App::scenes->sandboxScriptLua != nullptr)
+                            objects.push_back(App::scenes->sandboxScriptLua->getSceneObjectOrNakedScriptHandle());
+                        if (App::scenes->sandboxScriptPython != nullptr)
+                            objects.push_back(App::scenes->sandboxScriptPython->getSceneObjectOrNakedScriptHandle());
                         std::vector<int> addOns = App::scenes->addOnScriptContainer->getAddOnHandles();
                         objects.insert(objects.end(), addOns.begin(), addOns.end());
                         objects.push_back(App::scene->sceneObjects->embeddedScriptContainer->getMainScript()->getSceneObjectOrNakedScriptHandle());
@@ -3479,7 +3479,7 @@ std::string _method_suspend(int targetObj, CScript* currentScript, const CInterf
         if (target->getScriptType() == sim_scripttype_addon)
         {
             if (target->getScriptState() == sim_scriptstate_initialized)
-                target->setScriptState(target->getScriptState() | sim_scriptstate_suspended);
+                target->setScriptState(target->getScriptState() | sim_scriptstate_suspendedflag);
         }
         else
             errMsg = SIM_ERROR_INVALID_SCRIPT_TYPE_FOR_OPERATION;
@@ -3495,8 +3495,8 @@ std::string _method_resume(int targetObj, CScript* currentScript, const CInterfa
     {
         if (target->getScriptType() == sim_scripttype_addon)
         {
-            if ((target->getScriptState() & sim_scriptstate_suspended) != 0)
-                target->setScriptState(target->getScriptState() - sim_scriptstate_suspended);
+            if ((target->getScriptState() & sim_scriptstate_suspendedflag) != 0)
+                target->setScriptState(target->getScriptState() - sim_scriptstate_suspendedflag);
         }
         else
             errMsg = SIM_ERROR_INVALID_SCRIPT_TYPE_FOR_OPERATION;
@@ -8531,8 +8531,8 @@ std::string _method_getPluginInfo(int targetObj, CScript* currentScript, const C
             map->appendMapObject_text("versionStr", plug->getExtendedVersionString().c_str());
             map->appendMapObject_text("buildDate", plug->getBuildDateString().c_str());
             map->appendMapObject_int32("version", plug->getExtendedVersionInt());
-            map->appendMapObject_int32("consoleVerbosity", App::getConsoleVerbosity(pluginName.c_str()));
-            map->appendMapObject_int32("statusbarVerbosity", App::getStatusbarVerbosity(pluginName.c_str()));
+            map->appendMapObject_int32("consoleVerbosity", App::getConsoleVerbosityEnum(pluginName.c_str()));
+            map->appendMapObject_int32("statusbarVerbosity", App::getStatusbarVerbosityEnum(pluginName.c_str()));
             outStack->pushObjectOntoStack(map);
         }
         else

@@ -40,7 +40,7 @@ CUserSettings* App::userSettings = nullptr;
 CFolderSystem* App::folders = nullptr;
 CSceneContainer* App::scenes = nullptr;
 CScene* App::scene = nullptr;
-int App::_consoleVerbosity = sim_verbosity_default;
+int App::_consoleVerbosity = sim_verbosity_dflt;
 int App::_statusbarVerbosity = sim_verbosity_msgs;
 int App::_dlgVerbosity = sim_verbosity_infos;
 int App::_exitCode = 0;
@@ -314,10 +314,10 @@ void App::init(const char* appDir, int)
     simThread = new CSimThread();
 
     // Some items below require the GUI to be initialized (e.g. the Commander plugin):
-    scenes->sandboxScript = new CScript(sim_scripttype_sandbox);
-    scenes->sandboxScript->initScript();
-    scenes->pySandboxScript = new CScript(sim_scripttype_sandbox);
-    scenes->pySandboxScript->initScript();
+    scenes->sandboxScriptLua = new CScript(sim_scripttype_sandbox);
+    scenes->sandboxScriptLua->initScript();
+    scenes->sandboxScriptPython = new CScript(sim_scripttype_sandbox);
+    scenes->sandboxScriptPython->initScript();
 
     std::string autoLoadAddOns("true");
     getAppNamedParam("addOns.autoLoad", autoLoadAddOns);
@@ -357,7 +357,7 @@ void App::init(const char* appDir, int)
 
     if (_startupScriptString.size() > 0)
     {
-        int r = scenes->sandboxScript->executeScriptString(_startupScriptString.c_str(), nullptr);
+        int r = scenes->sandboxScriptLua->executeScriptString(_startupScriptString.c_str(), nullptr);
         _startupScriptString.clear();
     }
 
@@ -395,12 +395,12 @@ void App::cleanup()
     scenes->copyBuffer->clearBuffer();
 
     scenes->addOnScriptContainer->removeAllAddOns();
-    scenes->pySandboxScript->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
-    CScript::destroy(scenes->pySandboxScript, true);
-    scenes->pySandboxScript = nullptr;
-    scenes->sandboxScript->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
-    CScript::destroy(scenes->sandboxScript, true);
-    scenes->sandboxScript = nullptr;
+    scenes->sandboxScriptPython->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
+    CScript::destroy(scenes->sandboxScriptPython, true);
+    scenes->sandboxScriptPython = nullptr;
+    scenes->sandboxScriptLua->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
+    CScript::destroy(scenes->sandboxScriptLua, true);
+    scenes->sandboxScriptLua = nullptr;
     scenes->pluginContainer->unloadNewPlugins(); // cleanup via (UI thread) and SIM thread
 
     CSimFlavor::run(10);
@@ -443,7 +443,7 @@ void App::cleanup()
     _consoleMsgsFilename = "debugLog.txt";
     _startupScriptString.clear();
     _consoleLogFilterStr.clear();
-    _consoleVerbosity = sim_verbosity_default;
+    _consoleVerbosity = sim_verbosity_dflt;
     _statusbarVerbosity = sim_verbosity_msgs;
     _dlgVerbosity = sim_verbosity_infos;
 
@@ -1240,6 +1240,11 @@ void App::__logMsg(const char* originName, int verbosityLevel, const char* msg, 
     }
 }
 
+int App::getDlgVerbosityEnum()
+{
+    return getDlgVerbosity() & 0x0fff;
+}
+
 int App::getDlgVerbosity()
 { // sim_verbosity_none, etc.
     return (_dlgVerbosity);
@@ -1255,7 +1260,7 @@ void App::setDlgVerbosity(int v)
         {
             const char* cmd = prop(PropApp::dialogVerbosity).name;
             CCbor* ev = scenes->createObjectChangedEvent(sim_handle_app, cmd, true);
-            ev->appendKeyInt64(cmd, _dlgVerbosity);
+            ev->appendKeyInt64(cmd, getDlgVerbosityEnum());
             scenes->pushEvent();
         }
     }
@@ -1304,6 +1309,11 @@ void App::undoRedo_sceneChangedGradual(const char* txt)
     else
         scene->undoBufferContainer->announceChangeGradual();
 #endif
+}
+
+int App::getConsoleVerbosityEnum(const char* pluginName /*=nullptr*/)
+{
+    return getConsoleVerbosity(pluginName) & 0x0fff;
 }
 
 int App::getConsoleVerbosity(const char* pluginName /*=nullptr*/)
@@ -1376,11 +1386,16 @@ void App::setConsoleVerbosity(int v, const char* pluginName /*=nullptr*/)
             {
                 const char* cmd = prop(PropApp::consoleVerbosity).name;
                 CCbor* ev = scenes->createObjectChangedEvent(sim_handle_app, cmd, true);
-                ev->appendKeyInt64(cmd, _consoleVerbosity);
+                ev->appendKeyInt64(cmd, getConsoleVerbosityEnum());
                 scenes->pushEvent();
             }
         }
     }
+}
+
+int App::getStatusbarVerbosityEnum(const char* pluginName /*=nullptr*/)
+{
+    return getStatusbarVerbosity(pluginName) & 0x0fff;
 }
 
 int App::getStatusbarVerbosity(const char* pluginName /*=nullptr*/)
@@ -1416,7 +1431,7 @@ void App::setStatusbarVerbosity(int v, const char* pluginName /*=nullptr*/)
             {
                 const char* cmd = prop(PropApp::statusbarVerbosity).name;
                 CCbor* ev = scenes->createObjectChangedEvent(sim_handle_app, cmd, true);
-                ev->appendKeyInt64(cmd, _statusbarVerbosity);
+                ev->appendKeyInt64(cmd, getStatusbarVerbosityEnum());
                 scenes->pushEvent();
             }
         }
@@ -1903,17 +1918,17 @@ int App::getIntProperty_t(int64_t target, const char* ppName, int& pState)
         }
         else if (strcmp(pName, prop(PropApp::consoleVerbosity).name) == 0)
         {
-            pState = getConsoleVerbosity();
+            pState = getConsoleVerbosityEnum();
             retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, prop(PropApp::statusbarVerbosity).name) == 0)
         {
-            pState = getStatusbarVerbosity();
+            pState = getStatusbarVerbosityEnum();
             retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, prop(PropApp::dialogVerbosity).name) == 0)
         {
-            pState = getDlgVerbosity();
+            pState = getDlgVerbosityEnum();
             retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, prop(PropApp::headlessMode).name) == 0)
@@ -2089,16 +2104,16 @@ int App::getHandleProperty_t(int64_t target, const char* ppName, int64_t& pState
     {
         if (strcmp(pName, prop(PropApp::sandbox).name) == 0)
         {
-            if ( (scenes != nullptr) && (scenes->sandboxScript != nullptr) )
-                pState = scenes->sandboxScript->getSceneObjectOrNakedScriptHandle();
+            if ( (scenes != nullptr) && (scenes->sandboxScriptLua != nullptr) )
+                pState = scenes->sandboxScriptLua->getSceneObjectOrNakedScriptHandle();
             else
                 pState = -1;
             retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, prop(PropApp::pySandbox).name) == 0)
         {
-            if ( (scenes != nullptr) && (scenes->pySandboxScript != nullptr) )
-                pState = scenes->pySandboxScript->getSceneObjectOrNakedScriptHandle();
+            if ( (scenes != nullptr) && (scenes->sandboxScriptPython != nullptr) )
+                pState = scenes->sandboxScriptPython->getSceneObjectOrNakedScriptHandle();
             else
                 pState = -1;
             retVal = sim_propertyret_ok;
@@ -4035,8 +4050,8 @@ bool App::_resolveTarget(int64_t& target)
     bool retVal = true;
     if (target == sim_handle_sandbox)
     {
-        if ((scenes != nullptr) && (scenes->sandboxScript != nullptr))
-            target = scenes->sandboxScript->getSceneObjectOrNakedScriptHandle();
+        if ((scenes != nullptr) && (scenes->sandboxScriptLua != nullptr))
+            target = scenes->sandboxScriptLua->getSceneObjectOrNakedScriptHandle();
         else
             retVal = false; // target does not exist
     }
@@ -4299,11 +4314,11 @@ void App::pushGenesisEvents()
         CCbor* ev = scenes->createEvent(EVENTTYPE_GENESISBEGIN, -1, -1, nullptr, false);
         scenes->pushEvent();
 
-        if (scenes->sandboxScript != nullptr)
-            scenes->sandboxScript->pushNakedGenesisEvents();
+        if (scenes->sandboxScriptLua != nullptr)
+            scenes->sandboxScriptLua->pushNakedGenesisEvents();
 
-        if (scenes->pySandboxScript != nullptr)
-            scenes->pySandboxScript->pushNakedGenesisEvents();
+        if (scenes->sandboxScriptPython != nullptr)
+            scenes->sandboxScriptPython->pushNakedGenesisEvents();
 
         if (scenes->addOnScriptContainer != nullptr)
             scenes->addOnScriptContainer->pushNakedGenesisEvents();
@@ -4335,12 +4350,12 @@ void App::pushGenesisEvents()
         _appStorage->appendEventData(nullptr, ev);
 
         int sbh = -1;
-        if (scenes->sandboxScript != nullptr)
-            sbh = scenes->sandboxScript->getSceneObjectOrNakedScriptHandle();
+        if (scenes->sandboxScriptLua != nullptr)
+            sbh = scenes->sandboxScriptLua->getSceneObjectOrNakedScriptHandle();
         ev->appendKeyHandle(prop(PropApp::sandbox).name, sbh);
         sbh = -1;
-        if (scenes->pySandboxScript != nullptr)
-            sbh = scenes->pySandboxScript->getSceneObjectOrNakedScriptHandle();
+        if (scenes->sandboxScriptPython != nullptr)
+            sbh = scenes->sandboxScriptPython->getSceneObjectOrNakedScriptHandle();
         ev->appendKeyHandle(prop(PropApp::pySandbox).name, sbh);
         ev->appendKeyHandle(prop(PropApp::current).name, _currentObject);
         if (instancesList != nullptr)
@@ -4348,9 +4363,9 @@ void App::pushGenesisEvents()
             ev->appendKeyInt64(prop(PropApp::processId).name, instancesList->thisInstanceId());
             ev->appendKeyInt64(prop(PropApp::processCnt).name, instancesList->numInstances());
         }
-        ev->appendKeyInt64(prop(PropApp::consoleVerbosity).name, getConsoleVerbosity());
-        ev->appendKeyInt64(prop(PropApp::statusbarVerbosity).name, getStatusbarVerbosity());
-        ev->appendKeyInt64(prop(PropApp::dialogVerbosity).name, getDlgVerbosity());
+        ev->appendKeyInt64(prop(PropApp::consoleVerbosity).name, getConsoleVerbosityEnum());
+        ev->appendKeyInt64(prop(PropApp::statusbarVerbosity).name, getStatusbarVerbosityEnum());
+        ev->appendKeyInt64(prop(PropApp::dialogVerbosity).name, getDlgVerbosityEnum());
         ev->appendKeyTextArray(prop(PropApp::appArgs).name, _applicationArguments);
         ev->appendKeyTextArray(prop(PropApp::pluginNames).name, _pluginNames);
         ev->appendKeyTextArray(prop(PropApp::enumTypes).name, _enumTypes);

@@ -3774,7 +3774,7 @@ int simCallMethod_internal(int64_t target, const char* nname, int inputStack, in
         if ((retVal == 0) && (!luaCalling))
         { // method was not found here. Let's try the method as a pure Lua method:
             if (currentScript == nullptr)
-                currentScript = App::scenes->sandboxScript;
+                currentScript = App::scenes->sandboxScriptLua;
             if (currentScript != nullptr)
             {
                 retVal = -1; // error
@@ -3927,7 +3927,7 @@ int simGetScriptHandleEx_internal(int scriptType, int objectHandle, const char* 
         if (scriptType == sim_scripttype_main)
             it = App::scene->sceneObjects->embeddedScriptContainer->getMainScript();
         if (scriptType == sim_scripttype_sandbox)
-            it = App::scenes->sandboxScript;
+            it = App::scenes->sandboxScriptLua;
         if ((scriptType == sim_scripttype_simulation) || (scriptType == sim_scripttype_customization))
         { // deprecated with new scripts
             if ((objectHandle < 0) && (scriptName != nullptr))

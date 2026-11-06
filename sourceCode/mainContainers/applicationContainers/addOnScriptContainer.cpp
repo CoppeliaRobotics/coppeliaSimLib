@@ -424,13 +424,13 @@ bool CAddOnScriptContainer::processCommand(int commandID)
             {
                 int st = it->getScriptState();
                 int sysCall = -1;
-                if (((st & sim_scriptstate_error) != 0) ||
+                if (((st & sim_scriptstate_errorflag) != 0) ||
                     ((st & 7) != sim_scriptstate_initialized))
                 {
                     sysCall = sim_syscb_init;
                     it->resetScript();
                 }
-                if (st == (sim_scriptstate_initialized | sim_scriptstate_suspended))
+                if (st == (sim_scriptstate_initialized | sim_scriptstate_suspendedflag))
                     sysCall = sim_syscb_aos_resume;
                 if (st == sim_scriptstate_initialized)
                     sysCall = sim_syscb_aos_suspend;

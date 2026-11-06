@@ -421,7 +421,7 @@ void CScriptObject::reinitAfterSimulationIfNeeded()
     {
         if (nakedScript->getScriptType() == sim_scripttype_customization)
         {
-            if ((nakedScript->getScriptState() & sim_scriptstate_error) && _resetAfterSimError)
+            if ((nakedScript->getScriptState() & sim_scriptstate_errorflag) && _resetAfterSimError)
                 nakedScript->initScript();
         }
     }

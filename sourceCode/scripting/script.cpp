@@ -1081,7 +1081,7 @@ std::string CScript::getScriptName() const
     if (_scriptType == sim_scripttype_sandbox)
     {
         std::string retVal;
-        if (this == App::scenes->sandboxScript)
+        if (this == App::scenes->sandboxScriptLua)
             retVal += "lua";
         else
             retVal += "python";
@@ -1120,6 +1120,11 @@ std::string CScript::getAddOnMenuPath() const
     return _addOnMenuPath;
 }
 
+int CScript::getScriptStateEnum() const
+{
+    return _scriptState & 0x07;
+}
+
 int CScript::getScriptState() const
 {
     return _scriptState;
@@ -1134,7 +1139,7 @@ void CScript::pushNakedGenesisEvents(CCbor* ev /*= nullptr*/)
             ev = App::scenes->createEvent(EVENTTYPE_OBJECTADDED, _objectHandle, _scriptUid, nullptr, false);
         ev->appendKeyBool(prop(PropScript::scriptEnabled).name, !_scriptIsDisabled);
         ev->appendKeyText(prop(PropScript::scriptType).name, getScriptTypeStr().c_str());
-        ev->appendKeyInt64(prop(PropScript::scriptState).name, _scriptState);
+        ev->appendKeyInt64(prop(PropScript::scriptState).name, getScriptStateEnum());
         ev->appendKeyBool(prop(PropScript::restartOnError).name, _autoRestartOnError);
         ev->appendKeyInt64(prop(PropScript::execPriority).name, getScriptExecPriority());
         ev->appendKeyText(prop(PropScript::language).name, _lang.c_str());
@@ -1159,7 +1164,7 @@ void CScript::setScriptState(int state)
             const char* cmd = prop(PropScript::scriptState).name;
             CCbor* ev;
             ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
-            ev->appendKeyInt64(cmd, _scriptState);
+            ev->appendKeyInt64(cmd, getScriptStateEnum());
             App::scenes->pushEvent();
         }
     }
@@ -1277,7 +1282,7 @@ bool CScript::getScriptIsDisabled() const
 
 bool CScript::getScriptHasError() const
 {
-    return (_scriptState & sim_scriptstate_error);
+    return (_scriptState & sim_scriptstate_errorflag);
 }
 
 void CScript::setParentIsProxy(bool isProxy)
@@ -1335,7 +1340,7 @@ bool CScript::getScriptDisabledAndNoErrorRaised() const
         if (!App::userSettings->runCustomizationScripts)
             disabled = true;
     }
-    return (disabled && ((_scriptState & sim_scriptstate_error) == 0));
+    return (disabled && ((_scriptState & sim_scriptstate_errorflag) == 0));
 }
 
 int CScript::getScriptType() const
@@ -1478,7 +1483,7 @@ std::string CScript::getDescriptiveName() const
     if (_scriptType == sim_scripttype_sandbox)
     {
         retVal += "Sandbox ";
-        if (this == App::scenes->sandboxScript)
+        if (this == App::scenes->sandboxScriptLua)
             retVal += "(lua)";
         else
             retVal += "(python)";
@@ -1520,7 +1525,7 @@ std::string CScript::getShortDescriptiveName() const
     }
     if (_scriptType == sim_scripttype_sandbox)
     {
-        if (this == App::scenes->sandboxScript)
+        if (this == App::scenes->sandboxScriptLua)
             retVal += "lua";
         else
             retVal += "python";
@@ -1712,7 +1717,7 @@ int CScript::systemCallScript(int callType, const CInterfaceStack* inStack, CInt
         }
         if (((_scriptState & 7) == sim_scriptstate_initialized) && (callType != sim_syscb_info) && (callType != sim_syscb_init))
         { // Execute the script call
-            if (((_scriptState & sim_scriptstate_error) == 0) || (callType == sim_syscb_cleanup))
+            if (((_scriptState & sim_scriptstate_errorflag) == 0) || (callType == sim_syscb_cleanup))
             {
                 if ((callType != sim_syscb_event) || hasSystemFunctionOrHook(sim_syscb_event))
                 {
@@ -1742,9 +1747,9 @@ int CScript::systemCallScript(int callType, const CInterfaceStack* inStack, CInt
 
             if (_scriptState == sim_scriptstate_initialized)
                 txt += " (running)";
-            if ((_scriptState & sim_scriptstate_error) != 0)
+            if ((_scriptState & sim_scriptstate_errorflag) != 0)
                 txt += " (error)";
-            if ((_scriptState & sim_scriptstate_suspended) != 0)
+            if ((_scriptState & sim_scriptstate_suspendedflag) != 0)
                 txt += " (suspended)";
             m->setLabel(txt.c_str());
         }
@@ -1969,7 +1974,7 @@ bool CScript::_loadCode()
             {
                 if (r == 0)
                 { // a runtime error occurred!
-                    setScriptState(_scriptState | sim_scriptstate_error);
+                    setScriptState(_scriptState | sim_scriptstate_errorflag);
                     _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
                 }
                 else
@@ -1993,18 +1998,18 @@ bool CScript::_loadCode()
             }
             else
             { // A compilation/load error occurred!
-                setScriptState(_scriptState | sim_scriptstate_error);
+                setScriptState(_scriptState | sim_scriptstate_errorflag);
                 _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), false);
             }
         }
         else
         { // The interpreter state could not be created!
-            setScriptState(_scriptState | sim_scriptstate_error);
+            setScriptState(_scriptState | sim_scriptstate_errorflag);
             _announceErrorWasRaisedAndPossiblyPauseSimulation(intStateErr.c_str(), false);
         }
     }
 
-    if ((_scriptState & sim_scriptstate_error) != 0)
+    if ((_scriptState & sim_scriptstate_errorflag) != 0)
         _killInterpreterState();
     return ((_scriptState == sim_scriptstate_uninitialized) || (_scriptState == sim_scriptstate_initialized));
 }
@@ -2033,20 +2038,20 @@ int CScript::_callSystemScriptFunction(int callType, const CInterfaceStack* inSt
             return (0);
         if (callType == sim_syscb_cleanup)
         {
-            int ss = (_scriptState & sim_scriptstate_error); // keep the error flag
+            int ss = (_scriptState & sim_scriptstate_errorflag); // keep the error flag
             ss |= sim_scriptstate_ended;                     // set the ended state
             setScriptState(ss);
         }
         else
         {
-            if ((_scriptState & sim_scriptstate_error) != 0)
+            if ((_scriptState & sim_scriptstate_errorflag) != 0)
                 return (0);
             if (callType == sim_syscb_aos_resume)
-                setScriptState((_scriptState | sim_scriptstate_suspended) - sim_scriptstate_suspended);
-            if ((_scriptState & sim_scriptstate_suspended) != 0)
+                setScriptState((_scriptState | sim_scriptstate_suspendedflag) - sim_scriptstate_suspendedflag);
+            if ((_scriptState & sim_scriptstate_suspendedflag) != 0)
                 return (0);
             if (callType == sim_syscb_aos_suspend)
-                setScriptState(_scriptState | sim_scriptstate_suspended);
+                setScriptState(_scriptState | sim_scriptstate_suspendedflag);
         }
     }
 
@@ -2093,7 +2098,7 @@ int CScript::_callSystemScriptFunction(int callType, const CInterfaceStack* inSt
     {
         if (retVal == -1)
         { // a runtime error occurred!
-            setScriptState(_scriptState | sim_scriptstate_error);
+            setScriptState(_scriptState | sim_scriptstate_errorflag);
             _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
             retVal = -1;
         }
@@ -2123,11 +2128,11 @@ int CScript::_callSystemScriptFunction(int callType, const CInterfaceStack* inSt
     if (_executionDepth == 0)
     { // a system script func. could call a custom script function which could call a system script function, etc. Let
         // the calls unwind before doing anything heavy!
-        if ((_scriptState & sim_scriptstate_error) != 0)
+        if ((_scriptState & sim_scriptstate_errorflag) != 0)
         { // We got an error
             if (callType == sim_syscb_info)
             {
-                setScriptState(sim_scriptstate_ended | sim_scriptstate_error);
+                setScriptState(sim_scriptstate_ended | sim_scriptstate_errorflag);
                 _killInterpreterState();
             }
             else
@@ -2447,7 +2452,7 @@ int CScript::callCustomScriptFunction(const char* functionName, CInterfaceStack*
         {
             if (retVal == -1)
             { // a runtime error occurred!
-                setScriptState(_scriptState | sim_scriptstate_error);
+                setScriptState(_scriptState | sim_scriptstate_errorflag);
                 _announceErrorWasRaisedAndPossiblyPauseSimulation(errMsg.c_str(), true);
                 retVal = -1;
             }
@@ -2586,7 +2591,7 @@ void CScript::initScript()
 {
     resetScript();
     {
-        if (this == App::scenes->sandboxScript)
+        if (this == App::scenes->sandboxScriptLua)
         {
             App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "initializing the Lua sandbox...");
             _initInterpreterState(nullptr);
@@ -2602,7 +2607,7 @@ void CScript::initScript()
                 App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandboxScript.lua was not found.");
             }
         }
-        else if (this == App::scenes->pySandboxScript)
+        else if (this == App::scenes->sandboxScriptPython)
         {
             App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "initializing the Python sandbox...");
             _initInterpreterState(nullptr);
@@ -2655,7 +2660,7 @@ bool CScript::_killInterpreterState()
         _interpreterState = nullptr;
     }
 
-    int ss = (_scriptState & sim_scriptstate_error); // keep the error flag
+    int ss = (_scriptState & sim_scriptstate_errorflag); // keep the error flag
     ss |= sim_scriptstate_ended;                     // set the ended state
     setScriptState(ss);
     _scriptTextExec.clear();
@@ -2677,7 +2682,7 @@ bool CScript::_killInterpreterState()
 #ifdef SIM_WITH_GUI
     GuiApp::setRefreshHierarchyViewFlag();
 #endif
-    if ((_scriptState & sim_scriptstate_error) && _autoRestartOnError)
+    if ((_scriptState & sim_scriptstate_errorflag) && _autoRestartOnError)
     {
         setAutoRestartOnError(false);
         setScriptState(sim_scriptstate_unloaded);
@@ -2772,7 +2777,7 @@ bool CScript::prepareFilteredEventsBuffer(const std::vector<unsigned char>& inpu
             }
             else if ((t >= sim_object_scriptstart) && (t <= sim_object_scriptend))
             {
-                if (t == App::scenes->sandboxScript->getSceneObjectOrNakedScriptHandle())
+                if (t == App::scenes->sandboxScriptLua->getSceneObjectOrNakedScriptHandle())
                     altT = sim_handle_sandbox;
                 else if ((mainScriptHandle != -1) && (t == mainScriptHandle))
                     altT = sim_handle_mainscript;
@@ -4655,7 +4660,7 @@ int CScript::getIntProperty(const char* pName, int& pState) const
     else if (strcmp(prop(PropScript::scriptState).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
-        pState = _scriptState;
+        pState = getScriptStateEnum();
     }
 
     return retVal;
@@ -4788,7 +4793,7 @@ int CScript::getStringProperty(const char* pName, std::string& pState) const
         else if (strcmp(prop(PropScript::scriptState).name, pName) == 0)
         { // Enum
             retVal = sim_propertyret_ok;
-            auto enum_value = magic_enum::enum_cast<scriptState>(_scriptState);
+            auto enum_value = magic_enum::enum_cast<scriptState>(getScriptStateEnum());
             if (enum_value.has_value())
                 pState = magic_enum::enum_name(enum_value.value()).data();
             else
@@ -6122,8 +6127,13 @@ void CScript::_detectDeprecated_old(CScript* nakedScript)
     /*
     if (_containsScriptText_old(nakedScript, "org.conman.cbor"))
     {
-        _replaceScriptText_old(nakedScript, "org.conman.cbor", "simCBOR");
+        _replaceScriptText_old(nakedScript, "org.conman.cbor", "sim.cbor");
         App::logMsg(sim_verbosity_errors, "Contains org.conman.cbor...");
+    }
+    if (_containsScriptText_old(nakedScript, "simCBOR"))
+    {
+        _replaceScriptText_old(nakedScript, "simCBOR", "sim.cbor");
+        App::logMsg(sim_verbosity_errors, "Contains simCBOR...");
     }
 
     regEx = "(^|[^A-Za-z0-9_\\.\\-])Matrix\\(";

@@ -24,8 +24,8 @@ CSceneContainer::CSceneContainer()
     customObjects = nullptr;
     customSceneObjectClasses = nullptr;
     copyBuffer = nullptr;
-    sandboxScript = nullptr;
-    pySandboxScript = nullptr;
+    sandboxScriptLua = nullptr;
+    sandboxScriptPython = nullptr;
     addOnScriptContainer = nullptr;
     persistentDataContainer_old = nullptr;
     interfaceStackContainer = nullptr;
@@ -404,10 +404,10 @@ CScript* CSceneContainer::getScriptFromHandle(int scriptHandle) const
         retVal = scene->getScriptFromHandle(scriptHandle);
     if ((retVal == nullptr) && (addOnScriptContainer != nullptr))
         retVal = addOnScriptContainer->getAddOnFromHandle(scriptHandle);
-    if ((retVal == nullptr) && (pySandboxScript != nullptr) && (pySandboxScript->getSceneObjectOrNakedScriptHandle() == scriptHandle))
-        retVal = pySandboxScript;
-    if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getSceneObjectOrNakedScriptHandle() == scriptHandle))
-        retVal = sandboxScript;
+    if ((retVal == nullptr) && (sandboxScriptPython != nullptr) && (sandboxScriptPython->getSceneObjectOrNakedScriptHandle() == scriptHandle))
+        retVal = sandboxScriptPython;
+    if ((retVal == nullptr) && (sandboxScriptLua != nullptr) && (sandboxScriptLua->getSceneObjectOrNakedScriptHandle() == scriptHandle))
+        retVal = sandboxScriptLua;
     return (retVal);
 }
 
@@ -418,10 +418,10 @@ CScript* CSceneContainer::getScriptFromUid(int uid) const
         retVal = scene->getScriptFromUid(uid);
     if ((retVal == nullptr) && (addOnScriptContainer != nullptr))
         retVal = addOnScriptContainer->getAddOnFromUid(uid);
-    if ((retVal == nullptr) && (pySandboxScript != nullptr) && (pySandboxScript->getScriptUid() == uid))
-        retVal = pySandboxScript;
-    if ((retVal == nullptr) && (sandboxScript != nullptr) && (sandboxScript->getScriptUid() == uid))
-        retVal = sandboxScript;
+    if ((retVal == nullptr) && (sandboxScriptPython != nullptr) && (sandboxScriptPython->getScriptUid() == uid))
+        retVal = sandboxScriptPython;
+    if ((retVal == nullptr) && (sandboxScriptLua != nullptr) && (sandboxScriptLua->getScriptUid() == uid))
+        retVal = sandboxScriptLua;
     return (retVal);
 }
 
@@ -429,15 +429,15 @@ int CSceneContainer::getSysFuncAndHookCnt(int sysCall) const
 {
     int retVal = scene->sceneObjects->getSysFuncAndHookCnt(sysCall);
     retVal += addOnScriptContainer->getSysFuncAndHookCnt(sysCall);
-    if (pySandboxScript != nullptr)
+    if (sandboxScriptPython != nullptr)
     {
         for (size_t i = 0; i < 3; i++)
-            retVal += pySandboxScript->getFuncAndHookCnt(sysCall, i);
+            retVal += sandboxScriptPython->getFuncAndHookCnt(sysCall, i);
     }
-    if (sandboxScript != nullptr)
+    if (sandboxScriptLua != nullptr)
     {
         for (size_t i = 0; i < 3; i++)
-            retVal += sandboxScript->getFuncAndHookCnt(sysCall, i);
+            retVal += sandboxScriptLua->getFuncAndHookCnt(sysCall, i);
     }
     return (retVal);
 }
@@ -447,10 +447,10 @@ void CSceneContainer::getActiveScripts(std::vector<CScript*>& scripts, bool reve
     TRACE_INTERNAL;
     if (reverse)
     {
-        if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == sim_scriptstate_initialized))
-            scripts.push_back(sandboxScript);
-        if ((pySandboxScript != nullptr) && (pySandboxScript->getScriptState() == sim_scriptstate_initialized))
-            scripts.push_back(pySandboxScript);
+        if ((sandboxScriptLua != nullptr) && (sandboxScriptLua->getScriptState() == sim_scriptstate_initialized))
+            scripts.push_back(sandboxScriptLua);
+        if ((sandboxScriptPython != nullptr) && (sandboxScriptPython->getScriptState() == sim_scriptstate_initialized))
+            scripts.push_back(sandboxScriptPython);
         addOnScriptContainer->getActiveScripts(scripts);
         if (scene != nullptr)
             scene->getActiveScripts(scripts, reverse, alsoLegacyScripts);
@@ -460,10 +460,10 @@ void CSceneContainer::getActiveScripts(std::vector<CScript*>& scripts, bool reve
         if (scene != nullptr)
             scene->getActiveScripts(scripts, reverse, alsoLegacyScripts);
         addOnScriptContainer->getActiveScripts(scripts);
-        if ((pySandboxScript != nullptr) && (pySandboxScript->getScriptState() == sim_scriptstate_initialized))
-            scripts.push_back(pySandboxScript);
-        if ((sandboxScript != nullptr) && (sandboxScript->getScriptState() == sim_scriptstate_initialized))
-            scripts.push_back(sandboxScript);
+        if ((sandboxScriptPython != nullptr) && (sandboxScriptPython->getScriptState() == sim_scriptstate_initialized))
+            scripts.push_back(sandboxScriptPython);
+        if ((sandboxScriptLua != nullptr) && (sandboxScriptLua->getScriptState() == sim_scriptstate_initialized))
+            scripts.push_back(sandboxScriptLua);
     }
 }
 
@@ -473,17 +473,17 @@ void CSceneContainer::callScripts(int callType, const CInterfaceStack* inStack, 
     bool doNotInterrupt = !CScript::isSystemCallbackInterruptible(callType);
     if (CScript::isSystemCallbackInReverseOrder(callType))
     { // reverse order
-        if ((sandboxScript != nullptr) && sandboxScript->hasSystemFunctionOrHook(callType))
+        if ((sandboxScriptLua != nullptr) && sandboxScriptLua->hasSystemFunctionOrHook(callType))
         {
-            if (nakedScriptToExclude != sandboxScript->getObjectHandle())
-                sandboxScript->systemCallScript(callType, inStack, outStack);
+            if (nakedScriptToExclude != sandboxScriptLua->getObjectHandle())
+                sandboxScriptLua->systemCallScript(callType, inStack, outStack);
         }
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
         {
-            if ((pySandboxScript != nullptr) && pySandboxScript->hasSystemFunctionOrHook(callType))
+            if ((sandboxScriptPython != nullptr) && sandboxScriptPython->hasSystemFunctionOrHook(callType))
             {
-                if (nakedScriptToExclude != pySandboxScript->getObjectHandle())
-                    pySandboxScript->systemCallScript(callType, inStack, outStack);
+                if (nakedScriptToExclude != sandboxScriptPython->getObjectHandle())
+                    sandboxScriptPython->systemCallScript(callType, inStack, outStack);
             }
         }
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
@@ -502,18 +502,18 @@ void CSceneContainer::callScripts(int callType, const CInterfaceStack* inStack, 
             addOnScriptContainer->callScripts(callType, inStack, outStack, nakedScriptToExclude);
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
         {
-            if ((pySandboxScript != nullptr) && pySandboxScript->hasSystemFunctionOrHook(callType))
+            if ((sandboxScriptPython != nullptr) && sandboxScriptPython->hasSystemFunctionOrHook(callType))
             {
-                if (nakedScriptToExclude != pySandboxScript->getObjectHandle())
-                    pySandboxScript->systemCallScript(callType, inStack, outStack);
+                if (nakedScriptToExclude != sandboxScriptPython->getObjectHandle())
+                    sandboxScriptPython->systemCallScript(callType, inStack, outStack);
             }
         }
         if (doNotInterrupt || (outStack == nullptr) || (outStack->getStackSize() == 0))
         {
-            if ((sandboxScript != nullptr) && sandboxScript->hasSystemFunctionOrHook(callType))
+            if ((sandboxScriptLua != nullptr) && sandboxScriptLua->hasSystemFunctionOrHook(callType))
             {
-                if (nakedScriptToExclude != sandboxScript->getObjectHandle())
-                    sandboxScript->systemCallScript(callType, inStack, outStack);
+                if (nakedScriptToExclude != sandboxScriptLua->getObjectHandle())
+                    sandboxScriptLua->systemCallScript(callType, inStack, outStack);
             }
         }
     }
@@ -559,11 +559,11 @@ bool CSceneContainer::shouldTemporarilySuspendMainScript()
         retVal = true;
 
     // Py sandbox script:
-    if ((pySandboxScript != nullptr) && pySandboxScript->shouldTemporarilySuspendMainScript())
+    if ((sandboxScriptPython != nullptr) && sandboxScriptPython->shouldTemporarilySuspendMainScript())
         retVal = true;
 
     // Sandbox script:
-    if ((sandboxScript != nullptr) && sandboxScript->shouldTemporarilySuspendMainScript())
+    if ((sandboxScriptLua != nullptr) && sandboxScriptLua->shouldTemporarilySuspendMainScript())
         retVal = true;
 
     return (retVal);

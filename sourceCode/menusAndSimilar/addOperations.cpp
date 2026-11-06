@@ -974,7 +974,7 @@ bool CAddOperations::processCommand(int commandID, CSView* subView)
                        "0000e+00,7.0711e-01,-7.0711e-01,9.7545e-02,-2.3549e-01,0.0000e+00,0.0000e+00,0.0000e+00,5."
                        "5557e-01,-8.3147e-01,1.8024e-01,-1.8024e-01,0.0000e+00,0.0000e+00,0.0000e+00,3.8268e-01,-9."
                        "2388e-01,2.3549e-01,-9.7545e-02,0.0000e+00,-2.2352e-08,0.0000e+00,1.9509e-01,-9.8079e-01}";
-            if (App::scenes->sandboxScript->getSimVersion() == 2)
+            if (App::scenes->sandboxScriptLua->getSimVersion() == 2)
             {
                 if (commandID == ADD_COMMANDS_ADD_PATH_CIRCLE_ACCMD)
                     txt += "\nlocal closed = true";
@@ -991,7 +991,7 @@ bool CAddOperations::processCommand(int commandID, CSView* subView)
                 txt += std::to_string(opt) + ",100)\nsim.setObjectSel({path})";
             }
             CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
-            if (App::scenes->sandboxScript->executeScriptString(txt.c_str(), stack) == -1)
+            if (App::scenes->sandboxScriptLua->executeScriptString(txt.c_str(), stack) == -1)
             {
                 App::logMsg(sim_verbosity_errors, "internal 'executeScriptString' in sandbox produced an error:");
                 std::string err;

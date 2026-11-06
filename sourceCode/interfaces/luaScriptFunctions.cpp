@@ -784,8 +784,8 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.scriptstate_uninitialized", sim_scriptstate_uninitialized},
     {"sim.scriptstate_initialized", sim_scriptstate_initialized},
     {"sim.scriptstate_ended", sim_scriptstate_ended},
-    {"sim.scriptstate_error", sim_scriptstate_error},
-    {"sim.scriptstate_suspended", sim_scriptstate_suspended},
+    {"sim.scriptstate_error", sim_scriptstate_errorflag},
+    {"sim.scriptstate_suspended", sim_scriptstate_suspendedflag},
     // System callbacks
     {"sim.syscb_thread", sim_syscb_thread},
     {"sim.syscb_init", sim_syscb_init},
@@ -931,7 +931,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.verbosity_trace", sim_verbosity_trace},
     {"sim.verbosity_tracelua", sim_verbosity_tracelua},
     {"sim.verbosity_traceall", sim_verbosity_traceall},
-    {"sim.verbosity_default", sim_verbosity_default},
+    {"sim.verbosity_default", sim_verbosity_dflt},
     {"sim.verbosity_undecorated", sim_verbosity_undecorated},
     {"sim.verbosity_onlyterminal", sim_verbosity_onlyterminal},
     {"sim.verbosity_once", sim_verbosity_once},
@@ -12837,10 +12837,10 @@ int _simHandleSandboxScript(luaWrap_lua_State* L)
 #endif
             if (editMode == NO_EDIT_MODE)
             {
-                if (App::scenes->pySandboxScript != nullptr)
-                    App::scenes->pySandboxScript->systemCallScript(callType, nullptr, nullptr);
-                if (App::scenes->sandboxScript != nullptr)
-                    App::scenes->sandboxScript->systemCallScript(callType, nullptr, nullptr);
+                if (App::scenes->sandboxScriptPython != nullptr)
+                    App::scenes->sandboxScriptPython->systemCallScript(callType, nullptr, nullptr);
+                if (App::scenes->sandboxScriptLua != nullptr)
+                    App::scenes->sandboxScriptLua->systemCallScript(callType, nullptr, nullptr);
             }
         }
     }

@@ -101,8 +101,8 @@ class CSceneContainer
     CCustomData_old* customAppData_old;
     CPersistentDataContainer* persistentDataContainer_old;
     CAddOnScriptContainer* addOnScriptContainer;
-    CScript* sandboxScript;
-    CScript* pySandboxScript;
+    CScript* sandboxScriptLua;
+    CScript* sandboxScriptPython;
     CModuleMenuItemContainer* moduleMenuItemContainer;
     CScene* scene;
 #ifdef SIM_WITH_GUI

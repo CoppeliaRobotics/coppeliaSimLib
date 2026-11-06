@@ -129,6 +129,7 @@ class CScript : public Obj
     std::string getTraceback();
     std::string getAndClearLastStackTraceback();
 
+    int getScriptStateEnum() const;
     int getScriptState() const;
     void setScriptState(int state);
 
