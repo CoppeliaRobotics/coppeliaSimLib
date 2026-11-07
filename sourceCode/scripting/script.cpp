@@ -1850,95 +1850,159 @@ int CScript::___loadCode(const char* code, const char* functionsToFind, std::str
     int retVal = -1;
 
     std::string _code(code);
-    if (utils::getWordFromIndex(_lang.c_str(), ";", 0) == "python")
+
+    if (utils::getWordFromIndex(_lang.c_str(), ";", 0) != "lua")
     {
-        int lineCnt = 0;
-        std::string l;
-        std::string tmpCode(code);
-        std::string t("wrapper='");
-        t += _defaultWrapper;
-        t += "'\n";
-        bool stayIn = true;
-        while (stayIn && utils::extractLine(tmpCode, l))
+        // --- comment syntax of the host language -------------------------------
+        //     python: shortComment = "#", longCommentStart/End = "'''"
+        const std::string fileExt          = utils::getWordFromIndex(_lang.c_str(), ";", 1);
+        const std::string shortComment     = utils::getWordFromIndex(_lang.c_str(), ";", 2);
+        const std::string longCommentStart = utils::getWordFromIndex(_lang.c_str(), ";", 3);
+        const std::string longCommentEnd   = utils::getWordFromIndex(_lang.c_str(), ";", 4);
+
+        // --- tiny helpers -------------------------------------------------------
+        auto trim = [](std::string& s)
         {
-            lineCnt++;
-            utils::removeSpacesAtBeginningAndEnd(l);
-            if (l.size() != 0)
+            utils::removeSpacesAtBeginningAndEnd(s);
+        };
+        auto startsWith = [](const std::string& s, const std::string& prefix)
+        {
+            return !prefix.empty() && s.size() >= prefix.size() && s.compare(0, prefix.size(), prefix) == 0;
+        };
+        auto isLuaExec = [](const std::string& s)
+        {
+            return s == "luaExec" || s.compare(0, 8, "luaExec ") == 0;
+        };
+        // drop everything starting at `marker`; returns true if the marker was found
+        auto cutAt = [](std::string& s, const std::string& marker)
+        {
+            if (marker.empty())
+                return false;
+            const size_t pos = s.find(marker);
+            if (pos == std::string::npos)
+                return false;
+            s.erase(pos);
+            return true;
+        };
+
+        // --- prelude: Lua code collected from the header -----------------------
+        std::string prelude = "wrapper='" + _defaultWrapper + "'\n";
+
+        // --- scan the leading comment block ------------------------------------
+        std::string source(code);      // working copy, consumed line by line
+        std::string line;
+        int  headerLines   = 0;        // header lines removed from the payload
+        bool inHeader      = true;     // still scanning header items
+        bool inLongComment = false;    // inside a ''' ... ''' section
+        bool blockIsLua    = false;    // that section carries luaExec code
+        bool haveExternal  = false;    // only the first include is used
+
+        while (inHeader && utils::extractLine(source, line))
+        {
+            ++headerLines;
+
+            // ---- continuation of a multi-line comment -------------------------
+            if (inLongComment)
             {
-                if (l[0] == '#')
+                if (!blockIsLua)
                 {
-                    l.erase(l.begin());
-                    utils::removeSpacesAtBeginningAndEnd(l);
-                    if (l.find("luaExec ") == 0)
+                    std::string probe(line);
+                    trim(probe);
+                    if (isLuaExec(probe))
                     {
-                        l.erase(l.begin(), l.begin() + 8);
-                        utils::removeSpacesAtBeginningAndEnd(l);
-                        t = t + l;
-                    }
-                    t = t + "\n";
-                }
-                else if (l.compare(0, 3, "'''") == 0)
-                {
-                    l.erase(l.begin(), l.begin() + 3);
-                    utils::removeSpacesAtBeginningAndEnd(l);
-                    bool isLua = ((l.find("luaExec ") == 0) || (l.compare("luaExec") == 0));
-                    bool stayIn2 = true;
-                    if (isLua)
-                    {
-                        l.erase(l.begin(), l.begin() + 7);
-                        size_t p = l.find("'''");
-                        if (p != std::string::npos)
-                        {
-                            stayIn2 = false;
-                            l.erase(l.begin() + p, l.end());
-                        }
-                        t = t + l;
-                    }
-                    t = t + "\n";
-                    while (stayIn2 && utils::extractLine(tmpCode, l))
-                    {
-                        lineCnt++;
-                        if (!isLua)
-                        {
-                            utils::removeSpacesAtBeginningAndEnd(l);
-                            isLua = ((l.find("luaExec ") == 0) || (l.compare("luaExec") == 0));
-                            if (isLua)
-                                l.erase(l.begin(), l.begin() + 7);
-                        }
-                        size_t p = l.find("'''");
-                        if (p != std::string::npos)
-                        {
-                            stayIn2 = false;
-                            l.erase(l.begin() + p, l.end());
-                        }
-                        if (isLua)
-                            t = t + l;
-                        t = t + "\n";
+                        blockIsLua = true;
+                        line = probe;
+                        line.erase(0, 7);            // drop "luaExec"
+                        trim(line);
                     }
                 }
-                else
-                {
-                    if (l.find("include ") == 0)
-                    {
-                        l.erase(l.begin(), l.begin() + 8);
-                        utils::removeSpacesAtBeginningAndEnd(l);
-                        if (l.size() > 0)
-                            t = t + "pythonFile='" + l + ".py'\n";
-                    }
-                    else
-                        lineCnt--;
-                    stayIn = false;
-                }
+                if (cutAt(line, longCommentEnd))
+                    inLongComment = false;
+                if (blockIsLua)
+                    prelude += line;                 // later lines stay verbatim
+                prelude += '\n';
+                continue;
             }
-            else
-                t = t + "\n";
+
+            std::string trimmed(line);
+            trim(trimmed);
+
+            // ---- blank line ----------------------------------------------------
+            if (trimmed.empty())
+            {
+                prelude += '\n';
+                continue;
+            }
+
+            // ---- single-line comment:  # luaExec ... ---------------------------
+            if (startsWith(trimmed, shortComment))
+            {
+                std::string rest = trimmed.substr(shortComment.size());
+                trim(rest);
+                if (isLuaExec(rest))
+                {
+                    rest.erase(0, rest == "luaExec" ? 7 : 8);   // "luaExec" / "luaExec "
+                    trim(rest);
+                    prelude += rest;
+                }
+                prelude += '\n';
+                continue;
+            }
+
+            // ---- multi-line comment:  ''' luaExec ... ''' ----------------------
+            if (startsWith(trimmed, longCommentStart))
+            {
+                std::string rest = trimmed.substr(longCommentStart.size());
+                trim(rest);
+                blockIsLua = isLuaExec(rest);
+                if (blockIsLua)
+                {
+                    rest.erase(0, 7);                // drop "luaExec"
+                    trim(rest);
+                }
+                inLongComment = !cutAt(rest, longCommentEnd);   // may open and close
+                if (blockIsLua)
+                    prelude += rest;
+                prelude += '\n';
+                continue;
+            }
+
+            // ---- include statement ---------------------------------------------
+            if (startsWith(trimmed, "include "))
+            {
+                std::string file = trimmed.substr(8);
+                trim(file);
+                if (!file.empty() && !haveExternal)
+                {
+                    prelude += "externalFile='" + file + ".";
+                    prelude += fileExt + "'\n";
+                    haveExternal = true;
+                }
+                continue;                            // the header may go on
+            }
+
+            // ---- first real code line: the header is over ----------------------
+            --headerLines;                           // this line belongs to the payload
+            inHeader = false;
         }
-        for (int i = 0; i < lineCnt; i++)
-            utils::extractLine(_code, l);
-        for (int i = 0; i < lineCnt; i++)
-            _code = "#\n" + _code;
-        _code = t + "\nrequire(wrapper) pythonUserCode=[=[" + _code +
-                "]=] if pythonFile and #pythonFile>1 then loadExternalFile(pythonFile) end";
+
+        // --- remove the header from the payload, but keep the line numbering ----
+        for (int i = 0; i < headerLines; ++i)
+            utils::extractLine(_code, line);
+
+        std::string filler;                          // one bare comment per header line
+        for (int i = 0; i < headerLines; ++i)
+        {
+            filler += shortComment;
+            filler += '\n';
+        }
+        _code.insert(0, filler);
+
+        // --- assemble the final Lua snippet -------------------------------------
+        _code = prelude + "\n"
+                "require(wrapper) __userCode__=[=[" + _code + "]=]";
+        if (haveExternal)
+            _code += " if externalFile and #externalFile>1 then loadExternalFile(externalFile) end";
     }
     luaWrap_lua_State* L = (luaWrap_lua_State*)_interpreterState;
     int oldTop = luaWrap_lua_gettop(L);
