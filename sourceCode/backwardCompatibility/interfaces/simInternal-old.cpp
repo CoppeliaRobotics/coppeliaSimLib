@@ -6213,7 +6213,7 @@ int simAddScript_internal(int scriptProperty)
         if (scriptProperty & 0x00f0) // old threaded scripts
             scriptType = scriptProperty - 0x00f0;
         CScript* it = new CScript(scriptType);
-        it->setLang("lua");
+        it->setLang("lua;lua;--;--[=[;--]=]");
         int retVal = App::scene->sceneObjects->embeddedScriptContainer->insertScript(it);
 #ifdef SIM_WITH_GUI
         GuiApp::setFullDialogRefreshFlag();
@@ -6308,9 +6308,9 @@ int simGetScriptInt32Param_internal(int scriptHandle, int parameterID, int* para
         if (parameterID == sim_scriptintparam_lang)
         {
             parameter[0] = -1;
-            if (it->getLang() == "lua")
+            if (utils::getWordFromIndex(it->getLang().c_str(), ";", 0) == "lua")
                 parameter[0] = 0;
-            else if (it->getLang() == "python")
+            else if (utils::getWordFromIndex(it->getLang().c_str(), ";", 0) == "python")
                 parameter[0] = 1;
             retVal = 1;
         }
@@ -6388,7 +6388,7 @@ char* simGetScriptStringParam_internal(int scriptHandle, int parameterID, int* p
         if (parameterID == sim_scriptstringparam_nameext)
             s = it->getShortDescriptiveName();
         if (parameterID == sim_scriptstringparam_lang)
-            s = it->getLang();
+            s = utils::getWordFromIndex(it->getLang().c_str(), ";", 0);
         if (parameterID == sim_scriptstringparam_description)
             s = it->getDescriptiveName();
         if (parameterID == sim_scriptstringparam_text)
@@ -6437,7 +6437,12 @@ int simSetScriptStringParam_internal(int scriptHandle, int parameterID, const ch
             std::string s(parameter);
             if (s.size() < parameterLength)
                 s.assign(parameter, parameter + parameterLength);
-            it->setLang(s.c_str());
+            if (s == "lua")
+                it->setLang("lua;lua;--;--[=[;--]=]");
+            else if (s == "python")
+                it->setLang("python;py;#;''';'''");
+            else
+                it->setLang(s.c_str());
             retVal = 1;
         }
 
@@ -9456,9 +9461,9 @@ int simGetObjectInt32Param_internal(int objectHandle, int parameterID, int* para
             if (parameterID == sim_scriptintparam_lang)
             { // for backw. compatibility
                 parameter[0] = -1;
-                if (nakedScript->getLang() == "lua")
+                if (utils::getWordFromIndex(nakedScript->getLang().c_str(), ";", 0) == "lua")
                     parameter[0] = 0;
-                else if (nakedScript->getLang() == "python")
+                else if (utils::getWordFromIndex(nakedScript->getLang().c_str(), ";", 0) == "python")
                     parameter[0] = 1;
                 retVal = 1;
             }
@@ -11181,7 +11186,7 @@ char* simGetObjectStringParam_internal(int objectHandle, int parameterID, int* p
             if (parameterID == sim_scriptstringparam_nameext)
                 s = nakedScript->getShortDescriptiveName();
             if (parameterID == sim_scriptstringparam_lang)
-                s = nakedScript->getLang();
+                s = utils::getWordFromIndex(nakedScript->getLang().c_str(), ";", 0);
             if (parameterID == sim_scriptstringparam_description)
                 s = nakedScript->getDescriptiveName();
             if (parameterID == sim_scriptstringparam_text)
@@ -11249,7 +11254,12 @@ int simSetObjectStringParam_internal(int objectHandle, int parameterID, const ch
             }
             if (parameterID == sim_scriptstringparam_lang)
             {
-                nakedScript->setLang(parameter);
+                if (parameter == "lua")
+                    nakedScript->setLang("lua;lua;--;--[=[;--]=]");
+                else if (parameter == "python")
+                    nakedScript->setLang("python;py;#;''';'''");
+                else
+                    nakedScript->setLang(parameter);
                 retVal = 1;
             }
         }

@@ -167,7 +167,7 @@ class CSceneObjectContainer
 
     int addObjectToScene(CSceneObject* newObject, bool objectIsACopy, bool generateAfterCreateCallback);
     int addObjectToSceneWithSuffixOffset(CSceneObject* newObject, bool objectIsACopy, int suffixOffset, bool generateAfterCreateCallback);
-    int addDefaultScript(int scriptType, bool threaded, bool lua);
+    int addDefaultScript(int scriptType, bool threaded, const char* language);
     bool addCommandToOutsideCommandQueues(int commandID, int auxVal1, int auxVal2, int auxVal3, int auxVal4, const double aux2Vals[8], int aux2Count);
 
     void eraseObject(CSceneObject* it, bool generateBeforeAfterDeleteCallback, bool delayed = false);

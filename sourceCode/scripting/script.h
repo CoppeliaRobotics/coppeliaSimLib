@@ -163,8 +163,8 @@ class CScript : public Obj
     void setLang(const char* lang);
     void setExecutionDepth(int d);
     int getExecutionDepth() const;
-    void setDefaultPythonWrapper(const char* wrapper);
-    std::string getDefaultPythonWrapper() const;
+    void setDefaultWrapper(const char* wrapper);
+    std::string getDefaultWrapper() const;
     bool isNotInCopyBuffer() const;
 
     void loadPluginFuncsAndVars(CPlugin* plug);
@@ -270,7 +270,7 @@ class CScript : public Obj
     bool _parentIsProxy;
     bool _scriptIsDisabled;
     std::string _lang;
-    std::string _defaultPythonWrapper;
+    std::string _defaultWrapper;
     bool _autoRestartOnError;
     int _scriptState;
     int _executionDepth;

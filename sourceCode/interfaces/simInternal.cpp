@@ -10842,13 +10842,13 @@ int simCallScriptFunctionEx_internal(int scriptHandle, const char* functionName,
             {
                 if (VThread::isSimThread())
                 {
-                    if (script->getLang() == "lua")
+                    if (utils::getWordFromIndex(script->getLang().c_str(), ";", 0) == "lua")
                     {
                         if (lang == sim_lang_python)
                             funcName +=
                                 "@python"; // explicit python when Lua script --> generates an error further down
                     }
-                    if (script->getLang() == "python")
+                    if (utils::getWordFromIndex(script->getLang().c_str(), ";", 0) == "python")
                     {
                         if (lang == sim_lang_lua)
                             funcName += "@lua"; // explicit lua when Python script
@@ -13028,11 +13028,11 @@ int simExecuteScriptString_internal(int scriptHandle, const char* stringToExecut
             int retVal = -1; // error
             if (VThread::isSimThread())
             { // For now we don't allow non-main threads to call non-threaded scripts!
-                if ((script->getLang() == "lua") || (lang == sim_lang_lua))
+                if ((utils::getWordFromIndex(script->getLang().c_str(), ";", 0) == "lua") || (lang == sim_lang_lua))
                     retVal = script->executeScriptString(stringToExec.c_str(), stack);
                 else
                 {
-                    if (script->getLang() == "python")
+                    if (utils::getWordFromIndex(script->getLang().c_str(), ";", 0) == "python")
                     {
                         if (script->canScriptFunctionsBeCalled())
                         {

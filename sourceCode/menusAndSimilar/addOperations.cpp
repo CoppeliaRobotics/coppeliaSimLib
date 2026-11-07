@@ -897,7 +897,7 @@ bool CAddOperations::processCommand(int commandID, CSView* subView)
             bool isLua = (commandID < ADD_COMMANDS_ADD_NON_THREADED_CHILD_SCRIPT_PYTHON_ACCMD);
             bool isThreaded = (commandID == ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_LUA_ACCMD) || (commandID == ADD_COMMANDS_ADD_THREADED_CHILD_SCRIPT_PYTHON_ACCMD);
             CSceneObject* sel = App::scene->sceneObjects->getObjectFromHandle(pointedObject);
-            int scriptHandle = App::scene->sceneObjects->addDefaultScript(sim_scripttype_simulation, isThreaded, isLua);
+            int scriptHandle = App::scene->sceneObjects->addDefaultScript(sim_scripttype_simulation, isThreaded, isLua ? "lua;lua;--;--[=[;--]=]" : "python;py;#;''';'''");
             if ((sel != nullptr) && (scriptHandle != -1))
             {
                 CSceneObject* script = App::scene->sceneObjects->getObjectFromHandle(scriptHandle);
@@ -926,7 +926,7 @@ bool CAddOperations::processCommand(int commandID, CSView* subView)
             bool isLua = (commandID <= ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD);
             bool isThreaded = (commandID == ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_LUA_ACCMD) || (commandID == ADD_COMMANDS_ADD_THREADED_CUSTOMIZATION_SCRIPT_PYTHON_ACCMD);
             CSceneObject* sel = App::scene->sceneObjects->getObjectFromHandle(pointedObject);
-            int scriptHandle = App::scene->sceneObjects->addDefaultScript(sim_scripttype_customization, isThreaded, isLua);
+            int scriptHandle = App::scene->sceneObjects->addDefaultScript(sim_scripttype_customization, isThreaded, isLua ? "lua;lua;--;--[=[;--]=]" : "python;py;#;''';'''");
             if ((sel != nullptr) && (scriptHandle != -1))
             {
                 CSceneObject* script = App::scene->sceneObjects->getObjectFromHandle(scriptHandle);

@@ -390,10 +390,10 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle)
                     editorNode->SetAttribute("tab-width", 4);
                     editorNode->SetAttribute("can-restart-in-sim", toBoolStr(it->getScriptType() != sim_scripttype_main));
                     editorNode->SetAttribute("script-up-to-date", toBoolStr(it->getIsUpToDate()));
-                    editorNode->SetAttribute("lang", it->getLang().c_str());
-                    if (it->getLang() == "lua")
+                    editorNode->SetAttribute("lang", utils::getWordFromIndex(it->getLang().c_str(), ";", 0).c_str());
+                    if (utils::getWordFromIndex(it->getLang().c_str(), ";", 0) == "lua")
                         editorNode->SetAttribute("search-paths", it->getSearchPath_lua().c_str());
-                    if (it->getLang() == "python")
+                    if (utils::getWordFromIndex(it->getLang().c_str(), ";", 0) == "python")
                         editorNode->SetAttribute("search-paths", it->getSearchPath_python().c_str());
                     int fontSize = 12;
 #ifdef MAC_SIM
@@ -509,10 +509,10 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle)
                     editorNode->SetAttribute("can-restart-in-sim", "true");
                     editorNode->SetAttribute("can-restart-in-nosim", "true");
                     editorNode->SetAttribute("script-up-to-date", toBoolStr(it->getIsUpToDate()));
-                    editorNode->SetAttribute("lang", it->getLang().c_str());
-                    if (it->getLang() == "lua")
+                    editorNode->SetAttribute("lang", utils::getWordFromIndex(it->getLang().c_str(), ";", 0).c_str());
+                    if (utils::getWordFromIndex(it->getLang().c_str(), ";", 0) == "lua")
                         editorNode->SetAttribute("search-paths", it->getSearchPath_lua().c_str());
-                    if (it->getLang() == "python")
+                    if (utils::getWordFromIndex(it->getLang().c_str(), ";", 0) == "python")
                         editorNode->SetAttribute("search-paths", it->getSearchPath_python().c_str());
                     int fontSize = 12;
 #ifdef MAC_SIM

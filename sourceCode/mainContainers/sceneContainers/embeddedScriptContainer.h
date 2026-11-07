@@ -30,7 +30,7 @@ class CEmbeddedScriptContainer
 
     void pushMainScriptGenesisEvent() const;
     void killAllSimulationLuaStates();
-    int insertDefaultScript(int scriptType, bool threaded, bool lua);
+    int insertDefaultScript(int scriptType, bool threaded, const char* language);
     const std::vector<int>* getObjectIdsWhereDynCallbackFunctionsAvailable() const;
 
     int removeDestroyedScripts(int scriptType);

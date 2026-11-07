@@ -1773,7 +1773,7 @@ bool CScene::_loadModelOrScene(CSer& ar, bool selectLoaded, bool isScene, bool j
             {
                 txt = std::string("function sysCall_init()\nend\n\n") + txt;
                 script = new CScript(sim_scripttype_customization);
-                script->setLang("lua");
+                script->setLang("lua;lua;--;--[=[;--]=]");
                 sceneObjects->embeddedScriptContainer->insertScript(script);
                 script->setObjectHandleThatScriptIsAttachedTo(it->getObjectHandle());
             }
@@ -1982,7 +1982,7 @@ bool CScene::_loadSimpleXmlSceneOrModel(CSer& ar)
     }
 
     if (isScene && (sceneObjects->embeddedScriptContainer->getMainScript() == nullptr))
-        sceneObjects->embeddedScriptContainer->insertDefaultScript(sim_scripttype_main, false, true);
+        sceneObjects->embeddedScriptContainer->insertDefaultScript(sim_scripttype_main, false, "lua;lua;--;--[=[;--]=]");
 
     CCamera* mainCam = nullptr;
 

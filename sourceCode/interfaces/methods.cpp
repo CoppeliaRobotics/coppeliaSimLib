@@ -3333,11 +3333,11 @@ std::string _method_executeString(int targetObj, CScript* currentScript, const C
             }
 
             int retVal = -1; // error
-            if ((target->getLang() == "lua") || (lang == sim_lang_lua))
+            if ((utils::getWordFromIndex(target->getLang().c_str(), ";", 0) == "lua") || (lang == sim_lang_lua))
                 retVal = target->executeScriptString(stringToExecute.c_str(), outStack);
             else
             {
-                if (target->getLang() == "python")
+                if (utils::getWordFromIndex(target->getLang().c_str(), ";", 0) == "python")
                 {
                     if (target->canScriptFunctionsBeCalled())
                     {

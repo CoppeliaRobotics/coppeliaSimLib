@@ -14,6 +14,7 @@ class utils
     static void lightBinaryDecode(char* data, int length);
     static uint16_t getCRC(char* data, int length);
     static uint16_t getCRC(const std::string& data);
+    static std::string getWordFromIndex(const char* str, std::string_view sep, std::size_t index);
     static std::string extractWord(std::string& str, const char* separationWord);
     static bool extractCommaSeparatedWord(std::string& line, std::string& word);
     static bool extractSpaceSeparatedWord(std::string& line, std::string& word);

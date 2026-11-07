@@ -498,13 +498,15 @@ void CSceneObjectContainer::eraseAllObjects(bool generateBeforeAfterDeleteCallba
     _nextObjectHandle = sim_object_sceneobjectstart;
 }
 
-int CSceneObjectContainer::addDefaultScript(int scriptType, bool threaded, bool lua)
+int CSceneObjectContainer::addDefaultScript(int scriptType, bool threaded, const char* language)
 {
     int retVal = -1;
     std::string filenameAndPath(App::folders->getSystemPath() + "/");
+    std::string lang(language);
+    std::string ext = utils::getWordFromIndex(lang.c_str(), ";", 1);
 
     if (scriptType == sim_scripttype_main)
-        retVal = embeddedScriptContainer->insertDefaultScript(scriptType, threaded, lua);
+        retVal = embeddedScriptContainer->insertDefaultScript(scriptType, threaded, "lua;lua;--;--[=[;--]=]");
     else
     {
         if (scriptType == sim_scripttype_simulation)
@@ -524,17 +526,8 @@ int CSceneObjectContainer::addDefaultScript(int scriptType, bool threaded, bool 
 
         if (filenameAndPath.size() > 0)
         {
-            std::string lang;
-            if (lua)
-            {
-                lang = "lua";
-                filenameAndPath += ".lua";
-            }
-            else
-            {
-                lang = "python";
-                filenameAndPath += ".py";
-            }
+            filenameAndPath += ".";
+            filenameAndPath += ext;
             std::string scriptTxt;
             if (VFile::doesFileExist(filenameAndPath.c_str()))
             {

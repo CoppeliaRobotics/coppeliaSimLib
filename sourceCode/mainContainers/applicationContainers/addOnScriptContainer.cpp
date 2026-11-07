@@ -127,9 +127,9 @@ int CAddOnScriptContainer::_insertAddOn(CScript* script)
 
 void CAddOnScriptContainer::_insertAddOns(const char* addOnExt)
 {
-    std::string lang = "lua";
+    std::string lang = "lua;lua;--;--[=[;--]=]";
     if (std::string(addOnExt) == "py")
-        lang = "python";
+        lang = "python;py;#;''';'''";
     VFileFinder finder;
     finder.searchFiles(App::folders->getAddOnPath().c_str(), addOnExt, nullptr);
     int cnt = 0;
@@ -190,10 +190,10 @@ void CAddOnScriptContainer::loadAdditionalAddOns()
     }
     for (size_t addScr = 0; addScr < additionalScripts.size(); addScr++)
     {
-        std::string lang("lua");
+        std::string lang("lua;lua;--;--[=[;--]=]");
         std::string fp(additionalScripts[addScr]);
         if (boost::algorithm::ends_with(fp, ".py"))
-            lang = "python";
+            lang = "python;py;#;''';'''";
         if (!VVarious::isAbsolutePath(fp.c_str()))
         {
             fp = App::folders->getExecutablePath() + "/";
@@ -481,7 +481,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                                 archive >> script[i];
                             script[archiveLength] = 0;
                             CScript* defScript = new CScript(sim_scripttype_addonfunction);
-                            defScript->setLang("lua");
+                            defScript->setLang("lua;lua;--;--[=[;--]=]");
                             int scriptID = _insertAddOn(defScript);
                             defScript->setScriptText(script);
                             defScript->setDisplayAddOnName(_allAddOnFunctionNames_old[index].c_str());

@@ -727,7 +727,7 @@ int CScriptObject::getStringProperty(const char* ppName, std::string& pState) co
         else if (strcmp(prop(PropScriptObject::DEPRECATED_language).name, ppName) == 0)
         {
             retVal = sim_propertyret_ok;
-            pState = nakedScript->getLang();
+            pState = utils::getWordFromIndex(nakedScript->getLang().c_str(), ";", 0);
         }
         else if (strcmp(prop(PropScriptObject::DEPRECATED_scriptName).name, ppName) == 0)
         {

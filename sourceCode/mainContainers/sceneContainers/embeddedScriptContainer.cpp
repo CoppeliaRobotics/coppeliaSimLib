@@ -5,6 +5,7 @@
 #include <vFileFinder.h>
 #include <simStrings.h>
 #include <app.h>
+#include <utils.h>
 #include <vDateTime.h>
 #ifdef SIM_WITH_GUI
 #include <guiApp.h>
@@ -15,7 +16,7 @@ CEmbeddedScriptContainer::CEmbeddedScriptContainer()
     _sysFuncAndHookCnt_dyn = 0;
     _sysFuncAndHookCnt_contact = 0;
     _sysFuncAndHookCnt_joint = 0;
-    insertDefaultScript(sim_scripttype_main, false, true);
+    insertDefaultScript(sim_scripttype_main, false, "lua;lua;--;--[=[;--]=]");
 }
 
 CEmbeddedScriptContainer::~CEmbeddedScriptContainer()
@@ -298,15 +299,17 @@ int CEmbeddedScriptContainer::insertScript(CScript* script)
     return (script->getSceneObjectOrNakedScriptHandle());
 }
 
-int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded, bool lua)
+int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded, const char* language)
 {
     int retVal = -1;
     std::string filenameAndPath(App::folders->getSystemPath() + "/");
+    std::string lang(language);
+    std::string ext = utils::getWordFromIndex(lang.c_str(), ";", 1);
 
     if (scriptType == sim_scripttype_main)
     {
         CScript* defScript = new CScript(scriptType);
-        defScript->setLang("lua");
+        defScript->setLang(lang.c_str());
         retVal = insertScript(defScript);
         defScript->setScriptText(DEFAULT_MAINSCRIPT_CODE);
         filenameAndPath = "";
@@ -328,17 +331,8 @@ int CEmbeddedScriptContainer::insertDefaultScript(int scriptType, bool threaded,
 
     if (filenameAndPath.size() > 0)
     {
-        std::string lang;
-        if (lua)
-        {
-            lang = "lua";
-            filenameAndPath += ".lua";
-        }
-        else
-        {
-            lang = "python";
-            filenameAndPath += ".py";
-        }
+        filenameAndPath += ".";
+        filenameAndPath += ext;
         if (VFile::doesFileExist(filenameAndPath.c_str()))
         {
             try

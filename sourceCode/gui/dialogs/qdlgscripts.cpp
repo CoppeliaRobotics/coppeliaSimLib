@@ -38,6 +38,7 @@ void CQDlgScripts::refresh()
     ui->qqSize->setEnabled(sel && noEditModeNoSim);
     ui->qqColor->setEnabled(sel && noEditModeNoSim);
     ui->qqApplyMainProperties->setEnabled(bigSel && noEditModeNoSim);
+    ui->qqWrapper->setEnabled(sel && noEditModeNoSim);
 
     ui->qqExecutionOrder->clear();
     ui->qqExecutionOrder->setEnabled(sel && noEditModeNoSim);
@@ -48,19 +49,15 @@ void CQDlgScripts::refresh()
 
     if (sel)
     {
-        std::string lang(it->nakedScript->getLang());
+        std::string lang(utils::getWordFromIndex(it->nakedScript->getLang().c_str(), ";", 0));
+        lang = "Language: " + lang;
         ui->qqLang->setText(lang.c_str());
-        ui->qqWrapper->setEnabled(noEditModeNoSim && (lang == "python"));
-        if (lang == "python")
-            ui->qqWrapper->setText(it->nakedScript->getDefaultPythonWrapper().c_str());
-        else
-            ui->qqWrapper->setText("");
-        if (((lang != "lua") && (lang != "python")) || (it->nakedScript->getScriptType() == sim_scripttype_passive))
+        ui->qqWrapper->setText(it->nakedScript->getDefaultWrapper().c_str());
+        if (it->nakedScript->getScriptType() == sim_scripttype_passive)
         {
             ui->qqEnabled->setEnabled(false);
             ui->qqExecutionOrder->setEnabled(false);
         }
-        lang = "Language: " + lang;
         ui->qqSize->setText(utils::getSizeString(false, it->getScriptSize()).c_str());
 
         ui->qqExecutionOrder->addItem(IDSN_FIRST, QVariant(sim_scriptexecorder_first));
@@ -74,7 +71,6 @@ void CQDlgScripts::refresh()
     }
     else
     {
-        ui->qqWrapper->setEnabled(false);
         ui->qqWrapper->setText("");
         ui->qqLang->setText("Language: -");
         ui->qqSize->setText("");

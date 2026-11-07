@@ -11346,9 +11346,62 @@ int _simCreateScript(luaWrap_lua_State* L)
             res = checkOneGeneralInputArgument(L, 4, lua_arg_string, 0, true, true, &errorString, argOffset);
             if (res >= 0)
             {
-                std::string lang("lua");
+                std::string lang("lua;lua;--;--[=[;--]=]");
                 if (res == 2)
+                {
                     lang = luaWrap_lua_tostring(L, 4);
+                    std::string l, ext, shortC, longCS, longCE;
+                    l = utils::getWordFromIndex(lang.c_str(), ";", 0);
+                    std::transform(l.begin(), l.end(), l.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+                    ext = utils::getWordFromIndex(lang.c_str(), ";", 1);
+                    shortC = utils::getWordFromIndex(lang.c_str(), ";", 2);
+                    longCS = utils::getWordFromIndex(lang.c_str(), ";", 3);
+                    longCE = utils::getWordFromIndex(lang.c_str(), ";", 4);
+                    if (!l.empty())
+                    {
+                        lang = l;
+                        if (ext.empty())
+                        {
+                            if (lang == "lua")
+                                ext = "lua";
+                            else if (lang == "python")
+                                ext = "py";
+                            else
+                                ext = lang;
+                        }
+                        if (shortC.empty())
+                        {
+                            if (lang == "lua")
+                                shortC = "--";
+                            else if (lang == "python")
+                                ext = "#";
+                        }
+                        if (longCS.empty())
+                        {
+                            if (lang == "lua")
+                                longCS = "--[=[";
+                            else if (lang == "python")
+                                longCS = "'''";
+                        }
+                        if (longCS.empty())
+                        {
+                            if (lang == "lua")
+                                longCS = "--]=]";
+                            else if (lang == "python")
+                                longCS = "'''";
+                        }
+                        lang += ";";
+                        lang += ext;
+                        lang += ";";
+                        lang += shortC;
+                        lang += ";";
+                        lang += longCS;
+                        lang += ";";
+                        lang += longCE;
+                    }
+                    else
+                        lang = "";
+                }
                 retVal = CALL_C_API(simCreateScript, scriptType, txt.c_str(), options, lang.c_str());
             }
         }
@@ -11369,10 +11422,63 @@ int _simCreateNakedScript(luaWrap_lua_State* L)
     {
         int scriptType = fetchIntArg(L, 1);
         std::string code = fetchTextArg(L, 2);
-        std::string lang = fetchTextArg(L, 3, "lua");
+        std::string lang = fetchTextArg(L, 3, "lua;lua;--;--[=[;--]=]");
         //int options = fetchIntArg(L, 4, 0);
         if (scriptType == sim_scripttype_addon)
+        {
+            std::string l, ext, shortC, longCS, longCE;
+            l = utils::getWordFromIndex(lang.c_str(), ";", 0);
+            std::transform(l.begin(), l.end(), l.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+            ext = utils::getWordFromIndex(lang.c_str(), ";", 1);
+            shortC = utils::getWordFromIndex(lang.c_str(), ";", 2);
+            longCS = utils::getWordFromIndex(lang.c_str(), ";", 3);
+            longCE = utils::getWordFromIndex(lang.c_str(), ";", 4);
+            if (!l.empty())
+            {
+                lang = l;
+                if (ext.empty())
+                {
+                    if (lang == "lua")
+                        ext = "lua";
+                    else if (lang == "python")
+                        ext = "py";
+                    else
+                        ext = lang;
+                }
+                if (shortC.empty())
+                {
+                    if (lang == "lua")
+                        shortC = "--";
+                    else if (lang == "python")
+                        ext = "#";
+                }
+                if (longCS.empty())
+                {
+                    if (lang == "lua")
+                        longCS = "--[=[";
+                    else if (lang == "python")
+                        longCS = "'''";
+                }
+                if (longCS.empty())
+                {
+                    if (lang == "lua")
+                        longCS = "--]=]";
+                    else if (lang == "python")
+                        longCS = "'''";
+                }
+                lang += ";";
+                lang += ext;
+                lang += ";";
+                lang += shortC;
+                lang += ";";
+                lang += longCS;
+                lang += ";";
+                lang += longCE;
+            }
+            else
+                lang = "";
             retVal = App::scenes->addOnScriptContainer->createAddOn(lang.c_str(), code.c_str());
+        }
         else
             errorString = SIM_ERROR_INVALID_SCRIPT_TYPE;
     }

@@ -30,6 +30,8 @@
 
 #define BASE_SANDBOX_SCRIPT "sandboxScriptBase.lua"
 #define INITIALLY_SUSPEND_LOADED_SCRIPTS true
+#define DEFAULT_PYTHON_WRAPPER "pythonWrapper-3"
+
 
 int CScript::_nextScriptHandle = sim_object_scriptstart;
 std::vector<int> CScript::_externalScriptCalls;
@@ -50,7 +52,7 @@ CScript::CScript(int scriptType)
     _numberOfPasses = 0;
     _addOnUiMenuHandle = -1;
     _addOnExecPriority = sim_scriptexecorder_normal;
-    _defaultPythonWrapper = "pythonWrapper-3";
+    _defaultWrapper = "";
     for (size_t i = 0; i < 3; i++)
     {
         _sysFuncAndHookCnt_dyn[i] = 0;
@@ -161,12 +163,8 @@ std::string CScript::getFilenameForExternalScriptEditor()
         if (tmp.size() == 0)
             tmp = "newScene";
         _filenameForExternalScriptEditor += tmp + "-" + std::to_string(_sceneObjectOrnakedScriptHandle);
-        if (getLang() == "python")
-            _filenameForExternalScriptEditor += ".py";
-        else if (getLang() == "lua")
-            _filenameForExternalScriptEditor += ".lua";
-        else
-            _filenameForExternalScriptEditor += ".txt";
+        _filenameForExternalScriptEditor += ".";
+        _filenameForExternalScriptEditor += utils::getWordFromIndex(getLang().c_str(), ";", 1);
         fromBufferToFile();
     }
     std::string fname = App::folders->getTempDataPath() + "/";
@@ -1157,8 +1155,8 @@ void CScript::pushNakedGenesisEvents(CCbor* ev /*= nullptr*/)
         ev->appendKeyInt64(prop(PropScript::scriptState).name, getScriptStateEnum());
         ev->appendKeyBool(prop(PropScript::restartOnError).name, _autoRestartOnError);
         ev->appendKeyInt64(prop(PropScript::execPriority).name, getScriptExecPriority());
-        ev->appendKeyText(prop(PropScript::language).name, _lang.c_str());
-        ev->appendKeyText(prop(PropScript::pythonWrapper).name, _defaultPythonWrapper.c_str());
+        ev->appendKeyText(prop(PropScript::language).name, utils::getWordFromIndex(_lang.c_str(), ";", 0).c_str());
+        ev->appendKeyText(prop(PropScript::wrapper).name, _defaultWrapper.c_str());
         ev->appendKeyText(prop(PropScript::code).name, _scriptText.c_str());
         ev->appendKeyText(prop(PropScript::scriptName).name, getScriptName().c_str());
         ev->appendKeyText(prop(PropScript::addOnPath).name, _addOnPath.c_str());
@@ -1186,26 +1184,26 @@ void CScript::setScriptState(int state)
     }
 }
 
-void CScript::setDefaultPythonWrapper(const char* wrapper)
+void CScript::setDefaultWrapper(const char* wrapper)
 {
-    bool diff = (_defaultPythonWrapper != wrapper);
-        _defaultPythonWrapper = wrapper;
+    bool diff = (_defaultWrapper != wrapper);
+        _defaultWrapper = wrapper;
     if (diff)
     {
         if (isNotInCopyBuffer() && App::scenes->getEventsEnabled())
         {
-            const char* cmd = prop(PropScript::pythonWrapper).name;
+            const char* cmd = prop(PropScript::wrapper).name;
             CCbor* ev;
             ev = App::scenes->createEvent(EVENTTYPE_OBJECTCHANGED, _objectHandle, _scriptUid, cmd, true); // main, sandbox, add-ons, and old-type scripts
-            ev->appendKeyText(cmd, _defaultPythonWrapper.c_str());
+            ev->appendKeyText(cmd, _defaultWrapper.c_str());
             App::scenes->pushEvent();
         }
     }
 }
 
-std::string CScript::getDefaultPythonWrapper() const
+std::string CScript::getDefaultWrapper() const
 {
-    return _defaultPythonWrapper;
+    return _defaultWrapper;
 }
 
 void CScript::setScriptExecPriority(int priority)
@@ -1852,13 +1850,13 @@ int CScript::___loadCode(const char* code, const char* functionsToFind, std::str
     int retVal = -1;
 
     std::string _code(code);
-    if (_lang == "python")
+    if (utils::getWordFromIndex(_lang.c_str(), ";", 0) == "python")
     {
         int lineCnt = 0;
         std::string l;
         std::string tmpCode(code);
         std::string t("wrapper='");
-        t += _defaultPythonWrapper;
+        t += _defaultWrapper;
         t += "'\n";
         bool stayIn = true;
         while (stayIn && utils::extractLine(tmpCode, l))
@@ -2635,7 +2633,7 @@ void CScript::initScript()
         {
             App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "initializing the Lua sandbox...");
             _initInterpreterState(nullptr);
-            _lang = "lua";
+            _lang = "lua;lua;--;--[=[;--]=]";
             if (setScriptTextFromFile((App::folders->getLuaPath() + "/sandboxScript.lua").c_str()))
             {
                 if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
@@ -2651,7 +2649,8 @@ void CScript::initScript()
         {
             App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "initializing the Python sandbox...");
             _initInterpreterState(nullptr);
-            _lang = "python";
+            _lang = "python;py;#;''';'''";
+            _defaultWrapper = DEFAULT_PYTHON_WRAPPER;
             if (setScriptTextFromFile((App::folders->getPythonPath() + "/sandboxScript.py").c_str()))
             {
                 if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
@@ -2760,7 +2759,7 @@ CScript* CScript::copyYourself()
     it->_parentIsProxy = _parentIsProxy;
     it->setScriptText(getScriptText());
     it->_lang = _lang;
-    it->_defaultPythonWrapper = _defaultPythonWrapper;
+    it->_defaultWrapper = _defaultWrapper;
     it->_scriptInitialValuesInitialized = _scriptInitialValuesInitialized;
     it->_addOnExecPriority = _addOnExecPriority;
 
@@ -3163,14 +3162,11 @@ void CScript::setLang(const char* lang)
     if (lang != nullptr)
     {
         _lang = lang;
-        if ((_lang != "lua") && (_lang != "python"))
-            _scriptIsDisabled = true;
+        if (utils::getWordFromIndex(lang, ";", 0) == "python")
+            _defaultWrapper = DEFAULT_PYTHON_WRAPPER;
     }
     else
-    {
-        if (_scriptType != sim_scripttype_passive)
-            _lang = "lua";
-    }
+        _lang = "";
 }
 
 void CScript::setExecutionDepth(int d)
@@ -3876,9 +3872,9 @@ void CScript::serialize(CSer& ar)
             std::string stt(_scriptText);
             // For backward comp:
             // -----------------
-            if (_lang == "lua")
+            if (utils::getWordFromIndex(_lang.c_str(), ";", 0) == "lua")
                 stt = "--lua\n" + stt;
-            else if (_lang == "python")
+            else if (utils::getWordFromIndex(_lang.c_str(), ";", 0) == "python")
                 stt = "#python\n" + stt;
             // -----------------
             ar.storeDataName("Ste");
@@ -3912,7 +3908,7 @@ void CScript::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Dpw");
-            ar << _defaultPythonWrapper;
+            ar << _defaultWrapper;
             ar.flush();
 
             ar.storeDataName(SER_END_OF_OBJECT);
@@ -3929,6 +3925,7 @@ void CScript::serialize(CSer& ar)
             bool backwardCompatibilityCorrectionNeeded_8_11_2014 = true;
             bool usingOldThreads_oldThread = false;
             bool execJustOnce_oldThread = false;
+            bool hasWrapper = false;
             while (theName.compare(SER_END_OF_OBJECT) != 0)
             {
                 theName = ar.readDataName();
@@ -3969,9 +3966,9 @@ void CScript::serialize(CSer& ar)
 
                         std::string tg(_removeLangTagInCode());
                         if (tg == "python")
-                            _lang = tg;
+                            _lang = "python;py;#;''';'''";
                         else
-                            _lang = "lua";
+                            _lang = "lua;lua;--;--[=[;--]=]";
                     }
 
                     if (theName.compare("Pum") == 0)
@@ -4046,18 +4043,30 @@ void CScript::serialize(CSer& ar)
                         noHit = false;
                         ar >> byteQuantity;
                         ar >> _lang;
+                        // backward comp.:
+                        if (_lang == "lua")
+                            _lang = "lua;lua;--;--[=[;--]=]";
+                        else if (_lang == "python")
+                            _lang = "python;py;#;''';'''";
                     }
 
                     if (theName.compare("Dpw") == 0)
                     {
                         noHit = false;
                         ar >> byteQuantity;
-                        ar >> _defaultPythonWrapper;
+                        ar >> _defaultWrapper;
+                        hasWrapper = true;
                     }
 
                     if (noHit)
                         ar.loadUnknownData();
                 }
+            }
+            if (!hasWrapper)
+            {
+                if (utils::getWordFromIndex(_lang.c_str(), ";", 0) == "python")
+                    _defaultWrapper = DEFAULT_PYTHON_WRAPPER;
+
             }
 
             _adjustScriptText1_old(this, backwardCompatibility_7_8_2014, executeInSensingPhase_oldCompatibility_7_8_2014);
@@ -4086,7 +4095,7 @@ void CScript::serialize(CSer& ar)
                     App::logMsg(sim_verbosity_errors, "Attempting to instanciate a threaded script: threaded scripts are not supported anymore as of CoppeliaSim V4.10.0 rev2 and later. Convert those scripts. This scene/model will not run properly.");
             }
 
-            if (getLang() == "python")
+            if (utils::getWordFromIndex(_lang.c_str(), ";", 0) == "python")
             {
                 if (ar.getSerializationVersionThatWroteThisFile() < 26)
                 {
@@ -4142,18 +4151,22 @@ void CScript::serialize(CSer& ar)
             std::string tmp(_scriptText.c_str());
             // For backw. comp.:
             // -----------------
-            if (_lang == "lua")
+            if (utils::getWordFromIndex(_lang.c_str(), ";", 0) == "lua")
                 tmp = "--lua\n" + tmp;
-            else if (_lang == "python")
+            else if (utils::getWordFromIndex(_lang.c_str(), ";", 0)  == "python")
                 tmp = "#python\n" + tmp;
             // -----------------
             boost::replace_all(tmp, "\r\n", "\n");
-            ar.xmlAddNode_comment(" 'scriptText' tag: best to use it with a CDATA section for readability ",
-                                  exhaustiveXml);
+            ar.xmlAddNode_comment(" 'scriptText' tag: best to use it with a CDATA section for readability ", exhaustiveXml);
             ar.xmlAddNode_cdata("scriptText", tmp.c_str());
 
             ar.xmlAddNode_string("lang", _lang.c_str());
-            ar.xmlAddNode_string("pythonWrapper", _defaultPythonWrapper.c_str());
+            // backward comp.:
+            if (_lang == "lua")
+                _lang = "lua;lua;--;--[=[;--]=]";
+            else if (_lang == "python")
+                _lang = "python;py;#;''';'''";
+            ar.xmlAddNode_string("wrapper", _defaultWrapper.c_str());
 
             if (exhaustiveXml)
             {
@@ -4201,12 +4214,17 @@ void CScript::serialize(CSer& ar)
 
             std::string tg(_removeLangTagInCode());
             if (tg == "python")
-                _lang = tg;
+                _lang = "python;py;#;''';'''";
             else
-                _lang = "lua";
+                _lang = "lua;lua;--;--[=[;--]=]";
 
             ar.xmlGetNode_string("lang", _lang);
-            ar.xmlGetNode_string("pythonWrapper", _defaultPythonWrapper);
+            // backward comp.:
+            if (_lang == "lua")
+                _lang = "lua;lua;--;--[=[;--]=]";
+            else if (_lang == "python")
+                _lang = "python;py;#;''';'''";
+            ar.xmlGetNode_string("wrapper", _defaultWrapper);
 
             if (exhaustiveXml)
             {
@@ -4783,10 +4801,10 @@ int CScript::setStringProperty(const char* pName, const std::string& pState)
         retVal = sim_propertyret_ok;
         _addOnMenuPath = pState;
     }
-    else if (strcmp(prop(PropScript::pythonWrapper).name, pName) == 0)
+    else if (strcmp(prop(PropScript::wrapper).name, pName) == 0)
     {
         retVal = sim_propertyret_ok;
-        setDefaultPythonWrapper(pState.c_str());
+        setDefaultWrapper(pState.c_str());
     }
     else if (strcmp(prop(PropScript::execPriority).name, pName) == 0)
     { // Enum
@@ -4823,12 +4841,12 @@ int CScript::getStringProperty(const char* pName, std::string& pState) const
         else if (strcmp(prop(PropScript::language).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
-            pState = _lang;
+            pState = utils::getWordFromIndex(_lang.c_str(), ";", 0);
         }
-        else if (strcmp(prop(PropScript::pythonWrapper).name, pName) == 0)
+        else if (strcmp(prop(PropScript::wrapper).name, pName) == 0)
         {
             retVal = sim_propertyret_ok;
-            pState = _defaultPythonWrapper;
+            pState = _defaultWrapper;
         }
         else if (strcmp(prop(PropScript::scriptName).name, pName) == 0)
         {
@@ -6459,7 +6477,7 @@ void CScript::_detectDeprecated_old(CScript* nakedScript)
 
     std::string trueV = "true";
     std::string falseV = "false";
-    if (nakedScript->getLang() == "python")
+    if (utils::getWordFromIndex(nakedScript->getLang().c_str(), ";", 0) == "python")
     {
         trueV = "True";
         falseV = "False";

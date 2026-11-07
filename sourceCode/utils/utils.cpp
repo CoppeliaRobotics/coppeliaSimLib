@@ -141,6 +141,31 @@ uint16_t utils::getCRC(const std::string& data)
     return (getCRC((char*)(&data[0]), int(data.length())));
 }
 
+std::string utils::getWordFromIndex(const char* str, std::string_view sep, std::size_t index)
+{
+    if (str == nullptr)
+        return std::string();
+
+    const std::string_view s(str);
+
+    if (sep.empty())
+        return (index == 0) ? std::string(s) : std::string();
+
+    std::size_t fieldStart = 0;
+    std::size_t i = 0;
+    while (true)
+    {
+        const std::size_t pos = s.find(sep, fieldStart);
+        const std::size_t fieldEnd = (pos != std::string_view::npos) ? pos : s.size();
+        if (i == index)
+            return std::string(s.substr(fieldStart, fieldEnd - fieldStart));
+        if (pos == std::string_view::npos)
+            return std::string(); // index out of range
+        fieldStart = pos + sep.size();
+        ++i;
+    }
+}
+
 std::string utils::extractWord(std::string& str, const char* separationWord)
 {
     std::string retVal;
