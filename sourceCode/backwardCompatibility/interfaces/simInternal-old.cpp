@@ -11245,9 +11245,9 @@ int simSetObjectStringParam_internal(int objectHandle, int parameterID, const ch
             }
             if (parameterID == sim_scriptstringparam_lang)
             {
-                if (parameter == "lua")
+                if (strcmp(parameter, "lua") == 0)
                     nakedScript->setLang("lua;lua;--;--[=[;--]=]");
-                else if (parameter == "python")
+                else if (strcmp(parameter, "python") == 0)
                     nakedScript->setLang("python;py;#;''';'''");
                 else
                     nakedScript->setLang(parameter);

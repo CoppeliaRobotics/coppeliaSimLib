@@ -2711,7 +2711,6 @@ void CScript::initScript()
         else if (this == App::scenes->sandbox2)
         {
             App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox2: initializing...");
-            _initInterpreterState(nullptr);
             std::string sandboxLang;
             App::getAppNamedParam("settings.sandbox2Lang", sandboxLang);
             std::string info;
@@ -2730,6 +2729,7 @@ void CScript::initScript()
                 App::getAppNamedParam((std::string("settings.defaultPaths.") + sandboxLang).c_str(), langFolder);
                 if (setScriptTextFromFile((langFolder + std::string("/sandboxScript.") + ext).c_str()))
                 {
+                    _initInterpreterState(nullptr);
                     if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
                         App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox2: initialized.");
                 }

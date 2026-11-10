@@ -115,6 +115,7 @@ bool CConfReaderAndWriter::writeConfiguration(const char* filename)
 
 bool CConfReaderAndWriter::getString(const char* variableName, std::string& variable) const
 {
+
     int ind = _getVariableIndex(variableName);
     if (ind == -1)
         return (false);

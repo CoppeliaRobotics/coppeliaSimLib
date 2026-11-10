@@ -966,8 +966,7 @@ void CUserSettings::loadUserSettings()
 #endif
 
     std::string stmp;
-    c.getString(_USR_LANGUAGES_PYTHON, stmp);
-    if (!stmp.empty())
+    if (c.getString(_USR_LANGUAGES_PYTHON, stmp) && (!stmp.empty()))
         languages_python = stmp;
     if (!languages_python.empty())
         App::setAppNamedParam((std::string("settings.") + _USR_LANGUAGES_PYTHON).c_str(), languages_python.c_str());
@@ -980,8 +979,7 @@ void CUserSettings::loadUserSettings()
     if (!additionalLuaPath.empty())
         App::setAppNamedParam((std::string("settings.") + _USR_ADDITIONAL_LUA_PATH).c_str(), additionalLuaPath.c_str());
 
-    c.getString(_USR_DEFAULPATHS_PYTHON, stmp);
-    if (!stmp.empty())
+    if (c.getString(_USR_DEFAULPATHS_PYTHON, stmp) && (!stmp.empty()))
         defaultPythonPath = stmp;
     if (!defaultPythonPath.empty())
         App::setAppNamedParam((std::string("settings.") + _USR_DEFAULPATHS_PYTHON).c_str(), defaultPythonPath.c_str());
@@ -994,20 +992,17 @@ void CUserSettings::loadUserSettings()
     if (!additionalPythonPath.empty())
         App::setAppNamedParam((std::string("settings.") + _USR_ADDITIONAL_PYTHON_PATH).c_str(), additionalPythonPath.c_str());
 
-    c.getString(_USR_DEFAULTINTERPRETERS_PYTHON, stmp);
-    if (!stmp.empty())
+    if (c.getString(_USR_DEFAULTINTERPRETERS_PYTHON, stmp) && (!stmp.empty()))
         defaultPython = stmp;
     else
     { // backw. compatibility:
-        c.getString("defaultPython", stmp);
-        if (!stmp.empty())
+        if (c.getString("defaultPython", stmp) && (!stmp.empty()))
             defaultPython = stmp;
     }
     if (!defaultPython.empty())
         App::setAppNamedParam((std::string("settings.") + _USR_DEFAULTINTERPRETERS_PYTHON).c_str(), defaultPython.c_str());
 
-    c.getString(_USR_SANDBOX2_LANG, stmp);
-    if (!stmp.empty())
+    if (c.getString(_USR_SANDBOX2_LANG, stmp) && (!stmp.empty()))
         sandbox2Lang = stmp;
     if (!sandbox2Lang.empty())
         App::setAppNamedParam((std::string("settings.") + _USR_SANDBOX2_LANG).c_str(), sandbox2Lang.c_str());
