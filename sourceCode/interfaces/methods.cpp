@@ -1812,10 +1812,10 @@ std::string _method_handleSandboxes(int targetObj, CScript* currentScript, const
 #endif
             if (editMode == NO_EDIT_MODE)
             {
-                if (App::scenes->sandboxScriptPython != nullptr)
-                    App::scenes->sandboxScriptPython->systemCallScript(callType, nullptr, nullptr);
-                if (App::scenes->sandboxScriptLua != nullptr)
-                    App::scenes->sandboxScriptLua->systemCallScript(callType, nullptr, nullptr);
+                if (App::scenes->sandbox2 != nullptr)
+                    App::scenes->sandbox2->systemCallScript(callType, nullptr, nullptr);
+                if (App::scenes->sandbox != nullptr)
+                    App::scenes->sandbox->systemCallScript(callType, nullptr, nullptr);
             }
         }
         else
@@ -3089,10 +3089,10 @@ std::string _method_getObjects(int targetObj, CScript* currentScript, const CInt
                     }
                     else if (t == "script")
                     {
-                        if (App::scenes->sandboxScriptLua != nullptr)
-                            objects.push_back(App::scenes->sandboxScriptLua->getSceneObjectOrNakedScriptHandle());
-                        if (App::scenes->sandboxScriptPython != nullptr)
-                            objects.push_back(App::scenes->sandboxScriptPython->getSceneObjectOrNakedScriptHandle());
+                        if (App::scenes->sandbox != nullptr)
+                            objects.push_back(App::scenes->sandbox->getSceneObjectOrNakedScriptHandle());
+                        if (App::scenes->sandbox2 != nullptr)
+                            objects.push_back(App::scenes->sandbox2->getSceneObjectOrNakedScriptHandle());
                         std::vector<int> addOns = App::scenes->addOnScriptContainer->getAddOnHandles();
                         objects.insert(objects.end(), addOns.begin(), addOns.end());
                         objects.push_back(App::scene->sceneObjects->embeddedScriptContainer->getMainScript()->getSceneObjectOrNakedScriptHandle());

@@ -525,7 +525,7 @@ int simAppendScriptArrayEntry_internal(const char* reservedSetToNull, int script
                         script = App::scenes->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
                 }
                 if (scriptHandleOrType == sim_scripttype_sandbox)
-                    script = App::scenes->sandboxScriptLua;
+                    script = App::scenes->sandbox;
                 if (scriptHandleOrType == sim_scripttype_simulation)
                 {
                     if (scriptName.size() > 0)
@@ -618,7 +618,7 @@ int simClearScriptVariable_internal(const char* reservedSetToNull, int scriptHan
                     script = App::scenes->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
             }
             if (scriptHandleOrType == sim_scripttype_sandbox)
-                script = App::scenes->sandboxScriptLua;
+                script = App::scenes->sandbox;
             if (scriptHandleOrType == sim_scripttype_simulation)
             {
                 if (scriptName.size() > 0)
@@ -4039,7 +4039,7 @@ int simSetScriptVariable_internal(int scriptHandleOrType, const char* variableNa
                     script = App::scenes->addOnScriptContainer->getAddOnFromName(scriptName.c_str());
             }
             if (scriptHandleOrType == sim_scripttype_sandbox)
-                script = App::scenes->sandboxScriptLua;
+                script = App::scenes->sandbox;
             if ((scriptHandleOrType == sim_scripttype_simulation) ||
                 (scriptHandleOrType == sim_scripttype_customization))
             {

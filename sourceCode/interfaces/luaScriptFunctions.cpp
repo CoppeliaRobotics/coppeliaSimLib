@@ -12943,10 +12943,10 @@ int _simHandleSandboxScript(luaWrap_lua_State* L)
 #endif
             if (editMode == NO_EDIT_MODE)
             {
-                if (App::scenes->sandboxScriptPython != nullptr)
-                    App::scenes->sandboxScriptPython->systemCallScript(callType, nullptr, nullptr);
-                if (App::scenes->sandboxScriptLua != nullptr)
-                    App::scenes->sandboxScriptLua->systemCallScript(callType, nullptr, nullptr);
+                if (App::scenes->sandbox2 != nullptr)
+                    App::scenes->sandbox2->systemCallScript(callType, nullptr, nullptr);
+                if (App::scenes->sandbox != nullptr)
+                    App::scenes->sandbox->systemCallScript(callType, nullptr, nullptr);
             }
         }
     }

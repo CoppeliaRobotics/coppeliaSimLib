@@ -973,7 +973,7 @@ void CPathCont_old::createEquivalent(int pathHandle)
         opt += 2;
     txt += std::to_string(opt) + ",";
     txt += std::to_string(_bezierPathPoints.size()) + ")\nsim.setObjectMatrix(newPath,-1,m)";
-    App::scenes->sandboxScriptLua->executeScriptString(txt.c_str(), nullptr);
+    App::scenes->sandbox->executeScriptString(txt.c_str(), nullptr);
 }
 
 CBezierPathPoint_old* CPathCont_old::_addBezierPathPoint(const CPose& transf, double maxRelAbsVelocity,

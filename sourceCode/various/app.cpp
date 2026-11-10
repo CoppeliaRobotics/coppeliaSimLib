@@ -314,10 +314,10 @@ void App::init(const char* appDir, int)
     simThread = new CSimThread();
 
     // Some items below require the GUI to be initialized (e.g. the Commander plugin):
-    scenes->sandboxScriptLua = new CScript(sim_scripttype_sandbox);
-    scenes->sandboxScriptLua->initScript();
-    scenes->sandboxScriptPython = new CScript(sim_scripttype_sandbox);
-    scenes->sandboxScriptPython->initScript();
+    scenes->sandbox = new CScript(sim_scripttype_sandbox);
+    scenes->sandbox->initScript();
+    scenes->sandbox2 = new CScript(sim_scripttype_sandbox);
+    scenes->sandbox2->initScript();
 
     std::string autoLoadAddOns("true");
     getAppNamedParam("addOns.autoLoad", autoLoadAddOns);
@@ -357,7 +357,7 @@ void App::init(const char* appDir, int)
 
     if (_startupScriptString.size() > 0)
     {
-        int r = scenes->sandboxScriptLua->executeScriptString(_startupScriptString.c_str(), nullptr);
+        int r = scenes->sandbox->executeScriptString(_startupScriptString.c_str(), nullptr);
         _startupScriptString.clear();
     }
 
@@ -381,6 +381,7 @@ void App::cleanup()
 // To print all event field names, that occured in this session:
 //    for (const auto& item : CCbor::allEVentFieldNames)
 //        std::cout << item << std::endl;
+
     CSimFlavor::run(5);
 
     delete gm;
@@ -395,12 +396,12 @@ void App::cleanup()
     scenes->copyBuffer->clearBuffer();
 
     scenes->addOnScriptContainer->removeAllAddOns();
-    scenes->sandboxScriptPython->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
-    CScript::destroy(scenes->sandboxScriptPython, true);
-    scenes->sandboxScriptPython = nullptr;
-    scenes->sandboxScriptLua->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
-    CScript::destroy(scenes->sandboxScriptLua, true);
-    scenes->sandboxScriptLua = nullptr;
+    scenes->sandbox2->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
+    CScript::destroy(scenes->sandbox2, true);
+    scenes->sandbox2 = nullptr;
+    scenes->sandbox->systemCallScript(sim_syscb_cleanup, nullptr, nullptr);
+    CScript::destroy(scenes->sandbox, true);
+    scenes->sandbox = nullptr;
     scenes->pluginContainer->unloadNewPlugins(); // cleanup via (UI thread) and SIM thread
 
     CSimFlavor::run(10);
@@ -2106,16 +2107,16 @@ int App::getHandleProperty_t(int64_t target, const char* ppName, int64_t& pState
     {
         if (strcmp(pName, prop(PropApp::sandbox).name) == 0)
         {
-            if ( (scenes != nullptr) && (scenes->sandboxScriptLua != nullptr) )
-                pState = scenes->sandboxScriptLua->getSceneObjectOrNakedScriptHandle();
+            if ( (scenes != nullptr) && (scenes->sandbox != nullptr) )
+                pState = scenes->sandbox->getSceneObjectOrNakedScriptHandle();
             else
                 pState = -1;
             retVal = sim_propertyret_ok;
         }
-        else if (strcmp(pName, prop(PropApp::pySandbox).name) == 0)
+        else if (strcmp(pName, prop(PropApp::sandbox2).name) == 0)
         {
-            if ( (scenes != nullptr) && (scenes->sandboxScriptPython != nullptr) )
-                pState = scenes->sandboxScriptPython->getSceneObjectOrNakedScriptHandle();
+            if ( (scenes != nullptr) && (scenes->sandbox2 != nullptr) )
+                pState = scenes->sandbox2->getSceneObjectOrNakedScriptHandle();
             else
                 pState = -1;
             retVal = sim_propertyret_ok;
@@ -4049,8 +4050,8 @@ bool App::_resolveTarget(int64_t& target)
     bool retVal = true;
     if (target == sim_handle_sandbox)
     {
-        if ((scenes != nullptr) && (scenes->sandboxScriptLua != nullptr))
-            target = scenes->sandboxScriptLua->getSceneObjectOrNakedScriptHandle();
+        if ((scenes != nullptr) && (scenes->sandbox != nullptr))
+            target = scenes->sandbox->getSceneObjectOrNakedScriptHandle();
         else
             retVal = false; // target does not exist
     }
@@ -4313,11 +4314,11 @@ void App::pushGenesisEvents()
         CCbor* ev = scenes->createEvent(EVENTTYPE_GENESISBEGIN, -1, -1, nullptr, false);
         scenes->pushEvent();
 
-        if (scenes->sandboxScriptLua != nullptr)
-            scenes->sandboxScriptLua->pushNakedGenesisEvents();
+        if (scenes->sandbox != nullptr)
+            scenes->sandbox->pushNakedGenesisEvents();
 
-        if (scenes->sandboxScriptPython != nullptr)
-            scenes->sandboxScriptPython->pushNakedGenesisEvents();
+        if (scenes->sandbox2 != nullptr)
+            scenes->sandbox2->pushNakedGenesisEvents();
 
         if (scenes->addOnScriptContainer != nullptr)
             scenes->addOnScriptContainer->pushNakedGenesisEvents();
@@ -4349,13 +4350,13 @@ void App::pushGenesisEvents()
         _appStorage->appendEventData(nullptr, ev);
 
         int sbh = -1;
-        if (scenes->sandboxScriptLua != nullptr)
-            sbh = scenes->sandboxScriptLua->getSceneObjectOrNakedScriptHandle();
+        if (scenes->sandbox != nullptr)
+            sbh = scenes->sandbox->getSceneObjectOrNakedScriptHandle();
         ev->appendKeyHandle(prop(PropApp::sandbox).name, sbh);
         sbh = -1;
-        if (scenes->sandboxScriptPython != nullptr)
-            sbh = scenes->sandboxScriptPython->getSceneObjectOrNakedScriptHandle();
-        ev->appendKeyHandle(prop(PropApp::pySandbox).name, sbh);
+        if (scenes->sandbox2 != nullptr)
+            sbh = scenes->sandbox2->getSceneObjectOrNakedScriptHandle();
+        ev->appendKeyHandle(prop(PropApp::sandbox2).name, sbh);
         ev->appendKeyHandle(prop(PropApp::current).name, _currentObject);
         if (instancesList != nullptr)
         {

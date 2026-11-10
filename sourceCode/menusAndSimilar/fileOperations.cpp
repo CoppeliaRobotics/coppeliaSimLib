@@ -1358,8 +1358,8 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     }
                     CInterfaceStack* stack = App::scenes->interfaceStackContainer->createStack();
                     stack->pushTextOntoStack(files.c_str());
-                    App::scenes->sandboxScriptLua->executeScriptString("simAssimp=require('simAssimp')", nullptr);
-                    App::scenes->sandboxScriptLua->callCustomScriptFunction("simAssimp.importShapesDlg", stack);
+                    App::scenes->sandbox->executeScriptString("simAssimp=require('simAssimp')", nullptr);
+                    App::scenes->sandbox->callCustomScriptFunction("simAssimp.importShapesDlg", stack);
                     App::scenes->interfaceStackContainer->destroyStack(stack);
                 }
                 else
@@ -1444,8 +1444,8 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                                 stack->insertDataIntoStackTable();
                             }
                         }
-                        App::scenes->sandboxScriptLua->executeScriptString("simAssimp=require('simAssimp')", nullptr);
-                        App::scenes->sandboxScriptLua->callCustomScriptFunction("simAssimp.exportShapesDlg", stack);
+                        App::scenes->sandbox->executeScriptString("simAssimp=require('simAssimp')", nullptr);
+                        App::scenes->sandbox->callCustomScriptFunction("simAssimp.exportShapesDlg", stack);
                         App::scenes->interfaceStackContainer->destroyStack(stack);
                     }
                     else

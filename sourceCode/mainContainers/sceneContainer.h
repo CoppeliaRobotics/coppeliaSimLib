@@ -101,8 +101,8 @@ class CSceneContainer
     CCustomData_old* customAppData_old;
     CPersistentDataContainer* persistentDataContainer_old;
     CAddOnScriptContainer* addOnScriptContainer;
-    CScript* sandboxScriptLua;
-    CScript* sandboxScriptPython;
+    CScript* sandbox;
+    CScript* sandbox2;
     CModuleMenuItemContainer* moduleMenuItemContainer;
     CScene* scene;
 #ifdef SIM_WITH_GUI
@@ -111,8 +111,7 @@ class CSceneContainer
 #endif
 
   private:
-    CCbor* _createGeneralEvent(const char* event, int64_t objectHandle, int64_t uid, const char* objType,
-                               const char* fieldName, bool mergeable, bool openDataField = true);
+    CCbor* _createGeneralEvent(const char* event, int64_t objectHandle, int64_t uid, const char* objType, const char* fieldName, bool mergeable, bool openDataField = true);
     bool _switchToScene(int newSceneIndex);
 
     std::vector<CScene*> _scenes;

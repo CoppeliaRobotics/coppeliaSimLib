@@ -1078,11 +1078,10 @@ std::string CScript::getScriptName() const
     if (_scriptType == sim_scripttype_sandbox)
     {
         std::string retVal;
-        if (this == App::scenes->sandboxScriptLua)
-            retVal += "lua";
+        if (this == App::scenes->sandbox)
+            retVal += "luaSandbox";
         else
-            retVal += "python";
-        retVal += "Sandbox";
+            retVal += "sandbox2";
         return retVal;
     }
     if (_scriptType == sim_scripttype_addon)
@@ -1517,10 +1516,13 @@ std::string CScript::getDescriptiveName() const
     if (_scriptType == sim_scripttype_sandbox)
     {
         retVal += "Sandbox ";
-        if (this == App::scenes->sandboxScriptLua)
+        if (this == App::scenes->sandbox)
             retVal += "(lua)";
         else
-            retVal += "(python)";
+        {
+            retVal += "(";
+            retVal += utils::getWordFromIndex(_lang.c_str(), ";", 0) + ")";
+        }
     }
     return (retVal);
 }
@@ -1559,11 +1561,10 @@ std::string CScript::getShortDescriptiveName() const
     }
     if (_scriptType == sim_scripttype_sandbox)
     {
-        if (this == App::scenes->sandboxScriptLua)
-            retVal += "lua";
+        if (this == App::scenes->sandbox)
+            retVal += "luaSanbox";
         else
-            retVal += "python";
-        retVal += "Sandbox";
+            retVal += "sandbox2";
     }
     return (retVal);
 }
@@ -2691,7 +2692,7 @@ void CScript::initScript()
 {
     resetScript();
     {
-        if (this == App::scenes->sandboxScriptLua)
+        if (this == App::scenes->sandbox)
         {
             App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "Lua sandbox: initializing...");
             _initInterpreterState(nullptr);
@@ -2707,9 +2708,9 @@ void CScript::initScript()
                 App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "Lua sandbox: sandboxScript.lua was not found.");
             }
         }
-        else if (this == App::scenes->sandboxScriptPython)
+        else if (this == App::scenes->sandbox2)
         {
-            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox 2: initializing...");
+            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox2: initializing...");
             _initInterpreterState(nullptr);
             std::string sandboxLang;
             App::getAppNamedParam("settings.sandbox2Lang", sandboxLang);
@@ -2730,18 +2731,18 @@ void CScript::initScript()
                 if (setScriptTextFromFile((langFolder + std::string("/sandboxScript.") + ext).c_str()))
                 {
                     if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
-                        App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox 2: initialized.");
+                        App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox2: initialized.");
                 }
                 else
                 {
                     _scriptIsDisabled = true;
-                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, (std::string("sandbox 2: sandboxScript.") + ext + " was not found.").c_str());
+                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, (std::string("sandbox2: sandboxScript.") + ext + " was not found.").c_str());
                 }
             }
             else
             {
                 _scriptIsDisabled = true;
-                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox 2: language is not defined.");
+                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox2: language is not defined.");
             }
         }
         else
@@ -2899,7 +2900,7 @@ bool CScript::prepareFilteredEventsBuffer(const std::vector<unsigned char>& inpu
             }
             else if ((t >= sim_object_scriptstart) && (t <= sim_object_scriptend))
             {
-                if (t == App::scenes->sandboxScriptLua->getSceneObjectOrNakedScriptHandle())
+                if (t == App::scenes->sandbox->getSceneObjectOrNakedScriptHandle())
                     altT = sim_handle_sandbox;
                 else if ((mainScriptHandle != -1) && (t == mainScriptHandle))
                     altT = sim_handle_mainscript;
