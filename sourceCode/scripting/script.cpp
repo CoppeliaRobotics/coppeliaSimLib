@@ -30,8 +30,6 @@
 
 #define BASE_SANDBOX_SCRIPT "sandboxScriptBase.lua"
 #define INITIALLY_SUSPEND_LOADED_SCRIPTS true
-#define DEFAULT_PYTHON_WRAPPER "pythonWrapper-3"
-
 
 int CScript::_nextScriptHandle = sim_object_scriptstart;
 std::vector<int> CScript::_externalScriptCalls;
@@ -2695,35 +2693,55 @@ void CScript::initScript()
     {
         if (this == App::scenes->sandboxScriptLua)
         {
-            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "initializing the Lua sandbox...");
+            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "Lua sandbox: initializing...");
             _initInterpreterState(nullptr);
             _lang = "lua;lua;--;--[=[;--]=]";
             if (setScriptTextFromFile((App::folders->getLuaPath() + "/sandboxScript.lua").c_str()))
             {
                 if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
-                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "Lua sandbox initialized.");
+                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "Lua sandbox: initialized.");
             }
             else
             {
                 _scriptIsDisabled = true;
-                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandboxScript.lua was not found.");
+                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "Lua sandbox: sandboxScript.lua was not found.");
             }
         }
         else if (this == App::scenes->sandboxScriptPython)
         {
-            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "initializing the Python sandbox...");
+            App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox 2: initializing...");
             _initInterpreterState(nullptr);
-            _lang = "python;py;#;''';'''";
-            _defaultWrapper = DEFAULT_PYTHON_WRAPPER;
-            if (setScriptTextFromFile((App::folders->getPythonPath() + "/sandboxScript.py").c_str()))
+            std::string sandboxLang;
+            App::getAppNamedParam("settings.sandbox2Lang", sandboxLang);
+            std::string info;
+            App::getAppNamedParam((std::string("settings.languages.") + sandboxLang).c_str(), info);
+            if (!info.empty())
             {
-                if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
-                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "Python sandbox initialized.");
+                std::string lang = utils::getWordFromIndex(info.c_str(), ";", 0) + ";"; // language name
+                std::string ext = utils::getWordFromIndex(info.c_str(), ";", 1); // file ext
+                lang += ext + ";";
+                lang += utils::getWordFromIndex(info.c_str(), ";", 2) + ";"; // short comment
+                lang += utils::getWordFromIndex(info.c_str(), ";", 3) + ";"; // short comment start
+                lang += utils::getWordFromIndex(info.c_str(), ";", 4); // short comment end
+                _lang = lang;
+                _defaultWrapper = utils::getWordFromIndex(info.c_str(), ";", 5);
+                std::string langFolder;
+                App::getAppNamedParam((std::string("settings.defaultPaths.") + sandboxLang).c_str(), langFolder);
+                if (setScriptTextFromFile((langFolder + std::string("/sandboxScript.") + ext).c_str()))
+                {
+                    if (systemCallScript(sim_syscb_init, nullptr, nullptr) >= 0) // init could be missing, but using an init-hook!
+                        App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox 2: initialized.");
+                }
+                else
+                {
+                    _scriptIsDisabled = true;
+                    App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, (std::string("sandbox 2: sandboxScript.") + ext + " was not found.").c_str());
+                }
             }
             else
             {
                 _scriptIsDisabled = true;
-                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandboxScript.py was not found.");
+                App::logMsg(sim_verbosity_loadinfos | sim_verbosity_onlyterminal, "sandbox 2: language is not defined.");
             }
         }
         else
@@ -3227,7 +3245,11 @@ void CScript::setLang(const char* lang)
     {
         _lang = lang;
         if (utils::getWordFromIndex(lang, ";", 0) == "python")
-            _defaultWrapper = DEFAULT_PYTHON_WRAPPER;
+        {
+            std::string tmp;
+            App::getAppNamedParam("settings.languages.python", tmp);
+            _defaultWrapper = utils::getWordFromIndex(tmp.c_str(), ";", 5);
+        }
     }
     else
         _lang = "";
@@ -4129,8 +4151,11 @@ void CScript::serialize(CSer& ar)
             if (!hasWrapper)
             {
                 if (utils::getWordFromIndex(_lang.c_str(), ";", 0) == "python")
-                    _defaultWrapper = DEFAULT_PYTHON_WRAPPER;
-
+                {
+                    std::string tmp;
+                    App::getAppNamedParam("settings.languages.python", tmp);
+                    _defaultWrapper = utils::getWordFromIndex(tmp.c_str(), ";", 5);
+                }
             }
 
             _adjustScriptText1_old(this, backwardCompatibility_7_8_2014, executeInSensingPhase_oldCompatibility_7_8_2014);

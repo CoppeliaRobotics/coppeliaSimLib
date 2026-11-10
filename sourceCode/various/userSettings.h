@@ -105,6 +105,9 @@ class CUserSettings
     bool scriptEditorBoldFont;
     int scriptEditorFontSize;
 
+    std::string languages_python;
+    std::string sandbox2Lang;
+    std::string defaultPythonPath;
     std::string additionalLuaPath;
     std::string additionalPythonPath;
     std::string defaultPython;

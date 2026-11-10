@@ -88,9 +88,14 @@
 #define _USR_DARK_MODE "darkMode"
 #define _USR_RENDERING_SURFACE_VERTICAL_SHIFT "renderingSurfaceVShift"
 #define _USR_RENDERING_SURFACE_VERTICAL_RESIZE "renderingSurfaceVResize"
-#define _USR_ADDITIONAL_LUA_PATH "additionalLuaPath"
-#define _USR_ADDITIONAL_PYTHON_PATH "additionalPythonPath"
-#define _USR_DEFAULT_PYTHON "defaultPython"
+
+#define _USR_SANDBOX2_LANG "sandbox2Lang"
+#define _USR_LANGUAGES_PYTHON "languages.python"
+#define _USR_DEFAULPATHS_PYTHON "defaultPaths.python"
+#define _USR_DEFAULTINTERPRETERS_PYTHON "defaultInterpreters.python"
+#define _USR_ADDITIONAL_LUA_PATH "additionalPaths.lua"
+#define _USR_ADDITIONAL_PYTHON_PATH "additionalPaths.python"
+
 #define _USR_EXEC_UNSAFE "execUnsafe"
 #define _USR_EXEC_UNSAFE_EXT "execUnsafeExt"
 
@@ -300,9 +305,23 @@ CUserSettings::CUserSettings()
 
     test1 = false;
     macChildDialogType = -1; // default
+
+    languages_python = "python;py;#;''';''';pythonWrapper-3";
+    sandbox2Lang = "python";
+    defaultPythonPath = App::getApplicationDir(); // App::folders not yet initialized!
+#ifdef MAC_SIM
+    defaultPythonPath += "/../Resources";
+    QDir ad(defaultPythonPath.c_str());
+    defaultPythonPath = ad.absolutePath().toStdString();
+#endif
+    defaultPythonPath += "/python";
+    defaultPython = "python3";
+#ifdef WIN_SIM
+    defaultPython = "py";
+#endif
+
     additionalLuaPath = "";
     additionalPythonPath = "";
-    defaultPython = "";
     execUnsafe = true;
     execUnsafeExt = false;
 
@@ -653,9 +672,14 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
 
         // c.addBoolean(_USR_TEST1,test1,"recommended to keep false.");
         // c.addInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType,"-1=default.");
+
+        c.addString(_USR_LANGUAGES_PYTHON, languages_python, "e.g. python;py;#;''';''';pythonWrapper-3");
         c.addString(_USR_ADDITIONAL_LUA_PATH, additionalLuaPath, "e.g. d:/myLuaRoutines");
+        c.addString(_USR_DEFAULPATHS_PYTHON, defaultPythonPath, "e.g. <coppeliaSimAppLocation>/python");
         c.addString(_USR_ADDITIONAL_PYTHON_PATH, additionalPythonPath, "e.g. d:/myPythonRoutines");
-        c.addString(_USR_DEFAULT_PYTHON, defaultPython, "e.g. c:/Python38/python.exe");
+        c.addString(_USR_DEFAULTINTERPRETERS_PYTHON, defaultPython, "e.g. c:/Python38/python.exe");
+        c.addString(_USR_SANDBOX2_LANG, sandbox2Lang, "e.g. python");
+
         c.addBoolean(_USR_EXEC_UNSAFE, execUnsafe, "");
         c.addBoolean(_USR_EXEC_UNSAFE_EXT, execUnsafeExt,
                      "same as above, but for code triggered externally. Recommended to keep false.");
@@ -950,9 +974,48 @@ void CUserSettings::loadUserSettings()
     VDialog::dialogStyle = QT_MODELESS_DLG_STYLE;
 #endif
 #endif
+
+    std::string stmp;
+    c.getString(_USR_LANGUAGES_PYTHON, stmp);
+    if (!stmp.empty())
+        languages_python = stmp;
+    App::setAppNamedParam((std::string("settings.") + _USR_LANGUAGES_PYTHON).c_str(), languages_python.c_str());
+
     c.getString(_USR_ADDITIONAL_LUA_PATH, additionalLuaPath);
+    if (additionalLuaPath.empty())
+    { // backw. compatibility:
+        c.getString("additionalLuaPath", additionalLuaPath);
+    }
+    App::setAppNamedParam((std::string("settings.") + _USR_ADDITIONAL_LUA_PATH).c_str(), additionalLuaPath.c_str());
+
+    c.getString(_USR_DEFAULPATHS_PYTHON, stmp);
+    if (!stmp.empty())
+        defaultPythonPath = stmp;
+    App::setAppNamedParam((std::string("settings.") + _USR_DEFAULPATHS_PYTHON).c_str(), defaultPythonPath.c_str());
+
     c.getString(_USR_ADDITIONAL_PYTHON_PATH, additionalPythonPath);
-    c.getString(_USR_DEFAULT_PYTHON, defaultPython);
+    if (additionalPythonPath.empty())
+    { // backw. compatibility:
+        c.getString("additionalPythonPath", additionalPythonPath);
+    }
+    App::setAppNamedParam((std::string("settings.") + _USR_ADDITIONAL_PYTHON_PATH).c_str(), additionalPythonPath.c_str());
+
+    c.getString(_USR_DEFAULTINTERPRETERS_PYTHON, stmp);
+    if (!stmp.empty())
+        defaultPython = stmp;
+    else
+    { // backw. compatibility:
+        c.getString("defaultPython", stmp);
+        if (!stmp.empty())
+            defaultPython = stmp;
+    }
+    App::setAppNamedParam((std::string("settings.") + _USR_DEFAULTINTERPRETERS_PYTHON).c_str(), defaultPython.c_str());
+
+    c.getString(_USR_SANDBOX2_LANG, stmp);
+    if (!stmp.empty())
+        sandbox2Lang = stmp;
+    App::setAppNamedParam((std::string("settings.") + _USR_SANDBOX2_LANG).c_str(), sandbox2Lang.c_str());
+
     c.getBoolean(_USR_EXEC_UNSAFE, execUnsafe);
     c.getBoolean(_USR_EXEC_UNSAFE_EXT, execUnsafeExt);
     c.getInteger(_USR_DESKTOP_RECORDING_INDEX, desktopRecordingIndex);

@@ -309,17 +309,17 @@ void CFolderSystem::setImportExportPath(const char* path)
 
 std::string CFolderSystem::getTexturesPath() const
 {
-    return (_texturesPath);
+    return _texturesPath;
 }
 
 std::string CFolderSystem::getLuaPath() const
 {
-    return (_resourcesPath + "/lua");
+    return _resourcesPath + "/lua";
 }
 
 std::string CFolderSystem::getPythonPath() const
 {
-    return (_resourcesPath + "/python");
+    return App::userSettings->defaultPythonPath;
 }
 
 std::string CFolderSystem::getMujocoPath() const
