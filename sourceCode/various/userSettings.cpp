@@ -979,26 +979,30 @@ void CUserSettings::loadUserSettings()
     c.getString(_USR_LANGUAGES_PYTHON, stmp);
     if (!stmp.empty())
         languages_python = stmp;
-    App::setAppNamedParam((std::string("settings.") + _USR_LANGUAGES_PYTHON).c_str(), languages_python.c_str());
+    if (!languages_python.empty())
+        App::setAppNamedParam((std::string("settings.") + _USR_LANGUAGES_PYTHON).c_str(), languages_python.c_str());
 
     c.getString(_USR_ADDITIONAL_LUA_PATH, additionalLuaPath);
     if (additionalLuaPath.empty())
     { // backw. compatibility:
         c.getString("additionalLuaPath", additionalLuaPath);
     }
-    App::setAppNamedParam((std::string("settings.") + _USR_ADDITIONAL_LUA_PATH).c_str(), additionalLuaPath.c_str());
+    if (!additionalLuaPath.empty())
+        App::setAppNamedParam((std::string("settings.") + _USR_ADDITIONAL_LUA_PATH).c_str(), additionalLuaPath.c_str());
 
     c.getString(_USR_DEFAULPATHS_PYTHON, stmp);
     if (!stmp.empty())
         defaultPythonPath = stmp;
-    App::setAppNamedParam((std::string("settings.") + _USR_DEFAULPATHS_PYTHON).c_str(), defaultPythonPath.c_str());
+    if (!defaultPythonPath.empty())
+        App::setAppNamedParam((std::string("settings.") + _USR_DEFAULPATHS_PYTHON).c_str(), defaultPythonPath.c_str());
 
     c.getString(_USR_ADDITIONAL_PYTHON_PATH, additionalPythonPath);
     if (additionalPythonPath.empty())
     { // backw. compatibility:
         c.getString("additionalPythonPath", additionalPythonPath);
     }
-    App::setAppNamedParam((std::string("settings.") + _USR_ADDITIONAL_PYTHON_PATH).c_str(), additionalPythonPath.c_str());
+    if (!additionalPythonPath.empty())
+        App::setAppNamedParam((std::string("settings.") + _USR_ADDITIONAL_PYTHON_PATH).c_str(), additionalPythonPath.c_str());
 
     c.getString(_USR_DEFAULTINTERPRETERS_PYTHON, stmp);
     if (!stmp.empty())
@@ -1009,12 +1013,14 @@ void CUserSettings::loadUserSettings()
         if (!stmp.empty())
             defaultPython = stmp;
     }
-    App::setAppNamedParam((std::string("settings.") + _USR_DEFAULTINTERPRETERS_PYTHON).c_str(), defaultPython.c_str());
+    if (!defaultPython.empty())
+        App::setAppNamedParam((std::string("settings.") + _USR_DEFAULTINTERPRETERS_PYTHON).c_str(), defaultPython.c_str());
 
     c.getString(_USR_SANDBOX2_LANG, stmp);
     if (!stmp.empty())
         sandbox2Lang = stmp;
-    App::setAppNamedParam((std::string("settings.") + _USR_SANDBOX2_LANG).c_str(), sandbox2Lang.c_str());
+    if (!sandbox2Lang.empty())
+        App::setAppNamedParam((std::string("settings.") + _USR_SANDBOX2_LANG).c_str(), sandbox2Lang.c_str());
 
     c.getBoolean(_USR_EXEC_UNSAFE, execUnsafe);
     c.getBoolean(_USR_EXEC_UNSAFE_EXT, execUnsafeExt);

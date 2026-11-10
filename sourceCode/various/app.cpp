@@ -722,16 +722,11 @@ std::string App::getAdditionalAddOnScript2()
     return (_additionalAddOnScript2);
 }
 
-bool App::getAppNamedParam(const char* paramName, std::string& param, bool checkAlsoGroupType /*= false*/)
+bool App::getAppNamedParam(const char* paramName, std::string& param, bool checkIfGroupType /*= false*/)
 {
     bool retVal = false;
     std::map<std::string, std::string>::iterator it = _applicationNamedParams.find(paramName);
-    if (it != _applicationNamedParams.end())
-    {
-        param = it->second;
-        retVal = true;
-    }
-    if ((!retVal) && checkAlsoGroupType)
+    if (checkIfGroupType)
     {
         std::string n(paramName);
         n += ".";
@@ -739,10 +734,17 @@ bool App::getAppNamedParam(const char* paramName, std::string& param, bool check
         {
             if (pair.first.find(n) == 0)   // key starts with n
             {
-                param.clear();
                 retVal = true;
                 break;
             }
+        }
+    }
+    else
+    {
+        if (it != _applicationNamedParams.end())
+        {
+            param = it->second;
+            retVal = true;
         }
     }
     return retVal;
@@ -3945,22 +3947,19 @@ int App::getPropertyInfo_t(int64_t target, const char* ppName, int& info, std::s
                 if (utils::replaceSubstringStart(pN, NAMEDPARAMPREFIXDOT, ""))
                 {
                     std::string param;
-                    if (getAppNamedParam(pN.c_str(), param, true))
-                    {
-                        if (!param.empty())
-                        {
-                            retVal = sim_propertytype_string;
-                            info = NAMEDPARAMFLAGS;
-                            if (param.size() > LARGE_PROPERTY_SIZE)
-                                info = info | 0x100;
-                        }
-                        else
-                        {
-                            retVal = sim_propertytype_group;
-                            info = SIM_PROPERTYINFO_GROUP;
-                        }
-                        infoTxt = "";
+                    if (getAppNamedParam(pN.c_str(), param, false))
+                    { // check first for an existing property
+                        retVal = sim_propertytype_string;
+                        info = NAMEDPARAMFLAGS;
+                        if (param.size() > LARGE_PROPERTY_SIZE)
+                            info = info | 0x100;
                     }
+                    else if (getAppNamedParam(pN.c_str(), param, true))
+                    { // check for a group
+                        retVal = sim_propertytype_group;
+                        info = SIM_PROPERTYINFO_GROUP;
+                    }
+                    infoTxt = "";
                 }
             }
         }

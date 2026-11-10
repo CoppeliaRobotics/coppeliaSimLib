@@ -68,7 +68,7 @@ class App
     static std::string getApplicationArgument(int index);
     static void setApplicationArgument(int index, std::string arg);
 
-    static bool getAppNamedParam(const char* paramName, std::string& param, bool checkAlsoGroupType = false);
+    static bool getAppNamedParam(const char* paramName, std::string& param, bool checkIfGroupType = false);
     static void setAppNamedParam(const char* paramName, const char* param, int paramLength = 0);
     static bool removeAppNamedParam(const char* paramName);
 
