@@ -134,7 +134,6 @@
 
 #define _USR_FILE_DIALOGS_NATIVE "fileDialogs"
 #define _USR_MOUSE_WHEEL_ZOOM_FACTOR "mouseWheelZoomFactor"
-#define _USR_PREFERRED_SANDBOX_LANG "preferredSandboxLang"
 
 #define _USR_DO_NOT_WRITE_PERSISTENT_DATA "doNotWritePersistentData"
 #define _USR_DO_NOT_SHOW_UPDATE_CHECK_MESSAGE "doNotShowUpdateCheckMessage"
@@ -289,7 +288,6 @@ CUserSettings::CUserSettings()
 
     // Various section:
     // *****************************
-    preferredSandboxLang = "";  // same as "lua" actually
     mouseWheelZoomFactor = 1.0; // default
     dynamicActivityRange = 1000.0;
     _translationStepSize = 0.025;
@@ -657,7 +655,6 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
         c.addRandomLine("// Various");
         c.addRandomLine("// =================================================");
 
-        c.addString(_USR_PREFERRED_SANDBOX_LANG, preferredSandboxLang, "python, lua or bareLua");
         c.addFloat(_USR_MOUSE_WHEEL_ZOOM_FACTOR, mouseWheelZoomFactor, "");
         c.addFloat(_USR_DYNAMIC_ACTIVITY_RANGE, dynamicActivityRange, "");
         c.addFloat(_USR_TRANSLATION_STEP_SIZE, _translationStepSize, "");
@@ -681,14 +678,12 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
         c.addString(_USR_SANDBOX2_LANG, sandbox2Lang, "e.g. python");
 
         c.addBoolean(_USR_EXEC_UNSAFE, execUnsafe, "");
-        c.addBoolean(_USR_EXEC_UNSAFE_EXT, execUnsafeExt,
-                     "same as above, but for code triggered externally. Recommended to keep false.");
+        c.addBoolean(_USR_EXEC_UNSAFE_EXT, execUnsafeExt, "same as above, but for code triggered externally. Recommended to keep false.");
         // c.addInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex,"");
         // c.addInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth,"-1=default.");
         c.addString(_USR_EXTERNAL_SCRIPT_EDITOR, externalScriptEditor, "");
         c.addInteger(_USR_XML_EXPORT_SPLIT_SIZE, xmlExportSplitSize, "0=generate a single file.");
-        c.addBoolean(_USR_XML_EXPORT_KNOWN_FORMATS, xmlExportKnownFormats,
-                     "true=if several files are generated, mesh and image files are saved under known formats.");
+        c.addBoolean(_USR_XML_EXPORT_KNOWN_FORMATS, xmlExportKnownFormats, "true=if several files are generated, mesh and image files are saved under known formats.");
 
         c.addRandomLine("");
         c.addRandomLine("");
@@ -938,11 +933,6 @@ void CUserSettings::loadUserSettings()
 
     // Various section:
     // *****************************
-    c.getString(_USR_PREFERRED_SANDBOX_LANG, preferredSandboxLang);
-    std::string lang;
-    if (App::getAppNamedParam("preferredSandboxLang", lang))
-        preferredSandboxLang = lang;
-
     c.getFloat(_USR_MOUSE_WHEEL_ZOOM_FACTOR, mouseWheelZoomFactor);
     c.getFloat(_USR_DYNAMIC_ACTIVITY_RANGE, dynamicActivityRange);
     if (c.getFloat(_USR_TRANSLATION_STEP_SIZE, _translationStepSize))

@@ -90,7 +90,6 @@ class CUserSettings
     int vboOperation;
     int vboPersistenceInMs;
     int fileDialogs;
-    std::string preferredSandboxLang;
     double mouseWheelZoomFactor;
 
     bool doNotWritePersistentData;
