@@ -106,8 +106,7 @@ void CMeshWrapper::display_extRenderer(const CPose& cumulIFrameTr, CShape* geomD
                                        const CPose& tr, int shapeHandle, int& componentIndex)
 { // function has virtual/non-virtual counterpart!
     for (size_t i = 0; i < childList.size(); i++)
-        childList[i]->display_extRenderer(cumulIFrameTr * _iFrame, geomData, displayAttrib, tr, shapeHandle,
-                                          componentIndex);
+        childList[i]->display_extRenderer(cumulIFrameTr * _iFrame, geomData, displayAttrib, tr, shapeHandle, componentIndex);
 }
 
 void CMeshWrapper::display_colorCoded(const CPose& cumulIFrameTr, CShape* geomData, int objectId, int displayAttrib)

@@ -2579,39 +2579,6 @@ void CMesh::_updateDisplayAndDiskValues()
         _normalsForDisplayAndDisk[i] = (float)_normals[i];
 }
 
-#ifdef SIM_WITH_GUI
-void CMesh::display(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib, CColorObject* collisionColor,
-                    int dynObjFlag_forVisualization, int transparencyHandling, bool multishapeEditSelected)
-{ // function has virtual/non-virtual counterpart!
-    displayGeometric(cumulIFrameTr * _iFrame, this, geomData, displayAttrib, collisionColor,
-                     dynObjFlag_forVisualization, transparencyHandling, multishapeEditSelected);
-}
-
-void CMesh::display_colorCoded(const CPose& cumulIFrameTr, CShape* geomData, int objectId, int displayAttrib)
-{ // function has virtual/non-virtual counterpart!
-    displayGeometric_colorCoded(cumulIFrameTr * _iFrame, this, geomData, objectId, displayAttrib);
-}
-
-void CMesh::displayGhost(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib, bool originalColors,
-                         bool backfaceCulling, double transparency, const float* newColors)
-{ // function has virtual/non-virtual counterpart!
-    displayGeometricGhost(cumulIFrameTr * _iFrame, this, geomData, displayAttrib, originalColors, backfaceCulling,
-                          transparency, newColors);
-}
-
-bool CMesh::getNonCalculatedTextureCoordinates(std::vector<float>& texCoords)
-{
-    if (_textureProperty == nullptr)
-        return (false);
-    std::vector<float>* tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
-    if (tc == nullptr)
-        return (false);
-    if (!_textureProperty->getFixedCoordinates())
-        return (false);
-    texCoords.assign(tc->begin(), tc->end());
-    return (true);
-}
-
 void CMesh::display_extRenderer(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib, const CPose& tr,
                                 int shapeHandle, int& componentIndex)
 { // function has virtual/non-virtual counterpart!
@@ -2635,7 +2602,7 @@ void CMesh::display_extRenderer(const CPose& cumulIFrameTr, CShape* geomData, in
             }
         }
 
-        // texture change:
+               // texture change:
         if (_extRendererTextureId == 0)
         { // first time we render this item
             _extRendererTexture_lastTextureId = (unsigned int)-1;
@@ -2665,7 +2632,7 @@ void CMesh::display_extRenderer(const CPose& cumulIFrameTr, CShape* geomData, in
             }
         }
 
-        // Object change:
+               // Object change:
         if (_extRendererObjectId == 0)
         { // first time we render this item
             _extRendererUniqueObjectID++;
@@ -2723,8 +2690,8 @@ void CMesh::display_extRenderer(const CPose& cumulIFrameTr, CShape* geomData, in
         data[32] = &shapeHandle;
         data[33] = &componentIndex;
 
-        // Following actually free since CoppeliaSim 3.3.0
-        // But the older PovRay plugin version crash without this:
+               // Following actually free since CoppeliaSim 3.3.0
+               // But the older PovRay plugin version crash without this:
         int povMaterial = 0;
         data[29] = &povMaterial;
 
@@ -2769,6 +2736,39 @@ void CMesh::display_extRenderer(const CPose& cumulIFrameTr, CShape* geomData, in
         }
     }
     componentIndex++;
+}
+
+#ifdef SIM_WITH_GUI
+void CMesh::display(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib, CColorObject* collisionColor,
+                    int dynObjFlag_forVisualization, int transparencyHandling, bool multishapeEditSelected)
+{ // function has virtual/non-virtual counterpart!
+    displayGeometric(cumulIFrameTr * _iFrame, this, geomData, displayAttrib, collisionColor,
+                     dynObjFlag_forVisualization, transparencyHandling, multishapeEditSelected);
+}
+
+void CMesh::display_colorCoded(const CPose& cumulIFrameTr, CShape* geomData, int objectId, int displayAttrib)
+{ // function has virtual/non-virtual counterpart!
+    displayGeometric_colorCoded(cumulIFrameTr * _iFrame, this, geomData, objectId, displayAttrib);
+}
+
+void CMesh::displayGhost(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib, bool originalColors,
+                         bool backfaceCulling, double transparency, const float* newColors)
+{ // function has virtual/non-virtual counterpart!
+    displayGeometricGhost(cumulIFrameTr * _iFrame, this, geomData, displayAttrib, originalColors, backfaceCulling,
+                          transparency, newColors);
+}
+
+bool CMesh::getNonCalculatedTextureCoordinates(std::vector<float>& texCoords)
+{
+    if (_textureProperty == nullptr)
+        return (false);
+    std::vector<float>* tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
+    if (tc == nullptr)
+        return (false);
+    if (!_textureProperty->getFixedCoordinates())
+        return (false);
+    texCoords.assign(tc->begin(), tc->end());
+    return (true);
 }
 
 int* CMesh::getVertexBufferIdPtr()

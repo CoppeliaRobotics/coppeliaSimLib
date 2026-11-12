@@ -138,6 +138,8 @@ class CMesh : public CMeshWrapper
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
 
+    void display_extRenderer(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib, const CPose& tr, int shapeHandle, int& componentIndex) override;
+
     std::string getMeshState() const;
 
     // Following few routines in order not to save duplicate data:
@@ -182,6 +184,10 @@ class CMesh : public CMeshWrapper
 
     std::vector<float> _verticesForDisplayAndDisk;
     std::vector<float> _normalsForDisplayAndDisk;
+
+    int _vertexBufferId;
+    int _normalBufferId;
+    int _edgeBufferId;
 
     bool _visibleEdges;
     bool _hideEdgeBorders_OLD;
@@ -235,15 +241,9 @@ class CMesh : public CMeshWrapper
     void display_colorCoded(const CPose& cumulIFrameTr, CShape* geomData, int objectId, int displayAttrib) override;
     void displayGhost(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib, bool originalColors, bool backfaceCulling, double transparency, const float* newColors) override;
 
-    void display_extRenderer(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib, const CPose& tr, int shapeHandle, int& componentIndex) override;
     bool getNonCalculatedTextureCoordinates(std::vector<float>& texCoords);
     int* getVertexBufferIdPtr();
     int* getNormalBufferIdPtr();
     int* getEdgeBufferIdPtr();
-
-  protected:
-    int _vertexBufferId;
-    int _normalBufferId;
-    int _edgeBufferId;
 #endif
 };

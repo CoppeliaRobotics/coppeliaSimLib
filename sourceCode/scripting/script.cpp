@@ -6288,6 +6288,7 @@ void CScript::_detectDeprecated_old(CScript* nakedScript)
         _scriptText=std::string(match.prefix())+nt+std::string(match.suffix());
     }
     */
+
     // if (getLanguage()==sim_lang_lua)
     //    _scriptText.insert(0,"--lua\n\n");
 

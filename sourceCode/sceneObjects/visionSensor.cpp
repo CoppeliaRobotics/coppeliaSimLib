@@ -1121,6 +1121,7 @@ bool CVisionSensor::detectEntity(int entityID, bool detectAll,
         entityID, detectAll, entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects, hideEdgesIfModel,
         overrideRenderableFlagsForNonCollections);
 #else
+    validRendering = detectEntity2(entityID, detectAll, entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects, hideEdgesIfModel, overrideRenderableFlagsForNonCollections);
 #endif
 
     if (validRendering)
@@ -1154,8 +1155,7 @@ bool CVisionSensor::detectEntity2(int entityID, bool detectAll,
 #endif
 
     if (!_useExternalImage)
-        retVal = renderForDetection(entityID, detectAll, entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
-                                    hideEdgesIfModel, overrideRenderableFlagsForNonCollections, activeMirrors);
+        retVal = renderForDetection(entityID, detectAll, entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects, hideEdgesIfModel, overrideRenderableFlagsForNonCollections, activeMirrors);
 
     if (getInternalRendering())
     {
@@ -1309,6 +1309,59 @@ bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
     App::scenes->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_start, data);
     return (retVal);
 }
+
+
+void CVisionSensor::_extRenderer_renderMarkers()
+{ // Set-up the markers:
+    for (size_t li = 0; li < App::scene->sceneObjects->getObjectCount(sim_sceneobject_marker); li++)
+    {
+        /*
+        CLight* light = App::scene->sceneObjects->getLightFromIndex(li);
+
+        if (light->getLightActive())
+        {
+            void* data[20];
+            int lightType = light->getLightType();
+            data[0] = &lightType;
+            float cutoffAngle = (float)light->getSpotCutoffAngle();
+            data[1] = &cutoffAngle;
+            int spotExponent = light->getSpotExponent();
+            data[2] = &spotExponent;
+            data[3] = light->getColor(true)->getColorsPtr();
+
+            double arr[3];
+            light->getAttenuationFactors(arr);
+            float constAttenuation = (float)arr[0];
+            data[4] = &constAttenuation;
+            float linAttenuation = (float)arr[1];
+            data[5] = &linAttenuation;
+            float quadAttenuation = (float)arr[2];
+            data[6] = &quadAttenuation;
+            CPose tr(light->getFullCumulativeTransformation());
+            float x[3] = {(float)tr.X(0), (float)tr.X(1), (float)tr.X(2)};
+            data[7] = x;
+            float q[4] = {(float)tr.Q(0), (float)tr.Q(1), (float)tr.Q(2), (float)tr.Q(3)};
+            data[8] = q;
+            float lightSize = (float)light->getLightSize();
+            data[9] = &lightSize;
+            bool lightIsVisible = light->getShouldObjectBeDisplayed(_objectHandle, 0);
+            data[11] = &lightIsVisible;
+            int lightHandle = light->getObjectHandle();
+            data[13] = &lightHandle;
+
+                   // Following actually free since CoppeliaSim 3.3.0
+                   // But the older PovRay plugin version crash without this:
+            float povFadeXDist = 0.0f;
+            bool povNoShadow = false;
+            data[10] = &povFadeXDist;
+            data[12] = &povNoShadow;
+
+            App::scenes->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_light, data);
+        }
+        */
+    }
+}
+
 
 void CVisionSensor::_extRenderer_prepareLights()
 { // Set-up the lights:
@@ -1490,6 +1543,9 @@ bool CVisionSensor::renderForDetection(int entityID, bool detectAll,
     // Draw objects:
     _drawObjects(entityID, detectAll, entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects, hideEdgesIfModel,
                  overrideRenderableFlagsForNonCollections);
+
+    if (_renderMode == sim_rendermode_opengl3)
+        _extRenderer_renderMarkers();
 
     if ((_renderMode == sim_rendermode_povray) || (_renderMode == sim_rendermode_opengl3))
         setFrustumCullingTemporarilyDisabled(false); // important with ray-tracers and similar

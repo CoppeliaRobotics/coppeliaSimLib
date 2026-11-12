@@ -570,8 +570,7 @@ void CShape::display_extRenderer(CViewableBase* renderingObject, int displayAttr
         { // the bounding box is inside of the view (at least some part of it!)
             CPose tr = getCumulativeTransformation();
             int componentIndex = 0;
-            getMesh()->display_extRenderer(CPose::identityTransformation, this, displayAttrib, tr, _objectHandle,
-                                           componentIndex);
+            getMesh()->display_extRenderer(CPose::identityTransformation, this, displayAttrib, tr, _objectHandle, componentIndex);
         }
     }
 }
