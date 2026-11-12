@@ -780,6 +780,10 @@ if(WITH_QSCINTILLA AND APPLE)
     add_custom_command(TARGET coppeliaSim POST_BUILD COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change ${QSCINTILLA_LIB_NAME} @executable_path/../Frameworks/${QSCINTILLA_LIB_NAME} $<TARGET_FILE:coppeliaSim>)
 endif()
 
+if(APPLE)
+    add_custom_command(TARGET coppeliaSim POST_BUILD COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change @rpath/liblua.5.4.dylib @executable_path/../Frameworks/liblua.5.4.dylib $<TARGET_FILE:coppeliaSim>)
+endif()
+
 if(NOT WITH_GUI)
     set_target_properties(coppeliaSim PROPERTIES OUTPUT_NAME "coppeliaSimHeadless")
 endif()
