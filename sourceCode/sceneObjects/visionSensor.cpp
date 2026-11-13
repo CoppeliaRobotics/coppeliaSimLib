@@ -505,8 +505,7 @@ bool CVisionSensor::getInternalRendering() const
 
 bool CVisionSensor::getApplyExternalRenderedImage() const
 {
-    return ((_renderMode == sim_rendermode_povray) || (_renderMode == sim_rendermode_extrenderer) ||
-            (_renderMode == sim_rendermode_opengl3));
+    return ((_renderMode == sim_rendermode_povray) || (_renderMode == sim_rendermode_extrenderer) || (_renderMode == sim_rendermode_opengl3) || (_renderMode == sim_rendermode_opengl3colorcoded));
 }
 
 CComposedFilter* CVisionSensor::getComposedFilter() const
@@ -1204,7 +1203,7 @@ bool CVisionSensor::detectEntity2(int entityID, bool detectAll,
     return (retVal);
 }
 
-bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
+bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex, bool colorCoded)
 { // Set-up the resolution, clear color, camera properties and camera pose:
     bool retVal = App::scenes->pluginContainer->selectExtRenderer(extRendererIndex);
 
@@ -1305,63 +1304,13 @@ bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
     if (GuiApp::mainWindow != nullptr)
         data[28] = GuiApp::mainWindow->openglWidget;
 #endif
-
+    int cdh = 0;
+    if (colorCoded)
+        cdh = 1;
+    data[29] = &cdh;
     App::scenes->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_start, data);
     return (retVal);
 }
-
-
-void CVisionSensor::_extRenderer_renderMarkers()
-{ // Set-up the markers:
-    for (size_t li = 0; li < App::scene->sceneObjects->getObjectCount(sim_sceneobject_marker); li++)
-    {
-        /*
-        CLight* light = App::scene->sceneObjects->getLightFromIndex(li);
-
-        if (light->getLightActive())
-        {
-            void* data[20];
-            int lightType = light->getLightType();
-            data[0] = &lightType;
-            float cutoffAngle = (float)light->getSpotCutoffAngle();
-            data[1] = &cutoffAngle;
-            int spotExponent = light->getSpotExponent();
-            data[2] = &spotExponent;
-            data[3] = light->getColor(true)->getColorsPtr();
-
-            double arr[3];
-            light->getAttenuationFactors(arr);
-            float constAttenuation = (float)arr[0];
-            data[4] = &constAttenuation;
-            float linAttenuation = (float)arr[1];
-            data[5] = &linAttenuation;
-            float quadAttenuation = (float)arr[2];
-            data[6] = &quadAttenuation;
-            CPose tr(light->getFullCumulativeTransformation());
-            float x[3] = {(float)tr.X(0), (float)tr.X(1), (float)tr.X(2)};
-            data[7] = x;
-            float q[4] = {(float)tr.Q(0), (float)tr.Q(1), (float)tr.Q(2), (float)tr.Q(3)};
-            data[8] = q;
-            float lightSize = (float)light->getLightSize();
-            data[9] = &lightSize;
-            bool lightIsVisible = light->getShouldObjectBeDisplayed(_objectHandle, 0);
-            data[11] = &lightIsVisible;
-            int lightHandle = light->getObjectHandle();
-            data[13] = &lightHandle;
-
-                   // Following actually free since CoppeliaSim 3.3.0
-                   // But the older PovRay plugin version crash without this:
-            float povFadeXDist = 0.0f;
-            bool povNoShadow = false;
-            data[10] = &povFadeXDist;
-            data[12] = &povNoShadow;
-
-            App::scenes->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_light, data);
-        }
-        */
-    }
-}
-
 
 void CVisionSensor::_extRenderer_prepareLights()
 { // Set-up the lights:
@@ -1528,7 +1477,7 @@ bool CVisionSensor::renderForDetection(int entityID, bool detectAll,
     }
     else
     {
-        retVal = _extRenderer_prepareView(_renderMode - sim_rendermode_povray);
+        retVal = _extRenderer_prepareView(_renderMode - sim_rendermode_povray, _renderMode == sim_rendermode_opengl3colorcoded);
         _extRenderer_prepareLights();
     }
 
@@ -1537,17 +1486,13 @@ bool CVisionSensor::renderForDetection(int entityID, bool detectAll,
     _currentViewSize[0] = _resolution[0];
     _currentViewSize[1] = _resolution[1];
 
-    if ((_renderMode == sim_rendermode_povray) || (_renderMode == sim_rendermode_opengl3))
+    if ((_renderMode == sim_rendermode_povray) || (_renderMode == sim_rendermode_opengl3) || (_renderMode == sim_rendermode_opengl3colorcoded))
         setFrustumCullingTemporarilyDisabled(true); // important with ray-tracers and similar
 
     // Draw objects:
-    _drawObjects(entityID, detectAll, entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects, hideEdgesIfModel,
-                 overrideRenderableFlagsForNonCollections);
+    _drawObjects(entityID, detectAll, entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects, hideEdgesIfModel, overrideRenderableFlagsForNonCollections);
 
-    if (_renderMode == sim_rendermode_opengl3)
-        _extRenderer_renderMarkers();
-
-    if ((_renderMode == sim_rendermode_povray) || (_renderMode == sim_rendermode_opengl3))
+    if ((_renderMode == sim_rendermode_povray) || (_renderMode == sim_rendermode_opengl3) || (_renderMode == sim_rendermode_opengl3colorcoded))
         setFrustumCullingTemporarilyDisabled(false); // important with ray-tracers and similar
 
 #ifdef SIM_WITH_GUI
@@ -1660,6 +1605,8 @@ void CVisionSensor::_drawObjects(int entityID, bool detectAll,
             {
                 if (toRender[i]->getObjectType() == sim_sceneobject_shape)
                     ((CShape*)toRender[i])->display_extRenderer(this, rendAttrib);
+                if (toRender[i]->getObjectType() == sim_sceneobject_marker)
+                    ((CMarker*)toRender[i])->display_extRenderer(this, rendAttrib);
             }
         }
 #ifdef SIM_WITH_GUI
@@ -2892,7 +2839,7 @@ void CVisionSensor::serialize(CSer& ar)
                                "auxiliaryChannels"}, {sim_rendermode_colorcoded, "colorCoded"}, {sim_rendermode_povray,
                                "PovRay"}, {sim_rendermode_extrenderer, "externalRenderer"},
                                {sim_rendermode_extrendererwindowed, "externalRendererWindowed"}, {sim_rendermode_opengl3,
-                               "openGL3"}, {sim_rendermode_opengl3windowed, "openGL3Windowed"}});
+                               "openGL3"}, {sim_rendermode_opengl3windowed, "openGL3Windowed"}, {sim_rendermode_opengl3colorcoded, "openGL3ColorCoded"}});
 
             if (exhaustiveXml)
                 ar.xmlAddNode_int("renderAttributes", _attributesForRendering);
@@ -2994,7 +2941,8 @@ void CVisionSensor::serialize(CSer& ar)
                                    {"externalRenderer", sim_rendermode_extrenderer},
                                    {"externalRendererWindowed", sim_rendermode_extrendererwindowed},
                                    {"openGL3", sim_rendermode_opengl3},
-                                   {"openGL3Windowed", sim_rendermode_opengl3windowed}
+                                   {"openGL3Windowed", sim_rendermode_opengl3windowed},
+                                   {"openGL3ColorCoded", sim_rendermode_opengl3colorcoded}
                                });
             if (_renderMode == sim_rendermode_extrendererwindowed)
                 _renderMode = sim_rendermode_extrenderer;

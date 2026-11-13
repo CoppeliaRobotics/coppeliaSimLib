@@ -1119,9 +1119,11 @@ void App::__logMsg(const char* originName, int verbosityLevel, const char* msg, 
             int rgb[3];
             col.getRgb(rgb + 0, rgb + 1, rgb + 2);
             int incr = 56;
+            if (userSettings->darkMode)
+                incr = 160;
             if (rgb[0] > 128)
                 incr = -incr;
-            for (int i = 1; i < 3; i++)
+            for (int i = 0; i < 3; i++)
                 rgb[i] += incr;
             col.setRgb(rgb[0], rgb[1], rgb[2]);
             vars["color"] = col.name().toStdString();

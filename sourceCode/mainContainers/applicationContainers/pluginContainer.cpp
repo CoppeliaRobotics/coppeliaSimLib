@@ -470,7 +470,7 @@ bool CPluginContainer::selectExtRenderer(int index)
         }
         currentExternalRendererPlugin = currentPovRayPlugin;
     }
-    if (index == sim_rendermode_opengl3 - sim_rendermode_povray)
+    if ((index == sim_rendermode_opengl3 - sim_rendermode_povray) || (index == sim_rendermode_opengl3colorcoded - sim_rendermode_povray))
     {
         if (currentOpenGl3Plugin == nullptr)
         {

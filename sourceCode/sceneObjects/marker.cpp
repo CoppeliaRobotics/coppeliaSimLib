@@ -102,6 +102,32 @@ CMarker::CMarker(int type /*= sim_markertype_points*/, unsigned char col[3] /*= 
     _initialize();
 }
 
+int CMarker::getData(const float** pts, const float** quats, const unsigned char** rgbas, const float** sizes, const float** vertices, int* vcnt, const int** indices, int* icnt, const float** normals) const
+{
+    pts[0] = _pts.data();
+    if (_quats.empty())
+        quats[0] = nullptr;
+    else
+        quats[0] = _quats.data();
+    if (_rgba.empty())
+        rgbas[0] = nullptr;
+    else
+        rgbas[0] = _rgba.data();
+    if (_sizes.empty())
+        sizes[0] = nullptr;
+    else
+        sizes[0] = _sizes.data();
+    vertices[0] = _vertices.data();
+    vcnt[0] = int(_vertices.size());
+    indices[0] = _indices.data();
+    icnt[0] = int(_indices.size());
+    if (_normals.empty())
+        normals[0] = nullptr;
+    else
+        normals[0] = _normals.data();
+    return int(_pts.size());
+}
+
 void CMarker::_initialize()
 {
     _itemPointCnt = 1;
@@ -209,7 +235,7 @@ void CMarker::_rebuildMarkerBoundingBox()
             }
         }
         else
-        { // points, lines and triangles
+        { // points, lines, tubes and triangles
             for (int j = 0; j < _itemPointCnt; j++)
             {
                 C3Vector p(_pts.data() + i * 3 * _itemPointCnt + j * 3);
@@ -261,7 +287,7 @@ void CMarker::remItems(const std::vector<int64_t>* ids)
             _rgba.erase(_rgba.begin() + l * 4 * _itemPointCnt, _rgba.begin() + l * 4 * _itemPointCnt + 4 * _itemPointCnt);
             _ids.erase(_ids.begin() + l);
             if (_sizes.size() > 0)
-                _sizes.erase(_sizes.begin() + 3 * l, _sizes.begin() + 3 * l + 3);
+                _sizes.erase(_sizes.begin() + 3 * l * _itemPointCnt, _sizes.begin() + 3 * l * _itemPointCnt + 3 * _itemPointCnt); // because of tubes
             if (_quats.size() > 0)
                 _quats.erase(_quats.begin() + 4 * l, _quats.begin() + 4 * l + 4);
             updateBB = true;
@@ -316,10 +342,9 @@ void CMarker::remItems(int itemCntToDelete, bool triggerEvent /*= true*/)
         _rgba.erase(_rgba.begin(), _rgba.begin() + itemCntToDelete * 4 * _itemPointCnt);
         _ids.erase(_ids.begin(), _ids.begin() + itemCntToDelete);
         if ( (_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_tubes) && (_itemType != sim_markertype_triangles) )
-        {
             _quats.erase(_quats.begin(), _quats.begin() + itemCntToDelete * 4 * _itemPointCnt);
+        if ( (_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_triangles) )
             _sizes.erase(_sizes.begin(), _sizes.begin() + itemCntToDelete * 3 * _itemPointCnt);
-        }
         int tot = int(_pts.size()) / (3 * _itemPointCnt);
         if (tot < _newItemsCnt)
             _newItemsCnt = tot;
@@ -501,7 +526,7 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
                 }
             }
             else
-            { // points, lines and triangles
+            { // points, lines, tubes and triangles
                 for (int j = 0; j < _itemPointCnt; j++)
                 {
                     C3Vector p = trs[i * _itemPointCnt + j].X;
@@ -555,6 +580,11 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
                     for (int j = 0; j < 3 ; j++)
                         _sizes.push_back(_itemSize[j]);
                 }
+            }
+            else if (_itemType == sim_markertype_tubes)
+            {
+                for (int j = 0; j < 6 ; j++)
+                    _sizes.push_back(_itemSize[j]);
             }
 
             _nextId++;
@@ -1039,6 +1069,11 @@ int CMarker::getMarkerOptions() const
     return _itemOptions;
 }
 
+int CMarker::getMarkerType() const
+{
+    return _itemType;
+}
+
 std::string CMarker::getMarkerTypeStr() const
 {
     std::string retVal = "invalidEnum";
@@ -1439,7 +1474,12 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
                     else
                         ev->appendKeyMatrix(prop(PropMarker::quaternions).name, (float*)nullptr, 4, 0, false);
                     if (_sizes.size() > 0)
-                        ev->appendKeyMatrix(prop(PropMarker::sizes).name, _sizes.data() + _sizes.size() - (_newItemsCnt * 3 * _itemPointCnt), 3, _newItemsCnt * _itemPointCnt, false);
+                    {
+                        if (_itemType == sim_markertype_tubes)
+                            ev->appendKeyMatrix(prop(PropMarker::sizes).name, _sizes.data() + _sizes.size() - (_newItemsCnt * 6 * _itemPointCnt), 6, _newItemsCnt * _itemPointCnt, false);
+                        else
+                            ev->appendKeyMatrix(prop(PropMarker::sizes).name, _sizes.data() + _sizes.size() - (_newItemsCnt * 3 * _itemPointCnt), 3, _newItemsCnt * _itemPointCnt, false);
+                    }
                     else
                         ev->appendKeyMatrix(prop(PropMarker::sizes).name, (float*)nullptr, 3, 0);
                     ev->appendKeyUint8Array(prop(PropMarker::colors).name, (unsigned char*)(_rgba.data() + _rgba.size() - (_newItemsCnt * 4 * _itemPointCnt)), _newItemsCnt * 4 * _itemPointCnt);
@@ -1458,6 +1498,45 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
         }
         _newItemsCnt = 0;
         _remIds.clear();
+    }
+}
+
+void CMarker::display_extRenderer(CViewableBase* renderingObject, int displayAttrib)
+{
+    if (getShouldObjectBeDisplayed(renderingObject->getObjectHandle(), displayAttrib))
+    {
+        void* data[20];
+        std::vector<float> tmp;
+        data[0] = &_itemType;
+        data[1] = &_itemOptions;
+        const float* pts = nullptr;
+        const float* quats = nullptr;
+        const unsigned char* rgbas = nullptr;
+        const float* sizes = nullptr;
+        const float* vertices = nullptr;
+        int vCnt = 0;
+        const int* indices = nullptr;
+        int iCnt = 0;
+        const float* normals = nullptr;
+        int ptDataCnt = getData(&pts, &quats, &rgbas, &sizes, &vertices, &vCnt, &indices, &iCnt, &normals);
+        data[2] = &ptDataCnt; // number of points*3
+        data[3] = &pts; // has ptDataCnt*3 values
+        data[4] = &quats; // is either nullptr or has ptDataCnt*4 values (for items that are not points, lines, tubes or triangles)
+        data[5] = &rgbas; // is either nullptr or has ptDataCnt*4 values (lines and tubes have 2*4 floats, triangles have 3*4 floats)
+        data[6] = &sizes; // is either nullptr or has ptDataCnt*3 values (for items that are not points, lines or triangles. Tubes use just the first float, as a radius of the tube)
+        data[8] = &vertices; // has vCnt*3 values
+        data[9] = &vCnt;
+        data[10] = &indices; // has iCnt*3 values
+        data[11] = &iCnt;
+        data[12] = &normals; // is either nullptr or has iCnt*9 values (one normal per triangle corner)
+        CPose p = getCumulativeTransformation();
+        double q[4];
+        data[13] = p.X.data;
+        p.Q.getData(q, true);
+        data[14] = q;
+        int oh = _objectHandle;
+        data[15] = &oh;
+        App::scenes->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_marker, data);
     }
 }
 
@@ -2060,8 +2139,7 @@ void CMarker::_drawTubeLines(int displayAttrib, const double normalVectorForLine
             ax[2] = 0.0f;
             angle = 180.0f;
         }
-        float r0 = float(_itemSize[0] * 0.5);
-        float r1 = float(_itemSize[1] * 0.5);
+        float r = _sizes[0] * 0.5;
 
         if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
             glColor4ubv((GLubyte*)_rgba.data() + i * 8);
@@ -2084,12 +2162,12 @@ void CMarker::_drawTubeLines(int displayAttrib, const double normalVectorForLine
 
             glNormal3f(nx, ny, 0.0f);
 
-            glVertex3f(v[j][0] * (r0 / 0.5f),
-                       v[j][1] * (r0 / 0.5f),
+            glVertex3f(v[j][0] * (r / 0.5f),
+                       v[j][1] * (r / 0.5f),
                        v[j][2] * len);
 
-            glVertex3f(v[j + 1][0] * (r1 / 0.5f),
-                       v[j + 1][1] * (r1 / 0.5f),
+            glVertex3f(v[j + 1][0] * (r / 0.5f),
+                       v[j + 1][1] * (r / 0.5f),
                        v[j + 1][2] * len);
         }
 

@@ -141,7 +141,7 @@ void GuiApp::runGui(int options)
     while (App::getAppStage() != App::appstage_simInit2Done) // wait until SIM thread finished initialization
         VThread::sleep(1);
 
-    _browserEnabled = true;
+    //_browserEnabled = true;
     for (int i = 0; i < 9; i++)
     {
         std::string str(App::getApplicationArgument(i));

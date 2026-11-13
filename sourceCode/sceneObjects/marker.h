@@ -58,11 +58,15 @@ class CMarker : public CSceneObject
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;
 
     int getMarkerOptions() const;
+    int getMarkerType() const;
     std::string getMarkerTypeStr() const;
 
     void addItems(const std::vector<float>* pts, const std::vector<float>* quats, const std::vector<unsigned char>* rgbas, const std::vector<float>* sizes, bool transform = true, std::vector<int64_t>* newIds = nullptr);
     void remItems(int itemCnt, bool triggerEvent = true);
     void remItems(const std::vector<int64_t>* ids);
+
+    int getData(const float** pts, const float** quats, const unsigned char** rgbas, const float** sizes, const float** vertices, int* vcnt, const int** indices, int* icnt, const float** normals) const;
+    void display_extRenderer(CViewableBase* renderingObject, int displayAttrib);
 
   protected:
     void _updateMarkerEvent(bool incremental, CCbor* evv = nullptr);

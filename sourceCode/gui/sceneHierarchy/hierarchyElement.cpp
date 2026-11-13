@@ -326,7 +326,12 @@ void CHierarchyElement::renderElement_sceneObject(CHierarchy* hier, int labelEdi
                  it->isObjectPartOfInvisibleModel()))
                 tc = ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_INVISIBLE;
             else
-                tc = ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_VISIBLE;
+            {
+                if (App::userSettings->darkMode)
+                    tc = ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_VISIBLE_DARKMODE;
+                else
+                    tc = ogl::HIERARCHY_AND_BROWSER_TEXT_COLOR_VISIBLE;
+            }
         }
         if (transparentForTreeObjects == -2)
             ogl::setTextColor((tc[0] + 7.0 * bgCol[0]) * 0.125, (tc[1] + 7.0 * bgCol[1]) * 0.125,

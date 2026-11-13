@@ -1,5 +1,6 @@
 TARGET = coppeliaSim
 TEMPLATE = lib
+DEFINES += COPPELIASIM
 DEFINES += SIM_MATH_DOUBLE # math and vector classes
 DEFINES += MAGIC_ENUM_RANGE_MAX=1000
 

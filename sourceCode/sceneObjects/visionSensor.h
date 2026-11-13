@@ -181,8 +181,7 @@ class CVisionSensor : public CViewableBase
         bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,
         bool overrideRenderableFlagsForNonCollections, std::vector<CSceneObject*>& toRender);
 
-    bool _extRenderer_prepareView(int extRendererIndex);
-    void _extRenderer_renderMarkers();
+    bool _extRenderer_prepareView(int extRendererIndex, bool colorCoded);
     void _extRenderer_prepareLights();
     void _extRenderer_retrieveImage();
 

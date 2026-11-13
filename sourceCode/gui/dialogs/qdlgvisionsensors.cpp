@@ -115,6 +115,7 @@ void CQDlgVisionSensors::refresh()
         if (it->getRenderMode() == sim_rendermode_extrenderer) // deprecated
             ui->qqRenderModeCombo->addItem("External renderer (deprecated)", QVariant(sim_rendermode_extrenderer));
         ui->qqRenderModeCombo->addItem("OpenGL 3", QVariant(sim_rendermode_opengl3));
+        ui->qqRenderModeCombo->addItem("OpenGL 3, color coded handles", QVariant(sim_rendermode_opengl3colorcoded));
         /* for now
         ui->qqRenderModeCombo->addItem("OpenGL",QVariant(sim_rendermode_oglimg));
         ui->qqRenderModeCombo->addItem("OpenGL, color coded handles",QVariant(sim_rendermode_codedimg));
@@ -490,8 +491,7 @@ void CQDlgVisionSensors::on_qqRenderModeCombo_currentIndexChanged(int index)
         IF_UI_EVENT_CAN_WRITE_DATA
         {
             int renderMode = ui->qqRenderModeCombo->itemData(ui->qqRenderModeCombo->currentIndex()).toInt();
-            App::appendSimulationThreadCommand(SET_RENDERMODE_VISIONSENSORGUITRIGGEREDCMD,
-                                               App::scene->sceneObjects->getLastSelectionHandle(), renderMode);
+            App::appendSimulationThreadCommand(SET_RENDERMODE_VISIONSENSORGUITRIGGEREDCMD, App::scene->sceneObjects->getLastSelectionHandle(), renderMode);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }
