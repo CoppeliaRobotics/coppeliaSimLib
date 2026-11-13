@@ -2079,7 +2079,7 @@ void CCamera::lookIn(int windowSize[2], CSView* subView, bool drawText, bool pas
             GuiApp::mainWindow->openglWidget->doneCurrent();
 
 #ifdef SIM_WITH_GUI
-            _extRenderer_prepareView(rendererIndex, _currentViewSize, isPerspective);
+            _extRenderer_prepareView(rendererIndex, _currentViewSize, isPerspective, false);
 #endif
             _extRenderer_prepareLights();
 
@@ -2267,7 +2267,7 @@ void CCamera::_handleMirrors(int renderingMode, bool noSelection, int pass, int 
     setFrustumCullingTemporarilyDisabled(false);
 }
 
-bool CCamera::_extRenderer_prepareView(int extRendererIndex, int resolution[2], bool perspective)
+bool CCamera::_extRenderer_prepareView(int extRendererIndex, int resolution[2], bool perspective, bool colorCoded)
 { // Set-up the resolution, clear color, camera properties and camera pose:
 
     bool retVal = App::scenes->pluginContainer->selectExtRenderer(extRendererIndex);
@@ -2356,6 +2356,7 @@ bool CCamera::_extRenderer_prepareView(int extRendererIndex, int resolution[2], 
     data[25] = &povFocalLength;
     data[26] = &povAperture;
     data[27] = &povBlurSamples;
+    int cdh = 0;
 
 #ifdef SIM_WITH_GUI
 #ifdef USES_QGLWIDGET
@@ -2366,6 +2367,9 @@ bool CCamera::_extRenderer_prepareView(int extRendererIndex, int resolution[2], 
     if (GuiApp::mainWindow != nullptr)
         data[28] = GuiApp::mainWindow->openglWidget;
 #endif
+    if (colorCoded)
+        cdh = 1;
+    data[29] = &cdh;
 
     App::scenes->pluginContainer->extRenderer(sim_message_eventcallback_extrenderer_start, data);
     return (retVal);
@@ -2590,6 +2594,8 @@ void CCamera::_drawObjects(int renderingMode, int pass, int currentWinSize[2], C
                             {
                                 if (it->getObjectType() == sim_sceneobject_shape)
                                     ((CShape*)it)->display_extRenderer(this, atr);
+                                if (it->getObjectType() == sim_sceneobject_marker)
+                                    ((CMarker*)it)->display_extRenderer(this, atr);
                             }
                         }
                         else if (it->getObjectHandle() != GuiApp::mainWindow->editModeContainer->getEditModeObjectID())

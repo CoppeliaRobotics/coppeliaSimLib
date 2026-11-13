@@ -157,7 +157,7 @@ class CCamera : public CViewableBase
     void _handleMirrors(int renderingMode, bool noSelection, int pass, int navigationMode, int currentWinSize[2],
                         CSView* subView);
 
-    bool _extRenderer_prepareView(int extRendererIndex, int resolution[2], bool perspective);
+    bool _extRenderer_prepareView(int extRendererIndex, int resolution[2], bool perspective, bool colorCoded);
     void _extRenderer_prepareLights();
     void _extRenderer_retrieveImage(char* rgbBuffer);
 #endif
