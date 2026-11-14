@@ -32,6 +32,7 @@ static std::vector<std::pair<int, std::string>> propertyTypes = {
     {sim_propertytype_map, proptypetag_map},
     {sim_propertytype_handle, proptypetag_handle},
     {sim_propertytype_handlearray, proptypetag_handlearray},
+    {sim_propertytype_longarray, proptypetag_longarray},
     {sim_propertytype_stringarray, proptypetag_stringarray},
     {sim_propertytype_enum, proptypetag_enum},
     {sim_propertytype_group, proptypetag_group},
@@ -60,6 +61,7 @@ static std::map<int, std::string> propertyStrings = {
     {sim_propertytype_map, proptypetag_map},
     {sim_propertytype_handle, proptypetag_handle},
     {sim_propertytype_handlearray, proptypetag_handlearray},
+    {sim_propertytype_longarray, proptypetag_longarray},
     {sim_propertytype_stringarray, proptypetag_stringarray},
     {sim_propertytype_enum, proptypetag_enum},
     {sim_propertytype_group, proptypetag_group},
@@ -121,6 +123,8 @@ class Obj
     virtual int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setIntArrayProperty(const char* pName, const std::vector<int>& pState) { return sim_propertyret_unknownproperty; }
     virtual int getIntArrayProperty(const char* pName, std::vector<int>& pState) const { return sim_propertyret_unknownproperty; }
+    virtual int setLongArrayProperty(const char* pName, const std::vector<int64_t>& pState) { return sim_propertyret_unknownproperty; }
+    virtual int getLongArrayProperty(const char* pName, std::vector<int64_t>& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setHandleArrayProperty(const char* pName, const std::vector<int64_t>& pState) { return sim_propertyret_unknownproperty; }
     virtual int getHandleArrayProperty(const char* pName, std::vector<int64_t>& pState) const { return sim_propertyret_unknownproperty; }
     virtual int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState) { return sim_propertyret_unknownproperty; }

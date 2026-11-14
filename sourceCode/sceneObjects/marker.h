@@ -53,6 +53,7 @@ class CMarker : public CSceneObject
     int setColorProperty(const char* pName, const float* pState) override;
     int getColorProperty(const char* pName, float* pState) const override;
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const override;
+    int getLongArrayProperty(const char* pName, std::vector<int64_t>& pState) const override;
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const override;
     int getPropertyName(int& index, std::string& pName, std::string& appartenance, int excludeFlags) const override;
     int getPropertyInfo(const char* pName, int& info, std::string& infoTxt) const override;

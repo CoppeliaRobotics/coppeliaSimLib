@@ -1006,6 +1006,68 @@ int CCustomProperties::getIntArrayProperty(const char* pName, std::vector<int>& 
     return sim_propertyret_ok;
 }
 
+int CCustomProperties::setLongArrayProperty(const char* pName, const std::vector<int64_t>& pState, bool& valueChange)
+{
+    std::string packed(4 + (size_t)pState.size() * sizeof(int), '\0');
+    int32_t count = (int32_t)pState.size();
+    std::memcpy(&packed[0], &count, 4);
+    if (pState.size() > 0)
+        std::memcpy(&packed[4], pState.data(), (size_t)pState.size() * sizeof(int64_t));
+
+    int propType, propInfo;
+    std::string infoTxt;
+    const char* dataPtr;
+    size_t dataLen;
+    valueChange = false;
+
+    bool alreadyPresent = _findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen);
+    if (alreadyPresent)
+    {
+        if (propInfo & sim_propertyinfo_notwritable)
+            return sim_propertyret_unavailable;
+        if (propType != sim_propertytype_longarray)
+            return sim_propertyret_unavailable;
+        valueChange = _updatePropertyData(pName, packed.data(), packed.size());
+    }
+    else
+    {
+        _setPropertyRaw(pName, sim_propertytype_longarray, sim_propertyinfo_removable, "", packed.data(), packed.size());
+        valueChange = true;
+
+    }
+    if (valueChange)
+        _checkNeedForPropertyGroup(pName);
+    return sim_propertyret_ok;
+}
+
+int CCustomProperties::getLongArrayProperty(const char* pName, std::vector<int64_t>& pState) const
+{
+    pState.clear();
+    int propType, propInfo;
+    std::string infoTxt;
+    const char* dataPtr;
+    size_t dataLen;
+
+    if (!_findProperty(pName, propType, propInfo, infoTxt, dataPtr, dataLen))
+        return sim_propertyret_unknownproperty;
+
+    if (propInfo & sim_propertyinfo_notreadable)
+        return sim_propertyret_unavailable;
+    if (propType != sim_propertytype_longarray)
+        return sim_propertyret_unavailable;
+    if (dataLen >= 4)
+    {
+        int32_t count;
+        std::memcpy(&count, dataPtr, 4);
+        if (count > 0 && dataLen >= 4 + (size_t)count * sizeof(int64_t))
+        {
+            pState.resize((size_t)count);
+            std::memcpy(pState.data(), dataPtr + 4, (size_t)count * sizeof(int64_t));
+        }
+    }
+    return sim_propertyret_ok;
+}
+
 int CCustomProperties::setHandleArrayProperty(const char* pName, const std::vector<int64_t>& pState, bool& valueChange)
 {
     std::string packed(4 + (size_t)pState.size() * sizeof(int64_t), '\0');

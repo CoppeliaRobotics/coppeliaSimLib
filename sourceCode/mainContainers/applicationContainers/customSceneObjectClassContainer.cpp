@@ -398,6 +398,24 @@ int CustomSceneObjectClassContainer::getIntArrayProperty_t(int64_t target, const
     return retVal;
 }
 
+int CustomSceneObjectClassContainer::setLongArrayProperty_t(int64_t target, const char* ppName, const std::vector<int64_t>& pState)
+{
+    int retVal = sim_propertyret_unknowntarget;
+    CSceneObject* obj = getClass(target);
+    if (obj != nullptr)
+        retVal = obj->setLongArrayProperty(ppName, pState);
+    return retVal;
+}
+
+int CustomSceneObjectClassContainer::getLongArrayProperty_t(int64_t target, const char* ppName, std::vector<int64_t>& pState) const
+{
+    int retVal = sim_propertyret_unknowntarget;
+    CSceneObject* obj = getClass(target);
+    if (obj != nullptr)
+        retVal = obj->getLongArrayProperty(ppName, pState);
+    return retVal;
+}
+
 int CustomSceneObjectClassContainer::setHandleArrayProperty_t(int64_t target, const char* ppName, const std::vector<int64_t>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;

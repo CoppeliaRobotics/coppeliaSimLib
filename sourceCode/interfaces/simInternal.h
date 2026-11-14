@@ -79,6 +79,8 @@ int simSetFloatArrayProperty_internal(int64_t target, const char* pName, const d
 int simGetFloatArrayProperty_internal(int64_t target, const char* pName, double** v, int* vL);
 int simSetIntArrayProperty_internal(int64_t target, const char* pName, const int* v, int vL);
 int simGetIntArrayProperty_internal(int64_t target, const char* pName, int** v, int* vL);
+int simSetLongArrayProperty_internal(int64_t target, const char* pName, const int64_t* v, int vL); // ALL handle items have to be of the same type
+int simGetLongArrayProperty_internal(int64_t target, const char* pName, int64_t** v, int* vL); // ALL handle items have to be of the same type
 int simSetHandleArrayProperty_internal(int64_t target, const char* pName, const int64_t* v, int vL); // ALL handle items have to be of the same type
 int simGetHandleArrayProperty_internal(int64_t target, const char* pName, int64_t** v, int* vL); // ALL handle items have to be of the same type
 int simSetStringArrayProperty_internal(int64_t target, const char* pName, const char* v, int cnt);

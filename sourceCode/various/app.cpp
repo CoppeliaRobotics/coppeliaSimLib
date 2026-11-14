@@ -3403,6 +3403,75 @@ int App::getIntArrayProperty_t(int64_t target, const char* ppName, std::vector<i
     return retVal;
 }
 
+int App::setLongArrayProperty_t(int64_t target, const char* ppName, const std::vector<int64_t>& pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (!_resolveTarget(target))
+        retVal = sim_propertyret_unknowntarget;
+
+    const char* pName = ppName;
+    if (target == sim_handle_app)
+    {
+    }
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CScript* script = scenes->getScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->setIntArrayProperty(pName, v, vL);
+        }
+        else
+            retVal = sim_propertyret_unknowntarget;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+        retVal = scenes->interfaceStackContainer->setLongArrayProperty_t(target, ppName, pState);
+    else if ((target >= sim_object_customclassstart) && (target < sim_object_customappend) && (scenes != nullptr)) // don't forget classes!
+        retVal = scenes->customObjects->setLongArrayProperty_t(target, ppName, pState);
+    else if ((target >= sim_object_sceneobjectclassstart) && (target < sim_object_sceneobjectclassend) && (scenes != nullptr))
+        retVal = scenes->customSceneObjectClasses->setLongArrayProperty_t(target, ppName, pState);
+    else if (scene != nullptr)
+        retVal = scene->setLongArrayProperty_t(target, pName, pState);
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
+int App::getLongArrayProperty_t(int64_t target, const char* ppName, std::vector<int64_t>& pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (!_resolveTarget(target))
+        retVal = sim_propertyret_unknowntarget;
+
+    pState.clear();
+    const char* pName = ppName;
+    if (target == sim_handle_app)
+    {
+    }
+    else if ((target >= sim_object_scriptstart) && (target <= sim_object_scriptend))
+    { // sandbox, main, add-ons, or old associated scripts:
+        CScript* script = scenes->getScriptFromHandle(int(target));
+        if (script != nullptr)
+        {
+          //const char* pName = ppName;
+          //retVal = script->getIntArrayProperty(pName, pState);
+        }
+        else
+            retVal = sim_propertyret_unknowntarget;
+    }
+    else if ((target >= sim_object_stackstart) && (target <= sim_object_stackend))
+        retVal = scenes->interfaceStackContainer->getLongArrayProperty_t(target, ppName, pState);
+    else if ((target >= sim_object_customclassstart) && (target < sim_object_customappend) && (scenes != nullptr)) // don't forget classes!
+        retVal = scenes->customObjects->getLongArrayProperty_t(target, ppName, pState);
+    else if ((target >= sim_object_sceneobjectclassstart) && (target < sim_object_sceneobjectclassend) && (scenes != nullptr))
+        retVal = scenes->customSceneObjectClasses->getLongArrayProperty_t(target, ppName, pState);
+    else if (scene != nullptr)
+        retVal = scene->getLongArrayProperty_t(target, pName, pState);
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
 int App::setHandleArrayProperty_t(int64_t target, const char* ppName, const std::vector<int64_t>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;

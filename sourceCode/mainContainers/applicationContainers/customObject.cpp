@@ -850,6 +850,38 @@ int CustomObject::getIntArrayProperty(const char* pName, std::vector<int>& pStat
     return retVal;
 }
 
+int CustomObject::setLongArrayProperty(const char* pName, const std::vector<int64_t>& pState)
+{
+    int retVal = Obj::setLongArrayProperty(pName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        if (isClass() || _objectCanAddRemoveProperty || _customProperties.hasTypedProperty(pName, sim_propertytype_longarray))
+        { // property already exists (with correct type), or we want to set it to a class
+            std::vector<int64_t> pp(pState);
+            if ((!_ignoreSetterGetter) && (!isClass()))
+                _callPropertySetterGetter(pName, SET_SUFFIX, pp, [](CInterfaceStack* s, const std::vector<int64_t>& w) { s->pushInt64ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<int64_t>& w) { return s->getStackInt64Array(w.data(), w.size()); });
+            bool changed = false;
+            retVal = _customProperties.setLongArrayProperty(pName, pp, changed);
+            if (changed)
+                _triggerEvent(pName);
+        }
+    }
+    return retVal;
+}
+
+int CustomObject::getLongArrayProperty(const char* pName, std::vector<int64_t>& pState) const
+{
+    pState.clear();
+    int retVal = Obj::getLongArrayProperty(pName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        retVal = _customProperties.getLongArrayProperty(pName, pState);
+        if ((retVal == sim_propertyret_ok) && (!_ignoreSetterGetter) && (!isClass()))
+            _callPropertySetterGetter(pName, GET_SUFFIX, pState, [](CInterfaceStack* s, const std::vector<int64_t>& w) { s->pushInt64ArrayOntoStack(w.data(), w.size()); }, [](CInterfaceStack* s, std::vector<int64_t>& w) { return s->getStackInt64Array(w.data(), w.size()); });
+    }
+    return retVal;
+}
+
 int CustomObject::setHandleArrayProperty(const char* pName, const std::vector<int64_t>& pState)
 {
     int retVal = Obj::setHandleArrayProperty(pName, pState);

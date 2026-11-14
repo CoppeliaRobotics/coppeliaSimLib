@@ -3060,6 +3060,105 @@ int CInterfaceStack::getIntArrayProperty(const char*ppName, std::vector<int>& pS
     return retVal;
 }
 
+int CInterfaceStack::setLongArrayProperty(const char*ppName, const std::vector<int64_t>& pState)
+{
+    std::string key;
+    int stackIndex;
+    int retVal = _getStackLocation_write(ppName, stackIndex, key);
+    if (retVal == 0)
+    {
+        retVal = sim_propertyret_unknownproperty;
+        if (key.size() == 0)
+        {
+            CInterfaceStackTable* tbl = new CInterfaceStackTable();
+            tbl->setInt64Array(pState.data(), pState.size());
+            replaceStackObjectFromIndex(stackIndex, tbl);
+            retVal = sim_propertyret_ok;
+        }
+        else
+        { // we want to append an array or map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                if (key == "@arrayAppend@")
+                {
+                    if (tbl->isTableArray())
+                    {
+                        CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                        tbl2->setInt64Array(pState.data(), pState.size());
+                        tbl->appendArrayObject(tbl2);
+                        retVal = sim_propertyret_ok;
+                    }
+                }
+                else
+                {
+                    if (tbl->isTableMap())
+                    {
+                        CInterfaceStackTable* tbl2 = new CInterfaceStackTable();
+                        tbl2->setInt64Array(pState.data(), pState.size());
+                        tbl->appendMapObject_object(key.c_str(), tbl2);
+                        retVal = sim_propertyret_ok;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
+int CInterfaceStack::getLongArrayProperty(const char*ppName, std::vector<int64_t>& pState) const
+{
+    std::string key;
+    int arrIndex;
+    int stackIndex;
+    int retVal = _getStackLocation_read(ppName, stackIndex, key, arrIndex);
+    if (retVal == 0)
+    {
+        retVal = sim_propertyret_unknownproperty;
+        if (key.size() == 0)
+        {
+            CInterfaceStackObject* it = getStackObjectFromIndex(stackIndex);
+            if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                size_t arrSize = tbl->getArraySize();
+                if (tbl->areAllValuesThis(sim_stackitem_integer, true))
+                {
+                    pState.resize(arrSize);
+                    tbl->getInt64Array(pState.data(), int(arrSize));
+                    retVal = sim_propertyret_ok;
+                }
+            }
+        }
+        else
+        { // we want to read a specific array/map item
+            CInterfaceStackObject* obj = getStackObjectFromIndex(stackIndex);
+            if (obj->getObjectType() == sim_stackitem_table)
+            {
+                CInterfaceStackTable* tbl = (CInterfaceStackTable*)obj;
+                CInterfaceStackObject* it = nullptr;
+                if (arrIndex >= 0)
+                    it = tbl->getArrayItemAtIndex(arrIndex);
+                else
+                    it = tbl->getMapObject(key.c_str());
+                if ( (it != nullptr) && (it->getObjectType() == sim_stackitem_table) )
+                {
+                    CInterfaceStackTable* tbl = (CInterfaceStackTable*)it;
+                    size_t arrSize = tbl->getArraySize();
+                    if (tbl->areAllValuesThis(sim_stackitem_integer, true))
+                    {
+                        pState.resize(arrSize);
+                        tbl->getInt64Array(pState.data(), int(arrSize));
+                        retVal = sim_propertyret_ok;
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
 int CInterfaceStack::setHandleArrayProperty(const char*ppName, const std::vector<int64_t>& pState)
 {
     std::string key;

@@ -323,6 +323,24 @@ int CInterfaceStackContainer::getIntArrayProperty_t(int64_t target, const char* 
     return retVal;
 }
 
+int CInterfaceStackContainer::setLongArrayProperty_t(int64_t target, const char* ppName, const std::vector<int64_t>& pState)
+{
+    int retVal = sim_propertyret_unknowntarget;
+    CInterfaceStack* stack = getStack(target);
+    if (stack != nullptr)
+        retVal = stack->setLongArrayProperty(ppName, pState);
+    return retVal;
+}
+
+int CInterfaceStackContainer::getLongArrayProperty_t(int64_t target, const char* ppName, std::vector<int64_t>& pState) const
+{
+    int retVal = sim_propertyret_unknowntarget;
+    CInterfaceStack* stack = getStack(target);
+    if (stack != nullptr)
+        retVal = stack->getLongArrayProperty(ppName, pState);
+    return retVal;
+}
+
 int CInterfaceStackContainer::setHandleArrayProperty_t(int64_t target, const char* ppName, const std::vector<int64_t>& pState)
 {
     int retVal = sim_propertyret_unknowntarget;

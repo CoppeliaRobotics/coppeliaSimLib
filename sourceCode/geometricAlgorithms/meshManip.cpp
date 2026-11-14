@@ -802,19 +802,21 @@ bool CMeshManip::mergeWith(std::vector<double>* tVertices, std::vector<int>* tIn
     return (true);
 }
 
-void CMeshManip::reduceToUnit(double vector[3])
+template<typename T> void CMeshManip::reduceToUnit(T vector[3])
 {
-    double length = sqrt((vector[0] * vector[0]) + (vector[1] * vector[1]) + (vector[2] * vector[2]));
-    if (length == 0.0)
-        length = 1.0;
+    T length = sqrt((vector[0] * vector[0]) + (vector[1] * vector[1]) + (vector[2] * vector[2]));
+    if (length == T(0.0))
+        length = T(1.0);
     vector[0] = vector[0] / length;
     vector[1] = vector[1] / length;
     vector[2] = vector[2] / length;
 }
+template void CMeshManip::reduceToUnit<float>(float vector[3]);
+template void CMeshManip::reduceToUnit<double>(double vector[3]);
 
-void CMeshManip::calcNormal(double v[3][3], double out[3])
+template<typename T> void CMeshManip::calcNormal(T v[3][3], T out[3])
 {
-    double v1[3], v2[3];
+    T v1[3], v2[3];
     v1[0] = v[0][0] - v[1][0];
     v1[1] = v[0][1] - v[1][1];
     v1[2] = v[0][2] - v[1][2];
@@ -826,6 +828,8 @@ void CMeshManip::calcNormal(double v[3][3], double out[3])
     out[2] = v1[0] * v2[1] - v1[1] * v2[0];
     reduceToUnit(out);
 }
+template void CMeshManip::calcNormal<float>(float v[3][3], float out[3]);
+template void CMeshManip::calcNormal<double>(double v[3][3], double out[3]);
 
 void CMeshManip::getSize(std::vector<double>* vertices, double x[2], double y[2], double z[2], bool& start)
 {
@@ -871,36 +875,40 @@ void CMeshManip::centerAndScale(std::vector<double>* vertices, double x, double 
     }
 }
 
-void CMeshManip::getNormals(const std::vector<double>* vertices, const std::vector<int>* indices,
-                            std::vector<double>* normals)
-{ // This is the vector version of the function!
+template<typename T> void CMeshManip::getNormals(const std::vector<T>* vertices, const std::vector<int>* indices, std::vector<T>* normals)
+{
     // The size of normals is set in this function
-    double v[3][3], n[3];
+    T v[3][3], n[3];
+
     normals->clear();
-    normals->insert(normals->begin(), 3 * indices->size(), 0);
+    normals->insert(normals->begin(), 3 * indices->size(), T(0));
+
     for (size_t i = 0; i < indices->size() / 3; i++)
     {
         v[0][0] = vertices->at(3 * indices->at(3 * i) + 0);
         v[0][1] = vertices->at(3 * indices->at(3 * i) + 1);
         v[0][2] = vertices->at(3 * indices->at(3 * i) + 2);
+
         v[1][0] = vertices->at(3 * indices->at(3 * i + 1) + 0);
         v[1][1] = vertices->at(3 * indices->at(3 * i + 1) + 1);
         v[1][2] = vertices->at(3 * indices->at(3 * i + 1) + 2);
+
         v[2][0] = vertices->at(3 * indices->at(3 * i + 2) + 0);
         v[2][1] = vertices->at(3 * indices->at(3 * i + 2) + 1);
         v[2][2] = vertices->at(3 * indices->at(3 * i + 2) + 2);
+
         calcNormal(v, n);
-        normals->at(9 * i + 0) = n[0];
-        normals->at(9 * i + 1) = n[1];
-        normals->at(9 * i + 2) = n[2];
-        normals->at(9 * i + 3) = n[0];
-        normals->at(9 * i + 4) = n[1];
-        normals->at(9 * i + 5) = n[2];
-        normals->at(9 * i + 6) = n[0];
-        normals->at(9 * i + 7) = n[1];
-        normals->at(9 * i + 8) = n[2];
+
+        for (int j = 0; j < 3; j++)
+        {
+            normals->at(9 * i + 3 * j + 0) = n[0];
+            normals->at(9 * i + 3 * j + 1) = n[1];
+            normals->at(9 * i + 3 * j + 2) = n[2];
+        }
     }
 }
+template void CMeshManip::getNormals<float>(const std::vector<float>*, const std::vector<int>*, std::vector<float>*);
+template void CMeshManip::getNormals<double>(const std::vector<double>*, const std::vector<int>*, std::vector<double>*);
 
 void CMeshManip::getTrianglesFromPolygons(const std::vector<std::vector<int>>& polygons, std::vector<int>& indices)
 {

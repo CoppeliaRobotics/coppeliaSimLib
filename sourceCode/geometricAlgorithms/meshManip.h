@@ -29,12 +29,11 @@ class CMeshManip
                                            double& py, double& pz);
     static bool mergeWith(std::vector<double>* tVertices, std::vector<int>* tIndices, std::vector<double>* tNormals,
                           std::vector<double>* sVertices, std::vector<int>* sIndices, std::vector<double>* sNormals);
-    static void reduceToUnit(double vector[3]);
-    static void calcNormal(double v[3][3], double out[3]);
+    template<typename T> static void reduceToUnit(T vector[3]);
+    template<typename T> static void calcNormal(T v[3][3], T out[3]);
     static void getSize(std::vector<double>* vertices, double x[2], double y[2], double z[2], bool& start);
     static void centerAndScale(std::vector<double>* vertices, double x, double y, double z, double sf);
-    static void getNormals(const std::vector<double>* vertices, const std::vector<int>* indices,
-                           std::vector<double>* normals);
+    template<typename T> static void getNormals(const std::vector<T>* vertices, const std::vector<int>* indices, std::vector<T>* normals);
     static void getTrianglesFromPolygons(const std::vector<std::vector<int>>& polygons, std::vector<int>& indices);
 
   private:

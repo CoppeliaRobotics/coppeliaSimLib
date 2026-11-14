@@ -5,6 +5,7 @@
 #include <global.h>
 #include <app.h>
 #include <tt.h>
+#include <meshManip.h>
 #ifdef SIM_WITH_GUI
 #include <markerRendering.h>
 #include <guiApp.h>
@@ -60,12 +61,11 @@ CMarker::CMarker(int type /*= sim_markertype_points*/, unsigned char col[3] /*= 
         }
         if (normals != nullptr)
         {
-            if (normals->size() >= _vertices.size())
-            {
+            if (normals->size() == _indices.size() * 3)
                 _normals = normals[0];
-                _normals.resize(_vertices.size());
-            }
         }
+        if (_normals.empty())
+            CMeshManip::getNormals(&_vertices, &_indices, &_normals);
         for (size_t i = 0; i < _vertices.size() / 3; i++)
         {
             float xyz[3] = {_vertices[3 * i + 0], _vertices[3 * i + 1], _vertices[3 * i + 2]};
@@ -693,6 +693,7 @@ void CMarker::pushNakedGenesisEvents(CCbor* ev /*= nullptr*/)
         ev->appendKeyBool(prop(PropMarker::cyclic).name, _itemOptions & sim_markeropts_cyclic);
         ev->appendKeyBool(prop(PropMarker::local).name, _itemOptions & sim_markeropts_local);
         ev->appendKeyBool(prop(PropMarker::overlay).name, _itemOptions & sim_markeropts_overlay);
+        ev->appendKeyBool(prop(PropMarker::notShaded).name, _itemOptions & sim_markeropts_notshaded);
         ev->appendKeyVector3(prop(PropMarker::defaultItemSize).name, _itemSize);
         if (_itemType == sim_markertype_custom)
         {
@@ -1109,6 +1110,11 @@ int CMarker::getBoolProperty(const char* ppName, bool& pState) const
             pState = _itemOptions & sim_markeropts_overlay;
             retVal = sim_propertyret_ok;
         }
+        else if (strcmp(prop(PropMarker::notShaded).name, ppName) == 0)
+        {
+            pState = _itemOptions & sim_markeropts_notshaded;
+            retVal = sim_propertyret_ok;
+        }
         else if (strcmp(prop(PropMarker::local).name, ppName) == 0)
         {
             pState = _itemOptions & sim_markeropts_local;
@@ -1154,7 +1160,6 @@ int CMarker::setLongProperty(const char* ppName, int64_t pState)
 
 int CMarker::getLongProperty(const char* ppName, int64_t& pState) const
 {
-    std::string _pName(ppName);
     int retVal = CSceneObject::getLongProperty(ppName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
@@ -1280,6 +1285,20 @@ int CMarker::getIntArrayProperty(const char* pName, std::vector<int>& pState) co
         if (strcmp(pName, prop(PropMarker::indices).name) == 0)
         {
             pState = _indices;
+            retVal = sim_propertyret_ok;
+        }
+    }
+    return retVal;
+}
+
+int CMarker::getLongArrayProperty(const char* pName, std::vector<int64_t>& pState) const
+{
+    int retVal = CSceneObject::getLongArrayProperty(pName, pState);
+    if (retVal == sim_propertyret_unknownproperty)
+    {
+        if (strcmp(pName, prop(PropMarker::ids).name) == 0)
+        {
+            pState = _ids;
             retVal = sim_propertyret_ok;
         }
     }
@@ -1454,7 +1473,7 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
             ev->appendKeyMatrix(prop(PropMarker::quaternions).name, _quats.data(), 4, _quats.size() / 4, false);
             ev->appendKeyMatrix(prop(PropMarker::sizes).name, _sizes.data(), 3, _sizes.size() / 3, false);
             ev->appendKeyUint8Array(prop(PropMarker::colors).name, _rgba.data(), _rgba.size());
-            ev->appendKeyInt64Array("ids", _ids.data(), _ids.size());
+            ev->appendKeyInt64Array(prop(PropMarker::ids).name, _ids.data(), _ids.size());
             ev->closeArrayOrMap();
             if (evv == nullptr)
                 App::scenes->pushEvent();
@@ -1483,13 +1502,13 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
                     else
                         ev->appendKeyMatrix(prop(PropMarker::sizes).name, (float*)nullptr, 3, 0);
                     ev->appendKeyUint8Array(prop(PropMarker::colors).name, (unsigned char*)(_rgba.data() + _rgba.size() - (_newItemsCnt * 4 * _itemPointCnt)), _newItemsCnt * 4 * _itemPointCnt);
-                    ev->appendKeyInt64Array("ids", _ids.data() + _ids.size() - _newItemsCnt, _newItemsCnt);
+                    ev->appendKeyInt64Array(prop(PropMarker::ids).name, _ids.data() + _ids.size() - _newItemsCnt, _newItemsCnt);
                     ev->closeArrayOrMap();
                 }
                 if (_remIds.size() > 0)
                 {
                     ev->openKeyMap("rem");
-                    ev->appendKeyInt64Array("ids", _remIds.data(), _remIds.size());
+                    ev->appendKeyInt64Array(prop(PropMarker::ids).name, _remIds.data(), _remIds.size());
                     ev->closeArrayOrMap();
                 }
                 if (evv == nullptr)
@@ -1551,767 +1570,584 @@ void CMarker::displayOverlay(CViewableBase* renderingObject, int displayAttrib)
     displayMarker(this, renderingObject, displayAttrib, true);
 }
 
+#include <cmath>
+#include <vector>
+#include <cstddef>
+
+namespace
+{
+constexpr float kPi = 3.14159265358979f;
+
+inline bool colorCoded(int displayAttrib)
+{
+    return (displayAttrib & sim_displayattribute_colorcoded) != 0;
+}
+
+// Fixed-function: only ambient+diffuse track glColor (alpha included).
+// Specular/emission/shininess are set directly (GL_SHININESS is NOT a valid glColorMaterial mode).
+void beginColorMaterial(int displayAttrib)
+{
+    if (colorCoded(displayAttrib))
+        return;
+    static const GLfloat black[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, black);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, black);
+    glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 0.0f);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    glEnable(GL_COLOR_MATERIAL);
+}
+
+inline void setItemColor(int displayAttrib, const unsigned char* rgba)
+{
+    if (!colorCoded(displayAttrib))
+        glColor4ubv(reinterpret_cast<const GLubyte*>(rgba));
+}
+
+// Multiplies the current matrix by T(p) * R(q) * S(s), built directly (no acos/sqrt/glRotatef chain)
+void multItemMatrix(const float* p, const float* q, const float* s)
+{
+    float x = q[0], y = q[1], z = q[2], w = q[3];
+    float n2 = x * x + y * y + z * z + w * w;
+    if (n2 > 1e-12f)
+    {
+        float inv = 1.0f / sqrtf(n2);
+        x *= inv; y *= inv; z *= inv; w *= inv;
+    }
+    else
+    {
+        x = y = z = 0.0f; w = 1.0f;
+    }
+    const float xx = x * x, yy = y * y, zz = z * z;
+    const float xy = x * y, xz = x * z, yz = y * z;
+    const float wx = w * x, wy = w * y, wz = w * z;
+
+    const GLfloat m[16] = {
+                           (1.0f - 2.0f * (yy + zz)) * s[0], (2.0f * (xy + wz)) * s[0], (2.0f * (xz - wy)) * s[0], 0.0f,
+                           (2.0f * (xy - wz)) * s[1], (1.0f - 2.0f * (xx + zz)) * s[1], (2.0f * (yz + wx)) * s[1], 0.0f,
+                           (2.0f * (xz + wy)) * s[2], (2.0f * (yz - wx)) * s[2], (1.0f - 2.0f * (xx + yy)) * s[2], 0.0f,
+                           p[0], p[1], p[2], 1.0f};
+    glMultMatrixf(m);
+}
+
+// Static, CCW-wound (outward facing) triangle meshes with per-vertex normals
+struct StaticMesh
+{
+    std::vector<float> v;
+    std::vector<float> n;
+    GLenum mode = GL_TRIANGLES;
+
+    void vert(float x, float y, float z, float nx, float ny, float nz)
+    {
+        v.push_back(x); v.push_back(y); v.push_back(z);
+        n.push_back(nx); n.push_back(ny); n.push_back(nz);
+    }
+    void tri(const float* a, const float* b, const float* c, const float* nn)
+    {
+        vert(a[0], a[1], a[2], nn[0], nn[1], nn[2]);
+        vert(b[0], b[1], b[2], nn[0], nn[1], nn[2]);
+        vert(c[0], c[1], c[2], nn[0], nn[1], nn[2]);
+    }
+    void quad(const float* a, const float* b, const float* c, const float* d, const float* nn)
+    {
+        tri(a, b, c, nn);
+        tri(a, c, d, nn);
+    }
+    void draw() const
+    {
+        glVertexPointer(3, GL_FLOAT, 0, v.data());
+        glNormalPointer(GL_FLOAT, 0, n.data());
+        glDrawArrays(mode, 0, GLsizei(v.size() / 3));
+    }
+};
+
+const StaticMesh& quadMesh()
+{
+    static const StaticMesh m = [] {
+        StaticMesh s;
+        const float a[3] = {-0.5f, -0.5f, 0.0f}, b[3] = {0.5f, -0.5f, 0.0f};
+        const float c[3] = {0.5f, 0.5f, 0.0f}, d[3] = {-0.5f, 0.5f, 0.0f};
+        const float nz[3] = {0.0f, 0.0f, 1.0f};
+        s.quad(a, b, c, d, nz);
+        return s;
+    }();
+    return m;
+}
+
+const StaticMesh& discMesh()
+{
+    static const StaticMesh m = [] {
+        StaticMesh s;
+        constexpr int seg = 12;
+        const float nz[3] = {0.0f, 0.0f, 1.0f};
+        const float ctr[3] = {0.0f, 0.0f, 0.0f};
+        for (int j = 0; j < seg; j++)
+        {
+            float a0 = 2.0f * kPi * j / seg, a1 = 2.0f * kPi * (j + 1) / seg;
+            const float p0[3] = {0.5f * cosf(a0), 0.5f * sinf(a0), 0.0f};
+            const float p1[3] = {0.5f * cosf(a1), 0.5f * sinf(a1), 0.0f};
+            s.tri(ctr, p0, p1, nz);
+        }
+        return s;
+    }();
+    return m;
+}
+
+const StaticMesh& cubeMesh()
+{
+    static const StaticMesh m = [] {
+        StaticMesh s;
+        const float P[8][3] = {
+                               {-0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, -0.5f}, {0.5f, 0.5f, -0.5f}, {-0.5f, 0.5f, -0.5f},
+                               {-0.5f, -0.5f, 0.5f}, {0.5f, -0.5f, 0.5f}, {0.5f, 0.5f, 0.5f}, {-0.5f, 0.5f, 0.5f}};
+        const float N[6][3] = {{0, 0, 1}, {0, 0, -1}, {0, 1, 0}, {0, -1, 0}, {1, 0, 0}, {-1, 0, 0}};
+        s.quad(P[4], P[5], P[6], P[7], N[0]); // +z
+        s.quad(P[0], P[3], P[2], P[1], N[1]); // -z
+        s.quad(P[3], P[7], P[6], P[2], N[2]); // +y
+        s.quad(P[0], P[1], P[5], P[4], N[3]); // -y
+        s.quad(P[1], P[2], P[6], P[5], N[4]); // +x
+        s.quad(P[0], P[4], P[7], P[3], N[5]); // -x
+        return s;
+    }();
+    return m;
+}
+
+const StaticMesh& sphereMesh()
+{
+    static const StaticMesh m = [] {
+        StaticMesh s;
+        constexpr int slices = 12, stacks = 12;
+        auto pt = [](float lat, float lng, float* p, float* n) {
+            n[0] = cosf(lat) * cosf(lng);
+            n[1] = cosf(lat) * sinf(lng);
+            n[2] = sinf(lat);
+            p[0] = 0.5f * n[0]; p[1] = 0.5f * n[1]; p[2] = 0.5f * n[2];
+        };
+        for (int k = 0; k < stacks; k++)
+        {
+            float lat0 = kPi * (-0.5f + float(k) / stacks);
+            float lat1 = kPi * (-0.5f + float(k + 1) / stacks);
+            for (int j = 0; j < slices; j++)
+            {
+                float lng0 = 2.0f * kPi * j / slices, lng1 = 2.0f * kPi * (j + 1) / slices;
+                float p00[3], n00[3], p01[3], n01[3], p10[3], n10[3], p11[3], n11[3];
+                pt(lat0, lng0, p00, n00); pt(lat0, lng1, p01, n01);
+                pt(lat1, lng0, p10, n10); pt(lat1, lng1, p11, n11);
+                // two CCW (outward) triangles, smooth normals
+                s.vert(p00[0], p00[1], p00[2], n00[0], n00[1], n00[2]);
+                s.vert(p01[0], p01[1], p01[2], n01[0], n01[1], n01[2]);
+                s.vert(p11[0], p11[1], p11[2], n11[0], n11[1], n11[2]);
+                s.vert(p00[0], p00[1], p00[2], n00[0], n00[1], n00[2]);
+                s.vert(p11[0], p11[1], p11[2], n11[0], n11[1], n11[2]);
+                s.vert(p10[0], p10[1], p10[2], n10[0], n10[1], n10[2]);
+            }
+        }
+        return s;
+    }();
+    return m;
+}
+
+// Closed unit cylinder: radius 0.5, z in [-0.5,0.5]. Also used for tubes.
+const StaticMesh& cylinderMesh()
+{
+    static const StaticMesh m = [] {
+        StaticMesh s;
+        constexpr int slices = 16;
+        const float up[3] = {0, 0, 1}, dn[3] = {0, 0, -1};
+        const float ct[3] = {0, 0, 0.5f}, cb[3] = {0, 0, -0.5f};
+        for (int j = 0; j < slices; j++)
+        {
+            float a0 = 2.0f * kPi * j / slices, a1 = 2.0f * kPi * (j + 1) / slices;
+            float c0 = cosf(a0), s0 = sinf(a0), c1 = cosf(a1), s1 = sinf(a1);
+            const float b0[3] = {0.5f * c0, 0.5f * s0, -0.5f}, b1[3] = {0.5f * c1, 0.5f * s1, -0.5f};
+            const float t0[3] = {0.5f * c0, 0.5f * s0, 0.5f}, t1[3] = {0.5f * c1, 0.5f * s1, 0.5f};
+            // side (smooth normals)
+            s.vert(b0[0], b0[1], b0[2], c0, s0, 0); s.vert(b1[0], b1[1], b1[2], c1, s1, 0); s.vert(t1[0], t1[1], t1[2], c1, s1, 0);
+            s.vert(b0[0], b0[1], b0[2], c0, s0, 0); s.vert(t1[0], t1[1], t1[2], c1, s1, 0); s.vert(t0[0], t0[1], t0[2], c0, s0, 0);
+            // caps
+            s.tri(ct, t0, t1, up);
+            s.tri(cb, b1, b0, dn);
+        }
+        return s;
+    }();
+    return m;
+}
+
+// Scratch buffers (rendering is single-threaded); keep capacity between frames
+std::vector<float>& scratchVerts() { static std::vector<float> v; return v; }
+std::vector<float>& scratchNormals() { static std::vector<float> v; return v; }
+
+// Expands indexed triangles into flat (per-face normal) arrays
+void buildFlatTriangles(const float* verts, const int* indices, size_t triCount,
+                        std::vector<float>& outV, std::vector<float>& outN)
+{
+    outV.resize(triCount * 9);
+    outN.resize(triCount * 9);
+    for (size_t t = 0; t < triCount; t++)
+    {
+        const float* v0 = verts + size_t(indices ? indices[3 * t + 0] : int(3 * t + 0)) * 3;
+        const float* v1 = verts + size_t(indices ? indices[3 * t + 1] : int(3 * t + 1)) * 3;
+        const float* v2 = verts + size_t(indices ? indices[3 * t + 2] : int(3 * t + 2)) * 3;
+        float e1[3] = {v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]};
+        float e2[3] = {v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]};
+        float nn[3] = {e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]};
+        float len = sqrtf(nn[0] * nn[0] + nn[1] * nn[1] + nn[2] * nn[2]);
+        if (len > 0.0f) { nn[0] /= len; nn[1] /= len; nn[2] /= len; }
+        else { nn[0] = 0.0f; nn[1] = 0.0f; nn[2] = 1.0f; }
+        float* dv = outV.data() + t * 9;
+        float* dn = outN.data() + t * 9;
+        for (int c = 0; c < 3; c++)
+        {
+            dv[c] = v0[c]; dv[3 + c] = v1[c]; dv[6 + c] = v2[c];
+            dn[c] = nn[c]; dn[3 + c] = nn[c]; dn[6 + c] = nn[c];
+        }
+    }
+}
+} // namespace
+
+// ---------------------------------------------------------------------------
+
 void CMarker::_drawPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
 {
+    const size_t cnt = _pts.size() / 3;
+    if (cnt == 0)
+        return;
     glPointSize(2.0f);
-    ogl::buffer.clear();
-    std::vector<float> glCols;
-    for (size_t i = 0; i < _pts.size() / 3; i++)
+    beginColorMaterial(displayAttrib);
+    glNormal3dv(normalVectorForLinesAndPoints);
+    glVertexPointer(3, GL_FLOAT, 0, _pts.data());
+    if (!colorCoded(displayAttrib))
     {
-        glCols.push_back(float(_rgba[i * 4 + 0]) / 255.0);
-        glCols.push_back(float(_rgba[i * 4 + 1]) / 255.0);
-        glCols.push_back(float(_rgba[i * 4 + 2]) / 255.0);
-        glCols.push_back(float(_rgba[i * 4 + 3]) / 255.0);
-        ogl::addBuffer3DPoints(_pts[i * 3 + 0], _pts[i * 3 + 1], _pts[i * 3 + 2]);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glColorPointer(4, GL_UNSIGNED_BYTE, 0, _rgba.data()); // alpha included
     }
-    if (ogl::buffer.size() != 0)
-    {
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            ogl::drawRandom3dPointsEx(&ogl::buffer[0], (int)ogl::buffer.size() / 3, nullptr, &glCols[0], nullptr, false, normalVectorForLinesAndPoints);
-        else
-            ogl::drawRandom3dPointsEx(&ogl::buffer[0], (int)ogl::buffer.size() / 3, nullptr, nullptr, nullptr, false, normalVectorForLinesAndPoints);
-    }
-    ogl::buffer.clear();
-    glPointSize(1.0f);
+    glDrawArrays(GL_POINTS, 0, GLsizei(cnt));
+    glDisableClientState(GL_COLOR_ARRAY);
 }
 
 void CMarker::_drawLines(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
 {
+    const size_t cnt = (_pts.size() / 6) * 2; // vertices
+    if (cnt == 0)
+        return;
     glLineWidth(1.0f);
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+    beginColorMaterial(displayAttrib);
+    glNormal3dv(normalVectorForLinesAndPoints);
+    glVertexPointer(3, GL_FLOAT, 0, _pts.data());
+    if (!colorCoded(displayAttrib))
     {
-        glEnable(GL_COLOR_MATERIAL);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-        glColor3f(0.0, 0.0, 0.0);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glColorPointer(4, GL_UNSIGNED_BYTE, 0, _rgba.data());
     }
-    for (size_t i = 0; i < _pts.size() / 6; i++)
-    {
-        glBegin(GL_LINES);
-        glNormal3dv(normalVectorForLinesAndPoints);
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            glColor4ubv((GLubyte*)_rgba.data() + i * 8 + 0);
-        glVertex3fv(_pts.data() + i * 6 + 0);
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            glColor4ubv((GLubyte*)_rgba.data() + i * 8 + 4);
-        glVertex3fv(_pts.data() + i * 6 + 3);
-        glEnd();
-    }
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        glDisable(GL_COLOR_MATERIAL);
+    glDrawArrays(GL_LINES, 0, GLsizei(cnt));
+    glDisableClientState(GL_COLOR_ARRAY);
 }
 
-void CMarker::_drawTriangles(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
+void CMarker::_drawTriangles(int displayAttrib, const double /*normalVectorForLinesAndPoints*/[3]) const
 {
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+    // User triangles must be CCW (front faces are culled otherwise)
+    const size_t triCount = _pts.size() / 9;
+    if (triCount == 0)
+        return;
+    beginColorMaterial(displayAttrib);
+    std::vector<float>& V = scratchVerts();
+    std::vector<float>& N = scratchNormals();
+    buildFlatTriangles(_pts.data(), nullptr, triCount, V, N);
+    glVertexPointer(3, GL_FLOAT, 0, V.data());
+    glNormalPointer(GL_FLOAT, 0, N.data());
+    if (!colorCoded(displayAttrib))
     {
-        glEnable(GL_COLOR_MATERIAL);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-        glColor3f(0.0, 0.0, 0.0);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glColorPointer(4, GL_UNSIGNED_BYTE, 0, _rgba.data());
     }
-    for (size_t i = 0; i < _pts.size() / 9; i++)
-    {
-        const float* v0 = _pts.data() + i * 9 + 0;
-        const float* v1 = _pts.data() + i * 9 + 3;
-        const float* v2 = _pts.data() + i * 9 + 6;
-
-        float edge1[3] = {v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]};
-        float edge2[3] = {v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]};
-
-        float normal[3] =
-        {
-            edge1[1] * edge2[2] - edge1[2] * edge2[1],
-            edge1[2] * edge2[0] - edge1[0] * edge2[2],
-            edge1[0] * edge2[1] - edge1[1] * edge2[0]
-        };
-
-        float len = sqrtf(normal[0]*normal[0] + normal[1]*normal[1] + normal[2]*normal[2]);
-        if (len > 0.0f)
-        {
-            normal[0] /= len;
-            normal[1] /= len;
-            normal[2] /= len;
-        }
-
-        glBegin(GL_TRIANGLES);
-        glNormal3fv(normal);
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            glColor4ubv((GLubyte*)_rgba.data() + i * 12 + 0);
-        glVertex3fv(v0);
-        glNormal3fv(normal);
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            glColor4ubv((GLubyte*)_rgba.data() + i * 12 + 4);
-        glVertex3fv(v1);
-        glNormal3fv(normal);
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            glColor4ubv((GLubyte*)_rgba.data() + i * 12 + 8);
-        glVertex3fv(v2);
-        glEnd();
-    }
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        glDisable(GL_COLOR_MATERIAL);
+    glDrawArrays(GL_TRIANGLES, 0, GLsizei(triCount * 3));
+    glDisableClientState(GL_COLOR_ARRAY);
 }
 
-void CMarker::_drawQuadPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
+// Shared instancing loop for all "one mesh per point" item types
+namespace
 {
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-    {
-        glEnable(GL_COLOR_MATERIAL);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-        glColor3f(0.0, 0.0, 0.0);
-    }
-    for (size_t i = 0; i < _pts.size() / 3; i++)
+void drawInstancedMesh(const StaticMesh& mesh, int displayAttrib,
+                       const std::vector<float>& pts, const std::vector<float>& quats,
+                       const std::vector<float>& sizes, const std::vector<unsigned char>& rgba)
+{
+    const size_t cnt = pts.size() / 3;
+    if (cnt == 0)
+        return;
+    beginColorMaterial(displayAttrib);
+    glVertexPointer(3, GL_FLOAT, 0, mesh.v.data());
+    glNormalPointer(GL_FLOAT, 0, mesh.n.data());
+    const GLsizei nVerts = GLsizei(mesh.v.size() / 3);
+    for (size_t i = 0; i < cnt; i++)
     {
         glPushMatrix();
-        glTranslatef(_pts[3 * i + 0], _pts[3 * i + 1], _pts[3 * i + 2]);
-        const float* q = _quats.data() + 4 * i;
-        float angle = 2.0f * acosf(q[3]);
-        float s_inv = 1.0f / sqrtf(q[0]*q[0]+q[1]*q[1]+q[2]*q[2]);
-        if (s_inv != INFINITY && angle != 0.0f)
-        {
-            float ax = q[0] * s_inv;
-            float ay = q[1] * s_inv;
-            float az = q[2] * s_inv;
-            glRotatef(angle * 180.0f / piValue, ax, ay, az);
-        }
-        glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
-
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            glColor4ubv((GLubyte*)_rgba.data() + i * 4 + 0);
-
-        glBegin(GL_QUADS);
-        glNormal3f(0.0f, 0.0f, 1.0f);
-        glVertex3f(-0.5f, -0.5f, 0.0f);
-        glVertex3f(0.5f, -0.5f, 0.0f);
-        glVertex3f(0.5f, 0.5f, 0.0f);
-        glVertex3f(-0.5f, 0.5f, 0.0f);
-        glEnd();
+        multItemMatrix(pts.data() + 3 * i, quats.data() + 4 * i, sizes.data() + 3 * i);
+        setItemColor(displayAttrib, rgba.data() + 4 * i);
+        glDrawArrays(mesh.mode, 0, nVerts);
         glPopMatrix();
     }
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        glDisable(GL_COLOR_MATERIAL);
+}
+} // namespace
+
+void CMarker::_drawQuadPoints(int displayAttrib, const double[3]) const
+{
+    drawInstancedMesh(quadMesh(), displayAttrib, _pts, _quats, _sizes, _rgba);
 }
 
-void CMarker::_drawDiscPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
+void CMarker::_drawDiscPoints(int displayAttrib, const double[3]) const
 {
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-    {
-        glEnable(GL_COLOR_MATERIAL);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-        glColor3f(0.0, 0.0, 0.0);
-    }
-    for (size_t i = 0; i < _pts.size() / 3; i++)
-    {
-        glPushMatrix();
-        glTranslatef(_pts[3 * i + 0], _pts[3 * i + 1], _pts[3 * i + 2]);
-        const float* q = _quats.data() + 4 * i;
-        float angle = 2.0f * acosf(q[3]);
-        float s_inv = 1.0f / sqrtf(q[0]*q[0]+q[1]*q[1]+q[2]*q[2]);
-        if (s_inv != INFINITY && angle != 0.0f)
-        {
-            float ax = q[0] * s_inv;
-            float ay = q[1] * s_inv;
-            float az = q[2] * s_inv;
-            glRotatef(angle * 180.0f / piValue, ax, ay, az);
-        }
-        glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
-
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            glColor4ubv((GLubyte*)_rgba.data() + i * 4 + 0);
-
-        glBegin(GL_TRIANGLE_FAN); // GL_POLYGON is problematic on certain graphic cards!
-        glNormal3f(0.0f, 0.0f, 1.0f);
-        glVertex3f(0.0f, 0.0f, 0.0f);
-        glVertex3f(0.5f, 0.0f, 0.0f);
-        glVertex3f(0.433f, 0.25f, 0.0f);
-        glVertex3f(0.25f, 0.433f, 0.0f);
-        glVertex3f(0.0f, 0.5f, 0.0f);
-        glVertex3f(-0.25f, 0.433f, 0.0f);
-        glVertex3f(-0.433f, 0.25f, 0.0f);
-        glVertex3f(-0.5f, 0.0f, 0.0f);
-        glVertex3f(-0.433f, -0.25f, 0.0f);
-        glVertex3f(-0.25f, -0.433f, 0.0f);
-        glVertex3f(0.0f, -0.5f, 0.0f);
-        glVertex3f(0.25f, -0.433f, 0.0f);
-        glVertex3f(0.433f, -0.25f, 0.0f);
-        glVertex3f(0.5f, 0.0f, 0.0f);
-        glEnd();
-        glPopMatrix();
-    }
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        glDisable(GL_COLOR_MATERIAL);
+    drawInstancedMesh(discMesh(), displayAttrib, _pts, _quats, _sizes, _rgba);
 }
 
-void CMarker::_drawCubePoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
+void CMarker::_drawCubePoints(int displayAttrib, const double[3]) const
 {
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-    {
-        glEnable(GL_COLOR_MATERIAL);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-        glColor3f(0.0, 0.0, 0.0);
-    }
-    for (size_t i = 0; i < _pts.size() / 3; i++)
-    {
-        glPushMatrix();
-        glTranslatef(_pts[3 * i + 0], _pts[3 * i + 1], _pts[3 * i + 2]);
-        const float* q = _quats.data() + 4 * i;
-        float angle = 2.0f * acosf(q[3]);
-        float s_inv = 1.0f / sqrtf(q[0]*q[0]+q[1]*q[1]+q[2]*q[2]);
-        if (s_inv != INFINITY && angle != 0.0f)
-        {
-            float ax = q[0] * s_inv;
-            float ay = q[1] * s_inv;
-            float az = q[2] * s_inv;
-            glRotatef(angle * 180.0f / piValue, ax, ay, az);
-        }
-        glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
+    drawInstancedMesh(cubeMesh(), displayAttrib, _pts, _quats, _sizes, _rgba);
+}
 
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            glColor4ubv((GLubyte*)_rgba.data() + i * 4 + 0);
+void CMarker::_drawSpherePoints(int displayAttrib, const double[3]) const
+{
+    drawInstancedMesh(sphereMesh(), displayAttrib, _pts, _quats, _sizes, _rgba);
+}
 
-        glBegin(GL_QUADS);
-        glNormal3f(0.0f, 0.0f, 1.0f);
-        glVertex3f(-0.5f, -0.5f, 0.5f);
-        glVertex3f( 0.5f, -0.5f, 0.5f);
-        glVertex3f( 0.5f,  0.5f, 0.5f);
-        glVertex3f(-0.5f,  0.5f, 0.5f);
-        glNormal3f(0.0f, 0.0f, -1.0f);
-        glVertex3f(-0.5f, -0.5f, -0.5f);
-        glVertex3f(-0.5f,  0.5f, -0.5f);
-        glVertex3f( 0.5f,  0.5f, -0.5f);
-        glVertex3f( 0.5f, -0.5f, -0.5f);
-        glNormal3f(0.0f, 1.0f, 0.0f);
-        glVertex3f(-0.5f, 0.5f, -0.5f);
-        glVertex3f(-0.5f, 0.5f,  0.5f);
-        glVertex3f( 0.5f, 0.5f,  0.5f);
-        glVertex3f( 0.5f, 0.5f, -0.5f);
-        glNormal3f(0.0f, -1.0f, 0.0f);
-        glVertex3f(-0.5f, -0.5f, -0.5f);
-        glVertex3f( 0.5f, -0.5f, -0.5f);
-        glVertex3f( 0.5f, -0.5f,  0.5f);
-        glVertex3f(-0.5f, -0.5f,  0.5f);
-        glNormal3f(1.0f, 0.0f, 0.0f);
-        glVertex3f(0.5f, -0.5f, -0.5f);
-        glVertex3f(0.5f,  0.5f, -0.5f);
-        glVertex3f(0.5f,  0.5f,  0.5f);
-        glVertex3f(0.5f, -0.5f,  0.5f);
-        glNormal3f(-1.0f, 0.0f, 0.0f);
-        glVertex3f(-0.5f, -0.5f, -0.5f);
-        glVertex3f(-0.5f, -0.5f,  0.5f);
-        glVertex3f(-0.5f,  0.5f,  0.5f);
-        glVertex3f(-0.5f,  0.5f, -0.5f);
-        glEnd();
-        glPopMatrix();
-    }
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        glDisable(GL_COLOR_MATERIAL);
+void CMarker::_drawCylinderPoints(int displayAttrib, const double[3]) const
+{
+    drawInstancedMesh(cylinderMesh(), displayAttrib, _pts, _quats, _sizes, _rgba);
 }
 
 void CMarker::_drawAxesPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
 {
+    const size_t cnt = _pts.size() / 3;
+    if (cnt == 0)
+        return;
+    static const GLfloat axesVerts[18] = {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1};
     glLineWidth(1.0f);
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-    {
-        glEnable(GL_COLOR_MATERIAL);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-        glColor3f(0.0, 0.0, 0.0);
-    }
-    GLboolean lightingEnabled = glIsEnabled(GL_LIGHTING);
-    glDisable(GL_LIGHTING);
-    for (size_t i = 0; i < _pts.size() / 3; i++)
+    glDisable(GL_LIGHTING); // restored by glPopAttrib in drawItems
+    glNormal3dv(normalVectorForLinesAndPoints);
+    glVertexPointer(3, GL_FLOAT, 0, axesVerts);
+    const bool cc = colorCoded(displayAttrib);
+    GLubyte cols[18];
+    for (size_t i = 0; i < cnt; i++)
     {
         glPushMatrix();
-        glTranslatef(_pts[3 * i + 0], _pts[3 * i + 1], _pts[3 * i + 2]);
-        const float* q = _quats.data() + 4 * i;
-        float angle = 2.0f * acosf(q[3]);
-        float s_inv = 1.0f / sqrtf(q[0]*q[0]+q[1]*q[1]+q[2]*q[2]);
-        if (s_inv != INFINITY && angle != 0.0f)
+        multItemMatrix(_pts.data() + 3 * i, _quats.data() + 4 * i, _sizes.data() + 3 * i);
+        if (!cc)
         {
-            float ax = q[0] * s_inv;
-            float ay = q[1] * s_inv;
-            float az = q[2] * s_inv;
-            glRotatef(angle * 180.0f / piValue, ax, ay, az);
+            // keep the item's alpha so axes can be translucent too
+            const GLubyte a = (_rgba.size() >= 4 * (i + 1)) ? _rgba[4 * i + 3] : 255;
+            const GLubyte c[6][4] = {{255, 0, 0, a}, {255, 0, 0, a}, {0, 255, 0, a}, {0, 255, 0, a}, {0, 0, 255, a}, {0, 0, 255, a}};
+            // glColorPointer needs 4 bytes per vertex:
+            static GLubyte colBuf[24];
+            for (int k = 0; k < 6; k++)
+                for (int j = 0; j < 4; j++)
+                    colBuf[4 * k + j] = c[k][j];
+            glEnableClientState(GL_COLOR_ARRAY);
+            glColorPointer(4, GL_UNSIGNED_BYTE, 0, colBuf);
         }
-        glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
-
-        glBegin(GL_LINES);
-        glNormal3dv(normalVectorForLinesAndPoints);
-
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            glColor3ub(255, 0, 0);
-        glVertex3f(0.0, 0.0, 0.0);
-        glVertex3f(1.0, 0.0, 0.0);
-
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            glColor3ub(0, 255, 0);
-        glVertex3f(0.0, 0.0, 0.0);
-        glVertex3f(0.0, 1.0, 0.0);
-
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            glColor3ub(0, 0, 255);
-        glVertex3f(0.0, 0.0, 0.0);
-        glVertex3f(0.0, 0.0, 1.0);
-
-        glEnd();
-
+        glDrawArrays(GL_LINES, 0, 6);
         glPopMatrix();
     }
-    if (lightingEnabled)
-        glEnable(GL_LIGHTING);
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        glDisable(GL_COLOR_MATERIAL);
+    (void)cols;
+    glDisableClientState(GL_COLOR_ARRAY);
 }
 
-void CMarker::_drawSpherePoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
+void CMarker::_drawTubeLines(int displayAttrib, const double[3]) const
 {
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+    const size_t cnt = _pts.size() / 6;
+    if (cnt == 0 || _sizes.empty())
+        return;
+    beginColorMaterial(displayAttrib);
+    const StaticMesh& mesh = cylinderMesh(); // closed, CCW, radius 0.5, z in [-0.5,0.5]
+    glVertexPointer(3, GL_FLOAT, 0, mesh.v.data());
+    glNormalPointer(GL_FLOAT, 0, mesh.n.data());
+    const GLsizei nVerts = GLsizei(mesh.v.size() / 3);
+    const float d = _sizes[0]; // diameter
+
+    for (size_t i = 0; i < cnt; i++)
     {
-        glEnable(GL_COLOR_MATERIAL);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-        glColor3f(0.0, 0.0, 0.0);
-    }
-    for (size_t i = 0; i < _pts.size() / 3; i++)
-    {
-        glPushMatrix();
-        glTranslatef(_pts[3 * i + 0], _pts[3 * i + 1], _pts[3 * i + 2]);
-        const float* q = _quats.data() + 4 * i;
-        float angle = 2.0f * acosf(q[3]);
-        float s_inv = 1.0f / sqrtf(q[0]*q[0]+q[1]*q[1]+q[2]*q[2]);
-        if (s_inv != INFINITY && angle != 0.0f)
-        {
-            float ax = q[0] * s_inv;
-            float ay = q[1] * s_inv;
-            float az = q[2] * s_inv;
-            glRotatef(angle * 180.0f / piValue, ax, ay, az);
-        }
-        glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
-
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            glColor4ubv((GLubyte*)_rgba.data() + i * 4 + 0);
-
-        int slices = 12;  // Longitude divisions
-        int stacks = 12;  // Latitude divisions
-        for (int k = 0; k < stacks; k++)
-        {
-            float lat0 = piValue * (-0.5f + (float)k / stacks);
-            float z0 = 0.5f * sinf(lat0);
-            float r0 = 0.5f * cosf(lat0);
-
-            float lat1 = piValue * (-0.5f + (float)(k + 1) / stacks);
-            float z1 = 0.5f * sinf(lat1);
-            float r1 = 0.5f * cosf(lat1);
-
-            glBegin(GL_QUAD_STRIP);
-            for (int j = 0; j <= slices; j++)
-            {
-                float lng = 2.0f * piValue * (float)j / slices;
-                float x = cosf(lng);
-                float y = sinf(lng);
-
-                // Normal and vertex for upper latitude
-                glNormal3f(x * r1 / 0.5f, y * r1 / 0.5f, z1 / 0.5f);
-                glVertex3f(x * r1, y * r1, z1);
-
-                // Normal and vertex for lower latitude
-                glNormal3f(x * r0 / 0.5f, y * r0 / 0.5f, z0 / 0.5f);
-                glVertex3f(x * r0, y * r0, z0);
-            }
-            glEnd();
-        }
-        glPopMatrix();
-    }
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        glDisable(GL_COLOR_MATERIAL);
-}
-
-void CMarker::_drawCylinderPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
-{
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-    {
-        glEnable(GL_COLOR_MATERIAL);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-        glColor3f(0.0, 0.0, 0.0);
-    }
-    for (size_t i = 0; i < _pts.size() / 3; i++)
-    {
-        glPushMatrix();
-        glTranslatef(_pts[3 * i + 0], _pts[3 * i + 1], _pts[3 * i + 2]);
-        const float* q = _quats.data() + 4 * i;
-        float angle = 2.0f * acosf(q[3]);
-        float s_inv = 1.0f / sqrtf(q[0]*q[0]+q[1]*q[1]+q[2]*q[2]);
-        if (s_inv != INFINITY && angle != 0.0f)
-        {
-            float ax = q[0] * s_inv;
-            float ay = q[1] * s_inv;
-            float az = q[2] * s_inv;
-            glRotatef(angle * 180.0f / piValue, ax, ay, az);
-        }
-        glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
-
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            glColor4ubv((GLubyte*)_rgba.data() + i * 4 + 0);
-
-        int slices = 16;
-
-        glBegin(GL_QUAD_STRIP);
-        for (int i = 0; i <= slices; i++)
-        {
-            float angle = 2.0f * piValue * (float)i / slices;
-            float x = 0.5f * cosf(angle);
-            float y = 0.5f * sinf(angle);
-            glNormal3f(x / 0.5f, y / 0.5f, 0.0f);
-            glVertex3f(x, y, 0.5f);
-            glVertex3f(x, y, -0.5f);
-        }
-        glEnd();
-
-        glBegin(GL_TRIANGLE_FAN);
-        glNormal3f(0.0f, 0.0f, 1.0f);
-        glVertex3f(0.0f, 0.0f, 0.5f);  // Center
-        for (int i = 0; i <= slices; i++)
-        {
-            float angle = 2.0f * piValue * (float)i / slices;
-            float x = 0.5f * cosf(angle);
-            float y = 0.5f * sinf(angle);
-            glVertex3f(x, y, 0.5f);
-        }
-        glEnd();
-
-        glBegin(GL_TRIANGLE_FAN);
-        glNormal3f(0.0f, 0.0f, -1.0f);
-        glVertex3f(0.0f, 0.0f, -0.5f);
-        for (int i = slices; i >= 0; i--)
-        {
-            float angle = 2.0f * piValue * (float)i / slices;
-            float x = 0.5f * cosf(angle);
-            float y = 0.5f * sinf(angle);
-            glVertex3f(x, y, -0.5f);
-        }
-        glEnd();
-        glPopMatrix();
-    }
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        glDisable(GL_COLOR_MATERIAL);
-}
-
-void CMarker::_drawTubeLines(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
-{
-    constexpr int SIDES = 8;
-    constexpr int VERTS = (SIDES + 1) * 2;
-
-    static float v[VERTS][3];
-    static float n[VERTS][3];
-    static bool init = false;
-
-    if (!init)
-    {
-        init = true;
-
-        for (int i = 0; i <= SIDES; i++)
-        {
-            float a = float(2.0 * piValue * i / SIDES);
-            float ca = cosf(a), sa = sinf(a);
-
-                   // unit circle (radius = 0.5 base)
-            float x = ca * 0.5f;
-            float y = sa * 0.5f;
-
-                   // bottom ring
-            v[i * 2 + 0][0] = x;
-            v[i * 2 + 0][1] = y;
-            v[i * 2 + 0][2] = 0.0f;
-
-                   // top ring
-            v[i * 2 + 1][0] = x;
-            v[i * 2 + 1][1] = y;
-            v[i * 2 + 1][2] = 1.0f;
-
-                   // approximate normals for unit cylinder (will still look OK for frustum)
-            n[i * 2 + 0][0] = n[i * 2 + 1][0] = ca;
-            n[i * 2 + 0][1] = n[i * 2 + 1][1] = sa;
-            n[i * 2 + 0][2] = n[i * 2 + 1][2] = 0.0f;
-        }
-    }
-
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-    {
-        glEnable(GL_COLOR_MATERIAL);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-        glColor3f(0.0, 0.0, 0.0);
-    }
-
-    for (size_t i = 0; i < _pts.size() / 6; i++)
-    {
-        const float* p0 = _pts.data() + i * 6 + 0;
-        const float* p1 = _pts.data() + i * 6 + 3;
-
-        float dir[3] =
-            {
-                p1[0] - p0[0],
-                p1[1] - p0[1],
-                p1[2] - p0[2]
-            };
-
-        float len = sqrtf(dir[0]*dir[0] +
-                          dir[1]*dir[1] +
-                          dir[2]*dir[2]);
-
+        const float* p0 = _pts.data() + i * 6;
+        const float* p1 = p0 + 3;
+        float z[3] = {p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]};
+        float len = sqrtf(z[0] * z[0] + z[1] * z[1] + z[2] * z[2]);
         if (len < 1e-6f)
             continue;
+        z[0] /= len; z[1] /= len; z[2] /= len;
 
-        dir[0] /= len;
-        dir[1] /= len;
-        dir[2] /= len;
+               // orthonormal basis with z = tube axis (no acos)
+        float x[3];
+        if (fabsf(z[2]) < 0.9f) { x[0] = -z[1]; x[1] = z[0]; x[2] = 0.0f; }
+        else                    { x[0] = 1.0f;  x[1] = 0.0f; x[2] = 0.0f; }
+        // x = normalize(x - (x.z) z)
+        float dot = x[0] * z[0] + x[1] * z[1] + x[2] * z[2];
+        x[0] -= dot * z[0]; x[1] -= dot * z[1]; x[2] -= dot * z[2];
+        float xl = sqrtf(x[0] * x[0] + x[1] * x[1] + x[2] * x[2]);
+        x[0] /= xl; x[1] /= xl; x[2] /= xl;
+        const float y[3] = {z[1] * x[2] - z[2] * x[1], z[2] * x[0] - z[0] * x[2], z[0] * x[1] - z[1] * x[0]};
 
-        float ax[3] = {-dir[1], dir[0], 0.0f};
-        float axLen = sqrtf(ax[0]*ax[0] + ax[1]*ax[1] + ax[2]*ax[2]);
-
-        float angle = 0.0f;
-
-        if (axLen > 1e-6f)
-        {
-            ax[0] /= axLen;
-            ax[1] /= axLen;
-            ax[2] /= axLen;
-
-            float c = fmaxf(-1.0f, fminf(1.0f, dir[2]));
-            angle = acosf(c) * 57.2957795f;
-        }
-        else if (dir[2] < 0.0f)
-        {
-            ax[0] = 1.0f;
-            ax[1] = 0.0f;
-            ax[2] = 0.0f;
-            angle = 180.0f;
-        }
-        float r = _sizes[0] * 0.5;
-
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            glColor4ubv((GLubyte*)_rgba.data() + i * 8);
+        const GLfloat m[16] = {
+                               x[0] * d, x[1] * d, x[2] * d, 0.0f,
+                               y[0] * d, y[1] * d, y[2] * d, 0.0f,
+                               z[0] * len, z[1] * len, z[2] * len, 0.0f,
+                               p0[0] + 0.5f * z[0] * len, p0[1] + 0.5f * z[1] * len, p0[2] + 0.5f * z[2] * len, 1.0f};
 
         glPushMatrix();
-        glTranslatef(p0[0], p0[1], p0[2]);
-
-        if (angle != 0.0f)
-            glRotatef(angle, ax[0], ax[1], ax[2]);
-
-        glBegin(GL_TRIANGLE_STRIP);
-
-        for (int j = 0; j < VERTS; j += 2)
-        {
-            float ca = n[j][0];
-            float sa = n[j][1];
-
-            float nx = ca;
-            float ny = sa;
-
-            glNormal3f(nx, ny, 0.0f);
-
-            glVertex3f(v[j][0] * (r / 0.5f),
-                       v[j][1] * (r / 0.5f),
-                       v[j][2] * len);
-
-            glVertex3f(v[j + 1][0] * (r / 0.5f),
-                       v[j + 1][1] * (r / 0.5f),
-                       v[j + 1][2] * len);
-        }
-
-        glEnd();
+        glMultMatrixf(m);
+        setItemColor(displayAttrib, _rgba.data() + i * 8);
+        glDrawArrays(mesh.mode, 0, nVerts);
         glPopMatrix();
     }
-
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        glDisable(GL_COLOR_MATERIAL);
 }
 
-void CMarker::_drawCustomPoints(int displayAttrib, const double normalVectorForLinesAndPoints[3]) const
-{ // we ignore the normals. Those display routines are anyways just temp.
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+namespace
+{
+// De-indexes triangle positions only (normals are supplied per corner elsewhere)
+void expandTrianglePositions(const float* verts, const int* indices, size_t triCount, std::vector<float>& outV)
+{
+    outV.resize(triCount * 9);
+    float* dv = outV.data();
+    for (size_t k = 0; k < triCount * 3; k++, dv += 3)
     {
-        glEnable(GL_COLOR_MATERIAL);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SPECULAR);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_EMISSION);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
-        glColor3f(0.0, 0.0, 0.0);
-        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-        glColor3f(0.0, 0.0, 0.0);
+        const float* v = verts + size_t(indices[k]) * 3;
+        dv[0] = v[0];
+        dv[1] = v[1];
+        dv[2] = v[2];
     }
-    for (size_t i = 0; i < _pts.size() / 3; i++)
+}
+} // namespace
+
+void CMarker::_drawCustomPoints(int displayAttrib, const double[3]) const
+{ // custom mesh must be CCW wound (culled rendering)
+    const size_t cnt = _pts.size() / 3;
+    const size_t triCount = _indices.size() / 3;
+    if (cnt == 0 || triCount == 0)
+        return;
+    beginColorMaterial(displayAttrib);
+
+    std::vector<float>& V = scratchVerts();
+    const float* normals = nullptr;
+
+    if (_normals.size() == triCount * 9)
+    {
+        // One normal per triangle corner, already in de-indexed order: bind directly
+        expandTrianglePositions(_vertices.data(), _indices.data(), triCount, V);
+        normals = _normals.data();
+    }
+    else
+    {
+        // Fallback: flat per-face normals computed once per call
+        std::vector<float>& N = scratchNormals();
+        buildFlatTriangles(_vertices.data(), _indices.data(), triCount, V, N);
+        normals = N.data();
+    }
+
+    glVertexPointer(3, GL_FLOAT, 0, V.data());
+    glNormalPointer(GL_FLOAT, 0, normals);
+
+    for (size_t i = 0; i < cnt; i++)
     {
         glPushMatrix();
-        glTranslatef(_pts[3 * i + 0], _pts[3 * i + 1], _pts[3 * i + 2]);
-        const float* q = _quats.data() + 4 * i;
-        float angle = 2.0f * acosf(q[3]);
-        float s_inv = 1.0f / sqrtf(q[0]*q[0]+q[1]*q[1]+q[2]*q[2]);
-        if (s_inv != INFINITY && angle != 0.0f)
-        {
-            float ax = q[0] * s_inv;
-            float ay = q[1] * s_inv;
-            float az = q[2] * s_inv;
-            glRotatef(angle * 180.0f / piValue, ax, ay, az);
-        }
-        glScalef(_sizes[3 * i + 0], _sizes[3 * i + 1], _sizes[3 * i + 2]);
-
-        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-            glColor4ubv((GLubyte*)_rgba.data() + i * 4 + 0);
-
-        for (size_t i = 0; i < _indices.size() / 3; i++)
-        {
-            int ind[3] = {_indices[3 * i + 0], _indices[3 * i + 1], _indices[3 * i + 2]};
-            const float* v0 = _vertices.data() + ind[0] * 3;
-            const float* v1 = _vertices.data() + ind[1] * 3;
-            const float* v2 = _vertices.data() + ind[2] * 3;
-
-            float edge1[3] = {v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]};
-            float edge2[3] = {v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]};
-
-            float normal[3] =
-                {
-                    edge1[1] * edge2[2] - edge1[2] * edge2[1],
-                    edge1[2] * edge2[0] - edge1[0] * edge2[2],
-                    edge1[0] * edge2[1] - edge1[1] * edge2[0]
-                };
-
-            float len = sqrtf(normal[0]*normal[0] + normal[1]*normal[1] + normal[2]*normal[2]);
-            if (len > 0.0f)
-            {
-                normal[0] /= len;
-                normal[1] /= len;
-                normal[2] /= len;
-            }
-
-            glBegin(GL_TRIANGLES);
-            glNormal3fv(normal);
-            glVertex3fv(v0);
-            glNormal3fv(normal);
-            glVertex3fv(v1);
-            glNormal3fv(normal);
-            glVertex3fv(v2);
-            glEnd();
-        }
+        multItemMatrix(_pts.data() + 3 * i, _quats.data() + 4 * i, _sizes.data() + 3 * i);
+        setItemColor(displayAttrib, _rgba.data() + 4 * i);
+        glDrawArrays(GL_TRIANGLES, 0, GLsizei(triCount * 3));
         glPopMatrix();
     }
-    if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
-        glDisable(GL_COLOR_MATERIAL);
 }
 
 void CMarker::drawItems(int displayAttrib, const double normalVectorForLinesAndPoints[3], bool overlay) const
 {
-    if (_itemOptions & sim_markeropts_overlay)
+    const bool isOverlay = (_itemOptions & sim_markeropts_overlay) != 0;
+    if (isOverlay != overlay)
+        return;
+
+    const bool cc = colorCoded(displayAttrib);
+    const bool depthPass = (displayAttrib & sim_displayattribute_depthpass) != 0;
+
+           // Any translucent item? (cheap scan; not relevant for picking/depth passes)
+    bool transparent = false;
+    if (!cc && !depthPass)
     {
-        if (!overlay)
-            return;
-    }
-    else
-    {
-        if (overlay)
-            return;
+        for (size_t i = 3; i < _rgba.size(); i += 4)
+        {
+            if (_rgba[i] < 255)
+            {
+                transparent = true;
+                break;
+            }
+        }
     }
 
     glPushMatrix();
-    glPushAttrib(GL_POLYGON_BIT);
+    glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
+                 GL_LIGHTING_BIT | GL_LINE_BIT | GL_POINT_BIT | GL_CURRENT_BIT);
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 
-    if ((displayAttrib & sim_displayattribute_colorcoded) != 0)
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY); // harmless for points/lines (overridden by glNormal* where no pointer set)
+
+    if (cc)
     {
-        ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack); // probably not needed
+        ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack);
         glColor3ub(_objectHandle & 255, (_objectHandle >> 8) & 255, (_objectHandle >> 16) & 255);
         glLoadName(-1);
     }
 
-    bool wire = ( (displayAttrib & sim_displayattribute_forcewireframe) && ((displayAttrib & sim_displayattribute_depthpass) == 0));
+    bool wire = ((displayAttrib & sim_displayattribute_forcewireframe) != 0) && !depthPass;
     if (displayAttrib & sim_displayattribute_forbidwireframe)
         wire = false;
     if (wire)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    if (_itemOptions & sim_markeropts_overlay)
+    if (isOverlay)
         glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glEnable(GL_NORMALIZE);
-    if (_itemType == sim_markertype_points)
-        _drawPoints(displayAttrib, normalVectorForLinesAndPoints);
-    else if (_itemType == sim_markertype_lines)
-        _drawLines(displayAttrib, normalVectorForLinesAndPoints);
-    else if (_itemType == sim_markertype_tubes)
-        _drawTubeLines(displayAttrib, normalVectorForLinesAndPoints);
-    else if (_itemType == sim_markertype_triangles)
-        _drawTriangles(displayAttrib, normalVectorForLinesAndPoints);
-    else if (_itemType == sim_markertype_squares)
-        _drawQuadPoints(displayAttrib, normalVectorForLinesAndPoints);
-    else if (_itemType == sim_markertype_discs)
-        _drawDiscPoints(displayAttrib, normalVectorForLinesAndPoints);
-    else if (_itemType == sim_markertype_cubes)
-        _drawCubePoints(displayAttrib, normalVectorForLinesAndPoints);
-    else if (_itemType == sim_markertype_axes)
-        _drawAxesPoints(displayAttrib, normalVectorForLinesAndPoints);
-    else if (_itemType == sim_markertype_spheres)
-        _drawSpherePoints(displayAttrib, normalVectorForLinesAndPoints);
-    else if (_itemType == sim_markertype_cylinders)
-        _drawCylinderPoints(displayAttrib, normalVectorForLinesAndPoints);
-    else if (_itemType == sim_markertype_custom)
-        _drawCustomPoints(displayAttrib, normalVectorForLinesAndPoints);
-    glDisable(GL_NORMALIZE);
-    glDisable(GL_CULL_FACE);
-    glPopAttrib();
+
+           // Always culled; all built-in geometry is CCW/outward
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+    // Always culled; all built-in geometry is CCW/outward
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+
+           // Plain (unlit) colour if requested: like the axes frames, just output glColor as-is.
+           // Not applied in colour-coded (picking) passes, where the caller controls lighting state.
+    const bool notShaded = (_itemOptions & sim_markeropts_notshaded) != 0;
+    if (notShaded && !cc)
+    {
+        glDisable(GL_LIGHTING);
+        // GL_COLOR_MATERIAL / normals are ignored with lighting off; nothing else to do
+    }
+    else
+        glEnable(GL_NORMALIZE); // non-uniform scales in the item matrices (only matters when lit)
+
+    if (transparent)
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDepthMask(GL_FALSE); // translucent items don't write depth
+    }
+
+           // Points and lines need normal arrays off (they use a single glNormal)
+    if (_itemType == sim_markertype_points || _itemType == sim_markertype_lines || _itemType == sim_markertype_axes)
+        glDisableClientState(GL_NORMAL_ARRAY);
+
+    switch (_itemType)
+    {
+    case sim_markertype_points:    _drawPoints(displayAttrib, normalVectorForLinesAndPoints); break;
+    case sim_markertype_lines:     _drawLines(displayAttrib, normalVectorForLinesAndPoints); break;
+    case sim_markertype_tubes:     _drawTubeLines(displayAttrib, normalVectorForLinesAndPoints); break;
+    case sim_markertype_triangles: _drawTriangles(displayAttrib, normalVectorForLinesAndPoints); break;
+    case sim_markertype_squares:   _drawQuadPoints(displayAttrib, normalVectorForLinesAndPoints); break;
+    case sim_markertype_discs:     _drawDiscPoints(displayAttrib, normalVectorForLinesAndPoints); break;
+    case sim_markertype_cubes:     _drawCubePoints(displayAttrib, normalVectorForLinesAndPoints); break;
+    case sim_markertype_axes:      _drawAxesPoints(displayAttrib, normalVectorForLinesAndPoints); break;
+    case sim_markertype_spheres:   _drawSpherePoints(displayAttrib, normalVectorForLinesAndPoints); break;
+    case sim_markertype_cylinders: _drawCylinderPoints(displayAttrib, normalVectorForLinesAndPoints); break;
+    case sim_markertype_custom:    _drawCustomPoints(displayAttrib, normalVectorForLinesAndPoints); break;
+    default: break;
+    }
+
+    glPopClientAttrib();
+    glPopAttrib(); // restores cull/blend/depth mask/lighting/color material/line & point size/polygon mode
     glPopMatrix();
-
-
 }
+
 #endif

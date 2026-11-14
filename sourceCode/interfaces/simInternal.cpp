@@ -3114,6 +3114,139 @@ int simGetIntArrayProperty_internal(int64_t target, const char* ppName, int** v,
     return -1;
 }
 
+int simSetLongArrayProperty_internal(int64_t target, const char* ppName, const int64_t* v, int vL)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        int retVal = sim_propertyret_invalidname;
+        if (isPropertyNameValid(__func__, ppName)) // only when writing data, we still want to read legacy data
+        {
+            if (vL >= 0)
+            {
+                std::string pName(ppName);
+                if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_longarray)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_longarray)))
+                    retVal = simSetBufferProperty_internal(target, pName.c_str(), (char*)v, vL * sizeof(int64_t));
+                else
+                {
+                    std::vector<int64_t> pState(v, v + vL);;
+                    pName = checkForDeprecation(__func__, pName.c_str(), target);
+                    retVal = App::setLongArrayProperty_t(target, pName.c_str(), pState);
+                    if (retVal != sim_propertyret_ok)
+                    {
+                        std::string pName2 = checkAltName(pName.c_str(), target);
+                        if (!pName2.empty())
+                            retVal = App::setLongArrayProperty_t(target, pName2.c_str(), pState);
+                    }
+                    if (retVal != sim_propertyret_ok)
+                    {
+                        if (retVal == sim_propertyret_unknowntarget)
+                            CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+                        else
+                        {
+                            std::string err("'");
+                            err += pName + "' ";
+                            int info;
+                            std::string infoTxt;
+                            int p = App::getPropertyInfo_t(target, pName.c_str(), info, infoTxt);
+                            if (p < sim_propertytype_start)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                                retVal = sim_propertyret_unknownproperty;
+                            }
+                            else if ((p & 0xff) == sim_propertytype_longarray)
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_CANNOT_BE_WRITTEN).c_str());
+                                retVal = sim_propertyret_notwritable;
+                            }
+                            else
+                            {
+                                CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                                retVal = sim_propertyret_typemismatch;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+                CApiErrors::setLastError(__func__, SIM_ERROR_PROPERTY_INVALID_SIZE);
+        }
+        return retVal;
+    }
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return -1;
+}
+
+int simGetLongArrayProperty_internal(int64_t target, const char* ppName, int64_t** v, int* vL)
+{
+    C_API_START;
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal = sim_propertyret_unavailable;
+        std::string pName(ppName);
+        if ((utils::replaceSubstringStart(pName, CUSTOMDATAPREFIXDOT, CUSTOMDATAPREFIXDOT proptypetag_longarray)) || (utils::replaceSubstringStart(pName, SIGNALPREFIXDOT, SIGNALPREFIXDOT proptypetag_longarray)))
+        {
+            int l;
+            char* buff;
+            retVal = simGetBufferProperty_internal(target, pName.c_str(), &buff, &l);
+            if (retVal > 0)
+            {
+                v[0] = (int64_t*)buff;
+                vL[0] = l / sizeof(int64_t);
+            }
+        }
+        else
+        {
+            std::vector<int64_t> vv;
+            pName = checkForDeprecation(__func__, pName.c_str(), target);
+            retVal = App::getLongArrayProperty_t(target, pName.c_str(), vv);
+            if (retVal != sim_propertyret_ok)
+            {
+                std::string pName2 = checkAltName(pName.c_str(), target);
+                if (!pName2.empty())
+                    retVal = App::getLongArrayProperty_t(target, pName2.c_str(), vv);
+            }
+            if (retVal == sim_propertyret_ok)
+            {
+                v[0] = new int64_t[vv.size()];
+                for (size_t i = 0; i < vv.size(); i++)
+                    v[0][i] = vv[i];
+                vL[0] = int(vv.size());
+            }
+            else if (retVal == sim_propertyret_unknowntarget)
+                CApiErrors::setLastError(__func__, SIM_ERROR_TARGET_DOES_NOT_EXIST);
+            else
+            {
+                std::string err("'");
+                err += pName + "' ";
+                int info;
+                std::string infoTxt;
+                int p = App::getPropertyInfo_t(target, pName.c_str(), info, infoTxt);
+                if (p < sim_propertytype_start)
+                {
+                    CApiErrors::setLastError(__func__, (err + SIM_ERROR_UNKNOWN_PROPERTY).c_str());
+                    retVal = sim_propertyret_unknownproperty;
+                }
+                else if ((p & 0xff) == sim_propertytype_longarray)
+                {
+                    CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_CANNOT_BE_READ).c_str());
+                    retVal = sim_propertyret_notreadable;
+                }
+                else
+                {
+                    CApiErrors::setLastError(__func__, (err + SIM_ERROR_PROPERTY_TYPE_MISMATCH).c_str());
+                    retVal = sim_propertyret_typemismatch;
+                }
+            }
+        }
+        return retVal;
+    }
+    CApiErrors::setLastError(__func__, SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return -1;
+}
+
 int simSetHandleArrayProperty_internal(int64_t target, const char* ppName, const int64_t* v, int vL)
 {
     C_API_START;

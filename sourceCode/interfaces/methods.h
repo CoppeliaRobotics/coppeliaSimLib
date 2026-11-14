@@ -151,6 +151,7 @@ extern std::string _method_getStringArrayProperty(int targetObj, CScript* curren
 extern std::string _method_getHandleArrayProperty(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getHandleProperty(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getIntArrayProperty(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_getLongArrayProperty(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getIntProperty(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getLongProperty(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getPoseProperty(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
@@ -167,6 +168,7 @@ extern std::string _method_setStringArrayProperty(int targetObj, CScript* curren
 extern std::string _method_setHandleArrayProperty(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_setHandleProperty(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_setIntArrayProperty(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
+extern std::string _method_setLongArrayProperty(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_setIntProperty(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_setLongProperty(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_setPoseProperty(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

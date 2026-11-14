@@ -115,6 +115,8 @@ class CScene : public Obj
     int getFloatArrayProperty_t(int64_t target, const char* pName, std::vector<double>& pState) const;
     int setIntArrayProperty_t(int64_t target, const char* pName, const std::vector<int>& pState);
     int getIntArrayProperty_t(int64_t target, const char* pName, std::vector<int>& pState) const;
+    int setLongArrayProperty_t(int64_t target, const char* pName, const std::vector<int64_t>& pState);
+    int getLongArrayProperty_t(int64_t target, const char* pName, std::vector<int64_t>& pState) const;
     int setHandleArrayProperty_t(int64_t target, const char* pName, const std::vector<int64_t>& pState); // ALL handle items have to be of the same type
     int getHandleArrayProperty_t(int64_t target, const char* pName, std::vector<int64_t>& pState) const; // ALL handle items have to be of the same type
     int setStringArrayProperty_t(int64_t target, const char* pName, const std::vector<std::string>& pState);

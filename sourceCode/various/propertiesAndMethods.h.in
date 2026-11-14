@@ -83,6 +83,7 @@ std::map<int, std::string> buildEnumToStringMap()
 #define proptypetag_null "&nul&."
 #define proptypetag_handle "&han&."
 #define proptypetag_handlearray "&hanvect&."
+#define proptypetag_longarray "&lvect&."
 #define proptypetag_stringarray "&strvect&."
 #define proptypetag_enum "&enm&."
 #define proptypetag_group "&grp&."

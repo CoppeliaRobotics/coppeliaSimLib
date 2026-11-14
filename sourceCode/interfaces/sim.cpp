@@ -1299,6 +1299,16 @@ SIM_DLLEXPORT int simGetIntArrayProperty2(int64_t target, const char* pName, int
     return simGetIntArrayProperty_internal(target, pName, v, vL);
 }
 
+SIM_DLLEXPORT int simSetLongArrayProperty(int64_t target, const char* pName, const int64_t* v, int vL)
+{
+    return simSetLongArrayProperty_internal(target, pName, v, vL);
+}
+
+SIM_DLLEXPORT int simGetLongArrayProperty2(int64_t target, const char* pName, int64_t** v, int* vL)
+{
+    return simGetLongArrayProperty_internal(target, pName, v, vL);
+}
+
 SIM_DLLEXPORT int simSetHandleArrayProperty(int64_t target, const char* pName, const int64_t* v, int vL)
 {
     return simSetHandleArrayProperty_internal(target, pName, v, vL);

@@ -145,6 +145,8 @@ class App
     static int getFloatArrayProperty_t(int64_t target, const char* pName, std::vector<double>& pState);
     static int setIntArrayProperty_t(int64_t target, const char* pName, const std::vector<int>& pState);
     static int getIntArrayProperty_t(int64_t target, const char* pName, std::vector<int>& pState);
+    static int setLongArrayProperty_t(int64_t target, const char* pName, const std::vector<int64_t>& pState);
+    static int getLongArrayProperty_t(int64_t target, const char* pName, std::vector<int64_t>& pState);
     static int setHandleArrayProperty_t(int64_t target, const char* pName, const std::vector<int64_t>& pState); // ALL handle items have to be of the same type
     static int getHandleArrayProperty_t(int64_t target, const char* pName, std::vector<int64_t>& pState); // ALL handle items have to be of the same type
     static int setStringArrayProperty_t(int64_t target, const char* pName, const std::vector<std::string>& pState);

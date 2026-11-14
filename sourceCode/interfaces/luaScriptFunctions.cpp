@@ -1036,6 +1036,7 @@ const SLuaVariables simLuaVariables[] = {
     {"sim.propertytype_color3", sim_propertytype_color3},
     {"sim.propertytype_floatarray", sim_propertytype_floatarray},
     {"sim.propertytype_intarray", sim_propertytype_intarray},
+    {"sim.propertytype_longarray", sim_propertytype_longarray},
     {"sim.propertytype_table", sim_propertytype_table},
     {"sim.propertytype_null", sim_propertytype_null},
     {"sim.propertytype_matrix", sim_propertytype_matrix},

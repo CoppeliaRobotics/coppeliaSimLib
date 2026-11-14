@@ -5229,6 +5229,57 @@ int CSceneObjectContainer::getIntArrayProperty_t(int64_t target, const char* pNa
     return retVal;
 }
 
+int CSceneObjectContainer::setLongArrayProperty_t(int64_t target, const char* pName, const std::vector<int64_t>& pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CSceneObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+            return it->setLongArrayProperty(pName, pState);
+        else
+        {
+            /*
+            CPose shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return mesh->setLongArrayProperty_mesh(pName, pState, shapeRelTr);
+                */
+        }
+        retVal = sim_propertyret_unknowntarget;
+    }
+    return retVal;
+}
+
+int CSceneObjectContainer::getLongArrayProperty_t(int64_t target, const char* pName, std::vector<int64_t>& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+    pState.clear();
+    if (target == -1)
+    {
+    }
+    else
+    {
+        CSceneObject* it = getObjectFromHandle(int(target));
+        if (it != nullptr)
+            return it->getLongArrayProperty(pName, pState);
+        else
+        {
+            /*
+            CPose shapeRelTr;
+            CMesh* mesh = getMeshFromUid(target, &shapeRelTr);
+            if (mesh != nullptr)
+                return mesh->getIntArrayProperty_mesh(pName, pState, shapeRelTr);
+                */
+        }
+        retVal = sim_propertyret_unknowntarget;
+    }
+    return retVal;
+}
+
 int CSceneObjectContainer::setHandleArrayProperty_t(int64_t target, const char* pName, const std::vector<int64_t>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;
@@ -5685,6 +5736,12 @@ std::string CSceneObjectContainer::getModelState(int modelHandle, int debugPos /
                         std::vector<double> state;
                         result = obj->getFloatArrayProperty(name.c_str(), state);
                         dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(double));
+                        break;
+                    }
+                    case sim_propertytype_longarray: {
+                        std::vector<int64_t> state;
+                        result = obj->getLongArrayProperty(name.c_str(), state);
+                        dnaString.append(reinterpret_cast<const char*>(state.data()), state.size() * sizeof(int64_t));
                         break;
                     }
                     case sim_propertytype_handlearray: {

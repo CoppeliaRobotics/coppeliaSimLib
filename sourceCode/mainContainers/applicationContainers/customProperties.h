@@ -42,6 +42,8 @@ class CCustomProperties
     int getFloatArrayProperty(const char* pName, std::vector<double>& pState) const;
     int setIntArrayProperty(const char* pName, const std::vector<int>& pState, bool& valueChange);
     int getIntArrayProperty(const char* pName, std::vector<int>& pState) const;
+    int setLongArrayProperty(const char* pName, const std::vector<int64_t>& pState, bool& valueChange);
+    int getLongArrayProperty(const char* pName, std::vector<int64_t>& pState) const;
     int setHandleArrayProperty(const char* pName, const std::vector<int64_t>& pState, bool& valueChange);
     int getHandleArrayProperty(const char* pName, std::vector<int64_t>& pState) const;
     int setStringArrayProperty(const char* pName, const std::vector<std::string>& pState, bool& valueChange);

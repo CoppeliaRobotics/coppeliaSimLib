@@ -3720,6 +3720,73 @@ int CScene::getIntArrayProperty_t(int64_t target, const char* ppName, std::vecto
     return retVal;
 }
 
+int CScene::setLongArrayProperty_t(int64_t target, const char* ppName, const std::vector<int64_t>& pState)
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    if (target == sim_handle_scene)
+    {
+        const char* pName = ppName;
+        //if (dynamics != nullptr)
+        //    retVal = dynamics->setILongArrayProperty(pName, pState);
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
+            retVal = sceneObjects->setLongArrayProperty_t(-1, pName, pState);
+        if (retVal == sim_propertyret_unknownproperty)
+        {
+        }
+    }
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    {
+        const char* pName = ppName;
+        retVal = sceneObjects->setLongArrayProperty_t(target, pName, pState);
+    }
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
+    {
+    }
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
+    {
+    }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->setLongArrayProperty_t(target, ppName, pState);
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
+int CScene::getLongArrayProperty_t(int64_t target, const char* ppName, std::vector<int64_t>& pState) const
+{
+    int retVal = sim_propertyret_unknownproperty;
+
+    pState.clear();
+    if (target == sim_handle_scene)
+    {
+        const char* pName = ppName;
+        //if (dynamics != nullptr)
+        //    retVal = dynamics->getLongArrayProperty(pName, pState);
+        if ((retVal == sim_propertyret_unknownproperty) && (sceneObjects != nullptr))
+            retVal = sceneObjects->getLongArrayProperty_t(-1, pName, pState);
+        if (retVal == sim_propertyret_unknownproperty)
+        {
+        }
+    }
+    else if (((target >= sim_object_sceneobjectstart) && (target <= sim_object_sceneobjectend)) || (target >= sim_object_variousstart))
+    {
+        const char* pName = ppName;
+        retVal = sceneObjects->getLongArrayProperty_t(target, pName, pState);
+    }
+    else if ((target >= sim_object_collectionstart) && (target <= sim_object_collectionend))
+    {
+    }
+    else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
+    {
+    }
+    else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
+        retVal = customObjects->getLongArrayProperty_t(target, ppName, pState);
+    else
+        retVal = sim_propertyret_unknowntarget;
+    return retVal;
+}
+
 int CScene::setHandleArrayProperty_t(int64_t target, const char* ppName, const std::vector<int64_t>& pState)
 {
     int retVal = sim_propertyret_unknownproperty;

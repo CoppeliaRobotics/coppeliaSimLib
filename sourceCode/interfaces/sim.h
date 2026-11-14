@@ -265,6 +265,8 @@ SIM_DLLEXPORT int simSetFloatArrayProperty(int64_t target, const char* pName, co
 SIM_DLLEXPORT int simGetFloatArrayProperty2(int64_t target, const char* pName, double** v, int* vL);
 SIM_DLLEXPORT int simSetIntArrayProperty(int64_t target, const char* pName, const int* v, int vL);
 SIM_DLLEXPORT int simGetIntArrayProperty2(int64_t target, const char* pName, int** v, int* vL);
+SIM_DLLEXPORT int simSetLongArrayProperty(int64_t target, const char* pName, const int64_t* v, int vL);
+SIM_DLLEXPORT int simGetLongArrayProperty2(int64_t target, const char* pName, int64_t** v, int* vL);
 SIM_DLLEXPORT int simSetHandleArrayProperty(int64_t target, const char* pName, const int64_t* v, int vL);
 SIM_DLLEXPORT int simGetHandleArrayProperty2(int64_t target, const char* pName, int64_t** v, int* vL);
 SIM_DLLEXPORT int simSetStringArrayProperty(int64_t target, const char* pName, const char* v, int cnt);
