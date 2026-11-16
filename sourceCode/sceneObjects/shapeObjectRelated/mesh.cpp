@@ -42,8 +42,6 @@ CMesh::CMesh(const CPose& meshFrame, const std::vector<double>& vertices, const 
         _normals.assign(optNormals->begin(), optNormals->end());
 
     // Do not modify meshes at this stage (other than rotation/translation). If you must do it, do it before
-    // This is however ok:
-    CMeshRoutines::removeNonReferencedVertices(_vertices, _indices);
     _shadingAngle = CMeshManip::getShadingAngleFromPerTriangleCornerNormals(&_vertices, &_indices, &_normals);
 
     std::vector<float> texCoords;
@@ -530,66 +528,42 @@ void CMesh::pushGenesisOrChangeEvent(int shapeHandle, int shapeUid, const CPose&
         if (eventType == 0)
             eventTypeStr = EVENTTYPE_OBJECTADDED;
         CCbor* ev = App::scenes->createEvent(eventTypeStr.c_str(), _objectHandle, _objectHandle, nullptr, false);
+
+        std::vector<float> vert;
+        std::vector<int> ind;
+        std::vector<float> norm;
+        std::vector<float> tex;
+        bool hasTex = getPerVertexData(shapeRelTr, vert, ind, norm, tex);
+
         if (eventType < 2)
         {
             Obj::pushNakedGenesisEvents(ev);
             ev->appendKeyHandle(prop(PropMesh::shape).name, _isInSceneShapeHandle);
             ev->appendKeyInt64(prop(PropMesh::primitiveType).name, _purePrimitive);
             ev->appendKeyInt64(prop(PropMesh::shapeUid).name, _isInSceneShapeUid);
-            std::vector<float> vertices;
-            vertices.resize(_verticesForDisplayAndDisk.size());
-            for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)
-            {
-                C3Vector v;
-                v.setData(_verticesForDisplayAndDisk.data() + j * 3);
-                v = shapeRelTr * v;
-                vertices[3 * j + 0] = (float)v(0);
-                vertices[3 * j + 1] = (float)v(1);
-                vertices[3 * j + 2] = (float)v(2);
-            }
-
-            std::vector<float> normals;
-            normals.resize(_indices.size() * 3);
-            for (size_t j = 0; j < _indices.size(); j++)
-            {
-                C3Vector n;
-                n.setData(&_normalsForDisplayAndDisk[0] + j * 3);
-                n = shapeRelTr.Q * n; // only orientation
-                normals[3 * j + 0] = (float)n(0);
-                normals[3 * j + 1] = (float)n(1);
-                normals[3 * j + 2] = (float)n(2);
-            }
-            std::vector<float> verts;
-            std::vector<int> inds;
-            std::vector<float> norms;
-            CMeshManip::generatePerVertexNormalsAndTextCoords(&vertices, &_indices, &normals, nullptr, &verts, &inds, &norms, nullptr);
-            ev->appendKeyMatrix(prop(PropMesh::vertices).name, verts.data(), 3, verts.size() / 3, false);
-            ev->appendKeyMatrix(prop(PropMesh::normals).name, norms.data(), 3, norms.size() / 3, false);
-            ev->appendKeyInt32Array(prop(PropMesh::indices).name, inds.data(), inds.size());
+            ev->appendKeyMatrix(prop(PropMesh::vertices).name, vert.data(), 3, vert.size() / 3, false);
+            ev->appendKeyMatrix(prop(PropMesh::normals).name, norm.data(), 3, norm.size() / 3, false);
+            ev->appendKeyInt32Array(prop(PropMesh::indices).name, ind.data(), ind.size());
         }
-
 
         if (eventType < 3)
         { // now texture related
-            const std::vector<float> _tc;
-            const std::vector<float>* tc = &_tc;
             int applyM = 0;
             bool repeatU = false;
             bool repeatV = false;
             bool interpol = false;
             int toHandle = -1;
-            if (_textureProperty != nullptr)
+            if (hasTex)
             {
-                auto t = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
-                if (t != nullptr)
-                    tc = t;
                 applyM =  _textureProperty->getApplyMode();
                 repeatU = _textureProperty->getRepeatU();
                 repeatV = _textureProperty->getRepeatV();
                 interpol = _textureProperty->getInterpolateColors();
                 toHandle = _textureProperty->getTextureObjectHandle();
             }
-            ev->appendKeyFloatArray(prop(PropMesh::textureCoordinates).name, tc->data(), tc->size());
+            else
+                tex.clear();
+            ev->appendKeyMatrix(prop(PropMesh::textureCoordinates).name, tex.data(), 2, tex.size() / 2, false);
             ev->appendKeyInt64(prop(PropMesh::textureApplyMode).name, applyM);
             ev->appendKeyBool(prop(PropMesh::textureRepeatU).name, repeatU);
             ev->appendKeyBool(prop(PropMesh::textureRepeatV).name, repeatV);
@@ -3258,86 +3232,91 @@ int CMesh::getVector3Property_mesh(const char* ppName, C3Vector& pState, const C
     return retVal;
 }
 
+bool CMesh::getPerVertexData(const CPose& shapeRelTr, std::vector<float>& vert, std::vector<int>& ind, std::vector<float>& norm, std::vector<float>& tex) const
+{
+    bool retVal = false;
+    const std::vector<float>* tc = nullptr;
+    if (_textureProperty != nullptr)
+    {
+        tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
+        retVal = true;
+    }
+    std::vector<float> vertices;
+    vertices.resize(_verticesForDisplayAndDisk.size());
+    for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)
+    {
+        C3Vector v;
+        v.setData(_verticesForDisplayAndDisk.data() + j * 3);
+        v = shapeRelTr * v;
+        vertices[3 * j + 0] = (float)v(0);
+        vertices[3 * j + 1] = (float)v(1);
+        vertices[3 * j + 2] = (float)v(2);
+    }
+    std::vector<float> normals;
+    normals.resize(_indices.size() * 3);
+    for (size_t j = 0; j < _indices.size(); j++)
+    {
+        C3Vector n;
+        n.setData(&_normalsForDisplayAndDisk[0] + j * 3);
+        n = shapeRelTr.Q * n; // only orientation
+        normals[3 * j + 0] = (float)n(0);
+        normals[3 * j + 1] = (float)n(1);
+        normals[3 * j + 2] = (float)n(2);
+    }
+    CMeshManip::generatePerVertexNormalsAndTextCoords<float>(&vertices, &_indices, &normals, tc, &vert, &ind, &norm, &tex);
+    return retVal;
+}
+
 int CMesh::getMatrixProperty_mesh(const char* ppName, CMatrix& pState, const CPose& shapeRelTr) const
 {
     int retVal = sim_propertyret_unknownproperty;
 
+    std::vector<float> vert;
+    std::vector<int> ind;
+    std::vector<float> norm;
+    std::vector<float> tex;
     if (strcmp(ppName, prop(PropMesh::vertices).name) == 0)
     {
         retVal = sim_propertyret_ok;
-        std::vector<float> vertices;
-        vertices.resize(_verticesForDisplayAndDisk.size());
-        for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)
-        {
-            C3Vector v;
-            v.setData(_verticesForDisplayAndDisk.data() + j * 3);
-            v = shapeRelTr * v;
-            vertices[3 * j + 0] = (float)v(0);
-            vertices[3 * j + 1] = (float)v(1);
-            vertices[3 * j + 2] = (float)v(2);
-        }
-        std::vector<float> normals;
-        normals.resize(_indices.size() * 3);
-        for (size_t j = 0; j < _indices.size(); j++)
-        {
-            C3Vector n;
-            n.setData(&_normalsForDisplayAndDisk[0] + j * 3);
-            n = shapeRelTr.Q * n; // only orientation
-            normals[3 * j + 0] = (float)n(0);
-            normals[3 * j + 1] = (float)n(1);
-            normals[3 * j + 2] = (float)n(2);
-        }
-        std::vector<float> verts;
-        std::vector<int> inds;
-        std::vector<float> norms;
-        CMeshManip::generatePerVertexNormalsAndTextCoords(&vertices, &_indices, &normals, nullptr, &verts, &inds, &norms, nullptr);
-
-        size_t n = verts.size() / 3;
+        getPerVertexData(shapeRelTr, vert, ind, norm, tex);
+        size_t n = vert.size() / 3;
         pState.resize(3, n, 0.0);
         for (size_t j = 0; j < n; j++)
         {
-            pState.data[n * 0 + j] = verts[j * 3 + 0];
-            pState.data[n * 1 + j] = verts[j * 3 + 1];
-            pState.data[n * 2 + j] = verts[j * 3 + 2];
+            pState.data[n * 0 + j] = vert[j * 3 + 0];
+            pState.data[n * 1 + j] = vert[j * 3 + 1];
+            pState.data[n * 2 + j] = vert[j * 3 + 2];
         }
     }
     else if (strcmp(ppName, prop(PropMesh::normals).name) == 0)
     {
         retVal = sim_propertyret_ok;
-        std::vector<float> vertices;
-        vertices.resize(_verticesForDisplayAndDisk.size());
-        for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)
-        {
-            C3Vector v;
-            v.setData(_verticesForDisplayAndDisk.data() + j * 3);
-            v = shapeRelTr * v;
-            vertices[3 * j + 0] = (float)v(0);
-            vertices[3 * j + 1] = (float)v(1);
-            vertices[3 * j + 2] = (float)v(2);
-        }
-        std::vector<float> normals;
-        normals.resize(_indices.size() * 3);
-        for (size_t j = 0; j < _indices.size(); j++)
-        {
-            C3Vector n;
-            n.setData(&_normalsForDisplayAndDisk[0] + j * 3);
-            n = shapeRelTr.Q * n; // only orientation
-            normals[3 * j + 0] = (float)n(0);
-            normals[3 * j + 1] = (float)n(1);
-            normals[3 * j + 2] = (float)n(2);
-        }
-        std::vector<float> verts;
-        std::vector<int> inds;
-        std::vector<float> norms;
-        CMeshManip::generatePerVertexNormalsAndTextCoords(&vertices, &_indices, &normals, nullptr, &verts, &inds, &norms, nullptr);
-        size_t n = norms.size() / 3;
+        getPerVertexData(shapeRelTr, vert, ind, norm, tex);
+        size_t n = norm.size() / 3;
         pState.resize(3, n, 0.0);
         for (size_t j = 0; j < n; j++)
         {
-            pState.data[n * 0 + j] = norms[j * 3 + 0];
-            pState.data[n * 1 + j] = norms[j * 3 + 1];
-            pState.data[n * 2 + j] = norms[j * 3 + 2];
+            pState.data[n * 0 + j] = norm[j * 3 + 0];
+            pState.data[n * 1 + j] = norm[j * 3 + 1];
+            pState.data[n * 2 + j] = norm[j * 3 + 2];
         }
+    }
+    else if (strcmp(ppName, prop(PropMesh::textureCoordinates).name) == 0)
+    {
+        retVal = sim_propertyret_ok;
+        if (getPerVertexData(shapeRelTr, vert, ind, norm, tex))
+        {
+            retVal = sim_propertyret_ok;
+            size_t n = tex.size() / 2;
+            pState.resize(2, n, 0.0);
+            for (size_t j = 0; j < n; j++)
+            {
+                pState.data[n * 0 + j] = tex[j * 2 + 0];
+                pState.data[n * 1 + j] = tex[j * 2 + 1];
+            }
+        }
+        else
+            pState.resize(0, 0, 0.0);
     }
 
     return retVal;
@@ -3404,20 +3383,6 @@ int CMesh::getFloatArrayProperty_mesh(const char* ppName, std::vector<double>& p
     int retVal = sim_propertyret_unknownproperty;
     pState.clear();
 
-    if (strcmp(pName, prop(PropMesh::textureCoordinates).name) == 0)
-    {
-        retVal = sim_propertyret_ok;
-        if (_textureProperty != nullptr)
-        {
-            const std::vector<float>* tc = _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices);
-            pState.resize(tc->size());
-            for (size_t i = 0; i < tc->size(); i++)
-                pState[i] = (double)tc->at(i);
-        }
-        else
-            pState.clear();
-    }
-
     return retVal;
 }
 
@@ -3437,34 +3402,12 @@ int CMesh::getIntArrayProperty_mesh(const char* ppName, std::vector<int>& pState
     if (strcmp(pName, prop(PropMesh::indices).name) == 0)
     {
         retVal = sim_propertyret_ok;
-        std::vector<float> vertices;
-        vertices.resize(_verticesForDisplayAndDisk.size());
-        for (size_t j = 0; j < _verticesForDisplayAndDisk.size() / 3; j++)
-        {
-            C3Vector v;
-            v.setData(_verticesForDisplayAndDisk.data() + j * 3);
-            v = shapeRelTr * v;
-            vertices[3 * j + 0] = (float)v(0);
-            vertices[3 * j + 1] = (float)v(1);
-            vertices[3 * j + 2] = (float)v(2);
-        }
-        std::vector<float> normals;
-        normals.resize(_indices.size() * 3);
-        for (size_t j = 0; j < _indices.size(); j++)
-        {
-            C3Vector n;
-            n.setData(&_normalsForDisplayAndDisk[0] + j * 3);
-            n = shapeRelTr.Q * n; // only orientation
-            normals[3 * j + 0] = (float)n(0);
-            normals[3 * j + 1] = (float)n(1);
-            normals[3 * j + 2] = (float)n(2);
-        }
-        std::vector<float> verts;
-        std::vector<int> inds;
-        std::vector<float> norms;
-        CMeshManip::generatePerVertexNormalsAndTextCoords(&vertices, &_indices, &normals, nullptr, &verts, &inds, &norms, nullptr);
-
-        pState.assign(inds.begin(), inds.end());
+        std::vector<float> vert;
+        std::vector<float> norm;
+        std::vector<float> tex;
+        CPose p;
+        p.setIdentity();
+        getPerVertexData(p, vert, pState, norm, tex);
     }
     if (strcmp(pName, prop(PropMesh::DEPRECATED_textureResolution).name) == 0)
     {

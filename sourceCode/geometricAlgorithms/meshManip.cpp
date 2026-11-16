@@ -834,313 +834,40 @@ template void CMeshManip::calcNormal<double>(double v[3][3], double out[3]);
 
 template<typename T> void CMeshManip::generatePerVertexNormalsAndTextCoords(const std::vector<T>* inVertices, const std::vector<int>* inIndices, const std::vector<T>* inNormals, const std::vector<float>* inTexCoords, std::vector<T>* outVertices, std::vector<int>* outIndices, std::vector<T>* outNormals, std::vector<float>* outTexCoords /*= nullptr*/)
 {
+    const bool useN = (inNormals != nullptr) && (outNormals != nullptr);
+    const bool useT = (inTexCoords != nullptr) && (outTexCoords != nullptr);
     outVertices->clear();
     outIndices->clear();
-
-    const size_t vertCnt = inVertices->size() / 3;
-    const size_t triCnt = inIndices->size() / 3;
-
-           // Normals: 3 values per triangle corner; UVs: 2 values per triangle corner
-    const bool useNormals = (inNormals != nullptr) && (outNormals != nullptr) && (inNormals->size() >= triCnt * 9);
-    const bool useUV = (inTexCoords != nullptr) && (outTexCoords != nullptr) && (inTexCoords->size() >= triCnt * 6);
-
-    if (useNormals)
+    if (useN)
         outNormals->clear();
-    if (useUV)
+    if (useT)
         outTexCoords->clear();
-
-    if (vertCnt == 0 || triCnt == 0)
-        return;
-
-    struct Key
+    const size_t n = inIndices->size();
+    outVertices->reserve(n * 3);
+    outIndices->reserve(n);
+    if (useN)
+        outNormals->reserve(n * 3);
+    if (useT)
+        outTexCoords->reserve(n * 2);
+    for (size_t i = 0; i < n; i++)
     {
-        int v;
-        T d[5]; // normal (3) + uv (2); unused entries stay 0
-        bool operator==(const Key& o) const
+        int ind = inIndices->at(i);
+        outIndices->push_back(int(i));
+        for (size_t j = 0; j < 3; j++)
         {
-            if (v != o.v)
-                return false;
-            for (int i = 0; i < 5; i++)
-                if (d[i] != o.d[i])
-                    return false;
-            return true;
+            outVertices->push_back(inVertices->at(3 * ind + j));
+            if (useN)
+                outNormals->push_back(inNormals->at(3 * i + j));
         }
-    };
-    struct KeyHash
-    {
-        size_t operator()(const Key& k) const
+        if (useT)
         {
-            std::hash<T> h;
-            size_t s = std::hash<int>()(k.v);
-            for (int i = 0; i < 5; i++)
-                s ^= h(k.d[i]) + 0x9e3779b97f4a7c15ULL + (s << 6) + (s >> 2);
-            return s;
-        }
-    };
-
-    std::unordered_map<Key, int, KeyHash> lookup;
-    lookup.reserve(triCnt * 3);
-
-    outIndices->reserve(triCnt * 3);
-    outVertices->reserve(triCnt * 9);
-    if (useNormals)
-        outNormals->reserve(triCnt * 9);
-    if (useUV)
-        outTexCoords->reserve(triCnt * 6);
-
-    for (size_t t = 0; t < triCnt; t++)
-    {
-        int i[3] = {(*inIndices)[3 * t], (*inIndices)[3 * t + 1], (*inIndices)[3 * t + 2]};
-        bool valid = true;
-        for (int k = 0; k < 3; k++)
-            if (i[k] < 0 || size_t(i[k]) >= vertCnt)
-                valid = false;
-        if (!valid)
-            continue;
-
-        for (int k = 0; k < 3; k++)
-        {
-            const size_t c = 3 * t + k; // corner id
-            Key key;
-            key.v = i[k];
-            for (int j = 0; j < 5; j++)
-                key.d[j] = T(0);
-            if (useNormals)
-                for (int j = 0; j < 3; j++)
-                    key.d[j] = T((*inNormals)[3 * c + j] + T(0)); // +0 turns -0 into +0
-            if (useUV)
-                for (int j = 0; j < 2; j++)
-                    key.d[3 + j] = float((*inTexCoords)[2 * c + j] + float(0));
-
-            auto it = lookup.find(key);
-            if (it == lookup.end())
-            {
-                int idx = int(outVertices->size() / 3);
-                lookup.emplace(key, idx);
-                outVertices->push_back((*inVertices)[3 * i[k]]);
-                outVertices->push_back((*inVertices)[3 * i[k] + 1]);
-                outVertices->push_back((*inVertices)[3 * i[k] + 2]);
-                if (useNormals)
-                {
-                    outNormals->push_back((*inNormals)[3 * c]);
-                    outNormals->push_back((*inNormals)[3 * c + 1]);
-                    outNormals->push_back((*inNormals)[3 * c + 2]);
-                }
-                if (useUV)
-                {
-                    outTexCoords->push_back((*inTexCoords)[2 * c]);
-                    outTexCoords->push_back((*inTexCoords)[2 * c + 1]);
-                }
-                outIndices->push_back(idx);
-            }
-            else
-                outIndices->push_back(it->second);
+            for (size_t j = 0; j < 2; j++)
+                outTexCoords->push_back(inTexCoords->at(2 * i + j));
         }
     }
 }
 template void CMeshManip::generatePerVertexNormalsAndTextCoords<float>(const std::vector<float>* inVertices, const std::vector<int>* inIndices, const std::vector<float>* inNormals, const std::vector<float>* inTexCoords, std::vector<float>* outVertices, std::vector<int>* outIndices, std::vector<float>* outNormals, std::vector<float>* outTexCoords /*= nullptr*/);
 template void CMeshManip::generatePerVertexNormalsAndTextCoords<double>(const std::vector<double>* inVertices, const std::vector<int>* inIndices, const std::vector<double>* inNormals, const std::vector<float>* inTexCoords, std::vector<double>* outVertices, std::vector<int>* outIndices, std::vector<double>* outNormals, std::vector<float>* outTexCoords /*= nullptr*/);
-
-/*
-template<typename T> void CMeshManip::generatePerVertexNormalsAndTextCoords(const std::vector<T>* inVertices, const std::vector<int>* inIndices, const std::vector<float>* inTexCoords, double angle, std::vector<T>* outVertices, std::vector<int>* outIndices, std::vector<T>* outNormals, std::vector<float>* outTexCoords /= nullptr/)
-{
-    outVertices->clear();
-    outIndices->clear();
-    outNormals->clear();
-
-    const size_t vertCnt = inVertices->size() / 3;
-    const size_t triCnt = inIndices->size() / 3;
-
-           // UVs are processed only if both input and output are provided (and input is large enough)
-    const bool useUV = (inTexCoords != nullptr) && (outTexCoords != nullptr) && (inTexCoords->size() >= triCnt * 6);
-    if (useUV)
-        outTexCoords->clear();
-
-    if (vertCnt == 0 || triCnt == 0)
-        return;
-
-    struct Vec3 { double x, y, z; };
-    auto sub = [](const Vec3& a, const Vec3& b) { return Vec3{a.x - b.x, a.y - b.y, a.z - b.z}; };
-    auto cross = [](const Vec3& a, const Vec3& b) { return Vec3{a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x}; };
-    auto dot = [](const Vec3& a, const Vec3& b) { return a.x * b.x + a.y * b.y + a.z * b.z; };
-    auto len = [&](const Vec3& a) { return std::sqrt(dot(a, a)); };
-
-    auto getV = [&](int i) {
-        return Vec3{double((*inVertices)[3 * i]), double((*inVertices)[3 * i + 1]), double((*inVertices)[3 * i + 2])};
-    };
-
-           // UV of a given corner (corner id = 3*tri + k)
-    auto uvEqual = [&](int cA, int cB) {
-        const double eps = 1e-7;
-        return std::fabs(double((*inTexCoords)[2 * cA]) - double((*inTexCoords)[2 * cB])) <= eps &&
-               std::fabs(double((*inTexCoords)[2 * cA + 1]) - double((*inTexCoords)[2 * cB + 1])) <= eps;
-    };
-
-    std::vector<Vec3> faceN(triCnt);
-    std::vector<char> faceOk(triCnt, 0);
-    std::vector<double> cornerW(triCnt * 3, 0.0);
-
-    for (size_t t = 0; t < triCnt; t++)
-    {
-        int i[3] = {(*inIndices)[3 * t], (*inIndices)[3 * t + 1], (*inIndices)[3 * t + 2]};
-        bool valid = true;
-        for (int k = 0; k < 3; k++)
-            if (i[k] < 0 || size_t(i[k]) >= vertCnt)
-                valid = false;
-        faceN[t] = Vec3{0, 0, 0};
-        if (!valid)
-            continue;
-        Vec3 p[3] = {getV(i[0]), getV(i[1]), getV(i[2])};
-        Vec3 n = cross(sub(p[1], p[0]), sub(p[2], p[0]));
-        double l = len(n);
-        if (l > 1e-30)
-        {
-            faceN[t] = Vec3{n.x / l, n.y / l, n.z / l};
-            faceOk[t] = 1;
-            for (int k = 0; k < 3; k++)
-            {
-                Vec3 a = sub(p[(k + 1) % 3], p[k]);
-                Vec3 b = sub(p[(k + 2) % 3], p[k]);
-                double la = len(a), lb = len(b);
-                if (la > 0.0 && lb > 0.0)
-                {
-                    double c = std::clamp(dot(a, b) / (la * lb), -1.0, 1.0);
-                    cornerW[3 * t + k] = std::acos(c);
-                }
-            }
-        }
-    }
-
-    std::vector<std::vector<int>> incident(vertCnt);
-    for (size_t t = 0; t < triCnt; t++)
-    {
-        if (!faceOk[t])
-            continue;
-        for (int k = 0; k < 3; k++)
-            incident[(*inIndices)[3 * t + k]].push_back(int(3 * t + k));
-    }
-
-    const double cosThr = std::cos(angle);
-
-    std::vector<int> newIndexOfCorner(triCnt * 3, -1);
-    outVertices->reserve(inVertices->size());
-    outNormals->reserve(inVertices->size());
-    if (useUV)
-        outTexCoords->reserve(inVertices->size() / 3 * 2);
-
-    std::vector<int> groupRep;
-    std::vector<Vec3> groupSum;
-    std::vector<std::vector<int>> groupCorners;
-    std::vector<int> uvRep;                 // reference corner per UV subgroup
-    std::vector<int> uvNewIdx;              // output vertex index per UV subgroup
-
-    for (size_t v = 0; v < vertCnt; v++)
-    {
-        groupRep.clear();
-        groupSum.clear();
-        groupCorners.clear();
-
-        for (int c : incident[v])
-        {
-            const Vec3& fn = faceN[c / 3];
-            int g = -1;
-            for (size_t j = 0; j < groupRep.size(); j++)
-            {
-                if (dot(fn, faceN[groupRep[j] / 3]) >= cosThr)
-                {
-                    g = int(j);
-                    break;
-                }
-            }
-            if (g < 0)
-            {
-                g = int(groupRep.size());
-                groupRep.push_back(c);
-                groupSum.push_back(Vec3{0, 0, 0});
-                groupCorners.emplace_back();
-            }
-            double w = cornerW[c];
-            groupSum[g].x += fn.x * w;
-            groupSum[g].y += fn.y * w;
-            groupSum[g].z += fn.z * w;
-            groupCorners[g].push_back(c);
-        }
-
-        for (size_t g = 0; g < groupRep.size(); g++)
-        {
-            Vec3 n = groupSum[g];
-            double l = len(n);
-            if (l > 1e-30)
-                n = Vec3{n.x / l, n.y / l, n.z / l};
-            else
-                n = faceN[groupRep[g] / 3];
-
-                   // Emits one output vertex (position + normal [+ uv of corner uvCorner])
-            auto emit = [&](int uvCorner) {
-                int idx = int(outVertices->size() / 3);
-                outVertices->push_back((*inVertices)[3 * v]);
-                outVertices->push_back((*inVertices)[3 * v + 1]);
-                outVertices->push_back((*inVertices)[3 * v + 2]);
-                outNormals->push_back(T(n.x));
-                outNormals->push_back(T(n.y));
-                outNormals->push_back(T(n.z));
-                if (useUV)
-                {
-                    outTexCoords->push_back((*inTexCoords)[2 * uvCorner]);
-                    outTexCoords->push_back((*inTexCoords)[2 * uvCorner + 1]);
-                }
-                return idx;
-            };
-
-            if (!useUV)
-            {
-                int idx = emit(0);
-                for (int c : groupCorners[g])
-                    newIndexOfCorner[c] = idx;
-            }
-            else
-            {
-                // Split this normal group further by distinct UVs
-                uvRep.clear();
-                uvNewIdx.clear();
-                for (int c : groupCorners[g])
-                {
-                    int s = -1;
-                    for (size_t j = 0; j < uvRep.size(); j++)
-                    {
-                        if (uvEqual(c, uvRep[j]))
-                        {
-                            s = int(j);
-                            break;
-                        }
-                    }
-                    if (s < 0)
-                    {
-                        s = int(uvRep.size());
-                        uvRep.push_back(c);
-                        uvNewIdx.push_back(emit(c));
-                    }
-                    newIndexOfCorner[c] = uvNewIdx[s];
-                }
-            }
-        }
-    }
-
-           // Build output indices, dropping degenerate/invalid triangles
-    outIndices->reserve(triCnt * 3);
-    for (size_t t = 0; t < triCnt; t++)
-    {
-        if (faceOk[t])
-        {
-            outIndices->push_back(newIndexOfCorner[3 * t]);
-            outIndices->push_back(newIndexOfCorner[3 * t + 1]);
-            outIndices->push_back(newIndexOfCorner[3 * t + 2]);
-        }
-    }
-}
-template void CMeshManip::generatePerVertexNormalsAndTextCoords<float>(const std::vector<float>* inVertices, const std::vector<int>* inIndices, const std::vector<float>* inTexCoords, double angle, std::vector<float>* outVertices, std::vector<int>* outIndices, std::vector<float>* outNormals, std::vector<float>* outTexCoords /= nullptr/);
-template void CMeshManip::generatePerVertexNormalsAndTextCoords<double>(const std::vector<double>* inVertices, const std::vector<int>* inIndices, const std::vector<float>* inTexCoords, double angle, std::vector<double>* outVertices, std::vector<int>* outIndices, std::vector<double>* outNormals, std::vector<float>* outTexCoords /= nullptr/);
-*/
 
 template<typename T> double CMeshManip::getShadingAngleFromPerTriangleCornerNormals(const std::vector<T>* inVertices, const std::vector<int>* inIndices, const std::vector<T>* inNormals, double threshold /*= 1.0 * piValue / 180.0*/)
 {

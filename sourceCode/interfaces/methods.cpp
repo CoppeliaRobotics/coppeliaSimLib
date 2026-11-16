@@ -8821,8 +8821,17 @@ std::string _method_textureSet(int targetObj, CScript* currentScript, const CInt
             map->fetchBoolFromKey("decal", decal, &err);
             map->fetchBoolFromKey("flipH", flipH, &err);
             map->fetchBoolFromKey("flipV", flipV, &err);
-            texCoords.resize(target->getIndices()->size() * 2);
-            if (map->fetchFloatArrayFromKey("coordinates", texCoords.data(), target->getIndices()->size() * 2, &err))
+
+            std::vector<float> vert;
+            std::vector<int> ind;
+            std::vector<float> norm;
+            std::vector<float> tex;
+            CPose ident;
+            ident.setIdentity();
+            target->getPerVertexData(ident, vert, ind, norm, tex);
+            texCoords.resize((2 * vert.size()) / 3);
+            if (map->fetchMatrixDataFromKey("coordinates", texCoords, 2, int(vert.size() / 3), false, &err))
+//            if (map->fetchFloatArrayFromKey("coordinates", texCoords.data(), target->getIndices()->size() * 2, &err))
             {
                 flipH = false;
                 flipV = false;

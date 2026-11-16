@@ -141,6 +141,7 @@ class CMesh : public CMeshWrapper
     void display_extRenderer(const CPose& cumulIFrameTr, CShape* geomData, int displayAttrib, const CPose& tr, int shapeHandle, int& componentIndex) override;
 
     std::string getMeshState() const;
+    bool getPerVertexData(const CPose& shapeRelTr, std::vector<float>& vert, std::vector<int>& ind, std::vector<float>& norm, std::vector<float>& tex) const;
 
     // Following few routines in order not to save duplicate data:
     static void clearTempVerticesIndicesNormalsAndEdges();
