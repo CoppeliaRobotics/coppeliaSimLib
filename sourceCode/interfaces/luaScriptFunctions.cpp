@@ -20,6 +20,7 @@
 #include <meshRoutines.h>
 #include <vFileFinder.h>
 #include <simFlavor.h>
+#include <meshManip.h>
 #ifdef SIM_WITH_GUI
 #include <QScreen>
 #ifdef USES_QGLWIDGET
@@ -11125,25 +11126,45 @@ int _simCreateShape(luaWrap_lua_State* L)
                 getInt32ArrayFromTable(L, 4, il, indices.data());
 
                 std::vector<double> normals;
-                normals.resize(il * 3);
                 double* _normals = nullptr;
                 std::vector<float> texCoords;
-                texCoords.resize(il * 2);
                 float* _texCoords = nullptr;
                 int resol[2];
                 unsigned char* img = nullptr;
 
-                res = checkOneGeneralInputArgument(L, 5, lua_arg_number, il * 3, true, true, &errorString, argOffset);
-                if (res == 2)
-                {
-                    getDoubleArrayFromTable(L, 5, il * 3, normals.data());
-                    _normals = normals.data();
+                if (options & 256)
+                { // per vertex normals & tex coords
+                    normals.resize(vl);
+                    texCoords.resize((2 * vl) / 3);
+                    res = checkOneGeneralInputArgument(L, 5, lua_arg_number, vl, true, true, &errorString, argOffset);
+                    if (res == 2)
+                    {
+                        getDoubleArrayFromTable(L, 5, vl, normals.data());
+                        _normals = normals.data();
+                    }
+                    res = checkOneGeneralInputArgument(L, 6, lua_arg_number, (2 * vl) / 3, true, true, &errorString, argOffset);
+                    if (res == 2)
+                    {
+                        getFloatArrayFromTable(L, 6, (2 * vl) / 3, texCoords.data());
+                        _texCoords = texCoords.data();
+                    }
                 }
-                res = checkOneGeneralInputArgument(L, 6, lua_arg_number, il * 2, true, true, &errorString, argOffset);
-                if (res == 2)
-                {
-                    getFloatArrayFromTable(L, 6, il * 2, texCoords.data());
-                    _texCoords = texCoords.data();
+                else
+                { // per tri corner normals & tex coords
+                    normals.resize(il * 3);
+                    texCoords.resize(il * 2);
+                    res = checkOneGeneralInputArgument(L, 5, lua_arg_number, il * 3, true, true, &errorString, argOffset);
+                    if (res == 2)
+                    {
+                        getDoubleArrayFromTable(L, 5, il * 3, normals.data());
+                        _normals = normals.data();
+                    }
+                    res = checkOneGeneralInputArgument(L, 6, lua_arg_number, il * 2, true, true, &errorString, argOffset);
+                    if (res == 2)
+                    {
+                        getFloatArrayFromTable(L, 6, il * 2, texCoords.data());
+                        _texCoords = texCoords.data();
+                    }
                 }
                 res = checkOneGeneralInputArgument(L, 7, lua_arg_string, 0, true, true, &errorString, argOffset);
                 size_t l;
@@ -11152,8 +11173,7 @@ int _simCreateShape(luaWrap_lua_State* L)
                 res = checkOneGeneralInputArgument(L, 8, lua_arg_integer, 2, true, true, &errorString, argOffset);
                 if (res == 2)
                     getInt32ArrayFromTable(L, 8, 2, resol);
-                retVal = CALL_C_API(simCreateShape, options, shadingAngle, vertices.data(), vl, indices.data(), il,
-                                                 _normals, _texCoords, img, resol);
+                retVal = CALL_C_API(simCreateShape, options, shadingAngle, vertices.data(), vl, indices.data(), il, _normals, _texCoords, img, resol);
             }
         }
     }

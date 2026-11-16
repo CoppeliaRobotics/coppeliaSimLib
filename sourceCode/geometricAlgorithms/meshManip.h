@@ -34,6 +34,10 @@ class CMeshManip
     static void getSize(std::vector<double>* vertices, double x[2], double y[2], double z[2], bool& start);
     static void centerAndScale(std::vector<double>* vertices, double x, double y, double z, double sf);
     template<typename T> static void getNormals(const std::vector<T>* vertices, const std::vector<int>* indices, std::vector<T>* normals);
+    template<typename T> static double getShadingAngleFromPerTriangleCornerNormals(const std::vector<T>* inVertices, const std::vector<int>* inIndices, const std::vector<T>* inNormals, double minAngle = 1.0 * piValue / 180.0);
+    template<typename T> static void generatePerVertexNormalsAndTextCoords(const std::vector<T>* inVertices, const std::vector<int>* inIndices, const std::vector<T>* inNormals, const std::vector<float>* inTexCoords, std::vector<T>* outVertices, std::vector<int>* outIndices, std::vector<T>* outNormals, std::vector<float>* outTexCoords = nullptr);
+    //template<typename T> static void generatePerVertexNormalsAndTextCoords(const std::vector<T>* inVertices, const std::vector<int>* inIndices, const std::vector<float>* inTexCoords, double angle, std::vector<T>* outVertices, std::vector<int>* outIndices, std::vector<T>* outNormals, std::vector<float>* outTexCoords = nullptr);
+    template<typename T> static void generatePerTriangleCornerNormalsAndTextCoords(const std::vector<T>* inVertices, const std::vector<int>* inIndices, const std::vector<T>* inNormals, const std::vector<float>* inTexCoords, std::vector<T>* outVertices, std::vector<int>* outIndices, std::vector<T>* outNormals, std::vector<float>* outTexCoords = nullptr);
     static void getTrianglesFromPolygons(const std::vector<std::vector<int>>& polygons, std::vector<int>& indices);
 
   private:

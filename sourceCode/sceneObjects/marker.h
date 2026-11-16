@@ -87,7 +87,11 @@ class CMarker : public CSceneObject
     // For custom items:
     std::vector<float> _vertices;
     std::vector<int> _indices;
-    std::vector<float> _normals; // per vertex
+    std::vector<float> _normals; // per tri corner
+
+    //std::vector<float> _vert;
+    //std::vector<int> _ind;
+    //std::vector<float> _norm; // per vertex
 
     std::vector<float> _pts; // 3 * _itemPointCnt per item
     std::vector<float> _quats; // 4 per item (qx, qy, qz, qw) (or 0 with lines and triangles, pts and similar)

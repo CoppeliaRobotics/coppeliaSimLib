@@ -177,13 +177,14 @@ class CMesh : public CMeshWrapper
 
     static void _loadPackedIntegers_OLD(CSer& ar, std::vector<int>& data);
 
+    // per triangle corner:
     std::vector<double> _vertices;
     std::vector<int> _indices;
     std::vector<double> _normals;
-    std::vector<unsigned char> _edges;
-
     std::vector<float> _verticesForDisplayAndDisk;
     std::vector<float> _normalsForDisplayAndDisk;
+
+    std::vector<unsigned char> _edges;
 
     int _vertexBufferId;
     int _normalBufferId;

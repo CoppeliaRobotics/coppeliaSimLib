@@ -3713,6 +3713,10 @@ int CScene::getIntArrayProperty_t(int64_t target, const char* ppName, std::vecto
     else if ((target >= sim_object_drawingstart) && (target <= sim_object_drawingend))
     {
     }
+    else if ((target >= sim_object_texturestart) && (target <= sim_object_textureend))
+    {
+        retVal = textures->getIntArrayProperty_t(target, ppName, pState);
+    }
     else if ((target >= sim_object_customscenestart) && (target < sim_object_customsceneend))
         retVal = customObjects->getIntArrayProperty_t(target, ppName, pState);
     else

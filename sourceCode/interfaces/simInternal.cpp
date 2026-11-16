@@ -18,6 +18,7 @@
 #include <imgLoaderSaver.h>
 #include <memorizedConf_old.h>
 #include <algorithm>
+#include <meshManip.h>
 #include <iostream>
 #include <tinyxml2.h>
 #include <simFlavor.h>
@@ -8039,27 +8040,63 @@ int simCreateShape_internal(int options, double shadingAngle, const double* vert
         }
         std::vector<double> vert(vertices, vertices + verticesSize);
         std::vector<int> ind(indices, indices + indicesSize);
+
         std::vector<double> _norm;
         std::vector<double>* norm = nullptr;
-        if (normals != nullptr)
-        {
-            _norm.assign(normals, normals + indicesSize * 3);
-            norm = &_norm;
-        }
+
         std::vector<float> _textCoords;
         std::vector<float>* textCoords = nullptr;
         const unsigned char* img = nullptr;
-        if ((textureCoords != nullptr) && (texture != nullptr) && (textureRes != nullptr))
-        {
-            _textCoords.assign(textureCoords, textureCoords + indicesSize * 2);
-            textCoords = &_textCoords;
-            img = texture;
-        }
-        else if ((options & 128) == 0)
-        { // Simplify meshes only at import, and only if there are no textures (for now):
-            CMeshRoutines::removeDuplicateVerticesAndTriangles(vert, &ind, norm, nullptr, App::userSettings->identicalVertexTolerance);
-        }
 
+        if ( (options & 256) && ((normals != nullptr) || ((textureCoords != nullptr) && (texture != nullptr) && (textureRes != nullptr))))
+        {
+            std::vector<double> n;
+            std::vector<double>* _n = nullptr;
+            std::vector<float> t;
+            std::vector<float>* _t = nullptr;
+            if (normals != nullptr)
+            {
+                n.assign(normals, normals + verticesSize); // per vertex normals
+                _n = &n;
+                norm = &_norm;
+            }
+            if ((textureCoords != nullptr) && (texture != nullptr) && (textureRes != nullptr))
+            {
+                t.assign(textureCoords, textureCoords + (verticesSize * 2) / 3); // per vertex tex coords
+                _t = &t;
+                textCoords = &_textCoords;
+                img = texture;
+            }
+            std::vector<double> v = vert;
+            std::vector<int> i = ind;
+            vert.clear();
+            ind.clear();
+            CMeshManip::generatePerTriangleCornerNormalsAndTextCoords(&v, &i, _n, _t, &vert, &ind, &_norm, &_textCoords);
+            if (norm != nullptr)
+            {
+                shadingAngle = CMeshManip::getShadingAngleFromPerTriangleCornerNormals(&vert, &ind, &_norm, 0.1 * piValue / 180.0);
+                if (shadingAngle < 0.11 * piValue / 180.0)
+                    shadingAngle = 0.0;
+            }
+        }
+        else
+        {
+            if (normals != nullptr)
+            {
+                _norm.assign(normals, normals + indicesSize * 3); // per tri corner normals
+                norm = &_norm;
+            }
+            if ((textureCoords != nullptr) && (texture != nullptr) && (textureRes != nullptr))
+            {
+                _textCoords.assign(textureCoords, textureCoords + indicesSize * 2); // per tri corner tex coords
+                textCoords = &_textCoords;
+                img = texture;
+            }
+            else if ((options & 128) == 0)
+            { // Simplify meshes only at import, and only if there are no textures and normals/textures not specified as per vertex (for now):
+                CMeshRoutines::removeDuplicateVerticesAndTriangles(vert, &ind, norm, nullptr, App::userSettings->identicalVertexTolerance);
+            }
+        }
         CShape* shape = new CShape(CPose::identityTransformation, vert, ind, norm, textCoords, options);
         shape->alignBB("mesh");
         shape->getSingleMesh()->setShadingAngle(shadingAngle);

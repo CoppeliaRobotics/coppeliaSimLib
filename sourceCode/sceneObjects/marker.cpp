@@ -61,11 +61,26 @@ CMarker::CMarker(int type /*= sim_markertype_points*/, unsigned char col[3] /*= 
         }
         if (normals != nullptr)
         {
-            if (normals->size() == _indices.size() * 3)
-                _normals = normals[0];
+            if (normals->size() == _vertices.size())
+            {
+                std::vector<float> vert = _vertices;
+                std::vector<int> ind = _indices;
+                _vertices.clear();
+                _indices.clear();
+                CMeshManip::generatePerTriangleCornerNormalsAndTextCoords(&vert, &ind, normals, nullptr, &_vertices, &_indices, &_normals);
+            }
         }
         if (_normals.empty())
             CMeshManip::getNormals(&_vertices, &_indices, &_normals);
+
+        /* test
+        std::vector<float> vert;
+        std::vector<int> ind;
+        std::vector<float> norm;
+        CMeshManip::generatePerVertexNormalsAndTextCoords<float>(&_vertices, &_indices, &_normals, nullptr, &vert, &ind, &norm);
+        CMeshManip::generatePerTriangleCornerNormalsAndTextCoords<float>(&vert, &ind, &norm, nullptr, &_vertices, &_indices, &_normals);
+        */
+
         for (size_t i = 0; i < _vertices.size() / 3; i++)
         {
             float xyz[3] = {_vertices[3 * i + 0], _vertices[3 * i + 1], _vertices[3 * i + 2]};
@@ -670,9 +685,13 @@ void CMarker::scaleObject(double scalingFactor)
     if ( (_isInScene && App::scenes->getEventsEnabled()) && (_itemType == sim_markertype_custom) )
     {
         CCbor* ev = App::scenes->createSceneObjectChangedEvent(this, false, "vertices", true);
-        ev->appendKeyMatrix(prop(PropMarker::vertices).name, _vertices.data(), 3, _vertices.size() / 3, false);
-        ev->appendKeyInt32Array(prop(PropMarker::indices).name, _indices.data(), _indices.size());
-        ev->appendKeyMatrix(prop(PropMarker::normals).name, _normals.data(), 3, _normals.size() / 3, false);
+        std::vector<float> vert;
+        std::vector<int> ind;
+        std::vector<float> norm;
+        CMeshManip::generatePerVertexNormalsAndTextCoords(&_vertices, &_indices, &_normals, nullptr, &vert, &ind, &norm);
+        ev->appendKeyMatrix(prop(PropMarker::vertices).name, vert.data(), 3, vert.size() / 3, false);
+        ev->appendKeyInt32Array(prop(PropMarker::indices).name, ind.data(), ind.size());
+        ev->appendKeyMatrix(prop(PropMarker::normals).name, norm.data(), 3, norm.size() / 3, false);
         App::scenes->pushEvent();
     }
 }
@@ -694,12 +713,15 @@ void CMarker::pushNakedGenesisEvents(CCbor* ev /*= nullptr*/)
         ev->appendKeyBool(prop(PropMarker::local).name, _itemOptions & sim_markeropts_local);
         ev->appendKeyBool(prop(PropMarker::overlay).name, _itemOptions & sim_markeropts_overlay);
         ev->appendKeyBool(prop(PropMarker::notShaded).name, _itemOptions & sim_markeropts_notshaded);
-        ev->appendKeyVector3(prop(PropMarker::defaultItemSize).name, _itemSize);
         if (_itemType == sim_markertype_custom)
         {
-            ev->appendKeyMatrix(prop(PropMarker::vertices).name, _vertices.data(), 3, _vertices.size() / 3, false);
-            ev->appendKeyInt32Array(prop(PropMarker::indices).name, _indices.data(), _indices.size());
-            ev->appendKeyMatrix(prop(PropMarker::normals).name, _normals.data(), 3, _normals.size() / 3, false);
+            std::vector<float> vert;
+            std::vector<int> ind;
+            std::vector<float> norm;
+            CMeshManip::generatePerVertexNormalsAndTextCoords(&_vertices, &_indices, &_normals, nullptr, &vert, &ind, &norm);
+            ev->appendKeyMatrix(prop(PropMarker::vertices).name, vert.data(), 3, vert.size() / 3, false);
+            ev->appendKeyInt32Array(prop(PropMarker::indices).name, ind.data(), ind.size());
+            ev->appendKeyMatrix(prop(PropMarker::normals).name, norm.data(), 3, norm.size() / 3, false);
         }
         _updateMarkerEvent(false, ev);
         CSceneObject::pushNakedGenesisEvents(ev);
@@ -1284,7 +1306,11 @@ int CMarker::getIntArrayProperty(const char* pName, std::vector<int>& pState) co
     {
         if (strcmp(pName, prop(PropMarker::indices).name) == 0)
         {
-            pState = _indices;
+            std::vector<float> vert;
+            std::vector<int> ind;
+            std::vector<float> norm;
+            CMeshManip::generatePerVertexNormalsAndTextCoords(&_vertices, &_indices, &_normals, nullptr, &vert, &ind, &norm);
+            pState = ind;
             retVal = sim_propertyret_ok;
         }
     }
@@ -1319,11 +1345,6 @@ int CMarker::getVector3Property(const char* pName, C3Vector& pState) const
     int retVal = CSceneObject::getVector3Property(pName, pState);
     if (retVal == sim_propertyret_unknownproperty)
     {
-        if (strcmp(pName, prop(PropMarker::defaultItemSize).name) == 0)
-        {
-            pState.setData(_itemSize);
-            retVal = sim_propertyret_ok;
-        }
     }
 
     return retVal;
@@ -1373,25 +1394,33 @@ int CMarker::getMatrixProperty(const char* pName, CMatrix& pState) const
         }
         else if (strcmp(pName, prop(PropMarker::vertices).name) == 0)
         {
-            size_t n = _vertices.size() / 3;
+            std::vector<float> vert;
+            std::vector<int> ind;
+            std::vector<float> norm;
+            CMeshManip::generatePerVertexNormalsAndTextCoords(&_vertices, &_indices, &_normals, nullptr, &vert, &ind, &norm);
+            size_t n = vert.size() / 3;
             pState.resize(3, n, 0.0);
             for (size_t i = 0; i < n; i++)
             {
-                pState.data[n * 0 + i] = (double)_vertices[3 * i + 0];
-                pState.data[n * 1 + i] = (double)_vertices[3 * i + 1];
-                pState.data[n * 2 + i] = (double)_vertices[3 * i + 2];
+                pState.data[n * 0 + i] = (double)vert[3 * i + 0];
+                pState.data[n * 1 + i] = (double)vert[3 * i + 1];
+                pState.data[n * 2 + i] = (double)vert[3 * i + 2];
             }
             retVal = sim_propertyret_ok;
         }
         else if (strcmp(pName, prop(PropMarker::normals).name) == 0)
         {
-            size_t n = _normals.size() / 3;
+            std::vector<float> vert;
+            std::vector<int> ind;
+            std::vector<float> norm;
+            CMeshManip::generatePerVertexNormalsAndTextCoords(&_vertices, &_indices, &_normals, nullptr, &vert, &ind, &norm);
+            size_t n = norm.size() / 3;
             pState.resize(3, n, 0.0);
             for (size_t i = 0; i < n; i++)
             {
-                pState.data[n * 0 + i] = (double)_normals[3 * i + 0];
-                pState.data[n * 1 + i] = (double)_normals[3 * i + 1];
-                pState.data[n * 2 + i] = (double)_normals[3 * i + 2];
+                pState.data[n * 0 + i] = (double)norm[3 * i + 0];
+                pState.data[n * 1 + i] = (double)norm[3 * i + 1];
+                pState.data[n * 2 + i] = (double)norm[3 * i + 2];
             }
             retVal = sim_propertyret_ok;
         }
@@ -1569,10 +1598,6 @@ void CMarker::displayOverlay(CViewableBase* renderingObject, int displayAttrib)
 {
     displayMarker(this, renderingObject, displayAttrib, true);
 }
-
-#include <cmath>
-#include <vector>
-#include <cstddef>
 
 namespace
 {
