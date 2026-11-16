@@ -342,6 +342,11 @@ void CScriptObject::serialize(CSer& ar)
                 }
             }
             computeBoundingBox();
+            // Fix a bug introduced after renaming script objects from "script" to "scriptObject":
+            if (_objectTypeStr == "script")
+                _objectTypeStr = "scriptObject";
+            if (_originalObjectTypeStr == "script")
+                _originalObjectTypeStr = "scriptObject";
         }
     }
     else
@@ -389,6 +394,11 @@ void CScriptObject::serialize(CSer& ar)
             nakedScript->serialize(ar);
 
             computeBoundingBox();
+            // Fix a bug introduced after renaming script objects from "script" to "scriptObject":
+            if (_objectTypeStr == "script")
+                _objectTypeStr = "scriptObject";
+            if (_originalObjectTypeStr == "script")
+                _originalObjectTypeStr = "scriptObject";
         }
     }
 }
@@ -702,7 +712,6 @@ int CScriptObject::getStringProperty(const char* ppName, std::string& pState) co
 {
     std::string _pName(ppName);
     int retVal = CSceneObject::getStringProperty(ppName, pState);
-
     // for backw. compatibility
     if (retVal == sim_propertyret_unknownproperty)
     {
