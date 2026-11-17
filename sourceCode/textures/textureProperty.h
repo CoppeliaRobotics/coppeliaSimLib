@@ -32,6 +32,7 @@ class CTextureProperty
     CTextureObject* getTextureObject();
     std::vector<float>* getTextureCoordinates(int objectStateId, const std::vector<float>& vertices, const std::vector<int>& triangles);
     std::vector<float>* getFixedTextureCoordinates();
+    void flipFaces();
     CPose getTextureRelativeConfig();
     void setTextureRelativeConfig(const CPose& c);
     void getTextureScaling(double& x, double& y);

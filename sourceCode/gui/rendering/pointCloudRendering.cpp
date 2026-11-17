@@ -108,8 +108,13 @@ void displayPointCloud(CPointCloud* pointCloud, CViewableBase* renderingObject, 
                 cols = pointCloud->getDisplayColors();
             }
 
-            if (cols->size() == 0)
+            if ((cols->size() == 0) || ((displayAttrib & sim_displayattribute_colorcoded) != 0))
             {
+                if ((displayAttrib & sim_displayattribute_colorcoded) != 0)
+                { // set the color-coded object ID:
+                    ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack); // probably not needed
+                    glColor3ub(pointCloud->getObjectHandle() & 255, (pointCloud->getObjectHandle() >> 8) & 255, (pointCloud->getObjectHandle() >> 16) & 255);
+                }
                 glBegin(GL_POINTS);
                 glNormal3dv(normalVectorForLinesAndPoints.data);
                 for (size_t i = 0; i < pts->size() / 3; i++)

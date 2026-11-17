@@ -141,11 +141,28 @@ CTextureObject* CTextureProperty::getStartedTextureObject()
     return (_startedTexture);
 }
 
+void CTextureProperty::flipFaces()
+{
+    for (size_t i = 0; i < _fixedTextureCoordinates.size() / 6; i++)
+    {
+        float s0 = _fixedTextureCoordinates[6 * i + 0];
+        float s1 = _fixedTextureCoordinates[6 * i + 1];
+        _fixedTextureCoordinates[6 * i + 0] = _fixedTextureCoordinates[6 * i + 4];
+        _fixedTextureCoordinates[6 * i + 1] = _fixedTextureCoordinates[6 * i + 5];
+        _fixedTextureCoordinates[6 * i + 4] = s0;
+        _fixedTextureCoordinates[6 * i + 5] = s1;
+    }
+#ifdef SIM_WITH_GUI
+    decreaseTexCoordBufferRefCnt(_texCoordBufferId);
+    _texCoordBufferId = -1;
+#endif
+}
+
 std::vector<float>* CTextureProperty::getFixedTextureCoordinates()
 {
     if (_fixedTextureCoordinates.size() != 0)
-        return (&_fixedTextureCoordinates);
-    return (nullptr);
+        return &_fixedTextureCoordinates;
+    return nullptr;
 }
 
 std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId, const std::vector<float>& vertices, const std::vector<int>& triangles)
@@ -153,17 +170,17 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId, c
     if (_fixedTextureCoordinates.size() != 0)
     { // We have fixed coordinates!
         if ((triangles.size() == _fixedTextureCoordinates.size() / 2))
-            return (&_fixedTextureCoordinates);
-        return (nullptr); // texture needs to be destroyed
+            return &_fixedTextureCoordinates;
+        return nullptr; // texture needs to be destroyed
     }
 
     if ((objectStateId == _objectStateId) && (triangles.size() == _calculatedTextureCoordinates.size() / 2))
-        return (&_calculatedTextureCoordinates);
+        return &_calculatedTextureCoordinates;
 
     if (vertices.size() == 0)
     {
         _calculatedTextureCoordinates.clear();
-        return (&_calculatedTextureCoordinates);
+        return &_calculatedTextureCoordinates;
     }
 
 // we need to compute the texture coordinates!
@@ -384,7 +401,7 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId, c
         _calculatedTextureCoordinates.push_back(tc[2][1]);
     }
 
-    return (&_calculatedTextureCoordinates);
+    return &_calculatedTextureCoordinates;
 }
 
 void CTextureProperty::setInterpolateColors(bool ic)
@@ -394,7 +411,7 @@ void CTextureProperty::setInterpolateColors(bool ic)
 
 bool CTextureProperty::getInterpolateColors()
 {
-    return (_interpolateColor);
+    return _interpolateColor;
 }
 
 void CTextureProperty::setApplyMode(int dt)
@@ -404,7 +421,7 @@ void CTextureProperty::setApplyMode(int dt)
 
 int CTextureProperty::getApplyMode()
 {
-    return (_applyMode);
+    return _applyMode;
 }
 
 CTextureProperty* CTextureProperty::copyYourself()
@@ -421,7 +438,7 @@ CTextureProperty* CTextureProperty::copyYourself()
     newObj->_textureScalingY = _textureScalingY;
     newObj->_fixedTextureCoordinates.assign(_fixedTextureCoordinates.begin(), _fixedTextureCoordinates.end());
 
-    return (newObj);
+    return newObj;
 }
 
 int CTextureProperty::getTextureObjectHandle() const
@@ -480,7 +497,7 @@ void CTextureProperty::performTextureObjectLoadingMapping(const std::map<int, in
 
 CPose CTextureProperty::getTextureRelativeConfig()
 {
-    return (_textureRelativeConfig);
+    return _textureRelativeConfig;
 }
 
 void CTextureProperty::setTextureRelativeConfig(const CPose& c)

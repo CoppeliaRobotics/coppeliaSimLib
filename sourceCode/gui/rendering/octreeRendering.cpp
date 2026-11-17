@@ -234,15 +234,22 @@ void displayOctree(COcTree* octree, CViewableBase* renderingObject, int displayA
                 }
                 else
                 {
+                    if ((displayAttrib & sim_displayattribute_colorcoded) != 0)
+                    { // set the color-coded object ID:
+                        ogl::setMaterialColor(ogl::colorBlack, ogl::colorBlack, ogl::colorBlack); // probably not needed
+                        glColor3ub(octree->getObjectHandle() & 255, (octree->getObjectHandle() >> 8) & 255, (octree->getObjectHandle() >> 16) & 255);
+                    }
+
                     for (size_t i = 0; i < _voxelPositions.size() / 3; i++)
                     {
                         glPushMatrix();
-                        glTranslated(_voxelPositions[3 * i + 0], _voxelPositions[3 * i + 1],
-                                     _voxelPositions[3 * i + 2]);
-
-                        const float* cc = octree->getColors();
-                        float c[4] = {cc[4 * i + 0], cc[4 * i + 1], cc[4 * i + 2], cc[4 * i + 3]};
-                        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, c);
+                        glTranslated(_voxelPositions[3 * i + 0], _voxelPositions[3 * i + 1], _voxelPositions[3 * i + 2]);
+                        if ((displayAttrib & sim_displayattribute_colorcoded) == 0)
+                        {
+                            const float* cc = octree->getColors();
+                            float c[4] = {cc[4 * i + 0], cc[4 * i + 1], cc[4 * i + 2], cc[4 * i + 3]};
+                            glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, c);
+                        }
                         int _vertexBufferId = octree->getVertexBufferId();
                         int _normalBufferId = octree->getNormalBufferId();
                         _drawTriangles(_cubeVertices, 24, _cubeIndices, 36, _cubeNormals, nullptr, &_vertexBufferId,

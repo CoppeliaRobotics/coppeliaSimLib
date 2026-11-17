@@ -1332,6 +1332,12 @@ void CMesh::flipFaces()
     _computeVisibleEdges();
     checkIfConvex();
 
+    if (_textureProperty != nullptr)
+    {
+        _textureProperty->flipFaces();
+        _textureProperty->getTextureCoordinates(-1, _verticesForDisplayAndDisk, _indices); // recompute non-fixed tex coords
+    }
+
 #ifdef SIM_WITH_GUI
     decreaseVertexBufferRefCnt(_vertexBufferId);
     decreaseNormalBufferRefCnt(_normalBufferId);
@@ -2679,8 +2685,7 @@ void CMesh::display_extRenderer(const CPose& cumulIFrameTr, CShape* geomData, in
         if (tp != nullptr)
         {
             textured = true;
-            textureCoords =
-                tp->getTextureCoordinates(geomData->getMeshModificationCounter(), _verticesForDisplayAndDisk, _indices);
+            textureCoords = tp->getTextureCoordinates(geomData->getMeshModificationCounter(), _verticesForDisplayAndDisk, _indices);
             if (textureCoords == nullptr)
                 return; // Should normally never happen
             data[9] = &(textureCoords[0])[0];
