@@ -70,6 +70,7 @@ class CMarker : public CSceneObject
     void display_extRenderer(CViewableBase* renderingObject, int displayAttrib);
 
   protected:
+    void _addItems(const std::vector<float>* pts, const std::vector<float>* quats, const std::vector<unsigned char>* rgbas, const std::vector<float>* sizes, bool transform = true, std::vector<int64_t>* newIds = nullptr);
     void _updateMarkerEvent(bool incremental, CCbor* evv = nullptr);
     void _initialize();
     void _rebuildMarkerBoundingBox();
@@ -88,10 +89,6 @@ class CMarker : public CSceneObject
     std::vector<float> _vertices;
     std::vector<int> _indices;
     std::vector<float> _normals; // per tri corner
-
-    //std::vector<float> _vert;
-    //std::vector<int> _ind;
-    //std::vector<float> _norm; // per vertex
 
     std::vector<float> _pts; // 3 * _itemPointCnt per item
     std::vector<float> _quats; // 4 per item (qx, qy, qz, qw) (or 0 with lines and triangles, pts and similar)

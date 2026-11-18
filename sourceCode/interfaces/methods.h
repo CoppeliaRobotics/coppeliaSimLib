@@ -26,6 +26,7 @@ CPose fetchPose(const CInterfaceStack* inStack, int index, const double xyzqwqxq
 C3Vector fetchVector3(const CInterfaceStack* inStack, int index, std::initializer_list<double> xyz = {});
 C3Vector fetchVector3(const CInterfaceStack* inStack, int index, const double xyz[3]);
 CMatrix fetchMatrix(const CInterfaceStack* inStack, int index);
+bool fetchMatrixDims(const CInterfaceStack* inStack, int index, size_t& rows, size_t& cols);
 void fetchMatrixData(const CInterfaceStack* inStack, int index, std::vector<double>& data, bool rowByRow);
 void fetchMatrixData(const CInterfaceStack* inStack, int index, std::vector<float>& data, bool rowByRow);
 void fetchIntArray(const CInterfaceStack* inStack, int index, std::vector<int>& outArr, std::initializer_list<int> arr = {});
@@ -87,7 +88,6 @@ extern std::string _method_resetSensor(int targetObj, CScript* currentScript, co
 extern std::string _method_checkSensor(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_getObjects(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_addItems(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
-extern std::string _method_addPackedItems(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_clearItems(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_removeItems(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);
 extern std::string _method_callFunction(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack);

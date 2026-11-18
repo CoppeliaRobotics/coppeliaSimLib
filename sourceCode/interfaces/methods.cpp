@@ -86,7 +86,6 @@ std::string callMethod(int targetObj, const char* method, CScript* currentScript
         funcTable["checkSensor"] = _method_checkSensor;
         funcTable["getObjects"] = _method_getObjects;
         funcTable["addItems"] = _method_addItems;
-        funcTable["addPackedItems"] = _method_addPackedItems;
         funcTable["clearItems"] = _method_clearItems;
         funcTable["removeItems"] = _method_removeItems;
         funcTable["callFunction"] = _method_callFunction;
@@ -945,6 +944,23 @@ CMatrix fetchMatrix(const CInterfaceStack* inStack, int index)
             return CMatrix(((CInterfaceStackMatrix*)obj)->getValue()[0]);
     }
     return CMatrix();
+}
+
+bool fetchMatrixDims(const CInterfaceStack* inStack, int index, size_t& rows, size_t& cols)
+{
+    bool retVal = false;
+    int argCnt = inStack->getStackSize();
+    if (argCnt > index)
+    {
+        const CInterfaceStackObject* obj = inStack->getStackObjectFromIndex(index);
+        if (obj->getObjectType() == sim_stackitem_matrix)
+        {
+            retVal = true;
+            rows = ((CInterfaceStackMatrix*)obj)->getValue()->rows;
+            cols = ((CInterfaceStackMatrix*)obj)->getValue()->cols;
+        }
+    }
+    return retVal;
 }
 
 void fetchMatrixData(const CInterfaceStack* inStack, int index, std::vector<double>& data, bool rowByRow)
@@ -3135,63 +3151,70 @@ std::string _method_addItems(int targetObj, CScript* currentScript, const CInter
 {
     std::string errMsg;
     CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, sim_sceneobject_marker, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_matrix, 3, -1, arg_map | arg_optional}))
+    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_matrix, -1, -1, arg_map | arg_optional}))
     {
+        std::vector<float> ccols;
+        std::vector<float> quats;
+        std::vector<float> sizes;
+        int t = target->getMarkerType();
+        int opts = target->getMarkerOptions();
         std::vector<float> pts;
-        fetchMatrixData(inStack, 0, pts, false);
-        std::vector<float> ccols;
-        std::vector<float> quats;
-        std::vector<float> sizes;
-        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
+        size_t c, r;
+        bool correctDims = false;
+        if (fetchMatrixDims(inStack, 0, r, c))
         {
-            map->fetchMatrixDataFromKey("colors", ccols, 4, int(pts.size() / 3), false, &err);
-            map->fetchMatrixDataFromKey("quaternions", quats, 4, int(pts.size() / 3), false, &err);
-            map->fetchMatrixDataFromKey("sizes", sizes, 3, int(pts.size() / 3), false, &err);
-        });
-        if (errMsg.empty())
-        {
-            std::vector<unsigned char> cols;
-            cols.resize(ccols.size());
-            for (size_t i = 0; i < ccols.size(); i++)
-                cols[i] = (uint8_t)(ccols[i] * 255.1f);
-            std::vector<int64_t> newIds;
-            target->addItems(&pts, &quats, &cols, &sizes, true, &newIds);
-            outStack->pushInt64ArrayOntoStack(newIds.data(), newIds.size());
+            correctDims = ((r == 3) && (c != 0));
+            if (!correctDims)
+            {
+                if ( (t == sim_markertype_lines) || (opts & sim_markeropts_tube) )
+                    correctDims = ((r == 2 * 3) && (c != 0));
+                else if (t == sim_markertype_triangles)
+                    correctDims = ((r == 3 * 3) && (c != 0));
+            }
+            fetchMatrixData(inStack, 0, pts, false);
         }
-    }
-    return errMsg;
-}
-
-std::string _method_addPackedItems(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
-{
-    std::string errMsg;
-    CMarker* target = (CMarker*)getSpecificSceneObjectType(targetObj, sim_sceneobject_marker, &errMsg, -1);
-    if ((target != nullptr) && checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
-    {
-        std::string str = fetchBuffer(inStack, 0);
-        std::vector<float> pts(str.size() / sizeof(float));
-        std::memcpy(pts.data(), str.data(), pts.size() * sizeof(float));
-        std::vector<float> ccols;
-        std::vector<float> quats;
-        std::vector<float> sizes;
-        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
+        else
+        { // fetch from table
+            fetchMatrixData(inStack, 0, pts, false);
+            correctDims = ( (pts.size() >= 3) &&(pts.size() == (pts.size() / 3) * 3) );
+        }
+        if (correctDims)
         {
-            if (map->fetchStringFromKey("colors", str, &err))
+            withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
             {
-                ccols.resize(str.size() / sizeof(float));
-                std::memcpy(ccols.data(), str.data(), ccols.size() * sizeof(float));
-            }
-            if (map->fetchStringFromKey("quaternions", str, &err))
-            {
-                quats.resize(str.size() / sizeof(float));
-                std::memcpy(quats.data(), str.data(), quats.size() * sizeof(float));
-            }
-            if (map->fetchStringFromKey("sizes", str, &err))
-            {
-                sizes.resize(str.size() / sizeof(float));
-                std::memcpy(sizes.data(), str.data(), sizes.size() * sizeof(float));
-            }
-        });
+                int c = int(pts.size() / 3);
+                bool qAs = ((t != sim_markertype_points) && (t != sim_markertype_lines) && (t != sim_markertype_triangles));
+                if (opts & sim_markeropts_tube)
+                {
+                    c /= 2;
+                    qAs = false;
+                }
+                if (opts & sim_markeropts_axis)
+                    qAs = true;
+                else
+                {
+                    if (t == sim_markertype_lines)
+                    {
+                        if (!map->fetchMatrixDataFromKey("colors", ccols, 2 * 4, c / 2, false))
+                            map->fetchMatrixDataFromKey("colors", ccols, 4, c, false, &err);
+                    }
+                    else if (t == sim_markertype_triangles)
+                    {
+                        if (!map->fetchMatrixDataFromKey("colors", ccols, 3 * 4, c / 3, false))
+                            map->fetchMatrixDataFromKey("colors", ccols, 4, c, false, &err);
+                    }
+                    else
+                        map->fetchMatrixDataFromKey("colors", ccols, 4, c, false, &err);
+                }
+                if (qAs)
+                {
+                    map->fetchMatrixDataFromKey("quaternions", quats, 4, c, false, &err);
+                    map->fetchMatrixDataFromKey("sizes", sizes, 3, c, false, &err);
+                }
+            });
+        }
+        else
+            errMsg = "bad argument #1 (invalid number of elements).";
         if (errMsg.empty())
         {
             std::vector<unsigned char> cols;

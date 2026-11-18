@@ -146,7 +146,7 @@ int CMarker::getData(const float** pts, const float** quats, const unsigned char
 void CMarker::_initialize()
 {
     _itemPointCnt = 1;
-    if ((_itemType == sim_markertype_lines) || (_itemType == sim_markertype_tubes))
+    if (_itemType == sim_markertype_lines)
         _itemPointCnt = 2;
     else if (_itemType == sim_markertype_triangles)
         _itemPointCnt = 3;
@@ -182,7 +182,7 @@ void CMarker::_rebuildMarkerBoundingBox()
     for (size_t i = 0; i < _ids.size(); i++)
     {
         CItemPointIts its;
-        if ( (_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_tubes) && (_itemType != sim_markertype_triangles) )
+        if ( (_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_triangles) )
         {
             if (_itemType != sim_markertype_custom)
             {
@@ -356,10 +356,11 @@ void CMarker::remItems(int itemCntToDelete, bool triggerEvent /*= true*/)
         _pts.erase(_pts.begin(), _pts.begin() + itemCntToDelete * 3 * _itemPointCnt);
         _rgba.erase(_rgba.begin(), _rgba.begin() + itemCntToDelete * 4 * _itemPointCnt);
         _ids.erase(_ids.begin(), _ids.begin() + itemCntToDelete);
-        if ( (_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_tubes) && (_itemType != sim_markertype_triangles) )
-            _quats.erase(_quats.begin(), _quats.begin() + itemCntToDelete * 4 * _itemPointCnt);
         if ( (_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_triangles) )
+        {
+            _quats.erase(_quats.begin(), _quats.begin() + itemCntToDelete * 4 * _itemPointCnt);
             _sizes.erase(_sizes.begin(), _sizes.begin() + itemCntToDelete * 3 * _itemPointCnt);
+        }
         int tot = int(_pts.size()) / (3 * _itemPointCnt);
         if (tot < _newItemsCnt)
             _newItemsCnt = tot;
@@ -372,6 +373,91 @@ void CMarker::remItems(int itemCntToDelete, bool triggerEvent /*= true*/)
 }
 
 void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* quats, const std::vector<unsigned char>* rgbas, const std::vector<float>* sizes, bool transform /*= true*/, std::vector<int64_t>* newIds /*= nullptr*/)
+{
+    if (_itemOptions & sim_markeropts_tube)
+    {
+        int lineCnt = int(pts->size()) / 6;
+        std::vector<float> npts;
+        npts.resize(lineCnt * 3);
+        std::vector<float> nquats;
+        nquats.resize(lineCnt * 4);
+        std::vector<float> nsizes;
+        nsizes.resize(lineCnt * 3);
+        for (size_t i = 0; i < lineCnt; i++)
+        {
+            C3Vector v0(pts->data() + 6 * i + 0);
+            C3Vector v1(pts->data() + 6 * i + 3);
+            const C3Vector dv(v1 - v0);
+            const float len = dv.getLength();
+            const C3Vector center((v0 + v1) * 0.5f);
+            // Orientation: rotate the cylinder's local z-axis onto the segment axis.
+            // C4Vector default ctor is identity, which is what we want for a degenerate segment.
+            C4Vector q;
+            if (len > 1e-6f)
+                q.alignQuaternion(v1 -v0);
+            else
+                q.setIdentity();
+            npts[3 * i + 0] = center(0);
+            npts[3 * i + 1] = center(1);
+            npts[3 * i + 2] = center(2);
+
+            nquats[4 * i + 0] = q(1); // qx
+            nquats[4 * i + 1] = q(2); // qy
+            nquats[4 * i + 2] = q(3); // qz
+            nquats[4 * i + 3] = q(0); // qw
+
+            nsizes[3 * i + 0] = _itemSize[0];  // sr
+            nsizes[3 * i + 1] = _itemSize[0];  // sr
+            nsizes[3 * i + 2] = len; // sl
+        }
+        _addItems(&npts, &nquats, rgbas, &nsizes, transform, newIds);
+    }
+    else if (_itemOptions & sim_markeropts_axis)
+    {
+        int ptsCnt = int(pts->size()) / 3;
+        C3X3Matrix m;
+        if ((quats == nullptr) || ((quats->size() / 4) != ptsCnt))
+            m.setIdentity();
+        std::vector<float> npts;
+        npts.resize(ptsCnt * 6 * 3);
+        std::vector<unsigned char> nrgbas;
+        nrgbas.resize(ptsCnt * 6 * 4);
+        float s[3] = {float(_itemSize[0]), float(_itemSize[1]), float(_itemSize[2])};
+
+        for (size_t i = 0; i < ptsCnt; i++)
+        {
+            if ((quats != nullptr) && ((quats->size() / 4) == (pts->size() / 3)))
+                m = C3X3Matrix(CQuaternion(quats->data() + 4 * i, true));
+            if ((sizes != nullptr) && (sizes->size() == pts->size()))
+            {
+                s[0] = sizes->at(3 * i + 0);
+                s[1] = sizes->at(3 * i + 1);
+                s[2] = sizes->at(3 * i + 2);
+            }
+            for (size_t j = 0; j < 3; j++)
+            {
+                npts[18 * i + j + 0] = pts->at(3 * i + j);
+                npts[18 * i + j + 3] = pts->at(3 * i + j) + float(m.axis[0](j)) * s[0];
+                npts[18 * i + j + 6] = pts->at(3 * i + j);
+                npts[18 * i + j + 9] = pts->at(3 * i + j) + float(m.axis[1](j)) * s[1];
+                npts[18 * i + j + 12] = pts->at(3 * i + j);
+                npts[18 * i + j + 15] = pts->at(3 * i + j) + float(m.axis[2](j)) * s[2];
+                for (size_t k = 0; k < 2; k++)
+                {
+                    nrgbas[24 * i + 8 * j + k * 4 + 0] = (j == 0) ? 255: 0;
+                    nrgbas[24 * i + 8 * j + k * 4 + 1] = (j == 1) ? 255: 0;
+                    nrgbas[24 * i + 8 * j + k * 4 + 2] = (j == 2) ? 255: 0;
+                    nrgbas[24 * i + 8 * j + k * 4 + 3] = 255;
+                }
+            }
+        }
+        _addItems(&npts, nullptr, &nrgbas, nullptr, transform, newIds);
+    }
+    else
+        _addItems(pts, quats, rgbas, sizes, transform, newIds);
+}
+
+void CMarker::_addItems(const std::vector<float>* pts, const std::vector<float>* quats, const std::vector<unsigned char>* rgbas, const std::vector<float>* sizes, bool transform /*= true*/, std::vector<int64_t>* newIds /*= nullptr*/)
 {
     int ptsCnt = int(pts->size()) / 3;
     if (quats != nullptr)
@@ -426,7 +512,7 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
         }
     }
 
-    bool hasDim = ((_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_tubes) && (_itemType != sim_markertype_triangles));
+    bool hasDim = ((_itemType != sim_markertype_points) && (_itemType != sim_markertype_lines) && (_itemType != sim_markertype_triangles));
     for (int i = 0; i < itemCnt; i++)
     {
         bool skip = false;
@@ -596,12 +682,6 @@ void CMarker::addItems(const std::vector<float>* pts, const std::vector<float>* 
                         _sizes.push_back(_itemSize[j]);
                 }
             }
-            else if (_itemType == sim_markertype_tubes)
-            {
-                for (int j = 0; j < 6 ; j++)
-                    _sizes.push_back(_itemSize[j]);
-            }
-
             _nextId++;
         }
         else
@@ -869,6 +949,7 @@ void CMarker::serialize(CSer& ar)
         { // Loading
             int byteQuantity;
             std::string theName = "";
+            bool tubeOrAxis_old = false;
             while (theName.compare(SER_END_OF_OBJECT) != 0)
             {
                 theName = ar.readDataName();
@@ -896,6 +977,18 @@ void CMarker::serialize(CSer& ar)
                             ar >> _itemCol[i];
                         for (size_t i = 0; i < 3; i++)
                             ar >> _itemSize[i];
+                        if (_itemType == 14)
+                        {
+                            _itemType = sim_markertype_cylinders;
+                            _itemOptions |= sim_markeropts_tube;
+                            tubeOrAxis_old = true;
+                        }
+                        else if (_itemType == 15)
+                        {
+                            _itemType = sim_markertype_lines;
+                            _itemOptions |= sim_markeropts_axis;
+                            tubeOrAxis_old = true;
+                        }
                     }
 
                     if (theName.compare("Ext") == 0)
@@ -991,6 +1084,8 @@ void CMarker::serialize(CSer& ar)
                         ar.loadUnknownData();
                 }
             }
+            if (tubeOrAxis_old)
+                remItems(0);
             _initialize();
         }
     }
@@ -1000,8 +1095,8 @@ void CMarker::serialize(CSer& ar)
                               (ar.getFileType() != CSer::filetype_csim_xml_simplemodel_file));
         if (ar.isStoring())
         {
-            ar.xmlAddNode_comment(" 'type' tag: can be 'points', 'lines', 'triangles', 'spheres', 'squares', 'discs', 'cubes', 'tube' or 'axes' ", exhaustiveXml);
-            ar.xmlAddNode_enum("type", _itemType, {{sim_markertype_points, "points"}, {sim_markertype_lines, "lines"}, {sim_markertype_tubes, "tubes"}, {sim_markertype_axes, "axes"}, {sim_markertype_triangles, "triangles"}, {sim_markertype_spheres, "spheres"}, {sim_markertype_squares, "squares"}, {sim_markertype_discs, "discs"}, {sim_markertype_cubes, "cubes"}, {sim_markertype_cylinders, "cylinders"}, {sim_markertype_custom, "custom"}});
+            ar.xmlAddNode_comment(" 'type' tag: can be 'points', 'lines', 'triangles', 'spheres', 'squares', 'discs', 'cubes'", exhaustiveXml);
+            ar.xmlAddNode_enum("type", _itemType, {{sim_markertype_points, "points"}, {sim_markertype_lines, "lines"}, {sim_markertype_triangles, "triangles"}, {sim_markertype_spheres, "spheres"}, {sim_markertype_squares, "squares"}, {sim_markertype_discs, "discs"}, {sim_markertype_cubes, "cubes"}, {sim_markertype_cylinders, "cylinders"}, {sim_markertype_custom, "custom"}});
 
             ar.xmlAddNode_int("maxCnt", _itemMaxCnt);
             ar.xmlAddNode_int("options", _itemOptions);
@@ -1038,8 +1133,6 @@ void CMarker::serialize(CSer& ar)
                                {
                                    {"points", sim_markertype_points},
                                    {"lines", sim_markertype_lines},
-                                   {"tubes", sim_markertype_tubes},
-                                   {"axes", sim_markertype_axes},
                                    {"triangles", sim_markertype_triangles},
                                    {"spheres", sim_markertype_spheres},
                                    {"squares", sim_markertype_squares},
@@ -1522,12 +1615,7 @@ void CMarker::_updateMarkerEvent(bool incremental, CCbor* evv /*= nullptr*/)
                     else
                         ev->appendKeyMatrix(prop(PropMarker::quaternions).name, (float*)nullptr, 4, 0, false);
                     if (_sizes.size() > 0)
-                    {
-                        if (_itemType == sim_markertype_tubes)
-                            ev->appendKeyMatrix(prop(PropMarker::sizes).name, _sizes.data() + _sizes.size() - (_newItemsCnt * 6 * _itemPointCnt), 6, _newItemsCnt * _itemPointCnt, false);
-                        else
-                            ev->appendKeyMatrix(prop(PropMarker::sizes).name, _sizes.data() + _sizes.size() - (_newItemsCnt * 3 * _itemPointCnt), 3, _newItemsCnt * _itemPointCnt, false);
-                    }
+                        ev->appendKeyMatrix(prop(PropMarker::sizes).name, _sizes.data() + _sizes.size() - (_newItemsCnt * 3 * _itemPointCnt), 3, _newItemsCnt * _itemPointCnt, false);
                     else
                         ev->appendKeyMatrix(prop(PropMarker::sizes).name, (float*)nullptr, 3, 0);
                     ev->appendKeyUint8Array(prop(PropMarker::colors).name, (unsigned char*)(_rgba.data() + _rgba.size() - (_newItemsCnt * 4 * _itemPointCnt)), _newItemsCnt * 4 * _itemPointCnt);
@@ -2151,19 +2239,17 @@ void CMarker::drawItems(int displayAttrib, const double normalVectorForLinesAndP
     }
 
            // Points and lines need normal arrays off (they use a single glNormal)
-    if (_itemType == sim_markertype_points || _itemType == sim_markertype_lines || _itemType == sim_markertype_axes)
+    if (_itemType == sim_markertype_points || _itemType == sim_markertype_lines)
         glDisableClientState(GL_NORMAL_ARRAY);
 
     switch (_itemType)
     {
     case sim_markertype_points:    _drawPoints(displayAttrib, normalVectorForLinesAndPoints); break;
     case sim_markertype_lines:     _drawLines(displayAttrib, normalVectorForLinesAndPoints); break;
-    case sim_markertype_tubes:     _drawTubeLines(displayAttrib, normalVectorForLinesAndPoints); break;
     case sim_markertype_triangles: _drawTriangles(displayAttrib, normalVectorForLinesAndPoints); break;
     case sim_markertype_squares:   _drawQuadPoints(displayAttrib, normalVectorForLinesAndPoints); break;
     case sim_markertype_discs:     _drawDiscPoints(displayAttrib, normalVectorForLinesAndPoints); break;
     case sim_markertype_cubes:     _drawCubePoints(displayAttrib, normalVectorForLinesAndPoints); break;
-    case sim_markertype_axes:      _drawAxesPoints(displayAttrib, normalVectorForLinesAndPoints); break;
     case sim_markertype_spheres:   _drawSpherePoints(displayAttrib, normalVectorForLinesAndPoints); break;
     case sim_markertype_cylinders: _drawCylinderPoints(displayAttrib, normalVectorForLinesAndPoints); break;
     case sim_markertype_custom:    _drawCustomPoints(displayAttrib, normalVectorForLinesAndPoints); break;
