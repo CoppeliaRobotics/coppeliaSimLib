@@ -3211,6 +3211,13 @@ std::string _method_addItems(int targetObj, CScript* currentScript, const CInter
                     map->fetchMatrixDataFromKey("quaternions", quats, 4, c, false, &err);
                     map->fetchMatrixDataFromKey("sizes", sizes, 3, c, false, &err);
                 }
+                else
+                {
+                    if (map->fetchMatrixDataFromKey("quaternions", quats, -1, -1, false))
+                        errMsg = "bad argument #2 ('quaternions' field not allowed with that marker type).";
+                    if (map->fetchMatrixDataFromKey("sizes", sizes, -1, -1, false))
+                        errMsg = "bad argument #2 ('sizes' field not allowed with that marker type).";
+                }
             });
         }
         else

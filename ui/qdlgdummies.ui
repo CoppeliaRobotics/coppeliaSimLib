@@ -1225,64 +1225,6 @@
     <string>Apply to selection</string>
    </property>
   </widget>
-  <widget class="QGroupBox" name="groupBox_2">
-   <property name="geometry">
-    <rect>
-     <x>120</x>
-     <y>110</y>
-     <width>411</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Visual properties</string>
-   </property>
-   <property name="flat">
-    <bool>false</bool>
-   </property>
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <widget class="QLabel" name="label_6">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>25</y>
-      <width>131</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Object size [m]</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="qqSize_2">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>25</y>
-      <width>81</width>
-      <height>18</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="qqColor_2">
-    <property name="geometry">
-     <rect>
-      <x>260</x>
-      <y>25</y>
-      <width>141</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Color</string>
-    </property>
-   </widget>
-  </widget>
  </widget>
  <tabstops>
   <tabstop>qqLinkTypeCombo</tabstop>

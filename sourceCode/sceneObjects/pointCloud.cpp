@@ -516,7 +516,7 @@ void CPointCloud::insertPoints(const double* pts, int ptsCnt, bool ptsAreRelativ
         {
             if (colorsAreIndividual)
             {
-                for (int i = 0; i < 4 * (ptsCnt / 3); i++)
+                for (int i = 0; i < 4 * ptsCnt; i++)
                     _colors.push_back(double(optionalColors4[i]) / 255.1);
             }
             else
