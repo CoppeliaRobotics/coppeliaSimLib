@@ -1197,7 +1197,7 @@ bool getInt32ArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount,
         lua_rawgeti((lua_State*)L, tablePos, int(i + 1));
         if (!lua_isinteger((lua_State*)L, -1))
             retVal = false;        // Not an integer
-        arrayField[i] = int(lua_tointeger((lua_State*)L, -1));
+        arrayField[i] = int(lua_tonumber((lua_State*)L, -1));
         lua_pop((lua_State*)L, 1); // we pop one element from the stack;
     }
     return retVal;
@@ -1211,7 +1211,7 @@ bool getInt64ArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount,
         lua_rawgeti((lua_State*)L, tablePos, int(i + 1));
         if (!lua_isinteger((lua_State*)L, -1))
             retVal = false;        // Not an integer
-        arrayField[i] = lua_tointeger((lua_State*)L, -1);
+        arrayField[i] = int64_t(lua_tonumber((lua_State*)L, -1));
         lua_pop((lua_State*)L, 1); // we pop one element from the stack;
     }
     return retVal;
@@ -1225,7 +1225,7 @@ bool getUInt32ArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount
         lua_rawgeti((lua_State*)L, tablePos, int(i + 1));
         if (!lua_isinteger((lua_State*)L, -1))
             retVal = false;        // Not an integer
-        arrayField[i] = (unsigned int)lua_tointeger((lua_State*)L, -1);
+        arrayField[i] = (unsigned int)lua_tonumber((lua_State*)L, -1);
         lua_pop((lua_State*)L, 1); // we pop one element from the stack;
     }
     return retVal;
@@ -1239,7 +1239,7 @@ bool getUInt8ArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t intCount,
         lua_rawgeti((lua_State*)L, tablePos, int(i + 1));
         if (!lua_isinteger((lua_State*)L, -1))
             retVal = false;        // Not an integer
-        arrayField[i] = (unsigned char)lua_tointeger((lua_State*)L, -1);
+        arrayField[i] = (unsigned char)lua_tonumber((lua_State*)L, -1);
         lua_pop((lua_State*)L, 1); // we pop one element from the stack;
     }
     return retVal;
@@ -1253,7 +1253,7 @@ bool getCharArrayFromTable(luaWrap_lua_State* L, int tablePos, size_t boolCount,
         lua_rawgeti((lua_State*)L, tablePos, int(i + 1));
         if (!lua_isboolean((lua_State*)L, -1))
             retVal = false;        // Not a boolean!!
-        arrayField[i] = (char)lua_toboolean((lua_State*)L, -1);
+        arrayField[i] = (char)lua_tonumber((lua_State*)L, -1);
         lua_pop((lua_State*)L, 1); // we pop one element from the stack;
     }
     return retVal;
