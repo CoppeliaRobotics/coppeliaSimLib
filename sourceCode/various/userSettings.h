@@ -155,9 +155,6 @@ class CUserSettings
     std::string license_pro;
     std::string license;
     std::string licenseEndpoint;
-    bool floatingLicenseEnabled;
-    std::string floatingLicenseServer;
-    int floatingLicensePort;
     bool keepDongleOpen;
 
     std::string mem;

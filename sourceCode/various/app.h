@@ -5,7 +5,6 @@
 #include <sceneContainer.h>
 #include <sigHandler.h>
 #include <simThread.h>
-#include <gm.h>
 #include <instance_id.h>
 #include <QSystemSemaphore>
 #include <obj.h>
@@ -190,7 +189,6 @@ class App
     static CSimThread* simThread;
     static CSceneContainer* scenes;
     static CScene* scene; // actually scenes->scene
-    static CGm* gm;
     static std::vector<void*> callbacks;
     static InstancesList* instancesList;
     static int64_t _pid;

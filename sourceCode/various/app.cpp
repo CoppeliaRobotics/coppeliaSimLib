@@ -62,7 +62,6 @@ std::string App::_consoleMsgsFilename = "debugLog.txt";
 VFile* App::_consoleMsgsFile = nullptr;
 VArchive* App::_consoleMsgsArchive = nullptr;
 SignalHandler* App::_sigHandler = nullptr;
-CGm* App::gm = nullptr;
 std::vector<void*> App::callbacks;
 InstancesList* App::instancesList = nullptr;
 int64_t App::_pid = -1;
@@ -239,7 +238,6 @@ void App::init(const char* appDir, int)
     // -------------------------------------------------
 
     CSimFlavor::run(13);
-    gm = new CGm();
     if (appDir)
         _applicationDir = appDir;
     else
@@ -341,7 +339,6 @@ void App::init(const char* appDir, int)
         cont.writeData("SIMSETTINGS_SIM_CRASHED", "yes", true, false);
     }
 
-    CSimFlavor::run(3);
     if (CSimFlavor::getBoolVal(17))
     {
         CSimFlavor::run(4);
@@ -370,8 +367,6 @@ void App::init(const char* appDir, int)
     cmd.intParams.clear();
     App::appendSimulationThreadCommand(cmd, 2.2);
 #endif
-    if (CSimFlavor::getBoolVal(19))
-        App::postExitRequest();
     scenes->enableEvents();
     pushGenesisEvents();
 }
@@ -383,9 +378,6 @@ void App::cleanup()
 //        std::cout << item << std::endl;
 
     CSimFlavor::run(5);
-
-    delete gm;
-    gm = nullptr;
 
     while (scenes->getSceneCount() > 1)
         scenes->destroyCurrentScene();

@@ -111,6 +111,24 @@ double GuiApp::getEvalDouble(const char* str, bool* ok /*= nullptr*/)
 
 void GuiApp::runGui(int options)
 {
+    for (int i = 0; i < 9; i++)
+    {
+        std::string str(App::getApplicationArgument(i));
+        if ((str.compare(0, 9, "GUIITEMS_") == 0) && (str.length() > 9))
+        {
+            str.erase(str.begin(), str.begin() + 9);
+            int val = 0;
+            if (tt::stringToInt(str.c_str(), val))
+            {
+                options = val;
+                break;
+            }
+        }
+    }
+    operationalUIParts = options;
+    if (operationalUIParts & sim_gui_headless)
+        operationalUIParts = sim_gui_headless;
+
     while (App::getAppStage() != App::appstage_simInit1Done)
         VThread::sleep(1);
 #ifdef USES_QGLWIDGET
@@ -140,25 +158,6 @@ void GuiApp::runGui(int options)
     App::setAppStage(App::appstage_guiInit1Done);
     while (App::getAppStage() != App::appstage_simInit2Done) // wait until SIM thread finished initialization
         VThread::sleep(1);
-
-    //_browserEnabled = true;
-    for (int i = 0; i < 9; i++)
-    {
-        std::string str(App::getApplicationArgument(i));
-        if ((str.compare(0, 9, "GUIITEMS_") == 0) && (str.length() > 9))
-        {
-            str.erase(str.begin(), str.begin() + 9);
-            int val = 0;
-            if (tt::stringToInt(str.c_str(), val))
-            {
-                options = val;
-                break;
-            }
-        }
-    }
-    operationalUIParts = options;
-    if (operationalUIParts & sim_gui_headless)
-        operationalUIParts = sim_gui_headless;
 
     int highResDisplayDefault = App::userSettings->highResDisplay;
     if (highResDisplayDefault == -1)
@@ -331,9 +330,6 @@ void GuiApp::runGui(int options)
         cmdIn.cmdId = CREATE_DEFAULT_MENU_BAR_UITHREADCMD;
         uiThread->executeCommandViaUiThread(&cmdIn, &cmdOut);
     }
-
-    if (CSimFlavor::getBoolVal(20))
-        App::postExitRequest();
 
     qtApp->exec(); // sits here until quit
 

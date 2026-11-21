@@ -155,9 +155,6 @@
 #define _USR_LICENSE_PRO "license_pro"
 #define _USR_LICENSE "license"
 #define _USR_LICENSE_ENDPOINT "licenseEndpoint"
-#define _USR_FLOAT_LICENSE_ENABLED "floatingLicenseEnabled"
-#define _USR_FLOAT_LICENSE_SERVER_ADDRESS "floatingLicenseServer"
-#define _USR_FLOAT_LICENSE_SERVER_PORT "floatingLicensePort"
 #define _USR_KEEP_DONGLE_OPEN "keepDongleOpen"
 
 #define _USR_MEM "mem"
@@ -336,9 +333,6 @@ CUserSettings::CUserSettings()
     license_pro = "";
     license = "";
     licenseEndpoint = "";
-    floatingLicenseEnabled = false;
-    floatingLicenseServer = "127.0.0.1";
-    floatingLicensePort = 20249;
     keepDongleOpen = false;
 
     loadUserSettings();
@@ -707,12 +701,6 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
             c.addString(_USR_LICENSE_ENDPOINT, licenseEndpoint, "");
         if (keepDongleOpen)
             c.addBoolean(_USR_KEEP_DONGLE_OPEN, keepDongleOpen, "");
-        if (floatingLicenseEnabled)
-        {
-            c.addBoolean(_USR_FLOAT_LICENSE_ENABLED, floatingLicenseEnabled, "");
-            c.addString(_USR_FLOAT_LICENSE_SERVER_ADDRESS, floatingLicenseServer, "");
-            c.addInteger(_USR_FLOAT_LICENSE_SERVER_PORT, floatingLicensePort, "");
-        }
 
         if (mem.size() != 0)
         {
@@ -1042,9 +1030,6 @@ void CUserSettings::loadUserSettings()
         license = npLicense;
     c.getString(_USR_LICENSE_ENDPOINT, licenseEndpoint);
     c.getBoolean(_USR_KEEP_DONGLE_OPEN, keepDongleOpen);
-    c.getBoolean(_USR_FLOAT_LICENSE_ENABLED, floatingLicenseEnabled);
-    c.getString(_USR_FLOAT_LICENSE_SERVER_ADDRESS, floatingLicenseServer);
-    c.getInteger(_USR_FLOAT_LICENSE_SERVER_PORT, floatingLicensePort);
 
     // Other section:
     // *****************************

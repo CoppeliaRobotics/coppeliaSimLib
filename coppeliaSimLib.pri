@@ -911,9 +911,8 @@ SOURCES += $$PWD/sourceCode/interfaces/sim.cpp \
     $$PWD/sourceCode/interfaces/methods.cpp \
 
 !IS_PLUS {
-    SOURCES += $$PWD/sourceCode/interfaces/simFlavor.cpp \
-        $$PWD/sourceCode/interfaces/gm.cpp \
-    }
+    SOURCES += $$PWD/sourceCode/interfaces/simFlavor.cpp
+}
 
 SOURCES += $$PWD/sourceCode/interfaces/interfaceStack/interfaceStack.cpp \
     $$PWD/sourceCode/interfaces/interfaceStack/interfaceStackObject.cpp \

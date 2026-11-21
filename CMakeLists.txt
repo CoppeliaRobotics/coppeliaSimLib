@@ -691,7 +691,6 @@ target_sources(coppeliaSim PRIVATE
 if(NOT PLUS)
     target_sources(coppeliaSim PRIVATE
         sourceCode/interfaces/simFlavor.cpp
-        sourceCode/interfaces/gm.cpp
     )
 endif()
 
