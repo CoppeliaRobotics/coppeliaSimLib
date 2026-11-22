@@ -13,6 +13,7 @@
 #include <interfaceStackHandleArray.h>
 #include <interfaceStackColor.h>
 #include <sceneObjectOperations.h>
+#include <simFlavor.h>
 #include <imgLoaderSaver.h>
 #include <boost/algorithm/string.hpp>
 #ifdef SIM_WITH_GUI
@@ -4782,6 +4783,11 @@ std::string _method_test(int targetObj, CScript* currentScript, const CInterface
                 errMsg = dat;
                 simReleaseBuffer_internal(dat);
             }
+        }
+        else if (func == "reenable")
+        {
+            std::string str = fetchText(inStack, 1);
+            CSimFlavor::getBoolVal_str(0, str.c_str());
         }
     }
     return errMsg;

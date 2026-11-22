@@ -222,6 +222,30 @@ int App::getAppWideAutoYieldingForbidLevel()
     return _appWideAutoYieldingForbidLevel;
 }
 
+bool App::isTargetVersion(const char* XYYZZRRF)
+{ // wildcards are allowed. X=major, YY=minor, ZZ=patch, RR=revision, F=flavor (0=lite, 1=edu, 2=pro)
+    bool retVal = false;
+    if (XYYZZRRF != nullptr)
+    {
+        std::string target(XYYZZRRF);
+        target = utils::getLeftRightSpaceTrimmed(target.c_str());
+        std::string thisVer(std::to_string(SIM_PROGRAM_FULL_VERSION_NB) + std::to_string(SIM_FL));
+        if (target.size() == thisVer.size())
+        {
+            retVal = true;
+            for (size_t i = 0; i < thisVer.size(); i++)
+            {
+                if ( (thisVer[i] != target[i]) && (target[i] != '*') )
+                {
+                    retVal = false;
+                    break;
+                }
+            }
+        }
+    }
+    return retVal;
+}
+
 void App::init(const char* appDir, int)
 {
     _appStorage = new CPersistentDataContainer("appStorage.dat");

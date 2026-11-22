@@ -10,11 +10,13 @@ class utils
     static bool isValidUtf8(const char *data, int length);
     static std::string toWellFormedUtf8(const char *data, int length);
 
+    static void replaceEscapedNewLines(std::string& str);
+    static std::string getLeftRightSpaceTrimmed(const char* str);
     static void lightBinaryEncode(char* data, int length);
     static void lightBinaryDecode(char* data, int length);
     static uint16_t getCRC(char* data, int length);
     static uint16_t getCRC(const std::string& data);
-    static std::string getWordFromIndex(const char* str, std::string_view sep, std::size_t index);
+    static std::string getWordFromIndex(const char* str, std::string_view sep, std::size_t index, bool trimSpacesLeftAndRight = false);
     static std::string extractWord(std::string& str, const char* separationWord);
     static bool extractCommaSeparatedWord(std::string& line, std::string& word);
     static bool extractSpaceSeparatedWord(std::string& line, std::string& word);

@@ -109,6 +109,8 @@ class App
     static void setAppStage(int s);
     static void setAppWideAutoYieldingForbidLevel(int l);
     static int getAppWideAutoYieldingForbidLevel();
+    static bool isTargetVersion(const char* XYYZZRRF);
+
 
     static void pushGenesisEvents();
     static void setPluginList(const std::vector<CPlugin*>* plugins);
