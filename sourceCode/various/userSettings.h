@@ -93,7 +93,6 @@ class CUserSettings
     double mouseWheelZoomFactor;
 
     bool doNotWritePersistentData;
-    bool doNotShowUpdateCheckMessage;
     bool doNotShowProgressBars;
     bool suppressStartupDialogs;
     bool suppressXmlOverwriteMsg;

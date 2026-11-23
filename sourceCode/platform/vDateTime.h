@@ -13,6 +13,7 @@ class VDateTime
     static int getTimeDiffInMs(int lastTime);
     static int getTimeDiffInMs(int oldTime, int newTime);
     static uint64_t getSecondsSince1970();
+    static int getDaysSince1970();
     static uint64_t getUnixTimeInMs();
     static void getYearMonthDayHourMinuteSecond(int* year, int* month, int* day, int* hour, int* minute, int* second);
     static int getDaysTo(int year_before, int month_before, int day_before, int year_after, int month_after,

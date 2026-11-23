@@ -10,7 +10,6 @@ class utils
     static bool isValidUtf8(const char *data, int length);
     static std::string toWellFormedUtf8(const char *data, int length);
 
-    static void replaceEscapedNewLines(std::string& str);
     static std::string getLeftRightSpaceTrimmed(const char* str);
     static void lightBinaryEncode(char* data, int length);
     static void lightBinaryDecode(char* data, int length);

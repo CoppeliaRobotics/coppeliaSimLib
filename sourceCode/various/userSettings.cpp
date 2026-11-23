@@ -136,7 +136,6 @@
 #define _USR_MOUSE_WHEEL_ZOOM_FACTOR "mouseWheelZoomFactor"
 
 #define _USR_DO_NOT_WRITE_PERSISTENT_DATA "doNotWritePersistentData"
-#define _USR_DO_NOT_SHOW_UPDATE_CHECK_MESSAGE "doNotShowUpdateCheckMessage"
 #define _USR_DO_NOT_SHOW_PROGRESS_BARS "doNotShowProgressBars"
 #define _USR_SUPPRESS_STARTUP_DIALOG "suppressStartupDialogs"
 #define _USR_SUPPRESS_XML_OVERWRITE_MSG "suppressXmlOverwriteMsg"
@@ -257,7 +256,6 @@ CUserSettings::CUserSettings()
 
     // Messaging section:
     // *****************************
-    doNotShowUpdateCheckMessage = false;
     doNotShowProgressBars = false;
     suppressStartupDialogs = false;
     suppressXmlOverwriteMsg = false;
@@ -615,7 +613,6 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
 
         c.addRandomLine("// Messaging");
         c.addRandomLine("// =================================================");
-        c.addBoolean(_USR_DO_NOT_SHOW_UPDATE_CHECK_MESSAGE, doNotShowUpdateCheckMessage, "");
         c.addBoolean(_USR_DO_NOT_SHOW_PROGRESS_BARS, doNotShowProgressBars, "");
         c.addBoolean(_USR_SUPPRESS_STARTUP_DIALOG, suppressStartupDialogs, "");
         c.addBoolean(_USR_SUPPRESS_XML_OVERWRITE_MSG, suppressXmlOverwriteMsg, "");
@@ -893,7 +890,6 @@ void CUserSettings::loadUserSettings()
 
     // Messaging section:
     // *****************************
-    c.getBoolean(_USR_DO_NOT_SHOW_UPDATE_CHECK_MESSAGE, doNotShowUpdateCheckMessage);
     c.getBoolean(_USR_DO_NOT_SHOW_PROGRESS_BARS, doNotShowProgressBars);
     c.getBoolean(_USR_SUPPRESS_STARTUP_DIALOG, suppressStartupDialogs);
     c.getBoolean(_USR_SUPPRESS_XML_OVERWRITE_MSG, suppressXmlOverwriteMsg);

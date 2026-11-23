@@ -52,6 +52,11 @@ int VDateTime::getTimeDiffInMs(int oldTime, int newTime)
     return (newTime - oldTime);
 }
 
+int VDateTime::getDaysSince1970()
+{
+    return int(getSecondsSince1970() / 86400);
+}
+
 uint64_t VDateTime::getSecondsSince1970()
 {
     QDateTime now = QDateTime::currentDateTime();

@@ -46,24 +46,27 @@ bool CPersistentDataContainer::clearData(const char* dataName, bool toFile)
 
 bool CPersistentDataContainer::writeData(const char* dataName, const std::string& value, bool toFile, bool allowEmptyString)
 {
-    App::systemSemaphore(PERSISTENT_DATA_SEMAPHORE_TAG, true);
-
-    bool diff = _writeData(dataName, value, allowEmptyString);
-    if ((_filename.size() > 0) && toFile)
+    bool diff = false;
+    if (!App::userSettings->doNotWritePersistentData)
     {
-        std::vector<std::string> _dataNamesAux;
-        std::vector<std::string> _dataValuesAux;
-        _readFromFile(_dataNamesAux, _dataValuesAux);
-        _dataNames.swap(_dataNamesAux);
-        _dataValues.swap(_dataValuesAux);
-        _writeData(dataName, value, allowEmptyString);
-        _dataNames.swap(_dataNamesAux);
-        _dataValues.swap(_dataValuesAux);
-        _writeToFile(_dataNamesAux, _dataValuesAux);
+        App::systemSemaphore(PERSISTENT_DATA_SEMAPHORE_TAG, true);
+
+        diff = _writeData(dataName, value, allowEmptyString);
+        if ((_filename.size() > 0) && toFile)
+        {
+            std::vector<std::string> _dataNamesAux;
+            std::vector<std::string> _dataValuesAux;
+            _readFromFile(_dataNamesAux, _dataValuesAux);
+            _dataNames.swap(_dataNamesAux);
+            _dataValues.swap(_dataValuesAux);
+            _writeData(dataName, value, allowEmptyString);
+            _dataNames.swap(_dataNamesAux);
+            _dataValues.swap(_dataValuesAux);
+            _writeToFile(_dataNamesAux, _dataValuesAux);
+        }
+
+        App::systemSemaphore(PERSISTENT_DATA_SEMAPHORE_TAG, false);
     }
-
-    App::systemSemaphore(PERSISTENT_DATA_SEMAPHORE_TAG, false);
-
     return diff;
 }
 
