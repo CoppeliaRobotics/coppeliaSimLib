@@ -75,7 +75,6 @@
 #define _USR_BUGFIX1 "bugFix1"
 #define _USR_READDELAY "readDelay"
 #define _USR_WRITEDELAY "writeDelay"
-#define _USR_USEBUFFERS "useBuffers"
 #define _USR_SCRIPTCONVERSION "scriptConversion"
 #define _USR_NOTIFY_DEPRECATED "notifyDeprecated"
 #define _USR_ENABLE_old_MIRROR_OBJECTS "enableOldMirrorObjects"
@@ -277,7 +276,6 @@ CUserSettings::CUserSettings()
     bugFix1 = 1000;
     readDelay = -500;
     writeDelay = 1000;
-    useBuffers = true;
     scriptConversion = 0;
     notifyDeprecated = 1;
 
@@ -636,7 +634,6 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
         // c.addInteger(_USR_THREADED_SCRIPTS_GRACE_TIME,threadedScriptsStoppingGraceTime,"");
         c.addInteger(_USR_READDELAY, readDelay, "");
         c.addInteger(_USR_WRITEDELAY, writeDelay, "");
-        c.addBoolean(_USR_USEBUFFERS, useBuffers, "");
         c.addInteger(_USR_SCRIPTCONVERSION, scriptConversion, "-1: convert to old scripts, 1: convert to new script objects");
         c.addInteger(_USR_NOTIFY_DEPRECATED, notifyDeprecated, "0: no notification, 1: simple notification, 2: exhaustive notification");
 
@@ -911,7 +908,6 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_BUGFIX1, bugFix1);
     c.getInteger(_USR_READDELAY, readDelay);
     c.getInteger(_USR_WRITEDELAY, writeDelay);
-    c.getBoolean(_USR_USEBUFFERS, useBuffers);
     c.getInteger(_USR_SCRIPTCONVERSION, scriptConversion);
     c.getInteger(_USR_NOTIFY_DEPRECATED, notifyDeprecated);
 

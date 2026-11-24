@@ -3129,7 +3129,7 @@ int _auxFunc(luaWrap_lua_State* L)
         }
         if (cmd.compare("useBuffers") == 0)
         {
-            luaWrap_lua_pushboolean(L, App::userSettings->useBuffers);
+            luaWrap_lua_pushboolean(L, true); // always using buffers
             LUA_END(1);
         }
         //*

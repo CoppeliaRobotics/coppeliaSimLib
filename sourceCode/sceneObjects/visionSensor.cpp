@@ -2314,7 +2314,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
     sensorResult.sensorResultIsValid = true;
     sensorResult.sensorWasTriggered = false;
 
-    if (_computeImageBasicStats && (_renderMode != sim_rendermode_colorcoded))
+    if (_computeImageBasicStats && (_renderMode != sim_rendermode_colorcoded) && (_renderMode != sim_rendermode_opengl3colorcoded))
     {
         double cumulRed = 0.0;
         double cumulGreen = 0.0;
@@ -2412,7 +2412,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
             sensorResult.sensorDataIntensity[i] = 0;
             sensorResult.sensorDataDepth[i] = 0.0;
         }
-        if (_renderMode != sim_rendermode_colorcoded)
+        if ((_renderMode != sim_rendermode_colorcoded) && (_renderMode != sim_rendermode_opengl3colorcoded))
         {
             std::vector<double> defaultResults(0.0, 15);
             sensorAuxiliaryResult.push_back(defaultResults);
