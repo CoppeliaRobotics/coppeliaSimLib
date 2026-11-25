@@ -102,11 +102,15 @@ class CUserSettings
     bool scriptEditorBoldFont;
     int scriptEditorFontSize;
 
+    bool has_languages_python;
     std::string languages_python;
+    bool has_sandbox2Lang;
     std::string sandbox2Lang;
+    bool has_defaultPythonPath;
     std::string defaultPythonPath;
     std::string additionalLuaPath;
     std::string additionalPythonPath;
+    bool has_defaultPython;
     std::string defaultPython;
     bool execUnsafe;
     bool execUnsafeExt;

@@ -297,8 +297,11 @@ CUserSettings::CUserSettings()
     test1 = false;
     macChildDialogType = -1; // default
 
+    has_languages_python = false;
     languages_python = "python;py;#;''';''';pythonWrapper-3";
+    has_sandbox2Lang = false;
     sandbox2Lang = "python";
+    has_defaultPythonPath = false;
     defaultPythonPath = App::getApplicationDir(); // App::folders not yet initialized!
 #ifdef MAC_SIM
     defaultPythonPath += "/../Resources";
@@ -306,6 +309,7 @@ CUserSettings::CUserSettings()
     defaultPythonPath = ad.absolutePath().toStdString();
 #endif
     defaultPythonPath += "/python";
+    has_defaultPython = false;
     defaultPython = "python3";
 #ifdef WIN_SIM
     defaultPython = "py";
@@ -658,12 +662,30 @@ void CUserSettings::saveUserSettings(bool outputMsgs /*=true*/)
         // c.addBoolean(_USR_TEST1,test1,"recommended to keep false.");
         // c.addInteger(_USR_MAC_CHILD_DIALOG_TYPE,macChildDialogType,"-1=default.");
 
-        c.addString(_USR_LANGUAGES_PYTHON, languages_python, "e.g. python;py;#;''';''';pythonWrapper-3");
+        std::string tmp;
+        if (has_languages_python)
+            tmp = languages_python;
+        else
+            tmp.clear();
+        c.addString(_USR_LANGUAGES_PYTHON, tmp, "e.g. python;py;#;''';''';pythonWrapper-3");
+
         c.addString(_USR_ADDITIONAL_LUA_PATH, additionalLuaPath, "e.g. d:/myLuaRoutines");
-        c.addString(_USR_DEFAULPATHS_PYTHON, defaultPythonPath, "e.g. <coppeliaSimAppLocation>/python");
+        if (has_defaultPythonPath)
+            tmp = defaultPythonPath;
+        else
+            tmp.clear();
+        c.addString(_USR_DEFAULPATHS_PYTHON, tmp, "e.g. <coppeliaSimAppLocation>/python");
         c.addString(_USR_ADDITIONAL_PYTHON_PATH, additionalPythonPath, "e.g. d:/myPythonRoutines");
-        c.addString(_USR_DEFAULTINTERPRETERS_PYTHON, defaultPython, "e.g. c:/Python38/python.exe");
-        c.addString(_USR_SANDBOX2_LANG, sandbox2Lang, "e.g. python");
+        if (has_defaultPython)
+            tmp = defaultPython;
+        else
+            tmp.clear();
+        c.addString(_USR_DEFAULTINTERPRETERS_PYTHON, tmp, "e.g. c:/Python38/python.exe");
+        if (has_sandbox2Lang)
+            tmp = sandbox2Lang;
+        else
+            tmp.clear();
+        c.addString(_USR_SANDBOX2_LANG, tmp, "e.g. python");
 
         c.addBoolean(_USR_EXEC_UNSAFE, execUnsafe, "");
         c.addBoolean(_USR_EXEC_UNSAFE_EXT, execUnsafeExt, "same as above, but for code triggered externally. Recommended to keep false.");
@@ -947,7 +969,10 @@ void CUserSettings::loadUserSettings()
 
     std::string stmp;
     if (c.getString(_USR_LANGUAGES_PYTHON, stmp) && (!stmp.empty()))
+    {
+        has_languages_python = true;
         languages_python = stmp;
+    }
     if (!languages_python.empty())
         App::setAppNamedParam((std::string("settings.") + _USR_LANGUAGES_PYTHON).c_str(), languages_python.c_str());
 
@@ -960,7 +985,10 @@ void CUserSettings::loadUserSettings()
         App::setAppNamedParam((std::string("settings.") + _USR_ADDITIONAL_LUA_PATH).c_str(), additionalLuaPath.c_str());
 
     if (c.getString(_USR_DEFAULPATHS_PYTHON, stmp) && (!stmp.empty()))
+    {
+        has_defaultPythonPath = true;
         defaultPythonPath = stmp;
+    }
     if (!defaultPythonPath.empty())
         App::setAppNamedParam((std::string("settings.") + _USR_DEFAULPATHS_PYTHON).c_str(), defaultPythonPath.c_str());
 
@@ -973,7 +1001,10 @@ void CUserSettings::loadUserSettings()
         App::setAppNamedParam((std::string("settings.") + _USR_ADDITIONAL_PYTHON_PATH).c_str(), additionalPythonPath.c_str());
 
     if (c.getString(_USR_DEFAULTINTERPRETERS_PYTHON, stmp) && (!stmp.empty()))
+    {
+        has_defaultPython = true;
         defaultPython = stmp;
+    }
     else
     { // backw. compatibility:
         if (c.getString("defaultPython", stmp) && (!stmp.empty()))
@@ -983,7 +1014,10 @@ void CUserSettings::loadUserSettings()
         App::setAppNamedParam((std::string("settings.") + _USR_DEFAULTINTERPRETERS_PYTHON).c_str(), defaultPython.c_str());
 
     if (c.getString(_USR_SANDBOX2_LANG, stmp) && (!stmp.empty()))
+    {
+        has_sandbox2Lang = true;
         sandbox2Lang = stmp;
+    }
     if (!sandbox2Lang.empty())
         App::setAppNamedParam((std::string("settings.") + _USR_SANDBOX2_LANG).c_str(), sandbox2Lang.c_str());
 
