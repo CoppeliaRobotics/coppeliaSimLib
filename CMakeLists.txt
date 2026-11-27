@@ -9,7 +9,11 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_MACOSX_RPATH 1)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON) # enable LTO
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported)
+if(ipo_supported)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON) # enable LTO
+endif()
 
 set(CMAKE_AUTOUIC_SEARCH_PATHS ui)
 
