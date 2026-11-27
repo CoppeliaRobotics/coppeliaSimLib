@@ -4274,46 +4274,45 @@ std::string _method_alignBoundingBox(int targetObj, CScript* currentScript, cons
 std::string _method_logInfo(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(inStack, &errMsg, {arg_string | arg_optional, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string msg = fetchText(inStack, 0);
-        if (hasNonNullArg(inStack, 0))
+        bool clear = false;
+        int verb = 0;
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            int verb = 0;
-            withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
+            bool val;
+            if (map->fetchBoolFromKey("undecorated", val, &err))
             {
-                bool val;
-                if (map->fetchBoolFromKey("undecorated", val, &err))
-                {
-                    if (val)
-                        verb |= sim_verbosity_undecorated;
-                }
-                if (map->fetchBoolFromKey("onlyTerminal", val, &err))
-                {
-                    if (val)
-                        verb |= sim_verbosity_onlyterminal;
-                }
-                if (map->fetchBoolFromKey("once", val, &err))
-                {
-                    if (val)
-                        verb |= sim_verbosity_once;
-                }
-            });
-            if (currentScript != nullptr)
-            {
-                verb += sim_verbosity_scriptinfos;
-                App::logScriptMsg(currentScript, verb, msg.c_str());
+                if (val)
+                    verb |= sim_verbosity_undecorated;
             }
-            else
+            if (map->fetchBoolFromKey("onlyTerminal", val, &err))
             {
-                verb += sim_verbosity_loadinfos;
-                App::logMsg(verb, msg.c_str());
+                if (val)
+                    verb |= sim_verbosity_onlyterminal;
             }
-        }
+            if (map->fetchBoolFromKey("once", val, &err))
+            {
+                if (val)
+                    verb |= sim_verbosity_once;
+            }
+            map->fetchBoolFromKey("clear", clear, &err);
+        });
 #ifdef SIM_WITH_GUI
-        else
+        if (clear)
             GuiApp::clearStatusbar();
 #endif
+        if (currentScript != nullptr)
+        {
+            verb += sim_verbosity_scriptinfos;
+            App::logScriptMsg(currentScript, verb, msg.c_str());
+        }
+        else
+        {
+            verb += sim_verbosity_loadinfos;
+            App::logMsg(verb, msg.c_str());
+        }
     }
     return errMsg;
 }
@@ -4321,46 +4320,45 @@ std::string _method_logInfo(int targetObj, CScript* currentScript, const CInterf
 std::string _method_logWarn(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(inStack, &errMsg, {arg_string | arg_optional, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string msg = fetchText(inStack, 0);
-        if (hasNonNullArg(inStack, 0))
+        bool clear = false;
+        int verb = 0;
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            int verb = 0;
-            withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
+            bool val;
+            if (map->fetchBoolFromKey("undecorated", val, &err))
             {
-                bool val;
-                if (map->fetchBoolFromKey("undecorated", val, &err))
-                {
-                    if (val)
-                        verb |= sim_verbosity_undecorated;
-                }
-                if (map->fetchBoolFromKey("onlyTerminal", val, &err))
-                {
-                    if (val)
-                        verb |= sim_verbosity_onlyterminal;
-                }
-                if (map->fetchBoolFromKey("once", val, &err))
-                {
-                    if (val)
-                        verb |= sim_verbosity_once;
-                }
-            });
-            if (currentScript != nullptr)
-            {
-                verb += sim_verbosity_scriptwarnings;
-                App::logScriptMsg(currentScript, verb, msg.c_str());
+                if (val)
+                    verb |= sim_verbosity_undecorated;
             }
-            else
+            if (map->fetchBoolFromKey("onlyTerminal", val, &err))
             {
-                verb += sim_verbosity_warnings;
-                App::logMsg(verb, msg.c_str());
+                if (val)
+                    verb |= sim_verbosity_onlyterminal;
             }
-        }
+            if (map->fetchBoolFromKey("once", val, &err))
+            {
+                if (val)
+                    verb |= sim_verbosity_once;
+            }
+            map->fetchBoolFromKey("clear", clear, &err);
+        });
 #ifdef SIM_WITH_GUI
-        else
+        if (clear)
             GuiApp::clearStatusbar();
 #endif
+        if (currentScript != nullptr)
+        {
+            verb += sim_verbosity_scriptwarnings;
+            App::logScriptMsg(currentScript, verb, msg.c_str());
+        }
+        else
+        {
+            verb += sim_verbosity_warnings;
+            App::logMsg(verb, msg.c_str());
+        }
     }
     return errMsg;
 }
@@ -4368,46 +4366,45 @@ std::string _method_logWarn(int targetObj, CScript* currentScript, const CInterf
 std::string _method_logError(int targetObj, CScript* currentScript, const CInterfaceStack* inStack, CInterfaceStack* outStack)
 {
     std::string errMsg;
-    if (checkInputArguments(inStack, &errMsg, {arg_string | arg_optional, arg_map | arg_optional}))
+    if (checkInputArguments(inStack, &errMsg, {arg_string, arg_map | arg_optional}))
     {
         std::string msg = fetchText(inStack, 0);
-        if (hasNonNullArg(inStack, 0))
+        bool clear = false;
+        int verb = 0;
+        withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
         {
-            int verb = 0;
-            withOptionalMap(inStack, 1, errMsg, [&](CInterfaceStackTable* map, std::string& err)
+            bool val;
+            if (map->fetchBoolFromKey("undecorated", val, &err))
             {
-                bool val;
-                if (map->fetchBoolFromKey("undecorated", val, &err))
-                {
-                    if (val)
-                        verb |= sim_verbosity_undecorated;
-                }
-                if (map->fetchBoolFromKey("onlyTerminal", val, &err))
-                {
-                    if (val)
-                        verb |= sim_verbosity_onlyterminal;
-                }
-                if (map->fetchBoolFromKey("once", val, &err))
-                {
-                    if (val)
-                        verb |= sim_verbosity_once;
-                }
-            });
-            if (currentScript != nullptr)
-            {
-                verb += sim_verbosity_scripterrors;
-                App::logScriptMsg(currentScript, verb, msg.c_str());
+                if (val)
+                    verb |= sim_verbosity_undecorated;
             }
-            else
+            if (map->fetchBoolFromKey("onlyTerminal", val, &err))
             {
-                verb += sim_verbosity_errors;
-                App::logMsg(verb, msg.c_str());
+                if (val)
+                    verb |= sim_verbosity_onlyterminal;
             }
-        }
+            if (map->fetchBoolFromKey("once", val, &err))
+            {
+                if (val)
+                    verb |= sim_verbosity_once;
+            }
+            map->fetchBoolFromKey("clear", clear, &err);
+        });
 #ifdef SIM_WITH_GUI
-        else
+        if (clear)
             GuiApp::clearStatusbar();
 #endif
+        if (currentScript != nullptr)
+        {
+            verb += sim_verbosity_scripterrors;
+            App::logScriptMsg(currentScript, verb, msg.c_str());
+        }
+        else
+        {
+            verb += sim_verbosity_errors;
+            App::logMsg(verb, msg.c_str());
+        }
     }
     return errMsg;
 }

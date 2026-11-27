@@ -6295,8 +6295,14 @@ void CScript::_detectDeprecated_old(CScript* nakedScript)
     //    _replaceScriptText_old(nakedScript, "sim.readCustomDataBlock", "sim.readCustomBufferData");
     //    _replaceScriptText_old(nakedScript, "sim.writeCustomDataBlock", "sim.writeCustomBufferData");
 
+    /*
     std::smatch match;
+    std::regex regEx(R"(require\s*\(?\s*(['"])sim-2\1\s*\)?)");
+    if (std::regex_search(_scriptText, match, regEx))
+        App::logMsg(sim_verbosity_errors, "Contains require..sim-2..");
+*/
     std::regex regEx;
+    std::smatch match;
     /*
     if (_containsScriptText_old(nakedScript, "org.conman.cbor"))
     {
